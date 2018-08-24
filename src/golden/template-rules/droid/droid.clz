@@ -6,12 +6,12 @@ class Container.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.Container eval(java.lang.Object cxt, [java.lang.Object args) {
+  static test.golden.Container eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.Container()
     ret.title = args[0]
     return ret
   }
-  void _doFullEval(java.lang.Object cxt) {
+  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     this.title = this._fullOf(cxt, this.title)
     return
   }
@@ -20,7 +20,7 @@ src/golden/template-rules/droid-to/test/golden/MyCard$B1.java
 class MyCard$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/MyCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     b2 = new test.golden.MyCard$B2(cxt,cardArg,this)
@@ -32,7 +32,7 @@ src/golden/template-rules/droid-to/test/golden/MyCard$B2.java
 class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/MyCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "c", this, "_contentExpr")
@@ -41,17 +41,17 @@ class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
     this.setCSS("flasck-editable")
     return
   }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
+  java.lang.Object _contentExpr(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._assignToText(cxt, this.contents_0(cxt))
     return null
   }
-  java.lang.Object contents_0(java.lang.Object _context) {
+  java.lang.Object contents_0(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
         autobox[this._card.getVar(_context, "c")]
         autobox["title"]
       })
   }
-  java.lang.Object editcontainer_1(java.lang.Object _context) {
+  java.lang.Object editcontainer_1(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "c")
   }
 }
@@ -59,7 +59,7 @@ src/golden/template-rules/droid-to/test/golden/MyCard$B3.java
 class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/MyCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "set", this, "_assignToVar")
@@ -70,7 +70,7 @@ class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
     ret.bindVar("_crokey", crokey.id)
     return ret
   }
-  java.lang.Object lvs_2(java.lang.Object _context) {
+  java.lang.Object lvs_2(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "set")
   }
 }
@@ -80,7 +80,7 @@ class MyCard$B4.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/MyCard$B4; _src_q
   Ljava/lang/Object; q
 
-  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
     this._src_q = this
@@ -103,7 +103,7 @@ class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/MyCard; _card
   Ltest/golden/MyCard$B4; _src_q
 
-  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._src_q = ((test.golden.MyCard$B4)parent)._src_q
@@ -113,17 +113,17 @@ class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
     this.setCSS("flasck-editable")
     return
   }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
+  java.lang.Object _contentExpr(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._assignToText(cxt, this.contents_3(cxt))
     return null
   }
-  java.lang.Object contents_3(java.lang.Object _context) {
+  java.lang.Object contents_3(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
         autobox[this._src_q.q]
         autobox["title"]
       })
   }
-  java.lang.Object editcontainer_4(java.lang.Object _context) {
+  java.lang.Object editcontainer_4(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._src_q.q
   }
 }
@@ -137,7 +137,7 @@ class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
   java.lang.Object init(java.lang.Object cx) {
     return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
   }
-  void render(java.lang.Object cxt, java.lang.String into) {
+  void render(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.String into) {
     (void)new test.golden.MyCard$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }

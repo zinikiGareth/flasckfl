@@ -2,7 +2,7 @@ src/golden/card-nests-function/droid-to/test/golden/NestFunction$B1.java
 class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/NestFunction; _card
 
-  void <init>(java.lang.Object cxt, test.golden.NestFunction cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.NestFunction cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("hello")
@@ -10,11 +10,11 @@ class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
     (void)this._setVariableFormats(cxt)
     return
   }
-  java.lang.Object _setVariableFormats(java.lang.Object cxt) {
+  java.lang.Object _setVariableFormats(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._setCSSObj(cxt, this.formats_0(cxt))
     return null
   }
-  java.lang.Object formats_0(java.lang.Object _context) {
+  java.lang.Object formats_0(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v2 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.NestFunction$styleIf.class,2,new java.lang.Object[0] {})
       v0 = org.flasck.jvm.fl.FLClosure.simple(v2, new java.lang.Object[2] {
@@ -34,7 +34,7 @@ class NestFunction$styleIf.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.NestFunction)self).styleIf(cxt, args[0], args[1])
   }
 }
@@ -48,11 +48,11 @@ class NestFunction.java extends org.flasck.jvm.cards.FlasckCard {
   java.lang.Object init(java.lang.Object cx) {
     return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
   }
-  void render(java.lang.Object cxt, java.lang.String into) {
+  void render(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.String into) {
     (void)new test.golden.NestFunction$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object styleIf(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
+  java.lang.Object styleIf(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       if (org.flasck.jvm.fl.FLEval.isTruthy(_context, _1)) {
         return _0

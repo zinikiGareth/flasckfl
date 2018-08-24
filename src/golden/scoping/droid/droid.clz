@@ -10,7 +10,7 @@ class NoArg$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.
 }
 src/golden/scoping/droid-to/test/golden/NoArg$Up.java
 class NoArg$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(java.lang.Object from, java.lang.Object arg0);
+  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object arg0);
 }
 src/golden/scoping/droid-to/test/golden/PACKAGEFUNCTIONS$cna.java
 class PACKAGEFUNCTIONS$cna.java {
@@ -18,7 +18,7 @@ class PACKAGEFUNCTIONS$cna.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.cna(cxt, args[0])
   }
 }
@@ -28,7 +28,7 @@ class PACKAGEFUNCTIONS$f.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.f(cxt, args[0], args[1])
   }
 }
@@ -38,7 +38,7 @@ class PACKAGEFUNCTIONS.java {
     super.<init>()
     return
   }
-  static java.lang.Object cna(java.lang.Object _context, java.lang.Object _0) {
+  static java.lang.Object cna(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -64,7 +64,7 @@ class PACKAGEFUNCTIONS.java {
       return new org.flasck.jvm.fl.FLError("cna: case not handled")
     }
   }
-  static java.lang.Object f(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
+  static java.lang.Object f(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -98,7 +98,7 @@ class PACKAGEFUNCTIONS.java {
 }
 src/golden/scoping/droid-to/test/golden/Reply$Down.java
 class Reply$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object reply(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k);
+  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber k);
 }
 src/golden/scoping/droid-to/test/golden/Reply$Impl.java
 class Reply$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Reply$Down {
@@ -106,7 +106,7 @@ class Reply$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object reply(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k);
+  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber k);
 }
 src/golden/scoping/droid-to/test/golden/Reply$Up.java
 class Reply$Up.java implements org.ziniki.ziwsh.UpContract {
@@ -123,8 +123,8 @@ class Server$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test
 }
 src/golden/scoping/droid-to/test/golden/Server$Up.java
 class Server$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k, test.golden.Reply$Down r);
-  abstract java.lang.Object put(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k);
+  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber k, test.golden.Reply$Down r);
+  abstract java.lang.Object put(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber k);
 }
 src/golden/scoping/droid-to/test/golden/f_0$HandleReply.java
 class f_0$HandleReply.java extends test.golden.Reply$Impl {
@@ -132,21 +132,21 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
   Ljava/lang/Object; var
   Ljava/lang/Object; v
 
-  void <init>(java.lang.Object cxt, java.lang.Object server, java.lang.Object var, java.lang.Object v) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object server, java.lang.Object var, java.lang.Object v) {
     super.<init>()
     this.server = org.flasck.jvm.fl.FLEval.head(cxt, server)
     this.var = org.flasck.jvm.fl.FLEval.head(cxt, var)
     this.v = org.flasck.jvm.fl.FLEval.head(cxt, v)
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     if (args.length<3) {
       return new org.flasck.jvm.fl.FLCurry(null,test.golden.f_0$HandleReply.class,args)
     } else {
       return new test.golden.f_0$HandleReply(cxt,args[0],args[1],args[2])
     }
   }
-  java.lang.Object reply(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -183,7 +183,7 @@ class PACKAGEFUNCTIONS$q.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.f_0.PACKAGEFUNCTIONS.q(cxt, args[0], args[1], args[2])
   }
 }
@@ -193,7 +193,7 @@ class PACKAGEFUNCTIONS$var.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.f_0.PACKAGEFUNCTIONS.var(cxt)
   }
 }
@@ -203,7 +203,7 @@ class PACKAGEFUNCTIONS.java {
     super.<init>()
     return
   }
-  static java.lang.Object q(java.lang.Object _context, java.lang.Object _s0, java.lang.Object _s1, java.lang.Object _s2) {
+  static java.lang.Object q(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _s0, java.lang.Object _s1, java.lang.Object _s2) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(_s0, new java.lang.Object[1] {
           autobox[_s2]
@@ -227,7 +227,7 @@ class PACKAGEFUNCTIONS.java {
         })
     }
   }
-  static java.lang.Object var(java.lang.Object _context) {
+  static java.lang.Object var(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.builtin.FLNumber.fromInt(32)
   }
 }

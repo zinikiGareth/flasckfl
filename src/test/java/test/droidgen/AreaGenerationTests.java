@@ -82,7 +82,7 @@ public class AreaGenerationTests {
 		context.checking(new Expectations() {{
 			final States ahGen = context.states("ahGen").startsAs("none");
 			oneOf(bcc).createMethod(false, J.OBJECT, "_add_handlers"); when(ahGen.is("none")); then (ahGen.is("actions")); will(returnValue(ah));
-			oneOf(ah).argument(J.OBJECT, "cxt");
+			oneOf(ah).argument(J.FLEVALCONTEXT, "cxt");
 			oneOf(ah).boolConst(false);	will(returnValue(bf));
 			oneOf(ah).stringConst("click");	will(returnValue(sc));
 			oneOf(ah).classConst("test.it.MyCard$doEcho"); will(returnValue(cc));

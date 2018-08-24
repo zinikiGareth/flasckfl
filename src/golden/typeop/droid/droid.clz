@@ -15,7 +15,7 @@ class PACKAGEFUNCTIONS$x.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.x(cxt)
   }
 }
@@ -25,7 +25,7 @@ class PACKAGEFUNCTIONS$y.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.y(cxt)
   }
 }
@@ -35,10 +35,10 @@ class PACKAGEFUNCTIONS.java {
     super.<init>()
     return
   }
-  static java.lang.Object x(java.lang.Object _context) {
+  static java.lang.Object x(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.builtin.Number.class
   }
-  static java.lang.Object y(java.lang.Object _context) {
+  static java.lang.Object y(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return test.golden$MyCard.class
   }
 }

@@ -106,7 +106,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		
 		if (!sd.fields.isEmpty()) { // generate an arguments constructor
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
-			gen.argument(J.OBJECT, "cxt");
+			gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar pv = gen.argument("[java.lang.Object", "args");
 			gen.returns(sd.name());
 			MethodDefiner meth = gen.done();
@@ -126,7 +126,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 		
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
-		PendingVar cx = gen.argument(J.OBJECT, "cxt");
+		PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
 		DroidStructFieldInitializer fi = new DroidStructFieldInitializer(dfe, cx.getVar(), fg.fields);
@@ -186,7 +186,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			if (m.dir.equals("down")) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns(J.OBJECT);
-				gm.argument(J.OBJECT, "from");
+				gm.argument(J.FLEVALCONTEXT, "from");
 				int k = 0;
 				for (Object a : m.args) {
 					generateArgument(gm, a, RWMethodDefinition.DOWN, k);
@@ -209,7 +209,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			if (m.dir.equals("up")) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns("java.lang.Object");
-				gm.argument(J.OBJECT, "from");
+				gm.argument(J.FLEVALCONTEXT, "from");
 				int k = 0;
 				for (Object a : m.args) {
 					generateArgument(gm, a, RWMethodDefinition.DOWN, k);
@@ -232,7 +232,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			if (m.dir.equals("down")) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns("java.lang.Object");
-				gm.argument(J.OBJECT, "from");
+				gm.argument(J.FLEVALCONTEXT, "from");
 				int k = 0;
 				for (Object a : m.args) {
 					generateArgument(gm, a, RWMethodDefinition.UP, k);
@@ -397,7 +397,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, name.name.uniqueName(), name.baseName);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cxv = gen.argument(J.OBJECT, "cxt");
+			PendingVar cxv = gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar cardArg = null;
 			if (hi.inCard)
 				cardArg = gen.argument("java.lang.Object", "card");
@@ -423,7 +423,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		{
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar cardArg = null;
-			PendingVar cx = gen.argument(J.OBJECT, "cxt");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			if (hi.inCard)
 				cardArg = gen.argument(J.OBJECT, "card");
 			PendingVar argsArg = gen.argument("[" + J.OBJECT, "args");
@@ -461,7 +461,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.defineField(true, Access.PROTECTED, cardClz, "_card");
 		{
 			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
-			ann.argument(J.OBJECT, "cxt");
+			ann.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar card = ann.argument(J.OBJECT, "card");
 			MethodDefiner ctor = ann.done();
 			ctor.callSuper("void", J.OBJECT, "<init>").flush();
@@ -470,7 +470,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 		{
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "handle");
-			PendingVar cxt = ann.argument(J.OBJECT, "cxt");
+			PendingVar cxt = ann.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
 			ann.returns(JavaType.object_);
 			NewMethodDefiner meth = ann.done();

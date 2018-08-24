@@ -4,7 +4,7 @@ class PACKAGEFUNCTIONS$f.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.f(cxt, args[0])
   }
 }
@@ -14,7 +14,7 @@ class PACKAGEFUNCTIONS.java {
     super.<init>()
     return
   }
-  static java.lang.Object f(java.lang.Object _context, java.lang.Object _0) {
+  static java.lang.Object f(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -41,12 +41,12 @@ class Role.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.Role eval(java.lang.Object cxt, [java.lang.Object args) {
+  static test.golden.Role eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.Role()
     ret.r = args[0]
     return ret
   }
-  void _doFullEval(java.lang.Object cxt) {
+  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     this.r = this._fullOf(cxt, this.r)
     return
   }

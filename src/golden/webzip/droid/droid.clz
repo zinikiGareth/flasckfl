@@ -11,12 +11,12 @@ class Item.java extends org.flasck.jvm.fl.FLASEntity {
     super.<init>(doc)
     return
   }
-  static test.golden.Item eval(java.lang.Object cxt, [java.lang.Object args) {
+  static test.golden.Item eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.Item()
     ret.desc = args[0]
     return ret
   }
-  void _doFullEval(java.lang.Object cxt) {
+  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     this.id = this._fullOf(cxt, this.id)
     this.desc = this._fullOf(cxt, this.desc)
     return
@@ -26,7 +26,7 @@ src/golden/webzip/droid-to/test/golden/Webzip$B1.java
 class Webzip$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Webzip; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     b2 = new test.golden.Webzip$B2(cxt,cardArg,this)
@@ -39,7 +39,7 @@ class Webzip$B10.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Webzip; _card
   Ltest/golden/Webzip$B8; _src_e
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._src_e = ((test.golden.Webzip$B9)parent)._src_e
@@ -48,11 +48,11 @@ class Webzip$B10.java extends org.flasck.jvm.areas.TextArea {
     (void)this._contentExpr(cxt)
     return
   }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
+  java.lang.Object _contentExpr(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._assignToText(cxt, this.contents_2(cxt))
     return null
   }
-  java.lang.Object contents_2(java.lang.Object _context) {
+  java.lang.Object contents_2(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
         autobox[this._src_e.e]
         autobox["desc"]
@@ -63,7 +63,7 @@ src/golden/webzip/droid-to/test/golden/Webzip$B2.java
 class Webzip$B2.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Webzip; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     b3 = new test.golden.Webzip$B3(cxt,cardArg,this)
@@ -76,7 +76,7 @@ src/golden/webzip/droid-to/test/golden/Webzip$B3.java
 class Webzip$B3.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Webzip; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("Dear ")
@@ -87,7 +87,7 @@ src/golden/webzip/droid-to/test/golden/Webzip$B4.java
 class Webzip$B4.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Webzip; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("")
@@ -98,18 +98,18 @@ src/golden/webzip/droid-to/test/golden/Webzip$B5.java
 class Webzip$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Webzip; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "name", this, "_contentExpr")
     (void)this._contentExpr(cxt)
     return
   }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
+  java.lang.Object _contentExpr(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._assignToText(cxt, this.contents_0(cxt))
     return null
   }
-  java.lang.Object contents_0(java.lang.Object _context) {
+  java.lang.Object contents_0(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "name")
   }
 }
@@ -117,7 +117,7 @@ src/golden/webzip/droid-to/test/golden/Webzip$B6.java
 class Webzip$B6.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Webzip; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     b7 = new test.golden.Webzip$B7(cxt,cardArg,this)
@@ -128,7 +128,7 @@ src/golden/webzip/droid-to/test/golden/Webzip$B7.java
 class Webzip$B7.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Webzip; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "list", this, "_assignToVar")
@@ -139,7 +139,7 @@ class Webzip$B7.java extends org.flasck.jvm.areas.ListArea {
     ret.bindVar("_crokey", crokey.id)
     return ret
   }
-  java.lang.Object lvs_1(java.lang.Object _context) {
+  java.lang.Object lvs_1(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "list")
   }
 }
@@ -149,7 +149,7 @@ class Webzip$B8.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Webzip$B8; _src_e
   Ljava/lang/Object; e
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._src_e = this
@@ -172,7 +172,7 @@ class Webzip$B9.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Webzip; _card
   Ltest/golden/Webzip$B8; _src_e
 
-  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._src_e = ((test.golden.Webzip$B8)parent)._src_e
@@ -199,7 +199,7 @@ class Webzip$_C1.java extends org.flasck.Init$Impl {
     this._card = card
     return
   }
-  java.lang.Object onready(java.lang.Object _context) {
+  java.lang.Object onready(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(test.golden.Item.class, new java.lang.Object[1] {
           autobox["do some work"]
@@ -242,7 +242,7 @@ class Webzip$inits_list.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.Webzip)self).inits_list(cxt)
   }
 }
@@ -252,7 +252,7 @@ class Webzip$inits_name.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.Webzip)self).inits_name(cxt)
   }
 }
@@ -291,11 +291,11 @@ v1
 
       })
   }
-  void render(java.lang.Object cxt, java.lang.String into) {
+  void render(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.String into) {
     (void)new test.golden.Webzip$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object inits_list(java.lang.Object _context) {
+  java.lang.Object inits_list(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = new org.flasck.jvm.fl.FLCurry(octor.class,3,new java.lang.Object[2] {
           autobox[org.flasck.jvm.builtin.Croset.class]
@@ -306,7 +306,7 @@ v1
         })
     }
   }
-  java.lang.Object inits_name(java.lang.Object _context) {
+  java.lang.Object inits_name(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return "Mr. Smith"
   }
 }

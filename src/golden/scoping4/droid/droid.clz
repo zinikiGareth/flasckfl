@@ -4,7 +4,7 @@ class Card$ItemHandler$x.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.Card$ItemHandler)self).x(cxt, args[0])
   }
 }
@@ -13,20 +13,20 @@ class Card$ItemHandler.java extends test.golden.KVUpdate$Impl {
   Ltest/golden/Card; _card
   Ljava/lang/Object; ck
 
-  void <init>(java.lang.Object cxt, java.lang.Object card, java.lang.Object ck) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object card, java.lang.Object ck) {
     super.<init>(((test.golden.Card)org.flasck.jvm.fl.FLEval.full(cxt, card)).getDespatcher())
     this._card = ((test.golden.Card)org.flasck.jvm.fl.FLEval.full(cxt, card))
     this.ck = org.flasck.jvm.fl.FLEval.head(cxt, ck)
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object card, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object card, [java.lang.Object args) {
     if (args.length<1) {
       return new org.flasck.jvm.fl.FLCurry(card,test.golden.Card$ItemHandler.class,args)
     } else {
       return new test.golden.Card$ItemHandler(cxt,card,args[0])
     }
   }
-  java.lang.Object update(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object update(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -55,7 +55,7 @@ class Card$ItemHandler.java extends test.golden.KVUpdate$Impl {
       return new org.flasck.jvm.fl.FLError("update: case not handled")
     }
   }
-  java.lang.Object x(java.lang.Object _context, java.lang.Object _s0) {
+  java.lang.Object x(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _s0) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
         autobox[this.ck]
         autobox[_s0]
@@ -99,11 +99,11 @@ class DataStore$Impl.java extends org.flasck.jvm.cards.ContractImpl implements t
 }
 src/golden/scoping4/droid-to/test/golden/DataStore$Up.java
 class DataStore$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object insert(java.lang.Object from, org.flasck.jvm.builtin.FLNumber obj);
+  abstract java.lang.Object insert(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber obj);
 }
 src/golden/scoping4/droid-to/test/golden/KVUpdate$Down.java
 class KVUpdate$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.FLNumber obj);
+  abstract java.lang.Object update(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber obj);
 }
 src/golden/scoping4/droid-to/test/golden/KVUpdate$Impl.java
 class KVUpdate$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KVUpdate$Down {
@@ -111,7 +111,7 @@ class KVUpdate$Impl.java extends org.flasck.jvm.cards.ContractImpl implements te
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.FLNumber obj);
+  abstract java.lang.Object update(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber obj);
 }
 src/golden/scoping4/droid-to/test/golden/KVUpdate$Up.java
 class KVUpdate$Up.java implements org.ziniki.ziwsh.UpContract {

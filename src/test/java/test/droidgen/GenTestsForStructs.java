@@ -122,7 +122,7 @@ public class GenTestsForStructs {
 
 	public void checkCreationOfStructEval(boolean withArg) {
 		context.checking(new Expectations() {{
-			oneOf(ctor).argument(J.OBJECT, "cxt");
+			oneOf(ctor).argument(J.FLEVALCONTEXT, "cxt");
 			oneOf(ctor).nextLocal(); will(returnValue(3));
 			oneOf(ctor).nextLocal(); will(returnValue(4));
 		}});
@@ -148,7 +148,7 @@ public class GenTestsForStructs {
 	public void checkCreationOfStructDFE() {
 		context.checking(new Expectations() {{
 			oneOf(bccStruct).createMethod(false, "void", "_doFullEval"); will(returnValue(dfe));
-			oneOf(dfe).argument(J.OBJECT, "cxt"); will(new ReturnNewVar(dfe, J.OBJECT, "cxt"));
+			oneOf(dfe).argument(J.FLEVALCONTEXT, "cxt"); will(new ReturnNewVar(dfe, J.FLEVALCONTEXT, "cxt"));
 			oneOf(dfe).returnVoid(); will(returnValue(expr));
 		}});
 	}

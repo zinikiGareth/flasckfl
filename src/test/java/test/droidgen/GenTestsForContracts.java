@@ -94,8 +94,8 @@ public class GenTestsForContracts {
 		checkCreationOfServiceIntf();
 		checkDeclOfMethod("fred");
 		context.checking(new Expectations() {{
-			oneOf(hMeth).argument(J.OBJECT, "from");
-			oneOf(iMeth).argument(J.OBJECT, "from");
+			oneOf(hMeth).argument(J.FLEVALCONTEXT, "from");
+			oneOf(iMeth).argument(J.FLEVALCONTEXT, "from");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType));
@@ -110,9 +110,9 @@ public class GenTestsForContracts {
 		checkCreationOfServiceIntf();
 		checkDeclOfMethod("fred");
 		context.checking(new Expectations() {{
-			oneOf(hMeth).argument(J.OBJECT, "from");
+			oneOf(hMeth).argument(J.FLEVALCONTEXT, "from");
 			oneOf(hMeth).argument("java.lang.String", "s");
-			oneOf(iMeth).argument(J.OBJECT, "from");
+			oneOf(iMeth).argument(J.FLEVALCONTEXT, "from");
 			oneOf(iMeth).argument("java.lang.String", "s");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
@@ -128,7 +128,7 @@ public class GenTestsForContracts {
 		checkCreationOfServiceIntf();
 		checkIntfDeclOfMethod("fred");
 		context.checking(new Expectations() {{
-			oneOf(uMeth).argument(J.OBJECT, "from");
+			oneOf(uMeth).argument(J.FLEVALCONTEXT, "from");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType));
@@ -143,7 +143,7 @@ public class GenTestsForContracts {
 		checkCreationOfServiceIntf();
 		checkIntfDeclOfMethod("fred");
 		context.checking(new Expectations() {{
-			oneOf(uMeth).argument(J.OBJECT, "from");
+			oneOf(uMeth).argument(J.FLEVALCONTEXT, "from");
 			oneOf(uMeth).argument(J.OBJECT, "arg0");
 		}});
 
@@ -160,7 +160,7 @@ public class GenTestsForContracts {
 		checkCreationOfServiceIntf();
 		checkIntfDeclOfMethod("callMeBack");
 		context.checking(new Expectations() {{
-			oneOf(uMeth).argument(J.OBJECT, "from");
+			oneOf(uMeth).argument(J.FLEVALCONTEXT, "from");
 			oneOf(uMeth).argument("test.MyHandler$Down", "h");
 		}});
 

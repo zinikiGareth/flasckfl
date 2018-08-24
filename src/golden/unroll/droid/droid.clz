@@ -2,7 +2,7 @@ src/golden/unroll/droid-to/test/golden/Unroll$B1.java
 class Unroll$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Unroll; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     b2 = new test.golden.Unroll$B2(cxt,cardArg,this)
@@ -14,7 +14,7 @@ src/golden/unroll/droid-to/test/golden/Unroll$B2.java
 class Unroll$B2.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Unroll; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "p")
     this._card = cardArg
     (void)this._setAttr_1(cxt)
@@ -22,7 +22,7 @@ class Unroll$B2.java extends org.flasck.jvm.areas.DivArea {
     this.setCSS("styled hello")
     return
   }
-  java.lang.Object teas_0(java.lang.Object _context) {
+  java.lang.Object teas_0(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return "hello"
   }
 }
@@ -30,7 +30,7 @@ src/golden/unroll/droid-to/test/golden/Unroll$B3.java
 class Unroll$B3.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Unroll; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("hello")
@@ -41,7 +41,7 @@ src/golden/unroll/droid-to/test/golden/Unroll$B4.java
 class Unroll$B4.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Unroll; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "p")
     this._card = cardArg
     (void)this._setAttr_1(cxt)
@@ -49,7 +49,7 @@ class Unroll$B4.java extends org.flasck.jvm.areas.DivArea {
     this.setCSS("styled goodbye")
     return
   }
-  java.lang.Object teas_1(java.lang.Object _context) {
+  java.lang.Object teas_1(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return "goodbye"
   }
 }
@@ -57,7 +57,7 @@ src/golden/unroll/droid-to/test/golden/Unroll$B5.java
 class Unroll$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Unroll; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("goodbye")
@@ -74,7 +74,7 @@ class Unroll.java extends org.flasck.jvm.cards.FlasckCard {
   java.lang.Object init(java.lang.Object cx) {
     return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
   }
-  void render(java.lang.Object cxt, java.lang.String into) {
+  void render(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.String into) {
     (void)new test.golden.Unroll$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }

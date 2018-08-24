@@ -80,7 +80,7 @@ public class ClosureGenerationTests {
 			allowing(meth).box(with(any(IExpr.class))); will(returnValue(expr));
 			allowing(meth).nextLocal(); will(returnValue(1));
 		}});
-		cxt = new Var.AVar(meth, "Object", "cxt");
+		cxt = new Var.AVar(meth, J.FLEVALCONTEXT, "cxt");
 		context.checking(new Expectations() {{
 			allowing(genCxt).getMethod(); will(returnValue(meth));
 			allowing(genCxt).getCxtArg(); will(returnValue(cxt));

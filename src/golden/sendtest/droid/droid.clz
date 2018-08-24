@@ -2,7 +2,7 @@ src/golden/sendtest/droid-to/test/golden/ControlledCard$B1.java
 class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/ControlledCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.ControlledCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.ControlledCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("hello")
@@ -11,15 +11,15 @@ class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
     (void)this._add_handlers(cxt)
     return
   }
-  java.lang.Object _setVariableFormats(java.lang.Object cxt) {
+  java.lang.Object _setVariableFormats(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._setCSSObj(cxt, this.formats_0(cxt))
     return null
   }
-  java.lang.Object _add_handlers(java.lang.Object cxt) {
+  java.lang.Object _add_handlers(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super.addEventHandler(false, "click", test.golden.ControlledCard$handlers_1.class)
     return null
   }
-  java.lang.Object formats_0(java.lang.Object _context) {
+  java.lang.Object formats_0(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v2 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.ControlledCard$styleIf.class,2,new java.lang.Object[0] {})
       v0 = org.flasck.jvm.fl.FLClosure.simple(v2, new java.lang.Object[2] {
@@ -42,7 +42,7 @@ class ControlledCard$_C0.java extends test.golden.SetState$Impl {
     this._card = card
     return
   }
-  java.lang.Object setOff(java.lang.Object _context) {
+  java.lang.Object setOff(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
           autobox[this._card]
@@ -55,7 +55,7 @@ class ControlledCard$_C0.java extends test.golden.SetState$Impl {
         })
     }
   }
-  java.lang.Object setOn(java.lang.Object _context) {
+  java.lang.Object setOn(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
           autobox[this._card]
@@ -78,7 +78,7 @@ class ControlledCard$_C1.java extends test.golden.Echo$Impl {
     this._card = card
     return
   }
-  java.lang.Object saySomething(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object saySomething(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -111,7 +111,7 @@ class ControlledCard$echoHello.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.ControlledCard)self).echoHello(cxt, args[0])
   }
 }
@@ -119,17 +119,17 @@ src/golden/sendtest/droid-to/test/golden/ControlledCard$handlers_1.java
 class ControlledCard$handlers_1.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/ControlledCard; _card
 
-  void <init>(java.lang.Object cxt, java.lang.Object card) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.ControlledCard)card)
     return
   }
-  java.lang.Object handle(java.lang.Object cxt, java.lang.Object ev) {
+  java.lang.Object handle(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object ev) {
     return org.flasck.jvm.fl.FLClosure.obj(this._card, this.getHandler(cxt), new java.lang.Object[1] {
 ev
       })
   }
-  java.lang.Object getHandler(java.lang.Object _context) {
+  java.lang.Object getHandler(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return test.golden.ControlledCard$echoHello.class
   }
 }
@@ -139,7 +139,7 @@ class ControlledCard$styleIf.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.ControlledCard)self).styleIf(cxt, args[0], args[1])
   }
 }
@@ -158,11 +158,11 @@ class ControlledCard.java extends org.flasck.jvm.cards.FlasckCard {
   java.lang.Object init(java.lang.Object cx) {
     return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
   }
-  void render(java.lang.Object cxt, java.lang.String into) {
+  void render(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.String into) {
     (void)new test.golden.ControlledCard$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object echoHello(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object echoHello(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox["hello clicked"]
@@ -179,7 +179,7 @@ class ControlledCard.java extends org.flasck.jvm.cards.FlasckCard {
         })
     }
   }
-  java.lang.Object styleIf(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
+  java.lang.Object styleIf(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       if (org.flasck.jvm.fl.FLEval.isTruthy(_context, _1)) {
         return _0
@@ -190,7 +190,7 @@ class ControlledCard.java extends org.flasck.jvm.cards.FlasckCard {
 }
 src/golden/sendtest/droid-to/test/golden/Echo$Down.java
 class Echo$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object saySomething(java.lang.Object from, java.lang.String msg);
+  abstract java.lang.Object saySomething(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String msg);
 }
 src/golden/sendtest/droid-to/test/golden/Echo$Impl.java
 class Echo$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Echo$Down {
@@ -198,16 +198,16 @@ class Echo$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.g
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object saySomething(java.lang.Object from, java.lang.String msg);
+  abstract java.lang.Object saySomething(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String msg);
 }
 src/golden/sendtest/droid-to/test/golden/Echo$Up.java
 class Echo$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object echoIt(java.lang.Object from, java.lang.String msg);
+  abstract java.lang.Object echoIt(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String msg);
 }
 src/golden/sendtest/droid-to/test/golden/SetState$Down.java
 class SetState$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object setOn(java.lang.Object from);
-  abstract java.lang.Object setOff(java.lang.Object from);
+  abstract java.lang.Object setOn(org.ziniki.ziwsh.json.FLEvalContext from);
+  abstract java.lang.Object setOff(org.ziniki.ziwsh.json.FLEvalContext from);
 }
 src/golden/sendtest/droid-to/test/golden/SetState$Impl.java
 class SetState$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.SetState$Down {
@@ -215,8 +215,8 @@ class SetState$Impl.java extends org.flasck.jvm.cards.ContractImpl implements te
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object setOn(java.lang.Object from);
-  abstract java.lang.Object setOff(java.lang.Object from);
+  abstract java.lang.Object setOn(org.ziniki.ziwsh.json.FLEvalContext from);
+  abstract java.lang.Object setOff(org.ziniki.ziwsh.json.FLEvalContext from);
 }
 src/golden/sendtest/droid-to/test/golden/SetState$Up.java
 class SetState$Up.java implements org.ziniki.ziwsh.UpContract {

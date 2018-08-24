@@ -7,7 +7,7 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
     this._card = card
     return
   }
-  java.lang.Object go(java.lang.Object _context) {
+  java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[org.flasck.jvm.builtin.FLNumber.fromInt(42)]
@@ -48,7 +48,7 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
 }
 src/golden/objects/droid-to/test/golden/Ctr$Down.java
 class Ctr$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object go(java.lang.Object from);
+  abstract java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext from);
 }
 src/golden/objects/droid-to/test/golden/Ctr$Impl.java
 class Ctr$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Ctr$Down {
@@ -56,7 +56,7 @@ class Ctr$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.go
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object go(java.lang.Object from);
+  abstract java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext from);
 }
 src/golden/objects/droid-to/test/golden/Ctr$Up.java
 class Ctr$Up.java implements org.ziniki.ziwsh.UpContract {

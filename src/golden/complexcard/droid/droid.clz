@@ -4,7 +4,7 @@ class ClickIt.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  void _doFullEval(java.lang.Object cxt) {
+  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     return
   }
 }
@@ -12,7 +12,7 @@ src/golden/complexcard/droid-to/test/golden/Complex$B1.java
 class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_setAttr_1")
@@ -23,7 +23,7 @@ class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
     b9 = new test.golden.Complex$B9(cxt,cardArg,this)
     return
   }
-  java.lang.Object teas_0(java.lang.Object _context) {
+  java.lang.Object teas_0(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "hello")
   }
 }
@@ -31,7 +31,7 @@ src/golden/complexcard/droid-to/test/golden/Complex$B10.java
 class Complex$B10.java extends org.flasck.jvm.areas.CardSlotArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     return
@@ -41,7 +41,7 @@ src/golden/complexcard/droid-to/test/golden/Complex$B11.java
 class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "yoyo", this, "_yoyoExpr")
@@ -51,7 +51,7 @@ class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
   java.lang.Object _yoyoExpr() {
     return null
   }
-  java.lang.Object yoyos_8(java.lang.Object _context) {
+  java.lang.Object yoyos_8(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "yoyo")
   }
 }
@@ -59,7 +59,7 @@ src/golden/complexcard/droid-to/test/golden/Complex$B2.java
 class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_contentExpr")
@@ -68,18 +68,18 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
     (void)this._setVariableFormats(cxt)
     return
   }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
+  java.lang.Object _contentExpr(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._assignToText(cxt, this.contents_1(cxt))
     return null
   }
-  java.lang.Object _setVariableFormats(java.lang.Object cxt) {
+  java.lang.Object _setVariableFormats(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._setCSSObj(cxt, this.formats_2(cxt))
     return null
   }
-  java.lang.Object contents_1(java.lang.Object _context) {
+  java.lang.Object contents_1(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "hello")
   }
-  java.lang.Object formats_2(java.lang.Object _context) {
+  java.lang.Object formats_2(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
         autobox[this._card.getVar(_context, "format")]
         autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
@@ -90,7 +90,7 @@ src/golden/complexcard/droid-to/test/golden/Complex$B3.java
 class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "list", this, "_assignToVar")
@@ -101,7 +101,7 @@ class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
     ret.bindVar("_crokey", crokey.id)
     return ret
   }
-  java.lang.Object lvs_3(java.lang.Object _context) {
+  java.lang.Object lvs_3(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "list")
   }
 }
@@ -111,7 +111,7 @@ class Complex$B4.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex$B4; _src_lv
   Ljava/lang/Object; lv
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
     this._src_lv = this
@@ -134,7 +134,7 @@ class Complex$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
   Ltest/golden/Complex$B4; _src_lv
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._src_lv = ((test.golden.Complex$B4)parent)._src_lv
@@ -142,11 +142,11 @@ class Complex$B5.java extends org.flasck.jvm.areas.TextArea {
     (void)this._contentExpr(cxt)
     return
   }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
+  java.lang.Object _contentExpr(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super._assignToText(cxt, this.contents_4(cxt))
     return null
   }
-  java.lang.Object contents_4(java.lang.Object _context) {
+  java.lang.Object contents_4(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._src_lv.lv
   }
 }
@@ -154,7 +154,7 @@ src/golden/complexcard/droid-to/test/golden/Complex$B6.java
 class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "list", this, "_assignToVar")
@@ -165,7 +165,7 @@ class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
     ret.bindVar("_crokey", crokey.id)
     return ret
   }
-  java.lang.Object lvs_5(java.lang.Object _context) {
+  java.lang.Object lvs_5(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this._card.getVar(_context, "list")
   }
 }
@@ -173,7 +173,7 @@ src/golden/complexcard/droid-to/test/golden/Complex$B7.java
 class Complex$B7.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
     b8 = new test.golden.Complex$B8(cxt,cardArg,this)
@@ -184,14 +184,14 @@ src/golden/complexcard/droid-to/test/golden/Complex$B8.java
 class Complex$B8.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("hello")
     (void)this._add_handlers(cxt)
     return
   }
-  java.lang.Object _add_handlers(java.lang.Object cxt) {
+  java.lang.Object _add_handlers(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super.addEventHandler(false, "click", test.golden.Complex$handlers_6.class)
     return null
   }
@@ -200,14 +200,14 @@ src/golden/complexcard/droid-to/test/golden/Complex$B9.java
 class Complex$B9.java extends org.flasck.jvm.areas.CasesArea {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_chooseCase")
     (void)this._chooseCase(cxt)
     return
   }
-  java.lang.Object ors_7(java.lang.Object _context) {
+  java.lang.Object ors_7(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$==.class, new java.lang.Object[2] {
         autobox[this._card.getVar(_context, "hello")]
         autobox["hello"]
@@ -219,20 +219,20 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
   Ltest/golden/Complex; _card
   Ljava/lang/Object; k
 
-  void <init>(java.lang.Object cxt, java.lang.Object card, java.lang.Object k) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object card, java.lang.Object k) {
     super.<init>(((test.golden.Complex)org.flasck.jvm.fl.FLEval.full(cxt, card)).getDespatcher())
     this._card = ((test.golden.Complex)org.flasck.jvm.fl.FLEval.full(cxt, card))
     this.k = org.flasck.jvm.fl.FLEval.head(cxt, k)
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object card, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object card, [java.lang.Object args) {
     if (args.length<1) {
       return new org.flasck.jvm.fl.FLCurry(card,test.golden.Complex$FooHandler.class,args)
     } else {
       return new test.golden.Complex$FooHandler(cxt,card,args[0])
     }
   }
-  java.lang.Object reply(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -268,7 +268,7 @@ class Complex$_C0.java extends test.golden.Init$Impl {
     this._card = card
     return
   }
-  java.lang.Object ready(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -325,7 +325,7 @@ class Complex$_S0.java extends test.golden.Offer$Impl {
     this._card = card
     return
   }
-  java.lang.Object get(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
+  java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       _1 = org.flasck.jvm.fl.FLEval.head(_context, _1)
       if (_1 instanceof org.flasck.jvm.fl.FLError) {
@@ -364,17 +364,17 @@ src/golden/complexcard/droid-to/test/golden/Complex$handlers_6.java
 class Complex$handlers_6.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object cxt, java.lang.Object card) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.Complex)card)
     return
   }
-  java.lang.Object handle(java.lang.Object cxt, java.lang.Object ev) {
+  java.lang.Object handle(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object ev) {
     return org.flasck.jvm.fl.FLClosure.obj(this._card, this.getHandler(cxt), new java.lang.Object[1] {
 ev
       })
   }
-  java.lang.Object getHandler(java.lang.Object _context) {
+  java.lang.Object getHandler(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return test.golden.Complex$sayHello.class
   }
 }
@@ -384,7 +384,7 @@ class Complex$inits_format.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.Complex)self).inits_format(cxt)
   }
 }
@@ -394,7 +394,7 @@ class Complex$inits_hello.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.Complex)self).inits_hello(cxt)
   }
 }
@@ -404,7 +404,7 @@ class Complex$sayHello.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.Complex)self).sayHello(cxt, args[0])
   }
 }
@@ -414,7 +414,7 @@ class Complex$styleIf.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.Complex)self).styleIf(cxt, args[0], args[1])
   }
 }
@@ -453,17 +453,17 @@ v1
 
       })
   }
-  void render(java.lang.Object cxt, java.lang.String into) {
+  void render(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.String into) {
     (void)new test.golden.Complex$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object inits_format(java.lang.Object _context) {
+  java.lang.Object inits_format(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return "basic"
   }
-  java.lang.Object inits_hello(java.lang.Object _context) {
+  java.lang.Object inits_hello(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return "hello, world"
   }
-  java.lang.Object sayHello(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object sayHello(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -485,7 +485,7 @@ v1
       return new org.flasck.jvm.fl.FLError("sayHello: case not handled")
     }
   }
-  java.lang.Object styleIf(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
+  java.lang.Object styleIf(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       if (org.flasck.jvm.fl.FLEval.isTruthy(_context, _1)) {
         return _0
@@ -506,11 +506,11 @@ class DataStore$Impl.java extends org.flasck.jvm.cards.ContractImpl implements t
 }
 src/golden/complexcard/droid-to/test/golden/DataStore$Up.java
 class DataStore$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(java.lang.Object from, java.lang.String x, test.golden.Handler$Down h);
+  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String x, test.golden.Handler$Down h);
 }
 src/golden/complexcard/droid-to/test/golden/Handler$Down.java
 class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
+  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String s);
 }
 src/golden/complexcard/droid-to/test/golden/Handler$Impl.java
 class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Handler$Down {
@@ -518,14 +518,14 @@ class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements tes
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
+  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String s);
 }
 src/golden/complexcard/droid-to/test/golden/Handler$Up.java
 class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 src/golden/complexcard/droid-to/test/golden/Init$Down.java
 class Init$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
+  abstract java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object obj);
 }
 src/golden/complexcard/droid-to/test/golden/Init$Impl.java
 class Init$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Init$Down {
@@ -533,7 +533,7 @@ class Init$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.g
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
+  abstract java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object obj);
 }
 src/golden/complexcard/droid-to/test/golden/Init$Up.java
 class Init$Up.java implements org.ziniki.ziwsh.UpContract {
@@ -550,7 +550,7 @@ class Offer$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.
 }
 src/golden/complexcard/droid-to/test/golden/Offer$Up.java
 class Offer$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(java.lang.Object from, java.lang.String x, test.golden.Handler$Down h);
+  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String x, test.golden.Handler$Down h);
 }
 src/golden/complexcard/droid-to/test/golden/Polyed.java
 class Polyed.java extends org.flasck.jvm.fl.FLASObject {
@@ -562,14 +562,14 @@ class Polyed.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.Polyed eval(java.lang.Object cxt, [java.lang.Object args) {
+  static test.golden.Polyed eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.Polyed()
     ret.x = args[0]
     ret.y = args[1]
     ret.z = args[2]
     return ret
   }
-  void _doFullEval(java.lang.Object cxt) {
+  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     this.x = this._fullOf(cxt, this.x)
     this.y = this._fullOf(cxt, this.y)
     this.z = this._fullOf(cxt, this.z)
@@ -595,12 +595,12 @@ class Thing.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.Thing eval(java.lang.Object cxt, [java.lang.Object args) {
+  static test.golden.Thing eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.Thing()
     ret.x = args[0]
     return ret
   }
-  void _doFullEval(java.lang.Object cxt) {
+  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     this.x = this._fullOf(cxt, this.x)
     return
   }
@@ -611,7 +611,7 @@ class WithInit$inits_x.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.WithInit)self).inits_x(cxt)
   }
 }
@@ -624,15 +624,15 @@ class WithInit.java extends org.flasck.jvm.fl.FLASObject {
     this.x = org.flasck.jvm.fl.FLClosure.obj(this, test.golden.WithInit$inits_x.class, new java.lang.Object[0] {})
     return
   }
-  static test.golden.WithInit eval(java.lang.Object cxt, [java.lang.Object args) {
+  static test.golden.WithInit eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.WithInit()
     return ret
   }
-  void _doFullEval(java.lang.Object cxt) {
+  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     this.x = this._fullOf(cxt, this.x)
     return
   }
-  java.lang.Object inits_x(java.lang.Object _context) {
+  java.lang.Object inits_x(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return "hello"
   }
 }

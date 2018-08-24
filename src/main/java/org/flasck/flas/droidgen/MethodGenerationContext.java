@@ -107,7 +107,7 @@ public class MethodGenerationContext implements IMethodGenerationContext {
 
 	private void doMethod(boolean isStatic) {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, isStatic, form.funcName.name);
-		PendingVar cxt = gen.argument(J.OBJECT, "_context");
+		PendingVar cxt = gen.argument(J.FLEVALCONTEXT, "_context");
 		gen.returns("java.lang.Object");
 		int j = 0;
 		for (@SuppressWarnings("unused") ScopedVar s : form.scoped)
@@ -126,7 +126,7 @@ public class MethodGenerationContext implements IMethodGenerationContext {
 		inner.superclass(J.OBJECT);
 		defaultCtor(inner);
 		GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
-		PendingVar cx = g2.argument(J.OBJECT, "cxt");
+		PendingVar cx = g2.argument(J.FLEVALCONTEXT, "cxt");
 		g2.returns(J.OBJECT);
 		PendingVar args = g2.argument("[" + J.OBJECT, "args");
 		MethodDefiner m2 = g2.done();
@@ -146,7 +146,7 @@ public class MethodGenerationContext implements IMethodGenerationContext {
 		inner.superclass(J.OBJECT);
 		defaultCtor(inner);
 		GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
-		PendingVar cx = g2.argument(J.OBJECT, "cxt");
+		PendingVar cx = g2.argument(J.FLEVALCONTEXT, "cxt");
 		g2.returns(J.OBJECT);
 		PendingVar forThis = g2.argument(J.OBJECT,  "self");
 		PendingVar args = g2.argument("[" + J.OBJECT, "args");

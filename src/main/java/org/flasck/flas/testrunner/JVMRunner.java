@@ -33,6 +33,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.DateClientIDProvider;
 import org.ziniki.ziwsh.model.EntityStore;
 import org.ziniki.ziwsh.postbox.ErrorAdmin;
@@ -96,7 +97,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void assertCorrectValue(int exprId) throws Exception {
-		Object cx = null;
+		FLEvalContext cx = null;
 		List<Class<?>> toRun = new ArrayList<>();
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
@@ -154,7 +155,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void send(String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
-		Object cx = null;
+		FLEvalContext cx = null;
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 

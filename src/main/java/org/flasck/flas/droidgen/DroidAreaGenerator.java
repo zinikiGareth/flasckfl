@@ -139,7 +139,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public void contentExpr(FunctionName tfn, boolean rawHTML) {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_contentExpr");
-		PendingVar cv = gen.argument(J.OBJECT, "cxt");
+		PendingVar cv = gen.argument(J.FLEVALCONTEXT, "cxt");
 		gen.returns("java.lang.Object");
 		NewMethodDefiner meth = gen.done();
 		
@@ -156,7 +156,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public EventHandlerGenerator needAddHandlers() {
 		GenericAnnotator ah = GenericAnnotator.newMethod(bcc, false, "_add_handlers");
-		ah.argument(J.OBJECT, "cxt");
+		ah.argument(J.FLEVALCONTEXT, "cxt");
 		ah.returns("java.lang.Object");
 		MethodDefiner ahMeth = ah.done();
 		currentMethod = ahMeth;
@@ -201,7 +201,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public void setVarFormats(FunctionName tfn) {
 		GenericAnnotator svf = GenericAnnotator.newMethod(bcc, false, "_setVariableFormats");
-		PendingVar pv = svf.argument(J.OBJECT, "cxt");
+		PendingVar pv = svf.argument(J.FLEVALCONTEXT, "cxt");
 		svf.returns("java.lang.Object");
 		MethodDefiner meth = svf.done();
 		currentMethod = meth;

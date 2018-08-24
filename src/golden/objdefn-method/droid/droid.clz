@@ -4,7 +4,7 @@ class WithMethod.java extends org.flasck.jvm.objects.FlasckObject {
     super.<init>(cx, state)
     return
   }
-  java.lang.Object highTime(java.lang.Object _context) {
+  java.lang.Object highTime(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
           autobox[this]

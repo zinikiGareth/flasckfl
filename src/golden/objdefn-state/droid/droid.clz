@@ -10,11 +10,11 @@ class Entity.java extends org.flasck.jvm.fl.FLASEntity {
     super.<init>(doc)
     return
   }
-  static test.golden.Entity eval(java.lang.Object cxt, [java.lang.Object args) {
+  static test.golden.Entity eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.Entity()
     return ret
   }
-  void _doFullEval(java.lang.Object cxt) {
+  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     this.id = this._fullOf(cxt, this.id)
     return
   }

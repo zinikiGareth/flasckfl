@@ -4,7 +4,7 @@ class PACKAGEFUNCTIONS$bert.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.bert(cxt)
   }
 }
@@ -14,7 +14,7 @@ class PACKAGEFUNCTIONS$fred.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.fred(cxt, args[0])
   }
 }
@@ -24,7 +24,7 @@ class PACKAGEFUNCTIONS$t1.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.t1(cxt)
   }
 }
@@ -34,7 +34,7 @@ class PACKAGEFUNCTIONS$t2.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.t2(cxt)
   }
 }
@@ -44,22 +44,22 @@ class PACKAGEFUNCTIONS.java {
     super.<init>()
     return
   }
-  static java.lang.Object bert(java.lang.Object _context) {
+  static java.lang.Object bert(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
         autobox[org.flasck.jvm.builtin.FLNumber.fromInt(2)]
         autobox["hello"]
       })
   }
-  static java.lang.Object fred(java.lang.Object _context, java.lang.Object _0) {
+  static java.lang.Object fred(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     return org.flasck.jvm.builtin.FLNumber.fromInt(32)
   }
-  static java.lang.Object t1(java.lang.Object _context) {
+  static java.lang.Object t1(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
         autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
         autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
       })
   }
-  static java.lang.Object t2(java.lang.Object _context) {
+  static java.lang.Object t2(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[org.flasck.jvm.builtin.FLNumber.fromInt(3)]

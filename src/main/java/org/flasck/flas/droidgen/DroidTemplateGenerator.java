@@ -29,7 +29,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 			return;
 		ByteCodeSink bcc = bce.get(tname.uniqueName());
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
-		PendingVar cxt = gen.argument(J.OBJECT, "cxt");
+		PendingVar cxt = gen.argument(J.FLEVALCONTEXT, "cxt");
 		PendingVar into = gen.argument("java.lang.String", "into");
 		gen.returns("void");
 		NewMethodDefiner render = gen.done();
@@ -53,7 +53,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 		IFieldInfo card = bcc.defineField(true, Access.PRIVATE, areaName.cardName.uniqueName(), "_card");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cxt = gen.argument(J.OBJECT, "cxt");
+			PendingVar cxt = gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar cardArg = gen.argument(areaName.cardName.uniqueName(), "cardArg");
 			PendingVar parent = gen.argument(J.AREA, "parent");
 			NewMethodDefiner ctor = gen.done();

@@ -4,7 +4,7 @@ class PACKAGEFUNCTIONS$fold.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.fold(cxt, args[0], args[1], args[2])
   }
 }
@@ -14,7 +14,7 @@ class PACKAGEFUNCTIONS.java {
     super.<init>()
     return
   }
-  static java.lang.Object fold(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1, java.lang.Object _2) {
+  static java.lang.Object fold(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1, java.lang.Object _2) {
     {
       _2 = org.flasck.jvm.fl.FLEval.head(_context, _2)
       if (_2 instanceof org.flasck.jvm.fl.FLError) {

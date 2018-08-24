@@ -2,7 +2,7 @@ src/golden/d3/droid-to/test/golden/TestCard$B1.java
 class TestCard$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     b2 = new test.golden.TestCard$B2(cxt,cardArg,this)
@@ -14,7 +14,7 @@ src/golden/d3/droid-to/test/golden/TestCard$B2.java
 class TestCard$B2.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     b3 = new test.golden.TestCard$B3(cxt,cardArg,this)
@@ -25,14 +25,14 @@ src/golden/d3/droid-to/test/golden/TestCard$B3.java
 class TestCard$B3.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "a")
     this._card = cardArg
     b4 = new test.golden.TestCard$B4(cxt,cardArg,this)
     (void)this._add_handlers(cxt)
     return
   }
-  java.lang.Object _add_handlers(java.lang.Object cxt) {
+  java.lang.Object _add_handlers(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     super.addEventHandler(false, "click", test.golden.TestCard$handlers_0.class)
     return null
   }
@@ -41,7 +41,7 @@ src/golden/d3/droid-to/test/golden/TestCard$B4.java
 class TestCard$B4.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/TestCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("click here")
@@ -52,7 +52,7 @@ src/golden/d3/droid-to/test/golden/TestCard$B5.java
 class TestCard$B5.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     b6 = new test.golden.TestCard$B6(cxt,cardArg,this)
@@ -63,7 +63,7 @@ src/golden/d3/droid-to/test/golden/TestCard$B6.java
 class TestCard$B6.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "svg")
     this._card = cardArg
     (void)this._setAttr_1(cxt)
@@ -71,10 +71,10 @@ class TestCard$B6.java extends org.flasck.jvm.areas.DivArea {
     b7 = new test.golden.TestCard$B7(cxt,cardArg,this)
     return
   }
-  java.lang.Object teas_1(java.lang.Object _context) {
+  java.lang.Object teas_1(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return "400"
   }
-  java.lang.Object teas_2(java.lang.Object _context) {
+  java.lang.Object teas_2(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return "250"
   }
 }
@@ -82,7 +82,7 @@ src/golden/d3/droid-to/test/golden/TestCard$B7.java
 class TestCard$B7.java extends org.flasck.jvm.areas.D3Area {
   Ltest/golden/TestCard; _card
 
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "data", this, "_onUpdate")
@@ -95,7 +95,7 @@ class TestCard$_d3_chart_enter_rect.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._d3_chart_enter_rect(cxt)
   }
 }
@@ -105,7 +105,7 @@ class TestCard$_d3_chart_enter_text.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._d3_chart_enter_text(cxt)
   }
 }
@@ -115,7 +115,7 @@ class TestCard$_d3init_chart.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._d3init_chart(cxt)
   }
 }
@@ -125,7 +125,7 @@ class TestCard$_gen_1.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_1(cxt, args[0])
   }
 }
@@ -135,7 +135,7 @@ class TestCard$_gen_10.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_10(cxt, args[0])
   }
 }
@@ -145,7 +145,7 @@ class TestCard$_gen_11.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_11(cxt, args[0])
   }
 }
@@ -155,7 +155,7 @@ class TestCard$_gen_12.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_12(cxt, args[0])
   }
 }
@@ -165,7 +165,7 @@ class TestCard$_gen_13.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_13(cxt, args[0])
   }
 }
@@ -175,7 +175,7 @@ class TestCard$_gen_14.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_14(cxt, args[0])
   }
 }
@@ -185,7 +185,7 @@ class TestCard$_gen_15.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_15(cxt)
   }
 }
@@ -195,7 +195,7 @@ class TestCard$_gen_2.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_2(cxt, args[0])
   }
 }
@@ -205,7 +205,7 @@ class TestCard$_gen_3.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_3(cxt, args[0])
   }
 }
@@ -215,7 +215,7 @@ class TestCard$_gen_4.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_4(cxt, args[0])
   }
 }
@@ -225,7 +225,7 @@ class TestCard$_gen_5.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_5(cxt, args[0])
   }
 }
@@ -235,7 +235,7 @@ class TestCard$_gen_6.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_6(cxt, args[0])
   }
 }
@@ -245,7 +245,7 @@ class TestCard$_gen_7.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_7(cxt, args[0])
   }
 }
@@ -255,7 +255,7 @@ class TestCard$_gen_8.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_8(cxt, args[0])
   }
 }
@@ -265,7 +265,7 @@ class TestCard$_gen_9.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_9(cxt, args[0])
   }
 }
@@ -273,17 +273,17 @@ src/golden/d3/droid-to/test/golden/TestCard$handlers_0.java
 class TestCard$handlers_0.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/TestCard; _card
 
-  void <init>(java.lang.Object cxt, java.lang.Object card) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.TestCard)card)
     return
   }
-  java.lang.Object handle(java.lang.Object cxt, java.lang.Object ev) {
+  java.lang.Object handle(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object ev) {
     return org.flasck.jvm.fl.FLClosure.obj(this._card, this.getHandler(cxt), new java.lang.Object[1] {
 ev
       })
   }
-  java.lang.Object getHandler(java.lang.Object _context) {
+  java.lang.Object getHandler(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return test.golden.TestCard$rejig.class
   }
 }
@@ -293,7 +293,7 @@ class TestCard$inits_data.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self).inits_data(cxt)
   }
 }
@@ -303,7 +303,7 @@ class TestCard$rejig.java {
     super.<init>()
     return
   }
-  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self).rejig(cxt, args[0])
   }
 }
@@ -327,11 +327,11 @@ v0
 
       })
   }
-  void render(java.lang.Object cxt, java.lang.String into) {
+  void render(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.String into) {
     (void)new test.golden.TestCard$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object _d3_chart_enter_rect(java.lang.Object _context) {
+  java.lang.Object _d3_chart_enter_rect(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox["rect"]
@@ -347,7 +347,7 @@ v0
         })
     }
   }
-  java.lang.Object _d3_chart_enter_text(java.lang.Object _context) {
+  java.lang.Object _d3_chart_enter_text(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox["text"]
@@ -363,7 +363,7 @@ v0
         })
     }
   }
-  java.lang.Object _d3init_chart(java.lang.Object _context) {
+  java.lang.Object _d3init_chart(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["y"]
@@ -518,7 +518,7 @@ v0
         })
     }
   }
-  java.lang.Object _gen_1(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_1(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -530,7 +530,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_1: case not handled")
     }
   }
-  java.lang.Object _gen_10(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_10(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -545,7 +545,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_10: case not handled")
     }
   }
-  java.lang.Object _gen_11(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_11(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -557,7 +557,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_11: case not handled")
     }
   }
-  java.lang.Object _gen_12(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_12(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -569,7 +569,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_12: case not handled")
     }
   }
-  java.lang.Object _gen_13(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_13(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -594,7 +594,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_13: case not handled")
     }
   }
-  java.lang.Object _gen_14(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_14(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -623,10 +623,10 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_14: case not handled")
     }
   }
-  java.lang.Object _gen_15(java.lang.Object _context) {
+  java.lang.Object _gen_15(org.ziniki.ziwsh.json.FLEvalContext _context) {
     return this.getVar(_context, "data")
   }
-  java.lang.Object _gen_2(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_2(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -647,7 +647,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_2: case not handled")
     }
   }
-  java.lang.Object _gen_3(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_3(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -659,7 +659,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_3: case not handled")
     }
   }
-  java.lang.Object _gen_4(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_4(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -680,7 +680,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_4: case not handled")
     }
   }
-  java.lang.Object _gen_5(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_5(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -705,7 +705,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_5: case not handled")
     }
   }
-  java.lang.Object _gen_6(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_6(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -717,7 +717,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_6: case not handled")
     }
   }
-  java.lang.Object _gen_7(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_7(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -729,7 +729,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_7: case not handled")
     }
   }
-  java.lang.Object _gen_8(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_8(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -741,7 +741,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_8: case not handled")
     }
   }
-  java.lang.Object _gen_9(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object _gen_9(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -762,7 +762,7 @@ v0
       return new org.flasck.jvm.fl.FLError("_gen_9: case not handled")
     }
   }
-  java.lang.Object inits_data(java.lang.Object _context) {
+  java.lang.Object inits_data(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[org.flasck.jvm.builtin.FLNumber.fromInt(16)]
@@ -782,7 +782,7 @@ v0
         })
     }
   }
-  java.lang.Object rejig(java.lang.Object _context, java.lang.Object _0) {
+  java.lang.Object rejig(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[org.flasck.jvm.builtin.FLNumber.fromInt(9)]
