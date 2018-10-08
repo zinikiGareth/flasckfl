@@ -5,13 +5,14 @@ import java.io.IOException;
 
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JVMRunner;
+import org.ziniki.cbstore.json.FLConstructorServer;
 
 public class JVMRunnerTests extends BaseRunnerTests {
 	
 	protected void prepareRunner() throws IOException, ErrorResultException {
 		sc.includePrior(prior);
 		sc.createJVM("test.runner.script", prior, testScope);
-		JVMRunner jr = new JVMRunner(prior);
+		JVMRunner jr = new JVMRunner(prior, new FLConstructorServer());
 		jr.considerResource(new File(jvmClasses(), "classes"));
 		jr.prepareScript(sc, testScope);
 		jr.prepareCase();

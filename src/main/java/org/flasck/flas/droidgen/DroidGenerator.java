@@ -82,10 +82,11 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.superclass(base);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cx");
 			NewMethodDefiner ctor = gen.done();
 			IExpr[] args = new IExpr[0];
 			if (sd.ty == StructType.ENTITY)
-				args = new IExpr[] { ctor.as(ctor.aNull(), J.BACKING_DOCUMENT) };
+				args = new IExpr[] { cx.getVar(), ctor.as(ctor.aNull(), J.BACKING_DOCUMENT) };
 			ctor.callSuper("void", base, "<init>", args).flush();
 			for (int i=0;i<sd.fields.size();i++) {
 				RWStructField fld = sd.fields.get(i);
@@ -98,21 +99,22 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 		if (sd.ty == StructType.ENTITY) {
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cx");
 			PendingVar doc = gen.argument(J.BACKING_DOCUMENT, "doc");
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", base, "<init>", doc.getVar()).flush();
+			ctor.callSuper("void", base, "<init>", cx.getVar(), doc.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
 		
 		if (!sd.fields.isEmpty()) { // generate an arguments constructor
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
-			gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar pv = gen.argument("[java.lang.Object", "args");
 			gen.returns(sd.name());
 			MethodDefiner meth = gen.done();
 			Var v = pv.getVar();
 			Var ret = meth.avar(sd.name(), "ret");
-			meth.assign(ret, meth.makeNew(sd.name())).flush();
+			meth.assign(ret, meth.makeNew(sd.name(), cx.getVar())).flush();
 			int ap = 0;
 			for (int i=0;i<sd.fields.size();i++) {
 				RWStructField fld = sd.fields.get(i);

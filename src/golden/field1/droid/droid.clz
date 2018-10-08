@@ -53,12 +53,12 @@ src/golden/field1/droid-to/test/golden/Container.java
 class Container.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; value
 
-  void <init>() {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>()
     return
   }
   static test.golden.Container eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
-    ret = new test.golden.Container()
+    ret = new test.golden.Container(cxt)
     ret.value = args[0]
     return ret
   }

@@ -51,6 +51,7 @@ import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.cbstore.json.FLConstructorServer;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.FileUtils;
@@ -225,7 +226,7 @@ public class FLASCompiler implements ScriptCompiler {
 				// We presumably needs some set of options to say which runners
 				// we want to execute - could be more than one
 				if (unitjvm) {
-					JVMRunner jvmRunner = new JVMRunner(cr);
+					JVMRunner jvmRunner = new JVMRunner(cr, new FLConstructorServer());
 					for (File p : utpaths)
 						jvmRunner.considerResource(p);
 					utr.run(f, jvmRunner);

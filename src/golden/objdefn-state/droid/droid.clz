@@ -2,16 +2,16 @@ src/golden/objdefn-state/droid-to/test/golden/Entity.java
 class Entity.java extends org.flasck.jvm.fl.FLASEntity {
   Ljava/lang/Object; id
 
-  void <init>() {
-    super.<init>(null)
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
+    super.<init>(cx, null)
     return
   }
-  void <init>(org.ziniki.ziwsh.model.BackingDocument doc) {
-    super.<init>(doc)
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.model.BackingDocument doc) {
+    super.<init>(cx, doc)
     return
   }
   static test.golden.Entity eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
-    ret = new test.golden.Entity()
+    ret = new test.golden.Entity(cxt)
     return ret
   }
   void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {

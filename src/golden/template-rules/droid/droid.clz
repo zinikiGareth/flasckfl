@@ -2,12 +2,12 @@ src/golden/template-rules/droid-to/test/golden/Container.java
 class Container.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; title
 
-  void <init>() {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>()
     return
   }
   static test.golden.Container eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
-    ret = new test.golden.Container()
+    ret = new test.golden.Container(cxt)
     ret.title = args[0]
     return ret
   }

@@ -114,7 +114,12 @@ public class GenTestsForStructs {
 
 	public void checkCreationOfStructCtor() {
 		context.checking(new Expectations() {{
+			oneOf(ctor).nextLocal(); will(returnValue(5));
+		}});
+		Var cx = new AVar(ctor, J.FLEVALCONTEXT, "cx");
+		context.checking(new Expectations() {{
 			oneOf(bccStruct).createMethod(false, "void", "<init>"); will(returnValue(ctor));
+			oneOf(ctor).argument(J.FLEVALCONTEXT, "cx"); will(returnValue(cx));
 			oneOf(ctor).callSuper("void", J.FLAS_OBJECT, "<init>"); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
@@ -122,7 +127,11 @@ public class GenTestsForStructs {
 
 	public void checkCreationOfStructEval(boolean withArg) {
 		context.checking(new Expectations() {{
-			oneOf(ctor).argument(J.FLEVALCONTEXT, "cxt");
+			oneOf(ctor).nextLocal(); will(returnValue(5));
+		}});
+		Var cx = new AVar(ctor, J.FLEVALCONTEXT, "cx");
+		context.checking(new Expectations() {{
+			oneOf(ctor).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cx));
 			oneOf(ctor).nextLocal(); will(returnValue(3));
 			oneOf(ctor).nextLocal(); will(returnValue(4));
 		}});
@@ -133,7 +142,7 @@ public class GenTestsForStructs {
 			oneOf(bccStruct).createMethod(true, "Struct", "eval"); will(returnValue(ctor));
 			oneOf(ctor).argument("[java.lang.Object", "args"); will(returnValue(av));
 			oneOf(ctor).avar("Struct", "ret"); will(returnValue(ret));
-			oneOf(ctor).makeNew("Struct"); will(returnValue(expr));
+			oneOf(ctor).makeNew("Struct", cx); will(returnValue(expr));
 			oneOf(ctor).assign(ret, expr);
 			if (withArg) {
 				oneOf(ctor).getField(ret, "f1"); will(returnValue(expr));

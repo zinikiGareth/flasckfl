@@ -16,5 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/UI4J"/>
 	<classpathentry kind="src" path="/jsoup"/>
+	<classpathentry kind="src" path="/cbstore"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

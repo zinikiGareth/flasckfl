@@ -44,18 +44,20 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
 
 public class JVMRunner extends CommonTestRunner implements ServiceProvider {
+	private final FLEvalContext cxt;
 	private final BCEClassLoader loader;
 	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
 	private final JDKFlasckController controller;
 	private Document document;
 
-	public JVMRunner(CompileResult prior) {
+	public JVMRunner(CompileResult prior, FLEvalContext cxt) {
 		super(prior);
+		this.cxt = cxt;
 		loader = new BCEClassLoader(prior.bce);
 		ErrorAdmin errorAdmin = new SyserrErrorAdmin();
 		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
 		EntityStore store = new EntityHoldingStore();
-		controller = new JDKFlasckController(loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
+		controller = new JDKFlasckController(cxt, loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
 	}
 
 	@Override
@@ -97,7 +99,6 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void assertCorrectValue(int exprId) throws Exception {
-		FLEvalContext cx = null;
 		List<Class<?>> toRun = new ArrayList<>();
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
@@ -105,8 +106,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		Map<String, Object> evals = new TreeMap<String, Object>();
 		for (Class<?> clz : toRun) {
 			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
-			Object o = Reflection.callStatic(clz, "eval", new Object[] { cx, new Object[] {} });
-			o = Reflection.callStatic(FLEval.class, "full", cx, o);
+			Object o = Reflection.callStatic(clz, "eval", new Object[] { cxt, new Object[] {} });
+			o = Reflection.callStatic(FLEval.class, "full", cxt, o);
 			evals.put(key, o);
 		}
 		
@@ -155,7 +156,6 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void send(String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
-		FLEvalContext cx = null;
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
@@ -170,8 +170,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			int cnt = 0;
 			for (int i : args) {
 				Class<?> clz = Class.forName(spkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);
-				Object o = Reflection.callStatic(clz, "eval", cx, new Object[] { new Object[] {} });
-				o = Reflection.callStatic(fleval, "full", cx, o);
+				Object o = Reflection.callStatic(clz, "eval", cxt, new Object[] { new Object[] {} });
+				o = Reflection.callStatic(fleval, "full", cxt, o);
 				argVals[cnt++] = o;
 			}
 		}

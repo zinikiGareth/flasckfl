@@ -3,16 +3,16 @@ class Item.java extends org.flasck.jvm.fl.FLASEntity {
   Ljava/lang/Object; id
   Ljava/lang/Object; desc
 
-  void <init>() {
-    super.<init>(null)
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
+    super.<init>(cx, null)
     return
   }
-  void <init>(org.ziniki.ziwsh.model.BackingDocument doc) {
-    super.<init>(doc)
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.model.BackingDocument doc) {
+    super.<init>(cx, doc)
     return
   }
   static test.golden.Item eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
-    ret = new test.golden.Item()
+    ret = new test.golden.Item(cxt)
     ret.desc = args[0]
     return ret
   }

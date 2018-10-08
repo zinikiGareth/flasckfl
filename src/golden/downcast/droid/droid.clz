@@ -37,12 +37,12 @@ src/golden/downcast/droid-to/test/golden/Role.java
 class Role.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; r
 
-  void <init>() {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>()
     return
   }
   static test.golden.Role eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
-    ret = new test.golden.Role()
+    ret = new test.golden.Role(cxt)
     ret.r = args[0]
     return ret
   }

@@ -1,6 +1,6 @@
 src/golden/complexcard/droid-to/test/golden/ClickIt.java
 class ClickIt.java extends org.flasck.jvm.fl.FLASObject {
-  void <init>() {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>()
     return
   }
@@ -558,12 +558,12 @@ class Polyed.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; y
   Ljava/lang/Object; z
 
-  void <init>() {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>()
     return
   }
   static test.golden.Polyed eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
-    ret = new test.golden.Polyed()
+    ret = new test.golden.Polyed(cxt)
     ret.x = args[0]
     ret.y = args[1]
     ret.z = args[2]
@@ -591,12 +591,12 @@ src/golden/complexcard/droid-to/test/golden/Thing.java
 class Thing.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; x
 
-  void <init>() {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>()
     return
   }
   static test.golden.Thing eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
-    ret = new test.golden.Thing()
+    ret = new test.golden.Thing(cxt)
     ret.x = args[0]
     return ret
   }
@@ -619,13 +619,13 @@ src/golden/complexcard/droid-to/test/golden/WithInit.java
 class WithInit.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; x
 
-  void <init>() {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>()
     this.x = org.flasck.jvm.fl.FLClosure.obj(this, test.golden.WithInit$inits_x.class, new java.lang.Object[0] {})
     return
   }
   static test.golden.WithInit eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
-    ret = new test.golden.WithInit()
+    ret = new test.golden.WithInit(cxt)
     return ret
   }
   void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
