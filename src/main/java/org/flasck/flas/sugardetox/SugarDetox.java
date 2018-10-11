@@ -64,6 +64,8 @@ public class SugarDetox {
 	private TemplateLine unroll(ErrorResult er, List<Template> templates, List<D3Thing> d3s, Map<String, Object> subst) {
 		if (templates == null || templates.isEmpty())
 			return null;
+		if (templates.size() == 1 && templates.get(0).content == null)
+			return null;
 		Map<String, Object> map = new TreeMap<String, Object>();
 		Template ret = templates.get(0);
 		for (Template t : templates) {

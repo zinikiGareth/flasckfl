@@ -72,12 +72,12 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	// Compile this to JVM bytecodes using the regular compiler
 	// - should only have access to exported things
 	// - make the generated classes available to the loader
-	public void prepareScript(ScriptCompiler compiler, Scope scope) {
+	public void prepareScript(String scriptPkg, ScriptCompiler compiler, Scope scope) {
 		CompileResult tcr = null;
 		try {
 			try {
-				tcr = compiler.createJVM(spkg, prior, scope);
-				spkg = tcr.getPackage().uniqueName();
+				tcr = compiler.createJVM(scriptPkg, prior, scope);
+				spkg = scriptPkg;
 			} catch (ErrorResultException ex) {
 				ex.errors.showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
@@ -178,6 +178,14 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		card.send(ctrName, methodName, argVals);
 		controller.processPostboxes();
 		assertAllInvocationsCalled();
+	}
+
+	@Override
+	public void event(String cardVar, String methodName) throws Exception {
+		if (!cdefns.containsKey(cardVar))
+			throw new UtilException("there is no card '" + cardVar + "'");
+		FlasckHandle card = cards.get(cardVar);
+		card.event(cxt, cardVar, methodName);
 	}
 
 	@Override

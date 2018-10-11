@@ -5,5 +5,8 @@
 		state
 			Container c
 		
+		template
+			c.value
+			
 		event doit
 			c.value <- "hello"

@@ -31,6 +31,8 @@ public class UnitTestStepConvertor {
 			handleCreate(kw, line, nested);
 		else if (kw.text.equals("send"))
 			handleSend(kw, line, nested);
+		else if (kw.text.equals("event"))
+			handleEvent(kw, line, nested);
 		else if (kw.text.equals("matchElement")) {
 			String selectors = getMatchSelectors(kw, line);
 			String value = getMatchExpectation(kw, nested, false);
@@ -146,6 +148,40 @@ public class UnitTestStepConvertor {
 		if (builder.hasErrors())
 			return;
 		builder.addSend(kw.location, var.text, card.text, method.text, args, expecting);
+	}
+
+
+	private void handleEvent(KeywordToken kw, Tokenizable line, List<Block> nested) {
+		ValidIdentifierToken var = ValidIdentifierToken.from(line);
+		if (var == null) {
+			builder.error(line.realinfo(), "event needs a card var as first argument: '" + line +"'");
+			return;
+		}
+		ValidIdentifierToken method = ValidIdentifierToken.from(line);
+		if (method == null) {
+			builder.error(line.realinfo(), "event needs a method as second argument: '" + line +"'");
+			return;
+		}
+		ArrayList<Object> args = new ArrayList<>();
+		while (line.hasMore()) {
+			Object arg = expr.tryParsing(line);
+			if (arg instanceof ErrorResult)
+				throw new NotImplementedException();
+			else if (arg == null)
+				throw new NotImplementedException();
+			else
+				args.add(arg);
+		}
+		// TODO: we should have one arg, which should be an event
+		// but who is responsible for checking that?
+		List<Expectation> expecting = new ArrayList<Expectation>(); 
+		for (Block b : nested)
+			if (!b.isComment()) {
+				expecting.add(parseExpectation(new Tokenizable(b.line), b.nested));
+			}
+		if (builder.hasErrors())
+			return;
+		builder.addEvent(kw.location, var.text, method.text, args, expecting);
 	}
 
 	private Expectation parseExpectation(Tokenizable line, List<Block> nested) {

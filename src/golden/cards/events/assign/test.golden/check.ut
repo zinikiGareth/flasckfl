@@ -1,0 +1,5 @@
+	test that it is assigned
+		create c Card
+		event c doit "42"
+#		assert c.c.value
+#			"hello"

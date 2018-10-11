@@ -698,16 +698,23 @@ public class Rewriter implements CodeGenRegistry {
 
 	public void rewritePackageScope(CompileResult prior, String inPkg, final Scope scope) {
 		NamingContext rc = new RootContext();
-		if (prior != null)
+		if (prior != null) {
 			rc = new PackageContext(rc, new PackageName(prior.getPackage().uniqueName()), prior.getScope());
+		//	rc = doRewriting(rc, prior.getPackage().uniqueName(), prior.getScope());
+		}
+		doRewriting(rc, inPkg, scope);
+	}
+
+	private PackageContext doRewriting(NamingContext rc, String inPkg, final Scope scope) {
 		PackageContext cx = new PackageContext(rc, new PackageName(inPkg), scope);
 		pass1(cx, scope);
 		if (errors.hasErrors())
-			return;
+			return null;
 		pass2(cx, scope);
 		if (errors.hasErrors())
-			return;
+			return null;
 		pass3(cx, scope);
+		return cx;
 	}
 	
 	// Introduce new Definitions which we might reference with minimal amount of info
@@ -1733,7 +1740,9 @@ public class Rewriter implements CodeGenRegistry {
 				Object ret = cx.resolve(location, s);
 				if (ret == null)
 					ret = cx.resolve(location, s); // debug
-				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat || ret instanceof BooleanLiteral || ret instanceof BuiltinOperation)
+				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar ||
+					ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda ||
+					ret instanceof TemplateListVar || ret instanceof SpecialFormat || ret instanceof BooleanLiteral || ret instanceof BuiltinOperation)
 					return ret;
 				else
 					throw new UtilException("cannot handle id " + s + ": " + (ret == null ? "null": ret.getClass()));
@@ -1785,7 +1794,13 @@ public class Rewriter implements CodeGenRegistry {
 							try {
 								return cx.resolve(uv0.location, uv0.var + "." + fname);
 							} catch (ResolutionException ex2) {
+								// This seems bizarre at best, but it handles the case where we have long package names on import.
+								// But it seems that at the very least, we should try resolving it.
+								// In doing another case, I came across this being passed downstream to people who didn't want it.
+								
+								// TODO: improve this logic
 								return new UnresolvedVar(uv0.location, uv0.var + "." + fname);
+//								throw ex2;
 							}
 						}
 					} 

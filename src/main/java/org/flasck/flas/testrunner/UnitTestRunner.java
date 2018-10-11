@@ -36,7 +36,7 @@ public class UnitTestRunner {
 		TestScript script = convertScript(prior.getScope(), scriptPkg, f);
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
-		runner.prepareScript(compiler, script.scope());
+		runner.prepareScript(scriptPkg, compiler, script.scope());
 		script.runAllTests(new TestCaseRunner() {
 			@Override
 			public void run(SingleTestCase tc) {

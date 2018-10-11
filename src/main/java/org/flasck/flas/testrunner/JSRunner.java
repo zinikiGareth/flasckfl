@@ -99,7 +99,7 @@ public class JSRunner extends CommonTestRunner {
 	}
 	
 	@Override
-	public void prepareScript(ScriptCompiler compiler, Scope scope) {
+	public void prepareScript(String scriptPkg, ScriptCompiler compiler, Scope scope) {
 		CompileResult tcr = null;
 		File scriptDir = null;
 		try {
@@ -237,6 +237,20 @@ public class JSRunner extends CommonTestRunner {
 					args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
 				}
 			card.call("send", args.toArray());
+			choke.set(true);
+		});
+		waitForChoke(choke);
+		processEvents();
+		assertNoErrors();
+		assertAllInvocationsCalled();
+	}
+
+	@Override
+	public void event(String cardVar, String methodName) throws Exception {
+		JSObject card = cards.get(cardVar);
+		AtomicBoolean choke = new AtomicBoolean(false);
+		Platform.runLater(() -> {
+			card.call(methodName);
 			choke.set(true);
 		});
 		waitForChoke(choke);

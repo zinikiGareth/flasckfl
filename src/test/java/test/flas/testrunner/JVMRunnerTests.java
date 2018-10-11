@@ -14,7 +14,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		sc.createJVM("test.runner.script", prior, testScope);
 		JVMRunner jr = new JVMRunner(prior, new FLConstructorServer());
 		jr.considerResource(new File(jvmClasses(), "classes"));
-		jr.prepareScript(sc, testScope);
+		jr.prepareScript("test.runner.script", sc, testScope);
 		jr.prepareCase();
 		runner = jr;
 	}

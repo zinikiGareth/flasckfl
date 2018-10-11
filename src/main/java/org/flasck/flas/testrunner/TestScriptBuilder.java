@@ -11,9 +11,9 @@ public interface TestScriptBuilder {
 	void addCreate(InputPosition at, String bindVar, String cardType);
 	void addMatch(InputPosition posn, HTMLMatcher matcher, String selector);
 	void addSend(InputPosition posn, String card, String contract, String method, List<Object> exprs, List<Expectation> expecting);
+	void addEvent(InputPosition posn, String card, String method, List<Object> exprs, List<Expectation> expecting);
 
 	void addTestCase(String message);
 
 	boolean hasErrors();
-
 }

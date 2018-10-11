@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -68,9 +69,12 @@ public class TestScript implements TestScriptBuilder {
 		if (se == null)
 			throw new UtilException("could not find card " + cardType);
 		Object cd = se.getValue();
-		if (!(cd instanceof CardDefinition))
+		CreateTestStep cs;
+		if (cd instanceof CardDefinition) {
+			final CardName ct = ((CardDefinition) cd).cardName;
+			cs = new CreateTestStep(at, bindVar, ct);
+		} else
 			throw new UtilException(cardType + " was not a card definition");
-		CreateTestStep cs = new CreateTestStep(at, bindVar, ((CardDefinition) cd).cardName);
 		currentSteps.add(cs);
 	}
 	
@@ -106,6 +110,41 @@ public class TestScript implements TestScriptBuilder {
 			expects.add(new Expectation(e.contract, e.method, (List)eargs));
 		}
 		SendStep step = new SendStep(card, contract, method, posns, expects);
+		currentSteps.add(step);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void addEvent(InputPosition posn, String card, String method, List<Object> args, List<Expectation> expecting) {
+		List<Integer> posns = new ArrayList<>();
+		for (Object o : args) {
+			{
+				String key = "arg" + nextStep;
+				FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
+				FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
+				fn.provideCaseName(0);
+				scope.define(key, fn);
+			}
+			posns.add(nextStep);
+			nextStep++;
+		}
+		List<Expectation> expects = new ArrayList<>();
+		for (Expectation e : expecting) {
+			List<Integer> eargs = new ArrayList<>();
+			for (Object o : e.args) {
+				{
+					String key = "earg" + nextStep;
+					FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
+					FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
+					fn.provideCaseName(0);
+					scope.define(key, fn);
+				}
+				eargs.add(nextStep);
+				nextStep++;
+			}
+			expects.add(new Expectation(e.contract, e.method, (List)eargs));
+		}
+		EventStep step = new EventStep(card, method, posns, expects);
 		currentSteps.add(step);
 	}
 
