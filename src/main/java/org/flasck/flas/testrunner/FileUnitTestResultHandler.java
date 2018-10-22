@@ -17,6 +17,9 @@ public class FileUnitTestResultHandler implements UnitTestResultHandler {
 	@Override
 	public void testFailed(String caseName, String runner, Object expected, Object actual) {
 		results.println("FAILED: " + caseName + " (" + runner + ")");
+		if (expected != null) {
+			results.println("  expected: " + expected + " was: " + actual);
+		}
 	}
 
 	@Override

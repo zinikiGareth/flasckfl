@@ -43,17 +43,17 @@ public class UnitTestRunner {
 				try {
 					runner.prepareCase();
 					runCase(runner, tc);
-				} catch (AssertFailed ex) {
-					logger.error("AssertFailed: " + ex.getMessage());
+				} catch (FlasTestException ex) {
+					logger.error("AssertFailed: " + ex.toString());
 					for (UnitTestResultHandler h : handlers)
-						h.testFailed(tc.getDescription(), runner.name(), ex.expected, ex.actual);
+						h.testFailed(tc.getDescription(), runner.name(), ex.getExpected(), ex.getActual());
 				} catch (MultiException ex) {
-					logger.error("Exceptions raised: " + ex.getMessage());
+					logger.error("Exceptions raised: " + ex.toString());
 					for (String s : ex.allErrors())
 						for (UnitTestResultHandler h : handlers)
 							h.testError(tc.getDescription(), runner.name(), s);
 				} catch (Exception ex) {
-					logger.error("Exceptions thrown: " + ex.getMessage());
+					logger.error("Exceptions thrown: " + ex.toString());
 					for (UnitTestResultHandler h : handlers)
 						h.testError(tc.getDescription(), runner.name(), ex);
 				}

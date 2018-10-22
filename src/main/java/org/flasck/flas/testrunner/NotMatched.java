@@ -1,7 +1,7 @@
 package org.flasck.flas.testrunner;
 
 @SuppressWarnings("serial")
-public class NotMatched extends Exception {
+public class NotMatched extends FlasTestException {
 	private final String selector;
 	private final String failure;
 	private final String expected;
@@ -21,8 +21,16 @@ public class NotMatched extends Exception {
 		this.failure = null;
 	}
 
+	public String getExpected() {
+		return expected;
+	}
+
+	public String getActual() {
+		return actual;
+	}
+
 	@Override
-	public String toString() {
+	public String getMessage() {
 		if (failure != null)
 			return "Matcher failed on '" + selector + "': " + failure;
 		else
