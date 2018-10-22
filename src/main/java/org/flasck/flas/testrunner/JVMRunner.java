@@ -185,7 +185,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 		FlasckHandle card = cards.get(cardVar);
-		card.event(cxt, cardVar, methodName);
+		card.event(controller.createContext(), cardVar, methodName);
 	}
 
 	@Override

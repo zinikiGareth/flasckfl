@@ -30,7 +30,7 @@ public class FileUnitTestResultHandler implements UnitTestResultHandler {
 
 	@Override
 	public void testError(String caseName, String runner, String s) {
-		results.println("ERROR:  " + caseName);
+		results.println("ERROR:  " + caseName + " (" + runner + ")");
 		results.println("  " + s);
 	}
 }

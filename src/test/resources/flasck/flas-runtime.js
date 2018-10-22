@@ -1350,7 +1350,7 @@ FlasckWrapper.prototype.processOne = function(msg, todo) {
 			}
 		}
 		if (!target._special) {
-			return new FLError("Target for send is not 'special'" + msg.target);
+			return new FLError("Target for send is not 'special': " + msg.target);
 		}
 		var meth = msg.method;
 		if (target._special === 'contract') {

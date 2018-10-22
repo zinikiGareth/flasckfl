@@ -78,7 +78,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.generateAssociatedSourceFile();
 		DroidStructFieldGenerator fg = new DroidStructFieldGenerator(bcc, Access.PUBLIC);
 		sd.visitFields(fg);
-		String base = sd.ty == StructType.STRUCT?J.FLAS_OBJECT:J.FLAS_ENTITY; 
+		String base = sd.ty == StructType.STRUCT?J.FLAS_STRUCT:J.FLAS_ENTITY; 
 		bcc.superclass(base);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
@@ -127,13 +127,40 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			meth.returnObject(ret).flush();
 		}
 		
-		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
-		PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
-		gen.returns("void");
-		NewMethodDefiner dfe = gen.done();
-		DroidStructFieldInitializer fi = new DroidStructFieldInitializer(dfe, cx.getVar(), fg.fields);
-		sd.visitFields(fi);
-		dfe.returnVoid().flush();
+		{
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			gen.returns("void");
+			NewMethodDefiner dfe = gen.done();
+			DroidStructFieldInitializer fi = new DroidStructFieldInitializer(dfe, cx.getVar(), fg.fields);
+			sd.visitFields(fi);
+			dfe.returnVoid().flush();
+		}
+		
+		{
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "toWire");
+			gen.argument(J.WIREENCODER, "wire");
+			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
+			gen.returns(J.OBJECT);
+			NewMethodDefiner meth = gen.done();
+			Var cx = pcx.getVar();
+			Var ret = meth.avar(J.JOBJ, "ret");
+			meth.assign(ret, meth.callInterface(J.JOBJ, cx, "jo")).flush();
+			meth.voidExpr(meth.callInterface(J.JOBJ, ret, "put", meth.stringConst("_struct"), meth.as(meth.stringConst(sd.name()), J.OBJECT))).flush();
+			meth.returnObject(ret).flush();
+		}
+		
+		{
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "fromWire");
+			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
+			gen.argument(J.JOBJ, "jo");
+			gen.returns(sd.name());
+			NewMethodDefiner meth = gen.done();
+			Var cx = pcx.getVar();
+			Var ret = meth.avar(J.OBJECT, "ret");
+			meth.assign(ret, meth.makeNew(sd.name(), meth.as(cx, J.FLEVALCONTEXT))).flush();
+			meth.returnObject(ret).flush();
+		}
 	}
 
 	@Override

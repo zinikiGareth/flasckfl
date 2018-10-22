@@ -1,5 +1,5 @@
 	test that it is assigned
-		create c Card
-		event c doit "42"
-#		assert c.c.value
-#			"hello"
+		create tester Card
+		event tester doit "42"
+		matchContents div>span
+			"hello"

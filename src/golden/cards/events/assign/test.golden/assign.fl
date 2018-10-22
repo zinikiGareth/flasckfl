@@ -3,7 +3,7 @@
 		
 	card Card
 		state
-			Container c
+			Container c <- Container ""
 		
 		template
 			c.value

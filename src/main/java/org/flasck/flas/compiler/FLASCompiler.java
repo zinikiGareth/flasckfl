@@ -226,7 +226,7 @@ public class FLASCompiler implements ScriptCompiler {
 				// We presumably needs some set of options to say which runners
 				// we want to execute - could be more than one
 				if (unitjvm) {
-					JVMRunner jvmRunner = new JVMRunner(cr, new FLConstructorServer());
+					JVMRunner jvmRunner = new JVMRunner(cr, new FLConstructorServer(cr.bce.getClassLoader()));
 					for (File p : utpaths)
 						jvmRunner.considerResource(p);
 					utr.run(f, jvmRunner);
