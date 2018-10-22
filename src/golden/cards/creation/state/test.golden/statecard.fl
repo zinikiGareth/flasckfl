@@ -1,0 +1,6 @@
+	card StateCard
+		state
+			String msg <- "hello"
+		
+		template
+			msg
