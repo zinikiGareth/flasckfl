@@ -14,12 +14,12 @@ Method public <init> (Ltest/runner/TestCard;)V
     000D: return
   }
 3 Line Number Entries
-Line 83: 0
-Line 84: 8
-Line 85: 13
+Line 84: 0
+Line 85: 8
+Line 86: 13
 Ltest/runner/TestCard$_C0; this (var #0 from 0 to 14)
 Ltest/runner/TestCard; card (var #1 from 0 to 14)
-Method public setOn (Ljava/lang/Object;)Ljava/lang/Object;
+Method public setOn (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 2 maxLocals = 2 codeLen = 10
   {
     0000: getstatic FClass[java/lang/System].out{Ljava/io/PrintStream;}
@@ -29,11 +29,11 @@ Method public setOn (Ljava/lang/Object;)Ljava/lang/Object;
     0009: areturn
   }
 2 Line Number Entries
-Line 89: 0
-Line 90: 8
+Line 90: 0
+Line 91: 8
 Ltest/runner/TestCard$_C0; this (var #0 from 0 to 10)
-Ljava/lang/Object; cx (var #1 from 0 to 10)
-Method public setOff (Ljava/lang/Object;)Ljava/lang/Object;
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 10)
+Method public setOff (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 2 maxLocals = 2 codeLen = 10
   {
     0000: getstatic FClass[java/lang/System].out{Ljava/io/PrintStream;}
@@ -43,10 +43,10 @@ Method public setOff (Ljava/lang/Object;)Ljava/lang/Object;
     0009: areturn
   }
 2 Line Number Entries
-Line 95: 0
-Line 96: 8
+Line 96: 0
+Line 97: 8
 Ltest/runner/TestCard$_C0; this (var #0 from 0 to 10)
-Ljava/lang/Object; cx (var #1 from 0 to 10)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 10)
 [Class SourceFile]: TestCard.java
 2 inner classes
 Ref abstract public static Class[test/runner/SetState$Impl] <= Class[test/runner/SetState].Impl

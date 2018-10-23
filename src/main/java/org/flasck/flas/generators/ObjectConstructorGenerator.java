@@ -20,7 +20,7 @@ public class ObjectConstructorGenerator<T> implements CodeGenerator<T> {
 		// create eval method in object class directly
 		ByteCodeSink bcc = cxt.getSink();
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
-		PendingVar cx = gen.argument(J.OBJECT, "cx");
+		PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cx");
 		PendingVar args = gen.argument("[" + J.OBJECT, "args");
 		gen.returns(J.OBJECT);
 		MethodDefiner meth = gen.done();

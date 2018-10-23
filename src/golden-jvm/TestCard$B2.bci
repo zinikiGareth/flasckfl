@@ -1,7 +1,7 @@
 class test/runner/TestCard$B2
   extends org/flasck/jvm/areas/TextArea
 Field final private Ltest/runner/TestCard; _card
-Method public <init> (Ljava/lang/Object;Ltest/runner/TestCard;Lorg/flasck/jvm/areas/Area;)V
+Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ltest/runner/TestCard;Lorg/flasck/jvm/areas/Area;)V
   maxStack = 5 maxLocals = 4 codeLen = 49
   {
     0000: aload_0
@@ -25,44 +25,44 @@ Method public <init> (Ljava/lang/Object;Ltest/runner/TestCard;Lorg/flasck/jvm/ar
     0021: invokevirtual MClass[org/flasck/jvm/cards/Wrapper].onAssign (Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/IArea;Ljava/lang/String;)V
     0024: aload_0
     0025: aload_1
-    0026: invokevirtual MClass[test/runner/TestCard$B2]._setVariableFormats (Ljava/lang/Object;)Ljava/lang/Object;
+    0026: invokevirtual MClass[test/runner/TestCard$B2]._setVariableFormats (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
     0029: pop
     002A: aload_0
     002B: aload_1
-    002C: invokevirtual MClass[test/runner/TestCard$B2]._add_handlers (Ljava/lang/Object;)Ljava/lang/Object;
+    002C: invokevirtual MClass[test/runner/TestCard$B2]._add_handlers (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
     002F: pop
     0030: return
   }
 7 Line Number Entries
-Line 173: 0
-Line 174: 6
-Line 175: 11
-Line 176: 17
-Line 177: 36
-Line 178: 42
-Line 179: 48
+Line 174: 0
+Line 175: 6
+Line 176: 11
+Line 177: 17
+Line 178: 36
+Line 179: 42
+Line 180: 48
 Ltest/runner/TestCard$B2; this (var #0 from 0 to 49)
-Ljava/lang/Object; cx (var #1 from 0 to 49)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 49)
 Ltest/runner/TestCard; card (var #2 from 0 to 49)
 Lorg/flasck/jvm/areas/Area; parent (var #3 from 0 to 49)
-Method public _setVariableFormats (Ljava/lang/Object;)Ljava/lang/Object;
+Method public _setVariableFormats (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 4 maxLocals = 2 codeLen = 12
   {
     0000: aload_0
     0001: aload_1
     0002: aload_0
     0003: aload_1
-    0004: invokevirtual MClass[test/runner/TestCard$B2].formats_0 (Ljava/lang/Object;)Ljava/lang/Object;
-    0007: invokespecial MClass[org/flasck/jvm/areas/TextArea]._setCSSObj (Ljava/lang/Object;Ljava/lang/Object;)V
+    0004: invokevirtual MClass[test/runner/TestCard$B2].formats_0 (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
+    0007: invokespecial MClass[org/flasck/jvm/areas/TextArea]._setCSSObj (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
     000A: aconst_null
     000B: areturn
   }
 2 Line Number Entries
-Line 182: 0
-Line 183: 10
+Line 183: 0
+Line 184: 10
 Ltest/runner/TestCard$B2; this (var #0 from 0 to 12)
-Ljava/lang/Object; cx (var #1 from 0 to 12)
-Method public _add_handlers (Ljava/lang/Object;)Ljava/lang/Object;
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 12)
+Method public _add_handlers (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 4 maxLocals = 2 codeLen = 11
   {
     0000: aload_0
@@ -74,11 +74,11 @@ Method public _add_handlers (Ljava/lang/Object;)Ljava/lang/Object;
     000A: areturn
   }
 2 Line Number Entries
-Line 187: 0
-Line 188: 9
+Line 188: 0
+Line 189: 9
 Ltest/runner/TestCard$B2; this (var #0 from 0 to 11)
-Ljava/lang/Object; cx (var #1 from 0 to 11)
-Method public formats_0 (Ljava/lang/Object;)Ljava/lang/Object;
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 11)
+Method public formats_0 (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 7 maxLocals = 3 codeLen = 53
   {
     0000: ldc Class[test/runner/PACKAGEFUNCTIONS$styleIf]
@@ -94,7 +94,7 @@ Method public formats_0 (Ljava/lang/Object;)Ljava/lang/Object;
     000E: getfield FClass[test/runner/TestCard$B2]._card{Ltest/runner/TestCard;}
     0011: aload_1
     0012: ldc "sayHello"
-    0014: invokevirtual MClass[test/runner/TestCard].getVar (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+    0014: invokevirtual MClass[test/runner/TestCard].getVar (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/String;)Ljava/lang/Object;
     0017: aastore
     0018: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     001B: astore_2
@@ -110,16 +110,16 @@ Method public formats_0 (Ljava/lang/Object;)Ljava/lang/Object;
     0028: aload_1
     0029: iconst_0
     002A: anewarray Class[java/lang/Object]
-    002D: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    002D: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
     0030: aastore
     0031: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     0034: areturn
   }
 2 Line Number Entries
-Line 192: 0
-Line 193: 28
+Line 193: 0
+Line 194: 28
 Ltest/runner/TestCard$B2; this (var #0 from 0 to 53)
-Ljava/lang/Object; cx (var #1 from 0 to 53)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 53)
 Lorg/flasck/jvm/fl/FLClosure; clos1 (var #2 from 28 to 53)
 [Class SourceFile]: TestCard.java
 3 inner classes

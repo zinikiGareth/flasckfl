@@ -8,21 +8,21 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 20: 0
+Line 21: 0
 Ltest/runner/PACKAGEFUNCTIONS$id; this (var #0 from 0 to 5)
-Method public static eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 3 maxLocals = 2 codeLen = 8
   {
     0000: aload_0
     0001: aload_1
     0002: iconst_0
     0003: aaload
-    0004: invokestatic MClass[test/runner/PACKAGEFUNCTIONS].id (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    0004: invokestatic MClass[test/runner/PACKAGEFUNCTIONS].id (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
     0007: areturn
   }
 1 Line Number Entries
-Line 22: 0
-Ljava/lang/Object; cxt (var #0 from 0 to 8)
+Line 23: 0
+Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #0 from 0 to 8)
 [Ljava/lang/Object; args (var #1 from 0 to 8)
 [Class SourceFile]: PACKAGEFUNCTIONS.java
 1 inner classes

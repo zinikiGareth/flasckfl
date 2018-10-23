@@ -7,7 +7,7 @@
 		down missing
 
 	entity Account
-		String name <- "hello"
+		String name
 	
 	object Tracker
 		state

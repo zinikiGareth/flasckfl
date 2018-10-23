@@ -98,7 +98,14 @@ public class ApplyCurry {
 					repl.push(pb.location, pb.bval, null);
 					repl.push(c1.location, c1.fn, null);
 					repl.push(c2.location, new StringLiteral(c2.location, "_ctor_" + c2.sval.text), null);
-					h.replaceClosure(c, new CurryClosure(repl, nargs+2, true));
+					// Note: there was previously a "gratuitous" +2 after nargs
+					// As far as I can tell, it was simply incorrect, so I removed it.
+					// If it wasn't, you can put it back but you'll need to fix the GoldenJVM test
+					if (nargs > c.nestedCommands().size()-3) {
+						h.replaceClosure(c, new CurryClosure(repl, nargs, true));
+					} else {
+						h.replaceClosure(c, repl);
+					}
 					continue;
 				} else
 					throw new RuntimeException("Unhandled builtin case");

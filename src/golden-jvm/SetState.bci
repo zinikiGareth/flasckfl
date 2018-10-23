@@ -8,7 +8,7 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 6: 0
+Line 7: 0
 Ltest/runner/SetState; this (var #0 from 0 to 5)
 [Class SourceFile]: SetState.java
 3 inner classes

@@ -1,21 +1,21 @@
 class test/runner/Tracker
   extends org/flasck/jvm/objects/FlasckObject
-Method private <init> (Ljava/lang/Object;Ljava/lang/Object;)V
+Method private <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
   maxStack = 3 maxLocals = 3 codeLen = 7
   {
     0000: aload_0
     0001: aload_1
     0002: aload_2
-    0003: invokespecial MClass[org/flasck/jvm/objects/FlasckObject].<init> (Ljava/lang/Object;Ljava/lang/Object;)V
+    0003: invokespecial MClass[org/flasck/jvm/objects/FlasckObject].<init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
     0006: return
   }
 2 Line Number Entries
-Line 16: 0
-Line 17: 6
+Line 17: 0
+Line 18: 6
 Ltest/runner/Tracker; this (var #0 from 0 to 7)
-Ljava/lang/Object; cx (var #1 from 0 to 7)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 7)
 Ljava/lang/Object; obj (var #2 from 0 to 7)
-Method public static _ctor_simple (Ljava/lang/Object;)Ljava/lang/Object;
+Method public static _ctor_simple (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 6 maxLocals = 2 codeLen = 51
   {
     0000: ldc Class[org/flasck/jvm/builtin/Assoc]
@@ -30,14 +30,14 @@ Method public static _ctor_simple (Ljava/lang/Object;)Ljava/lang/Object;
     000D: aload_0
     000E: iconst_0
     000F: anewarray Class[java/lang/Object]
-    0012: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    0012: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
     0015: aastore
     0016: dup
     0017: iconst_2
     0018: aload_0
     0019: iconst_0
     001A: anewarray Class[java/lang/Object]
-    001D: invokestatic MClass[org/flasck/jvm/builtin/NilMap].eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    001D: invokestatic MClass[org/flasck/jvm/builtin/NilMap].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
     0020: aastore
     0021: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     0024: astore_1
@@ -52,16 +52,16 @@ Method public static _ctor_simple (Ljava/lang/Object;)Ljava/lang/Object;
     0032: areturn
   }
 2 Line Number Entries
-Line 20: 0
-Line 21: 37
-Ljava/lang/Object; cx (var #0 from 0 to 51)
+Line 21: 0
+Line 22: 37
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #0 from 0 to 51)
 Lorg/flasck/jvm/fl/FLClosure; v0 (var #1 from 37 to 51)
-Method public push (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+Method public push (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 7 maxLocals = 5 codeLen = 106
   {
     0000: aload_1
     0001: aload_2
-    0002: invokestatic MClass[org/flasck/jvm/fl/FLEval].head (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    0002: invokestatic MClass[org/flasck/jvm/fl/FLEval].head (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
     0005: astore_2
     0006: aload_2
     0007: instanceof Class[org/flasck/jvm/fl/FLError]
@@ -83,7 +83,7 @@ Method public push (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
     0022: aload_0
     0023: aload_1
     0024: ldc "cnt"
-    0026: invokevirtual MClass[test/runner/Tracker].getVar (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+    0026: invokevirtual MClass[test/runner/Tracker].getVar (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/String;)Ljava/lang/Object;
     0029: aastore
     002A: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     002D: astore_3
@@ -116,7 +116,7 @@ Method public push (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
     0053: aload_1
     0054: iconst_0
     0055: anewarray Class[java/lang/Object]
-    0058: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    0058: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
     005B: aastore
     005C: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     005F: areturn
@@ -127,23 +127,23 @@ Method public push (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
     0069: areturn
   }
 8 Line Number Entries
-Line 31: 0
-Line 32: 6
-Line 33: 13
-Line 34: 15
-Line 35: 22
-Line 36: 46
-Line 37: 70
-Line 39: 96
+Line 32: 0
+Line 33: 6
+Line 34: 13
+Line 35: 15
+Line 36: 22
+Line 37: 46
+Line 38: 70
+Line 40: 96
 Ltest/runner/Tracker; this (var #0 from 0 to 106)
-Ljava/lang/Object; cx (var #1 from 0 to 106)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 106)
 Ljava/lang/Object; n (var #2 from 0 to 106)
 Ljava/lang/Object; v1 (var #3 from 46 to 96)
 Ljava/lang/Object; v2 (var #4 from 70 to 96)
 2 stack map entries
   same_frame; offset = 0F
   same_frame_extended; offset = 50
-Method public static eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 5 maxLocals = 2 codeLen = 12
   {
     0000: new Class[test/runner/Tracker]
@@ -152,12 +152,12 @@ Method public static eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Obje
     0005: aload_1
     0006: iconst_0
     0007: aaload
-    0008: invokespecial MClass[test/runner/Tracker].<init> (Ljava/lang/Object;Ljava/lang/Object;)V
+    0008: invokespecial MClass[test/runner/Tracker].<init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
     000B: areturn
   }
 1 Line Number Entries
-Line 43: 0
-Ljava/lang/Object; cx (var #0 from 0 to 12)
+Line 44: 0
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #0 from 0 to 12)
 [Ljava/lang/Object; args (var #1 from 0 to 12)
 [Class SourceFile]: Tracker.java
 1 inner classes

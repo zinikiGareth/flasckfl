@@ -8,9 +8,9 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 262: 0
+Line 263: 0
 Ltest/runner/TestCard$echoMessage; this (var #0 from 0 to 5)
-Method public static eval (Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 5 maxLocals = 3 codeLen = 15
   {
     0000: aload_1
@@ -22,12 +22,12 @@ Method public static eval (Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Objec
     0008: aload_2
     0009: iconst_1
     000A: aaload
-    000B: invokevirtual MClass[test/runner/TestCard].echoMessage (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    000B: invokevirtual MClass[test/runner/TestCard].echoMessage (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
     000E: areturn
   }
 1 Line Number Entries
-Line 264: 0
-Ljava/lang/Object; cx (var #0 from 0 to 15)
+Line 265: 0
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #0 from 0 to 15)
 Ljava/lang/Object; me (var #1 from 0 to 15)
 [Ljava/lang/Object; args (var #2 from 0 to 15)
 [Class SourceFile]: TestCard.java

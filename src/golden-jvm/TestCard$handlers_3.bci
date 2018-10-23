@@ -2,7 +2,7 @@ class test/runner/TestCard$handlers_3
   extends java/lang/Object
   implements org/flasck/jvm/display/EventHandler
 Field final protected Ltest/runner/TestCard; _card
-Method public <init> (Ljava/lang/Object;Ljava/lang/Object;)V
+Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
   maxStack = 2 maxLocals = 3 codeLen = 13
   {
     0000: aload_0
@@ -14,20 +14,20 @@ Method public <init> (Ljava/lang/Object;Ljava/lang/Object;)V
     000C: return
   }
 3 Line Number Entries
-Line 249: 0
-Line 250: 4
-Line 251: 12
+Line 250: 0
+Line 251: 4
+Line 252: 12
 Ltest/runner/TestCard$handlers_3; this (var #0 from 0 to 13)
-Ljava/lang/Object; cx (var #1 from 0 to 13)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 13)
 Ljava/lang/Object; card (var #2 from 0 to 13)
-Method public handle (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+Method public handle (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 6 maxLocals = 3 codeLen = 21
   {
     0000: aload_0
     0001: getfield FClass[test/runner/TestCard$handlers_3]._card{Ltest/runner/TestCard;}
     0004: aload_0
     0005: aload_1
-    0006: invokevirtual MClass[test/runner/TestCard$handlers_3].getHandler (Ljava/lang/Object;)Ljava/lang/Object;
+    0006: invokevirtual MClass[test/runner/TestCard$handlers_3].getHandler (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
     0009: iconst_1
     000A: anewarray Class[java/lang/Object]
     000D: dup
@@ -38,11 +38,11 @@ Method public handle (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
     0014: areturn
   }
 1 Line Number Entries
-Line 254: 0
+Line 255: 0
 Ltest/runner/TestCard$handlers_3; this (var #0 from 0 to 21)
-Ljava/lang/Object; cx (var #1 from 0 to 21)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 21)
 Ljava/lang/Object; ev (var #2 from 0 to 21)
-Method public getHandler (Ljava/lang/Object;)Ljava/lang/Object;
+Method public getHandler (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 9 maxLocals = 2 codeLen = 24
   {
     0000: new Class[org/flasck/jvm/fl/FLCurry]
@@ -61,9 +61,9 @@ Method public getHandler (Ljava/lang/Object;)Ljava/lang/Object;
     0017: areturn
   }
 1 Line Number Entries
-Line 258: 0
+Line 259: 0
 Ltest/runner/TestCard$handlers_3; this (var #0 from 0 to 24)
-Ljava/lang/Object; cx (var #1 from 0 to 24)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 24)
 [Class SourceFile]: TestCard.java
 2 inner classes
 Ref public static Class[test/runner/TestCard$echoMessage] <= Class[test/runner/TestCard].echoMessage

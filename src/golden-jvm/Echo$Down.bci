@@ -9,7 +9,7 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 9: 0
+Line 10: 0
 Ltest/runner/Echo$Down; this (var #0 from 0 to 5)
 [Class SourceFile]: Echo.java
 1 inner classes

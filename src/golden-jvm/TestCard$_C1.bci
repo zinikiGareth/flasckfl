@@ -14,17 +14,17 @@ Method public <init> (Ltest/runner/TestCard;)V
     000D: return
   }
 3 Line Number Entries
-Line 104: 0
-Line 105: 8
-Line 106: 13
+Line 105: 0
+Line 106: 8
+Line 107: 13
 Ltest/runner/TestCard$_C1; this (var #0 from 0 to 14)
 Ltest/runner/TestCard; card (var #1 from 0 to 14)
-Method public saySomething (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 6 maxLocals = 5 codeLen = 113
   {
     0000: aload_1
     0001: aload_2
-    0002: invokestatic MClass[org/flasck/jvm/fl/FLEval].head (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    0002: invokestatic MClass[org/flasck/jvm/fl/FLEval].head (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
     0005: astore_2
     0006: aload_2
     0007: instanceof Class[org/flasck/jvm/fl/FLError]
@@ -46,7 +46,7 @@ Method public saySomething (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Obje
     0022: aload_1
     0023: iconst_0
     0024: anewarray Class[java/lang/Object]
-    0027: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    0027: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
     002A: aastore
     002B: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     002E: astore_3
@@ -81,7 +81,7 @@ Method public saySomething (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Obje
     005A: aload_1
     005B: iconst_0
     005C: anewarray Class[java/lang/Object]
-    005F: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    005F: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
     0062: aastore
     0063: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     0066: areturn
@@ -92,16 +92,16 @@ Method public saySomething (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Obje
     0070: areturn
   }
 8 Line Number Entries
-Line 110: 0
-Line 111: 6
-Line 112: 13
-Line 113: 15
-Line 114: 22
-Line 115: 47
-Line 116: 77
-Line 118: 103
+Line 111: 0
+Line 112: 6
+Line 113: 13
+Line 114: 15
+Line 115: 22
+Line 116: 47
+Line 117: 77
+Line 119: 103
 Ltest/runner/TestCard$_C1; this (var #0 from 0 to 113)
-Ljava/lang/Object; cx (var #1 from 0 to 113)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 113)
 Ljava/lang/Object; what (var #2 from 0 to 113)
 Lorg/flasck/jvm/fl/FLClosure; clos1 (var #3 from 47 to 103)
 Lorg/flasck/jvm/fl/FLClosure; clos2 (var #4 from 77 to 103)

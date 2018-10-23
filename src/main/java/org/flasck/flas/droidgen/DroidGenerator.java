@@ -173,7 +173,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.superclass(base); // Do we need something special for a FLASObjectObject?
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cx = gen.argument(J.OBJECT, "cx");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cx");
 			PendingVar state = gen.argument(J.OBJECT, "state");
 			NewMethodDefiner ctor = gen.done();
 			ctor.setAccess(Access.PRIVATE);
@@ -324,10 +324,10 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		// generate the "init" method with a context
 		{
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "init");
-			PendingVar cx = gen.argument(J.OBJECT, "cx");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cx");
 			gen.returns(J.OBJECT);
 			NewMethodDefiner init = gen.done();
-			IExpr ret = init.callStatic(J.NIL, J.OBJECT, "eval", init.castTo(cx.getVar(), J.FLEVALCONTEXT), init.arrayOf(J.OBJECT, new ArrayList<>()));
+			IExpr ret = init.callStatic(J.NIL, J.OBJECT, "eval", cx.getVar(), init.arrayOf(J.OBJECT, new ArrayList<>()));
 			for (int i=0;i<grp.struct.fields.size();i++) {
 				RWStructField fld = grp.struct.fields.get(i);
 				if (fld.name.equals("id") || fld.init == null)

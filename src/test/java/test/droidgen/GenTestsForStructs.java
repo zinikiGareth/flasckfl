@@ -108,7 +108,7 @@ public class GenTestsForStructs {
 	public void checkCreationOfStruct() {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("Struct"); will(returnValue(bccStruct));
-			oneOf(bccStruct).superclass(J.FLAS_OBJECT);
+			oneOf(bccStruct).superclass(J.FLAS_STRUCT);
 		}});
 	}
 
@@ -120,7 +120,7 @@ public class GenTestsForStructs {
 		context.checking(new Expectations() {{
 			oneOf(bccStruct).createMethod(false, "void", "<init>"); will(returnValue(ctor));
 			oneOf(ctor).argument(J.FLEVALCONTEXT, "cx"); will(returnValue(cx));
-			oneOf(ctor).callSuper("void", J.FLAS_OBJECT, "<init>"); will(returnValue(expr));
+			oneOf(ctor).callSuper("void", J.FLAS_STRUCT, "<init>"); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
 	}

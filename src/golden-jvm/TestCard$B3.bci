@@ -1,7 +1,7 @@
 class test/runner/TestCard$B3
   extends org/flasck/jvm/areas/TextArea
 Field final private Ltest/runner/TestCard; _card
-Method public <init> (Ljava/lang/Object;Ltest/runner/TestCard;Lorg/flasck/jvm/areas/Area;)V
+Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ltest/runner/TestCard;Lorg/flasck/jvm/areas/Area;)V
   maxStack = 5 maxLocals = 4 codeLen = 68
   {
     0000: aload_0
@@ -27,51 +27,51 @@ Method public <init> (Ljava/lang/Object;Ltest/runner/TestCard;Lorg/flasck/jvm/ar
     0026: getfield FClass[test/runner/TestCard$B3]._card{Ltest/runner/TestCard;}
     0029: aload_1
     002A: ldc "acct"
-    002C: invokevirtual MClass[test/runner/TestCard].getVar (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
-    002F: ldc "id"
+    002C: invokevirtual MClass[test/runner/TestCard].getVar (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/String;)Ljava/lang/Object;
+    002F: ldc "name"
     0031: aload_0
     0032: ldc "_contentExpr"
     0034: invokevirtual MClass[org/flasck/jvm/cards/Wrapper].onAssign (Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/IArea;Ljava/lang/String;)V
     0037: aload_0
     0038: aload_1
-    0039: invokevirtual MClass[test/runner/TestCard$B3]._contentExpr (Ljava/lang/Object;)Ljava/lang/Object;
+    0039: invokevirtual MClass[test/runner/TestCard$B3]._contentExpr (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
     003C: pop
     003D: aload_0
     003E: aload_1
-    003F: invokevirtual MClass[test/runner/TestCard$B3]._add_handlers (Ljava/lang/Object;)Ljava/lang/Object;
+    003F: invokevirtual MClass[test/runner/TestCard$B3]._add_handlers (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
     0042: pop
     0043: return
   }
 7 Line Number Entries
-Line 201: 0
-Line 202: 6
-Line 203: 11
-Line 204: 30
-Line 205: 55
-Line 206: 61
-Line 207: 67
+Line 202: 0
+Line 203: 6
+Line 204: 11
+Line 205: 30
+Line 206: 55
+Line 207: 61
+Line 208: 67
 Ltest/runner/TestCard$B3; this (var #0 from 0 to 68)
-Ljava/lang/Object; cx (var #1 from 0 to 68)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 68)
 Ltest/runner/TestCard; card (var #2 from 0 to 68)
 Lorg/flasck/jvm/areas/Area; parent (var #3 from 0 to 68)
-Method public _contentExpr (Ljava/lang/Object;)Ljava/lang/Object;
+Method public _contentExpr (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 4 maxLocals = 2 codeLen = 12
   {
     0000: aload_0
     0001: aload_1
     0002: aload_0
     0003: aload_1
-    0004: invokevirtual MClass[test/runner/TestCard$B3].contents_2 (Ljava/lang/Object;)Ljava/lang/Object;
-    0007: invokespecial MClass[org/flasck/jvm/areas/TextArea]._assignToText (Ljava/lang/Object;Ljava/lang/Object;)V
+    0004: invokevirtual MClass[test/runner/TestCard$B3].contents_2 (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
+    0007: invokespecial MClass[org/flasck/jvm/areas/TextArea]._assignToText (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
     000A: aconst_null
     000B: areturn
   }
 2 Line Number Entries
-Line 210: 0
-Line 211: 10
+Line 211: 0
+Line 212: 10
 Ltest/runner/TestCard$B3; this (var #0 from 0 to 12)
-Ljava/lang/Object; cx (var #1 from 0 to 12)
-Method public contents_2 (Ljava/lang/Object;)Ljava/lang/Object;
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 12)
+Method public contents_2 (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 7 maxLocals = 2 codeLen = 28
   {
     0000: ldc Class[org/flasck/jvm/fl/FLEval$Field]
@@ -83,20 +83,20 @@ Method public contents_2 (Ljava/lang/Object;)Ljava/lang/Object;
     0009: getfield FClass[test/runner/TestCard$B3]._card{Ltest/runner/TestCard;}
     000C: aload_1
     000D: ldc "acct"
-    000F: invokevirtual MClass[test/runner/TestCard].getVar (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+    000F: invokevirtual MClass[test/runner/TestCard].getVar (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/String;)Ljava/lang/Object;
     0012: aastore
     0013: dup
     0014: iconst_1
-    0015: ldc "id"
+    0015: ldc "name"
     0017: aastore
     0018: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     001B: areturn
   }
 1 Line Number Entries
-Line 215: 0
+Line 216: 0
 Ltest/runner/TestCard$B3; this (var #0 from 0 to 28)
-Ljava/lang/Object; cx (var #1 from 0 to 28)
-Method public _add_handlers (Ljava/lang/Object;)Ljava/lang/Object;
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 28)
+Method public _add_handlers (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
   maxStack = 4 maxLocals = 2 codeLen = 11
   {
     0000: aload_0
@@ -108,10 +108,10 @@ Method public _add_handlers (Ljava/lang/Object;)Ljava/lang/Object;
     000A: areturn
   }
 2 Line Number Entries
-Line 219: 0
-Line 220: 9
+Line 220: 0
+Line 221: 9
 Ltest/runner/TestCard$B3; this (var #0 from 0 to 11)
-Ljava/lang/Object; cx (var #1 from 0 to 11)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 11)
 [Class SourceFile]: TestCard.java
 3 inner classes
 Ref public static Class[org/flasck/jvm/fl/FLEval$Field] <= Class[org/flasck/jvm/fl/FLEval].Field

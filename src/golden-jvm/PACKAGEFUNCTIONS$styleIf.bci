@@ -8,9 +8,9 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 13: 0
+Line 14: 0
 Ltest/runner/PACKAGEFUNCTIONS$styleIf; this (var #0 from 0 to 5)
-Method public static eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 4 maxLocals = 2 codeLen = 11
   {
     0000: aload_0
@@ -20,12 +20,12 @@ Method public static eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Obje
     0004: aload_1
     0005: iconst_1
     0006: aaload
-    0007: invokestatic MClass[test/runner/PACKAGEFUNCTIONS].styleIf (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    0007: invokestatic MClass[test/runner/PACKAGEFUNCTIONS].styleIf (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
     000A: areturn
   }
 1 Line Number Entries
-Line 15: 0
-Ljava/lang/Object; cxt (var #0 from 0 to 11)
+Line 16: 0
+Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #0 from 0 to 11)
 [Ljava/lang/Object; args (var #1 from 0 to 11)
 [Class SourceFile]: PACKAGEFUNCTIONS.java
 1 inner classes

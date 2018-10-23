@@ -596,7 +596,8 @@ public class TypeChecker2 {
 			} else {
 				String name;
 				if ((name = isStructCtor(f, cmd)) != null) {
-					errors.message(cmd.location, "insufficient arguments to constructor of " + name);
+					String quant = called.args.size() > argtypes.size()?"insufficient":"too many";
+					errors.message(cmd.location, quant + " arguments to constructor of " + name);
 					return;
 				}
 				List<TypeInfo> args = new ArrayList<TypeInfo>();
