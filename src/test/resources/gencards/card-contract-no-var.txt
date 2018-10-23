@@ -1,0 +1,32 @@
+class Card
+  super: org.flasck.jvm.cards.FlasckCard
+  inhfield final PUBLIC org.flasck.jvm.cards.Wrapper _wrapper
+  inhfield final PUBLIC org.flasck.jvm.display.DisplayEngine _display
+  innerClz PUBLICSTATIC Card _C0
+  <init>() -> void
+    {nextLocal 1}
+    org.flasck.jvm.cards.CardDespatcher despatcher = argument
+    {nextLocal 2}
+    org.flasck.jvm.display.DisplayEngine display = argument
+    @A = super{org.flasck.jvm.cards.FlasckCard}.<init>[org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display] -> void
+    {flush @A}
+    {nextLocal 3}
+    Card this = myThis
+    @B = makeNew Card$_C0 [Card this]
+    {nextLocal 4}
+    Card this = myThis
+    @C = sconst CtrDecl
+    @D = as org.flasck.jvm.cards.ContractImpl(@B)
+    @E = callVirtual Card this.registerContract [@C, @D] -> void
+    {flush @E}
+    @F = super{org.flasck.jvm.cards.FlasckCard}.ready[] -> void
+    {flush @F}
+    @G = returnVoid
+    {flush @G}
+  init() -> java.lang.Object
+    {nextLocal 1}
+    org.ziniki.ziwsh.json.FLEvalContext cx = argument
+    @A = arrayOf java.lang.Object[]
+    @B = callStatic org.flasck.jvm.builtin.Nil.eval [org.ziniki.ziwsh.json.FLEvalContext cx, @A] -> java.lang.Object
+    @C = returnObject @B
+    {flush @C}

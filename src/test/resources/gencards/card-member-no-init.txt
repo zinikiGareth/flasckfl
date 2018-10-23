@@ -1,0 +1,22 @@
+class Card
+  super: org.flasck.jvm.cards.FlasckCard
+  inhfield final PUBLIC org.flasck.jvm.cards.Wrapper _wrapper
+  inhfield final PUBLIC org.flasck.jvm.display.DisplayEngine _display
+  <init>() -> void
+    {nextLocal 1}
+    org.flasck.jvm.cards.CardDespatcher despatcher = argument
+    {nextLocal 2}
+    org.flasck.jvm.display.DisplayEngine display = argument
+    @A = super{org.flasck.jvm.cards.FlasckCard}.<init>[org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display] -> void
+    {flush @A}
+    @B = super{org.flasck.jvm.cards.FlasckCard}.ready[] -> void
+    {flush @B}
+    @C = returnVoid
+    {flush @C}
+  init() -> java.lang.Object
+    {nextLocal 1}
+    org.ziniki.ziwsh.json.FLEvalContext cx = argument
+    @A = arrayOf java.lang.Object[]
+    @B = callStatic org.flasck.jvm.builtin.Nil.eval [org.ziniki.ziwsh.json.FLEvalContext cx, @A] -> java.lang.Object
+    @C = returnObject @B
+    {flush @C}

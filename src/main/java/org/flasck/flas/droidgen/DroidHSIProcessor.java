@@ -15,7 +15,6 @@ import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.jvm.J;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.NewMethodDefiner;
@@ -151,7 +150,7 @@ public class DroidHSIProcessor implements HSIEVisitor<IExpr> {
 		return meth.callStatic(J.FLEVAL, J.BOOLEANP.getActual(), "isTruthy", cx, hv);
 	}
 
-	private Expr exprValue(NewMethodDefiner meth, Object value) {
+	private IExpr exprValue(NewMethodDefiner meth, Object value) {
 		if (value instanceof Integer)
 			return meth.intConst((Integer)value);
 		else if (value instanceof Boolean)
