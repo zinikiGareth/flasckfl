@@ -21,4 +21,13 @@ class Storable.java extends org.flasck.jvm.fl.FLASEntity {
     this.value = this._fullOf(cxt, this.value)
     return
   }
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+    ret = cx.jo()
+    (void)ret.put("_struct", "test.golden.Storable")
+    return ret
+  }
+  static test.golden.Storable fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+    ret = new test.golden.Storable(cx)
+    return ret
+  }
 }

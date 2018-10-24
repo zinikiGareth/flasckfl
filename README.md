@@ -22,6 +22,24 @@ Currently, there is code which amounts to a proto-backend to compile directly to
 
 There are plans to support generation of Swift code to generate native code for iOS.
 
+##Architecture##
+
+As a compiler, the overall architecture is a mapping from source files to binaries (JS, JVM and Swift)
+
+Within that, there are three main phases or stages:
+
+* Parsing, which consists of indentation blocking, individual statement parsing, and removing syntactic sugar
+* Resolving, which consists of resolving scoped names to unique names and converting methods to functions
+* Generating, which consists of: generating structures, converting functions to intermediate form, dependency analysis, typechecking, handling currying and generating bytecodes.
+
+##Development Cycle##
+
+After a number of different approaches, I think the correct approach to adding new runtime features is first to get a "normal" test case working with "normal" guide code in FLASJvm/test.runner and then to ensure that can be generated from src/test/resources/cards/test.runner/jvm.fl.
+
+Within that, smaller chunks of code can be generated using the mockgen library (see eg GenTestsForStructs and src/test/resources/genstructs).
+
+Individual features should then be tested by writing sample programs and their corresponding unit tests (.ut) which proves that programs work in the intended way.
+
 [1]: http://zinikigareth.github.io/flasckfl/
 [2]: http://cardstack.io/#architecture
 [3]: https://github.com/zinikiGareth/flasjs

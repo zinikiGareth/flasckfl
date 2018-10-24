@@ -76,7 +76,7 @@ RETURN v1:clos1 [v0:clos0]                                   #webzip.fl:    8.21
 CLOSURE v1                                                   #webzip.fl:    8.21
   PUSH v0:clos0                                              #webzip.fl:    8.21
   PUSH CardMember.CardMember[test.golden.Webzip.cs]          #webzip.fl:    8.35
-CURRY v0 3 !                                                 #webzip.fl:    8.21
+CURRY v0 1 !                                                 #webzip.fl:    8.21
   OCTOR                                                      #webzip.fl:    8.21
   PUSH PackageVar.Croset                                     #webzip.fl:    8.21
   PUSH "_ctor_create"                                        #webzip.fl:    8.28

@@ -273,7 +273,7 @@ test.golden.Webzip.__C1.prototype.onready = function() {
 
 test.golden._Webzip.prototype.inits_list = function(msgs) {
   "use strict";
-  var v0 = FLEval.closure(FLEval.curry, FLEval.octor, 3, Croset, '_ctor_create');
+  var v0 = FLEval.closure(FLEval.curry, FLEval.octor, 1, Croset, '_ctor_create');
   var ret = FLEval.closure(v0, this.cs);
   var fld = FLEval.closure(FLEval.field, this, 'list');
   var init = FLEval.closure(Send, fld, '_init', Nil);

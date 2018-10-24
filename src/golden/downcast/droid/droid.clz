@@ -34,7 +34,7 @@ class PACKAGEFUNCTIONS.java {
   }
 }
 src/golden/downcast/droid-to/test/golden/Role.java
-class Role.java extends org.flasck.jvm.fl.FLASObject {
+class Role.java extends org.flasck.jvm.fl.FLASStruct {
   Ljava/lang/Object; r
 
   void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
@@ -49,5 +49,14 @@ class Role.java extends org.flasck.jvm.fl.FLASObject {
   void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     this.r = this._fullOf(cxt, this.r)
     return
+  }
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+    ret = cx.jo()
+    (void)ret.put("_struct", "test.golden.Role")
+    return ret
+  }
+  static test.golden.Role fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+    ret = new test.golden.Role(cx)
+    return ret
   }
 }

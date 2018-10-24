@@ -24,6 +24,15 @@ class Item.java extends org.flasck.jvm.fl.FLASEntity {
     this.format = this._fullOf(cxt, this.format)
     return
   }
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+    ret = cx.jo()
+    (void)ret.put("_struct", "test.golden.Item")
+    return ret
+  }
+  static test.golden.Item fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+    ret = new test.golden.Item(cx)
+    return ret
+  }
 }
 src/golden/templates/droid-to/test/golden/Templates$B1.java
 class Templates$B1.java extends org.flasck.jvm.areas.DivArea {
@@ -154,7 +163,7 @@ class Templates.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  java.lang.Object init(java.lang.Object cx) {
+  java.lang.Object init(org.ziniki.ziwsh.json.FLEvalContext cx) {
     return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
   }
   void render(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.String into) {

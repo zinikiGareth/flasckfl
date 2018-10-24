@@ -21,6 +21,15 @@ class Item.java extends org.flasck.jvm.fl.FLASEntity {
     this.desc = this._fullOf(cxt, this.desc)
     return
   }
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+    ret = cx.jo()
+    (void)ret.put("_struct", "test.golden.Item")
+    return ret
+  }
+  static test.golden.Item fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+    ret = new test.golden.Item(cx)
+    return ret
+  }
 }
 src/golden/webzip/droid-to/test/golden/Webzip$B1.java
 class Webzip$B1.java extends org.flasck.jvm.areas.DivArea {
@@ -268,7 +277,7 @@ class Webzip.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  java.lang.Object init(java.lang.Object cx) {
+  java.lang.Object init(org.ziniki.ziwsh.json.FLEvalContext cx) {
     v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
 this
 "name"
@@ -297,7 +306,7 @@ v1
   }
   java.lang.Object inits_list(org.ziniki.ziwsh.json.FLEvalContext _context) {
     {
-      v0 = new org.flasck.jvm.fl.FLCurry(octor.class,3,new java.lang.Object[2] {
+      v0 = new org.flasck.jvm.fl.FLCurry(octor.class,1,new java.lang.Object[2] {
           autobox[org.flasck.jvm.builtin.Croset.class]
           autobox["_ctor_create"]
         })

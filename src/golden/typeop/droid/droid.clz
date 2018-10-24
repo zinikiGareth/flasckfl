@@ -5,7 +5,7 @@ class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  java.lang.Object init(java.lang.Object cx) {
+  java.lang.Object init(org.ziniki.ziwsh.json.FLEvalContext cx) {
     return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
   }
 }

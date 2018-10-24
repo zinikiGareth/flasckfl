@@ -1,6 +1,6 @@
 src/golden/objdefn-method/droid-to/test/golden/WithMethod.java
 class WithMethod.java extends org.flasck.jvm.objects.FlasckObject {
-  void <init>(java.lang.Object cx, java.lang.Object state) {
+  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx, java.lang.Object state) {
     super.<init>(cx, state)
     return
   }

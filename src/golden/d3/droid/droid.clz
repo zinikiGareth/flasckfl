@@ -314,7 +314,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  java.lang.Object init(java.lang.Object cx) {
+  java.lang.Object init(org.ziniki.ziwsh.json.FLEvalContext cx) {
     v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
 this
 "data"

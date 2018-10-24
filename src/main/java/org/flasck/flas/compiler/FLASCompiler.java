@@ -219,6 +219,7 @@ public class FLASCompiler implements ScriptCompiler {
 			try {
 				FLASCompiler sc = new FLASCompiler();
 				sc.includePrior(cr);
+				sc.writeJVMTo(this.writeJVM);
 				// TODO: we probably need to configure the compiler here ...
 				UnitTestRunner utr = new UnitTestRunner(errors, sc, cr);
 				utr.sendResultsTo(new FileUnitTestResultHandler(results));
