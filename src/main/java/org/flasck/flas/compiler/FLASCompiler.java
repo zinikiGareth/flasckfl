@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.builder.droid.DroidBuilder;
+import org.flasck.flas.ConfigVisitor;
+import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
@@ -57,7 +59,7 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.MultiTextEmitter;
 
-public class FLASCompiler implements ScriptCompiler {
+public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private boolean dumpTypes = false;
 	private boolean unitjs;
@@ -78,6 +80,12 @@ public class FLASCompiler implements ScriptCompiler {
 	private File webdownloaddir;
 	private BuilderSink sink = new BuilderSink();
 
+	public FLASCompiler(Configuration config) {
+		if (config != null)
+			config.visit(this);
+	}
+
+	@Override
 	public void searchIn(File file) {
 		pkgdirs.add(file);
 	}
@@ -86,13 +94,15 @@ public class FLASCompiler implements ScriptCompiler {
 		utpaths.add(file);
 	}
 	
+	@Override
 	public void writeJVMTo(File file) {
 		writeJVM = file;
 	}
 	
 	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put it
+	@Override
 	public void writeDroidTo(File file, boolean andBuild) {
-		if (file.getPath().equals("null"))
+		if (file == null || file.getPath().equals("null"))
 			return;
 		builder = new DroidBuilder(file);
 		if (!andBuild)
@@ -104,52 +114,62 @@ public class FLASCompiler implements ScriptCompiler {
 		builder.dontBuild();
 	}
 
+	@Override
 	public void writeRWTo(File file) {
-		if (!file.isDirectory()) {
+		if (file != null && !file.isDirectory()) {
 			System.out.println("there is no directory " + file);
 			return;
 		}
 		this.writeRW = file;
 	}
 
+	@Override
 	public void writeFlimTo(File file) {
-		if (!file.isDirectory()) {
+		if (file != null && !file.isDirectory()) {
 			System.out.println("there is no directory " + file);
 			return;
 		}
 		this.writeFlim = file;
 	}
 
+	@Override
 	public void writeDependsTo(File file) {
-		if (!file.isDirectory()) {
+		if (file != null && !file.isDirectory()) {
 			System.out.println("there is no directory " + file);
 			return;
 		}
 		this.writeDepends = file;
 	}
 
+	@Override
 	public void writeHSIETo(File file) {
-		if (!file.isDirectory()) {
+		if (file != null && !file.isDirectory()) {
 			System.out.println("there is no directory " + file);
 			return;
 		}
 		this.writeHSIE = file;
 	}
 
+	@Override
 	public void trackTC(File file) {
-		this.trackTC = new File(file, "types");
+		if (file != null)
+			this.trackTC = new File(file, "types");
+		else
+			this.trackTC = null;
 	}
 
+	@Override
 	public void writeJSTo(File file) {
-		if (!file.isDirectory()) {
+		if (file != null && !file.isDirectory()) {
 			System.out.println("there is no directory " + file);
 			return;
 		}
 		this.writeJS = file;
 	}
 
+	@Override
 	public void writeTestReportsTo(File file) {
-		if (!file.isDirectory()) {
+		if (file != null && !file.isDirectory()) {
 			System.out.println("there is no directory " + file);
 			return;
 		}
@@ -160,8 +180,9 @@ public class FLASCompiler implements ScriptCompiler {
 		priors.add(cr);
 	}
 
-	public void dumpTypes() {
-		this.dumpTypes = true;
+	@Override
+	public void dumpTypes(boolean d) {
+		this.dumpTypes = d;
 	}
 	
 	// The objective of this method is to convert an entire package directory at one go
@@ -217,7 +238,7 @@ public class FLASCompiler implements ScriptCompiler {
 			}
 			
 			try {
-				FLASCompiler sc = new FLASCompiler();
+				FLASCompiler sc = new FLASCompiler(null);
 				sc.includePrior(cr);
 				sc.writeJVMTo(this.writeJVM);
 				// TODO: we probably need to configure the compiler here ...
@@ -528,22 +549,27 @@ public class FLASCompiler implements ScriptCompiler {
 		return builder;
 	}
 
+	@Override
 	public void unitjs(boolean b) {
 		this.unitjs = b;
 	}
 
+	@Override
 	public void unitjvm(boolean b) {
 		this.unitjvm = b;
 	}
 
+	@Override
 	public void webZipDownloads(File file) {
 		this.webdownloaddir = file;
 	}
 
+	@Override
 	public void webZipDir(File file) {
 		this.webzipdir = file;
 	}
 
+	@Override
 	public boolean useWebZip(String called) {
 		if (webzipdir == null) {
 			System.err.println("Must specify webzipdir before adding zips");

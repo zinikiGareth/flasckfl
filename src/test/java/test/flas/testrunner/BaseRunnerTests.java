@@ -56,7 +56,7 @@ public abstract class BaseRunnerTests {
 	// But it is "part of" the CompileResult.  Why?
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	CompileResult prior;
-	FLASCompiler sc = new FLASCompiler();
+	FLASCompiler sc = new FLASCompiler(null);
 	TestRunner runner;
 	String pkg = "test.runner";
 	Scope mainScope = Scope.topScope(pkg);

@@ -99,7 +99,7 @@ public class TestEnvironment {
 	}
 
 	public FLASCompiler configureCompiler() {
-		FLASCompiler compiler = new FLASCompiler();
+		FLASCompiler compiler = new FLASCompiler(null);
 		compiler.unitTestPath(new File(jvmbin, "classes"));
 		compiler.unitjs(useJSRunner);
 		compiler.unitjvm(useJVMRunner);

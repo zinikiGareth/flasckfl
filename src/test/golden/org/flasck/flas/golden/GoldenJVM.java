@@ -71,7 +71,7 @@ public class GoldenJVM {
 		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, out.getPath(), true, useJSRunner, useJVMRunner, false, checkEverything, stripNumbers);
 		
 		Main.setLogLevels();
-		FLASCompiler compiler = new FLASCompiler();
+		FLASCompiler compiler = new FLASCompiler(null);
 		compiler.searchIn(new File(GoldenCGRunner.jvmdir, "services/flim"));
 		compiler.unitTestPath(utpath);
 		compiler.unitjs(useJSRunner);

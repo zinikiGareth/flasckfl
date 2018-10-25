@@ -27,7 +27,7 @@ public class AndroidCGRunner extends CGHarnessRunner {
 	
 	private static Class<?>[] figureClasses() throws IOException, ErrorResultException, ClassNotFoundException {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
-		FLASCompiler compiler = new FLASCompiler();
+		FLASCompiler compiler = new FLASCompiler(null);
 		compiler.searchIn(new File("src/main/resources/flim"));
 		compiler.unitTestPath(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		CompileResult cr = compiler.compile(new File("src/test/resources/cards/test.ziniki"));

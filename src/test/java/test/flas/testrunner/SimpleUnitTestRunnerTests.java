@@ -30,7 +30,7 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 public class SimpleUnitTestRunnerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
-	FLASCompiler sc = new FLASCompiler();
+	FLASCompiler sc = new FLASCompiler(null);
 	ErrorResult errors = new ErrorResult();
 	Rewriter rw = new Rewriter(errors, null, null, null);
 	TypeChecker2 tc = new TypeChecker2(errors, rw);
