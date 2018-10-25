@@ -31,8 +31,11 @@ public class JSFormGenerator {
 		form.dump(LoggerFactory.getLogger("Generator"));
 		String jsname = form.funcName.jsName();
 		if (form.mytype == CodeType.EVENT) {
+			// For event handler trampoline functions, we want to remove the ".getHandler" on the end
 			int idx = jsname.lastIndexOf(".");
 			jsname = jsname.substring(0, idx);
+		} else if (form.mytype == CodeType.EVENTHANDLER) {
+			jsname = form.funcName.jsPName();
 		} else if (form.isMethod()) { // TODO: we should have jsPName() or something ...
 			int idx = jsname.lastIndexOf(".");
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);

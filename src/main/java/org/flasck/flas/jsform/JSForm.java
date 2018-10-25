@@ -289,9 +289,12 @@ public class JSForm {
 				});
 			}
 			if (fname != null) {
-				ret.add(new JSForm("var fld = FLEval.closure(FLEval.field, this, '" + fname +"')"));
-				ret.add(new JSForm("var init = FLEval.closure(Send, fld, '_init', Nil)"));
-				ret.add(new JSForm("msgs.curr = FLEval.closure(Cons, init, msgs.curr)"));
+				// I think this is correct for objects, but not structs ...
+				// this is asking the object to initialize itself
+//				ret.add(new JSForm("var fld = FLEval.closure(FLEval.field, this, '" + fname +"')"));
+//				ret.add(new JSForm("var init = FLEval.closure(Send, fld, '_init', Nil)"));
+//				ret.add(new JSForm("msgs.curr = FLEval.closure(Cons, init, msgs.curr)"));
+				// We now return the object we created to the actual assignment done above
 				ret.add(new JSForm("return ret"));
 			}
 		} else {

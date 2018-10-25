@@ -18,10 +18,10 @@ class Struct
     @A = makeNew Struct [org.ziniki.ziwsh.json.FLEvalContext cxt]
     @B = assign Struct ret <- @A
     {flush @B}
-    @C = getfield Struct ret.f1
-    @D = iconst 0
-    @E = arrayElt [java.lang.Object args[@D]
-    @F = assign @C <- @E
+    @C = iconst 0
+    @D = arrayElt [java.lang.Object args[@C]
+    @E = getfield Struct ret.f1
+    @F = assign @E <- @D
     {flush @F}
     @G = returnObject Struct ret
     {flush @G}
@@ -46,8 +46,8 @@ class Struct
     @A = callInterface org.ziniki.ziwsh.model.EntityDecodingContext cx.jo [] -> org.ziniki.ziwsh.json.JObj
     @B = assign org.ziniki.ziwsh.json.JObj ret <- @A
     {flush @B}
-    @C = sconst _struct
-    @D = sconst Struct
+    @C = sconst '_struct'
+    @D = sconst 'Struct'
     @E = as java.lang.Object(@D)
     @F = callInterface org.ziniki.ziwsh.json.JObj ret.put [@C, @E] -> org.ziniki.ziwsh.json.JObj
     @G = void @F

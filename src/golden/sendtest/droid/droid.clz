@@ -221,3 +221,36 @@ class SetState$Impl.java extends org.flasck.jvm.cards.ContractImpl implements te
 src/golden/sendtest/droid-to/test/golden/SetState$Up.java
 class SetState$Up.java implements org.ziniki.ziwsh.UpContract {
 }
+src/golden/sendtest/droid-to/test/golden/script/PACKAGEFUNCTIONS$arg1.java
+class PACKAGEFUNCTIONS$arg1.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
+    return test.golden.script.PACKAGEFUNCTIONS.arg1(cxt)
+  }
+}
+src/golden/sendtest/droid-to/test/golden/script/PACKAGEFUNCTIONS$earg2.java
+class PACKAGEFUNCTIONS$earg2.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
+    return test.golden.script.PACKAGEFUNCTIONS.earg2(cxt)
+  }
+}
+src/golden/sendtest/droid-to/test/golden/script/PACKAGEFUNCTIONS.java
+class PACKAGEFUNCTIONS.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object arg1(org.ziniki.ziwsh.json.FLEvalContext _context) {
+    return "hello"
+  }
+  static java.lang.Object earg2(org.ziniki.ziwsh.json.FLEvalContext _context) {
+    return "hello"
+  }
+}

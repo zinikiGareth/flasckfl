@@ -119,7 +119,7 @@ test.golden.ControlledCard.__C1.prototype.saySomething = function(v0) {
   return FLEval.error("test.golden.ControlledCard._C1.saySomething: case not handled");
 }
 
-test.golden.ControlledCard.prototype.echoHello = function(v0) {
+test.golden._ControlledCard.prototype.echoHello = function(v0) {
   "use strict";
   var v1 = FLEval.closure(Cons, 'hello clicked', Nil);
   var v2 = FLEval.closure(Send, this.e, 'echoIt', v1);

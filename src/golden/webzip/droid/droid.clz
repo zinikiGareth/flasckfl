@@ -1,8 +1,5 @@
 src/golden/webzip/droid-to/test/golden/Item.java
 class Item.java extends org.flasck.jvm.fl.FLASEntity {
-  Ljava/lang/Object; id
-  Ljava/lang/Object; desc
-
   void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>(cx, null)
     return
@@ -13,22 +10,11 @@ class Item.java extends org.flasck.jvm.fl.FLASEntity {
   }
   static test.golden.Item eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.Item(cxt)
-    ret.desc = args[0]
+    ret.closure("desc", args[0])
     return ret
   }
-  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
-    this.id = this._fullOf(cxt, this.id)
-    this.desc = this._fullOf(cxt, this.desc)
-    return
-  }
-  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
-    ret = cx.jo()
-    (void)ret.put("_struct", "test.golden.Item")
-    return ret
-  }
-  static test.golden.Item fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
-    ret = new test.golden.Item(cx)
-    return ret
+  static test.golden.Item fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JDoc wire) {
+    return new test.golden.Item(cx,org.ziniki.ziwsh.model.BackingDocument.from(cx, wire))
   }
 }
 src/golden/webzip/droid-to/test/golden/Webzip$B1.java

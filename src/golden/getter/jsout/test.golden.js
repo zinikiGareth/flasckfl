@@ -33,7 +33,7 @@ test.golden._Getter.prototype._render = function(doc, wrapper, parent) {
   "use strict";
 }
 
-test.golden.Getter.prototype.choose = function(v0) {
+test.golden._Getter.prototype.choose = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {

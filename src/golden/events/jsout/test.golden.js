@@ -91,13 +91,13 @@ test.golden.Events.handlers_1 = function() {
   return FLEval.oclosure(this._card, FLEval.curry, test.golden.Events.prototype.setTo, 2, 13);
 }
 
-test.golden.Events.prototype.okThen = function(v0) {
+test.golden._Events.prototype.okThen = function(v0) {
   "use strict";
   var v1 = FLEval.closure(Debug, v0);
   return FLEval.closure(Cons, v1, Nil);
 }
 
-test.golden.Events.prototype.setTo = function(v0, v1) {
+test.golden._Events.prototype.setTo = function(v0, v1) {
   "use strict";
   var v2 = FLEval.closure(Debug, v1);
   return FLEval.closure(Cons, v2, Nil);

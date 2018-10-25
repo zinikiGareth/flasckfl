@@ -1,8 +1,5 @@
 src/golden/entity/droid-to/test/golden/Storable.java
 class Storable.java extends org.flasck.jvm.fl.FLASEntity {
-  Ljava/lang/Object; id
-  Ljava/lang/Object; value
-
   void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>(cx, null)
     return
@@ -13,21 +10,10 @@ class Storable.java extends org.flasck.jvm.fl.FLASEntity {
   }
   static test.golden.Storable eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
     ret = new test.golden.Storable(cxt)
-    ret.value = args[0]
+    ret.closure("value", args[0])
     return ret
   }
-  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
-    this.id = this._fullOf(cxt, this.id)
-    this.value = this._fullOf(cxt, this.value)
-    return
-  }
-  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
-    ret = cx.jo()
-    (void)ret.put("_struct", "test.golden.Storable")
-    return ret
-  }
-  static test.golden.Storable fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
-    ret = new test.golden.Storable(cx)
-    return ret
+  static test.golden.Storable fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JDoc wire) {
+    return new test.golden.Storable(cx,org.ziniki.ziwsh.model.BackingDocument.from(cx, wire))
   }
 }

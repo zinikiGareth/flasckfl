@@ -8,15 +8,15 @@ class Struct
     {flush @A}
     {nextLocal 2}
     Struct this = myThis
-    @B = getfield Struct this.f1
+    @B = as java.lang.Object(Struct this)
+    @C = cconst PACKAGEFUNCTIONS$init_f1.class
+    @D = as java.lang.Object(@C)
+    @E = arrayOf java.lang.Object[]
+    @F = callStatic org.flasck.jvm.fl.FLClosure.obj [@B, @D, @E] -> org.flasck.jvm.fl.FLClosure
     {nextLocal 3}
     Struct this = myThis
-    @C = as java.lang.Object(Struct this)
-    @D = cconst PACKAGEFUNCTIONS$init_f1.class
-    @E = as java.lang.Object(@D)
-    @F = arrayOf java.lang.Object[]
-    @G = callStatic org.flasck.jvm.fl.FLClosure.obj [@C, @E, @F] -> org.flasck.jvm.fl.FLClosure
-    @H = assign @B <- @G
+    @G = getfield Struct this.f1
+    @H = assign @G <- @F
     {flush @H}
     @I = returnVoid
     {flush @I}
@@ -53,8 +53,8 @@ class Struct
     @A = callInterface org.ziniki.ziwsh.model.EntityDecodingContext cx.jo [] -> org.ziniki.ziwsh.json.JObj
     @B = assign org.ziniki.ziwsh.json.JObj ret <- @A
     {flush @B}
-    @C = sconst _struct
-    @D = sconst Struct
+    @C = sconst '_struct'
+    @D = sconst 'Struct'
     @E = as java.lang.Object(@D)
     @F = callInterface org.ziniki.ziwsh.json.JObj ret.put [@C, @E] -> org.ziniki.ziwsh.json.JObj
     @G = void @F

@@ -1,7 +1,5 @@
 src/golden/objdefn-state/droid-to/test/golden/Entity.java
 class Entity.java extends org.flasck.jvm.fl.FLASEntity {
-  Ljava/lang/Object; id
-
   void <init>(org.ziniki.ziwsh.json.FLEvalContext cx) {
     super.<init>(cx, null)
     return
@@ -14,18 +12,8 @@ class Entity.java extends org.flasck.jvm.fl.FLASEntity {
     ret = new test.golden.Entity(cxt)
     return ret
   }
-  void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
-    this.id = this._fullOf(cxt, this.id)
-    return
-  }
-  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
-    ret = cx.jo()
-    (void)ret.put("_struct", "test.golden.Entity")
-    return ret
-  }
-  static test.golden.Entity fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
-    ret = new test.golden.Entity(cx)
-    return ret
+  static test.golden.Entity fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JDoc wire) {
+    return new test.golden.Entity(cx,org.ziniki.ziwsh.model.BackingDocument.from(cx, wire))
   }
 }
 src/golden/objdefn-state/droid-to/test/golden/WithState.java

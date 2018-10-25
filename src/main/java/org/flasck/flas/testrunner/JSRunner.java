@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -59,6 +60,7 @@ public class JSRunner extends CommonTestRunner {
 							}
 						}
 					} catch (Throwable t) {
+						t.printStackTrace();
 						errors.add(t.getMessage());
 					}
 				}
@@ -85,7 +87,7 @@ public class JSRunner extends CommonTestRunner {
 	private final JSJavaBridge st = new JSJavaBridge();
 	private final BrowserEngine browser;
 	private Page page;
-	private Map<String, JSObject> cards = new TreeMap<String, JSObject>();
+	private Map<String, CardHandle> cards = new TreeMap<>();
 	private File html;
 	
 	public JSRunner(CompileResult cr) {
@@ -176,6 +178,7 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void createCardAs(CardName cardType, String bindVar) {
+		logger.info("Creating card " + cardType.jsName() + " as " + bindVar);
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 		
@@ -189,6 +192,8 @@ public class JSRunner extends CommonTestRunner {
 		Platform.runLater(() -> {
 			CardDefinition cd = (CardDefinition) se.getValue();
 	
+			execute("Flasck.unitTest();");
+			
 			// this first line probably should be earlier
 			String l0 = "_tmp_postbox = new Postbox('main', window);";
 	
@@ -210,9 +215,9 @@ public class JSRunner extends CommonTestRunner {
 			String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
 			execute(l5);
 			
-			JSObject card = (JSObject) page.executeScript("_tmp_handle");
+			JSObject handle = (JSObject) page.executeScript("_tmp_handle");
 			cdefns.put(bindVar, cd);
-			cards.put(bindVar, card);
+			cards.put(bindVar, new CardHandle(handle, (JSObject)handle.getMember("_mycard"), (JSObject) handle.getMember("_wrapper")));
 			assertNoErrors();
 			choke.set(true);
 		});
@@ -225,7 +230,9 @@ public class JSRunner extends CommonTestRunner {
 			throw new UtilException("there is no card '" + cardVar + "'");
 
 		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
-		JSObject card = cards.get(cardVar);
+		CardHandle card = cards.get(cardVar);
+
+		logger.info("Sending " + methodName + " to " + cardVar + "." + fullName);
 
 		AtomicBoolean choke = new AtomicBoolean(false);
 		Platform.runLater(() -> {
@@ -236,7 +243,7 @@ public class JSRunner extends CommonTestRunner {
 				for (int i : posns) {
 					args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
 				}
-			card.call("send", args.toArray());
+			card.handle.call("send", args.toArray());
 			choke.set(true);
 		});
 		waitForChoke(choke);
@@ -247,10 +254,16 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void event(String cardVar, String methodName) throws Exception {
-		JSObject card = cards.get(cardVar);
+		logger.info("Sending event " + methodName + " to " +  cardVar);
+		CardHandle card = cards.get(cardVar);
 		AtomicBoolean choke = new AtomicBoolean(false);
 		Platform.runLater(() -> {
-			card.call(methodName);
+			// Or else just call "dispatchEvent()" on wrapper
+			// But where do I find wrapper?
+			// cf JVMRunner, where we call the hanlde and get it to do the dirty work
+			// is that possible in this world?
+			Object events = card.card.call(methodName);
+			card.wrapper.call("evalAndProcess", events);
 			choke.set(true);
 		});
 		waitForChoke(choke);
@@ -261,6 +274,7 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
+		logger.info("Matching " + selector);
 //		System.out.println(page.getDocument().getBody().getOuterHTML());
 		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new UI4JWrapperElement(page, e)).collect(Collectors.toList()));
 		assertNoErrors();
@@ -311,8 +325,11 @@ public class JSRunner extends CommonTestRunner {
 	 * least add a really good comment.
 	 */
 	private void processEvents() {
+		Date waitUntil = new Date(new Date().getTime() + 5000);
 		while (pendingAsyncs.get() != 0)
 			try {
+				if (new Date().after(waitUntil))
+					throw new RuntimeException("After 5s still have " + pendingAsyncs.get() +" pending asyncs");
 				synchronized (pendingAsyncs) {
 					pendingAsyncs.wait(1000);
 				}

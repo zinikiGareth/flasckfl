@@ -50,7 +50,7 @@ test.golden._Card.prototype._render = function(doc, wrapper, parent) {
   "use strict";
 }
 
-test.golden.Card.prototype.doit = function(v0, v1) {
+test.golden._Card.prototype.doit = function(v0, v1) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {

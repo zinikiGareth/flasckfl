@@ -22,7 +22,7 @@ class Card
     java.lang.Object v0 = avar java.lang.Object v0
     {nextLocal 3}
     Card this = myThis
-    @C = sconst f1
+    @C = sconst 'f1'
     {nextLocal 4}
     Card this = myThis
     @D = as java.lang.Object(Card this)

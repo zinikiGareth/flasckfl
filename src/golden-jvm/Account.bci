@@ -1,7 +1,5 @@
 class test/runner/Account
   extends org/flasck/jvm/fl/FLASEntity
-Field public Ljava/lang/Object; id
-Field public Ljava/lang/Object; name
 Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;)V
   maxStack = 3 maxLocals = 2 codeLen = 7
   {
@@ -12,8 +10,8 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;)V
     0006: return
   }
 2 Line Number Entries
-Line 16: 0
-Line 17: 6
+Line 12: 0
+Line 13: 6
 Ltest/runner/Account; this (var #0 from 0 to 7)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #1 from 0 to 7)
 Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/model/BackingDocument;)V
@@ -26,13 +24,13 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/mod
     0006: return
   }
 2 Line Number Entries
-Line 20: 0
-Line 21: 6
+Line 16: 0
+Line 17: 6
 Ltest/runner/Account; this (var #0 from 0 to 7)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #1 from 0 to 7)
 Lorg/ziniki/ziwsh/model/BackingDocument; doc (var #2 from 0 to 7)
 Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ltest/runner/Account;
-  maxStack = 3 maxLocals = 3 codeLen = 18
+  maxStack = 4 maxLocals = 3 codeLen = 20
   {
     0000: new Class[test/runner/Account]
     0003: dup
@@ -40,82 +38,35 @@ Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Obje
     0005: invokespecial MClass[test/runner/Account].<init> (Lorg/ziniki/ziwsh/json/FLEvalContext;)V
     0008: astore_2
     0009: aload_2
-    000A: aload_1
-    000B: iconst_0
-    000C: aaload
-    000D: putfield FClass[test/runner/Account].name{Ljava/lang/Object;}
-    0010: aload_2
-    0011: areturn
-  }
-3 Line Number Entries
-Line 24: 0
-Line 25: 9
-Line 26: 16
-Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #0 from 0 to 18)
-[Ljava/lang/Object; args (var #1 from 0 to 18)
-Ltest/runner/Account; ret (var #2 from 9 to 18)
-Method public _doFullEval (Lorg/ziniki/ziwsh/json/FLEvalContext;)V
-  maxStack = 4 maxLocals = 2 codeLen = 27
-  {
-    0000: aload_0
-    0001: aload_0
-    0002: aload_1
-    0003: aload_0
-    0004: getfield FClass[test/runner/Account].id{Ljava/lang/Object;}
-    0007: invokevirtual MClass[test/runner/Account]._fullOf (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
-    000A: putfield FClass[test/runner/Account].id{Ljava/lang/Object;}
-    000D: aload_0
-    000E: aload_0
-    000F: aload_1
-    0010: aload_0
-    0011: getfield FClass[test/runner/Account].name{Ljava/lang/Object;}
-    0014: invokevirtual MClass[test/runner/Account]._fullOf (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
-    0017: putfield FClass[test/runner/Account].name{Ljava/lang/Object;}
-    001A: return
-  }
-3 Line Number Entries
-Line 30: 0
-Line 31: 13
-Line 32: 26
-Ltest/runner/Account; this (var #0 from 0 to 27)
-Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 27)
-Method public toWire (Lorg/ziniki/ziwsh/assembler/WireEncoder;Lorg/ziniki/ziwsh/model/EntityDecodingContext;)Ljava/lang/Object;
-  maxStack = 3 maxLocals = 4 codeLen = 20
-  {
-    0000: aload_2
-    0001: invokeinterface IClass[org/ziniki/ziwsh/model/EntityDecodingContext].jo ()Lorg/ziniki/ziwsh/json/JObj;, 1
-    0006: astore_3
-    0007: aload_3
-    0008: ldc "_struct"
-    000A: ldc "test.runner.Account"
-    000C: invokeinterface IClass[org/ziniki/ziwsh/json/JObj].put (Ljava/lang/String;Ljava/lang/Object;)Lorg/ziniki/ziwsh/json/JObj;, 3
-    0011: pop
-    0012: aload_3
+    000A: ldc "name"
+    000C: aload_1
+    000D: iconst_0
+    000E: aaload
+    000F: invokevirtual MClass[test/runner/Account].closure (Ljava/lang/String;Ljava/lang/Object;)V
+    0012: aload_2
     0013: areturn
   }
 3 Line Number Entries
-Line 35: 0
-Line 37: 7
-Line 38: 18
-Ltest/runner/Account; this (var #0 from 0 to 20)
-Lorg/ziniki/ziwsh/assembler/WireEncoder; wire (var #1 from 0 to 20)
-Lorg/ziniki/ziwsh/model/EntityDecodingContext; cx (var #2 from 0 to 20)
-Lorg/ziniki/ziwsh/json/JObj; ret (var #3 from 7 to 20)
-Method public static fromWire (Lorg/ziniki/ziwsh/model/EntityDecodingContext;Lorg/ziniki/ziwsh/json/JObj;)Ltest/runner/Account;
-  maxStack = 3 maxLocals = 3 codeLen = 11
+Line 20: 0
+Line 21: 9
+Line 22: 18
+Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #0 from 0 to 20)
+[Ljava/lang/Object; args (var #1 from 0 to 20)
+Ltest/runner/Account; ret (var #2 from 9 to 20)
+Method public static fromWire (Lorg/ziniki/ziwsh/model/EntityDecodingContext;Lorg/ziniki/ziwsh/json/JDoc;)Ltest/runner/Account;
+  maxStack = 5 maxLocals = 2 codeLen = 14
   {
     0000: new Class[test/runner/Account]
     0003: dup
     0004: aload_0
-    0005: invokespecial MClass[test/runner/Account].<init> (Lorg/ziniki/ziwsh/json/FLEvalContext;)V
-    0008: astore_2
-    0009: aload_2
-    000A: areturn
+    0005: aload_0
+    0006: aload_1
+    0007: invokestatic MClass[org/ziniki/ziwsh/model/BackingDocument].from (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/json/JDoc;)Lorg/ziniki/ziwsh/model/BackingDocument;
+    000A: invokespecial MClass[test/runner/Account].<init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/model/BackingDocument;)V
+    000D: areturn
   }
-2 Line Number Entries
-Line 42: 0
-Line 43: 9
-Lorg/ziniki/ziwsh/model/EntityDecodingContext; cx (var #0 from 0 to 11)
-Lorg/ziniki/ziwsh/json/JObj; jo (var #1 from 0 to 11)
-Ltest/runner/Account; ret (var #2 from 9 to 11)
+1 Line Number Entries
+Line 26: 0
+Lorg/ziniki/ziwsh/model/EntityDecodingContext; edc (var #0 from 0 to 14)
+Lorg/ziniki/ziwsh/json/JDoc; wire (var #1 from 0 to 14)
 [Class SourceFile]: Account.java

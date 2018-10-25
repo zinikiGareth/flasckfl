@@ -15,7 +15,7 @@ class Card
     @B = makeNew Card$_C0 [Card this]
     {nextLocal 4}
     Card this = myThis
-    @C = sconst CtrDecl
+    @C = sconst 'CtrDecl'
     @D = as org.flasck.jvm.cards.ContractImpl(@B)
     @E = callVirtual Card this.registerContract [@C, @D] -> void
     {flush @E}

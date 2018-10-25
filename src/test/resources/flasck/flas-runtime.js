@@ -885,6 +885,12 @@ Flasck = {};
 
 Flasck.nextCard = 0;
 
+Flasck.inUnitTest = false;
+
+Flasck.unitTest = function() {
+	Flasck.inUnitTest = true;
+}
+
 Flasck.provideService = function(postbox, services, svcName, svc) {
 	var addr = postbox.newAddress();
 	postbox.register(addr, svc);
@@ -977,6 +983,11 @@ Flasck.createCard = function(postbox, inside, cardInfo, services) {
 	//	console.log("These services are available:", services);
 		
 		wrapper.cardCreated(myCard);
+		
+		if (Flasck.inUnitTest) {
+			handle._mycard = myCard;
+			handle._wrapper = wrapper;
+		}
 	} else if (cardInfo.mode === 'remote') {
 		function connectPB(name, id) {
 			console.log("need to show " + id + " through " + name);
@@ -1305,6 +1316,10 @@ FlasckWrapper.prototype.dispatchEvent = function(handler, ev) {
 	this.messageEventLoop(msgs);
 }
 
+FlasckWrapper.prototype.evalAndProcess = function(events) {
+	this.messageEventLoop(FLEval.full(events));
+}
+
 FlasckWrapper.prototype.messageEventLoop = function(flfull) {
 	var msgs = FLEval.flattenList(flfull);
 	var todo = [];
@@ -1315,7 +1330,6 @@ FlasckWrapper.prototype.messageEventLoop = function(flfull) {
 }
 
 FlasckWrapper.prototype.processMessages = function(msgs, todo) {
-//	console.log("processing messages", msgs);
 	if (!todo)
 		todo = {};
 	var momsgs = [];
@@ -1350,7 +1364,7 @@ FlasckWrapper.prototype.processOne = function(msg, todo) {
 			}
 		}
 		if (!target._special) {
-			return new FLError("Target for send is not 'special': " + msg.target);
+			return new FLError("Target for send is not 'special'" + msg.target);
 		}
 		var meth = msg.method;
 		if (target._special === 'contract') {

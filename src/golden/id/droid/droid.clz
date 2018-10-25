@@ -18,3 +18,38 @@ class PACKAGEFUNCTIONS.java {
     return _0
   }
 }
+src/golden/id/droid-to/test/golden/script/PACKAGEFUNCTIONS$expr1.java
+class PACKAGEFUNCTIONS$expr1.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
+    return test.golden.script.PACKAGEFUNCTIONS.expr1(cxt)
+  }
+}
+src/golden/id/droid-to/test/golden/script/PACKAGEFUNCTIONS$value1.java
+class PACKAGEFUNCTIONS$value1.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, [java.lang.Object args) {
+    return test.golden.script.PACKAGEFUNCTIONS.value1(cxt)
+  }
+}
+src/golden/id/droid-to/test/golden/script/PACKAGEFUNCTIONS.java
+class PACKAGEFUNCTIONS.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object expr1(org.ziniki.ziwsh.json.FLEvalContext _context) {
+    return org.flasck.jvm.fl.FLClosure.simple(test.golden.PACKAGEFUNCTIONS$id.class, new java.lang.Object[1] {
+        autobox["hello"]
+      })
+  }
+  static java.lang.Object value1(org.ziniki.ziwsh.json.FLEvalContext _context) {
+    return "hello"
+  }
+}

@@ -499,7 +499,7 @@ test.golden._Complex.prototype.inits_hello = function(msgs) {
   return 'hello, world';
 }
 
-test.golden.Complex.prototype.sayHello = function(v0) {
+test.golden._Complex.prototype.sayHello = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {

@@ -388,13 +388,10 @@ test.golden._TestCard.prototype.inits_data = function(msgs) {
   var v1 = FLEval.closure(Cons, 2, v0);
   var v2 = FLEval.closure(Cons, 8, v1);
   var ret = FLEval.closure(Cons, 5, v2);
-  var fld = FLEval.closure(FLEval.field, this, 'data');
-  var init = FLEval.closure(Send, fld, '_init', Nil);
-  msgs.curr = FLEval.closure(Cons, init, msgs.curr);
   return ret;
 }
 
-test.golden.TestCard.prototype.rejig = function(v0) {
+test.golden._TestCard.prototype.rejig = function(v0) {
   "use strict";
   var v1 = FLEval.closure(Cons, 9, Nil);
   var v2 = FLEval.closure(Cons, 11, v1);
