@@ -1,7 +1,6 @@
 package org.flasck.flas;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -10,7 +9,6 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.compiler.FLASCompiler;
-import org.flasck.flas.errors.ErrorResultException;
 
 public class Main {
 	public static void main(String[] args) {
@@ -24,8 +22,11 @@ public class Main {
 				return;
 			}
 			FLASCompiler compiler = new FLASCompiler(config);
+			compiler.scanWebZips();
 			for (File input : inputs)
-				failed |= processInput(compiler, input);
+				processInput(compiler, input);
+			if (compiler.showErrors(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true)))
+				failed = true;
 			if (!failed && compiler.getBuilder() != null)
 				compiler.getBuilder().build();
 		} catch (ArgumentException ex) {
@@ -35,22 +36,12 @@ public class Main {
 		System.exit(failed?1:0);
 	}
 
-	private static boolean processInput(FLASCompiler compiler, File input) {
-		boolean failed = false;
+	private static void processInput(FLASCompiler compiler, File input) {
 		try {
-			failed |= compiler.compile(input) == null;
-		} catch (ErrorResultException ex) {
-			try {
-				ex.errors.showTo(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true), 4);
-			} catch (IOException ex2) {
-				ex2.printStackTrace();
-			}
-			failed = true;
+			compiler.compile(input);
 		} catch (Throwable ex) {
 			ex.printStackTrace();
-			failed = true;
 		}
-		return failed;
 	}
 
 	public static void setLogLevels() {

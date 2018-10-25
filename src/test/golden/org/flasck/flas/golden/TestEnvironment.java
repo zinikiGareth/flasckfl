@@ -1,7 +1,6 @@
 package org.flasck.flas.golden;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -105,7 +104,7 @@ public class TestEnvironment {
 		compiler.unitjvm(useJVMRunner);
 		if (zip != null) {
 			compiler.webZipDir(zip.getParentFile());
-			assertFalse("there was an error reading the webzip files", compiler.useWebZip(zip.getName()));
+			compiler.useWebZip(zip.getName());
 		}
 		compiler.searchIn(new File("../FLASJvm/services/flim"));
 		if (importFrom.isDirectory())
@@ -125,6 +124,7 @@ public class TestEnvironment {
 			compiler.writeDependsTo(dependTo);
 		}
 		compiler.unitjvm(true);
+		compiler.scanWebZips();
 
 		return compiler;
 	}

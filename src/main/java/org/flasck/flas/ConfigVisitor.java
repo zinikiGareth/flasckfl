@@ -8,7 +8,7 @@ public interface ConfigVisitor {
 
 	void searchIn(File file);
 
-	boolean useWebZip(String called);
+	void useWebZip(String called);
 
 	void webZipDir(File file);
 

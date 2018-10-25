@@ -15,7 +15,7 @@ public class Configuration {
 	private File writeJVM;
 	private File webZipDownloads;
 	private File webZipDir;
-	private String useWebZip;
+	private List<String> useWebZips = new ArrayList<>();
 	private boolean buildDroid = true;
 
 	public Configuration() {
@@ -87,7 +87,7 @@ public class Configuration {
 						System.out.println("--webzip <name>");
 						System.exit(1);
 					}
-					useWebZip = args[++i];
+					useWebZips.add(args[++i]);
 				} else {
 					boolean matched = false;
 					/*
@@ -122,7 +122,8 @@ public class Configuration {
 		visitor.writeDroidTo(writeDroid, buildDroid );
 		visitor.webZipDir(webZipDir);
 		visitor.webZipDownloads(webZipDownloads);
-		visitor.useWebZip(useWebZip);
+		for (String s : useWebZips)
+			visitor.useWebZip(s);
 		if (unitjs || !unitjvm)
 			visitor.unitjs(true);
 		if (unitjvm)

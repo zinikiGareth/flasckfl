@@ -33,7 +33,7 @@ import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.htmlzip.BuilderSink;
 import org.flasck.flas.htmlzip.MultiSink;
-import org.flasck.flas.htmlzip.Sink;
+import org.flasck.flas.htmlzip.ShowCardSink;
 import org.flasck.flas.htmlzip.SplitZip;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
@@ -76,15 +76,23 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private File writeTestReports;
 	private final List<CompileResult> priors = new ArrayList<>();
 	private final List<File> utpaths = new ArrayList<File>();
+	private final List<String> webzips = new ArrayList<>();
 	private File webzipdir;
 	private File webdownloaddir;
 	private BuilderSink sink = new BuilderSink();
+	private ErrorResult errors = new ErrorResult();
 
 	public FLASCompiler(Configuration config) {
 		if (config != null)
 			config.visit(this);
 	}
 
+	// configuration aspects
+	@Override
+	public void dumpTypes(boolean d) {
+		this.dumpTypes = d;
+	}
+	
 	@Override
 	public void searchIn(File file) {
 		pkgdirs.add(file);
@@ -176,23 +184,42 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		this.writeTestReports = file;
 	}
 
+	@Override
+	public void unitjs(boolean b) {
+		this.unitjs = b;
+	}
+
+	@Override
+	public void unitjvm(boolean b) {
+		this.unitjvm = b;
+	}
+
+	@Override
+	public void webZipDownloads(File file) {
+		this.webdownloaddir = file;
+	}
+
+	@Override
+	public void webZipDir(File file) {
+		this.webzipdir = file;
+	}
+
+	@Override
+	public void useWebZip(String called) {
+		webzips.add(called);
+	}
+	
 	public void includePrior(CompileResult cr) {
 		priors.add(cr);
 	}
 
-	@Override
-	public void dumpTypes(boolean d) {
-		this.dumpTypes = d;
-	}
-	
 	// The objective of this method is to convert an entire package directory at one go
 	// Thus the entire context of this is a single package
 	public CompileResult compile(File dir) throws ErrorResultException, IOException, ClassNotFoundException {
 		String inPkg = dir.getName();
 		if (!dir.isDirectory()) {
-			ErrorResult errors = new ErrorResult();
 			errors.message((InputPosition)null, "there is no input directory " + dir);
-			throw new ErrorResultException(errors);
+			return null;
 		}
 
 		boolean failed = false;
@@ -216,10 +243,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			}
 		}
 
-		if (errors.hasErrors())
-			throw new ErrorResultException(errors);
-
-		if (failed)
+		if (failed || errors.hasErrors())
 			return null;
 
 		CompileResult cr = stage2(errors, null, inPkg, scope);
@@ -549,32 +573,18 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		return builder;
 	}
 
-	@Override
-	public void unitjs(boolean b) {
-		this.unitjs = b;
-	}
-
-	@Override
-	public void unitjvm(boolean b) {
-		this.unitjvm = b;
-	}
-
-	@Override
-	public void webZipDownloads(File file) {
-		this.webdownloaddir = file;
-	}
-
-	@Override
-	public void webZipDir(File file) {
-		this.webzipdir = file;
-	}
-
-	@Override
-	public boolean useWebZip(String called) {
+	public void scanWebZips() {
+		if (webzips.isEmpty())
+			return;
 		if (webzipdir == null) {
-			System.err.println("Must specify webzipdir before adding zips");
-			return true;
+			errors.message((Block)null, "using webzips requires a webzipdir");
+			return;
 		}
+		for (String s : webzips)
+			scanWebZip(s);
+	}
+
+	private void scanWebZip(final String called) {
 		File f = new File(webzipdir, called);
 		if (webdownloaddir != null) {
 			File dl = new File(webdownloaddir, called);
@@ -586,7 +596,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		}
 		if (!f.exists()) {
 			System.err.println("There is no webzip " + f);
-			return true;
 		}
 		SplitZip sz = new SplitZip();
 		try {
@@ -594,48 +603,17 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		} catch (IOException ex) {
 			System.err.println("Failed to read " + f);
 			System.err.println(ex);
-			return false;
 		}
-//		sink.dump();
-		return false;
+	}
+
+	public boolean showErrors(PrintWriter pw) {
+		if (!errors.hasErrors())
+			return false;
+		try {
+			errors.showTo(pw, 4);
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		return true;
 	}
 }
-
-class ShowCardSink implements Sink {
-	private String currentFile;
-
-	@Override
-	public void zipLocation(File fromZip) {
-	}
-
-	@Override
-	public void beginFile(String file) {
-		this.currentFile = file;
-	}
-
-	@Override
-	public void card(String tag, int from, int to) {
-		System.out.println("Recovered webzip card " + tag + " from " + currentFile);
-	}
-
-	@Override
-	public void holeid(String holeName, int from, int to) {
-	}
-
-	@Override
-	public void hole(int from, int to) {
-	}
-
-	@Override
-	public void identityAttr(String called, int from, int to) {
-	}
-
-	@Override
-	public void dodgyAttr(int from, int to) {
-	}
-
-	@Override
-	public void fileEnd() {
-	}
-}
-
