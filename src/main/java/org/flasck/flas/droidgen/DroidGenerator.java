@@ -77,7 +77,9 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		ByteCodeSink bcc = bce.newClass(sd.name());
 		bcc.generateAssociatedSourceFile();
 		DroidStructFieldGenerator fg = new DroidStructFieldGenerator(bcc, Access.PUBLIC);
-		sd.visitFields(fg);
+		if (sd.ty == StructType.STRUCT) {
+			sd.visitFields(fg);
+		}
 		String base = sd.ty == StructType.STRUCT?J.FLAS_STRUCT:J.FLAS_ENTITY; 
 		bcc.superclass(base);
 		{
@@ -92,8 +94,13 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				RWStructField fld = sd.fields.get(i);
 				if (fld.name.equals("id"))
 					continue;
-				if (fld.init != null)
-					ctor.assign(ctor.getField(ctor.myThis(), fld.name), ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", ctor.as(ctor.myThis(), J.OBJECT), ctor.as(ctor.classConst(fld.init.javaNameAsNestedClass()), J.OBJECT), ctor.arrayOf(J.OBJECT, new ArrayList<>()))).flush();
+				if (fld.init != null) {
+					final IExpr initVal = ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", ctor.as(ctor.myThis(), J.OBJECT), ctor.as(ctor.classConst(fld.init.javaNameAsNestedClass()), J.OBJECT), ctor.arrayOf(J.OBJECT, new ArrayList<>()));
+					if (sd.ty == StructType.STRUCT)
+						ctor.assign(ctor.getField(ctor.myThis(), fld.name), initVal).flush();
+					else
+						ctor.callSuper("void", J.FLAS_ENTITY, "closure", ctor.stringConst(fld.name), ctor.as(initVal, J.OBJECT)).flush();
+				}
 			}
 			ctor.returnVoid().flush();
 		}
@@ -106,7 +113,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			ctor.returnVoid().flush();
 		}
 		
-		if (!sd.fields.isEmpty()) { // generate an arguments constructor
+		if (!sd.fields.isEmpty()) {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar pv = gen.argument("[java.lang.Object", "args");
@@ -122,12 +129,16 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					continue;
 				if (fld.init != null)
 					continue;
-				meth.assign(meth.getField(ret, fld.name), meth.arrayElt(v, meth.intConst(ap++))).flush();
+				final IExpr val = meth.arrayElt(v, meth.intConst(ap++));
+				if (sd.ty == StructType.STRUCT)
+					meth.assign(meth.getField(ret, fld.name), val).flush();
+				else
+					meth.callVirtual("void", ret, "closure", meth.stringConst(fld.name), val).flush();
 			}
 			meth.returnObject(ret).flush();
 		}
 		
-		{
+		if (sd.ty == StructType.STRUCT) {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			gen.returns("void");
@@ -137,7 +148,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			dfe.returnVoid().flush();
 		}
 		
-		{
+		if (sd.ty == StructType.STRUCT) {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "toWire");
 			gen.argument(J.WIREENCODER, "wire");
 			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
@@ -150,7 +161,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			meth.returnObject(ret).flush();
 		}
 		
-		{
+		if (sd.ty == StructType.STRUCT) {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "fromWire");
 			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
 			gen.argument(J.JOBJ, "jo");
@@ -160,6 +171,15 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			Var ret = meth.avar(J.OBJECT, "ret");
 			meth.assign(ret, meth.makeNew(sd.name(), meth.as(cx, J.FLEVALCONTEXT))).flush();
 			meth.returnObject(ret).flush();
+		} else {
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "fromWire");
+			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
+			PendingVar wire = gen.argument(J.JDOC, "wire");
+			gen.returns(sd.name());
+			NewMethodDefiner meth = gen.done();
+			Var cx = pcx.getVar();
+			final IExpr flcxt = meth.as(cx, J.FLEVALCONTEXT);
+			meth.returnObject(meth.makeNew(sd.name(), flcxt, meth.callStatic(J.BACKING_DOCUMENT, J.BACKING_DOCUMENT, "from", flcxt, wire.getVar()))).flush();
 		}
 	}
 

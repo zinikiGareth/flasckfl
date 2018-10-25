@@ -1,0 +1,53 @@
+class Entity
+  super: org.flasck.jvm.fl.FLASEntity
+  <init>() -> void
+    {nextLocal 1}
+    org.ziniki.ziwsh.json.FLEvalContext cx = argument
+    @A = null
+    @B = as org.ziniki.ziwsh.model.BackingDocument(@A)
+    @C = super{org.flasck.jvm.fl.FLASEntity}.<init>[org.ziniki.ziwsh.json.FLEvalContext cx, @B] -> void
+    {flush @C}
+    {nextLocal 2}
+    Entity this = myThis
+    @D = as java.lang.Object(Entity this)
+    @E = cconst PACKAGEFUNCTIONS$init_f1.class
+    @F = as java.lang.Object(@E)
+    @G = arrayOf java.lang.Object[]
+    @H = callStatic org.flasck.jvm.fl.FLClosure.obj [@D, @F, @G] -> org.flasck.jvm.fl.FLClosure
+    @I = sconst 'f1'
+    @J = as java.lang.Object(@H)
+    @K = super{org.flasck.jvm.fl.FLASEntity}.closure[@I, @J] -> void
+    {flush @K}
+    @L = returnVoid
+    {flush @L}
+  <init>() -> void
+    {nextLocal 1}
+    org.ziniki.ziwsh.json.FLEvalContext cx = argument
+    {nextLocal 2}
+    org.ziniki.ziwsh.model.BackingDocument doc = argument
+    @A = super{org.flasck.jvm.fl.FLASEntity}.<init>[org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.model.BackingDocument doc] -> void
+    {flush @A}
+    @B = returnVoid
+    {flush @B}
+  static eval() -> Entity
+    {nextLocal 1}
+    org.ziniki.ziwsh.json.FLEvalContext cxt = argument
+    {nextLocal 2}
+    [java.lang.Object args = argument
+    {nextLocal 3}
+    Entity ret = avar Entity ret
+    @A = makeNew Entity [org.ziniki.ziwsh.json.FLEvalContext cxt]
+    @B = assign Entity ret <- @A
+    {flush @B}
+    @C = returnObject Entity ret
+    {flush @C}
+  static fromWire() -> Entity
+    {nextLocal 1}
+    org.ziniki.ziwsh.model.EntityDecodingContext cx = argument
+    {nextLocal 2}
+    org.ziniki.ziwsh.json.JDoc wire = argument
+    @A = as org.ziniki.ziwsh.json.FLEvalContext(org.ziniki.ziwsh.model.EntityDecodingContext cx)
+    @B = callStatic org.ziniki.ziwsh.model.BackingDocument.from [@A, org.ziniki.ziwsh.json.JDoc wire] -> org.ziniki.ziwsh.model.BackingDocument
+    @C = makeNew Entity [@A, @B]
+    @D = returnObject @C
+    {flush @D}
