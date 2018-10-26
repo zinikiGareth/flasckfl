@@ -96,4 +96,8 @@ public class Tokenizable {
 	public String toString() {
 		return "Tkz["+input.substring(0, pos)+"__"+input.substring(pos)+"]";
 	}
+
+	public int length() {
+		return input.length();
+	}
 }

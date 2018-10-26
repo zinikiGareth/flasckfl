@@ -18,13 +18,15 @@ public class FLASError implements Comparable<FLASError> {
 
 	@Override
 	public int compareTo(FLASError o) {
-		if (loc == null && o.loc == null)
-			return 0;
-		else if (loc == null)
-			return -1;
-		else if (o.loc == null)
+		if (loc != null && o.loc == null)
 			return 1;
-		else
-			return loc.compareTo(o.loc);
+		else if (loc == null && o.loc != null)
+			return -1;
+		else if (loc != null && o.loc != null) {
+			int dir = loc.compareTo(o.loc);
+			if (dir != 0)
+				return dir;
+		}
+		return msg.compareTo(o.msg);
 	}
 }

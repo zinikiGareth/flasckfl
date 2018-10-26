@@ -197,8 +197,6 @@ public class BlockTestData {
 	}
 
 	public static void assertBlocksEqual(Block expected, Block actual) {
-		BlockerTests.showBlock("Ex", 0, expected);
-		BlockerTests.showBlock("Ac", 0, actual);
 		int lines = expected.line.lines.size();
 		assertEquals(expected.line.lines.size(), actual.line.lines.size());
 		for (int i=0;i<lines;i++) {

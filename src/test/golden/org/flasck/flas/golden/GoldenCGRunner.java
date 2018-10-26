@@ -142,6 +142,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		FileUtils.assertDirectory(etmp);
 		PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
 		er.showTo(pw, 0);
+		pw.close();
 
 		if (errors != null && errors.isDirectory()) {
 			// we expected this, so check the errors are correct ...

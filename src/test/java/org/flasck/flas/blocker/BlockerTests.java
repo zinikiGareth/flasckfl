@@ -1,70 +1,107 @@
 package org.flasck.flas.blocker;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-
-import org.flasck.flas.blockForm.Block;
-import org.flasck.flas.blockForm.SingleLine;
-import org.flasck.flas.sampleData.BlockTestData;
+import org.flasck.flas.errors.ErrorReporter;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class BlockerTests {
-
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private ErrorReporter errors;
+	private BlockConsumer consumer;
+	private Blocker blocker;
+	private int lineNo = 1;
+	
+	@Before
+	public void setup() {
+		errors = context.mock(ErrorReporter.class);
+		consumer = context.mock(BlockConsumer.class);
+		blocker = new Blocker(errors, consumer);
+	}
+	
 	@Test
-	public void testBlockerProducesSensibleBlocks() {
-		List<Block> blocks = Blocker.block("\tpackage org.ziniki\n\t\tfib n = fib (n-1) + fib (n-2)\n");
-		assertEquals(1, blocks.size());
-		BlockTestData.assertBlocksEqual(BlockTestData.packageAndFibN(), blocks.get(0));
+	public void anEmptyFileProducesNoOutut() {
+		context.checking(new Expectations() {{
+		}});
+		blocker.flush();
 	}
 
 	@Test
-	public void testBlockerCanHandleContinuations() {
-		List<Block> blocks = Blocker.block("\tpackage org.ziniki\n\t\tfib n = fib (n-1)\n\t\t  + fib (n-2)\n");
-		assertEquals(1, blocks.size());
-		BlockTestData.assertBlocksEqual(BlockTestData.packageAndFibNSplit(), blocks.get(0));
+	public void oneLineComesAcrossCorrectly() {
+		context.checking(new Expectations() {{
+			oneOf(consumer).line(with(1), with(LineMatcher.match("package org.ziniki")));
+		}});
+		line("\tpackage org.ziniki");
+		blocker.flush();
 	}
 
+	@Test
+	public void oneLineNestedInsideAnotherIsHandledCorrectly() {
+		context.checking(new Expectations() {{
+			oneOf(consumer).line(with(1), with(LineMatcher.match("package org.ziniki")));
+			oneOf(consumer).line(with(2), with(LineMatcher.match("fib 1 = 1")));
+		}});
+		line("\tpackage org.ziniki");
+		line("\t\tfib 1 = 1");
+		blocker.flush();
+	}
+
+	@Test
+	public void aLineWithSpacesIsContinued() {
+		context.checking(new Expectations() {{
+			oneOf(consumer).line(with(1), with(LineMatcher.match("start continue")));
+		}});
+		line("\tstart");
+		line("\t  continue");
+		blocker.flush();
+	}
+	
 	@Test
 	public void testCommentsDontGetLost() {
-		List<Block> blocks = Blocker.block("hello\n\tpackage org.ziniki\nfred\n\t\tfib n = fib (n-1) + fib (n-2)\nbert\n");
-		assertEquals(2, blocks.size());
-		BlockTestData.assertBlocksEqual(BlockTestData.comment("hello"), blocks.get(0));
-		BlockTestData.assertBlocksEqual(BlockTestData.packageWithComments(), blocks.get(1));
+		context.checking(new Expectations() {{
+			oneOf(consumer).comment("hello");
+			oneOf(consumer).line(with(1), with(LineMatcher.match("package")));
+			oneOf(consumer).comment("fred");
+			oneOf(consumer).line(with(2), with(LineMatcher.match("decl")));
+			oneOf(consumer).comment("bert");
+		}});
+		line("hello");
+		line("\tpackage");
+		line("fred");
+		line("\t\tdecl");
+		line("bert");
+		blocker.flush();
 	}
-
+	
 	@Test
 	public void testBlockerCanHandleExdenting() {
-		List<Block> blocks = Blocker.block("\tpackage org.ziniki\n\t\tfib n = fib (n-1) + fib (n-2)\n\tpackage org.cardstack\n");
-		assertEquals(2, blocks.size());
-		BlockTestData.assertBlocksEqual(BlockTestData.packageAndFibN(), blocks.get(0));
-		BlockTestData.assertBlocksEqual(BlockTestData.packageCardStack(), blocks.get(1));
+		context.checking(new Expectations() {{
+			oneOf(consumer).line(with(1), with(LineMatcher.match("level1")));
+			oneOf(consumer).line(with(2), with(LineMatcher.match("level2")));
+			oneOf(consumer).line(with(1), with(LineMatcher.match("level1 again")));
+		}});
+		line("\tlevel1");
+		line("\t\tlevel2");
+		line("\tlevel1 again");
+		blocker.flush();
 	}
-
+	
 	@Test
 	public void testBlockerCanHandleMultipleDefnsAtSameScope() {
-		List<Block> blocks = Blocker.block("\tpackage org.ziniki\n\t\tfib n = fib (n-1) + fib (n-2)\n\t\tg n a b = g (n-1) (a+b) a\n");
-		assertEquals(1, blocks.size());
-		BlockTestData.assertBlocksEqual(BlockTestData.packageAndFibNWithG(), blocks.get(0));
+		context.checking(new Expectations() {{
+			oneOf(consumer).line(with(1), with(LineMatcher.match("scope")));
+			oneOf(consumer).line(with(2), with(LineMatcher.match("nest")));
+			oneOf(consumer).line(with(2), with(LineMatcher.match("same")));
+		}});
+		line("\tscope");
+		line("\t\tnest");
+		line("\t\tsame");
+		blocker.flush();
 	}
 
-	public static void showBlocks(String tag, int ind, List<Block> blocks) {
-		for (Block b : blocks) {
-			showBlock(tag, ind, b);
-		}
-	}
-
-	public static void showBlock(String tag, int ind, Block b) {
-		for (SingleLine sl : b.line.lines) {
-			System.out.print(tag + " ");
-			for (int i=0;i<ind;i++) {
-				System.out.print(' ');
-			}
-			System.out.print(sl.lineNo);
-			System.out.print(": ");
-			System.out.print(sl.line);
-			System.out.println();
-		}
-		showBlocks(tag, ind+2, b.nested);
+	private void line(String line) {
+		blocker.present("-", lineNo++, line);
 	}
 }

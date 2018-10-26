@@ -1,0 +1,29 @@
+package test.parsing;
+
+import static org.junit.Assert.assertTrue;
+
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.TDAIntroParser;
+import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.parser.TDAStructFieldParser;
+import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
+import org.junit.Test;
+
+public class TDAStructIntroParsingTests {
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
+
+	@Test
+	public void theSimplestStructCreatesAScopeEntryAndReturnsAFieldParser() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("Nil")));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Nil"));
+		assertTrue(nested instanceof TDAStructFieldParser);
+	}
+}

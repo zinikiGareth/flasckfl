@@ -3,6 +3,7 @@ package org.flasck.flas.errors;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -12,7 +13,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.utils.Justification;
 
-public class ErrorResult implements ErrorReporter {
+public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 	private final Set<FLASError> errors = new TreeSet<FLASError>();
 
 	public int count() {
@@ -52,25 +53,36 @@ public class ErrorResult implements ErrorReporter {
 		return CollectionUtils.nth(errors, i);
 	}
 	
-	public void showTo(Writer pw, int ind) throws IOException {
-		for (int i=0;i<ind-2;i++)
-			pw.append(' ');
-		pw.write(errors.size() + " error" + (errors.size() != 1?"s":"") + " encountered\n");
-		for (FLASError e : errors) {
-			for (int i=0;i<ind;i++)
-				pw.append(' ');
-			if (e.loc != null) {
-				pw.write(Justification.PADRIGHT.format(e.loc + ": ", 22) + (e.loc.text == null ? "" : e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off)));
+	public void showFromMark(ErrorMark mark, Writer pw, int ind) {
+		try {
+			for (FLASError e : errors) {
+				if (mark.contains(e))
+					continue;
+				for (int i=0;i<ind;i++)
+					pw.append(' ');
+				if (e.loc != null) {
+					pw.write(Justification.PADRIGHT.format(e.loc + ": ", 22) + (e.loc.text == null ? "" : e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off)));
+					pw.write('\n');
+				} else
+					pw.write("<unknown location>\n");
+				for (int i=0;i<ind;i++)
+					pw.append(' ');
+				pw.write(Justification.PADRIGHT.format("", 26));
+				pw.write(e.msg);
 				pw.write('\n');
-			} else
-				pw.write("<unknown location>\n");
-			for (int i=0;i<ind;i++)
-				pw.append(' ');
-			pw.write(Justification.PADRIGHT.format("", 26));
-			pw.write(e.msg);
-			pw.write('\n');
+			}
+			pw.flush();
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
-		pw.flush();
+	}
+	
+	public void showTo(Writer pw, int ind) throws IOException {
+		showFromMark(new ErrorMark(null), pw, ind);
+	}
+	
+	public ErrorMark mark() {
+		return new ErrorMark(this);
 	}
 
 	public String singleString() throws IOException {
@@ -93,5 +105,10 @@ public class ErrorResult implements ErrorReporter {
 		} catch (IOException ex) {
 			return ex.toString();
 		}
+	}
+
+	@Override
+	public Iterator<FLASError> iterator() {
+		return errors.iterator();
 	}
 }

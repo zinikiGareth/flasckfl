@@ -22,12 +22,11 @@ public class Main {
 				return;
 			}
 			FLASCompiler compiler = new FLASCompiler(config);
+			compiler.errorWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true));
 			compiler.scanWebZips();
 			for (File input : inputs)
 				processInput(compiler, input);
-			if (compiler.showErrors(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true)))
-				failed = true;
-			if (!failed && compiler.getBuilder() != null)
+			if (!compiler.hasErrors() && compiler.getBuilder() != null)
 				compiler.getBuilder().build();
 		} catch (ArgumentException ex) {
 			System.err.println(ex.getMessage());
@@ -38,7 +37,7 @@ public class Main {
 
 	private static void processInput(FLASCompiler compiler, File input) {
 		try {
-			compiler.compile(input);
+			compiler.parse(input);
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}

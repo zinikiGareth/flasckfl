@@ -24,6 +24,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.droidgen.DroidGenerator;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.flim.Builtin;
@@ -81,13 +82,14 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private File webdownloaddir;
 	private BuilderSink sink = new BuilderSink();
 	private ErrorResult errors = new ErrorResult();
+	private PrintWriter errorWriter;
 
 	public FLASCompiler(Configuration config) {
 		if (config != null)
 			config.visit(this);
 	}
 
-	// configuration aspects
+	// configuration aspects - should we break this off into a subclass?
 	@Override
 	public void dumpTypes(boolean d) {
 		this.dumpTypes = d;
@@ -209,12 +211,72 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		webzips.add(called);
 	}
 	
+	@Deprecated
 	public void includePrior(CompileResult cr) {
 		priors.add(cr);
 	}
 
+	public void errorWriter(PrintWriter printWriter) {
+		this.errorWriter = printWriter;
+	}
+
+	// Complete initialization by preparing the compiler for use
+	public void scanWebZips() {
+		if (webzips.isEmpty())
+			return;
+		if (webzipdir == null) {
+			errors.message((Block)null, "using webzips requires a webzipdir");
+			return;
+		}
+		for (String s : webzips)
+			scanWebZip(s);
+	}
+
+	private void scanWebZip(final String called) {
+		File f = new File(webzipdir, called);
+		if (webdownloaddir != null) {
+			File dl = new File(webdownloaddir, called);
+			if (dl.exists()) {
+				System.out.println("Moving download file " + dl + " to " + f);
+				FileUtils.copy(dl, f);
+				FileUtils.deleteDirectoryTree(dl);
+			}
+		}
+		if (!f.exists()) {
+			System.err.println("There is no webzip " + f);
+		}
+		SplitZip sz = new SplitZip();
+		try {
+			sz.split(new MultiSink(sink, new ShowCardSink()), f);
+		} catch (IOException ex) {
+			System.err.println("Failed to read " + f);
+			System.err.println(ex);
+		}
+	}
+
+	// Now read and parse all the files, passing it on to the alleged phase2
+	Phase2Processor p2 = new ActualPhase2Processor();
+	ParserScanner p1 = new ParsingPhase(errors, p2); 
+
+	public void parse(File dir) {
+		if (!dir.isDirectory()) {
+			errors.message((InputPosition)null, "there is no input directory " + dir);
+			return;
+		}
+
+		String inPkg = dir.getName();
+		System.out.println("Package " + inPkg);
+		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
+			ErrorMark mark = errors.mark();
+			System.out.println(" > " + f.getName());
+			p1.process(f);
+			errors.showFromMark(mark, errorWriter, 4);
+		}
+	}
+
 	// The objective of this method is to convert an entire package directory at one go
 	// Thus the entire context of this is a single package
+	@Deprecated // I'm deprecating this because I want to go to a different flow
 	public CompileResult compile(File dir) throws ErrorResultException, IOException, ClassNotFoundException {
 		String inPkg = dir.getName();
 		if (!dir.isDirectory()) {
@@ -223,7 +285,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		}
 
 		boolean failed = false;
-		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
 		final Scope scope = Scope.topScope(inPkg);
 		final List<String> pkgs = new ArrayList<String>();
@@ -573,47 +634,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		return builder;
 	}
 
-	public void scanWebZips() {
-		if (webzips.isEmpty())
-			return;
-		if (webzipdir == null) {
-			errors.message((Block)null, "using webzips requires a webzipdir");
-			return;
-		}
-		for (String s : webzips)
-			scanWebZip(s);
-	}
-
-	private void scanWebZip(final String called) {
-		File f = new File(webzipdir, called);
-		if (webdownloaddir != null) {
-			File dl = new File(webdownloaddir, called);
-			if (dl.exists()) {
-				System.out.println("Moving download file " + dl + " to " + f);
-				FileUtils.copy(dl, f);
-				FileUtils.deleteDirectoryTree(dl);
-			}
-		}
-		if (!f.exists()) {
-			System.err.println("There is no webzip " + f);
-		}
-		SplitZip sz = new SplitZip();
-		try {
-			sz.split(new MultiSink(sink, new ShowCardSink()), f);
-		} catch (IOException ex) {
-			System.err.println("Failed to read " + f);
-			System.err.println(ex);
-		}
-	}
-
-	public boolean showErrors(PrintWriter pw) {
-		if (!errors.hasErrors())
-			return false;
-		try {
-			errors.showTo(pw, 4);
-		} catch (IOException ex2) {
-			ex2.printStackTrace();
-		}
-		return true;
+	public boolean hasErrors() {
+		return errors.hasErrors();
 	}
 }
