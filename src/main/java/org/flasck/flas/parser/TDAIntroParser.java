@@ -32,6 +32,7 @@ public class TDAIntroParser implements TDAParsing {
 
 		switch (kw.text) {
 		case "struct":
+		case "entity":
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
@@ -46,7 +47,7 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}
-			consumer.newStruct(new StructDefn(kw.location, null, StructType.STRUCT, new SolidName(null, tn.text), true, polys));
+			consumer.newStruct(new StructDefn(kw.location, tn.location, StructDefn.StructType.valueOf(kw.text.toUpperCase()), new SolidName(null, tn.text), true, polys));
 			return new TDAStructFieldParser();
 		default:
 			return null;

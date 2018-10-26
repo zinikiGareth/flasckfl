@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAStructFieldParser;
@@ -54,7 +55,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void aPolymorphicStructDefinitionCreatesTheRightScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("Cons").poly("A")));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("Cons").poly("A").locs(0,7)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Cons A"));
@@ -70,5 +71,15 @@ public class TDAStructIntroParsingTests {
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNull(nested);
+	}
+
+	@Test
+	public void weCanTellAnEntityApartFromAStruct() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("Fred").locs(0,7).as(StructType.ENTITY)));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("entity Fred"));
+		assertTrue(nested instanceof TDAStructFieldParser);
 	}
 }
