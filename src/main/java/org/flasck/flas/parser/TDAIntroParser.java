@@ -1,16 +1,24 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class TDAIntroParser implements TDAParsing {
+	private final ErrorReporter errors;
 	private final TopLevelDefnConsumer consumer;
 
 	public TDAIntroParser(ErrorReporter errors, TopLevelDefnConsumer consumer) {
+		this.errors = errors;
 		this.consumer = consumer;
 	}
 	
@@ -22,8 +30,27 @@ public class TDAIntroParser implements TDAParsing {
 		if (kw == null)
 			return null; // in the "nothing doing" sense
 
-		consumer.newStruct(new StructDefn(kw.location, null, StructType.STRUCT, new SolidName(null, "Nil"), true, null));
-		return new TDAStructFieldParser();
+		switch (kw.text) {
+		case "struct":
+			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid or missing type name");
+				return null;
+			}
+			List<PolyType> polys = new ArrayList<>();
+			while (toks.hasMore()) {
+				PolyTypeToken ta = PolyTypeToken.from(toks);
+				if (ta == null) {
+					errors.message(toks, "invalid type argument");
+					return null;
+				} else
+					polys.add(new PolyType(ta.location, ta.text));
+			}
+			consumer.newStruct(new StructDefn(kw.location, null, StructType.STRUCT, new SolidName(null, tn.text), true, polys));
+			return new TDAStructFieldParser();
+		default:
+			return null;
+		}
 	}
 
 }

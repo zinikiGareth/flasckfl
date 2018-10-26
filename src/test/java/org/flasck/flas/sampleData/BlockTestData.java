@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.SingleLine;
-import org.flasck.flas.blocker.BlockerTests;
 
 public class BlockTestData {
 	public static Block packageWithComments() {

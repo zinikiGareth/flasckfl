@@ -28,6 +28,24 @@ public class TDABasicIntroParsingTests {
 		assertNull(nested);
 	}
 
+	@Test
+	public void aLineWithoutAPlausibleKeywordDoesNothing() {
+		context.checking(new Expectations() {{
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line("+x"));
+		assertNull(nested);
+	}
+
+	@Test
+	public void aLineWithAnUnrecognizedKeywordDoesNothing() {
+		context.checking(new Expectations() {{
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line("garbage"));
+		assertNull(nested);
+	}
+
 	public static Tokenizable line(String string) {
 		return new Tokenizable(TDAStoryTests.line(string));
 	}
