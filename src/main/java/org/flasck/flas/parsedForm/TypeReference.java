@@ -42,6 +42,6 @@ public class TypeReference implements Locatable {
 
 	@Override
 	public String toString() {
-		return name + (polys!= null?" " + polys:"");
+		return name + (polys!= null && !polys.isEmpty()?polys:"");
 	}
 }

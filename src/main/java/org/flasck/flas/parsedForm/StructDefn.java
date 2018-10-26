@@ -9,8 +9,9 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.parser.StructFieldConsumer;
 
-public class StructDefn implements AsString, Locatable {
+public class StructDefn implements AsString, Locatable, StructFieldConsumer {
 	public enum StructType { STRUCT, ENTITY };
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;

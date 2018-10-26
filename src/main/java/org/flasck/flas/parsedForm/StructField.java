@@ -29,4 +29,9 @@ public class StructField implements Locatable {
 	public InputPosition location() {
 		return loc;
 	}
+	
+	@Override
+	public String toString() {
+		return type + " " + name + " (" + type.location().off + "/" + loc.off + ")";
+	}
 }

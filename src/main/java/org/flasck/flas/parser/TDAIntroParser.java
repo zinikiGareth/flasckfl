@@ -7,7 +7,6 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -47,8 +46,9 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}
-			consumer.newStruct(new StructDefn(kw.location, tn.location, StructDefn.StructType.valueOf(kw.text.toUpperCase()), new SolidName(null, tn.text), true, polys));
-			return new TDAStructFieldParser();
+			final StructDefn sd = new StructDefn(kw.location, tn.location, StructDefn.StructType.valueOf(kw.text.toUpperCase()), new SolidName(null, tn.text), true, polys);
+			consumer.newStruct(sd);
+			return new TDAStructFieldParser(errors, sd);
 		default:
 			return null;
 		}
