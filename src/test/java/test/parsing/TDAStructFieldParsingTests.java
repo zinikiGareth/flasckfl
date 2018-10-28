@@ -2,6 +2,7 @@ package test.parsing;
 
 import static org.junit.Assert.assertNull;
 
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.StructFieldConsumer;
 import org.flasck.flas.parser.TDAParsing;
@@ -9,8 +10,11 @@ import org.flasck.flas.parser.TDAStructFieldParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+
+import test.flas.testrunner.StringLiteralMatcher;
 
 public class TDAStructFieldParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -73,6 +77,28 @@ public class TDAStructFieldParsingTests {
 	@Test
 	public void junkIsNotPermittedAtTheEndOfTheLine() {
 		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg for");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "expected <- or end of line");
+		}});
+		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(toks);
+		assertNull(nested);
+	}
+
+	@Test
+	public void aFieldMayHaveAnInitializer() {
+		context.checking(new Expectations() {{
+			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, new StringLiteralMatcher("foo"))));
+		}});
+		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg <- 'foo'"));
+		assertNull(nested);
+	}
+
+	@Test
+	@Ignore // I can't find any specific junk that doesn't cause a different problem
+	public void junkIsNotPermittedAfterAnAssignment() {
+		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg <- (13) 14");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid tokens after expression");
 		}});
