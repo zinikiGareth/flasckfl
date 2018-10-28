@@ -27,6 +27,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	static String checkOption = System.getProperty("org.flasck.golden.check");
 	static boolean checkEverything = checkOption == null || !checkOption.equalsIgnoreCase("false");
 	static boolean checkNothing = checkOption != null && checkOption.equalsIgnoreCase("nothing");
+	static String tdaOption = System.getProperty("org.flasck.golden.tda");
+	static boolean useTDA = tdaOption != null && Boolean.parseBoolean(tdaOption);
 	static String stripNumbersS = System.getProperty("org.flasck.golden.strip"); 
 	static boolean stripNumbers = stripNumbersS != null && stripNumbersS.equalsIgnoreCase("true");
 	static String useRunner = System.getProperty("org.flasck.golden.runner");
@@ -100,26 +102,38 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		
 		FLASCompiler compiler = te.configureCompiler();
 		File dir = new File(s, "test.golden");
-		ErrorResult er = new ErrorResult();
-		for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {
-			StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
-			te.dump(input, sr, er);
-		}
-		if (er.hasErrors()) {
-			handleErrors(te, s, er);
-			return;
-		}
-
-		try {
-			compiler.compile(dir);
-			File errors = new File(s, "errors");
-			if (errors.isDirectory())
-				fail("expected errors, but none occurred");
-		} catch (ErrorResultException ex) {
-			handleErrors(te, s, ex.errors);
-			return;
+		if (!useTDA) {
+			ErrorResult er = new ErrorResult();
+			for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {
+				StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
+				te.dump(input, sr, er);
+			}
+			if (er.hasErrors()) {
+				handleErrors(te, s, er);
+				return;
+			}
 		}
 
+		if (useTDA) {
+			final File actualErrors = new File(s, "errors-tmp");
+			final File expectedErrors = new File(s, "errors");
+			FileUtils.assertDirectory(actualErrors);
+			compiler.errorWriter(new PrintWriter(new File(s, "errors-tmp/errors")));
+			compiler.parse(dir);
+			checkExpectedErrors(te, expectedErrors, actualErrors);
+//			throw new UtilException("Didn't think about UTs did you?");
+		} else {
+			try {
+				compiler.compile(dir);
+				File errors = new File(s, "errors");
+				if (errors.isDirectory())
+					fail("expected errors, but none occurred");
+			} catch (ErrorResultException ex) {
+				handleErrors(te, s, ex.errors);
+				return;
+			}
+		}
+		
 		te.checkTestResults();
 		te.checkGeneration();
 
@@ -130,6 +144,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			*/
 	}
 
+	@Deprecated
 	protected static void handleErrors(TestEnvironment te, String s, ErrorResult er) throws FileNotFoundException, IOException {
 		// either way, write the errors to a suitable directory
 		File etmp = new File(s, "errors-tmp"); // may or may not be needed
@@ -137,6 +152,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		handleErrors(te, etmp, er, errors);
 	}
 
+	@Deprecated
 	protected static void handleErrors(TestEnvironment te, File etmp, ErrorResult er, File errors) throws FileNotFoundException, IOException {
 		// either way, write the errors to a suitable directory
 		FileUtils.assertDirectory(etmp);
@@ -150,6 +166,16 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		} else {
 			// we didn't expect the error, so by definition is an error
 			er.showTo(new PrintWriter(System.out), 0);
+			fail("unexpected compilation errors");
+		}
+	}
+
+	private static void checkExpectedErrors(TestEnvironment te, File expectedErrors, File actualErrors) {
+		final File aef = new File(actualErrors, "errors");
+		if (expectedErrors.isDirectory())
+			te.assertGolden(expectedErrors, actualErrors);
+		else if (aef.length() > 0) {
+			FileUtils.cat(aef);
 			fail("unexpected compilation errors");
 		}
 	}

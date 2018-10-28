@@ -59,13 +59,13 @@ public class TestEnvironment {
 	private File c3p0;
 
 	public TestEnvironment(File jvmdir, String root, boolean isLegacy, boolean useJSRunner, boolean useJVMRunner, boolean checkNothing, boolean checkEverything, boolean stripNumbers) throws FileNotFoundException, IOException {
-		this.stripNumbers = stripNumbers;
 		this.rootdir = new File(root, "test.golden");
 		this.isLegacy = isLegacy;
 		this.useJSRunner = useJSRunner;
 		this.useJVMRunner = useJVMRunner;
 		this.checkNothing = checkNothing;
 		this.checkEverything = checkEverything;
+		this.stripNumbers = stripNumbers;
 		importFrom = new File(root, "import");
 		zip = zipWebZip(root);
 		pform = new File(root, "parser-tmp");
