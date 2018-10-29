@@ -46,7 +46,7 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}
-			final StructDefn sd = new StructDefn(kw.location, tn.location, StructDefn.StructType.valueOf(kw.text.toUpperCase()), new SolidName(null, tn.text), true, polys);
+			final StructDefn sd = new StructDefn(kw.location, tn.location, StructDefn.StructType.valueOf(kw.text.toUpperCase()), consumer.qualifyName(tn.text), true, polys);
 			consumer.newStruct(sd);
 			return new TDAStructFieldParser(errors, sd);
 		default:

@@ -1,5 +1,9 @@
 package org.flasck.flas.compiler;
 
-public interface Phase2Processor {
+import org.flasck.flas.parser.TopLevelDefnConsumer;
+
+public interface Phase2Processor extends TopLevelDefnConsumer {
+
+	void process();
 
 }

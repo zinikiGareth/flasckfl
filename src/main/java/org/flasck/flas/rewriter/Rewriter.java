@@ -147,6 +147,7 @@ import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckStringable;
+import org.flasck.flas.testrunner.UnitTests;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.types.FunctionType;
@@ -802,6 +803,9 @@ public class Rewriter implements CodeGenRegistry {
 				// do nothing here
 			} else if (val instanceof TupleMember) {
 				// do nothing here
+			} else if (val instanceof UnitTests) {
+				// Do we want to start again with another package scope?
+				pass1(cx, ((UnitTests)val).scope());
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -850,6 +854,9 @@ public class Rewriter implements CodeGenRegistry {
 				// do nothing here
 			} else if (val instanceof ObjectDefn) {
 				; // we should probably rewrite the fields portion
+			} else if (val instanceof UnitTests) {
+				// Do we want to start again with another package scope?
+				pass2(cx, ((UnitTests)val).scope());
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -878,6 +885,9 @@ public class Rewriter implements CodeGenRegistry {
 				rewriteHI(cx, (HandlerImplements)val, from);
 			} else if (val instanceof TupleMember) {
 				rewrite(cx, (TupleMember)val);
+			} else if (val instanceof UnitTests) {
+				// Do we want to start again with another package scope?
+				pass3(cx, ((UnitTests)val).scope());
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else

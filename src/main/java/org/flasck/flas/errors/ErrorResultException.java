@@ -2,9 +2,9 @@ package org.flasck.flas.errors;
 
 @SuppressWarnings("serial")
 public class ErrorResultException extends Exception {
-	public final ErrorResult errors;
+	public final ErrorReporter errors;
 
-	public ErrorResultException(ErrorResult errors) {
+	public ErrorResultException(ErrorReporter errors) {
 		this.errors = errors;
 	}
 

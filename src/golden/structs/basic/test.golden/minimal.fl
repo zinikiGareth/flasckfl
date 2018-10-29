@@ -1,0 +1,9 @@
+	struct Basic
+		String val
+	
+	struct WithDefault
+		String def <- "moose"
+		
+	s1 = Basic "hello"
+	s2 = Basic "world"
+	s3 = WithDefault

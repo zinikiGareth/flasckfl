@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.stories.StoryRet;
@@ -145,7 +146,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	}
 
 	@Deprecated
-	protected static void handleErrors(TestEnvironment te, String s, ErrorResult er) throws FileNotFoundException, IOException {
+	protected static void handleErrors(TestEnvironment te, String s, ErrorReporter er) throws FileNotFoundException, IOException {
 		// either way, write the errors to a suitable directory
 		File etmp = new File(s, "errors-tmp"); // may or may not be needed
 		File errors = new File(s, "errors");
@@ -153,11 +154,12 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	}
 
 	@Deprecated
-	protected static void handleErrors(TestEnvironment te, File etmp, ErrorResult er, File errors) throws FileNotFoundException, IOException {
+	protected static void handleErrors(TestEnvironment te, File etmp, ErrorReporter er, File errors) throws FileNotFoundException, IOException {
+		ErrorResult eres = (ErrorResult) er;
 		// either way, write the errors to a suitable directory
 		FileUtils.assertDirectory(etmp);
 		PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
-		er.showTo(pw, 0);
+		eres.showTo(pw, 0);
 		pw.close();
 
 		if (errors != null && errors.isDirectory()) {
@@ -165,7 +167,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			te.assertGolden(errors, etmp);
 		} else {
 			// we didn't expect the error, so by definition is an error
-			er.showTo(new PrintWriter(System.out), 0);
+			eres.showTo(new PrintWriter(System.out), 0);
 			fail("unexpected compilation errors");
 		}
 	}

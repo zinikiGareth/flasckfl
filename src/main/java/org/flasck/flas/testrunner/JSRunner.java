@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -111,7 +112,7 @@ public class JSRunner extends CommonTestRunner {
 				compiler.writeJSTo(scriptDir);
 				tcr = compiler.createJS(prior.getPackage().uniqueName() + ".script", prior, scope);
 			} catch (ErrorResultException ex) {
-				ex.errors.showTo(new PrintWriter(System.err), 0);
+				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
 			}
 			html = File.createTempFile("testScript", ".html");

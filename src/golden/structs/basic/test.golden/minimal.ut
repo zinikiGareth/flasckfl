@@ -1,0 +1,11 @@
+	test s1 is hello
+		assert s1.val
+			"hello"
+			
+	test s2 is world
+		assert s2.val
+			"world"
+			
+	test s3 is moose
+		assert s3.def
+			"moose"

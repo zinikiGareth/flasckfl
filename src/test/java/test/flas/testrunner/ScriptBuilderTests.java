@@ -29,11 +29,13 @@ import org.flasck.flas.testrunner.SingleTestCase;
 import org.flasck.flas.testrunner.TestCaseRunner;
 import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.TestScript;
+import org.flasck.flas.testrunner.UnitTests;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -46,11 +48,18 @@ public class ScriptBuilderTests {
 	PackageName pn = new PackageName(pkg);
 	CardName cn = new CardName(pn, "Card");
 	IScope priorScope = context.mock(IScope.class);
-	TestScript script = new TestScript(reporter, priorScope, spkg);
+	TestScript script;
 	InputPosition posn = new InputPosition("test", 1, 1, null);
 	List<Exception> errs = new ArrayList<Exception>();
 	TestRunner stepRunner = context.mock(TestRunner.class);
 	
+	@Before
+	public void expectScopeDefn() {
+		context.checking(new Expectations() {{
+			allowing(priorScope).define(with("script"), with(any(UnitTests.class)));
+		}});
+		script = new TestScript(reporter, priorScope, spkg);
+	}
 	@Test
 	public void testABuilderHasANonNullScope() {
 		Scope scope = script.scope();

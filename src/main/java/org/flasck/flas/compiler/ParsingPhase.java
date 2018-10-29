@@ -10,19 +10,19 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.ScopeBuilder;
+import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAIntroParser;
+import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
 
 public class ParsingPhase implements ParserScanner {
 	private final ErrorReporter errors;
 	private final Blocker blocker;
 
-	public ParsingPhase(ErrorReporter errors, Phase2Processor p2) {
+	public ParsingPhase(ErrorReporter errors, TopLevelDefnConsumer sb) {
 		this.errors = errors;
 		// new Detoxer(errors, p2);
-		ScopeBuilder sb = new ScopeBuilder(errors/*, detoxer */);
-		TDANester story = new TDANester(new TDAMultiParser(errors, sb, TDAIntroParser.class /*, FunctionParser.class, TupleDeclarationParser.class */));
+		TDANester story = new TDANester(new TDAMultiParser(errors, sb, TDAIntroParser.class, TDAFunctionParser.class /*, TupleDeclarationParser.class */));
 //		LineParser parser = new LineParser(errors/*, detoxer*/);
 		this.blocker = new Blocker(errors, story);
 	}

@@ -28,7 +28,7 @@ public class TestScript implements TestScriptBuilder {
 		this.reporter = errors;
 		this.priorScope = inScope;
 		this.defineInPkg = defineInPkg;
-		this.scope = Scope.topScope(defineInPkg);
+		this.scope = new UnitTests(priorScope, defineInPkg).scope();
 	}
 
 	@Override

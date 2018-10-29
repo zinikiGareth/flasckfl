@@ -17,6 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.debug.PFDumper;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.stories.StoryRet;
 import org.zinutils.system.RunProcess;

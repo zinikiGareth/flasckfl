@@ -17,6 +17,7 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.UtilException;
 
+@Deprecated // Rewrite this inside TDAExpressionParser using TDD from (adjusted) existing tests
 public class Expression implements TryParsing {
 	int SHIFT = 1;
 	int REDUCE = 3;

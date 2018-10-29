@@ -2,8 +2,6 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -37,9 +35,10 @@ public class TDAStructFieldParser implements TDAParsing {
 			errors.message(toks, "'id' is a reserved field name");
 			return null;
 		}
+		ReturnParser ret = new ReturnParser();
 		if (!toks.hasMore()) {
 			builder.addField(new StructField(kw.location, accessor, type, kw.text));
-			return null;
+			ret.noNest(errors);
 		} else {
 			toks.skipWS();
 			InputPosition assOp = toks.realinfo();
@@ -49,20 +48,8 @@ public class TDAStructFieldParser implements TDAParsing {
 				return null;
 			}
 			assOp.endAt(toks.at());
-			// TDA
-			Object o = new Expression().tryParsing(toks);
-			if (o == null)
-				errors.message(toks, "not a valid expression");
-			else if (o instanceof ErrorReporter) {
-				errors.merge((ErrorReporter)o);
-				ErrorResult er = (ErrorResult)o;
-				for (FLASError e : er)
-					errors.message(e);
-			} else if (toks.hasMore())
-				errors.message(toks, "invalid tokens after expression");
-			else
-				builder.addField(new StructField(kw.location, assOp, accessor, type, kw.text, o));
-			return null;
+			new TDAExpressionParser(errors, expr -> {ret.noNest(errors); builder.addField(new StructField(kw.location, assOp, accessor, type, kw.text, expr));}).tryParsing(toks);
 		}
+		return ret.get();
 	}
 }

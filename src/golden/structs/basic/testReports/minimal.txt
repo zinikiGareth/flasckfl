@@ -1,0 +1,6 @@
+PASSED: s1 is hello (jvm)
+PASSED: s2 is world (jvm)
+PASSED: s3 is moose (jvm)
+PASSED: s1 is hello (js)
+PASSED: s2 is world (js)
+PASSED: s3 is moose (js)

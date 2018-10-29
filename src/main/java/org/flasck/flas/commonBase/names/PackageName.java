@@ -48,6 +48,14 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 		return name;
 	}
 
+	public String finalPart() {
+		int idx = name.lastIndexOf('.');
+		if (idx == -1)
+			return name;
+		else
+			return name.substring(idx+1);
+	}
+
 	@Override
 	public String writeToXML(XMLElement xe) {
 		XMLElement ty = xe.addElement("Package");

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.Scope;
@@ -82,7 +83,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 				tcr = compiler.createJVM(scriptPkg, prior, scope);
 				spkg = scriptPkg;
 			} catch (ErrorResultException ex) {
-				ex.errors.showTo(new PrintWriter(System.err), 0);
+				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
 			}
 		} catch (Exception ex) {

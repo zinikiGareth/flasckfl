@@ -3,6 +3,8 @@ package test.parsing;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parser.TDAIntroParser;
@@ -23,6 +25,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void theSimplestStructCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
+			allowing(builder).qualifyName("Nil"); will(returnValue(new SolidName(null, "Nil")));
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("Nil")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
@@ -55,6 +58,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void aPolymorphicStructDefinitionCreatesTheRightScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
+			allowing(builder).qualifyName("Cons"); will(returnValue(new SolidName(null, "Cons")));
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("Cons").poly("A").locs(0,7)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
@@ -76,10 +80,22 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void weCanTellAnEntityApartFromAStruct() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("Fred").locs(0,7).as(StructType.ENTITY)));
+			allowing(builder).qualifyName("Fred"); will(returnValue(new SolidName(new PackageName("test.names"), "Fred")));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,7).as(StructType.ENTITY)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("entity Fred"));
+		assertTrue(nested instanceof TDAStructFieldParser);
+	}
+
+	@Test
+	public void structsInPackagesHaveQualifiedNames() {
+		context.checking(new Expectations() {{
+			allowing(builder).qualifyName("InPackage"); will(returnValue(new SolidName(new PackageName("test.names"), "InPackage")));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.InPackage")));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct InPackage"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
 }

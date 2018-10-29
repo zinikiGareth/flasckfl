@@ -1,16 +1,16 @@
 package test.parsing;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.StructFieldConsumer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAStructFieldParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class TDAStructFieldParsingTests {
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("A head"));
-		assertNull(nested);
+		assertTrue(nested instanceof NoNestingParser);
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class TDAStructFieldParsingTests {
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg"));
-		assertNull(nested);
+		assertTrue(nested instanceof NoNestingParser);
 	}
 
 	@Test
@@ -92,13 +92,12 @@ public class TDAStructFieldParsingTests {
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg <- 'foo'"));
-		assertNull(nested);
+		assertTrue(nested instanceof NoNestingParser);
 	}
 
 	@Test
-	@Ignore // I can't find any specific junk that doesn't cause a different problem
 	public void junkIsNotPermittedAfterAnAssignment() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg <- (13) 14");
+		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg <- 13)");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid tokens after expression");
 		}});

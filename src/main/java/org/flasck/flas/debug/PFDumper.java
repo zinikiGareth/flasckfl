@@ -1,4 +1,4 @@
-package org.flasck.flas.golden;
+package org.flasck.flas.debug;
 
 import java.util.List;
 
@@ -58,6 +58,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.testrunner.UnitTests;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Indenter;
@@ -406,6 +407,8 @@ public class PFDumper {
 				for (TypeReference p : t.polys())
 					dumpRecursive(ind, p);
 			}
+		} else if (obj instanceof UnitTests) {
+			dumpScope(pw.indent(), ((UnitTests)obj).scope());
 		} else
 			throw new UtilException("Cannot handle dumping " + obj.getClass());
 		if (obj instanceof TemplateFormat) {
@@ -459,6 +462,7 @@ public class PFDumper {
 		for (ScopeEntry k : s) {
 			dumpRecursive(pi, k.getValue());
 		}
+		pi.flush();
 	}
 
 	protected void dumpList(Indenter pw, List<?> objs) {

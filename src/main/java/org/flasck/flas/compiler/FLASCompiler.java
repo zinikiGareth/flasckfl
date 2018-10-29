@@ -25,6 +25,7 @@ import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorMark;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.flim.Builtin;
@@ -50,6 +51,7 @@ import org.flasck.flas.template.TemplateTraversor;
 import org.flasck.flas.testrunner.FileUnitTestResultHandler;
 import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
+import org.flasck.flas.testrunner.UnitTestPhase;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
@@ -62,6 +64,7 @@ import org.zinutils.utils.MultiTextEmitter;
 
 public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
+	public static boolean backwardCompatibilityMode = true;
 	private boolean dumpTypes = false;
 	private boolean unitjs;
 	private boolean unitjvm;
@@ -255,9 +258,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	// Now read and parse all the files, passing it on to the alleged phase2
-	Phase2Processor p2 = new ActualPhase2Processor();
-	ParserScanner p1 = new ParsingPhase(errors, p2); 
-
 	public void parse(File dir) {
 		if (!dir.isDirectory()) {
 			errors.message((InputPosition)null, "there is no input directory " + dir);
@@ -266,12 +266,23 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 		String inPkg = dir.getName();
 		System.out.println("Package " + inPkg);
+		ActualPhase2Processor p2 = new ActualPhase2Processor(errors, this, inPkg);
+		ParsingPhase p1 = new ParsingPhase(errors, p2);
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			ErrorMark mark = errors.mark();
 			System.out.println(" > " + f.getName());
 			p1.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
 		}
+		UnitTestPhase ut = new UnitTestPhase(errors, p2);
+		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
+			ErrorMark mark = errors.mark();
+			System.out.println(" > " + f.getName());
+			ut.process(f);
+			errors.showFromMark(mark, errorWriter, 4);
+		}
+		p2.process();
+		ut.runTests(unitjvm, unitjs, writeTestReports, utpaths);
 	}
 
 	// The objective of this method is to convert an entire package directory at one go
@@ -353,7 +364,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		return cr;
 	}
 
-	private CompileResult stage2(ErrorResult errors, CompileResult prior, String inPkg, Scope scope) throws ErrorResultException, IOException {
+	CompileResult stage2(ErrorReporter er, CompileResult prior, String inPkg, Scope scope) throws ErrorResultException, IOException {
+		ErrorResult errors = (ErrorResult) er;
 		File writeTo = writeJS!= null ? new File(writeJS, inPkg + ".js"):null;
 		File exportTo = writeFlim!=null?new File(writeFlim, inPkg + ".flim"):null;
 			
