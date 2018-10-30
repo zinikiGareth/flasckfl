@@ -697,10 +697,10 @@ public class Rewriter implements CodeGenRegistry {
 		}
 	}
 
-	public void rewritePackageScope(CompileResult prior, String inPkg, final Scope scope) {
+	public void rewritePackageScope(String priorPackage, Scope priorScope, String inPkg, final Scope scope) {
 		NamingContext rc = new RootContext();
-		if (prior != null) {
-			rc = new PackageContext(rc, new PackageName(prior.getPackage().uniqueName()), prior.getScope());
+		if (priorPackage != null) {
+			rc = new PackageContext(rc, new PackageName(priorPackage), priorScope);
 		//	rc = doRewriting(rc, prior.getPackage().uniqueName(), prior.getScope());
 		}
 		doRewriting(rc, inPkg, scope);

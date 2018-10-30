@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.testrunner.AssertFailed;
 import org.flasck.flas.testrunner.TestRunner;
+import org.flasck.flas.testrunner.TestScript;
 import org.flasck.flas.testrunner.UnitTestResultHandler;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.types.PolyVar;
@@ -151,9 +152,10 @@ public class SimpleUnitTestRunnerTests {
 
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
-		UnitTestRunner r = new UnitTestRunner(errors, sc, prior);
+		UnitTestRunner r = new UnitTestRunner(errors);
+		TestScript script = r.prepare(sc, runner, prior.getPackage().uniqueName()+".script", prior.getScope(), f);
 		r.sendResultsTo(resultHandler);
-		r.run(f, runner);
+		r.run(runner, script);
 	}
 
 	private File createFile(String... lines) throws IOException {

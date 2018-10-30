@@ -90,9 +90,18 @@ public class JSRunner extends CommonTestRunner {
 	private Page page;
 	private Map<String, CardHandle> cards = new TreeMap<>();
 	private File html;
+	private final Iterable<File> jsFiles;
 	
+	@Deprecated // the old one for compile()
 	public JSRunner(CompileResult cr) {
 		super(cr);
+		this.jsFiles = cr.jsFiles();
+		browser = BrowserFactory.getWebKit();
+	}
+
+	public JSRunner() {
+		super();
+		this.jsFiles = null;
 		browser = BrowserFactory.getWebKit();
 	}
 
@@ -110,7 +119,7 @@ public class JSRunner extends CommonTestRunner {
 			scriptDir.deleteOnExit();
 			try {
 				compiler.writeJSTo(scriptDir);
-				tcr = compiler.createJS(prior.getPackage().uniqueName() + ".script", prior, scope);
+				tcr = compiler.createJS(testPkg, compiledPkg, compiledScope, scope);
 			} catch (ErrorResultException ex) {
 				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
@@ -123,7 +132,7 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<head>");
 			// probably wants to be config :-)
 			pw.println("<script src='file:" + System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js' type='text/javascript'></script>");
-			for (File f : prior.jsFiles())
+			for (File f : jsFiles)
 				scriptIt(pw, f);
 			for (File f : tcr.jsFiles())
 				scriptIt(pw, f);
@@ -132,7 +141,6 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();
-			spkg = tcr.getPackage().uniqueName();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new UtilException("Failed", ex);
@@ -166,9 +174,9 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void assertCorrectValue(int exprId) throws ClassNotFoundException, Exception {
-		Object actual = page.executeScript("FLEval.full(" + spkg + ".expr" + exprId + "())");
+		Object actual = page.executeScript("FLEval.full(" + testPkg + ".expr" + exprId + "())");
 		assertNotNull("There was no actual", actual);
-		Object expected = page.executeScript("FLEval.full(" + spkg + ".value" + exprId + "())");
+		Object expected = page.executeScript("FLEval.full(" + testPkg + ".value" + exprId + "())");
 		assertNotNull("There was no value1", expected);
 		try {
 			assertEquals(expected, actual);
@@ -183,7 +191,7 @@ public class JSRunner extends CommonTestRunner {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 		
-		ScopeEntry se = prior.getScope().get(cardType.cardName);
+		ScopeEntry se = compiledScope.get(cardType.cardName);
 		if (se == null)
 			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
 		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
@@ -242,7 +250,7 @@ public class JSRunner extends CommonTestRunner {
 			args.add(methodName);
 			if (posns != null)
 				for (int i : posns) {
-					args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
+					args.add(page.executeScript("FLEval.full(" + testPkg + ".arg" + i + "())"));
 				}
 			card.handle.call("send", args.toArray());
 			choke.set(true);

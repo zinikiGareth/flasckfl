@@ -15,9 +15,9 @@ import org.flasck.flas.compiler.UnitTestTranslator;
 import org.flasck.flas.debug.PFDumper;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.ziniki.cbstore.json.FLConstructorServer;
+import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.utils.Indenter;
 import org.zinutils.utils.MultiTextEmitter;
 
@@ -47,7 +47,7 @@ public class UnitTestPhase implements UnitTestTranslator {
 		}
 	}
 
-	public void runTests(boolean unitjvm, boolean unitjs, File writeTestReports, List<File> utpaths) {
+	public void runTests(boolean unitjvm, boolean unitjs, File writeTestReports, List<File> utpaths, BCEClassLoader bce) {
 		for (File f : tests) {
 			MultiTextEmitter results = null;
 			boolean close = false;
@@ -60,9 +60,11 @@ public class UnitTestPhase implements UnitTestTranslator {
 					close = false;
 				}
 	
-				runTest(unitjvm, unitjs, results, utpaths, f);
+				runTest(unitjvm, unitjs, results, utpaths, bce, f);
 			} catch (Exception ex) {
 				errors.message(((InputPosition)null), ex.toString());
+				if (ex instanceof NullPointerException)
+					ex.printStackTrace();
 			} finally {
 				if (close && results != null)
 					results.close();
@@ -70,24 +72,23 @@ public class UnitTestPhase implements UnitTestTranslator {
 		}
 	}
 	
-	public void runTest(boolean unitjvm, boolean unitjs, MultiTextEmitter results, List<File> utpaths, File f) throws ClassNotFoundException, IOException, ErrorResultException {
-		ScriptCompiler sc = null;
-		CompileResult cr = null;
-		UnitTestRunner utr = new UnitTestRunner(errors, sc, cr);
+	public void runTest(boolean unitjvm, boolean unitjs, MultiTextEmitter results, List<File> utpaths, BCEClassLoader bce, File f) throws ClassNotFoundException, IOException, ErrorResultException {
+		UnitTestRunner utr = new UnitTestRunner(errors);
 		utr.sendResultsTo(new FileUnitTestResultHandler(results));
 		
+		TestScript script = null;
 		// We presumably needs some set of options to say which runners
 		// we want to execute - could be more than one
 		if (unitjvm) {
-			JVMRunner jvmRunner = new JVMRunner(cr, new FLConstructorServer(cr.bce.getClassLoader()));
+			// cr, new FLConstructorServer(cr.bce.getClassLoader())
+			JVMRunner jvmRunner = new JVMRunner(bce, new FLConstructorServer(bce));
 			for (File p : utpaths)
 				jvmRunner.considerResource(p);
-			utr.run(f, jvmRunner);
+			utr.run(jvmRunner, script);
 		}
 		if (unitjs) {
-			JSRunner jsRunner = new JSRunner(cr);
-			utr.run(f, jsRunner);
+			JSRunner jsRunner = new JSRunner();
+			utr.run(jsRunner, script);
 		}
 	}
-
 }

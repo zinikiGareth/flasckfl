@@ -29,7 +29,7 @@ public class TestDependencyAnalysis {
 		new FLASStory().process("ME", s, er, BlockTestData.simpleMutualRecursionBlock(), false);
 		if (er.hasErrors())
 			throw new ErrorResultException(er);
-		rewriter.rewritePackageScope(null, "ME", s);
+		rewriter.rewritePackageScope(null, null, "ME", s);
 		
 		// Now begins the real test on this data
 		List<Set<RWFunctionDefinition>> orchards = analyzer.analyze(rewriter.functions);

@@ -334,7 +334,7 @@ public class TestBasicTypeChecking {
 		g1.provideCaseName(0);
 		s.define("g", g1);
 		Rewriter rewriter = new Rewriter(errors, null, biscope, null);
-		rewriter.rewritePackageScope(null, "ME", s);
+		rewriter.rewritePackageScope(null, null, "ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
 		tc = new TypeChecker2(errors, rewriter);
 		tc.populateTypes();

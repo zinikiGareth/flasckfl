@@ -482,9 +482,15 @@ public class TypeChecker2 {
 			if (pb.isField()) {
 				TypeInfo ty;
 				String fname = ((PushString)cmds.get(2)).sval.text;
-				if (argtypes.get(0) instanceof TypeVar) {
+				TypeInfo at = argtypes.get(0);
+				if (at instanceof TypeFunc) {
+					TypeFunc fn = (TypeFunc)at;
+					if (fn.args.size() == 1)
+						at = fn.args.get(0);
+				}
+				if (at instanceof TypeVar) {
 					Set<TypeInfo> set = new HashSet<>();
-					final Var structVar = ((TypeVar)argtypes.get(0)).var;
+					final Var structVar = ((TypeVar)at).var;
 					for (TypeInfo ti : constraints.get(structVar))
 						if (ti instanceof NamedType)
 							set.add(ti);
@@ -495,11 +501,11 @@ public class TypeChecker2 {
 					if (set.size() > 1)
 						throw new UtilException("This is a dubious case, I think, and one I cannot handle: "  + set);
 					ty = CollectionUtils.any(set);
-				} else if (argtypes.get(0) instanceof NamedType) {
-					ty = argtypes.get(0);
+				} else if (at instanceof NamedType) {
+					ty = at;
 				} else {
 					c.dumpOne(new PrintWriter(System.err), 0);
-					throw new NotImplementedException("field(unhandled): " + argtypes.get(0) + " " + argtypes.get(0).getClass());
+					throw new NotImplementedException("field(unhandled): " + at + " " + at.getClass());
 				}
 				if (ty instanceof NamedType) {
 					NamedType nt = (NamedType) ty;

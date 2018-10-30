@@ -54,10 +54,21 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	private final JDKFlasckController controller;
 	private Document document;
 
+	@Deprecated // for compile
 	public JVMRunner(CompileResult prior, FLEvalContext cxt) {
 		super(prior);
 		this.cxt = cxt;
 		loader = new BCEClassLoader(prior.bce);
+		ErrorAdmin errorAdmin = new SyserrErrorAdmin();
+		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
+		store = new EntityHoldingStore();
+		controller = new JDKFlasckController(cxt, loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
+	}
+	
+	public JVMRunner(BCEClassLoader bce, FLEvalContext cxt) {
+		super();
+		this.loader = bce;
+		this.cxt = cxt;
 		ErrorAdmin errorAdmin = new SyserrErrorAdmin();
 		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
 		store = new EntityHoldingStore();
@@ -80,8 +91,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		CompileResult tcr = null;
 		try {
 			try {
-				tcr = compiler.createJVM(scriptPkg, prior, scope);
-				spkg = scriptPkg;
+				tcr = compiler.createJVM(testPkg, compiledPkg, compiledScope, scope);
 			} catch (ErrorResultException ex) {
 				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
@@ -104,8 +114,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	@Override
 	public void assertCorrectValue(int exprId) throws Exception {
 		List<Class<?>> toRun = new ArrayList<>();
-		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
-		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
+		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
+		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
 
 		EntityDecodingContext edc = new FLASTransactionContext(cxt, this.loader, this.store);
 		Map<String, Object> evals = new TreeMap<String, Object>();
@@ -136,7 +146,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 
-		ScopeEntry se = prior.getScope().get(cardType.cardName);
+		ScopeEntry se = compiledScope.get(cardType.cardName);
 		if (se == null)
 			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
 		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
@@ -180,7 +190,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			Class<?> fleval = Class.forName(J.FLEVAL, false, loader);
 			int cnt = 0;
 			for (int i : args) {
-				Class<?> clz = Class.forName(spkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);
+				Class<?> clz = Class.forName(testPkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);
 				Object o = Reflection.callStatic(clz, "eval", cxt, new Object[] { new Object[] {} });
 				o = Reflection.callStatic(fleval, "full", cxt, o);
 				argVals[cnt++] = o;

@@ -9,23 +9,32 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 public abstract class CommonTestRunner implements TestRunner {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
-	protected final CompileResult prior;
+	protected final String compiledPkg;
+	protected final Scope compiledScope;
 	protected final String testPkg;
-	protected String spkg;
 	protected final Map<String, CardDefinition> cdefns = new TreeMap<>();
 	protected final List<Expectation> expectations = new ArrayList<>();
 	protected final List<Invocation> invocations = new ArrayList<>();
 	protected final List<String> errors = new ArrayList<>();
 
+	@Deprecated // the old one for compile()
 	public CommonTestRunner(CompileResult cr) {
-        this.prior = cr;
-		testPkg = prior.getPackage().uniqueName();
+        this.compiledScope = cr.getScope();
+		compiledPkg = cr.getPackage().uniqueName();
+		testPkg = compiledPkg + ".script";
+	}
+
+	public CommonTestRunner() {
+		this.compiledPkg = null;
+		this.compiledScope = null;
+		this.testPkg = null;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -55,7 +64,7 @@ public abstract class CommonTestRunner implements TestRunner {
 	}
 
 	protected String fullName(String name) {
-		return prior.getScope().fullName(name);
+		return compiledScope.fullName(name);
 	}
 
 	protected void assertAllInvocationsCalled() {

@@ -11,7 +11,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 	
 	protected void prepareRunner() throws IOException, ErrorResultException {
 		sc.includePrior(prior);
-		sc.createJVM("test.runner.script", prior, testScope);
+		sc.createJVM("test.runner.script", prior.getPackage().uniqueName(), prior.getScope(), testScope);
 		JVMRunner jr = new JVMRunner(prior, new FLConstructorServer());
 		jr.considerResource(new File(jvmClasses(), "classes"));
 		jr.prepareScript("test.runner.script", sc, testScope);

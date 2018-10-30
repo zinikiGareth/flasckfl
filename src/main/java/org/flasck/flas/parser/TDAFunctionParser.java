@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.NotImplementedException;
@@ -15,7 +16,7 @@ public class TDAFunctionParser implements TDAParsing {
 	public TDAFunctionParser(ErrorReporter errors, TopLevelDefnConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
-		State state = new State(null, null);
+		State state = new State(consumer.grabScope(), consumer.grabScope().scopeName.uniqueName());
 		delegate = new FunctionParser(state);
 	}
 	

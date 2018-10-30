@@ -37,7 +37,7 @@ public class HSIECodeGenerator {
 		s.define("f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
 		rw.functions.put("plus1", new RWFunctionDefinition(FunctionName.function(posn, null, "plus1"), 1, false));
-		rw.rewritePackageScope(null, "ME", s);
+		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
@@ -56,7 +56,7 @@ public class HSIECodeGenerator {
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
 		rw.functions.put("id1", new RWFunctionDefinition(FunctionName.function(posn, null, "id1"), 1, false));
 		rw.functions.put("decode", new RWFunctionDefinition(FunctionName.function(posn, null, "decode"), 1, false));
-		rw.rewritePackageScope(null, "ME", s);
+		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
@@ -73,7 +73,7 @@ public class HSIECodeGenerator {
 		c1.provideCaseName(0);
 		s.define("push", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
-		rw.rewritePackageScope(null, "ME", s);
+		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.push"));
@@ -90,7 +90,7 @@ public class HSIECodeGenerator {
 		c1.provideCaseName(0);
 		s.define("f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
-		rw.rewritePackageScope(null, "ME", s);
+		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
@@ -110,7 +110,7 @@ public class HSIECodeGenerator {
 		s.define("f", c1);
 		s.define("g", g1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
-		rw.rewritePackageScope(null, "ME", s);
+		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
@@ -129,7 +129,7 @@ public class HSIECodeGenerator {
 		s.define("f", c1);
 		s.define("g", g1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
-		rw.rewritePackageScope(null, "ME", s);
+		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.g"));

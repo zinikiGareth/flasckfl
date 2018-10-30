@@ -8,11 +8,11 @@ import org.flasck.flas.parsedForm.Scope;
 
 public interface ScriptCompiler {
 
-	CompileResult createJVM(String pkg, CompileResult prior, String flas) throws IOException, ErrorResultException;
+	CompileResult createJVM(String pkg, String priorPackage, Scope priorScope, String flas) throws IOException, ErrorResultException;
 
-	CompileResult createJVM(String pkg, CompileResult prior, Scope flas) throws IOException, ErrorResultException;
+	CompileResult createJVM(String pkg, String priorPackage, Scope priorScope, Scope flas) throws IOException, ErrorResultException;
 
-	CompileResult createJS(String pkg, CompileResult prior, Scope flas) throws IOException, ErrorResultException;
+	CompileResult createJS(String pkg, String priorPackage, Scope priorScope, Scope flas) throws IOException, ErrorResultException;
 
 	void writeJSTo(File scriptTo);
 

@@ -51,6 +51,7 @@ import org.flasck.flas.template.TemplateTraversor;
 import org.flasck.flas.testrunner.FileUnitTestResultHandler;
 import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
+import org.flasck.flas.testrunner.TestScript;
 import org.flasck.flas.testrunner.UnitTestPhase;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -268,21 +269,33 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		System.out.println("Package " + inPkg);
 		ActualPhase2Processor p2 = new ActualPhase2Processor(errors, this, inPkg);
 		ParsingPhase p1 = new ParsingPhase(errors, p2);
+		ErrorMark mark = errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
-			ErrorMark mark = errors.mark();
 			System.out.println(" > " + f.getName());
 			p1.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
+			mark = errors.mark();
+			
 		}
 		UnitTestPhase ut = new UnitTestPhase(errors, p2);
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
-			ErrorMark mark = errors.mark();
 			System.out.println(" > " + f.getName());
 			ut.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
+			mark = errors.mark();
 		}
+		if (errors.hasErrors())
+			return;
 		p2.process();
-		ut.runTests(unitjvm, unitjs, writeTestReports, utpaths);
+		if (errors.hasErrors()) {
+			errors.showFromMark(mark, errorWriter, 4);
+			return;
+		}
+		ut.runTests(unitjvm, unitjs, writeTestReports, utpaths, p2.grabBCE());
+		if (errors.hasErrors()) {
+			errors.showFromMark(mark, errorWriter, 4);
+			return;
+		}
 	}
 
 	// The objective of this method is to convert an entire package directory at one go
@@ -318,7 +331,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		if (failed || errors.hasErrors())
 			return null;
 
-		CompileResult cr = stage2(errors, null, inPkg, scope);
+		CompileResult cr = stage2(errors, null, null, inPkg, scope);
 		if (cr == null)
 			return null;
 
@@ -338,7 +351,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 				sc.includePrior(cr);
 				sc.writeJVMTo(this.writeJVM);
 				// TODO: we probably need to configure the compiler here ...
-				UnitTestRunner utr = new UnitTestRunner(errors, sc, cr);
+				UnitTestRunner utr = new UnitTestRunner(errors);
 				utr.sendResultsTo(new FileUnitTestResultHandler(results));
 				
 				// We presumably needs some set of options to say which runners
@@ -347,11 +360,13 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 					JVMRunner jvmRunner = new JVMRunner(cr, new FLConstructorServer(cr.bce.getClassLoader()));
 					for (File p : utpaths)
 						jvmRunner.considerResource(p);
-					utr.run(f, jvmRunner);
+					TestScript scr = utr.prepare(sc, jvmRunner, cr.getPackage().uniqueName() +".script", cr.getScope(), f);
+					utr.run(jvmRunner, scr);
 				}
 				if (unitjs) {
 					JSRunner jsRunner = new JSRunner(cr);
-					utr.run(f, jsRunner);
+					TestScript scr = utr.prepare(sc, jsRunner, cr.getPackage().uniqueName() +".script", cr.getScope(), f);
+					utr.run(jsRunner, scr);
 				}
 			} finally {
 			if (close)
@@ -364,7 +379,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		return cr;
 	}
 
-	CompileResult stage2(ErrorReporter er, CompileResult prior, String inPkg, Scope scope) throws ErrorResultException, IOException {
+	CompileResult stage2(ErrorReporter er, String priorPackage, Scope priorScope, String inPkg, Scope scope) throws ErrorResultException, IOException {
 		ErrorResult errors = (ErrorResult) er;
 		File writeTo = writeJS!= null ? new File(writeJS, inPkg + ".js"):null;
 		File exportTo = writeFlim!=null?new File(writeFlim, inPkg + ".flim"):null;
@@ -390,7 +405,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage().uniqueName(), cr.exports());
 			}
 			
-			rewriter.rewritePackageScope(prior, inPkg, scope);
+			rewriter.rewritePackageScope(priorPackage, priorScope, inPkg, scope);
 			abortIfErrors(errors);
 			
 			if (writeRW != null) {
@@ -539,24 +554,24 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	@Override
-	public CompileResult createJVM(String pkg, CompileResult prior, String flas) throws IOException, ErrorResultException {
+	public CompileResult createJVM(String pkg, String priorPackage, Scope priorScope, String flas) throws IOException, ErrorResultException {
 		this.internalBuildJVM();
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
 		final Scope scope = Scope.topScope(pkg);
 		readIntoScope(pkg, errors, storyProc, scope, "script.fl", new StringReader(flas));
-		return stage2(errors, prior, pkg, scope);
+		return stage2(errors, priorPackage, priorScope, pkg, scope);
 	}
 
 	@Override
-	public CompileResult createJVM(String pkg, CompileResult prior, Scope scope) throws IOException, ErrorResultException {
+	public CompileResult createJVM(String pkg, String priorPackage, Scope priorScope, Scope scope) throws IOException, ErrorResultException {
 		this.internalBuildJVM();
-		return stage2(new ErrorResult(), prior, pkg, scope);
+		return stage2(new ErrorResult(), priorPackage, priorScope, pkg, scope);
 	}
 
 	@Override
-	public CompileResult createJS(String pkg, CompileResult prior, Scope scope) throws IOException, ErrorResultException {
-		return stage2(new ErrorResult(), prior, pkg, scope);
+	public CompileResult createJS(String pkg, String priorPackage, Scope priorScope, Scope scope) throws IOException, ErrorResultException {
+		return stage2(new ErrorResult(), priorPackage, priorScope, pkg, scope);
 	}
 
 	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {

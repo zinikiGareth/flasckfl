@@ -18,26 +18,26 @@ import org.zinutils.utils.FileUtils;
 public class UnitTestRunner {
 	public final static Logger logger = LoggerFactory.getLogger("UnitTests");
 	private final ErrorReporter errors;
-	private final ScriptCompiler compiler;
-	private final CompileResult prior;
 	private final List<UnitTestResultHandler> handlers = new ArrayList<>();
 
-	public UnitTestRunner(ErrorReporter errors, ScriptCompiler compiler, CompileResult prior) {
+	public UnitTestRunner(ErrorReporter errors) {
 		this.errors = errors;
-		this.compiler = compiler;
-		this.prior = prior;
 	}
 	
 	public void sendResultsTo(UnitTestResultHandler resultHandler) {
 		handlers.add(resultHandler);
 	}
-	
-	public void run(File f, TestRunner runner) throws ClassNotFoundException, IOException, ErrorResultException {
-		String scriptPkg = prior.getPackage().uniqueName() + ".script";
-		TestScript script = convertScript(errors, prior.getScope(), scriptPkg, f);
+
+	public TestScript prepare(ScriptCompiler compiler, TestRunner runner, String scriptPkg, Scope compiledScope, File f) throws ErrorResultException {
+//		String scriptPkg = prior.getPackage().uniqueName() + ".script";
+		TestScript script = convertScript(errors, compiledScope, scriptPkg, f);
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
 		runner.prepareScript(scriptPkg, compiler, script.scope());
+		return script;
+	}
+
+	public void run(TestRunner runner, TestScript script) {
 		script.runAllTests(new TestCaseRunner() {
 			@Override
 			public void run(SingleTestCase tc) {

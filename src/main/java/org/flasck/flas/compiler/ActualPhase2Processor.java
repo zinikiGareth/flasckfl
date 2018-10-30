@@ -7,15 +7,19 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.debug.PFDumper;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.zinutils.bytecode.BCEClassLoader;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.Indenter;
 
 public class ActualPhase2Processor implements Phase2Processor {
 	private final ErrorReporter errors;
 	private final FLASCompiler compiler;
 	private final Scope scope;
+	private ByteCodeEnvironment bce;
 	
 	public ActualPhase2Processor(ErrorReporter errors, @Deprecated /* the code called should come here or downstream */ FLASCompiler compiler, String inPkg) {
 		this.errors = errors;
@@ -49,11 +53,18 @@ public class ActualPhase2Processor implements Phase2Processor {
 	public void process() {
 		new PFDumper().dumpScope(new Indenter(new PrintWriter(System.out)), scope);
 		try {
-			compiler.stage2(errors, null, scope.scopeName.uniqueName(), scope);
+			// TODO: we would like the sinks to be passed in so that we preserve TDA rather than creating them here 
+			CompileResult res = compiler.stage2(errors, null, null, scope.scopeName.uniqueName(), scope);
+			bce = res.bce;
+		} catch (ErrorResultException ex) {
+			errors.merge(ex.errors);
 		} catch (Throwable t) {
 			t.printStackTrace();
 			errors.message(((InputPosition)null), t.toString());
 		}
 	}
 
+	public BCEClassLoader grabBCE() {
+		return new BCEClassLoader(bce);
+	}
 }
