@@ -99,8 +99,8 @@ public class JSRunner extends CommonTestRunner {
 		browser = BrowserFactory.getWebKit();
 	}
 
-	public JSRunner() {
-		super();
+	public JSRunner(String compiledPkg, Scope compiledScope, String testPkg) {
+		super(compiledPkg, compiledScope, compiledPkg);
 		this.jsFiles = null;
 		browser = BrowserFactory.getWebKit();
 	}

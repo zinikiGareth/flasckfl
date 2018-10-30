@@ -265,9 +265,9 @@ public class Rewriter implements CodeGenRegistry {
 	 */
 	public class PackageContext extends NamingContext {
 		private final PackageName pkgName;
-		private final Scope scope;
+		private final IScope scope;
 
-		public PackageContext(NamingContext cx, PackageName pkgName, Scope scope) {
+		public PackageContext(NamingContext cx, PackageName pkgName, IScope scope) {
 			super(cx);
 			this.pkgName = pkgName;
 			this.scope = scope;
@@ -697,7 +697,7 @@ public class Rewriter implements CodeGenRegistry {
 		}
 	}
 
-	public void rewritePackageScope(String priorPackage, Scope priorScope, String inPkg, final Scope scope) {
+	public void rewritePackageScope(String priorPackage, IScope priorScope, String inPkg, final Scope scope) {
 		NamingContext rc = new RootContext();
 		if (priorPackage != null) {
 			rc = new PackageContext(rc, new PackageName(priorPackage), priorScope);

@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ import org.zinutils.exceptions.UtilException;
 public abstract class CommonTestRunner implements TestRunner {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected final String compiledPkg;
-	protected final Scope compiledScope;
+	protected final IScope compiledScope;
 	protected final String testPkg;
 	protected final Map<String, CardDefinition> cdefns = new TreeMap<>();
 	protected final List<Expectation> expectations = new ArrayList<>();
@@ -31,10 +32,10 @@ public abstract class CommonTestRunner implements TestRunner {
 		testPkg = compiledPkg + ".script";
 	}
 
-	public CommonTestRunner() {
-		this.compiledPkg = null;
-		this.compiledScope = null;
-		this.testPkg = null;
+	public CommonTestRunner(String compiledPkg, IScope scope, String testPkg) {
+		this.compiledPkg = compiledPkg;
+		this.compiledScope = scope;
+		this.testPkg = testPkg;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

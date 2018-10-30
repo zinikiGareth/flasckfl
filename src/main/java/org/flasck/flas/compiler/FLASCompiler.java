@@ -41,6 +41,7 @@ import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.newtypechecker.TypeChecker2;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -379,7 +380,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		return cr;
 	}
 
-	CompileResult stage2(ErrorReporter er, String priorPackage, Scope priorScope, String inPkg, Scope scope) throws ErrorResultException, IOException {
+	CompileResult stage2(ErrorReporter er, String priorPackage, IScope priorScope, String inPkg, Scope scope) throws ErrorResultException, IOException {
 		ErrorResult errors = (ErrorResult) er;
 		File writeTo = writeJS!= null ? new File(writeJS, inPkg + ".js"):null;
 		File exportTo = writeFlim!=null?new File(writeFlim, inPkg + ".flim"):null;
@@ -554,7 +555,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	@Override
-	public CompileResult createJVM(String pkg, String priorPackage, Scope priorScope, String flas) throws IOException, ErrorResultException {
+	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, String flas) throws IOException, ErrorResultException {
 		this.internalBuildJVM();
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
@@ -564,13 +565,13 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	@Override
-	public CompileResult createJVM(String pkg, String priorPackage, Scope priorScope, Scope scope) throws IOException, ErrorResultException {
+	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, Scope scope) throws IOException, ErrorResultException {
 		this.internalBuildJVM();
 		return stage2(new ErrorResult(), priorPackage, priorScope, pkg, scope);
 	}
 
 	@Override
-	public CompileResult createJS(String pkg, String priorPackage, Scope priorScope, Scope scope) throws IOException, ErrorResultException {
+	public CompileResult createJS(String pkg, String priorPackage, IScope priorScope, Scope scope) throws IOException, ErrorResultException {
 		return stage2(new ErrorResult(), priorPackage, priorScope, pkg, scope);
 	}
 

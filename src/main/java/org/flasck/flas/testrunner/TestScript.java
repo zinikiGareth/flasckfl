@@ -31,6 +31,14 @@ public class TestScript implements TestScriptBuilder {
 		this.scope = new UnitTests(priorScope, defineInPkg).scope();
 	}
 
+	public IScope getPriorScope() {
+		return priorScope;
+	}
+	
+	public String getTestPackage() {
+		return defineInPkg;
+	}
+	
 	@Override
 	public void error(InputPosition posn, String msg) {
 		reporter.message(posn, msg);
