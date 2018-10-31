@@ -43,6 +43,7 @@ import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.stories.FLASStory;
@@ -55,6 +56,7 @@ import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.flas.testrunner.TestScript;
 import org.flasck.flas.testrunner.UnitTestPhase;
 import org.flasck.flas.testrunner.UnitTestRunner;
+import org.flasck.flas.testrunner.UnitTests;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -292,7 +294,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			errors.showFromMark(mark, errorWriter, 4);
 			return;
 		}
-		ut.runTests(unitjvm, unitjs, writeTestReports, utpaths, p2.grabBCE());
+		ut.runTests(unitjvm, unitjs, writeTestReports, utpaths, p2.grabBCE(), p2.grabJSFiles());
 		if (errors.hasErrors()) {
 			errors.showFromMark(mark, errorWriter, 4);
 			return;
@@ -417,6 +419,11 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 			// 5. Register JS and Droid code generators with the visitors
 			JSTarget target = new JSTarget(inPkg);
+			for (ScopeEntry e : scope) {
+				if (e.getValue() instanceof UnitTests) {
+					target.ensurePackagesFor(e.getKey());
+				}
+			}
 			Generator gen = new Generator(target);
 			rewriter.registerCodeGenerator(gen);
 			final DroidGenerator dg = new DroidGenerator(bce, builder);

@@ -36,7 +36,6 @@ import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
-import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.flim.ImportPackage;

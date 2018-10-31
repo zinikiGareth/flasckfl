@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler;
 
+import java.io.File;
 import java.io.PrintWriter;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -20,6 +21,7 @@ public class ActualPhase2Processor implements Phase2Processor {
 	private final FLASCompiler compiler;
 	private final Scope scope;
 	private ByteCodeEnvironment bce;
+	private Iterable<File> jsFiles;
 	
 	public ActualPhase2Processor(ErrorReporter errors, @Deprecated /* the code called should come here or downstream */ FLASCompiler compiler, String inPkg) {
 		this.errors = errors;
@@ -51,11 +53,12 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void process() {
-		new PFDumper().dumpScope(new Indenter(new PrintWriter(System.out)), scope);
+//		new PFDumper().dumpScope(new Indenter(new PrintWriter(System.out)), scope);
 		try {
 			// TODO: we would like the sinks to be passed in so that we preserve TDA rather than creating them here 
 			CompileResult res = compiler.stage2(errors, null, null, scope.scopeName.uniqueName(), scope);
 			bce = res.bce;
+			jsFiles = res.jsFiles();
 		} catch (ErrorResultException ex) {
 			errors.merge(ex.errors);
 		} catch (Throwable t) {
@@ -66,5 +69,9 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	public BCEClassLoader grabBCE() {
 		return new BCEClassLoader(bce);
+	}
+
+	public Iterable<File> grabJSFiles() {
+		return jsFiles;
 	}
 }

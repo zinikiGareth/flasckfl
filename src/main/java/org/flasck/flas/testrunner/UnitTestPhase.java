@@ -2,7 +2,6 @@ package org.flasck.flas.testrunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,14 +10,12 @@ import java.util.Map;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.UnitTestTranslator;
-import org.flasck.flas.debug.PFDumper;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.ziniki.cbstore.json.FLConstructorServer;
 import org.zinutils.bytecode.BCEClassLoader;
-import org.zinutils.utils.Indenter;
 import org.zinutils.utils.MultiTextEmitter;
 
 public class UnitTestPhase implements UnitTestTranslator {
@@ -35,21 +32,24 @@ public class UnitTestPhase implements UnitTestTranslator {
 	@Override
 	public void process(File f) {
 		tests.add(f);
-		final String packageName = f.getName()+"._ut";
 		if (FLASCompiler.backwardCompatibilityMode) {
-			TestScript script = UnitTestRunner.convertScript(errors, sb.grabScope(), packageName, f);
+			final Scope scope = sb.grabScope();
+			final String packageName = scope.scopeName.uniqueName()+"._ut";
+			TestScript script = UnitTestRunner.convertScript(errors, scope, packageName, f);
 			if (errors.hasErrors())
 				return;
+			/*
 			System.out.println("==== UT " + packageName + " ====");
 			new PFDumper().dumpScope(new Indenter(new PrintWriter(System.out)), script.scope());
 			System.out.println("========================");
+			*/
 			scripts.put(f.getName(), script);
 		} else {
 			throw new org.zinutils.exceptions.NotImplementedException();
 		}
 	}
 
-	public void runTests(boolean unitjvm, boolean unitjs, File writeTestReports, List<File> utpaths, BCEClassLoader bce) {
+	public void runTests(boolean unitjvm, boolean unitjs, File writeTestReports, List<File> utpaths, BCEClassLoader bce, Iterable<File> jsFiles) {
 		for (File f : tests) {
 			MultiTextEmitter results = null;
 			boolean close = false;
@@ -62,7 +62,7 @@ public class UnitTestPhase implements UnitTestTranslator {
 					close = false;
 				}
 	
-				runTest(unitjvm, unitjs, results, utpaths, bce, f);
+				runTest(unitjvm, unitjs, results, utpaths, bce, jsFiles, f);
 			} catch (Exception ex) {
 				errors.message(((InputPosition)null), ex.toString());
 				if (ex instanceof NullPointerException || ex instanceof ClassNotFoundException)
@@ -74,7 +74,7 @@ public class UnitTestPhase implements UnitTestTranslator {
 		}
 	}
 	
-	public void runTest(boolean unitjvm, boolean unitjs, MultiTextEmitter results, List<File> utpaths, BCEClassLoader bce, File f) throws ClassNotFoundException, IOException, ErrorResultException {
+	public void runTest(boolean unitjvm, boolean unitjs, MultiTextEmitter results, List<File> utpaths, BCEClassLoader bce, Iterable<File> jsFiles, File f) throws ClassNotFoundException, IOException, ErrorResultException {
 		UnitTestRunner utr = new UnitTestRunner(errors);
 		utr.sendResultsTo(new FileUnitTestResultHandler(results));
 		
@@ -89,7 +89,7 @@ public class UnitTestPhase implements UnitTestTranslator {
 			utr.run(jvmRunner, script);
 		}
 		if (unitjs) {
-			JSRunner jsRunner = new JSRunner(null, null, null);
+			JSRunner jsRunner = new JSRunner(script.scope().scopeName.uniqueName(), script.getPriorScope(), script.getTestPackage(), jsFiles);
 			utr.run(jsRunner, script);
 		}
 	}

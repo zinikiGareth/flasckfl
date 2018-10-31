@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -23,10 +24,13 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.ui4j.UI4JWrapperElement;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.exceptions.WrappedException;
+import org.zinutils.utils.FileUtils;
 
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
@@ -90,18 +94,20 @@ public class JSRunner extends CommonTestRunner {
 	private Page page;
 	private Map<String, CardHandle> cards = new TreeMap<>();
 	private File html;
-	private final Iterable<File> jsFiles;
+	private final List<File> jsFiles = new ArrayList<File>();
 	
 	@Deprecated // the old one for compile()
 	public JSRunner(CompileResult cr) {
 		super(cr);
-		this.jsFiles = cr.jsFiles();
+		for (File f : cr.jsFiles())
+			this.jsFiles.add(f);
 		browser = BrowserFactory.getWebKit();
 	}
 
-	public JSRunner(String compiledPkg, Scope compiledScope, String testPkg) {
-		super(compiledPkg, compiledScope, compiledPkg);
-		this.jsFiles = null;
+	public JSRunner(String compiledPkg, IScope scope, String testPkg, Iterable<File> jsFiles) {
+		super(compiledPkg, scope, compiledPkg);
+		for (File f : jsFiles)
+			this.jsFiles.add(f);
 		browser = BrowserFactory.getWebKit();
 	}
 
@@ -120,27 +126,12 @@ public class JSRunner extends CommonTestRunner {
 			try {
 				compiler.writeJSTo(scriptDir);
 				tcr = compiler.createJS(testPkg, compiledPkg, compiledScope, scope);
+				for (File f : tcr.jsFiles())
+					this.jsFiles.add(f);
 			} catch (ErrorResultException ex) {
 				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
 			}
-			html = File.createTempFile("testScript", ".html");
-			html.deleteOnExit();
-			PrintWriter pw = new PrintWriter(html);
-			pw.println("<!DOCTYPE html>");
-			pw.println("<html>");
-			pw.println("<head>");
-			// probably wants to be config :-)
-			pw.println("<script src='file:" + System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js' type='text/javascript'></script>");
-			for (File f : jsFiles)
-				scriptIt(pw, f);
-			for (File f : tcr.jsFiles())
-				scriptIt(pw, f);
-			pw.println("</head>");
-			pw.println("<body>");
-			pw.println("</body>");
-			pw.println("</html>");
-			pw.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new UtilException("Failed", ex);
@@ -155,6 +146,7 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void prepareCase() {
+		buildHTML();
 		page = browser.navigate("file:" + html.getPath());
 		page.executeScript("window.console = {};");
 		page.executeScript("window.console.log = function() { var ret = ''; var sep = ''; for (var i=0;i<arguments.length;i++) { ret += sep + arguments[i]; sep = ' '; } callJava.log(ret); };");
@@ -170,6 +162,28 @@ public class JSRunner extends CommonTestRunner {
 		// Also, should there be an "endCase" to do cleanup?
 		cards.clear();
 		errors.clear();
+	}
+
+	private void buildHTML() {
+		try {
+			html = File.createTempFile("testScript", ".html");
+			html.deleteOnExit();
+			PrintWriter pw = new PrintWriter(html);
+			pw.println("<!DOCTYPE html>");
+			pw.println("<html>");
+			pw.println("<head>");
+			// probably wants to be config :-)
+			pw.println("<script src='file:" + System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js' type='text/javascript'></script>");
+			for (File f : jsFiles)
+				scriptIt(pw, f);
+			pw.println("</head>");
+			pw.println("<body>");
+			pw.println("</body>");
+			pw.println("</html>");
+			pw.close();
+		} catch (IOException ex) {
+			throw WrappedException.wrap(ex);
+		}
 	}
 
 	@Override
