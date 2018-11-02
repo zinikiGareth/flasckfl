@@ -272,6 +272,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		System.out.println("Package " + inPkg);
 		ActualPhase2Processor p2 = new ActualPhase2Processor(errors, this, inPkg);
 		ParsingPhase p1 = new ParsingPhase(errors, p2);
+		UnitTestPhase ut = new UnitTestPhase(errors);
 		ErrorMark mark = errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			System.out.println(" > " + f.getName());
@@ -280,7 +281,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			mark = errors.mark();
 			
 		}
-		UnitTestPhase ut = new UnitTestPhase(errors, p2);
+		p2.scopeTo(ut);
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
 			System.out.println(" > " + f.getName());
 			ut.process(f);
@@ -294,7 +295,9 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			errors.showFromMark(mark, errorWriter, 4);
 			return;
 		}
-		ut.runTests(unitjvm, unitjs, writeTestReports, utpaths, p2.grabBCE(), p2.grabJSFiles());
+		p2.bceTo(ut);
+		p2.jsTo(ut);
+		ut.runTests(unitjvm, unitjs, writeTestReports, utpaths);
 		if (errors.hasErrors()) {
 			errors.showFromMark(mark, errorWriter, 4);
 			return;

@@ -8,32 +8,50 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.compiler.BCEReceiver;
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.compiler.JSReceiver;
+import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.compiler.UnitTestTranslator;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.ziniki.cbstore.json.FLConstructorServer;
 import org.zinutils.bytecode.BCEClassLoader;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.MultiTextEmitter;
 
-public class UnitTestPhase implements UnitTestTranslator {
+public class UnitTestPhase implements UnitTestTranslator, ScopeReceiver, BCEReceiver, JSReceiver {
 	private final ErrorReporter errors;
-	private final TopLevelDefnConsumer sb;
 	private final List<File> tests = new ArrayList<>();
 	private final Map<String, TestScript> scripts = new HashMap<>();
+	private Scope scope;
+	private BCEClassLoader bce;
+	private Iterable<File> jsFiles;
 
-	public UnitTestPhase(ErrorReporter errors, TopLevelDefnConsumer sb) {
+	public UnitTestPhase(ErrorReporter errors) {
 		this.errors = errors;
-		this.sb = sb;
+	}
+
+	@Override
+	public void provideScope(Scope scope) {
+		this.scope = scope;
+	}
+	
+	@Override
+	public void provideBCE(ByteCodeEnvironment bce) {
+		this.bce = new BCEClassLoader(bce);
+	}
+
+	@Override
+	public void provideFiles(Iterable<File> files) {
+		this.jsFiles = files;
 	}
 
 	@Override
 	public void process(File f) {
 		tests.add(f);
 		if (FLASCompiler.backwardCompatibilityMode) {
-			final Scope scope = sb.grabScope();
 			final String packageName = scope.scopeName.uniqueName()+"._ut";
 			TestScript script = UnitTestRunner.convertScript(errors, scope, packageName, f);
 			if (errors.hasErrors())
@@ -49,7 +67,7 @@ public class UnitTestPhase implements UnitTestTranslator {
 		}
 	}
 
-	public void runTests(boolean unitjvm, boolean unitjs, File writeTestReports, List<File> utpaths, BCEClassLoader bce, Iterable<File> jsFiles) {
+	public void runTests(boolean unitjvm, boolean unitjs, File writeTestReports, List<File> utpaths) {
 		for (File f : tests) {
 			MultiTextEmitter results = null;
 			boolean close = false;

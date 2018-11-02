@@ -1,12 +1,12 @@
 package org.flasck.flas.compiler;
 
 import java.io.File;
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.debug.PFDumper;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -14,7 +14,6 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeEnvironment;
-import org.zinutils.utils.Indenter;
 
 public class ActualPhase2Processor implements Phase2Processor {
 	private final ErrorReporter errors;
@@ -32,11 +31,6 @@ public class ActualPhase2Processor implements Phase2Processor {
 	@Override
 	public SolidName qualifyName(String base) {
 		return new SolidName(scope.scopeName, base);
-	}
-
-	@Override
-	public Scope grabScope() {
-		return scope;
 	}
 
 	@Override
@@ -67,11 +61,22 @@ public class ActualPhase2Processor implements Phase2Processor {
 		}
 	}
 
-	public BCEClassLoader grabBCE() {
-		return new BCEClassLoader(bce);
+	@Override
+	public void scopeTo(ScopeReceiver sendTo) {
+		sendTo.provideScope(scope);
 	}
 
-	public Iterable<File> grabJSFiles() {
-		return jsFiles;
+	@Override
+	public void bceTo(BCEReceiver sendTo) {
+		if (bce == null)
+			throw new RuntimeException("Too soon");
+		sendTo.provideBCE(bce);
+	}
+
+	@Override
+	public void jsTo(JSReceiver sendTo) {
+		if (jsFiles == null)
+			throw new RuntimeException("Too soon");
+		sendTo.provideFiles(jsFiles);
 	}
 }
