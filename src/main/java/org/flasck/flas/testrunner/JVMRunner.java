@@ -42,7 +42,7 @@ import org.ziniki.ziwsh.model.EntityDecodingContext;
 import org.ziniki.ziwsh.model.EntityStore;
 import org.ziniki.ziwsh.postbox.ErrorAdmin;
 import org.ziniki.ziwsh.postbox.SyserrErrorAdmin;
-import org.ziniki.ziwsh.virtualconn.DefaultWireEncoder;
+import org.ziniki.ziwsh.wire.DefaultWireEncoder;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;

@@ -5,8 +5,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import test.flas.testrunner.StringLiteralMatcher;
-
 public class StructFieldMatcher extends TypeSafeMatcher<StructField> {
 	private final String type;
 	private final String name;

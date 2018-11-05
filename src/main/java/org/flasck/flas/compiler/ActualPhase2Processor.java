@@ -1,9 +1,6 @@
 package org.flasck.flas.compiler;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -12,7 +9,6 @@ import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class ActualPhase2Processor implements Phase2Processor {

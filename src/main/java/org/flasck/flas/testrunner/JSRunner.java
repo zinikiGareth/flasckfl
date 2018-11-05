@@ -30,8 +30,6 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.ui4j.UI4JWrapperElement;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
-import org.zinutils.utils.FileUtils;
-
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
 import com.ui4j.api.browser.Page;

@@ -1,14 +1,11 @@
 package org.flasck.flas.testrunner;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
 import org.slf4j.Logger;

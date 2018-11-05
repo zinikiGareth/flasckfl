@@ -3,7 +3,6 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;

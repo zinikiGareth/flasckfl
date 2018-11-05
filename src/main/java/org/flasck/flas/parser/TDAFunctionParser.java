@@ -4,7 +4,6 @@ import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.Tokenizable;
