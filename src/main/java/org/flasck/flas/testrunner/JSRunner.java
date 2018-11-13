@@ -30,6 +30,8 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.ui4j.UI4JWrapperElement;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
+import org.zinutils.utils.FileUtils;
+
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
 import com.ui4j.api.browser.Page;
@@ -171,7 +173,8 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<html>");
 			pw.println("<head>");
 			// probably wants to be config :-)
-			pw.println("<script src='file:" + System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js' type='text/javascript'></script>");
+			final String jsfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js";
+			pw.println("<script src='file:" + jsfile + "' type='text/javascript'></script>");
 			for (File f : jsFiles)
 				scriptIt(pw, f);
 			pw.println("</head>");
@@ -179,6 +182,12 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();
+			System.out.println("Loading " + html);
+			FileUtils.cat(html);
+			for (File f : jsFiles) {
+				System.out.println("JSFile " + f);
+				FileUtils.cat(f);
+			}
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}
@@ -186,10 +195,12 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void assertCorrectValue(int exprId) throws ClassNotFoundException, Exception {
-		Object actual = page.executeScript("FLEval.full(" + testPkg + ".expr" + exprId + "())");
-		assertNotNull("There was no actual", actual);
-		Object expected = page.executeScript("FLEval.full(" + testPkg + ".value" + exprId + "())");
-		assertNotNull("There was no value1", expected);
+		final String actualFn = testPkg + ".expr" + exprId;
+		Object actual = page.executeScript("FLEval.full(" + actualFn + "())");
+		assertNotNull("There was no actual value from " + actualFn + "()", actual);
+		final String expectFn = testPkg + ".value" + exprId;
+		Object expected = page.executeScript("FLEval.full(" + expectFn + "())");
+		assertNotNull("There was no expected value from " + expectFn +"()", expected);
 		try {
 			assertEquals(expected, actual);
 		} catch (AssertionError ex) {
