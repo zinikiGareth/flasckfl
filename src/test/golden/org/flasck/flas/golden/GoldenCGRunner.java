@@ -29,7 +29,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	static boolean checkEverything = checkOption == null || !checkOption.equalsIgnoreCase("false");
 	static boolean checkNothing = checkOption != null && checkOption.equalsIgnoreCase("nothing");
 	static String tdaOption = System.getProperty("org.flasck.golden.tda");
-	static boolean useTDA = tdaOption != null && Boolean.parseBoolean(tdaOption);
+	static boolean useTDA = tdaOption != null && ("true".equalsIgnoreCase(tdaOption) || "both".equalsIgnoreCase(tdaOption));
+	static boolean useOLD = tdaOption == null || "both".equalsIgnoreCase(tdaOption) || "false".equalsIgnoreCase(tdaOption);
 	static String stripNumbersS = System.getProperty("org.flasck.golden.strip"); 
 	static boolean stripNumbers = stripNumbersS != null && stripNumbersS.equalsIgnoreCase("true");
 	static String useRunner = System.getProperty("org.flasck.golden.runner");
@@ -79,6 +80,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
 		boolean ignoreTest = new File(f, "ignore").exists();
 		boolean legacyTest = new File(f, "legacy").exists();
+		boolean approvedForTDA = new File(f, "tda").exists();
 
 		File f1 = FileUtils.makeRelativeTo(f, new File("src/golden"));
 		StringBuilder name = new StringBuilder();
@@ -87,15 +89,24 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			f1 = f1.getParentFile();
 		}
 		name.insert(0, "test");
-		addMethod(bcc, name.toString(), ignoreTest, new TestMethodContentProvider() {
+		if (useOLD)
+			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, false);
+		if (useTDA && approvedForTDA) {
+			name.append("_tda");
+			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, true);
+		}
+	}
+
+	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, boolean legacyTest, boolean tdaTest) {
+		addMethod(bcc, name, ignoreTest, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
-				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.boolConst(legacyTest)).flush();
+				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.boolConst(legacyTest), done.boolConst(tdaTest)).flush();
 			}
 		});
 	}
 	
-	public static void runGolden(String s, boolean isLegacy) throws Exception {
+	public static void runGolden(String s, boolean isLegacy, boolean runAsTDA) throws Exception {
 		System.out.println("Run golden test for " + s);
 		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, isLegacy, useJSRunner, useJVMRunner, checkNothing, checkEverything, stripNumbers);
 		
@@ -103,7 +114,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		
 		FLASCompiler compiler = te.configureCompiler();
 		File dir = new File(s, "test.golden");
-		if (!useTDA) {
+		if (!runAsTDA) {
 			ErrorResult er = new ErrorResult();
 			for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {
 				StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
@@ -115,7 +126,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			}
 		}
 
-		if (useTDA) {
+		if (runAsTDA) {
 			final File actualErrors = new File(s, "errors-tmp");
 			final File expectedErrors = new File(s, "errors");
 			FileUtils.assertDirectory(actualErrors);
