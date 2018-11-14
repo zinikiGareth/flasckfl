@@ -1,0 +1,4 @@
+    offerfailure  3.5:    offer _ 
+                              invalid or missing type name
+    offerfailure  7.6:    offer  _ nooffer
+                              invalid or missing type name
