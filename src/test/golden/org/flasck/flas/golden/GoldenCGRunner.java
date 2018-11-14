@@ -80,7 +80,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
 		boolean ignoreTest = new File(f, "ignore").exists();
 		boolean legacyTest = new File(f, "legacy").exists();
-		boolean approvedForTDA = new File(f, "tda").exists();
+		boolean approvedForTDA = new File(f, "tda").exists() || new File(f, "tdaonly").exists();
+		boolean tdaOnly = new File(f, "tdaonly").exists();
 
 		File f1 = FileUtils.makeRelativeTo(f, new File("src/golden"));
 		StringBuilder name = new StringBuilder();
@@ -89,7 +90,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			f1 = f1.getParentFile();
 		}
 		name.insert(0, "test");
-		if (useOLD)
+		if (useOLD && !tdaOnly)
 			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, false);
 		if (useTDA && approvedForTDA) {
 			name.append("_tda");
