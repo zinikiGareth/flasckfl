@@ -31,10 +31,12 @@ public class TDAIntroParser implements TDAParsing {
 		switch (kw.text) {
 		case "struct":
 		case "entity":
+		case "deal":
+		case "offer":
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
-				return null;
+				return new IgnoreNestedParser();
 			}
 			List<PolyType> polys = new ArrayList<>();
 			while (toks.hasMore()) {

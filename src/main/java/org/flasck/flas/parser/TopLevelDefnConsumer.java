@@ -5,6 +5,7 @@ import org.flasck.flas.compiler.BCEReceiver;
 import org.flasck.flas.compiler.JSReceiver;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 
 public interface TopLevelDefnConsumer extends ParsedLineConsumer {
@@ -14,4 +15,5 @@ public interface TopLevelDefnConsumer extends ParsedLineConsumer {
 	void scopeTo(ScopeReceiver sendTo);
 	void functionCase(FunctionCaseDefn o);
 	void newStruct(StructDefn sd);
+	void functionIntro(FunctionIntro o);
 }

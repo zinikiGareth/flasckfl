@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -27,6 +28,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 	@Override
 	public SolidName qualifyName(String base) {
 		return new SolidName(scope.scopeName, base);
+	}
+
+	@Override
+	public void functionIntro(FunctionIntro o) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override

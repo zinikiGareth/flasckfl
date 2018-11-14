@@ -12,7 +12,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.StructFieldConsumer;
 
 public class StructDefn implements AsString, Locatable, StructFieldConsumer {
-	public enum StructType { STRUCT, ENTITY };
+	public enum StructType { STRUCT, ENTITY, DEAL, OFFER };
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;
 	public final InputPosition kw;

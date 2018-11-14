@@ -4,6 +4,7 @@ import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -34,8 +35,12 @@ public class TDAFunctionParser implements TDAParsing, ScopeReceiver {
 				return null;
 			else if (o instanceof ErrorReporter)
 				errors.merge((ErrorReporter)o);
-			else
+			else if (o instanceof FunctionIntro)
+				consumer.functionIntro((FunctionIntro)o);
+			else if (o instanceof FunctionCaseDefn)
 				consumer.functionCase((FunctionCaseDefn)o);
+			else
+				throw new RuntimeException("Cannot handle " + o.getClass());
 
 			// This should, of course, be a "ScopedParser" of some description,
 			// probably a rename of IntroParser

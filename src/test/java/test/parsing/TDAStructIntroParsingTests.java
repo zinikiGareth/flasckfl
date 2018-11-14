@@ -1,5 +1,6 @@
 package test.parsing;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -7,6 +8,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAStructFieldParser;
@@ -41,7 +43,8 @@ public class TDAStructIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertNotNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -52,7 +55,8 @@ public class TDAStructIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertNotNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
