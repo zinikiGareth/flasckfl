@@ -32,10 +32,10 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
 
-import com.ui4j.api.browser.BrowserEngine;
-import com.ui4j.api.browser.BrowserFactory;
-import com.ui4j.api.browser.Page;
-import com.ui4j.api.dom.Element;
+import io.webfolder.ui4j.api.browser.BrowserEngine;
+import io.webfolder.ui4j.api.browser.BrowserFactory;
+import io.webfolder.ui4j.api.browser.Page;
+import io.webfolder.ui4j.api.dom.Element;
 
 import javafx.application.Platform;
 import netscape.javascript.JSObject;
@@ -141,7 +141,7 @@ public class JSRunner extends CommonTestRunner {
 	protected void scriptIt(PrintWriter pw, File f) {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
-		pw.println("<script src='file:" + f.getPath() + "' type='text/javascript'></script>");
+		pw.println("<script src='file:" + f.getPath() + "?cachebuster=" + System.currentTimeMillis()  + "' type='text/javascript'></script>");
 	}
 
 	@Override

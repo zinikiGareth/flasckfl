@@ -9,11 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.ui4j.api.browser.BrowserEngine;
-import com.ui4j.api.browser.BrowserFactory;
-import com.ui4j.api.browser.Page;
-import com.ui4j.api.dom.Element;
-
+import io.webfolder.ui4j.api.browser.BrowserEngine;
+import io.webfolder.ui4j.api.browser.BrowserFactory;
+import io.webfolder.ui4j.api.browser.Page;
+import io.webfolder.ui4j.api.dom.Element;
 import netscape.javascript.JSObject;
 
 public class InteractWithUI4J {
