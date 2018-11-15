@@ -6,6 +6,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
@@ -49,6 +50,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 	@Override
 	public void newStruct(StructDefn sd) {
 		scope.define(errors, sd.name.baseName(), sd);
+	}
+
+	@Override
+	public void newContract(ContractDecl decl) {
+		scope.define(errors, decl.nameAsName().baseName(), decl);
 	}
 
 	@Override

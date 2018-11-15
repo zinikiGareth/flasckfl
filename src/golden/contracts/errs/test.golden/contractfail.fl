@@ -1,0 +1,17 @@
+You need more than just the word "contract"
+
+	contract
+	
+names must be good
+
+	contract fred
+	
+can't have junk on the end of the line
+
+	contract Fred bert
+	
+methods must have a well-known descriptor
+
+	contract Fred
+		sideways Integer foo
+		Integer foo

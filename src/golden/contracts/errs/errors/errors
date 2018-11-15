@@ -1,0 +1,10 @@
+    contractfail  3.8:    contract _ 
+                              invalid or missing type name
+    contractfail  7.9:    contract  _ fred
+                              invalid or missing type name
+    contractfail 11.13:   contract Fred _  bert
+                              tokens after end of line
+    contractfail 16.8:    sideways _  Integer foo
+                              missing or invalid direction
+    contractfail 17.7:    Integer _  foo
+                              missing or invalid direction

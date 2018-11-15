@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -58,7 +59,13 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
-			return new NoNestingParser(errors);
+			if (toks.hasMore()) {
+				errors.message(toks, "tokens after end of line");
+				return new IgnoreNestedParser();
+			}
+			ContractDecl decl = new ContractDecl(kw.location, tn.location, consumer.qualifyName(tn.text));
+			consumer.newContract(decl);
+			return new ContractMethodParser(errors, decl);
 		}
 		default:
 			return null;
