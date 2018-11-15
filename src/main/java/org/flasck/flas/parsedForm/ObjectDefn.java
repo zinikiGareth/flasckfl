@@ -22,13 +22,12 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	private final List<PolyType> polys;
 	private final Map<String, Integer> methodCases = new HashMap<>();
 
-	public ObjectDefn(InputPosition kw, InputPosition location, IScope outer, SolidName tn, boolean generate, List<PolyType> polys) {
+	public ObjectDefn(InputPosition kw, InputPosition location, SolidName tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
 		this.location = location;
 		this.name = tn;
 		this.generate = generate;
 		this.polys = polys;
-		outer.define(tn.baseName(), this);
 		this.innerScope = new Scope(tn);
 	}
 

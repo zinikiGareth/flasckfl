@@ -11,7 +11,9 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ScopeDefineException;
+import org.flasck.flas.testrunner.UnitTests;
 import org.zinutils.exceptions.UtilException;
 
 public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
@@ -95,9 +97,18 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 	}
 
 	@Override
-	public void define(String key, Object defn) {
+	public void define(ErrorReporter er, String key, Locatable defn) {
 		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
+		if (contains(key) && !(defn instanceof FunctionIntro) && !(defn instanceof FunctionCaseDefn)) {
+			if (defn instanceof UnitTests) {
+				// I claim this is a broken case, but it is badly broken and goes away when we TDA, I hope ...
+				System.out.println("Already have unit tests at " + key);
+			} else {
+				er.message(defn.location(), "duplicate definition for name " + key);
+				return;
+			}
+		}
 		ScopeEntry ret = new ScopeEntry(key, scopeName.uniqueName()+"."+key, defn);
 		defns.add(ret);
 		index.add(key);

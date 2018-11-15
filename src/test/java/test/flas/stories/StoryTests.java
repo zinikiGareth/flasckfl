@@ -85,7 +85,7 @@ public class StoryTests {
 			oneOf(mcd).innerScope(); will(returnValue(scope));
 
 			oneOf(scope).caseName("ME.Card.Contract.m.v"); will(returnValue(0));
-			oneOf(scope).define(with("v"), with(any(FunctionCaseDefn.class)));
+			oneOf(scope).define(with(er), with("v"), with(any(FunctionCaseDefn.class)));
 			
 			allowing(er).hasErrors(); will(returnValue(false));
 		}});

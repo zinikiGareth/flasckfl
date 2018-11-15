@@ -85,7 +85,7 @@ public class RewriterTests {
 	public void testRewritingSomethingGloballyDefined() {
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), new ArrayList<Object>(), new UnresolvedVar(posn, "Nil"));
 		fcd0.provideCaseName(0);
-		scope.define("f", fcd0);
+		scope.define(errors, "f", fcd0);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.uniqueName());
@@ -99,7 +99,7 @@ public class RewriterTests {
 		args.add(new VarPattern(posn, "x"));
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), args, new UnresolvedVar(posn, "x"));
 		fcd0.provideCaseName(0);
-		scope.define("f", fcd0);
+		scope.define(errors, "f", fcd0);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.uniqueName());
@@ -111,7 +111,7 @@ public class RewriterTests {
 	public void testWeRewriteStructFields() {
 		StructDefn sd = new StructDefn(posn, StructType.STRUCT, "ME", "Container", true);
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "String"), "f"));
-		scope.define("Container", sd);
+		scope.define(errors, "Container", sd);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, new SolidName(new PackageName("ME"), "Container")).defn;
 		RWStructField sf = rsd.fields.get(0);
@@ -124,7 +124,7 @@ public class RewriterTests {
 	public void testAStructReferencingAListFieldGetsARewrittenParameterList() {
 		StructDefn sd = new StructDefn(posn, StructType.STRUCT, "ME", "Container", true);
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "List", new TypeReference(posn, "String")), "list"));
-		scope.define("Container", sd);
+		scope.define(errors, "Container", sd);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, new SolidName(new PackageName("ME"), "Container")).defn;
 		RWStructField sf = rsd.fields.get(0);
@@ -142,7 +142,7 @@ public class RewriterTests {
 	public void testAStructReferencingAListFieldMustHaveATypeArgument() {
 		StructDefn sd = new StructDefn(posn, StructType.STRUCT, "ME", "Container", true);
 		sd.addField(new StructField(null, false, new TypeReference(posn, "List"), "list"));
-		scope.define("Container", sd);
+		scope.define(errors, "Container", sd);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		assertTrue(errors.hasErrors());
 		assertEquals(1, errors.count());
@@ -157,14 +157,14 @@ public class RewriterTests {
 			args.add(new VarPattern(posn, "x"));
 			FunctionCaseDefn fn_f = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), args, new StringLiteral(posn, "x"));
 			fn_f.provideCaseName(0);
-			scope.define("f", fn_f);
+			scope.define(errors, "f", fn_f);
 			innerScope = fn_f.innerScope();
 		}
 		{
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(posn, "y"));
 			FunctionCaseDefn fn_g = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.f_0"), "g"), args, new UnresolvedVar(posn, "x"));
-			innerScope.define("g", fn_g);
+			innerScope.define(errors, "g", fn_g);
 			fn_g.provideCaseName(0);
 		}
 		rw.rewritePackageScope(null, null, "ME", scope);
@@ -179,13 +179,13 @@ public class RewriterTests {
 	
 	@Test
 	public void testRewritingAStateVar() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(new PackageName("ME"), "MyCard"));
+		CardDefinition cd = new CardDefinition(errors, posn, posn, scope, new CardName(new PackageName("ME"), "MyCard"));
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
-//		scope.define("MyCard", "ME.MyCard", cd);
+//		scope.define(errors, "MyCard", "ME.MyCard", cd);
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "counter"));
 		fcd0.provideCaseName(0);
-		cd.fnScope.define("f", fcd0);
+		cd.fnScope.define(errors, "f", fcd0);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		if (errors.hasErrors())
 			errors.showTo(new PrintWriter(System.out), 0);
@@ -199,15 +199,15 @@ public class RewriterTests {
 	@Test
 	public void testRewritingAContractVar() throws Exception {
 		CardName cn = new CardName(new PackageName("ME"), "MyCard");
-		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardDefinition cd = new CardDefinition(errors, posn, posn, scope, cn);
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		ContractImplements ci = new ContractImplements(posn, posn, "Timer", posn, "timer");
 		ci.setRealName(new CSName(cn, "_C0"));
 		cd.contracts.add(ci);
-//		scope.define("MyCard", "ME.MyCard", cd);
+//		scope.define(errors, "MyCard", "ME.MyCard", cd);
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "timer"));
 		fcd0.provideCaseName(0);
-		cd.fnScope.define("f", fcd0);
+		cd.fnScope.define(errors, "f", fcd0);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		if (errors.hasErrors())
 			errors.showTo(new PrintWriter(System.out), 0);
@@ -220,7 +220,7 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAContractMethod() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(new PackageName("ME"), "MyCard"));
+		CardDefinition cd = new CardDefinition(errors, posn, posn, scope, new CardName(new PackageName("ME"), "MyCard"));
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
@@ -232,7 +232,7 @@ public class RewriterTests {
 		mcd1.provideCaseName(-1);
 		mcd1.messages.add(new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(mcd1);
-//		scope.define("MyCard", "ME.MyCard", cd);
+//		scope.define(errors, "MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		if (errors.hasErrors())
 			errors.showTo(new PrintWriter(System.out), 0);
@@ -247,15 +247,15 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAnEventHandler() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(new PackageName("ME"), "MyCard"));
+		CardDefinition cd = new CardDefinition(errors, posn, posn, scope, new CardName(new PackageName("ME"), "MyCard"));
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		EventCaseDefn ecd1 = new EventCaseDefn(posn, new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("ME"), "MyCard"), "eh"), new ArrayList<Object>()));
 		ecd1.provideCaseName(-1);
 		ecd1.messages.add(new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "counter")), new UnresolvedVar(posn, "counter")));
-		cd.fnScope.define("eh", ecd1);
-//		scope.define("MyCard", "ME.MyCard", cd);
+		cd.fnScope.define(errors, "eh", ecd1);
+//		scope.define(errors, "MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope(null, null, "ME", scope);
 		if (errors.hasErrors())
 			errors.showTo(new PrintWriter(System.out), 0);
@@ -274,7 +274,7 @@ public class RewriterTests {
 		final CardName cn = new CardName(pn, "Card");
 		RootContext rc = rw.new RootContext();
 		PackageContext pc = rw.new PackageContext(rc, pn, scope);
-		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardDefinition cd = new CardDefinition(errors, posn, posn, scope, cn);
 		CardContext cc = rw.new CardContext(pc, cn, null, cd, false);
 		final AreaName an = new AreaName(cn, "area1");
 		IterVar iv = new IterVar(posn, cn, "e");
@@ -298,7 +298,7 @@ public class RewriterTests {
 		final CardName cn = new CardName(pn, "Card");
 		RootContext rc = rw.new RootContext();
 		PackageContext pc = rw.new PackageContext(rc, pn, scope);
-		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardDefinition cd = new CardDefinition(errors, posn, posn, scope, cn);
 		CardContext cc = rw.new CardContext(pc, cn, null, cd, false);
 		final AreaName an = new AreaName(cn, "area1");
 		IterVar iv = new IterVar(posn, cn, "e");
@@ -324,7 +324,7 @@ public class RewriterTests {
 		final CardName cn = new CardName(pn, "Card");
 		RootContext rc = rw.new RootContext();
 		PackageContext pc = rw.new PackageContext(rc, pn, scope);
-		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardDefinition cd = new CardDefinition(errors, posn, posn, scope, cn);
 		CardContext cc = rw.new CardContext(pc, cn, null, cd, false);
 		final AreaName an = new AreaName(cn, "area1");
 		IterVar iv = new IterVar(posn, cn, "e");
@@ -349,7 +349,7 @@ public class RewriterTests {
 		final CardName cn = new CardName(pn, "Card");
 		RootContext rc = rw.new RootContext();
 		PackageContext pc = rw.new PackageContext(rc, pn, scope);
-		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardDefinition cd = new CardDefinition(errors, posn, posn, scope, cn);
 		CardContext cc = rw.new CardContext(pc, cn, null, cd, false);
 		TemplateContext cx = rw.new TemplateContext(cc);
 		TemplateDiv div = new TemplateDiv(posn, "card", null, null, null, null, new ArrayList<>(), new ArrayList<>());

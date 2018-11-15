@@ -60,7 +60,7 @@ public class SimpleUnitTestRunnerTests {
 	@Test
 	public void testItCanTestASimpleValue() throws Exception {
 		go(new Setup() {{
-			scope.define("x", null);
+			scope.define(errors, "x", null);
 			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
@@ -76,7 +76,7 @@ public class SimpleUnitTestRunnerTests {
 	@Test
 	public void testItCanTestATrivialFunctionCall() throws Exception {
 		go(new Setup() {{
-			scope.define("id", null);
+			scope.define(errors, "id", null);
 			Type varA = new PolyVar(loc, "A");
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
@@ -93,7 +93,7 @@ public class SimpleUnitTestRunnerTests {
 	@Test
 	public void testItCanTestTwoCases() throws Exception {
 		go(new Setup() {{
-			scope.define("id", null);
+			scope.define(errors, "id", null);
 			Type varA = new PolyVar(loc, "A");
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
@@ -115,7 +115,7 @@ public class SimpleUnitTestRunnerTests {
 	@Test
 	public void testItFailsWhenGivenTheWrongValue() throws Exception {
 		go(new Setup() {{
-			scope.define("x", null);
+			scope.define(errors, "x", null);
 			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
@@ -131,7 +131,7 @@ public class SimpleUnitTestRunnerTests {
 	@Test
 	public void testIfRunningTwoCasesOneCanPassWhileTheOtherFails() throws Exception {
 		go(new Setup() {{
-			scope.define("id", null);
+			scope.define(errors, "id", null);
 			Type varA = new PolyVar(loc, "A");
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});

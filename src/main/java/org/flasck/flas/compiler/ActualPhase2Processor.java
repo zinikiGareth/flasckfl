@@ -39,12 +39,12 @@ public class ActualPhase2Processor implements Phase2Processor {
 	public void functionCase(FunctionCaseDefn fn) {
 		int caseName = scope.caseName(fn.intro.name().uniqueName());
 		fn.provideCaseName(caseName);
-		scope.define(fn.functionName().name, fn);
+		scope.define(errors, fn.functionName().name, fn);
 	}
 
 	@Override
 	public void newStruct(StructDefn sd) {
-		scope.define(sd.structName.baseName(), sd);
+		scope.define(errors, sd.structName.baseName(), sd);
 	}
 
 	@Override

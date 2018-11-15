@@ -29,7 +29,7 @@ public class HSIEFunctionTests {
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
 		c1.provideCaseName(0);
-		s.define("primes", c1);
+		s.define(errors, "primes", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm primesForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.primes"));
@@ -47,9 +47,10 @@ public class HSIEFunctionTests {
 		c2.provideCaseName(1);
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib n = fib (n-1) + fib (n-2)"));
 		c3.provideCaseName(2);
-		s.define("fib", c1);
-		s.define("fib", c2);
-		s.define("fib", c3);
+		s.define(errors, "fib", c1);
+		s.define(errors, "fib", c2);
+		s.define(errors, "fib", c3);
+		assertEquals(0, errors.count());
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm fibForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.fib"));
@@ -67,9 +68,9 @@ public class HSIEFunctionTests {
 		c2.provideCaseName(1);
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n (a:b) = a:(take (n-1) b)"));
 		c3.provideCaseName(2);
-		s.define("take", c1);
-		s.define("take", c2);
-		s.define("take", c3);
+		s.define(errors, "take", c1);
+		s.define(errors, "take", c2);
+		s.define(errors, "take", c3);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm takeForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.take"));

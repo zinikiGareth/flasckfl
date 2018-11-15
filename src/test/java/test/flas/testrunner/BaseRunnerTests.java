@@ -67,8 +67,8 @@ public abstract class BaseRunnerTests {
 	@Before
 	public void setup() {
 		Main.setLogLevels();
-		mainScope.define("x", null);
-		CardDefinition cd = new CardDefinition(loc, loc, mainScope, cn);
+		mainScope.define(errors, "x", null);
+		CardDefinition cd = new CardDefinition(errors, loc, loc, mainScope, cn);
 		{
 			ContractImplements ctr = new ContractImplements(loc, loc, "SetState", null, null);
 			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C0"), "setOn"), new ArrayList<>())));
@@ -79,7 +79,7 @@ public abstract class BaseRunnerTests {
 			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C1"), "saySomething"), Arrays.asList(new TypedPattern(loc, new TypeReference(loc, "String"), loc, "s")))));
 			cd.contracts.add(ctr);
 		}
-		mainScope.define("TestCard", cd);
+		mainScope.define(errors, "TestCard", cd);
 		tc.define("test.runner.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		prior = new CompileResult(mainScope, bce, tc);
 		testScope = Scope.topScope(spkg);
@@ -87,16 +87,16 @@ public abstract class BaseRunnerTests {
 	
 	@Test
 	public void testAssertDoesNotThrowIfXDoesIndeedEqualX() throws Exception {
-		testScope.define("expr1", function("expr1", new UnresolvedVar(loc, "x")));
-		testScope.define("value1", function("value1", new NumericLiteral(loc, Integer.toString(X_VALUE), -1)));
+		testScope.define(errors, "expr1", function("expr1", new UnresolvedVar(loc, "x")));
+		testScope.define(errors, "value1", function("value1", new NumericLiteral(loc, Integer.toString(X_VALUE), -1)));
 		prepareRunner();
 		runner.assertCorrectValue(1);
 	}
 
 	@Test(expected=AssertFailed.class)
 	public void testAssertThrowsIfXIsNotThePrescribedValue() throws Exception {
-		testScope.define("expr1", function("expr1", new UnresolvedVar(loc, "x")));
-		testScope.define("value1", function("value1", new NumericLiteral(loc, Integer.toString(X_OTHER_VALUE), -1)));
+		testScope.define(errors, "expr1", function("expr1", new UnresolvedVar(loc, "x")));
+		testScope.define(errors, "value1", function("value1", new NumericLiteral(loc, Integer.toString(X_OTHER_VALUE), -1)));
 		prepareRunner();
 		runner.assertCorrectValue(1);
 	}
@@ -163,8 +163,8 @@ public abstract class BaseRunnerTests {
 	@Test
 	@Ignore
 	public void testSendCanCauseAMessageToComeBack() throws Exception {
-		testScope.define("arg1", function("arg1", new StringLiteral(loc, HELLO_STRING)));
-		testScope.define("earg2", function("earg2", new StringLiteral(loc, HELLO_STRING)));
+		testScope.define(errors, "arg1", function("arg1", new StringLiteral(loc, HELLO_STRING)));
+		testScope.define(errors, "earg2", function("earg2", new StringLiteral(loc, HELLO_STRING)));
 		prepareRunner();
 		String cardVar = "q";
 		String contractName = "Echo";
@@ -181,7 +181,7 @@ public abstract class BaseRunnerTests {
 	@Test
 	@Ignore
 	public void testWeCanClickOnAnAreaAndCauseAMessageToComeBack() throws Exception {
-		testScope.define("earg1", function("earg1", new StringLiteral(loc, HELLO_CLICKED)));
+		testScope.define(errors, "earg1", function("earg1", new StringLiteral(loc, HELLO_CLICKED)));
 		prepareRunner();
 		String cardVar = "q";
 		String contractName = "Echo";

@@ -28,7 +28,7 @@ public class TestScript implements TestScriptBuilder {
 		this.reporter = errors;
 		this.priorScope = inScope;
 		this.defineInPkg = defineInPkg;
-		this.scope = new UnitTests(priorScope, defineInPkg).scope();
+		this.scope = new UnitTests(errors, priorScope, defineInPkg).scope();
 	}
 
 	public IScope getPriorScope() {
@@ -57,14 +57,14 @@ public class TestScript implements TestScriptBuilder {
 			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), evalExpr);
 			fn.provideCaseName(0);
-			scope.define(key, fn);
+			scope.define(reporter, key, fn);
 		}
 		{
 			String key = "value" + nextStep;
 			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), valueExpr);
 			fn.provideCaseName(0);
-			scope.define(key, fn);
+			scope.define(reporter, key, fn);
 		}
 		nextStep++;
 		currentSteps.add(as);
@@ -96,7 +96,7 @@ public class TestScript implements TestScriptBuilder {
 				FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
 				FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
 				fn.provideCaseName(0);
-				scope.define(key, fn);
+				scope.define(reporter, key, fn);
 			}
 			posns.add(nextStep);
 			nextStep++;
@@ -110,7 +110,7 @@ public class TestScript implements TestScriptBuilder {
 					FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
 					FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
 					fn.provideCaseName(0);
-					scope.define(key, fn);
+					scope.define(reporter, key, fn);
 				}
 				eargs.add(nextStep);
 				nextStep++;
@@ -131,7 +131,7 @@ public class TestScript implements TestScriptBuilder {
 				FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
 				FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
 				fn.provideCaseName(0);
-				scope.define(key, fn);
+				scope.define(reporter, key, fn);
 			}
 			posns.add(nextStep);
 			nextStep++;
@@ -145,7 +145,7 @@ public class TestScript implements TestScriptBuilder {
 					FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
 					FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
 					fn.provideCaseName(0);
-					scope.define(key, fn);
+					scope.define(reporter, key, fn);
 				}
 				eargs.add(nextStep);
 				nextStep++;

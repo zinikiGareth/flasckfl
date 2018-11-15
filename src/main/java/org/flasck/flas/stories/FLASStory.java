@@ -207,7 +207,7 @@ public class FLASStory {
 					FunctionCaseDefn fcd = (FunctionCaseDefn)o;
 					int caseName = ret.caseName(fcd.intro.name().uniqueName());
 					fcd.provideCaseName(caseName);
-					ret.define(fcd.functionName().name, fcd);
+					ret.define(er, fcd.functionName().name, fcd);
 					if (!b.nested.isEmpty()) {
 						doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), b.nested);
 					}
@@ -220,7 +220,7 @@ public class FLASStory {
 					Block lastBlock = (Block) arr[1];
 					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
 					fcd.provideCaseName(caseName);
-					ret.define(fcd.functionName().name, fcd);
+					ret.define(er, fcd.functionName().name, fcd);
 					if (!lastBlock.nested.isEmpty()) {
 						doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), lastBlock.nested);
 					}
@@ -228,36 +228,34 @@ public class FLASStory {
 					MethodCaseDefn mcd = (MethodCaseDefn)o;
 					int caseName = ret.caseName(mcd.methodName().name);
 					mcd.provideCaseName(caseName);
-					ret.define(mcd.methodName().name, mcd);
+					ret.define(er, mcd.methodName().name, mcd);
 					addMethodMessages(er, mcd.messages, b.nested);
 				} else if (o instanceof TupleAssignment) {
 					TupleAssignment ta = (TupleAssignment) o;
 					int k=0;
 					for (LocatedName x : ta.vars) {
-						ret.define(x.text, new TupleMember(x.location, ta, k++));
+						ret.define(er, x.text, new TupleMember(x.location, ta, k++));
 					}
 					// I don't think we need to do anything here, but if recursion is called for, we probably have a scope
 				} else if (o instanceof StructDefn) {
 					StructDefn sd = (StructDefn)o;
-					ret.define(sd.structName.baseName(), sd);
+					ret.define(er, sd.structName.baseName(), sd);
 					doStructFields(er, sd, b.nested);
 				} else if (o instanceof ObjectDefn) {
 					ObjectDefn od = (ObjectDefn)o;
+					ret.define(er, od.name().baseName(), od);
 					doObjectMembers(er, s, od, b.nested);
 				} else if (o instanceof ContractDecl) {
 					ContractDecl cd = (ContractDecl) o;
 					SolidName name = cd.nameAsName();
-					if (ret.contains(name.baseName()))
-						er.message(b, "duplicate definition for name " + name.baseName());
-					else
-						ret.define(name.baseName(), cd);
+					ret.define(er, name.baseName(), cd);
 					doContractMethods(er, s.nest(s.scope, name, CodeType.DECL), cd, b.nested);
 				} else if (o instanceof CardDefinition) {
 					CardDefinition cd = (CardDefinition) o;
 					doCardDefinition(er, s.nestCard(cd.innerScope(), cd.cardName), cd, b.nested);
 				} else if (o instanceof HandlerImplements) {
 					HandlerImplements hi = (HandlerImplements)o;
-					ret.define(hi.baseName, hi);
+					ret.define(er, hi.baseName, hi);
 					doImplementation(s, er, hi, b.nested, hi.baseName);
 				} else if (o instanceof ContractImplements) {
 					er.message(((ContractImplements) o).location(), "implements cannot appear at the top level");
@@ -527,7 +525,7 @@ public class FLASStory {
 				doImplementation(s.as(CodeType.HANDLER), er, hi, b.nested, hi.baseName);
 			} else if (o instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fcd = (FunctionCaseDefn) o;
-				inner.define(fcd.functionName().name, fcd);
+				inner.define(er, fcd.functionName().name, fcd);
 				int caseName = inner.caseName(fcd.intro.name().uniqueName());
 				fcd.provideCaseName(caseName);
 			} else if (o instanceof FunctionIntro) {
@@ -539,17 +537,17 @@ public class FLASStory {
 				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
 				int caseName = inner.caseName(fcd.intro.name().uniqueName());
 				fcd.provideCaseName(caseName);
-				inner.define(fcd.functionName().name, fcd);
+				inner.define(er, fcd.functionName().name, fcd);
 				if (!lastBlock.nested.isEmpty()) {
 					doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), lastBlock.nested);
 				}
 			} else if (o instanceof MethodCaseDefn) {
 				MethodCaseDefn mcd = (MethodCaseDefn) o;
-				inner.define(mcd.methodName().name, mcd);
+				inner.define(er, mcd.methodName().name, mcd);
 				addMethodMessages(er, mcd.messages, b.nested);
 			} else if (o instanceof EventCaseDefn) {
 				EventCaseDefn ecd = (EventCaseDefn) o;
-				inner.define(ecd.methodName().name, ecd);
+				inner.define(er, ecd.methodName().name, ecd);
 				int caseName = inner.caseName(ecd.methodName().name);
 				ecd.provideCaseName(caseName);
 				addMethodMessages(er, ecd.messages, b.nested);

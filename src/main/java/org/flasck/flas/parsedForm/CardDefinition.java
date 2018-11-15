@@ -9,6 +9,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.errors.ErrorReporter;
 
 public class CardDefinition implements ContainsScope, Locatable {
 	public final InputPosition kw;
@@ -25,11 +26,11 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public final Scope fnScope;
 	public final CardName cardName;
 
-	public CardDefinition(InputPosition kw, InputPosition location, IScope outer, CardName name) {
+	public CardDefinition(ErrorReporter errors, InputPosition kw, InputPosition location, IScope outer, CardName name) {
 		this.kw = kw;
 		this.location = location;
 		this.simpleName = name.cardName;
-		outer.define(simpleName, this);
+		outer.define(errors, simpleName, this);
 		this.cardName = name;
 		this.fnScope = new Scope(name);
 	}

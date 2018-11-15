@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CardName;
@@ -56,7 +57,7 @@ public class ScriptBuilderTests {
 	@Before
 	public void expectScopeDefn() {
 		context.checking(new Expectations() {{
-			allowing(priorScope).define(with("script"), with(any(UnitTests.class)));
+			allowing(priorScope).define(with(reporter), with("script"), with(any(UnitTests.class)));
 		}});
 		script = new TestScript(reporter, priorScope, spkg);
 	}
@@ -177,7 +178,7 @@ public class ScriptBuilderTests {
 		context.checking(new Expectations() {{
 			oneOf(priorScope).get(cardName); will(createCard(cardName));
 			oneOf(stepRunner).createCardAs(cn, cardVar);
-			oneOf(priorScope).define(with(any(String.class)), with(any(Object.class)));
+			oneOf(priorScope).define(with(reporter), with(any(String.class)), with(any(Locatable.class)));
 		}});
 
 		script.addCreate(posn, cardVar, cardName);
@@ -191,7 +192,7 @@ public class ScriptBuilderTests {
 			@Override
 			public Object invoke(Invocation arg0) throws Throwable {
 				CardName card = new CardName(pn, cardName);
-				return new Scope.ScopeEntry(cardName, card.uniqueName(), new CardDefinition(posn, posn, priorScope, card));
+				return new Scope.ScopeEntry(cardName, card.uniqueName(), new CardDefinition(reporter, posn, posn, priorScope, card));
 			}
 			
 			@Override

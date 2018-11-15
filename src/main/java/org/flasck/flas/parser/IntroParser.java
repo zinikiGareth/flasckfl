@@ -87,7 +87,7 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new ObjectDefn(kw.location, tn.location, state.scope, state.objectName(tn.text), true, args);
+			return new ObjectDefn(kw.location, tn.location, state.objectName(tn.text), true, args);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.unqualified(line);
@@ -99,7 +99,12 @@ public class IntroParser implements TryParsing {
 			TypeNameToken tn = TypeNameToken.unqualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid card name");
-			return new CardDefinition(kw.location, tn.location, state.scope, new CardName((PackageName)state.pkgName, tn.text));
+			ErrorResult er = new ErrorResult();
+			CardDefinition ret = new CardDefinition(er, kw.location, tn.location, state.scope, new CardName((PackageName)state.pkgName, tn.text));
+			if (er.hasErrors())
+				return er;
+			else
+				return ret; 
 		}
 		case "platform": {
 			ValidIdentifierToken tok = VarNameToken.from(line);

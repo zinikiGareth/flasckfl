@@ -76,7 +76,7 @@ public class MethodConvertorTests {
 			biscope.define("doSend", doSend);
 		}
 		orgFooScope = Scope.topScope("org.foo");
-//		orgFooScope.define("doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
+//		orgFooScope.define(errors, "doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
 		{
 			SolidName cn = new SolidName(new PackageName("org.foo"), "Contract1");
 			ContractDecl contract1 = new ContractDecl(posn, posn, cn);
@@ -86,7 +86,7 @@ public class MethodConvertorTests {
 			contract1.methods.add(m2);
 			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			contract1.methods.add(m3);
-			orgFooScope.define("Contract1", contract1);
+			orgFooScope.define(errors, "Contract1", contract1);
 		}
 		{
 			SolidName cn = new SolidName(new PackageName("org.foo"), "Service1");
@@ -97,24 +97,24 @@ public class MethodConvertorTests {
 			service1.methods.add(m1);
 			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "respond"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m2);
-			orgFooScope.define("Service1", service1);
+			orgFooScope.define(errors, "Service1", service1);
 		}
 		{
 			SolidName cn = new SolidName(new PackageName("org.foo"), "Handler1");
 			ContractDecl handler1 = new ContractDecl(posn, posn, cn);
 			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "handle"), new ArrayList<>());
 			handler1.methods.add(m1);
-			orgFooScope.define("Handler1", handler1);
+			orgFooScope.define(errors, "Handler1", handler1);
 		}
 		{
 			StructDefn struct = new StructDefn(posn, StructType.STRUCT, "org.foo", "Thing", true);
 			struct.addField(new StructField(posn, false, new TypeReference(posn, "String"), "x"));
-			orgFooScope.define("Thing", struct);
+			orgFooScope.define(errors, "Thing", struct);
 		}
 		
 		{
 			rewriter = new Rewriter(errors, null, biscope, null);
-			cd = new CardDefinition(posn, posn, orgFooScope, new CardName(new PackageName("org.foo"), "Card"));
+			cd = new CardDefinition(errors, posn, posn, orgFooScope, new CardName(new PackageName("org.foo"), "Card"));
 			cd.state = new StateDefinition(posn);
 			cd.state.addField(new StructField(posn, false, new TypeReference(posn, "String"), "str"));
 			{
@@ -516,7 +516,7 @@ public class MethodConvertorTests {
 		cs.provideCaseName(-1);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
-		s.define(name, cs);
+		s.define(errors, name, cs);
 	}
 	
 	// the other cases are where it's just <- ...
