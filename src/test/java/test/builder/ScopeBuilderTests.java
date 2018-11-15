@@ -12,10 +12,11 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.ActualPhase2Processor;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -42,7 +43,7 @@ public class ScopeBuilderTests implements ScopeReceiver {
 	
 	@Test
 	public void aStructCanBeAdded() {
-		sb.newStruct(new StructDefn(loc, loc, StructType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>()));
+		sb.newStruct(new StructDefn(loc, loc, FieldsDefn.FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>()));
 		assertEquals(1, s.size());
 	}
 

@@ -5,7 +5,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.PrimitiveType;
@@ -22,14 +23,14 @@ public class GenTestsForStructs {
 
 	@Test
 	public void testNothingHappensIfWeDontWantToGenerateTheStruct() {
-		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), false);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.STRUCT, new SolidName(null, "Struct"), false);
 		gen.visitStructDefn(sd);
 		bce.validate();
 	}
 
 	@Test
 	public void testVisitingAnEmptyStructDefnGeneratesTheCorrectMinimumCode() {
-		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), true);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.STRUCT, new SolidName(null, "Struct"), true);
 		gen.visitStructDefn(sd);
 		bce.expect("Struct", "/genstructs/minimal-struct.txt");
 		bce.validate();
@@ -37,7 +38,7 @@ public class GenTestsForStructs {
 
 	@Test
 	public void testVisitingAStructDefnWithOneMemberAndNoInitGeneratesAnEmptySlot() {
-		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), true);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.STRUCT, new SolidName(null, "Struct"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		gen.visitStructDefn(sd);
 		bce.expect("Struct", "/genstructs/struct-with-field.txt");
@@ -46,7 +47,7 @@ public class GenTestsForStructs {
 
 	@Test
 	public void testVisitingAStructDefnWithOneInitializedMemberGeneratesASlotWithTheValue() {
-		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), true);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.STRUCT, new SolidName(null, "Struct"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		gen.visitStructDefn(sd);
 		bce.expect("Struct", "/genstructs/struct-with-field-init.txt");

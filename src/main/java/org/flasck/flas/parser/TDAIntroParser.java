@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -47,7 +48,7 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}
-			final StructDefn sd = new StructDefn(kw.location, tn.location, StructDefn.StructType.valueOf(kw.text.toUpperCase()), consumer.qualifyName(tn.text), true, polys);
+			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase()), consumer.qualifyName(tn.text), true, polys);
 			consumer.newStruct(sd);
 			return new TDAStructFieldParser(errors, sd);
 		default:

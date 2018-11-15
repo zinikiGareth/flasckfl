@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Intro;
 import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
@@ -69,7 +70,7 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new StructDefn(kw.location, tn.location, StructDefn.StructType.valueOf(kw.text.toUpperCase()), new SolidName(state.pkgName, tn.text), true, args);
+			return new StructDefn(kw.location, tn.location, FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase()), new SolidName(state.pkgName, tn.text), true, args);
 		}
 		case "object": {
 			TypeNameToken tn = TypeNameToken.unqualified(line);

@@ -239,7 +239,7 @@ public class FLASStory {
 					// I don't think we need to do anything here, but if recursion is called for, we probably have a scope
 				} else if (o instanceof StructDefn) {
 					StructDefn sd = (StructDefn)o;
-					ret.define(er, sd.structName.baseName(), sd);
+					ret.define(er, sd.name.baseName(), sd);
 					doStructFields(er, sd, b.nested);
 				} else if (o instanceof ObjectDefn) {
 					ObjectDefn od = (ObjectDefn)o;

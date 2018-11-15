@@ -28,6 +28,8 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.IScope;
@@ -37,7 +39,6 @@ import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -107,7 +108,7 @@ public class MethodConvertorTests {
 			orgFooScope.define(errors, "Handler1", handler1);
 		}
 		{
-			StructDefn struct = new StructDefn(posn, StructType.STRUCT, "org.foo", "Thing", true);
+			StructDefn struct = new StructDefn(posn, FieldsDefn.FieldsType.STRUCT, "org.foo", "Thing", true);
 			struct.addField(new StructField(posn, false, new TypeReference(posn, "String"), "x"));
 			orgFooScope.define(errors, "Thing", struct);
 		}

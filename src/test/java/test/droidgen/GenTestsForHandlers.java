@@ -9,7 +9,8 @@ import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -82,7 +83,7 @@ public class GenTestsForHandlers {
 		checkProcessingOfLambda("x");
 		HandlerName hn = new HandlerName(new CardName(null, container), "MyHandler");
 		ArrayList<HandlerLambda> lambdas = new ArrayList<>();
-		lambdas.add(new HandlerLambda(loc, hn, new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Foo"), true), "x"));
+		lambdas.add(new HandlerLambda(loc, hn, new RWStructDefn(loc, FieldsDefn.FieldsType.STRUCT, new SolidName(null, "Foo"), true), "x"));
 		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, hn, new SolidName(null, "Callback"), true, lambdas);
 		gen.visitHandlerImpl(hi);
 	}

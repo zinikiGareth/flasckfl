@@ -12,7 +12,8 @@ import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.Type;
@@ -23,7 +24,7 @@ public class TestGeneratingStructs {
 
 	@Test
 	public void testACaseWithNoFields() throws IOException {
-		RWStructDefn sd = new RWStructDefn(posn, StructType.STRUCT, new SolidName(null, "ME.Hello"), true);
+		RWStructDefn sd = new RWStructDefn(posn, FieldsDefn.FieldsType.STRUCT, new SolidName(null, "ME.Hello"), true);
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(target);
 		gen.visitStructDefn(sd);
@@ -43,7 +44,7 @@ public class TestGeneratingStructs {
 		ImportPackage biScope = Builtin.builtins();
 		Type str = (Type) biScope.get("String");
 		Type nbr = (Type) biScope.get("Number");
-		RWStructDefn sd = new RWStructDefn(posn, StructType.STRUCT, new SolidName(null, "ME.Hello"), true);
+		RWStructDefn sd = new RWStructDefn(posn, FieldsDefn.FieldsType.STRUCT, new SolidName(null, "ME.Hello"), true);
 		sd.addField(new RWStructField(posn, false, str, "name"));
 		sd.addField(new RWStructField(posn, false, nbr, "quant"));
 		JSTarget target = new JSTarget("ME");

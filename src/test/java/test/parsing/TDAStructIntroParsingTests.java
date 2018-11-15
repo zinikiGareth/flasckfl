@@ -7,7 +7,8 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -85,7 +86,7 @@ public class TDAStructIntroParsingTests {
 	public void weCanTellAnEntityApartFromAStruct() {
 		context.checking(new Expectations() {{
 			allowing(builder).qualifyName("Fred"); will(returnValue(new SolidName(new PackageName("test.names"), "Fred")));
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,7).as(StructType.ENTITY)));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,7).as(FieldsDefn.FieldsType.ENTITY)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("entity Fred"));

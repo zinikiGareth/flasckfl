@@ -44,7 +44,7 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void newStruct(StructDefn sd) {
-		scope.define(errors, sd.structName.baseName(), sd);
+		scope.define(errors, sd.name.baseName(), sd);
 	}
 
 	@Override

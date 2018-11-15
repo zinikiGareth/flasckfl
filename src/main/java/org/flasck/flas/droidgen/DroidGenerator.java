@@ -16,7 +16,8 @@ import org.flasck.flas.generators.CodeGenerator;
 import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.hsie.ClosureTraverser;
 import org.flasck.flas.hsie.HSIGenerator;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -77,17 +78,17 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		ByteCodeSink bcc = bce.newClass(sd.name());
 		bcc.generateAssociatedSourceFile();
 		DroidStructFieldGenerator fg = new DroidStructFieldGenerator(bcc, Access.PUBLIC);
-		if (sd.ty == StructType.STRUCT) {
+		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
 			sd.visitFields(fg);
 		}
-		String base = sd.ty == StructType.STRUCT?J.FLAS_STRUCT:J.FLAS_ENTITY; 
+		String base = sd.ty == FieldsDefn.FieldsType.STRUCT?J.FLAS_STRUCT:J.FLAS_ENTITY; 
 		bcc.superclass(base);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cx");
 			NewMethodDefiner ctor = gen.done();
 			IExpr[] args = new IExpr[0];
-			if (sd.ty == StructType.ENTITY)
+			if (sd.ty == FieldsDefn.FieldsType.ENTITY)
 				args = new IExpr[] { cx.getVar(), ctor.as(ctor.aNull(), J.BACKING_DOCUMENT) };
 			ctor.callSuper("void", base, "<init>", args).flush();
 			for (int i=0;i<sd.fields.size();i++) {
@@ -96,7 +97,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					continue;
 				if (fld.init != null) {
 					final IExpr initVal = ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", ctor.as(ctor.myThis(), J.OBJECT), ctor.as(ctor.classConst(fld.init.javaNameAsNestedClass()), J.OBJECT), ctor.arrayOf(J.OBJECT, new ArrayList<>()));
-					if (sd.ty == StructType.STRUCT)
+					if (sd.ty == FieldsDefn.FieldsType.STRUCT)
 						ctor.assign(ctor.getField(ctor.myThis(), fld.name), initVal).flush();
 					else
 						ctor.callSuper("void", J.FLAS_ENTITY, "closure", ctor.stringConst(fld.name), ctor.as(initVal, J.OBJECT)).flush();
@@ -104,7 +105,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			}
 			ctor.returnVoid().flush();
 		}
-		if (sd.ty == StructType.ENTITY) {
+		if (sd.ty == FieldsDefn.FieldsType.ENTITY) {
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cx");
 			PendingVar doc = gen.argument(J.BACKING_DOCUMENT, "doc");
@@ -130,7 +131,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				if (fld.init != null)
 					continue;
 				final IExpr val = meth.arrayElt(v, meth.intConst(ap++));
-				if (sd.ty == StructType.STRUCT)
+				if (sd.ty == FieldsDefn.FieldsType.STRUCT)
 					meth.assign(meth.getField(ret, fld.name), val).flush();
 				else
 					meth.callVirtual("void", ret, "closure", meth.stringConst(fld.name), val).flush();
@@ -138,7 +139,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			meth.returnObject(ret).flush();
 		}
 		
-		if (sd.ty == StructType.STRUCT) {
+		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			gen.returns("void");
@@ -148,7 +149,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			dfe.returnVoid().flush();
 		}
 		
-		if (sd.ty == StructType.STRUCT) {
+		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "toWire");
 			gen.argument(J.WIREENCODER, "wire");
 			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
@@ -161,7 +162,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			meth.returnObject(ret).flush();
 		}
 		
-		if (sd.ty == StructType.STRUCT) {
+		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "fromWire");
 			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
 			gen.argument(J.JOBJ, "jo");

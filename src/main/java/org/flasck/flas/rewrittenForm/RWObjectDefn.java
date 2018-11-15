@@ -9,7 +9,7 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.TypeWithMethods;
@@ -26,7 +26,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	
 	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, List<PolyVar> polys) {
 		super(null, location, tn, polys);
-		this.state = generate?new RWStructDefn(location, StructType.STRUCT, tn, generate, polys):null;
+		this.state = generate?new RWStructDefn(location, FieldsType.STRUCT, tn, generate, polys):null;
 		this.generate = generate;
 	}
 

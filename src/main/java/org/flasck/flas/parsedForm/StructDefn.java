@@ -11,38 +11,25 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.StructFieldConsumer;
 
-public class StructDefn implements AsString, Locatable, StructFieldConsumer {
-	public enum StructType { STRUCT, ENTITY, DEAL, OFFER };
+public class StructDefn extends FieldsDefn implements AsString, Locatable, StructFieldConsumer {
 	public final List<StructField> fields = new ArrayList<StructField>();
-	public final transient boolean generate;
-	public final InputPosition kw;
-	private final InputPosition location;
-	public final StructType structType;
-	private List<PolyType> polys;
-	public final SolidName structName;
-
 	// for tests
-	public StructDefn(InputPosition location, StructType type, String pkg, String tn, boolean generate, PolyType... polys) {
+	public StructDefn(InputPosition location, FieldsDefn.FieldsType type, String pkg, String tn, boolean generate, PolyType... polys) {
 		this(null, location, type, new SolidName(new PackageName(pkg), tn), generate, Arrays.asList(polys));
 	}
 	
 	// The real constructor
-	public StructDefn(InputPosition kw, InputPosition location, StructType structType, SolidName tn, boolean generate, List<PolyType> polys) {
-		this.kw = kw;
-		this.location = location;
-		this.structType = structType;
-		this.structName = tn;
-		this.generate = generate;
-		this.polys = polys;
-		if (structType.equals(StructType.ENTITY))
+	public StructDefn(InputPosition kw, InputPosition location, FieldsDefn.FieldsType structType, SolidName tn, boolean generate, List<PolyType> polys) {
+		super(kw, location, structType, tn, generate, polys);
+		if (structType.equals(FieldsDefn.FieldsType.ENTITY))
 			this.fields.add(new StructField(location, true, new TypeReference(location, "Id"), "id"));
 	}
 
 	public SolidName name() {
-		return structName;
+		return name;
 	}
 
-	public StructDefn addField(StructField sf) {
+	public AsString addField(StructField sf) {
 		// TODO: validate that any poly fields here are defined in the provided list of polys
 		fields.add(sf);
 		return this;

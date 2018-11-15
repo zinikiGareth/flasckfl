@@ -173,7 +173,7 @@ public class PFDumper {
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructDefn) {
 			StructDefn sd = (StructDefn) obj;
-			pw.print(sd.structType.name().toLowerCase() + " " + sd.name().uniqueName() + polys(sd.polys()));
+			pw.print(sd.type.name().toLowerCase() + " " + sd.name().uniqueName() + polys(sd.polys()));
 			dumpPosition(pw, sd.kw, false);
 			dumpPosition(pw, sd.location(), false);
 			for (PolyType p : sd.polys())

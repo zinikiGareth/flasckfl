@@ -5,7 +5,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.PrimitiveType;
@@ -19,14 +20,14 @@ public class GenTestsForEntities {
 
 	@Test
 	public void testNothingHappensIfWeDontWantToGenerateTheEntity() {
-		RWStructDefn sd = new RWStructDefn(loc, StructType.ENTITY, new SolidName(null, "Entity"), false);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.ENTITY, new SolidName(null, "Entity"), false);
 		gen.visitStructDefn(sd);
 		bce.validate();
 	}
 
 	@Test
 	public void testVisitingAnEmptyEntityGeneratesTheCorrectMinimumCode() {
-		RWStructDefn sd = new RWStructDefn(loc, StructType.ENTITY, new SolidName(null, "Entity"), true);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.ENTITY, new SolidName(null, "Entity"), true);
 		gen.visitStructDefn(sd);
 		bce.expect("Entity", "/genentities/minimal-entity.txt");
 		bce.validate();
@@ -34,7 +35,7 @@ public class GenTestsForEntities {
 
 	@Test
 	public void testVisitingAStructDefnWithOneMemberAndNoInitGeneratesAnEmptySlot() {
-		RWStructDefn sd = new RWStructDefn(loc, StructType.ENTITY, new SolidName(null, "Entity"), true);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.ENTITY, new SolidName(null, "Entity"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		gen.visitStructDefn(sd);
 		bce.expect("Entity", "/genentities/entity-with-field.txt");
@@ -43,7 +44,7 @@ public class GenTestsForEntities {
 
 	@Test
 	public void testVisitingAStructDefnWithOneInitializedMemberGeneratesASlotWithTheValue() {
-		RWStructDefn sd = new RWStructDefn(loc, StructType.ENTITY, new SolidName(null, "Entity"), true);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.ENTITY, new SolidName(null, "Entity"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		gen.visitStructDefn(sd);
 		bce.expect("Entity", "/genentities/entity-with-field-init.txt");

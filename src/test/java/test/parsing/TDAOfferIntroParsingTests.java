@@ -5,7 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -26,7 +27,7 @@ public class TDAOfferIntroParsingTests {
 	public void theSimplestOfferCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
 			allowing(builder).qualifyName("Coffee"); will(returnValue(new SolidName(null, "Coffee")));
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("Coffee").as(StructType.OFFER)));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("Coffee").as(FieldsDefn.FieldsType.OFFER)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("offer Coffee"));

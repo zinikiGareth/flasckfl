@@ -11,7 +11,8 @@ import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.droidgen.IMethodGenerationContext;
 import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.hsie.PushArgumentTraverser;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
@@ -107,7 +108,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 			oneOf(op).result(cce);
 		}});
 		SolidName sn = new SolidName(new PackageName("demo.ziniki"), "Account");
-		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, sn, true);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.STRUCT, sn, true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "id"));
 		dpa.visitExternal(new PackageVar(loc, sn, sd), op);
 	}

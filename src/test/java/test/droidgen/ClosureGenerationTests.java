@@ -18,7 +18,8 @@ import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.hsie.ClosureTraverser;
 import org.flasck.flas.hsie.NextVarFactory;
 import org.flasck.flas.hsie.VarFactory;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -370,7 +371,7 @@ public class ClosureGenerationTests {
 		}});
 		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		SolidName fn = new SolidName(null, "Nil");
-		PackageVar hdc1 = new PackageVar(loc, fn, new RWStructDefn(loc, StructType.STRUCT, fn, false));
+		PackageVar hdc1 = new PackageVar(loc, fn, new RWStructDefn(loc, FieldsDefn.FieldsType.STRUCT, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
 		dcg.pushReturn(pr, null, op);
 	}
@@ -395,7 +396,7 @@ public class ClosureGenerationTests {
 		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		SolidName fn = new SolidName(null, "Cons");
 		ClosureCmd closure = form.createClosure(loc);
-		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, fn, false);
+		RWStructDefn sd = new RWStructDefn(loc, FieldsDefn.FieldsType.STRUCT, fn, false);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "head"));
 		PackageVar hdc1 = new PackageVar(loc, fn, sd);
 		closure.push(loc, hdc1, null);

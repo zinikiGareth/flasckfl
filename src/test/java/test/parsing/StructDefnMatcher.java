@@ -3,8 +3,8 @@ package test.parsing;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
@@ -13,7 +13,7 @@ public class StructDefnMatcher extends TypeSafeMatcher<StructDefn> {
 	private final List<String> polys = new ArrayList<>();
 	private int kwloc = -1;
 	private int typeloc = -1;
-	private StructType objty = StructType.STRUCT;
+	private FieldsDefn.FieldsType objty = FieldsDefn.FieldsType.STRUCT;
 
 	public StructDefnMatcher(String name) {
 		this.name = name;
@@ -40,9 +40,9 @@ public class StructDefnMatcher extends TypeSafeMatcher<StructDefn> {
 
 	@Override
 	protected boolean matchesSafely(StructDefn arg0) {
-		if (arg0.structType != objty)
+		if (arg0.type != objty)
 			return false;
-		if (!arg0.structName.uniqueName().equals(name))
+		if (!arg0.name.uniqueName().equals(name))
 			return false;
 		if (arg0.polys().size() != polys.size())
 			return false;
@@ -64,7 +64,7 @@ public class StructDefnMatcher extends TypeSafeMatcher<StructDefn> {
 		return this;
 	}
 	
-	public StructDefnMatcher as(StructType ty) {
+	public StructDefnMatcher as(FieldsDefn.FieldsType ty) {
 		objty = ty;
 		return this;
 	}

@@ -5,7 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -26,7 +27,7 @@ public class TDADealIntroParsingTests {
 	public void theSimplestDealCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
 			allowing(builder).qualifyName("Cart"); will(returnValue(new SolidName(null, "Cart")));
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("Cart").as(StructType.DEAL)));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("Cart").as(FieldsDefn.FieldsType.DEAL)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("deal Cart"));

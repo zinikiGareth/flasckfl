@@ -13,7 +13,8 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
@@ -74,7 +75,7 @@ public class PackageImporter {
 			else if (xe.hasTag("Struct")) { // TODO: also need to support ENTITY
 				List<PolyVar> polys = new ArrayList<>();
 				String baseName = xe.required("name");
-				RWStructDefn sd = new RWStructDefn(location(xe), StructType.STRUCT, new SolidName(packageName, baseName), false, polys);
+				RWStructDefn sd = new RWStructDefn(location(xe), FieldsDefn.FieldsType.STRUCT, new SolidName(packageName, baseName), false, polys);
 				xe.attributesDone();
 				pkg.define(sd.name(), sd);
 				todos.add(new Pass2(sd, xe));
