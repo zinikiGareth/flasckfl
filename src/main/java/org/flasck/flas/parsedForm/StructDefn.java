@@ -12,7 +12,6 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.StructFieldConsumer;
 
 public class StructDefn extends FieldsDefn implements AsString, Locatable, StructFieldConsumer {
-	public final List<StructField> fields = new ArrayList<StructField>();
 	// for tests
 	public StructDefn(InputPosition location, FieldsDefn.FieldsType type, String pkg, String tn, boolean generate, PolyType... polys) {
 		this(null, location, type, new SolidName(new PackageName(pkg), tn), generate, Arrays.asList(polys));
@@ -27,19 +26,6 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Struc
 
 	public SolidName name() {
 		return name;
-	}
-
-	public AsString addField(StructField sf) {
-		// TODO: validate that any poly fields here are defined in the provided list of polys
-		fields.add(sf);
-		return this;
-	}
-
-	public StructField findField(String var) {
-		for (StructField sf : fields)
-			if (sf.name.equals(var))
-				return sf;
-		return null;
 	}
 
 	public String toString() {

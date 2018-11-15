@@ -351,6 +351,7 @@ public class FLASStory {
 
 	private void doObjectMembers(ErrorReporter er, State s, ObjectDefn od, List<Block> nested) {
 		s = s.nest(null, od.name(), CodeType.OBJECT);
+		FieldParser fld = new FieldParser(FieldParser.OBJECT);
 		ObjectMemberParser omp = new ObjectMemberParser(s);
 		FunctionParser fp = new FunctionParser(s);
 		for (Block b : nested) {
@@ -361,8 +362,6 @@ public class FLASStory {
 			Object om = omp.tryParsing(tkz);
 			if (om instanceof ErrorReporter)
 				er.merge((ErrorReporter) om);
-			else if ("state".equals(om))
-				doObjectState(er, s, posn, od, b.nested);
 			else if (om instanceof ObjectMember) {
 				ObjectMember omm = (ObjectMember) om;
 				switch (omm.type) {
@@ -408,11 +407,18 @@ public class FLASStory {
 				}
 			}
 			else {
-				Object func = fp.tryParsing(tkz);
-				if (func instanceof FunctionCaseDefn || func instanceof FunctionIntro)
-					throw new UtilException("Nested internal functions; not handled yet");
-				else
-					er.message(b, "syntax error");
+				Object fd = fld.tryParsing(tkz);
+				if (fd instanceof ErrorReporter)
+					er.merge((ErrorReporter) om);
+				else if (fd instanceof StructField)
+					od.addField((StructField) fd);
+				else {
+					Object func = fp.tryParsing(tkz);
+					if (func instanceof FunctionCaseDefn || func instanceof FunctionIntro)
+						throw new UtilException("Nested internal functions; not handled yet");
+					else
+						er.message(b, "syntax error");
+				}
 			}
 		}
 	}
@@ -583,13 +589,6 @@ public class FLASStory {
 			er.message((Block)null, "duplicate state definition in card");
 		StateDefinition os = cd.state = new StateDefinition(kwp);
 		doState(er, new FieldParser(FieldParser.CARD), os, nested);
-	}
-
-	private void doObjectState(ErrorReporter er, State s, InputPosition kwp, ObjectDefn od, List<Block> nested) {
-		if (od.state != null)
-			er.message((Block)null, "duplicate state definition in card");
-		StateDefinition os = od.state = new StateDefinition(kwp);
-		doState(er, new FieldParser(FieldParser.OBJECT), os, nested);
 	}
 
 	protected void doState(ErrorReporter er, FieldParser fp, StateDefinition os, List<Block> nested) {

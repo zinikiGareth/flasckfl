@@ -11,7 +11,6 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
 
 public class ObjectDefn extends FieldsDefn implements ContainsScope, AsString, Locatable {
-	public StateDefinition state;
 	public final List<ObjectMethod> ctors = new ArrayList<>();
 	public final List<ObjectMethod> methods = new ArrayList<>();
 	private final Scope innerScope;

@@ -1,6 +1,5 @@
 	object WithMethod
-		state
-			Number x
+		Number x
 		
 		method highTime
 			x <- 420

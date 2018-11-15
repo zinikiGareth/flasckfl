@@ -1,3 +1,2 @@
 	object WithPoly A
-		state
-			A val
+		A val

@@ -21,8 +21,10 @@ public class ObjectMemberParser implements TryParsing {
 		if (!line.hasMore())
 			return null;
 		KeywordToken kw = KeywordToken.from(line);
-		if (kw == null)
+		if (kw == null) {
+			line.reset(0);
 			return null; // in the "nothing doing" sense
+		}
 		
 		switch (kw.text) {
 		case "state": {
@@ -46,6 +48,7 @@ public class ObjectMemberParser implements TryParsing {
 		}
 		default:
 			// we didn't find anything we could handle - "not us"
+			line.reset(0);
 			return null;
 		}
 	}

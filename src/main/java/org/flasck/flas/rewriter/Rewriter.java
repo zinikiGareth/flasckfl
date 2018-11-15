@@ -405,13 +405,11 @@ public class Rewriter implements CodeGenRegistry {
 			objName = od.name();
 			for (PolyVar v : polys)
 				this.polys.put(v.name(), v);
-			if (od.state != null) {
-				for (StructField sf : od.state.fields) {
-					try {
-						members.put(sf.name, rewrite(this, sf.type, true));
-					} catch (ResolutionException ex) {
-						errors.message(ex.location, ex.getMessage());
-					}
+			for (StructField sf : od.fields) {
+				try {
+					members.put(sf.name, rewrite(this, sf.type, true));
+				} catch (ResolutionException ex) {
+					errors.message(ex.location, ex.getMessage());
 				}
 			}
 		}
@@ -982,17 +980,15 @@ public class Rewriter implements CodeGenRegistry {
 		RWStructDefn rwsd = rw.state;
 		Object ret = cx.resolve(od.location(), "NilMap");
 		final ObjectContext ox = new ObjectContext(cx, od, rw.polys());
-		if (od.state != null) {
-			for (StructField sf : od.state.fields) {
-				Type st = rewrite(ox, sf.type, false);
-				rwsd.addField(new RWStructField(sf.loc, false, st, sf.name, null));
-				if (sf.init != null) {
-					InputPosition loc = ((Locatable)sf.init).location();
-					Object rx = rewriteExpr(ox, sf.init);
-					rx = new AssertTypeExpr(loc, (TypeWithName) st, rx);
-					PackageVar assoc = (PackageVar) cx.resolve(loc, "Assoc");
-					ret = new ApplyExpr(loc, assoc, new StringLiteral(sf.location(), sf.name), rx, ret);
-				}
+		for (StructField sf : od.fields) {
+			Type st = rewrite(ox, sf.type, false);
+			rwsd.addField(new RWStructField(sf.loc, false, st, sf.name, null));
+			if (sf.init != null) {
+				InputPosition loc = ((Locatable)sf.init).location();
+				Object rx = rewriteExpr(ox, sf.init);
+				rx = new AssertTypeExpr(loc, (TypeWithName) st, rx);
+				PackageVar assoc = (PackageVar) cx.resolve(loc, "Assoc");
+				ret = new ApplyExpr(loc, assoc, new StringLiteral(sf.location(), sf.name), rx, ret);
 			}
 		}
 		for (ObjectMethod c : od.ctors) {

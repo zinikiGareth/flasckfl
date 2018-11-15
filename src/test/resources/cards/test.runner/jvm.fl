@@ -10,8 +10,7 @@
 		String name
 	
 	object Tracker
-		state
-			List[Number] cnt <- Nil
+		List[Number] cnt <- Nil
 		
 		ctor simple
 
