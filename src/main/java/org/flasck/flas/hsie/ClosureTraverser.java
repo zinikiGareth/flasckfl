@@ -70,10 +70,10 @@ public class ClosureTraverser<T> {
 				cxt.generateCardMember().generate((CardMember)defn, form, myOn, handler, closure);
 			} else if (defn instanceof RWFunctionDefinition) {
 				cxt.generateFunctionDefn().generate((RWFunctionDefinition) defn, handler, closure);
-			} else if (defn instanceof RWStructDefn) {
-				cxt.generateStructDefn().generate((RWStructDefn) defn, handler, closure);
 			} else if (defn instanceof RWObjectDefn) {
 				cxt.generateObjectDefn().generate((RWObjectDefn) defn, handler, closure);
+			} else if (defn instanceof RWStructDefn) {
+				cxt.generateStructDefn().generate((RWStructDefn) defn, handler, closure);
 			} else if (defn instanceof HandlerLambda) {
 				cxt.generateHandlerLambda().generate((HandlerLambda) defn, handler, closure);
 			} else if (defn instanceof ScopedVar) {

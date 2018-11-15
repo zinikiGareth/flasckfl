@@ -8,14 +8,15 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.TypeWithMethods;
+import org.flasck.flas.types.TypeWithName;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class RWImplements extends TypeWithMethods {
+public class RWImplements extends TypeWithName implements TypeWithMethods {
 	public final List<RWMethodDefinition> methods = new ArrayList<RWMethodDefinition>();
 	public final CSName realName;
 
 	public RWImplements(InputPosition kw, InputPosition location, CSName realName, NameOfThing type) {
-		super(kw, location, type, null);
+		super(kw, location, type);
 		this.realName = realName;
 	}
 

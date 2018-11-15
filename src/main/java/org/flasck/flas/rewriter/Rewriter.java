@@ -655,12 +655,10 @@ public class Rewriter implements CodeGenRegistry {
 		for (Entry<String, Object> x : pkg) {
 			String name = x.getKey();
 			Object val = x.getValue();
-			if (val instanceof RWStructDefn) {
-//				System.out.println("Adding type for " + name + " => " + val);
-				structs.put(name, (RWStructDefn) val);
-			} else if (val instanceof RWObjectDefn) {
-//				System.out.println("Adding type for " + name + " => " + val);
+			if (val instanceof RWObjectDefn) {
 				objects.put(name, (RWObjectDefn) val);
+			} else if (val instanceof RWStructDefn) {
+				structs.put(name, (RWStructDefn) val);
 			} else if (val instanceof RWUnionTypeDefn) {
 				types.put(name, (RWUnionTypeDefn) val);
 			} else if (val instanceof RWContractDecl) {
@@ -773,9 +771,6 @@ public class Rewriter implements CodeGenRegistry {
 					eventHandlers.put(rw.name().uniqueName(), rw);
 				}
 				pass1(cx, ehd.innerScope());
-			} else if (val instanceof StructDefn) {
-				StructDefn sd = (StructDefn) val;
-				structs.put(name, new RWStructDefn(sd.location(), sd.type, sd.name, sd.generate, rewritePolys(sd.polys())));
 			} else if (val instanceof UnionTypeDefn) {
 				UnionTypeDefn ud = (UnionTypeDefn) val;
 				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.myName(), rewritePolys(ud.polys())));
@@ -797,6 +792,9 @@ public class Rewriter implements CodeGenRegistry {
 					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
 					ret.addMethod(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null)));
 				}
+			} else if (val instanceof StructDefn) {
+				StructDefn sd = (StructDefn) val;
+				structs.put(name, new RWStructDefn(sd.location(), sd.type, sd.name, sd.generate, rewritePolys(sd.polys())));
 			} else if (val instanceof HandlerImplements) {
 				// do nothing here
 			} else if (val instanceof TupleMember) {
@@ -977,12 +975,11 @@ public class Rewriter implements CodeGenRegistry {
 
 	private void rewriteObject(NamingContext cx, ObjectDefn od) {
 		RWObjectDefn rw = objects.get(od.name().uniqueName());
-		RWStructDefn rwsd = rw.state;
 		Object ret = cx.resolve(od.location(), "NilMap");
 		final ObjectContext ox = new ObjectContext(cx, od, rw.polys());
 		for (StructField sf : od.fields) {
 			Type st = rewrite(ox, sf.type, false);
-			rwsd.addField(new RWStructField(sf.loc, false, st, sf.name, null));
+			rw.addField(new RWStructField(sf.loc, false, st, sf.name, null));
 			if (sf.init != null) {
 				InputPosition loc = ((Locatable)sf.init).location();
 				Object rx = rewriteExpr(ox, sf.init);

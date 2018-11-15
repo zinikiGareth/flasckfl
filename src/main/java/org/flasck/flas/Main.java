@@ -25,7 +25,7 @@ public class Main {
 			compiler.errorWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true));
 			compiler.scanWebZips();
 			for (File input : inputs)
-				processInput(compiler, input);
+				processInput(config, compiler, input);
 			if (!compiler.hasErrors() && compiler.getBuilder() != null)
 				compiler.getBuilder().build();
 			failed = compiler.hasErrors();
@@ -36,9 +36,12 @@ public class Main {
 		System.exit(failed?1:0);
 	}
 
-	private static void processInput(FLASCompiler compiler, File input) {
+	private static void processInput(Configuration config, FLASCompiler compiler, File input) {
 		try {
-			compiler.parse(input);
+			if (config.tda)
+				compiler.parse(input);
+			else
+				compiler.compile(input);
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}

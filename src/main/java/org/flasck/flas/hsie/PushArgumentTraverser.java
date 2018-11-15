@@ -60,12 +60,12 @@ public final class PushArgumentTraverser<T> implements PushVisitor<T> {
 	@Override
 	public void visitExternal(PackageVar pv, OutputHandler<T> handler) {
 		Object defn = pv.defn;
-		if (defn instanceof RWStructDefn)
+		if (defn instanceof RWObjectDefn)
+			cxt.generateObjectDefn().push((RWObjectDefn)defn, handler);
+		else if (defn instanceof RWStructDefn)
 			cxt.generateStructDefn().push((RWStructDefn)defn, handler);
 		else if (defn instanceof RWFunctionDefinition)
 			cxt.generateFunctionDefn().push((RWFunctionDefinition)defn, handler);
-		else if (defn instanceof RWObjectDefn)
-			cxt.generateObjectDefn().push((RWObjectDefn)defn, handler);
 		else
 			throw new RuntimeException("Cannot push external with " + defn.getClass());
 	}

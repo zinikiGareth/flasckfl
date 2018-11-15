@@ -17,6 +17,7 @@ public class Configuration {
 	private File webZipDir;
 	private List<String> useWebZips = new ArrayList<>();
 	private boolean buildDroid = true;
+	boolean tda = true;
 
 	public Configuration() {
 		// TODO Auto-generated constructor stub
@@ -88,6 +89,8 @@ public class Configuration {
 						System.exit(1);
 					}
 					useWebZips.add(args[++i]);
+				} else if (arg.equals("--legacy")) {
+					tda = false;
 				} else {
 					boolean matched = false;
 					/*

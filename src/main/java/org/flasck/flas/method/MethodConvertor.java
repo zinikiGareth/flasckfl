@@ -341,9 +341,17 @@ public class MethodConvertor {
 			CardMember cm = (CardMember) slot;
 			intoObj = new CardStateRef(cm.location(), fromHandler);
 			final Object cd = rw.getMe(cm.location(), cm.card).defn;
-			ObjectWithState grp = (ObjectWithState) cd;
-			RWStructDefn sd = grp.getState();
-			RWStructField sf = sd.findField(cm.var);
+			RWStructField sf;
+			if (cd instanceof ObjectWithState) {
+				ObjectWithState grp = (ObjectWithState) cd;
+				RWStructDefn sd = grp.getState();
+				sf = sd.findField(cm.var);
+			} else if (cd instanceof RWStructDefn) {
+				sf = ((RWStructDefn)cd).findField(cm.var);
+			} else {
+				errors.message(cm.location, "could not figure out how to get a state member " + cm.var);
+				return null;
+			}
 			if (sf == null) {
 				errors.message(cm.location, "there is no card state member " + cm.var);
 				return null;

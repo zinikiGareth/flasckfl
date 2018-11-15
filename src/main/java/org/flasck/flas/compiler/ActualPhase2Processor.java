@@ -31,8 +31,12 @@ public class ActualPhase2Processor implements Phase2Processor {
 	}
 
 	@Override
-	public void functionIntro(FunctionIntro o) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+	public void functionIntro(FunctionIntro fn) {
+		int caseName = scope.caseName(fn.name().uniqueName());
+		// TODO: we need some kind of callback on complete to finish this off
+		// see FLASStory: 220
+//		fn.provideCaseName(caseName);
+//		scope.define(errors, fn.functionName().name, fn);
 	}
 
 	@Override

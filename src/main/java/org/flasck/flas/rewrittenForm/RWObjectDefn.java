@@ -14,20 +14,16 @@ import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.TypeWithMethods;
 
-public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable, ObjectWithState {
-	public final RWStructDefn state;
+public class RWObjectDefn extends RWStructDefn implements TypeWithMethods, AsString, Locatable {
 	public final List<RWObjectMethod> ctors = new ArrayList<RWObjectMethod>();
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
-	public final transient boolean generate;
 
 	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, PolyVar... polys) {
 		this(location, tn, generate, Arrays.asList(polys));
 	}
 	
 	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, List<PolyVar> polys) {
-		super(null, location, tn, polys);
-		this.state = generate?new RWStructDefn(location, FieldsType.STRUCT, tn, generate, polys):null;
-		this.generate = generate;
+		super(location, FieldsType.OBJECT, tn, generate, polys);
 	}
 
 	public String uniqueName() {
@@ -36,11 +32,6 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 
 	public SolidName myName() {
 		return (SolidName) this.getTypeName();
-	}
-
-	@Override
-	public RWStructDefn getState() {
-		return state;
 	}
 
 	@Override

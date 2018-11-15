@@ -337,9 +337,15 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		if (failed || errors.hasErrors())
 			return null;
 
-		CompileResult cr = stage2(errors, null, null, inPkg, scope);
-		if (cr == null)
-			return null;
+		CompileResult cr;
+		try {
+			cr = stage2(errors, null, null, inPkg, scope);
+			if (cr == null)
+				return null;
+		} catch (ErrorResultException ex) {
+			((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 0);
+			throw ex;
+		}
 
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
 			MultiTextEmitter results;
@@ -374,9 +380,12 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 					TestScript scr = utr.prepare(sc, jsRunner, cr.getPackage().uniqueName() +".script", cr.getScope(), f);
 					utr.run(jsRunner, scr);
 				}
+			} catch (ErrorResultException ex) {
+				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 0);
+				return null;
 			} finally {
-			if (close)
-				results.close();
+				if (close)
+					results.close();
 			}
 		}
 		

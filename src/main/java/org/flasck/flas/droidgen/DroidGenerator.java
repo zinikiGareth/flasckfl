@@ -202,10 +202,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			ctor.callSuper("void", base, "<init>", args).flush();
 			ctor.returnVoid().flush();
 		}
-		if (od.state != null) {
-			// amazingly, it seems like we might not have to do anything
-			// just delegate to the base class to handle in getVar using CardMember things
-		}
 	}
 
 	@Override

@@ -7,14 +7,16 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.TypeWithMethods;
+import org.flasck.flas.types.TypeWithName;
+import org.flasck.flas.types.TypeWithNameAndPolys;
 import org.zinutils.exceptions.UtilException;
 
-public class RWContractDecl extends TypeWithMethods {
+public class RWContractDecl extends TypeWithName implements TypeWithMethods {
 	public final List<RWContractMethodDecl> methods = new ArrayList<RWContractMethodDecl>();
 	public final transient boolean generate;
 
 	public RWContractDecl(InputPosition kw, InputPosition location, SolidName name, boolean g) {
-		super(kw, location, name, null);
+		super(kw, location, name);
 		this.generate = g;
 	}
 

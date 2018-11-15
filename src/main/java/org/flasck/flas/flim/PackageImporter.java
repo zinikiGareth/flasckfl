@@ -108,14 +108,7 @@ public class PackageImporter {
 		rw.importPackage1(pkg);
 		
 		for (Pass2 p : todos) {
-			if (p.parent instanceof RWStructDefn) {
-				RWStructDefn sd = (RWStructDefn) p.parent;
-				for (XMLElement fe : p.children) {
-					RWStructField sf = new RWStructField(location(fe), fe.requiredBoolean("accessor"), getUniqueNestedType(rw, location(fe), fe), fe.required("name"));
-					fe.attributesDone();
-					sd.fields.add(sf);
-				}
-			} else if (p.parent instanceof RWObjectDefn) {
+			if (p.parent instanceof RWObjectDefn) {
 				RWObjectDefn od = (RWObjectDefn) p.parent;
 				for (XMLElement c : p.children) {
 					if (c.hasTag("Method")) {
@@ -132,6 +125,13 @@ public class PackageImporter {
 						RWObjectMethod rwm = new RWObjectMethod(fntype, FunctionName.objectMethod(location(c), (ObjectName) od.getName(), c.get("name")));
 						od.addMethod(rwm);
 					}
+				}
+			} else if (p.parent instanceof RWStructDefn) {
+				RWStructDefn sd = (RWStructDefn) p.parent;
+				for (XMLElement fe : p.children) {
+					RWStructField sf = new RWStructField(location(fe), fe.requiredBoolean("accessor"), getUniqueNestedType(rw, location(fe), fe), fe.required("name"));
+					fe.attributesDone();
+					sd.fields.add(sf);
 				}
 			} else if (p.parent instanceof RWContractDecl) {
 				RWContractDecl cd = (RWContractDecl) p.parent;
