@@ -28,6 +28,7 @@ public class Main {
 				processInput(compiler, input);
 			if (!compiler.hasErrors() && compiler.getBuilder() != null)
 				compiler.getBuilder().build();
+			failed = compiler.hasErrors();
 		} catch (ArgumentException ex) {
 			System.err.println(ex.getMessage());
 			failed = true;
