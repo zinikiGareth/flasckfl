@@ -33,7 +33,7 @@ public class TDAIntroParser implements TDAParsing {
 		case "struct":
 		case "entity":
 		case "deal":
-		case "offer":
+		case "offer": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
@@ -51,6 +51,15 @@ public class TDAIntroParser implements TDAParsing {
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase()), consumer.qualifyName(tn.text), true, polys);
 			consumer.newStruct(sd);
 			return new TDAStructFieldParser(errors, sd);
+		}
+		case "contract": {
+			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid or missing type name");
+				return new IgnoreNestedParser();
+			}
+			return new NoNestingParser(errors);
+		}
 		default:
 			return null;
 		}
