@@ -13,5 +13,13 @@ can't have junk on the end of the line
 methods must have a well-known descriptor
 
 	contract Fred
-		sideways Integer foo
-		Integer foo
+		sideways foo
+		foo
+
+and it must have a valid function name
+
+		down
+		down ++
+		down DOWN
+		
+	

@@ -117,7 +117,7 @@ public class KnowledgeWriter implements RepoVisitor {
 			XMLElement xm = xe.addElement("Method");
 			writeLocation(xm, meth);
 			xm.setAttribute("required", Boolean.toString(meth.required));
-			xm.setAttribute("dir", meth.dir);
+			xm.setAttribute("dir", meth.dir.name().toLowerCase());
 			xm.setAttribute("name", meth.name);
 			for (Object arg : meth.args) {
 				addPatternArg(xm, arg);
@@ -127,7 +127,7 @@ public class KnowledgeWriter implements RepoVisitor {
 			System.out.println("  contract " + cd.name());
 			for (RWContractMethodDecl m : cd.methods) {
 				System.out.print(Justification.LEFT.format("", 4));
-				System.out.print(Justification.PADRIGHT.format(m.dir, 5));
+				System.out.print(Justification.PADRIGHT.format(m.dir.name().toLowerCase(), 5));
 				System.out.print(Justification.PADRIGHT.format(m.name, 12));
 				System.out.print(" ::");
 				String sep = " ";

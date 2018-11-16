@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FieldsDefn;
@@ -81,29 +82,29 @@ public class MethodConvertorTests {
 		{
 			SolidName cn = new SolidName(new PackageName("org.foo"), "Contract1");
 			ContractDecl contract1 = new ContractDecl(posn, posn, cn);
-			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "bar"), new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.DOWN, FunctionName.contractDecl(posn, cn, "bar"), new ArrayList<>());
 			contract1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "start"), new ArrayList<>());
+			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "start"), new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			contract1.methods.add(m3);
 			orgFooScope.define(errors, "Contract1", contract1);
 		}
 		{
 			SolidName cn = new SolidName(new PackageName("org.foo"), "Service1");
 			ContractDecl service1 = new ContractDecl(posn, posn, cn);
-			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "go"), new ArrayList<>());
+			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "go"), new ArrayList<>());
 			service1.methods.add(m0);
-			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "respond"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.DOWN, FunctionName.contractDecl(posn, cn, "respond"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m2);
 			orgFooScope.define(errors, "Service1", service1);
 		}
 		{
 			SolidName cn = new SolidName(new PackageName("org.foo"), "Handler1");
 			ContractDecl handler1 = new ContractDecl(posn, posn, cn);
-			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "handle"), new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.DOWN, FunctionName.contractDecl(posn, cn, "handle"), new ArrayList<>());
 			handler1.methods.add(m1);
 			orgFooScope.define(errors, "Handler1", handler1);
 		}

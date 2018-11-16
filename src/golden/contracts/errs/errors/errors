@@ -4,7 +4,7 @@
                               invalid or missing type name
     contractfail 11.13:   contract Fred _  bert
                               tokens after end of line
-    contractfail 16.8:    sideways _  Integer foo
+    contractfail 16.8:    sideways _  foo
                               missing or invalid direction
-    contractfail 17.7:    Integer _  foo
+    contractfail 17.3:    foo _ 
                               missing or invalid direction

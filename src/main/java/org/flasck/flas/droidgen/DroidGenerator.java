@@ -16,6 +16,7 @@ import org.flasck.flas.generators.CodeGenerator;
 import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.hsie.ClosureTraverser;
 import org.flasck.flas.hsie.HSIGenerator;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewriter.CodeGenRegistry;
@@ -229,7 +230,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 		
 		for (RWContractMethodDecl m : cd.methods) {
-			if (m.dir.equals("down")) {
+			if (m.dir.equals(ContractMethodDir.DOWN)) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns(J.OBJECT);
 				gm.argument(J.FLEVALCONTEXT, "from");
@@ -252,7 +253,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.implementsInterface("org.ziniki.ziwsh.UpContract");
 		
 		for (RWContractMethodDecl m : cd.methods) {
-			if (m.dir.equals("up")) {
+			if (m.dir.equals(ContractMethodDir.UP)) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns("java.lang.Object");
 				gm.argument(J.FLEVALCONTEXT, "from");
@@ -275,7 +276,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Down");
 		
 		for (RWContractMethodDecl m : cd.methods) {
-			if (m.dir.equals("down")) {
+			if (m.dir.equals(ContractMethodDir.DOWN)) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns("java.lang.Object");
 				gm.argument(J.FLEVALCONTEXT, "from");

@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewriter.Rewriter;
@@ -150,7 +151,7 @@ public class PackageImporter {
 					}
 					types.add((Type) rw.getMe(loc, new SolidName(null, "Send")).defn);
 					FunctionType type = new FunctionType(loc, types);
-					RWContractMethodDecl cmd = new RWContractMethodDecl(loc, cme.requiredBoolean("required"), cme.required("dir"), fn, args, type);
+					RWContractMethodDecl cmd = new RWContractMethodDecl(loc, cme.requiredBoolean("required"), ContractMethodDir.valueOf(cme.required("dir").toUpperCase()), fn, args, type);
 					cme.attributesDone();
 					cd.methods.add(cmd);
 				}

@@ -12,11 +12,11 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	public final InputPosition dkw;
 	private final InputPosition pos;
 	public final boolean required;
-	public final String dir;
+	public final ContractMethodDir dir;
 	public final FunctionName name;
 	public final List<Object> args;
 
-	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, String dir, FunctionName name, List<Object> args) {
+	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Object> args) {
 		this.rkw = rkw;
 		this.dkw = dkw;
 		this.pos = pos;

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.stories.FLASStory.State;
@@ -39,7 +40,7 @@ public class ContractDeclarationParsingTests {
 		assertNotNull(o);
 		assertTrue(o instanceof ContractMethodDecl);
 		ContractMethodDecl cd = (ContractMethodDecl) o;
-		assertEquals("up", cd.dir);
+		assertEquals(ContractMethodDir.UP, cd.dir);
 		assertEquals("call", cd.name.name);
 		assertEquals(1, cd.args.size());
 		Object patt = cd.args.get(0);

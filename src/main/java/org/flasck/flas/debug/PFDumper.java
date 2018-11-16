@@ -77,7 +77,7 @@ public class PFDumper {
 			dumpList(pw, cd.methods);
 		} else if (obj instanceof ContractMethodDecl) {
 			ContractMethodDecl cmd = (ContractMethodDecl) obj;
-			pw.print((cmd.required?"required":"optional") + " " + cmd.dir + " " + cmd.name.name);
+			pw.print((cmd.required?"required":"optional") + " " + cmd.dir.toString().toLowerCase() + " " + cmd.name.name);
 			if (!cmd.required)
 				dumpPosition(pw, cmd.rkw, false);
 			dumpPosition(pw, cmd.dkw, false);

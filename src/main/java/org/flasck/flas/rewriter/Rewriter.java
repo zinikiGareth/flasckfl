@@ -52,6 +52,7 @@ import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
@@ -2208,13 +2209,13 @@ public class Rewriter implements CodeGenRegistry {
 					throw new UtilException("Could not find contract decl for " + ci.name());
 				Set<RWContractMethodDecl> requireds = new TreeSet<RWContractMethodDecl>(); 
 				for (RWContractMethodDecl m : cd.methods) {
-					if (m.dir.equals("down") && m.required)
+					if (m.dir.equals(ContractMethodDir.DOWN) && m.required)
 						requireds.add(m);
 				}
 				for (RWMethodDefinition m : ci.methods) {
 					boolean haveMethod = false;
 					for (RWContractMethodDecl dc : cd.methods) {
-						if (dc.dir.equals("down") && (ctr.implName.uniqueName() +"." + dc.name).equals(m.name().uniqueName())) {
+						if (dc.dir.equals(ContractMethodDir.DOWN) && (ctr.implName.uniqueName() +"." + dc.name).equals(m.name().uniqueName())) {
 							if (dc.args.size() != m.nargs())
 								errors.message(m.location(), "incorrect number of arguments in declaration, expected " + dc.args.size());
 							requireds.remove(dc);

@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;

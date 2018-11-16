@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.BuiltinOperation;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -203,11 +204,11 @@ public class MethodConvertor {
 		String mn = m.name().name;
 		for (RWContractMethodDecl md : m.fromContract.methods) {
 			if (mn.equals(md.name)) {
-				if (m.dir == RWMethodDefinition.DOWN && md.dir.equals("up")) {
+				if (m.dir == RWMethodDefinition.DOWN && md.dir.equals(ContractMethodDir.UP)) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is an up method");
 					return null;
 				}
-				if (m.dir == RWMethodDefinition.UP && md.dir.equals("down")) {
+				if (m.dir == RWMethodDefinition.UP && md.dir.equals(ContractMethodDir.DOWN)) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is a down method");
 					return null;
 				}
@@ -447,11 +448,11 @@ public class MethodConvertor {
 			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
 			return null;
 		}
-		if (senderType instanceof RWContractImplements && !cd.checkMethodDir(method.text, "up")) {
+		if (senderType instanceof RWContractImplements && !cd.checkMethodDir(method.text, ContractMethodDir.UP)) {
 			errors.message(method.location, "can only call up methods on contract implementations");
 			return null;
 		}
-		if (senderType instanceof RWContractService && !cd.checkMethodDir(method.text, "down")) {
+		if (senderType instanceof RWContractService && !cd.checkMethodDir(method.text, ContractMethodDir.DOWN)) {
 			errors.message(method.location, "can only call down methods on service implementations");
 			return null;
 		}
