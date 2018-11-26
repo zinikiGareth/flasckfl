@@ -7,7 +7,6 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAExprReducer implements ExprTermConsumer {
 	private final ExprTermConsumer builder;
@@ -29,28 +28,35 @@ public class TDAExprReducer implements ExprTermConsumer {
 	public void done() {
 		if (terms.isEmpty())
 			return;
-		if (!ops.isEmpty())
-			builder.term(handleOperators());
-		else
-			builder.term(fncall(0, terms.size()));
+		builder.term(reduce(0, terms.size()));
 	}
 	
+	private Expr reduce(int from, int to) {
+		int pos = -1;
+		for (int p : ops)
+			if (p >= from && p < to)
+				pos = p;
+		if (pos != -1)
+			return handleOperators(from, to, pos);
+		else
+			return fncall(from, to);
+	}
+
+	private Expr handleOperators(int from, int to, int oppos) {
+		Expr oe = terms.get(oppos);
+		if (oppos == from) { // unary operator
+			return new ApplyExpr(oe.location().copySetEnd(terms.get(to-1).location().pastEnd()), oe, args(from+1, to).toArray());
+		} else {
+			return new ApplyExpr(terms.get(0).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, fncall(from, oppos), fncall(oppos+1, to));
+		}
+	}
+
 	private Expr fncall(int from, int to) {
 		final Expr t0 = terms.get(from);
 		if (from+1 == to)
 			return t0;
 		else 
 			return new ApplyExpr(t0.location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), t0, args(from+1, to).toArray());
-	}
-
-	private Expr handleOperators() {
-		int pos = ops.get(0); // need a better algorithm for choosing
-		Expr oe = terms.get(pos);
-		if (pos == 0) { // unary operator
-			return new ApplyExpr(oe.location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, args(1, terms.size()).toArray());
-		} else {
-			return new ApplyExpr(terms.get(0).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, fncall(0, pos), fncall(pos+1, terms.size()));
-		}
 	}
 
 	private List<Expr> args(int from, int to) {
