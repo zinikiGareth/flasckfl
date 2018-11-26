@@ -3,7 +3,7 @@ package test.parsing;
 import static org.junit.Assert.assertNull;
 
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parser.ExprTokenConsumer;
+import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.TDAExprParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -17,7 +17,7 @@ import test.flas.testrunner.ExprMatcher;
 public class ExprTokenizationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
-	private ExprTokenConsumer builder = context.mock(ExprTokenConsumer.class);
+	private ExprTermConsumer builder = context.mock(ExprTermConsumer.class);
 	private final TDAExprParser parser = new TDAExprParser(errors, builder);
 	private final Sequence order = context.sequence("order");
 

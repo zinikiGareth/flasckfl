@@ -7,11 +7,11 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 
-public class TDAExprReducer implements ExprTokenConsumer {
-	private final ExprTokenConsumer builder;
+public class TDAExprReducer implements ExprTermConsumer {
+	private final ExprTermConsumer builder;
 	private final List<Expr> terms = new ArrayList<>();
 
-	public TDAExprReducer(ErrorReporter errors, ExprTokenConsumer builder) {
+	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder) {
 		this.builder = builder;
 	}
 

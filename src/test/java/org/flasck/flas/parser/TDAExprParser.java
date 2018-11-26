@@ -10,9 +10,9 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAExprParser implements TDAParsing {
 
-	private final ExprTokenConsumer builder;
+	private final ExprTermConsumer builder;
 
-	public TDAExprParser(ErrorReporter errors, ExprTokenConsumer builder) {
+	public TDAExprParser(ErrorReporter errors, ExprTermConsumer builder) {
 		this.builder = builder;
 	}
 
