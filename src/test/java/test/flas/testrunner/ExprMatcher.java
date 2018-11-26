@@ -119,21 +119,21 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 	}
 
 	@SafeVarargs
-	public static Matcher<Object> apply(Matcher<Expr> fn, final Matcher<Object>... args) {
-		return new TypeSafeMatcher<Object>() {
+	public static ExprMatcher apply(Matcher<Expr> fn, final ExprMatcher... args) {
+		return new ExprMatcher() {
 			@Override
 			public void describeTo(Description desc) {
 				desc.appendText("is apply of ");
 				fn.describeTo(desc);
 				desc.appendText(" to");
-				for (Matcher<Object> m : args) {
+				for (ExprMatcher m : args) {
 					desc.appendText(" ");
 					m.describeTo(desc);
 				}
 			}
 
 			@Override
-			protected boolean matchesSafely(Object expr) {
+			protected boolean matchesSafely(Expr expr) {
 				if (!(expr instanceof ApplyExpr))
 					return false;
 				ApplyExpr ae = (ApplyExpr) expr;
@@ -148,8 +148,9 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 		};
 	}
 
-	public ExprMatcher location(String file, int line, int off) {
+	public ExprMatcher location(String file, int line, int off, int end) {
 		pos = new InputPosition(file, line, off, "");
+		pos.endAt(end);
 		return this;
 	}
 }

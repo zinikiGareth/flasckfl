@@ -19,9 +19,10 @@ public class TDAExprParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable line) {
 		while (true) {
 			ExprToken tok = ExprToken.from(line);
-			System.out.println(tok);
-			if (tok == null)
+			if (tok == null) {
+				builder.done();
 				return null;
+			}
 			switch (tok.type) {
 			case ExprToken.NUMBER:
 				builder.term(new NumericLiteral(tok.location, tok.text, -1));

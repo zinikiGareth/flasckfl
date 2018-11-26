@@ -4,6 +4,8 @@ import org.flasck.flas.commonBase.Expr;
 
 public interface ExprTokenConsumer {
 
-	void term(Expr unresolved);
+	void term(Expr term);
+
+	void done();
 
 }
