@@ -17,24 +17,33 @@ public class ExprTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ExprConsumer builder = context.mock(ExprConsumer.class);
+	private final TDAExprParser parser = new TDAExprParser(errors, builder);
+
+	@Test
+	public void testNumberIsParsedAsANumber() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.number(42).location("test", 1, 0)));
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("42")));
+	}
 
 	@Test
 	public void testVarIsParsedAsAnUnresolvedVar() {
 		context.checking(new Expectations() {{
-			oneOf(builder).term(with(ExprMatcher.unresolved("x").location("-", 1, 0)));
+			oneOf(builder).term(with(ExprMatcher.unresolved("x").location("test", 1, 0)));
 		}});
-		assertNull(new TDAExprParser(errors, builder).tryParsing(new Tokenizable("x")));
+		assertNull(parser.tryParsing(new Tokenizable("x")));
 	}
-
-	
-	/*
 
 	@Test
 	public void testNilBecomesAConstructorAsAValue() {
-		Object o = new Expression().tryParsing(new Tokenizable("Nil"));
-		ExprTester.assertExpr(o, "Nil");
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.unresolved("Nil").location("test", 1, 0)));
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("Nil")));
 	}
 
+	/*
 	@Test
 	public void testNilBecomesAConstructorAsAnArg() {
 		Object o = new Expression().tryParsing(new Tokenizable("f Nil"));

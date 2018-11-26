@@ -41,15 +41,15 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 		};
 	}
 
-	public static Matcher<Object> number(final Integer k) {
-		return new TypeSafeMatcher<Object>() {
+	public static ExprMatcher number(final Integer k) {
+		return new ExprMatcher() {
 			@Override
 			public void describeTo(Description desc) {
 				desc.appendText("is numeric literal '" + k + "'");
 			}
 
 			@Override
-			protected boolean matchesSafely(Object expr) {
+			protected boolean matchesSafely(Expr expr) {
 				return expr instanceof NumericLiteral && ((NumericLiteral)expr).text.equals(Integer.toString(k));
 			}
 		};

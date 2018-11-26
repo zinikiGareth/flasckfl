@@ -1,8 +1,9 @@
 package org.flasck.flas.parser;
 
-import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAExprParser implements TDAParsing {
@@ -11,12 +12,20 @@ public class TDAExprParser implements TDAParsing {
 
 	public TDAExprParser(ErrorReporter errors, ExprConsumer builder) {
 		this.builder = builder;
-		// TODO Auto-generated constructor stub
 	}
 
 	public TDAParsing tryParsing(Tokenizable line) {
-		builder.term(new UnresolvedVar(new InputPosition("-", 1, 0, ""), "x"));
-		return null;
+		ExprToken tok = ExprToken.from(line);
+		switch (tok.type) {
+		case ExprToken.NUMBER:
+			builder.term(new NumericLiteral(tok.location, tok.text, -1));
+			return null;
+		case ExprToken.IDENTIFIER:
+			builder.term(new UnresolvedVar(tok.location, tok.text));
+			return null;
+		default:
+			throw new RuntimeException("Not found");
+		}
 	}
 
 }
