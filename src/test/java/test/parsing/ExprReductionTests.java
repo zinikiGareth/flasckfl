@@ -84,7 +84,18 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
-	// 2 * -3
+	@Test
+	public void unaryOperatorBindsMoreTightlyThanMultiply() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(3))).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new NumericLiteral(pos, "2", -1));
+		reducer.term(new UnresolvedOperator(pos, "*"));
+		reducer.term(new UnresolvedOperator(pos, "-"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(12), "3", -1));
+		reducer.done();
+	}
+
 	// 2 * (-3)
 	// 2 + f x -- + 2 (f x)
 	// f x + 2 -- 3 args

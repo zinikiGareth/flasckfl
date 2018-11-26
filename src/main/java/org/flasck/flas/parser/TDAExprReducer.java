@@ -3,24 +3,38 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parser.TDAExprReducer.OpPrec;
 
 public class TDAExprReducer implements ExprTermConsumer {
+	public static class OpPrec {
+		int pos;
+		int prec;
+
+		public OpPrec(int pos, int prec) {
+			this.pos = pos;
+			this.prec = prec;
+		}
+	}
+
+	private final ErrorReporter errors;
 	private final ExprTermConsumer builder;
 	private final List<Expr> terms = new ArrayList<>();
-	private final List<Integer> ops = new ArrayList<>();
+	private final List<OpPrec> ops = new ArrayList<>();
 
 	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder) {
+		this.errors = errors;
 		this.builder = builder;
 	}
 
 	@Override
 	public void term(Expr term) {
 		if (term instanceof UnresolvedOperator)
-			ops.add(terms.size());
+			ops.add(new OpPrec(terms.size(), precedence(term.location(), ((UnresolvedOperator)term).op)));
 		this.terms.add(term);
 	}
 
@@ -32,12 +46,12 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 	
 	private Expr reduce(int from, int to) {
-		int pos = -1;
-		for (int p : ops)
-			if (p >= from && p < to)
-				pos = p;
-		if (pos != -1)
-			return handleOperators(from, to, pos);
+		OpPrec op = null;
+		for (OpPrec p : ops)
+			if (p.pos >= from && p.pos < to && (op == null || p.prec > op.prec))
+				op = p;
+		if (op != null)
+			return handleOperators(from, to, op.pos);
 		else
 			return fncall(from, to);
 	}
@@ -64,5 +78,19 @@ public class TDAExprReducer implements ExprTermConsumer {
 		for (int i=from;i<to;i++)
 			ret.add(terms.get(i));
 		return ret;
+	}
+
+	private int precedence(InputPosition pos, String op) {
+		switch (op) {
+		case "*":
+		case "/":
+			return 6;
+		case "-":
+		case "+":
+			return 5;
+		default:
+			errors.message(pos, "there is no precedence for operator " + op);
+			return 0;
+		}
 	}
 }
