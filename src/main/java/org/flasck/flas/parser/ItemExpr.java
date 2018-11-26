@@ -7,6 +7,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.zinutils.exceptions.UtilException;
 
+@Deprecated
 public class ItemExpr {
 	public static Object from(ExprToken tok) {
 		if (tok.type == ExprToken.NUMBER)

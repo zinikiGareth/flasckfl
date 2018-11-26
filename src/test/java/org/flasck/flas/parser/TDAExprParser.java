@@ -1,7 +1,9 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -20,8 +22,14 @@ public class TDAExprParser implements TDAParsing {
 		case ExprToken.NUMBER:
 			builder.term(new NumericLiteral(tok.location, tok.text, -1));
 			return null;
+		case ExprToken.STRING:
+			builder.term(new StringLiteral(tok.location, tok.text));
+			return null;
 		case ExprToken.IDENTIFIER:
 			builder.term(new UnresolvedVar(tok.location, tok.text));
+			return null;
+		case ExprToken.SYMBOL:
+			builder.term(new UnresolvedOperator(tok.location, tok.text));
 			return null;
 		default:
 			throw new RuntimeException("Not found");

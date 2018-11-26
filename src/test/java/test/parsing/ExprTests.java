@@ -28,6 +28,30 @@ public class ExprTests {
 	}
 
 	@Test
+	public void testStringInSingleQuotesIsParsedAsALiteral() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.string("hello").location("test", 1, 0)));
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("'hello'")));
+	}
+
+	@Test
+	public void testStringInDoubleQuotesIsParsedAsALiteral() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.string("hello").location("test", 1, 0)));
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("\"hello\"")));
+	}
+
+	@Test
+	public void testPlusIsParsedAsASymbol() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.operator("+").location("test", 1, 0)));
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("+")));
+	}
+
+	@Test
 	public void testVarIsParsedAsAnUnresolvedVar() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.unresolved("x").location("test", 1, 0)));

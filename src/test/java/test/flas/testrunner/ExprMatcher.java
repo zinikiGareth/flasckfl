@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -41,6 +42,34 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 		};
 	}
 
+	public static ExprMatcher operator(final String name) {
+		return new ExprMatcher() {
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("is unresolved operator '" + name + "'");
+				if (super.pos != null) {
+					desc.appendText("pos");
+					desc.appendValue(super.pos);
+				}
+			}
+
+			@Override
+			protected boolean matchesSafely(Expr expr) {
+				if (!(expr instanceof UnresolvedOperator))
+					return false;
+				if (!((UnresolvedOperator)expr).op.equals(name))
+					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
+						return false;
+				}
+				return true;
+			}
+		};
+	}
+
 	public static ExprMatcher number(final Integer k) {
 		return new ExprMatcher() {
 			@Override
@@ -55,15 +84,15 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 		};
 	}
 
-	public static Matcher<Object> string(final String s) {
-		return new TypeSafeMatcher<Object>() {
+	public static ExprMatcher string(final String s) {
+		return new ExprMatcher() {
 			@Override
 			public void describeTo(Description desc) {
 				desc.appendText("is string literal '" + s + "'");
 			}
 
 			@Override
-			protected boolean matchesSafely(Object expr) {
+			protected boolean matchesSafely(Expr expr) {
 				return expr instanceof StringLiteral && ((StringLiteral)expr).text.equals(s);
 			}
 		};
