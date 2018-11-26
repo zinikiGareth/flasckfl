@@ -35,10 +35,14 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(dir + " " + name);
+		StringBuilder sb = new StringBuilder(required?"required":"optional");
+		sb.append(" ");
+		sb.append(dir);
+		sb.append(" ");
+		sb.append(name.name);
 		for (Object o : args) {
 			sb.append(" ");
-			sb.append(((AsString)o).asString());
+			sb.append(o.toString());
 		}
 		return sb.toString();
 	}
