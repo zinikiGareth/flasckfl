@@ -36,28 +36,28 @@ public class ExprReductionTests {
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.number(42)).location("-", 1, 0, 4)));
 		}});
 		reducer.term(new UnresolvedVar(pos, "f"));
-		reducer.term(new NumericLiteral(pos.copySetEnd(40), "42", -1));
+		reducer.term(new NumericLiteral(pos.copySetEnd(4), "42", -1));
 		reducer.done();
 	}
 
 	@Test
 	public void aUnaryOperatorCanBeReduced() {
 		context.checking(new Expectations() {{
-			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(42)).location("-", 1, 0, 4)));
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(42)).location("-", 1, 0, 3)));
 		}});
 		reducer.term(new UnresolvedOperator(pos, "-"));
-		reducer.term(new NumericLiteral(pos.copySetEnd(40), "42", -1));
+		reducer.term(new NumericLiteral(pos.copySetEnd(3), "42", -1));
 		reducer.done();
 	}
 
 	@Test
 	public void aBinaryOperatorCanBeReduced() {
 		context.checking(new Expectations() {{
-			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.number(4)).location("-", 1, 0, 4)));
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.number(4)).location("-", 1, 0, 8)));
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "+"));
-		reducer.term(new NumericLiteral(pos.copySetEnd(40), "4", -1));
+		reducer.term(new NumericLiteral(pos.copySetEnd(8), "4", -1));
 		reducer.done();
 	}
 

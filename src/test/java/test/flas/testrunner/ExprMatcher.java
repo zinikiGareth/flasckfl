@@ -139,6 +139,12 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 				ApplyExpr ae = (ApplyExpr) expr;
 				if (!fn.matches(ae.fn) || ae.args.size() != args.length)
 					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
+						return false;
+				}
 				for (int i=0;i<args.length;i++) {
 					if (!args[i].matches(ae.args.get(i)))
 						return false;
