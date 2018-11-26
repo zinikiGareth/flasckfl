@@ -61,6 +61,17 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test
+	public void binaryMinusBeReducedToo() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(4), ExprMatcher.number(2)).location("-", 1, 0, 7)));
+		}});
+		reducer.term(new NumericLiteral(pos, "4", -1));
+		reducer.term(new UnresolvedOperator(pos, "-"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(7), "2", -1));
+		reducer.done();
+	}
+
 	// 4-2
 	// 2 + f x
 	// f x + 2
