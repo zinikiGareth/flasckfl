@@ -121,12 +121,35 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	public void multiplyBindsBeforePlus() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(3), ExprMatcher.number(4))).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new NumericLiteral(pos, "2", -1));
+		reducer.term(new UnresolvedOperator(pos, "+"));
+		reducer.term(new NumericLiteral(pos, "3", -1));
+		reducer.term(new UnresolvedOperator(pos, "*"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(12), "4", -1));
+		reducer.done();
+	}
+
+	public void multiplyBindsBeforePlusFromTheLeftAsWell() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.number(3)), ExprMatcher.number(4)).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new NumericLiteral(pos, "2", -1));
+		reducer.term(new UnresolvedOperator(pos, "*"));
+		reducer.term(new NumericLiteral(pos, "3", -1));
+		reducer.term(new UnresolvedOperator(pos, "+"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(12), "4", -1));
+		reducer.done();
+	}
+
 	// 2 * (-3)
 	
-	// 2+3*4
-	// 2*3+4
 	// f (2*x)
 	// 2*(f x)
+	// do we have anything that associates right?
 	/*
 	@Test
 	public void testNilBecomesAConstructorAsAnArg() {
