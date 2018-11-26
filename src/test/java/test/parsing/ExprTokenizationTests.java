@@ -13,11 +13,18 @@ import org.junit.Test;
 
 import test.flas.testrunner.ExprMatcher;
 
-public class ExprTests {
+public class ExprTokenizationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ExprConsumer builder = context.mock(ExprConsumer.class);
 	private final TDAExprParser parser = new TDAExprParser(errors, builder);
+
+	@Test
+	public void testEndOfLineTerminates() {
+		context.checking(new Expectations() {{
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("")));
+	}
 
 	@Test
 	public void testNumberIsParsedAsANumber() {
@@ -65,6 +72,28 @@ public class ExprTests {
 			oneOf(builder).term(with(ExprMatcher.unresolved("Nil").location("test", 1, 0)));
 		}});
 		assertNull(parser.tryParsing(new Tokenizable("Nil")));
+	}
+
+	@Test
+	public void testASequenceOfItems() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.number(42).location("test", 1, 0)));
+			oneOf(builder).term(with(ExprMatcher.operator("+").location("test", 1, 3)));
+			oneOf(builder).term(with(ExprMatcher.unresolved("f").location("test", 1, 5)));
+			oneOf(builder).term(with(ExprMatcher.string("hello").location("test", 1, 7)));
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("42 + f 'hello'")));
+	}
+
+	@Test
+	public void testASequenceOfItemsWithoutSpaces() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.number(42).location("test", 1, 0)));
+			oneOf(builder).term(with(ExprMatcher.operator("+").location("test", 1, 2)));
+			oneOf(builder).term(with(ExprMatcher.unresolved("f").location("test", 1, 3)));
+			oneOf(builder).term(with(ExprMatcher.string("hello").location("test", 1, 4)));
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("42+f'hello'")));
 	}
 
 	/*

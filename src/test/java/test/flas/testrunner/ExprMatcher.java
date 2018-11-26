@@ -79,7 +79,17 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 
 			@Override
 			protected boolean matchesSafely(Expr expr) {
-				return expr instanceof NumericLiteral && ((NumericLiteral)expr).text.equals(Integer.toString(k));
+				if (!(expr instanceof NumericLiteral))
+					return false;
+				if (!((NumericLiteral)expr).text.equals(Integer.toString(k)))
+					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
+						return false;
+				}
+				return true;
 			}
 		};
 	}
@@ -93,7 +103,17 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 
 			@Override
 			protected boolean matchesSafely(Expr expr) {
-				return expr instanceof StringLiteral && ((StringLiteral)expr).text.equals(s);
+				if (!(expr instanceof StringLiteral))
+					return false;
+				if (!((StringLiteral)expr).text.equals(s))
+					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
+						return false;
+				}
+				return true;
 			}
 		};
 	}

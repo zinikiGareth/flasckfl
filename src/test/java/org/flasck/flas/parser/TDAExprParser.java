@@ -17,22 +17,27 @@ public class TDAExprParser implements TDAParsing {
 	}
 
 	public TDAParsing tryParsing(Tokenizable line) {
-		ExprToken tok = ExprToken.from(line);
-		switch (tok.type) {
-		case ExprToken.NUMBER:
-			builder.term(new NumericLiteral(tok.location, tok.text, -1));
-			return null;
-		case ExprToken.STRING:
-			builder.term(new StringLiteral(tok.location, tok.text));
-			return null;
-		case ExprToken.IDENTIFIER:
-			builder.term(new UnresolvedVar(tok.location, tok.text));
-			return null;
-		case ExprToken.SYMBOL:
-			builder.term(new UnresolvedOperator(tok.location, tok.text));
-			return null;
-		default:
-			throw new RuntimeException("Not found");
+		while (true) {
+			ExprToken tok = ExprToken.from(line);
+			System.out.println(tok);
+			if (tok == null)
+				return null;
+			switch (tok.type) {
+			case ExprToken.NUMBER:
+				builder.term(new NumericLiteral(tok.location, tok.text, -1));
+				break;
+			case ExprToken.STRING:
+				builder.term(new StringLiteral(tok.location, tok.text));
+				break;
+			case ExprToken.IDENTIFIER:
+				builder.term(new UnresolvedVar(tok.location, tok.text));
+				break;
+			case ExprToken.SYMBOL:
+				builder.term(new UnresolvedOperator(tok.location, tok.text));
+				break;
+			default:
+				throw new RuntimeException("Not found");
+			}
 		}
 	}
 
