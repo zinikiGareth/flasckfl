@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
-import org.flasck.flas.parser.TDAExprReducer.OpPrec;
 
 public class TDAExprReducer implements ExprTermConsumer {
 	public static class OpPrec {
@@ -59,9 +58,9 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private Expr handleOperators(int from, int to, int oppos) {
 		Expr oe = terms.get(oppos);
 		if (oppos == from) { // unary operator
-			return new ApplyExpr(oe.location().copySetEnd(terms.get(to-1).location().pastEnd()), oe, args(from+1, to).toArray());
+			return new ApplyExpr(oe.location().copySetEnd(terms.get(to-1).location().pastEnd()), oe, reduce(from+1, to));
 		} else {
-			return new ApplyExpr(terms.get(0).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, fncall(from, oppos), fncall(oppos+1, to));
+			return new ApplyExpr(terms.get(0).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, reduce(from, oppos), reduce(oppos+1, to));
 		}
 	}
 

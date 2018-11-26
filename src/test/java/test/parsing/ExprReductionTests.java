@@ -85,6 +85,18 @@ public class ExprReductionTests {
 	}
 
 	@Test
+	public void functionToLeftOfOperatorBindsTightly() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.unresolved("x")), ExprMatcher.number(2)).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new UnresolvedVar(pos, "f"));
+		reducer.term(new UnresolvedVar(pos, "x"));
+		reducer.term(new UnresolvedOperator(pos, "+"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(12), "2", -1));
+		reducer.done();
+	}
+
+	@Test
 	public void unaryOperatorBindsMoreTightlyThanMultiply() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(3))).location("-", 1, 0, 12)));
@@ -96,10 +108,21 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test
+	public void plusAssociatesToTheLeft() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(3), ExprMatcher.number(4))).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new NumericLiteral(pos, "2", -1));
+		reducer.term(new UnresolvedOperator(pos, "+"));
+		reducer.term(new NumericLiteral(pos, "3", -1));
+		reducer.term(new UnresolvedOperator(pos, "+"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(12), "4", -1));
+		reducer.done();
+	}
+
 	// 2 * (-3)
-	// 2 + f x -- + 2 (f x)
-	// f x + 2 -- 3 args
-	// 2+3+4
+	
 	// 2+3*4
 	// 2*3+4
 	// f (2*x)
