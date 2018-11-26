@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.Punctuator;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -35,6 +36,12 @@ public class TDAExprParser implements TDAParsing {
 				break;
 			case ExprToken.SYMBOL:
 				builder.term(new UnresolvedOperator(tok.location, tok.text));
+				break;
+			case ExprToken.PUNC:
+				if (tok.text.equals("."))
+					builder.term(new UnresolvedOperator(tok.location, tok.text)); // can we just resolve it - it's . after all !
+				else
+					builder.term(new Punctuator(tok.location, tok.text));
 				break;
 			default:
 				throw new RuntimeException("Not found");

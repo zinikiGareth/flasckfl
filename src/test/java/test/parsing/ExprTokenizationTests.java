@@ -66,6 +66,15 @@ public class ExprTokenizationTests {
 	}
 
 	@Test
+	public void testORBIsParsedAsAPunc() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.punc("(").location("test", 1, 0, 1))); inSequence(order);
+			oneOf(builder).done(); inSequence(order);
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("(")));
+	}
+
+	@Test
 	public void testVarIsParsedAsAnUnresolvedVar() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.unresolved("x").location("test", 1, 0, 1))); inSequence(order);
