@@ -3,6 +3,7 @@ package test.parsing;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.TDAExprReducer;
@@ -39,6 +40,37 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test
+	public void aUnaryOperatorCanBeReduced() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(42)).location("-", 1, 0, 4)));
+		}});
+		reducer.term(new UnresolvedOperator(pos, "-"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(40), "42", -1));
+		reducer.done();
+	}
+
+	@Test
+	public void aBinaryOperatorCanBeReduced() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.number(4)).location("-", 1, 0, 4)));
+		}});
+		reducer.term(new NumericLiteral(pos, "2", -1));
+		reducer.term(new UnresolvedOperator(pos, "+"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(40), "4", -1));
+		reducer.done();
+	}
+
+	// 4-2
+	// 2 + f x
+	// f x + 2
+	// 2+3+4
+	// 2+3*4
+	// 2*3+4
+	// f (2*x)
+	// f 2 * x -- func with 3 args
+	// 2*(f x)
+	// 2 * f x -- what should this be? (2*f) x or 2*(f x)?
 	/*
 	@Test
 	public void testNilBecomesAConstructorAsAnArg() {

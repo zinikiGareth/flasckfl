@@ -27,6 +27,11 @@ public class TDAExprReducer implements ExprTermConsumer {
 		final Expr t0 = terms.remove(0);
 		if (terms.size() == 0)
 			builder.term(t0);
+		else if (terms.size() > 1) {
+			Expr op = terms.remove(0);
+			terms.add(0, t0);
+			builder.term(new ApplyExpr(t0.location(), op, terms.toArray()));
+		}
 		else if (terms.size() > 0) 
 			builder.term(new ApplyExpr(t0.location(), t0, terms.toArray()));
 	}
