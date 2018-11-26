@@ -1,6 +1,8 @@
 package test.flas.testrunner;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -8,17 +10,33 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class ExprMatcher {
-	public static Matcher<Object> unresolved(final String name) {
-		return new TypeSafeMatcher<Object>() {
+public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
+	private InputPosition pos;
+
+	public static ExprMatcher unresolved(final String name) {
+		return new ExprMatcher() {
 			@Override
 			public void describeTo(Description desc) {
 				desc.appendText("is unresolved var '" + name + "'");
+				if (super.pos != null) {
+					desc.appendText("pos");
+					desc.appendValue(super.pos);
+				}
 			}
 
 			@Override
-			protected boolean matchesSafely(Object expr) {
-				return expr instanceof UnresolvedVar && ((UnresolvedVar)expr).var.equals(name);
+			protected boolean matchesSafely(Expr expr) {
+				if (!(expr instanceof UnresolvedVar))
+					return false;
+				if (!((UnresolvedVar)expr).var.equals(name))
+					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
+						return false;
+				}
+				return true;
 			}
 		};
 	}
@@ -52,7 +70,7 @@ public class ExprMatcher {
 	}
 
 	@SafeVarargs
-	public static Matcher<Object> apply(Matcher<Object> fn, final Matcher<Object>... args) {
+	public static Matcher<Object> apply(Matcher<Expr> fn, final Matcher<Object>... args) {
 		return new TypeSafeMatcher<Object>() {
 			@Override
 			public void describeTo(Description desc) {
@@ -79,5 +97,10 @@ public class ExprMatcher {
 				return true;
 			}
 		};
+	}
+
+	public ExprMatcher location(String file, int line, int off) {
+		pos = new InputPosition(file, line, off, "");
+		return this;
 	}
 }

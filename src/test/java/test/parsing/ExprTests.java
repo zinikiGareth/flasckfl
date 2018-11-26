@@ -1,24 +1,33 @@
-package org.flasck.flas.parser;
+package test.parsing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
-import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
-import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.ExprConsumer;
+import org.flasck.flas.parser.TDAExprParser;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
 
-@Deprecated // See ExprTests in test.parsing
-public class ExpressionTests {
+import test.flas.testrunner.ExprMatcher;
+
+public class ExprTests {
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private ExprConsumer builder = context.mock(ExprConsumer.class);
 
 	@Test
 	public void testVarIsParsedAsAnUnresolvedVar() {
-		Object o = new Expression().tryParsing(new Tokenizable("x"));
-		ExprTester.assertExpr(o, "x");
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.unresolved("x").location("-", 1, 0)));
+		}});
+		assertNull(new TDAExprParser(errors, builder).tryParsing(new Tokenizable("x")));
 	}
+
+	
+	/*
 
 	@Test
 	public void testNilBecomesAConstructorAsAValue() {
@@ -127,4 +136,5 @@ public class ExpressionTests {
 		Locatable tok = (Locatable) o;
 		assertEquals(len, tok.location().pastEnd() - tok.location().off);
 	}
+	*/
 }
