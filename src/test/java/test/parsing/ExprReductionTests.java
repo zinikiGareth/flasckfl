@@ -72,16 +72,27 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
-	// 4-2
-	// 2 + f x
-	// f x + 2
+	@Test
+	public void functionToRightOfOperatorBindsTightly() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.unresolved("x"))).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new NumericLiteral(pos, "2", -1));
+		reducer.term(new UnresolvedOperator(pos, "+"));
+		reducer.term(new UnresolvedVar(pos, "f"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "x"));
+		reducer.done();
+	}
+
+	// 2 * -3
+	// 2 * (-3)
+	// 2 + f x -- + 2 (f x)
+	// f x + 2 -- 3 args
 	// 2+3+4
 	// 2+3*4
 	// 2*3+4
 	// f (2*x)
-	// f 2 * x -- func with 3 args
 	// 2*(f x)
-	// 2 * f x -- what should this be? (2*f) x or 2*(f x)?
 	/*
 	@Test
 	public void testNilBecomesAConstructorAsAnArg() {
