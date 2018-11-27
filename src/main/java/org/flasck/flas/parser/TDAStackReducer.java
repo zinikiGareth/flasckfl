@@ -35,7 +35,7 @@ public class TDAStackReducer implements ExprTermConsumer {
 	@Override
 	public void term(Expr term) {
 		if (term instanceof Punctuator) {
-			ExprTermConsumer n = ((Punctuator)term).isOpen(errors, new ParentConsumer());
+			ExprTermConsumer n = ((Punctuator)term).openParenParser(errors, new ParentConsumer());
 			if (n != null) {
 				this.stack.add(0, n);
 				return;

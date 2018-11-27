@@ -48,7 +48,7 @@ public class TDAStructFieldParser implements TDAParsing {
 				return null;
 			}
 			assOp.endAt(toks.at());
-			new TDAExpressionParser(errors, expr -> {ret.noNest(errors); builder.addField(new StructField(kw.location, assOp, accessor, type, kw.text, expr));}).tryParsing(toks);
+			new TDAExpressionParser(errors, expr -> { if (!errors.hasErrors()) {ret.noNest(errors); builder.addField(new StructField(kw.location, assOp, accessor, type, kw.text, expr));}}).tryParsing(toks);
 		}
 		return ret.get();
 	}

@@ -32,6 +32,10 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	@Override
 	public void term(Expr term) {
+		if (term instanceof Punctuator) {
+			errors.message(term.location(), "invalid tokens after expression");
+			return;
+		}
 		if (term instanceof UnresolvedOperator)
 			ops.add(new OpPrec(terms.size(), precedence(term.location(), ((UnresolvedOperator)term).op)));
 		this.terms.add(term);

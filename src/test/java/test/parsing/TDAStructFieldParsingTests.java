@@ -3,6 +3,7 @@ package test.parsing;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.StructFieldConsumer;
@@ -89,6 +90,7 @@ public class TDAStructFieldParsingTests {
 	public void aFieldMayHaveAnInitializer() {
 		context.checking(new Expectations() {{
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, new StringLiteralMatcher("foo"))));
+			oneOf(errors).hasErrors(); will(returnValue(false));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg <- 'foo'"));
@@ -99,7 +101,8 @@ public class TDAStructFieldParsingTests {
 	public void junkIsNotPermittedAfterAnAssignment() {
 		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg <- 13)");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(toks, "invalid tokens after expression");
+			oneOf(errors).message(with(any(InputPosition.class)), with("invalid tokens after expression"));
+			oneOf(errors).hasErrors(); will(returnValue(true));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);

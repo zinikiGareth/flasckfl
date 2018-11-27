@@ -18,7 +18,7 @@ public class Punctuator implements Expr {
 		return location;
 	}
 	
-	public ExprTermConsumer isOpen(ErrorReporter errors, ExprTermConsumer builder) {
+	public ExprTermConsumer openParenParser(ErrorReporter errors, ExprTermConsumer builder) {
 		if (punc.equals("("))
 			return new ParenTermConsumer(location, errors, builder);
 		else

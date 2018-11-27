@@ -198,6 +198,16 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	// some error cases
+	@Test
+	public void parensCanBeClosedIfTheyWereNeverOpened() {
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "invalid tokens after expression");
+		}});
+		reducer.term(new Punctuator(pos, ")"));
+		reducer.done();
+	}
+
 	
 	// f (2*x)
 	// 2*(f x)
