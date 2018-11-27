@@ -1,7 +1,8 @@
-package org.flasck.flas.parsedForm;
+package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.errors.ErrorReporter;
 
 public class Punctuator implements Expr {
 	public final InputPosition location;
@@ -15,6 +16,17 @@ public class Punctuator implements Expr {
 	@Override
 	public InputPosition location() {
 		return location;
+	}
+	
+	public ExprTermConsumer isOpen(ErrorReporter errors, ExprTermConsumer builder) {
+		if (punc.equals("("))
+			return new ParenTermConsumer(errors, builder);
+		else
+			return null;
+	}
+	
+	public boolean is(String punc) {
+		return this.punc.equals(punc);
 	}
 
 	@Override
