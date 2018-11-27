@@ -10,7 +10,6 @@ import org.flasck.flas.parser.Punctuator;
 import org.flasck.flas.parser.TDAStackReducer;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -20,8 +19,8 @@ public class ExprReductionTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ExprTermConsumer builder = context.mock(ExprTermConsumer.class);
-	private final TDAStackReducer reducer = new TDAStackReducer(errors, builder);
 	private final InputPosition pos = new InputPosition("-", 1, 0, "");
+	private final TDAStackReducer reducer = new TDAStackReducer(errors, builder);
 
 	@Test
 	public void aLiteralByItselfIsNotFurtherReduced() {
@@ -164,7 +163,6 @@ public class ExprReductionTests {
 	}
 
 	@Test
-	@Ignore
 	public void parensCanMakePlusStrong() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(3), ExprMatcher.number(4))).location("-", 1, 0, 12)));
@@ -174,7 +172,7 @@ public class ExprReductionTests {
 		reducer.term(new Punctuator(pos, "("));
 		reducer.term(new NumericLiteral(pos, "3", -1));
 		reducer.term(new UnresolvedOperator(pos, "+"));
-		reducer.term(new NumericLiteral(pos, "4", -1));
+		reducer.term(new NumericLiteral(pos.copySetEnd(8), "4", -1));
 		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
 		reducer.done();
 	}
@@ -182,7 +180,6 @@ public class ExprReductionTests {
 	// a + 2*3 + b
 	// (a + 2)*(3 + b)
 	@Test
-	@Ignore
 	public void parensCanBeNested() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(3), ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(4), ExprMatcher.number(2)))).location("-", 1, 0, 12)));

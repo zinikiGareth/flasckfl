@@ -22,7 +22,6 @@ public class TDAStackReducer implements ExprTermConsumer {
 		public void done() {
 			throw new org.zinutils.exceptions.NotImplementedException();
 		}
-
 	}
 
 	private final ErrorReporter errors;

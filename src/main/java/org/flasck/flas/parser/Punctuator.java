@@ -20,7 +20,7 @@ public class Punctuator implements Expr {
 	
 	public ExprTermConsumer isOpen(ErrorReporter errors, ExprTermConsumer builder) {
 		if (punc.equals("("))
-			return new ParenTermConsumer(errors, builder);
+			return new ParenTermConsumer(location, errors, builder);
 		else
 			return null;
 	}
