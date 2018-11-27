@@ -47,7 +47,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private Expr reduce(int from, int to) {
 		OpPrec op = null;
 		for (OpPrec p : ops)
-			if (p.pos >= from && p.pos < to && (op == null || p.prec > op.prec))
+			if (p.pos >= from && p.pos < to && (op == null || p.prec < op.prec))
 				op = p;
 		if (op != null)
 			return handleOperators(from, to, op.pos);
@@ -80,11 +80,14 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	private int precedence(InputPosition pos, String op) {
+		boolean isUnary = terms.isEmpty() || (!ops.isEmpty() && ops.get(ops.size()-1).pos == terms.size()-1);
 		switch (op) {
 		case "*":
 		case "/":
 			return 6;
 		case "-":
+			if (isUnary)
+				return 9;
 		case "+":
 			return 5;
 		default:
