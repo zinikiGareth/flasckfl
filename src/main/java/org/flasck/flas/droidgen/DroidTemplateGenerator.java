@@ -49,7 +49,10 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 		bcc.superclass(baseClz);
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.WRAPPER), "_wrapper");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.AREA), "_parent");
-		bcc.addInnerClassReference(Access.PUBLICSTATIC, areaName.cardName.uniqueName(), areaName.getSimple());
+		final String cardJavaName = areaName.cardName.uniqueName();
+		ByteCodeSink cardClass = bce.get(cardJavaName);
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, cardJavaName, areaName.getSimple());
+		cardClass.addInnerClassReference(Access.PUBLICSTATIC, cardJavaName, areaName.getSimple());
 		IFieldInfo card = bcc.defineField(true, Access.PRIVATE, areaName.cardName.uniqueName(), "_card");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);

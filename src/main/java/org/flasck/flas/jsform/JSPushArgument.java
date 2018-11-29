@@ -62,6 +62,8 @@ public final class JSPushArgument implements PushVisitor<String> {
 			sb.append("this." + cm.var);
 		else if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.AREA)
 			sb.append("this._card." + cm.var);
+		else if (form.mytype == CodeType.EVENT) // guessing based on Droid variant
+			sb.append("this._card." + cm.var);
 		else
 			throw new UtilException("Can't handle " + form.mytype + " for card member");
 	}

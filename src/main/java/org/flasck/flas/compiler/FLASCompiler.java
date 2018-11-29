@@ -320,6 +320,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		final List<String> pkgs = new ArrayList<String>();
 		pkgs.add(inPkg);
 		
+		ErrorMark mark = errors.mark();
+
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			System.out.println(" > " + f.getName());
 			FileReader r = null;
@@ -334,8 +336,10 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			}
 		}
 
-		if (failed || errors.hasErrors())
+		if (failed || errors.hasErrors()) {
+			errors.showFromMark(mark, errorWriter, 4);
 			return null;
+		}
 
 		CompileResult cr;
 		try {
