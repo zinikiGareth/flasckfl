@@ -58,6 +58,8 @@ import org.flasck.flas.testrunner.UnitTestPhase;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.testrunner.UnitTests;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.jvm.EntityHoldingStore;
+import org.flasck.jvm.cards.FLASTransactionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.cbstore.json.FLConstructorServer;
@@ -373,7 +375,9 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 				// We presumably needs some set of options to say which runners
 				// we want to execute - could be more than one
 				if (unitjvm) {
-					JVMRunner jvmRunner = new JVMRunner(cr, new FLConstructorServer(cr.bce.getClassLoader()));
+					final FLConstructorServer cx = new FLConstructorServer(cr.bce.getClassLoader(), new EntityHoldingStore());
+					cx.attachRuntimeCache(new FLASTransactionContext(cx));
+					JVMRunner jvmRunner = new JVMRunner(cr, cx);
 					for (File p : utpaths)
 						jvmRunner.considerResource(p);
 					TestScript scr = utr.prepare(sc, jvmRunner, cr.getPackage().uniqueName() +".script", cr.getScope(), f);

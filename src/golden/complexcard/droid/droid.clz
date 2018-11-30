@@ -7,12 +7,12 @@ class ClickIt.java extends org.flasck.jvm.fl.FLASStruct {
   void _doFullEval(org.ziniki.ziwsh.json.FLEvalContext cxt) {
     return
   }
-  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.json.FLEvalContext cx) {
     ret = cx.jo()
     (void)ret.put("_struct", "test.golden.ClickIt")
     return ret
   }
-  static test.golden.ClickIt fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+  static test.golden.ClickIt fromWire(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JObj jo) {
     ret = new test.golden.ClickIt(cx)
     return ret
   }
@@ -584,12 +584,12 @@ class Polyed.java extends org.flasck.jvm.fl.FLASStruct {
     this.z = this._fullOf(cxt, this.z)
     return
   }
-  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.json.FLEvalContext cx) {
     ret = cx.jo()
     (void)ret.put("_struct", "test.golden.Polyed")
     return ret
   }
-  static test.golden.Polyed fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+  static test.golden.Polyed fromWire(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JObj jo) {
     ret = new test.golden.Polyed(cx)
     return ret
   }
@@ -622,12 +622,12 @@ class Thing.java extends org.flasck.jvm.fl.FLASStruct {
     this.x = this._fullOf(cxt, this.x)
     return
   }
-  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.json.FLEvalContext cx) {
     ret = cx.jo()
     (void)ret.put("_struct", "test.golden.Thing")
     return ret
   }
-  static test.golden.Thing fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+  static test.golden.Thing fromWire(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JObj jo) {
     ret = new test.golden.Thing(cx)
     return ret
   }
@@ -659,12 +659,12 @@ class WithInit.java extends org.flasck.jvm.fl.FLASStruct {
     this.x = this._fullOf(cxt, this.x)
     return
   }
-  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.json.FLEvalContext cx) {
     ret = cx.jo()
     (void)ret.put("_struct", "test.golden.WithInit")
     return ret
   }
-  static test.golden.WithInit fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+  static test.golden.WithInit fromWire(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JObj jo) {
     ret = new test.golden.WithInit(cx)
     return ret
   }

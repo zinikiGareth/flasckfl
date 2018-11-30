@@ -20,11 +20,10 @@ class Entity
     {flush @B}
   static fromWire() -> Entity
     {nextLocal 1}
-    org.ziniki.ziwsh.model.EntityDecodingContext cx = argument
+    org.ziniki.ziwsh.json.FLEvalContext cx = argument
     {nextLocal 2}
     org.ziniki.ziwsh.json.JDoc wire = argument
-    @A = as org.ziniki.ziwsh.json.FLEvalContext(org.ziniki.ziwsh.model.EntityDecodingContext cx)
-    @B = callStatic org.ziniki.ziwsh.model.BackingDocument.from [@A, org.ziniki.ziwsh.json.JDoc wire] -> org.ziniki.ziwsh.model.BackingDocument
-    @C = makeNew Entity [@A, @B]
-    @D = returnObject @C
-    {flush @D}
+    @A = callStatic org.ziniki.ziwsh.model.BackingDocument.from [org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JDoc wire] -> org.ziniki.ziwsh.model.BackingDocument
+    @B = makeNew Entity [org.ziniki.ziwsh.json.FLEvalContext cx, @A]
+    @C = returnObject @B
+    {flush @C}

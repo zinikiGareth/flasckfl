@@ -47,10 +47,10 @@ class Struct
     {nextLocal 1}
     org.ziniki.ziwsh.assembler.WireEncoder wire = argument
     {nextLocal 2}
-    org.ziniki.ziwsh.model.EntityDecodingContext cx = argument
+    org.ziniki.ziwsh.json.FLEvalContext cx = argument
     {nextLocal 3}
     org.ziniki.ziwsh.json.JObj ret = avar org.ziniki.ziwsh.json.JObj ret
-    @A = callInterface org.ziniki.ziwsh.model.EntityDecodingContext cx.jo [] -> org.ziniki.ziwsh.json.JObj
+    @A = callInterface org.ziniki.ziwsh.json.FLEvalContext cx.jo [] -> org.ziniki.ziwsh.json.JObj
     @B = assign org.ziniki.ziwsh.json.JObj ret <- @A
     {flush @B}
     @C = sconst '_struct'
@@ -63,14 +63,13 @@ class Struct
     {flush @H}
   static fromWire() -> Struct
     {nextLocal 1}
-    org.ziniki.ziwsh.model.EntityDecodingContext cx = argument
+    org.ziniki.ziwsh.json.FLEvalContext cx = argument
     {nextLocal 2}
     org.ziniki.ziwsh.json.JObj jo = argument
     {nextLocal 3}
     java.lang.Object ret = avar java.lang.Object ret
-    @A = as org.ziniki.ziwsh.json.FLEvalContext(org.ziniki.ziwsh.model.EntityDecodingContext cx)
-    @B = makeNew Struct [@A]
-    @C = assign java.lang.Object ret <- @B
+    @A = makeNew Struct [org.ziniki.ziwsh.json.FLEvalContext cx]
+    @B = assign java.lang.Object ret <- @A
+    {flush @B}
+    @C = returnObject java.lang.Object ret
     {flush @C}
-    @D = returnObject java.lang.Object ret
-    {flush @D}

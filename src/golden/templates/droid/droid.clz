@@ -14,7 +14,7 @@ class Item.java extends org.flasck.jvm.fl.FLASEntity {
     ret.closure("format", args[1])
     return ret
   }
-  static test.golden.Item fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JDoc wire) {
+  static test.golden.Item fromWire(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JDoc wire) {
     return new test.golden.Item(cx,org.ziniki.ziwsh.model.BackingDocument.from(cx, wire))
   }
 }

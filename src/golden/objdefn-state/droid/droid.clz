@@ -12,7 +12,7 @@ class Entity.java extends org.flasck.jvm.fl.FLASEntity {
     ret = new test.golden.Entity(cxt)
     return ret
   }
-  static test.golden.Entity fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JDoc wire) {
+  static test.golden.Entity fromWire(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JDoc wire) {
     return new test.golden.Entity(cx,org.ziniki.ziwsh.model.BackingDocument.from(cx, wire))
   }
 }

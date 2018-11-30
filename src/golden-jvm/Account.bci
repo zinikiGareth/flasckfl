@@ -10,8 +10,8 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;)V
     0006: return
   }
 2 Line Number Entries
-Line 12: 0
-Line 13: 6
+Line 11: 0
+Line 12: 6
 Ltest/runner/Account; this (var #0 from 0 to 7)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #1 from 0 to 7)
 Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/model/BackingDocument;)V
@@ -24,8 +24,8 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/mod
     0006: return
   }
 2 Line Number Entries
-Line 16: 0
-Line 17: 6
+Line 15: 0
+Line 16: 6
 Ltest/runner/Account; this (var #0 from 0 to 7)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #1 from 0 to 7)
 Lorg/ziniki/ziwsh/model/BackingDocument; doc (var #2 from 0 to 7)
@@ -47,13 +47,13 @@ Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Obje
     0013: areturn
   }
 3 Line Number Entries
-Line 20: 0
-Line 21: 9
-Line 22: 18
+Line 19: 0
+Line 20: 9
+Line 21: 18
 Lorg/ziniki/ziwsh/json/FLEvalContext; cxt (var #0 from 0 to 20)
 [Ljava/lang/Object; args (var #1 from 0 to 20)
 Ltest/runner/Account; ret (var #2 from 9 to 20)
-Method public static fromWire (Lorg/ziniki/ziwsh/model/EntityDecodingContext;Lorg/ziniki/ziwsh/json/JDoc;)Ltest/runner/Account;
+Method public static fromWire (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/json/JDoc;)Ltest/runner/Account;
   maxStack = 5 maxLocals = 2 codeLen = 14
   {
     0000: new Class[test/runner/Account]
@@ -66,7 +66,7 @@ Method public static fromWire (Lorg/ziniki/ziwsh/model/EntityDecodingContext;Lor
     000D: areturn
   }
 1 Line Number Entries
-Line 26: 0
-Lorg/ziniki/ziwsh/model/EntityDecodingContext; edc (var #0 from 0 to 14)
+Line 25: 0
+Lorg/ziniki/ziwsh/json/FLEvalContext; edc (var #0 from 0 to 14)
 Lorg/ziniki/ziwsh/json/JDoc; wire (var #1 from 0 to 14)
 [Class SourceFile]: Account.java

@@ -165,23 +165,22 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		
 		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "fromWire");
-			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
+			PendingVar pcx = gen.argument(J.FLEVALCONTEXT, "cx");
 			gen.argument(J.JOBJ, "jo");
 			gen.returns(sd.name());
 			NewMethodDefiner meth = gen.done();
 			Var cx = pcx.getVar();
 			Var ret = meth.avar(J.OBJECT, "ret");
-			meth.assign(ret, meth.makeNew(sd.name(), meth.as(cx, J.FLEVALCONTEXT))).flush();
+			meth.assign(ret, meth.makeNew(sd.name(), cx)).flush();
 			meth.returnObject(ret).flush();
 		} else {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "fromWire");
-			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
+			PendingVar pcx = gen.argument(J.FLEVALCONTEXT, "cx");
 			PendingVar wire = gen.argument(J.JDOC, "wire");
 			gen.returns(sd.name());
 			NewMethodDefiner meth = gen.done();
 			Var cx = pcx.getVar();
-			final IExpr flcxt = meth.as(cx, J.FLEVALCONTEXT);
-			meth.returnObject(meth.makeNew(sd.name(), flcxt, meth.callStatic(J.BACKING_DOCUMENT, J.BACKING_DOCUMENT, "from", flcxt, wire.getVar()))).flush();
+			meth.returnObject(meth.makeNew(sd.name(), cx, meth.callStatic(J.BACKING_DOCUMENT, J.BACKING_DOCUMENT, "from", cx, wire.getVar()))).flush();
 		}
 	}
 

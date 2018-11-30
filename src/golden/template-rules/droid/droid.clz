@@ -15,12 +15,12 @@ class Container.java extends org.flasck.jvm.fl.FLASStruct {
     this.title = this._fullOf(cxt, this.title)
     return
   }
-  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.model.EntityDecodingContext cx) {
+  java.lang.Object toWire(org.ziniki.ziwsh.assembler.WireEncoder wire, org.ziniki.ziwsh.json.FLEvalContext cx) {
     ret = cx.jo()
     (void)ret.put("_struct", "test.golden.Container")
     return ret
   }
-  static test.golden.Container fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JObj jo) {
+  static test.golden.Container fromWire(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JObj jo) {
     ret = new test.golden.Container(cx)
     return ret
   }

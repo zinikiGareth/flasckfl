@@ -27,7 +27,6 @@ import org.flasck.jsoup.JSoupDisplayFactory;
 import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.EntityHoldingStore;
 import org.flasck.jvm.J;
-import org.flasck.jvm.cards.FLASTransactionContext;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.display.EventHandler;
@@ -38,7 +37,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.DateClientIDProvider;
-import org.ziniki.ziwsh.model.EntityDecodingContext;
 import org.ziniki.ziwsh.model.EntityStore;
 import org.ziniki.ziwsh.postbox.ErrorAdmin;
 import org.ziniki.ziwsh.postbox.SyserrErrorAdmin;
@@ -118,13 +116,13 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
 		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
 
-		EntityDecodingContext edc = new FLASTransactionContext(cxt, this.loader, this.store);
+//		FLASRuntimeCache edc = new FLASTransactionContext(cxt, this.loader, this.store);
 		Map<String, Object> evals = new TreeMap<String, Object>();
 		for (Class<?> clz : toRun) {
 			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
 			try {
-				Object o = Reflection.callStatic(clz, "eval", new Object[] { edc, new Object[] {} });
-				o = Reflection.callStatic(FLEval.class, "full", edc, o);
+				Object o = Reflection.callStatic(clz, "eval", new Object[] { cxt, new Object[] {} });
+				o = Reflection.callStatic(FLEval.class, "full", cxt, o);
 				evals.put(key, o);
 			} catch (Throwable ex) {
 				System.out.println("Error evaluating " + key);

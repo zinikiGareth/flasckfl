@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JVMRunner;
+import org.flasck.jvm.EntityHoldingStore;
+import org.flasck.jvm.cards.FLASTransactionContext;
 import org.ziniki.cbstore.json.FLConstructorServer;
 
 public class JVMRunnerTests extends BaseRunnerTests {
@@ -12,7 +14,9 @@ public class JVMRunnerTests extends BaseRunnerTests {
 	protected void prepareRunner() throws IOException, ErrorResultException {
 		sc.includePrior(prior);
 		sc.createJVM("test.runner.script", prior.getPackage().uniqueName(), prior.getScope(), testScope);
-		JVMRunner jr = new JVMRunner(prior, new FLConstructorServer());
+		final FLConstructorServer cxt = new FLConstructorServer(this.getClass().getClassLoader(), new EntityHoldingStore());
+		cxt.attachRuntimeCache(new FLASTransactionContext(cxt));
+		JVMRunner jr = new JVMRunner(prior, cxt);
 		jr.considerResource(new File(jvmClasses(), "classes"));
 		jr.prepareScript("test.runner.script", sc, testScope);
 		jr.prepareCase();

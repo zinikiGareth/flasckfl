@@ -13,7 +13,7 @@ class Storable.java extends org.flasck.jvm.fl.FLASEntity {
     ret.closure("value", args[0])
     return ret
   }
-  static test.golden.Storable fromWire(org.ziniki.ziwsh.model.EntityDecodingContext cx, org.ziniki.ziwsh.json.JDoc wire) {
+  static test.golden.Storable fromWire(org.ziniki.ziwsh.json.FLEvalContext cx, org.ziniki.ziwsh.json.JDoc wire) {
     return new test.golden.Storable(cx,org.ziniki.ziwsh.model.BackingDocument.from(cx, wire))
   }
 }
