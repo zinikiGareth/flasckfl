@@ -14,8 +14,8 @@ public class JVMRunnerTests extends BaseRunnerTests {
 	protected void prepareRunner() throws IOException, ErrorResultException {
 		sc.includePrior(prior);
 		sc.createJVM("test.runner.script", prior.getPackage().uniqueName(), prior.getScope(), testScope);
-		final FLConstructorServer cxt = new FLConstructorServer(this.getClass().getClassLoader(), new EntityHoldingStore());
-		cxt.attachRuntimeCache(new FLASTransactionContext(cxt));
+		FLConstructorServer cxt = new FLConstructorServer(this.getClass().getClassLoader(), new EntityHoldingStore());
+		cxt = cxt.attachRuntimeCache(new FLASTransactionContext(cxt));
 		JVMRunner jr = new JVMRunner(prior, cxt);
 		jr.considerResource(new File(jvmClasses(), "classes"));
 		jr.prepareScript("test.runner.script", sc, testScope);

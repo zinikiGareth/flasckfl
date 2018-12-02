@@ -375,8 +375,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 				// We presumably needs some set of options to say which runners
 				// we want to execute - could be more than one
 				if (unitjvm) {
-					final FLConstructorServer cx = new FLConstructorServer(cr.bce.getClassLoader(), new EntityHoldingStore());
-					cx.attachRuntimeCache(new FLASTransactionContext(cx));
+					FLConstructorServer cx = new FLConstructorServer(cr.bce.getClassLoader(), new EntityHoldingStore());
+					cx = cx.attachRuntimeCache(new FLASTransactionContext(cx));
 					JVMRunner jvmRunner = new JVMRunner(cr, cx);
 					for (File p : utpaths)
 						jvmRunner.considerResource(p);
