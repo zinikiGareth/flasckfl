@@ -1,4 +1,4 @@
-class test/runner/TestCard$echoHello
+class test/runner/TestCard$domy
   extends java/lang/Object
 Method public <init> ()V
   maxStack = 1 maxLocals = 1 codeLen = 5
@@ -8,8 +8,8 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 255: 0
-Ltest/runner/TestCard$echoHello; this (var #0 from 0 to 5)
+Line 249: 0
+Ltest/runner/TestCard$domy; this (var #0 from 0 to 5)
 Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 4 maxLocals = 3 codeLen = 12
   {
@@ -19,14 +19,14 @@ Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Objec
     0005: aload_2
     0006: iconst_0
     0007: aaload
-    0008: invokevirtual MClass[test/runner/TestCard].echoHello (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
+    0008: invokevirtual MClass[test/runner/TestCard].domy (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
     000B: areturn
   }
 1 Line Number Entries
-Line 257: 0
+Line 251: 0
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #0 from 0 to 12)
 Ljava/lang/Object; me (var #1 from 0 to 12)
 [Ljava/lang/Object; args (var #2 from 0 to 12)
 [Class SourceFile]: TestCard.java
 1 inner classes
-Ref public static Class[test/runner/TestCard$echoHello] <= Class[test/runner/TestCard].echoHello
+Ref public static Class[test/runner/TestCard$domy] <= Class[test/runner/TestCard].domy

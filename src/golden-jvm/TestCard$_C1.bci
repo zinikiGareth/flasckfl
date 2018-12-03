@@ -14,9 +14,9 @@ Method public <init> (Ltest/runner/TestCard;)V
     000D: return
   }
 3 Line Number Entries
-Line 105: 0
-Line 106: 8
-Line 107: 13
+Line 113: 0
+Line 114: 8
+Line 115: 13
 Ltest/runner/TestCard$_C1; this (var #0 from 0 to 14)
 Ltest/runner/TestCard; card (var #1 from 0 to 14)
 Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
@@ -92,14 +92,14 @@ Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Obje
     0070: areturn
   }
 8 Line Number Entries
-Line 111: 0
-Line 112: 6
-Line 113: 13
-Line 114: 15
-Line 115: 22
-Line 116: 47
-Line 117: 77
-Line 119: 103
+Line 119: 0
+Line 120: 6
+Line 121: 13
+Line 122: 15
+Line 123: 22
+Line 124: 47
+Line 125: 77
+Line 127: 103
 Ltest/runner/TestCard$_C1; this (var #0 from 0 to 113)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 113)
 Ljava/lang/Object; what (var #2 from 0 to 113)

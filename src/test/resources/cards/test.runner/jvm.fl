@@ -1,4 +1,5 @@
 	contract DataStore
+		up my (Type t) (MyHandler h)
 		up pushMy (Type t) (Any a)
 	contract Echo
 		up echoIt (String s)
@@ -30,7 +31,7 @@
 		handler MyHandler LocalHandler
 			missing
 				acct <- (Account "hi")
-				<- ds.pushMy (type Account) (Account "yo")
+				<- ds.pushMy (type Account) (Account "yo") 
 # TODO: we should be able to share the "Account" here by defining it in a nested scope
 #					a = Account
 		
@@ -47,6 +48,9 @@
 			
 		event echoMessage (String msg) ev
 			<- e.echoIt msg
+			
+		event domy ev
+			<- ds.my (type Account) LocalHandler
 
 	id x = x
 	x = 420

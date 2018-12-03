@@ -14,9 +14,9 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
     000C: return
   }
 3 Line Number Entries
-Line 228: 0
-Line 229: 4
-Line 230: 12
+Line 236: 0
+Line 237: 4
+Line 238: 12
 Ltest/runner/TestCard$handlers_1; this (var #0 from 0 to 13)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 13)
 Ljava/lang/Object; card (var #2 from 0 to 13)
@@ -38,7 +38,7 @@ Method public handle (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Lj
     0014: areturn
   }
 1 Line Number Entries
-Line 233: 0
+Line 241: 0
 Ltest/runner/TestCard$handlers_1; this (var #0 from 0 to 21)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 21)
 Ljava/lang/Object; ev (var #2 from 0 to 21)
@@ -49,7 +49,7 @@ Method public getHandler (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Objec
     0002: areturn
   }
 1 Line Number Entries
-Line 237: 0
+Line 245: 0
 Ltest/runner/TestCard$handlers_1; this (var #0 from 0 to 3)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 3)
 [Class SourceFile]: TestCard.java

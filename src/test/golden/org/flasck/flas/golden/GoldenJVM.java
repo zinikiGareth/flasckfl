@@ -165,6 +165,11 @@ public class GoldenJVM {
 	}
 	
 	@Test
+	public void checkDoMy() throws Exception {
+		compare("TestCard$domy");
+	}
+	
+	@Test
 	public void checkTracker() throws Exception {
 		compare("Tracker");
 	}
