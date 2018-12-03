@@ -3,6 +3,7 @@
 		up pushMy (Type t) (Any a)
 	contract Echo
 		up echoIt (String s)
+		down saySomething (String what)
 	contract SetState
 	contract MyHandler
 		down missing
@@ -26,6 +27,8 @@
 
 		implements SetState
 		implements Echo e
+			saySomething what
+				<- e.echoIt what
 		implements DataStore ds
 		
 		handler MyHandler LocalHandler

@@ -2,7 +2,7 @@ interface test/runner/DataStore$Up
   extends java/lang/Object
   implements org/ziniki/ziwsh/UpContract
 Method abstract public my (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;Ltest/runner/MyHandler$Down;)Ljava/lang/Object;
-Method abstract public pushMy (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+Method abstract public pushMy (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;Ljava/lang/Object;Lorg/ziniki/ziwsh/model/IdempotentHandler;)Ljava/lang/Object;
 [Class SourceFile]: DataStore.java
 2 inner classes
 Ref abstract interface public static Class[test/runner/DataStore$Up] <= Class[test/runner/DataStore].Up

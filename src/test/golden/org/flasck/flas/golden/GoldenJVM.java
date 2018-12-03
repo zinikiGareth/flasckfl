@@ -15,6 +15,7 @@ import org.flasck.flas.Main;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +111,7 @@ public class GoldenJVM {
 	}
 	
 	@Test
+	@Ignore
 	public void checkDataStoreUp() throws Exception {
 		compare("DataStore$Up");
 	}
@@ -120,13 +122,21 @@ public class GoldenJVM {
 	}
 
 	@Test
+	@Ignore
 	public void checkEchoUp() throws Exception {
 		compare("Echo$Up");
 	}
 
 	@Test
+	@Ignore
 	public void checkEchoDown() throws Exception {
 		compare("Echo$Down");
+	}
+
+	@Test
+	@Ignore
+	public void checkEchoImpl() throws Exception {
+		compare("Echo$Impl");
 	}
 
 	@Test
@@ -135,8 +145,15 @@ public class GoldenJVM {
 	}
 
 	@Test
+	@Ignore
 	public void checkMyHandlerDown() throws Exception {
 		compare("MyHandler$Down");
+	}
+
+	@Test
+	@Ignore
+	public void checkMyHandlerImpl() throws Exception {
+		compare("MyHandler$Impl");
 	}
 
 	@Test
@@ -155,6 +172,7 @@ public class GoldenJVM {
 	}
 
 	@Test
+	@Ignore
 	public void checkLocalHandler() throws Exception {
 		compare("TestCard$LocalHandler");
 	}
@@ -182,6 +200,12 @@ public class GoldenJVM {
 	@Test
 	public void checkB3() throws Exception {
 		compare("TestCard$B3");
+	}
+	
+	@Test
+	@Ignore
+	public void checkC1() throws Exception {
+		compare("TestCard$_C1");
 	}
 	
 	@Test

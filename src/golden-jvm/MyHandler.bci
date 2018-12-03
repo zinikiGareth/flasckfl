@@ -8,10 +8,10 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 9: 0
+Line 10: 0
 Ltest/runner/MyHandler; this (var #0 from 0 to 5)
 [Class SourceFile]: MyHandler.java
 3 inner classes
 Ref abstract interface public static Class[test/runner/MyHandler$Down] <= Class[test/runner/MyHandler].Down
 Ref abstract interface public static Class[test/runner/MyHandler$Up] <= Class[test/runner/MyHandler].Up
-Ref public static Class[test/runner/MyHandler$Impl] <= Class[test/runner/MyHandler].Impl
+Ref abstract public static Class[test/runner/MyHandler$Impl] <= Class[test/runner/MyHandler].Impl
