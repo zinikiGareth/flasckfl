@@ -9,8 +9,8 @@ Method public <init> (Lorg/ziniki/ziwsh/postbox/IDespatcher;)V
     0005: return
   }
 2 Line Number Entries
-Line 18: 0
-Line 19: 5
+Line 20: 0
+Line 21: 5
 Ltest/runner/MyHandler$Impl; this (var #0 from 0 to 6)
 Lorg/ziniki/ziwsh/postbox/IDespatcher; despatcher (var #1 from 0 to 6)
 [Class SourceFile]: MyHandler.java

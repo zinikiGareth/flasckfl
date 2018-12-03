@@ -110,6 +110,36 @@ public class GoldenJVM {
 	}
 	
 	@Test
+	public void checkDataStoreUp() throws Exception {
+		compare("DataStore$Up");
+	}
+
+	@Test
+	public void checkDataStoreDown() throws Exception {
+		compare("DataStore$Down");
+	}
+
+	@Test
+	public void checkEchoUp() throws Exception {
+		compare("Echo$Up");
+	}
+
+	@Test
+	public void checkEchoDown() throws Exception {
+		compare("Echo$Down");
+	}
+
+	@Test
+	public void checkMyHandlerUp() throws Exception {
+		compare("MyHandler$Up");
+	}
+
+	@Test
+	public void checkMyHandlerDown() throws Exception {
+		compare("MyHandler$Down");
+	}
+
+	@Test
 	public void checkTestCard() throws Exception {
 		compare("TestCard");
 	}

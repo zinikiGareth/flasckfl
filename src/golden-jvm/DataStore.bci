@@ -8,10 +8,10 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 8: 0
+Line 9: 0
 Ltest/runner/DataStore; this (var #0 from 0 to 5)
 [Class SourceFile]: DataStore.java
 3 inner classes
-Ref abstract public static Class[test/runner/DataStore$Down] <= Class[test/runner/DataStore].Down
-Ref abstract public static Class[test/runner/DataStore$Up] <= Class[test/runner/DataStore].Up
+Ref abstract interface public static Class[test/runner/DataStore$Down] <= Class[test/runner/DataStore].Down
+Ref abstract interface public static Class[test/runner/DataStore$Up] <= Class[test/runner/DataStore].Up
 Ref public static Class[test/runner/DataStore$Impl] <= Class[test/runner/DataStore].Impl

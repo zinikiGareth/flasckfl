@@ -12,6 +12,6 @@ Line 9: 0
 Ltest/runner/Echo; this (var #0 from 0 to 5)
 [Class SourceFile]: Echo.java
 3 inner classes
-Ref abstract public static Class[test/runner/Echo$Down] <= Class[test/runner/Echo].Down
+Ref abstract interface public static Class[test/runner/Echo$Down] <= Class[test/runner/Echo].Down
+Ref abstract interface public static Class[test/runner/Echo$Up] <= Class[test/runner/Echo].Up
 Ref abstract public static Class[test/runner/Echo$Impl] <= Class[test/runner/Echo].Impl
-Ref abstract public static Class[test/runner/Echo$Up] <= Class[test/runner/Echo].Up
