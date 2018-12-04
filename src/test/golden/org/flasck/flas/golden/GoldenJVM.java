@@ -157,6 +157,7 @@ public class GoldenJVM {
 	}
 
 	@Test
+	@Ignore
 	public void checkTestCard() throws Exception {
 		compare("TestCard");
 	}

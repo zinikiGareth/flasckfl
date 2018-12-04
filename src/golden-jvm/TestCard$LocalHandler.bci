@@ -20,14 +20,14 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
     001B: return
   }
 3 Line Number Entries
-Line 146: 0
-Line 147: 15
-Line 148: 27
+Line 145: 0
+Line 146: 15
+Line 147: 27
 Ltest/runner/TestCard$LocalHandler; this (var #0 from 0 to 28)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 28)
 Ljava/lang/Object; card (var #2 from 0 to 28)
 Method public missing (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/model/IdempotentHandler;)Ljava/lang/Object;
-  maxStack = 6 maxLocals = 10 codeLen = 184
+  maxStack = 6 maxLocals = 10 codeLen = 188
   {
     0000: ldc Class[test/runner/Account]
     0002: iconst_1
@@ -95,7 +95,7 @@ Method public missing (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/mo
     0065: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
     0068: astore 7
     006A: ldc Class[org/flasck/jvm/builtin/Send]
-    006C: iconst_3
+    006C: iconst_4
     006D: anewarray Class[java/lang/Object]
     0070: dup
     0071: iconst_0
@@ -111,57 +111,61 @@ Method public missing (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/mo
     0080: iconst_2
     0081: aload 7
     0083: aastore
-    0084: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
-    0087: astore 8
-    0089: ldc Class[org/flasck/jvm/builtin/Cons]
-    008B: iconst_2
-    008C: anewarray Class[java/lang/Object]
-    008F: dup
-    0090: iconst_0
-    0091: aload 8
-    0093: aastore
-    0094: dup
-    0095: iconst_1
-    0096: aload_1
-    0097: iconst_0
-    0098: anewarray Class[java/lang/Object]
-    009B: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
-    009E: aastore
-    009F: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
-    00A2: astore 9
-    00A4: ldc Class[org/flasck/jvm/builtin/Cons]
-    00A6: iconst_2
-    00A7: anewarray Class[java/lang/Object]
-    00AA: dup
-    00AB: iconst_0
-    00AC: aload 4
-    00AE: aastore
-    00AF: dup
-    00B0: iconst_1
-    00B1: aload 9
-    00B3: aastore
-    00B4: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
-    00B7: areturn
+    0084: dup
+    0085: iconst_3
+    0086: aconst_null
+    0087: aastore
+    0088: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    008B: astore 8
+    008D: ldc Class[org/flasck/jvm/builtin/Cons]
+    008F: iconst_2
+    0090: anewarray Class[java/lang/Object]
+    0093: dup
+    0094: iconst_0
+    0095: aload 8
+    0097: aastore
+    0098: dup
+    0099: iconst_1
+    009A: aload_1
+    009B: iconst_0
+    009C: anewarray Class[java/lang/Object]
+    009F: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
+    00A2: aastore
+    00A3: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    00A6: astore 9
+    00A8: ldc Class[org/flasck/jvm/builtin/Cons]
+    00AA: iconst_2
+    00AB: anewarray Class[java/lang/Object]
+    00AE: dup
+    00AF: iconst_0
+    00B0: aload 4
+    00B2: aastore
+    00B3: dup
+    00B4: iconst_1
+    00B5: aload 9
+    00B7: aastore
+    00B8: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    00BB: areturn
   }
 8 Line Number Entries
-Line 151: 0
-Line 152: 15
-Line 153: 42
-Line 154: 58
-Line 155: 85
-Line 156: 106
-Line 157: 137
-Line 158: 164
-Ltest/runner/TestCard$LocalHandler; this (var #0 from 0 to 184)
-Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 184)
-Lorg/ziniki/ziwsh/model/IdempotentHandler; ih (var #2 from 0 to 184)
-Lorg/flasck/jvm/fl/FLClosure; v0 (var #3 from 15 to 184)
-Lorg/flasck/jvm/fl/FLClosure; v1 (var #4 from 42 to 184)
-Lorg/flasck/jvm/fl/FLClosure; v2 (var #5 from 58 to 184)
-Lorg/flasck/jvm/fl/FLClosure; v3 (var #6 from 85 to 184)
-Lorg/flasck/jvm/fl/FLClosure; v4 (var #7 from 106 to 184)
-Lorg/flasck/jvm/fl/FLClosure; v5 (var #8 from 137 to 184)
-Lorg/flasck/jvm/fl/FLClosure; v6 (var #9 from 164 to 184)
+Line 150: 0
+Line 151: 15
+Line 152: 42
+Line 153: 58
+Line 154: 85
+Line 155: 106
+Line 156: 141
+Line 157: 168
+Ltest/runner/TestCard$LocalHandler; this (var #0 from 0 to 188)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 188)
+Lorg/ziniki/ziwsh/model/IdempotentHandler; ih (var #2 from 0 to 188)
+Lorg/flasck/jvm/fl/FLClosure; v0 (var #3 from 15 to 188)
+Lorg/flasck/jvm/fl/FLClosure; v1 (var #4 from 42 to 188)
+Lorg/flasck/jvm/fl/FLClosure; v2 (var #5 from 58 to 188)
+Lorg/flasck/jvm/fl/FLClosure; v3 (var #6 from 85 to 188)
+Lorg/flasck/jvm/fl/FLClosure; v4 (var #7 from 106 to 188)
+Lorg/flasck/jvm/fl/FLClosure; v5 (var #8 from 141 to 188)
+Lorg/flasck/jvm/fl/FLClosure; v6 (var #9 from 168 to 188)
 Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 4 maxLocals = 3 codeLen = 10
   {
@@ -173,7 +177,7 @@ Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Objec
     0009: areturn
   }
 1 Line Number Entries
-Line 162: 0
+Line 161: 0
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #0 from 0 to 10)
 Ljava/lang/Object; card (var #1 from 0 to 10)
 [Ljava/lang/Object; args (var #2 from 0 to 10)

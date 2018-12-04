@@ -28,11 +28,11 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ltest/runner/TestCard
     0023: return
   }
 5 Line Number Entries
-Line 171: 0
-Line 172: 6
-Line 173: 11
-Line 174: 23
-Line 175: 35
+Line 170: 0
+Line 171: 6
+Line 172: 11
+Line 173: 23
+Line 174: 35
 Ltest/runner/TestCard$B1; this (var #0 from 0 to 36)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 36)
 Ltest/runner/TestCard; card (var #2 from 0 to 36)

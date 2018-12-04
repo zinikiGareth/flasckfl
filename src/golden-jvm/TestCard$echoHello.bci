@@ -8,7 +8,7 @@ Method public <init> ()V
     0004: return
   }
 1 Line Number Entries
-Line 255: 0
+Line 254: 0
 Ltest/runner/TestCard$echoHello; this (var #0 from 0 to 5)
 Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 4 maxLocals = 3 codeLen = 12
@@ -23,7 +23,7 @@ Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Objec
     000B: areturn
   }
 1 Line Number Entries
-Line 257: 0
+Line 256: 0
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #0 from 0 to 12)
 Ljava/lang/Object; me (var #1 from 0 to 12)
 [Ljava/lang/Object; args (var #2 from 0 to 12)
