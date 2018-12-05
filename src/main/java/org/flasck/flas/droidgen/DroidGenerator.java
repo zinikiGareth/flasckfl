@@ -237,6 +237,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					generateArgument(gm, a, RWMethodDefinition.DOWN, k);
 					k++;
 				}
+				generateArgument(gm, m.handler, RWMethodDefinition.DOWN, k++);
 				gm.done();
 			}
 		}
@@ -248,7 +249,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.generateAssociatedSourceFile();
 		bcc.makeInterface();
 		bcc.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Up");
-		bcc.implementsInterface("org.ziniki.ziwsh.UpContract");
+		bcc.implementsInterface(J.UP_CONTRACT);
 		
 		for (RWContractMethodDecl m : cd.methods) {
 			if (m.dir.equals(ContractMethodDir.UP)) {
@@ -260,6 +261,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					generateArgument(gm, a, RWMethodDefinition.DOWN, k);
 					k++;
 				}
+				generateArgument(gm, m.handler, RWMethodDefinition.DOWN, k++);
 				gm.done();
 			}
 		}
@@ -270,7 +272,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		parent.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Down");
 		bcc.generateAssociatedSourceFile();
 		bcc.makeInterface();
-		bcc.implementsInterface("org.ziniki.ziwsh.DownContract");
+		bcc.implementsInterface(J.DOWN_CONTRACT);
 		bcc.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Down");
 		
 		for (RWContractMethodDecl m : cd.methods) {
@@ -283,6 +285,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					generateArgument(gm, a, RWMethodDefinition.UP, k);
 					k++;
 				}
+				generateArgument(gm, m.handler, RWMethodDefinition.UP, k++);
 				gm.done();
 			}
 		}
@@ -290,11 +293,11 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	public void generateArgument(GenericAnnotator gm, Object a, int dir, int k) {
 		if (a instanceof RWTypedPattern) {
-			TypeWithName type = ((RWTypedPattern)a).type;
-			JavaType ty = JvmTypeMapper.map(type);
-			if (type instanceof RWContractDecl) {
-				ty = new JavaType(ty.getActual()+"$" + (dir == RWMethodDefinition.DOWN?"Down":"Up"));
-			}
+//			TypeWithName type = ((RWTypedPattern)a).type;
+			JavaType ty; // = JvmTypeMapper.map(type);
+//			if (type instanceof RWContractDecl) {
+				ty = J.OBJECTP; //new JavaType(ty.getActual()+"$" + (dir == RWMethodDefinition.DOWN?"Down":"Up"));
+//			}
 			gm.argument(ty, ((RWTypedPattern) a).var.var);
 		} else if (a instanceof RWVarPattern) {
 			gm.argument(J.OBJECT, ((RWVarPattern)a).var.var);

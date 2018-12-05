@@ -111,7 +111,6 @@ public class GoldenJVM {
 	}
 	
 	@Test
-	@Ignore
 	public void checkDataStoreUp() throws Exception {
 		compare("DataStore$Up");
 	}
@@ -122,19 +121,16 @@ public class GoldenJVM {
 	}
 
 	@Test
-	@Ignore
 	public void checkEchoUp() throws Exception {
 		compare("Echo$Up");
 	}
 
 	@Test
-	@Ignore
 	public void checkEchoDown() throws Exception {
 		compare("Echo$Down");
 	}
 
 	@Test
-	@Ignore
 	public void checkEchoImpl() throws Exception {
 		compare("Echo$Impl");
 	}
@@ -145,13 +141,11 @@ public class GoldenJVM {
 	}
 
 	@Test
-	@Ignore
 	public void checkMyHandlerDown() throws Exception {
 		compare("MyHandler$Down");
 	}
 
 	@Test
-	@Ignore
 	public void checkMyHandlerImpl() throws Exception {
 		compare("MyHandler$Impl");
 	}

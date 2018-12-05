@@ -99,7 +99,7 @@ public class GenTestsForContracts {
 			oneOf(iMeth).argument(J.FLEVALCONTEXT, "from");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.DOWN, FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType));
+		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.DOWN, FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType, null));
 		gen.visitContractDecl(cd);
 	}
 
@@ -117,7 +117,7 @@ public class GenTestsForContracts {
 			oneOf(iMeth).argument("java.lang.String", "s");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.DOWN, FunctionName.function(loc, null, "fred"), Arrays.asList(stringArg), sendReturnType));
+		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.DOWN, FunctionName.function(loc, null, "fred"), Arrays.asList(stringArg), sendReturnType, null));
 		gen.visitContractDecl(cd);
 	}
 
@@ -132,7 +132,7 @@ public class GenTestsForContracts {
 			oneOf(uMeth).argument(J.FLEVALCONTEXT, "from");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.UP, FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType));
+		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.UP, FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType, null));
 		gen.visitContractDecl(cd);
 	}
 
@@ -149,7 +149,7 @@ public class GenTestsForContracts {
 		}});
 
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.UP, FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), sendReturnType));
+		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.UP, FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), sendReturnType, null));
 		gen.visitContractDecl(cd);
 	}
 
@@ -168,7 +168,7 @@ public class GenTestsForContracts {
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		RWContractDecl hdlrType = new RWContractDecl(loc, loc, new SolidName(new PackageName("test"), "MyHandler"), true);
 		RWTypedPattern handlerArg = new RWTypedPattern(loc, hdlrType, loc, new VarName(loc, null, "h"));
-		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.UP, FunctionName.function(loc, null, "callMeBack"), Arrays.asList(handlerArg), sendReturnType));
+		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.UP, FunctionName.function(loc, null, "callMeBack"), Arrays.asList(handlerArg), sendReturnType, null));
 		gen.visitContractDecl(cd);
 	}
 

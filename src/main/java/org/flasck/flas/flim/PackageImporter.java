@@ -150,7 +150,8 @@ public class PackageImporter {
 					}
 					types.add((Type) rw.getMe(loc, new SolidName(null, "Send")).defn);
 					FunctionType type = new FunctionType(loc, types);
-					RWContractMethodDecl cmd = new RWContractMethodDecl(loc, cme.requiredBoolean("required"), ContractMethodDir.valueOf(cme.required("dir").toUpperCase()), fn, args, type);
+					// TODO: this needs to load and save the handler type info
+					RWContractMethodDecl cmd = new RWContractMethodDecl(loc, cme.requiredBoolean("required"), ContractMethodDir.valueOf(cme.required("dir").toUpperCase()), fn, args, type, null);
 					cme.attributesDone();
 					cd.methods.add(cmd);
 				}

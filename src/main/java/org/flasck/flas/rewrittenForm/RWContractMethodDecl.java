@@ -16,14 +16,16 @@ public class RWContractMethodDecl implements Locatable, Comparable<RWContractMet
 	public final String name;
 	public final List<Object> args;
 	public final FunctionType type;
+	public final RWTypedPattern handler;
 
-	public RWContractMethodDecl(InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Object> args, FunctionType type) {
+	public RWContractMethodDecl(InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Object> args, FunctionType type, RWTypedPattern handler) {
 		this.pos = pos;
 		this.required = required;
 		this.dir = dir;
 		this.name = name.name;
 		this.args = args;
 		this.type = type;
+		this.handler = handler;
 	}
 
 	@Override

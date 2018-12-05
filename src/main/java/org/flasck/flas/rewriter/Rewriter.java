@@ -1312,7 +1312,17 @@ public class Rewriter implements CodeGenRegistry {
 	private RWContractMethodDecl rewriteCMD(NamingContext cx, SolidName name, ContractMethodDecl cmd) {
 		List<Object> outargs = new ArrayList<Object>();
 		final FunctionType type = deriveType(cx, cmd.location(), cmd.args, cmd.name, outargs);
-		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, outargs, type);
+		// TODO: in the fulness of time, the parser will pass down a CMD with a specific handler field
+		// When it does, we can remove this code
+		RWTypedPattern handler = null;
+		if (!outargs.isEmpty()) {
+			Object finalArg = outargs.get(outargs.size()-1);
+			if (finalArg instanceof RWTypedPattern && (((RWTypedPattern)finalArg).type instanceof RWContractDecl)) {
+				outargs.remove(outargs.size()-1);
+				handler = (RWTypedPattern) finalArg;
+			}
+		}
+		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, outargs, type, handler);
 	}
 
 	private FunctionType deriveType(NamingContext cx, final InputPosition loc, final List<Object> inargs, final FunctionName cn, List<Object> outargs) {
