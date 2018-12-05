@@ -23,7 +23,6 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.FieldsDefn;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;

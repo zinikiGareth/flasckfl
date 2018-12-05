@@ -19,8 +19,8 @@ Line 114: 8
 Line 115: 13
 Ltest/runner/TestCard$_C1; this (var #0 from 0 to 14)
 Ltest/runner/TestCard; card (var #1 from 0 to 14)
-Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;Lorg/ziniki/ziwsh/model/IdempotentHandler;)Ljava/lang/Object;
-  maxStack = 6 maxLocals = 6 codeLen = 119
+Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  maxStack = 6 maxLocals = 6 codeLen = 125
   {
     0000: aload_1
     0001: aload_2
@@ -33,7 +33,7 @@ Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Obje
     000E: areturn
     000F: aload_2
     0010: instanceof Class[java/lang/String]
-    0013: ifeq 006D
+    0013: ifeq 0073
     0016: ldc Class[org/flasck/jvm/builtin/Cons]
     0018: iconst_2
     0019: anewarray Class[java/lang/Object]
@@ -69,31 +69,33 @@ Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Obje
     0049: aastore
     004A: dup
     004B: iconst_3
-    004C: aconst_null
-    004D: aastore
-    004E: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
-    0051: astore 5
-    0053: ldc Class[org/flasck/jvm/builtin/Cons]
-    0055: iconst_2
-    0056: anewarray Class[java/lang/Object]
-    0059: dup
-    005A: iconst_0
-    005B: aload 5
-    005D: aastore
-    005E: dup
-    005F: iconst_1
-    0060: aload_1
-    0061: iconst_0
-    0062: anewarray Class[java/lang/Object]
-    0065: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
-    0068: aastore
-    0069: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
-    006C: areturn
-    006D: new Class[org/flasck/jvm/fl/FLError]
-    0070: dup
-    0071: ldc "saySomething: case not handled"
-    0073: invokespecial MClass[org/flasck/jvm/fl/FLError].<init> (Ljava/lang/String;)V
-    0076: areturn
+    004C: new Class[org/ziniki/ziwsh/model/TrivialIdempotentHandler]
+    004F: dup
+    0050: invokespecial MClass[org/ziniki/ziwsh/model/TrivialIdempotentHandler].<init> ()V
+    0053: aastore
+    0054: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    0057: astore 5
+    0059: ldc Class[org/flasck/jvm/builtin/Cons]
+    005B: iconst_2
+    005C: anewarray Class[java/lang/Object]
+    005F: dup
+    0060: iconst_0
+    0061: aload 5
+    0063: aastore
+    0064: dup
+    0065: iconst_1
+    0066: aload_1
+    0067: iconst_0
+    0068: anewarray Class[java/lang/Object]
+    006B: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Lorg/ziniki/ziwsh/json/FLEvalContext;[Ljava/lang/Object;)Ljava/lang/Object;
+    006E: aastore
+    006F: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    0072: areturn
+    0073: new Class[org/flasck/jvm/fl/FLError]
+    0076: dup
+    0077: ldc "saySomething: case not handled"
+    0079: invokespecial MClass[org/flasck/jvm/fl/FLError].<init> (Ljava/lang/String;)V
+    007C: areturn
   }
 8 Line Number Entries
 Line 118: 0
@@ -102,17 +104,17 @@ Line 120: 13
 Line 121: 15
 Line 122: 22
 Line 123: 48
-Line 124: 83
-Line 126: 109
-Ltest/runner/TestCard$_C1; this (var #0 from 0 to 119)
-Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 119)
-Ljava/lang/Object; what (var #2 from 0 to 119)
-Lorg/ziniki/ziwsh/model/IdempotentHandler; ih (var #3 from 0 to 119)
-Lorg/flasck/jvm/fl/FLClosure; clos1 (var #4 from 48 to 109)
-Lorg/flasck/jvm/fl/FLClosure; clos2 (var #5 from 83 to 109)
+Line 124: 89
+Line 126: 115
+Ltest/runner/TestCard$_C1; this (var #0 from 0 to 125)
+Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 125)
+Ljava/lang/Object; what (var #2 from 0 to 125)
+Ljava/lang/Object; ih (var #3 from 0 to 125)
+Lorg/flasck/jvm/fl/FLClosure; clos1 (var #4 from 48 to 115)
+Lorg/flasck/jvm/fl/FLClosure; clos2 (var #5 from 89 to 115)
 2 stack map entries
   same_frame; offset = 0F
-  same_frame_extended; offset = 5D
+  same_frame_extended; offset = 63
 [Class SourceFile]: TestCard.java
 2 inner classes
 Ref abstract public static Class[test/runner/Echo$Impl] <= Class[test/runner/Echo].Impl

@@ -13,7 +13,6 @@ import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.parsedForm.FieldsDefn;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.Type;

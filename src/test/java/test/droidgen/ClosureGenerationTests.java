@@ -19,7 +19,6 @@ import org.flasck.flas.hsie.ClosureTraverser;
 import org.flasck.flas.hsie.NextVarFactory;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.parsedForm.FieldsDefn;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;

@@ -38,6 +38,7 @@ import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.DateClientIDProvider;
 import org.ziniki.ziwsh.model.EntityStore;
+import org.ziniki.ziwsh.model.InternalHandle;
 import org.ziniki.ziwsh.postbox.ErrorAdmin;
 import org.ziniki.ziwsh.postbox.SyserrErrorAdmin;
 import org.ziniki.ziwsh.wire.DefaultWireEncoder;
@@ -175,7 +176,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	}
 
 	@Override
-	public void send(String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
+	public void send(InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
@@ -195,7 +196,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 				argVals[cnt++] = o;
 			}
 		}
-		card.send(ctrName, methodName, argVals);
+		card.send(ih, ctrName, methodName, argVals);
 		controller.processPostboxes();
 		assertAllInvocationsCalled();
 	}

@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.ziniki.ziwsh.model.IdempotentHandler;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public abstract class BaseRunnerTests {
@@ -156,7 +157,7 @@ public abstract class BaseRunnerTests {
 		String contractName = "SetState";
 		String methodName = "setOn";
 		runner.createCardAs(cn, cardVar);
-		runner.send(cardVar, contractName, methodName, null);
+		runner.send(new IdempotentHandler() {}, cardVar, contractName, methodName, null);
 		runner.match(new HTMLMatcher.Class("show"), "div>span:nth-of-type(1)");
 	}
 
@@ -175,7 +176,7 @@ public abstract class BaseRunnerTests {
 		eargs.add(2);
 		runner.createCardAs(cn, cardVar);
 		runner.expect(cardVar, pkg+"."+contractName, "echoIt", eargs);
-		runner.send(cardVar, contractName, methodName, args);
+		runner.send(new IdempotentHandler() {}, cardVar, contractName, methodName, args);
 	}
 
 	@Test

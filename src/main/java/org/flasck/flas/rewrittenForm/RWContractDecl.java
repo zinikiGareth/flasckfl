@@ -9,7 +9,6 @@ import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.TypeWithMethods;
 import org.flasck.flas.types.TypeWithName;
-import org.flasck.flas.types.TypeWithNameAndPolys;
 import org.zinutils.exceptions.UtilException;
 
 public class RWContractDecl extends TypeWithName implements TypeWithMethods {

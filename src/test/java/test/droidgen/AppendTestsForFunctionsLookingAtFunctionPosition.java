@@ -12,7 +12,6 @@ import org.flasck.flas.droidgen.IMethodGenerationContext;
 import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.hsie.PushArgumentTraverser;
 import org.flasck.flas.parsedForm.FieldsDefn;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.PackageVar;

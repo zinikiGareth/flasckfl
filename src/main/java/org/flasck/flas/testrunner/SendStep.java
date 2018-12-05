@@ -2,6 +2,8 @@ package org.flasck.flas.testrunner;
 
 import java.util.List;
 
+import org.ziniki.ziwsh.model.InternalHandle;
+
 public class SendStep implements TestStep {
 	private final String cardVar;
 	private final String contractName;
@@ -22,7 +24,8 @@ public class SendStep implements TestStep {
 	public void run(TestRunner runner) throws Exception {
 		for (Expectation e : expects)
 			runner.expect(cardVar, e.contract, e.method, (List)e.args);
-		runner.send(cardVar, contractName, methodName, args);
+		InternalHandle ih = null; // TODO: this definitely needs sorting out ...
+		runner.send(ih, cardVar, contractName, methodName, args);
 	}
 
 }

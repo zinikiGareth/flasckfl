@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.parsedForm.Scope;
+import org.ziniki.ziwsh.model.InternalHandle;
 
 public interface TestRunner {
 	String name();
@@ -12,7 +13,7 @@ public interface TestRunner {
 	void prepareCase();
 	void assertCorrectValue(int exprId) throws Exception;
 	void createCardAs(CardName cardType, String bindVar) throws Exception;
-	void send(String cardVar, String contractName, String methodName, List<Integer> args) throws Exception;
+	void send(InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception;
 	void event(String cardVar, String methodName) throws Exception;
 	void match(HTMLMatcher matcher, String selector) throws NotMatched;
 	void expect(String cardVar, String ctr, String method, List<Integer> chkargs);

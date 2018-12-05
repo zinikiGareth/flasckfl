@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 public class ContractMethodMatcher extends TypeSafeMatcher<ContractMethodDecl> {

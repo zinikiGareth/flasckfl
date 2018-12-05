@@ -28,10 +28,9 @@ import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.ui4j.UI4JWrapperElement;
+import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
-import org.zinutils.utils.FileUtils;
-
 import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
 import io.webfolder.ui4j.api.browser.Page;
@@ -257,7 +256,7 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
-	public void send(String cardVar, String contractName, String methodName, List<Integer> posns) {
+	public void send(InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> posns) {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 

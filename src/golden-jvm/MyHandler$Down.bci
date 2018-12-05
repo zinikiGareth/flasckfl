@@ -1,7 +1,7 @@
 interface test/runner/MyHandler$Down
   extends java/lang/Object
   implements org/ziniki/ziwsh/DownContract
-Method abstract public missing (Lorg/ziniki/ziwsh/json/FLEvalContext;Lorg/ziniki/ziwsh/model/IdempotentHandler;)Ljava/lang/Object;
+Method abstract public missing (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljava/lang/Object;
 [Class SourceFile]: MyHandler.java
 1 inner classes
 Ref abstract interface public static Class[test/runner/MyHandler$Down] <= Class[test/runner/MyHandler].Down

@@ -3,7 +3,6 @@ package org.flasck.flas.parser;
 import java.util.function.Consumer;
 
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;

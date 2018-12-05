@@ -18,7 +18,6 @@ import org.flasck.flas.hsie.ClosureTraverser;
 import org.flasck.flas.hsie.HSIGenerator;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
