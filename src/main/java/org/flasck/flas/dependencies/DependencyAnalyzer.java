@@ -152,6 +152,7 @@ public class DependencyAnalyzer {
 			SendExpr dse = (SendExpr) expr;
 			analyzeExpr(name, locals, dse.sender);
 			analyzeExpr(name, locals, dse.args);
+			analyzeExpr(name, locals, dse.handler);
 		} else if (expr instanceof CreateObject) {
 			analyzeExpr(name, locals, ((CreateObject)expr).expr);
 		} else

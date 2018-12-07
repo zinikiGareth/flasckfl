@@ -27,15 +27,8 @@ test.golden.Role = function(v0) {
 
 test.golden.f = function(v0) {
   "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (v0) {
-    var v1 = FLEval.closure(v0);
-    return FLEval.closure(FLEval.field, v1, 'r');
-  }
-  return FLEval.error("test.golden.f: case not handled");
+  var v1 = FLEval.closure(v0);
+  return FLEval.closure(FLEval.field, v1, 'r');
 }
 
 test.golden;

@@ -122,7 +122,9 @@ public final class JSPushArgument implements PushVisitor<String> {
 			// doubt exists around this, particularly if we have a zero-arg ("default") object ctor ... then what?
 			sb.append("FLEval.octor");
 			System.out.println("It's possible Octor should be curried away, but I'm more focused on the JVM case right now");
-		} else
+		} else if (pb.isIdem())
+			sb.append("FLEval.idemHandler");
+		else
 			throw new RuntimeException("Not handled");
 	}
 

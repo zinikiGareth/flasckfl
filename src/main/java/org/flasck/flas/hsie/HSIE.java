@@ -311,7 +311,10 @@ public class HSIE {
 					o.ifCtor(cm.location, cm.ref.uniqueName(), cm.args, pe.getValue());
 				} else if (patt instanceof RWTypedPattern) {
 					RWTypedPattern tp = (RWTypedPattern) patt;
-					o.ifCtor(tp.typeLocation, tp.type.name(), new ArrayList<Field>(), pe.getValue());
+					if (tp.type.getName().uniqueName().equals("Any"))
+						o.anything(pe.getValue(), tp.var.var);
+					else
+						o.ifCtor(tp.typeLocation, tp.type.name(), new ArrayList<Field>(), pe.getValue());
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;
 					if (cp.type == ConstPattern.INTEGER) {

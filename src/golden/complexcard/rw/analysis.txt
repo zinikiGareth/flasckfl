@@ -57,11 +57,13 @@ function test.golden.Complex.handlers_6.getHandler test.golden.Complex 0
 function test.golden.Complex.inits_format 0
   case test.golden.Complex.inits_format_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "basic")
+    #String
+      "basic"
 function test.golden.Complex.inits_hello 0
   case test.golden.Complex.inits_hello_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello, world")
+    #String
+      "hello, world"
 function test.golden.Complex.styleIf test.golden.Complex 2
   case test.golden.Complex.styleIf_0
     var test.golden.Complex.styleIf_0.style
@@ -76,4 +78,5 @@ function test.golden.Complex.styleIf test.golden.Complex 2
 function test.golden.WithInit.inits_x 0
   case test.golden.WithInit.inits_x_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello")
+    #String
+      "hello"

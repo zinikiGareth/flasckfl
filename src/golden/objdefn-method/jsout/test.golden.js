@@ -12,10 +12,10 @@ test.golden._WithMethod = function() {
   "use strict";
 }
 
-test.golden.WithMethod.prototype.highTime = function() {
+test.golden.WithMethod.prototype.highTime = function(v0) {
   "use strict";
-  var v0 = FLEval.closure(Assign, this, 'x', 420);
-  return FLEval.closure(Cons, v0, Nil);
+  var v1 = FLEval.closure(Assign, this, 'x', 420);
+  return FLEval.closure(Cons, v1, Nil);
 }
 
 test.golden;

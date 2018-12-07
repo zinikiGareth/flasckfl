@@ -10,7 +10,7 @@ class DoIt$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.g
 }
 src/golden/contractPushback/droid-to/test/golden/DoIt$Up.java
 class DoIt$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object calc(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber n);
+  abstract java.lang.Object calc(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object n, java.lang.Object arg1);
 }
 src/golden/contractPushback/droid-to/test/golden/PACKAGEFUNCTIONS$f.java
 class PACKAGEFUNCTIONS$f.java {
@@ -76,10 +76,11 @@ class PACKAGEFUNCTIONS.java {
           autobox[_s1]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
-      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
           autobox[_s0]
           autobox["calc"]
           autobox[v0]
+          autobox[new org.ziniki.ziwsh.model.TrivialIdempotentHandler()]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v1]

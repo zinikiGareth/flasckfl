@@ -319,7 +319,10 @@ public class GenerateClosures {
 	public LocatedObject process(SendExpr dse) {
 		PackageVar send = rw.getMe(dse.location(), new SolidName(null, "Send"));
 		form.dependsOn(send);
-		ApplyExpr expr = new ApplyExpr(dse.location(), send, dse.sender, dse.method, asList(dse.location(), dse.args));
+		Object handler = dse.handler;
+		if (handler == null)
+			handler = BuiltinOperation.IDEM.at(dse.location());
+		ApplyExpr expr = new ApplyExpr(dse.location(), send, dse.sender, dse.method, asList(dse.location(), dse.args), handler);
 		LocatedObject conv = dispatch(expr);
 		VarInSource cv = (VarInSource) conv.obj;
 		ClosureCmd closure = (ClosureCmd) form.getClosure(cv.var);

@@ -37,7 +37,6 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.template.TemplateGenerator;
-import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.jvm.J;
 import org.flasck.jvm.fl.FLCurry;

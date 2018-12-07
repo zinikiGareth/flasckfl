@@ -139,18 +139,18 @@ test.golden._TestCard.B6.prototype.teas_2 = function() {
   return '250';
 }
 
-test.golden.TestCard.prototype._d3_chart_enter_rect = function() {
+test.golden.TestCard.prototype._d3_chart_enter_rect = function(v0) {
   "use strict";
-  var v0 = FLEval.closure(Cons, 'rect', Nil);
-  var v1 = FLEval.closure(D3Action, 'append', v0);
-  return FLEval.closure(Cons, v1, Nil);
+  var v1 = FLEval.closure(Cons, 'rect', Nil);
+  var v2 = FLEval.closure(D3Action, 'append', v1);
+  return FLEval.closure(Cons, v2, Nil);
 }
 
-test.golden.TestCard.prototype._d3_chart_enter_text = function() {
+test.golden.TestCard.prototype._d3_chart_enter_text = function(v0) {
   "use strict";
-  var v0 = FLEval.closure(Cons, 'text', Nil);
-  var v1 = FLEval.closure(D3Action, 'append', v0);
-  return FLEval.closure(Cons, v1, Nil);
+  var v1 = FLEval.closure(Cons, 'text', Nil);
+  var v2 = FLEval.closure(D3Action, 'append', v1);
+  return FLEval.closure(Cons, v2, Nil);
 }
 
 test.golden.TestCard.prototype._d3init_chart = function() {

@@ -39,6 +39,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.ziniki.ziwsh.model.IdempotentHandler;
 import org.ziniki.ziwsh.model.InternalHandle;
 
 public class ScriptBuilderTests {
@@ -222,9 +223,8 @@ public class ScriptBuilderTests {
 		String method = "init";
 		ArrayList<Object> args = new ArrayList<>();
 		List<Integer> expectArgs = new ArrayList<>();
-		InternalHandle ih = null;
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).send(ih, card, contract, method, expectArgs);
+			oneOf(stepRunner).send(with(any(IdempotentHandler.class)), with(card), with(contract), with(method), with(expectArgs));
 		}});
 		script.addSend(posn, card, contract, method, args, new ArrayList<>());
 		script.addTestCase(TEST_CASE_NAME);
@@ -240,9 +240,8 @@ public class ScriptBuilderTests {
 		args.add(new StringLiteral(posn, "hello"));
 		List<Integer> expectArgs = new ArrayList<>();
 		expectArgs.add(1);
-		InternalHandle ih = null;
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).send(ih, card, contract, method, expectArgs);
+			oneOf(stepRunner).send(with(any(IdempotentHandler.class)), with(card), with(contract), with(method), with(expectArgs));
 		}});
 		script.addSend(posn, card, contract, method, args, new ArrayList<>());
 		script.addTestCase(TEST_CASE_NAME);
@@ -260,10 +259,9 @@ public class ScriptBuilderTests {
 		exps.add(new Expectation("Echo", "echoIt", Arrays.asList(new StringLiteral(null, "hello"))));
 		List<Integer> expectExps = new ArrayList<>();
 		expectExps.add(1);
-		InternalHandle ih = null;
 		context.checking(new Expectations() {{
 			oneOf(stepRunner).expect(card, "Echo", "echoIt", expectExps);
-			oneOf(stepRunner).send(ih, card, contract, method, expectArgs);
+			oneOf(stepRunner).send(with(any(IdempotentHandler.class)), with(card), with(contract), with(method), with(expectArgs));
 		}});
 		script.addSend(posn, card, contract, method, args, exps);
 		script.addTestCase(TEST_CASE_NAME);

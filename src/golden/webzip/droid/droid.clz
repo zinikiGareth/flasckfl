@@ -194,39 +194,41 @@ class Webzip$_C1.java extends org.flasck.Init$Impl {
     this._card = card
     return
   }
-  java.lang.Object onready(org.ziniki.ziwsh.json.FLEvalContext _context) {
+  java.lang.Object onready(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
-      v0 = org.flasck.jvm.fl.FLClosure.simple(test.golden.Item.class, new java.lang.Object[1] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(test.golden.Item.class, new java.lang.Object[1] {
           autobox["do some work"]
         })
-      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v0]
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v1]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
-      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+      v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
           autobox[this._card.getVar(_context, "list")]
           autobox["append"]
-          autobox[v1]
+          autobox[v2]
+          autobox[new org.ziniki.ziwsh.model.TrivialIdempotentHandler()]
         })
-      v3 = org.flasck.jvm.fl.FLClosure.simple(test.golden.Item.class, new java.lang.Object[1] {
+      v4 = org.flasck.jvm.fl.FLClosure.simple(test.golden.Item.class, new java.lang.Object[1] {
           autobox["watch rugby"]
         })
-      v4 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v3]
+      v5 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v4]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
-      v5 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+      v6 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
           autobox[this._card.getVar(_context, "list")]
           autobox["append"]
-          autobox[v4]
-        })
-      v6 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v5]
+          autobox[new org.ziniki.ziwsh.model.TrivialIdempotentHandler()]
+        })
+      v7 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v6]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v2]
-          autobox[v6]
+          autobox[v3]
+          autobox[v7]
         })
     }
   }

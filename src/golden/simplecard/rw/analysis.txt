@@ -10,4 +10,5 @@ function test.golden.Simple.f test.golden.Simple 0
 function test.golden.Simple.inits_hello 0
   case test.golden.Simple.inits_hello_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello, world")
+    #String
+      "hello, world"

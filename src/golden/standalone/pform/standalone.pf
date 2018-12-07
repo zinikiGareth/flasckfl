@@ -22,7 +22,7 @@ package test.golden
       [type] ck @{16:16|ck}
         Crokey @{16:9|Crokey}
      =
-      <apply> @{16:22|Send kv 'typed' [ck}
+      <apply> @{16:22|Send kv 'typed' [ck] "none"}
         Send @{16:22|Send}
         kv @{16:27|kv}
         '' typed @{16:30|'typed'}
@@ -30,11 +30,12 @@ package test.golden
           Cons @{16:39|ck}
           ck @{16:39|ck}
           Nil @{16:39|ck]}
+        '' none @{16:43|"none"}
     test.golden.Foo.request2 @{17:0|request2}
       [type] ck @{17:17|ck}
         Crokey @{17:10|Crokey}
      =
-      <apply> @{17:23|Send kv 'mine' [ck}
+      <apply> @{17:23|Send kv 'mine' [ck] "none"}
         Send @{17:23|Send}
         kv @{17:28|kv}
         '' mine @{17:31|'mine'}
@@ -42,3 +43,4 @@ package test.golden
           Cons @{17:39|ck}
           ck @{17:39|ck}
           Nil @{17:39|ck]}
+        '' none @{17:43|"none"}

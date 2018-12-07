@@ -6,19 +6,35 @@ function test.golden.TestCard.B6.teas_2 test.golden.TestCard 0
   case test.golden.TestCard.B6.teas_2_0
   =
     "250"
-function test.golden.TestCard._d3_chart_enter_rect test.golden.TestCard 0
+function test.golden.TestCard._d3_chart_enter_rect test.golden.TestCard 1
   case test.golden.TestCard._d3_chart_enter_rect_0
+    typed Any test.golden.TestCard._ih
   =
     @
       PackageVar.Cons
-      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (D3Action "append" (Cons "rect" Nil)))
+      #tcm
+        @
+          PackageVar.D3Action
+          "append"
+          @
+            PackageVar.Cons
+            "rect"
+            PackageVar.Nil
       PackageVar.Nil
-function test.golden.TestCard._d3_chart_enter_text test.golden.TestCard 0
+function test.golden.TestCard._d3_chart_enter_text test.golden.TestCard 1
   case test.golden.TestCard._d3_chart_enter_text_0
+    typed Any test.golden.TestCard._ih
   =
     @
       PackageVar.Cons
-      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (D3Action "append" (Cons "text" Nil)))
+      #tcm
+        @
+          PackageVar.D3Action
+          "append"
+          @
+            PackageVar.Cons
+            "text"
+            PackageVar.Nil
       PackageVar.Nil
 function test.golden.TestCard._d3init_chart test.golden.TestCard 0
   case test.golden.TestCard._d3init_chart_0
@@ -270,7 +286,20 @@ function test.golden.TestCard.handlers_0.getHandler test.golden.TestCard 0
 function test.golden.TestCard.inits_data 0
   case test.golden.TestCard.inits_data_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Cons[Number] (Cons 5 (Cons 8 (Cons 2 (Cons 16 Nil)))))
+    #Cons[Number]
+      @
+        PackageVar.Cons
+        5
+        @
+          PackageVar.Cons
+          8
+          @
+            PackageVar.Cons
+            2
+            @
+              PackageVar.Cons
+              16
+              PackageVar.Nil
 function test.golden.TestCard.rejig test.golden.TestCard 1
   case test.golden.TestCard.rejig_0
     var test.golden.TestCard.rejig.ev
@@ -279,7 +308,20 @@ function test.golden.TestCard.rejig test.golden.TestCard 1
       PackageVar.Cons
       @
         PackageVar.Assign
-        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this
+        this
         "data"
-        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Cons[Number] (Cons 4 (Cons 7 (Cons 11 (Cons 9 Nil)))))
+        #Cons[Number]
+          @
+            PackageVar.Cons
+            4
+            @
+              PackageVar.Cons
+              7
+              @
+                PackageVar.Cons
+                11
+                @
+                  PackageVar.Cons
+                  9
+                  PackageVar.Nil
       PackageVar.Nil

@@ -415,7 +415,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (#send CardMember[org.foo.Card.ce].\"start\"[]) Nil)", c1.expr.toString());
+		assertEquals("(Cons (#send CardMember[org.foo.Card.ce].\"start\"[]=>null) Nil)", c1.expr.toString());
 	}
 
 	@Test
@@ -430,7 +430,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (#send CardMember[org.foo.Card.ce].\"request\"[\"hello\"]) Nil)", c1.expr.toString());
+		assertEquals("(Cons (#send CardMember[org.foo.Card.ce].\"request\"[\"hello\"]=>null) Nil)", c1.expr.toString());
 	}
 
 	@Test

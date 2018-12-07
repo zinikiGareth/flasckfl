@@ -26,14 +26,7 @@
         </Method>
     </Contract>
     <Contract file="contracts.fl" line="8" name="Request" off="9">
-        <Method dir="up" file="contracts.fl" line="9" name="ask" off="3" required="true">
-            <Typed file="contracts.fl" line="9" off="8" var="answer"
-                vfile="contracts.fl" vline="9" voff="16">
-                <SolidName name="Handler">
-                    <Package name="test.golden"/>
-                </SolidName>
-            </Typed>
-        </Method>
+        <Method dir="up" file="contracts.fl" line="9" name="ask" off="3" required="true"/>
     </Contract>
     <Contract file="contracts.fl" line="11" name="UsePolyInstance" off="9">
         <Method dir="down" file="contracts.fl" line="12" name="giveList"

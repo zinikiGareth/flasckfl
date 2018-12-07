@@ -26,45 +26,47 @@ HSIE for test.golden.Webzip.B7.lvs_1/0                       #webzip.fl:   17.2
     all vars = []
 RETURN CardMember.CardMember[test.golden.Webzip.list]        #webzip.fl:   17.2
 -------
-HSIE for test.golden.Webzip._C1.onready/0                    #webzip.fl:   23.0
-#Args: 0 #bound: 8
-    externals: [Cons, Nil, Send, test.golden.Item, test.golden.Webzip.list]
+HSIE for test.golden.Webzip._C1.onready/1                    #webzip.fl:   23.0
+#Args: 1 #bound: 8
+    externals: [Any, Cons, Nil, Send, test.golden.Item, test.golden.Webzip.list]
     scoped = []
     scopedDefns = []
-    all vars = [v0, v1, v2, v3, v4, v5, v6, v7]
-RETURN v7:clos7 [v0:clos0, v1:clos1, v2:clos2, v3:clos3, v4: #webzip.fl:   24.3
+    all vars = [v0, v1, v2, v3, v4, v5, v6, v7, v8]
+RETURN v8:clos8 [v1:clos1, v2:clos2, v3:clos3, v4:clos4, v5: #webzip.fl:   24.3
 CLOSURE v1                                                   #webzip.fl:   24.15
+  PUSH PackageVar.test.golden.Item                           #webzip.fl:   24.16
+  PUSH "do some work"                                        #webzip.fl:   24.21
+CLOSURE v2                                                   #webzip.fl:   24.15
   PUSH PackageVar.Cons                                       #webzip.fl:   24.3
-  PUSH v0:clos0                                              #webzip.fl:   24.15
+  PUSH v1:clos1                                              #webzip.fl:   24.15
   PUSH PackageVar.Nil                                        #webzip.fl:   24.3
-CLOSURE v2 S                                                 #webzip.fl:   24.3
+CLOSURE v3 S                                                 #webzip.fl:   24.3
   PUSH PackageVar.Send                                       #webzip.fl:   24.3
   PUSH CardMember.CardMember[test.golden.Webzip.list]        #webzip.fl:   24.3
   PUSH "append"                                              #webzip.fl:   24.8
-  PUSH v1:clos1                                              #webzip.fl:   24.15
-CLOSURE v3                                                   #webzip.fl:   25.15
+  PUSH v2:clos2                                              #webzip.fl:   24.15
+  IDEM                                                       #webzip.fl:   24.3
+CLOSURE v4                                                   #webzip.fl:   25.15
   PUSH PackageVar.test.golden.Item                           #webzip.fl:   25.16
   PUSH "watch rugby"                                         #webzip.fl:   25.21
-CLOSURE v4                                                   #webzip.fl:   25.15
+CLOSURE v5                                                   #webzip.fl:   25.15
   PUSH PackageVar.Cons                                       #webzip.fl:   25.3
-  PUSH v3:clos3                                              #webzip.fl:   25.15
+  PUSH v4:clos4                                              #webzip.fl:   25.15
   PUSH PackageVar.Nil                                        #webzip.fl:   25.3
-CLOSURE v5 S                                                 #webzip.fl:   25.3
+CLOSURE v6 S                                                 #webzip.fl:   25.3
   PUSH PackageVar.Send                                       #webzip.fl:   25.3
   PUSH CardMember.CardMember[test.golden.Webzip.list]        #webzip.fl:   25.3
   PUSH "append"                                              #webzip.fl:   25.8
-  PUSH v4:clos4                                              #webzip.fl:   25.15
-CLOSURE v6                                                   #webzip.fl:   25.3
+  PUSH v5:clos5                                              #webzip.fl:   25.15
+  IDEM                                                       #webzip.fl:   25.3
+CLOSURE v7                                                   #webzip.fl:   25.3
   PUSH PackageVar.Cons                                       #webzip.fl:   23.0
-  PUSH v5:clos5                                              #webzip.fl:   25.3
-  PUSH PackageVar.Nil                                        #webzip.fl:   23.0
-CLOSURE v7                                                   #webzip.fl:   24.3
-  PUSH PackageVar.Cons                                       #webzip.fl:   23.0
-  PUSH v2:clos2                                              #webzip.fl:   24.3
   PUSH v6:clos6                                              #webzip.fl:   25.3
-CLOSURE v0                                                   #webzip.fl:   24.15
-  PUSH PackageVar.test.golden.Item                           #webzip.fl:   24.16
-  PUSH "do some work"                                        #webzip.fl:   24.21
+  PUSH PackageVar.Nil                                        #webzip.fl:   23.0
+CLOSURE v8                                                   #webzip.fl:   24.3
+  PUSH PackageVar.Cons                                       #webzip.fl:   23.0
+  PUSH v3:clos3                                              #webzip.fl:   24.3
+  PUSH v7:clos7                                              #webzip.fl:   25.3
 -------
 HSIE for test.golden.Webzip.inits_list/0                     #webzip.fl:    8.21
 #Args: 0 #bound: 2

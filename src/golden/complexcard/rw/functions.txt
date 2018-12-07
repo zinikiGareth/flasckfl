@@ -38,21 +38,27 @@ function test.golden.Complex.B9.ors_7 test.golden.Complex 0
       PackageVar.==
       CardMember.CardMember[test.golden.Complex.hello]
       "hello"
-function test.golden.Complex.FooHandler.reply test.golden.Complex 1
+function test.golden.Complex.FooHandler.reply test.golden.Complex 2
   case test.golden.Complex.FooHandler.reply_0
     typed String test.golden.Complex.FooHandler.reply.x
+    typed Any test.golden.Complex.FooHandler._ih
   =
     @
       PackageVar.Cons
       @
         PackageVar.Assign
-        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this._card
+        this._card
         "hello"
-        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String (++ HL[test.golden.Complex.FooHandler.k] test.golden.Complex.FooHandler.reply.x))
+        #String
+          @
+            PackageVar.++
+            HandlerLambda.HL[test.golden.Complex.FooHandler.k]
+            LocalVar.test.golden.Complex.FooHandler.reply.x
       PackageVar.Nil
-function test.golden.Complex._C0.ready test.golden.Complex 1
+function test.golden.Complex._C0.ready test.golden.Complex 2
   case test.golden.Complex._C0.ready_0
     typed test.golden.Thing test.golden.Complex._C0.ready.obj
+    typed Any test.golden.Complex._C0._ih
   =
     @
       PackageVar.Cons
@@ -63,6 +69,7 @@ function test.golden.Complex._C0.ready test.golden.Complex 1
           field
           LocalVar.test.golden.Complex._C0.ready.obj
           "x"
+      =>
         @
           ObjectReference.test.golden.Complex.FooHandler
           "yo"
@@ -78,6 +85,8 @@ function test.golden.Complex._S0.get test.golden.Complex 2
         LocalVar.test.golden.Complex._S0.get.h
         "reply"
         LocalVar.test.golden.Complex._S0.get.x
+      =>
+        null
       PackageVar.Nil
 function test.golden.Complex.handlers_6.getHandler test.golden.Complex 0
   case test.golden.Complex.handlers_6.getHandler_0
@@ -86,11 +95,13 @@ function test.golden.Complex.handlers_6.getHandler test.golden.Complex 0
 function test.golden.Complex.inits_format 0
   case test.golden.Complex.inits_format_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "basic")
+    #String
+      "basic"
 function test.golden.Complex.inits_hello 0
   case test.golden.Complex.inits_hello_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello, world")
+    #String
+      "hello, world"
 function test.golden.Complex.sayHello test.golden.Complex 1
   case test.golden.Complex.sayHello_0
     typed test.golden.ClickIt test.golden.Complex.sayHello.ev
@@ -99,9 +110,10 @@ function test.golden.Complex.sayHello test.golden.Complex 1
       PackageVar.Cons
       @
         PackageVar.Assign
-        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this
+        this
         "hello"
-        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "goodbye")
+        #String
+          "goodbye"
       PackageVar.Nil
 function test.golden.Complex.styleIf test.golden.Complex 2
   case test.golden.Complex.styleIf_0
@@ -117,4 +129,5 @@ function test.golden.Complex.styleIf test.golden.Complex 2
 function test.golden.WithInit.inits_x 0
   case test.golden.WithInit.inits_x_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello")
+    #String
+      "hello"

@@ -1,7 +1,8 @@
-function test.golden.Card.ItemHandler.update test.golden.Card 1
+function test.golden.Card.ItemHandler.update test.golden.Card 2
   nested test.golden.Card.ItemHandler.update.x test.golden.Card.ItemHandler.update
   case test.golden.Card.ItemHandler.update_0
     typed Number test.golden.Card.ItemHandler.update.obj
+    typed Any test.golden.Card.ItemHandler._ih
   =
     @
       PackageVar.Cons
@@ -9,6 +10,8 @@ function test.golden.Card.ItemHandler.update test.golden.Card 1
         CardMember.CardMember[test.golden.Card.ds]
         "insert"
         ScopedVar.Scoped[test.golden.Card.ItemHandler.update.x]
+      =>
+        null
       PackageVar.Nil
 function test.golden.Card.ItemHandler.update.x test.golden.Card 0
   nested test.golden.Card.ItemHandler.update.obj test.golden.Card.ItemHandler.update

@@ -3,6 +3,7 @@ package org.flasck.flas.testrunner;
 import java.util.List;
 
 import org.ziniki.ziwsh.model.InternalHandle;
+import org.ziniki.ziwsh.model.TrivialIdempotentHandler;
 
 public class SendStep implements TestStep {
 	private final String cardVar;
@@ -24,7 +25,7 @@ public class SendStep implements TestStep {
 	public void run(TestRunner runner) throws Exception {
 		for (Expectation e : expects)
 			runner.expect(cardVar, e.contract, e.method, (List)e.args);
-		InternalHandle ih = null; // TODO: this definitely needs sorting out ...
+		InternalHandle ih = new TrivialIdempotentHandler();
 		runner.send(ih, cardVar, contractName, methodName, args);
 	}
 

@@ -14,45 +14,45 @@ HSIE for test.golden.TestCard.B6.teas_2/0                    #d3.fl:       13.26
     all vars = []
 RETURN "250"                                                 #d3.fl:       13.26
 -------
-HSIE for test.golden.TestCard._d3_chart_enter_rect/0         #d3.fl:       25.0
-#Args: 0 #bound: 3
-    externals: [Cons, D3Action, Nil]
+HSIE for test.golden.TestCard._d3_chart_enter_rect/1         #d3.fl:       25.0
+#Args: 1 #bound: 3
+    externals: [Any, Cons, D3Action, Nil]
     scoped = []
     scopedDefns = []
-    all vars = [v0, v1, v2]
-RETURN v2:clos2 [v0:clos0, v1:clos1]                         #d3.fl:       26.3
-CLOSURE v1 M                                                 #d3.fl:       26.3
-  PUSH PackageVar.D3Action                                   #d3.fl:       26.3
-  PUSH "append"                                              #d3.fl:       26.12
-  PUSH v0:clos0                                              #d3.fl:       26.22
-CLOSURE v2                                                   #d3.fl:       26.3
-  PUSH PackageVar.Cons                                       #d3.fl:       25.0
-  PUSH v1:clos1                                              #d3.fl:       26.3
-  PUSH PackageVar.Nil                                        #d3.fl:       25.0
-CLOSURE v0                                                   #d3.fl:       26.22
+    all vars = [v0, v1, v2, v3]
+RETURN v3:clos3 [v1:clos1, v2:clos2]                         #d3.fl:       26.3
+CLOSURE v1                                                   #d3.fl:       26.22
   PUSH PackageVar.Cons                                       #d3.fl:       26.22
   PUSH "rect"                                                #d3.fl:       26.22
   PUSH PackageVar.Nil                                        #d3.fl:       26.22
+CLOSURE v2 M                                                 #d3.fl:       26.3
+  PUSH PackageVar.D3Action                                   #d3.fl:       26.3
+  PUSH "append"                                              #d3.fl:       26.12
+  PUSH v1:clos1                                              #d3.fl:       26.22
+CLOSURE v3                                                   #d3.fl:       26.3
+  PUSH PackageVar.Cons                                       #d3.fl:       25.0
+  PUSH v2:clos2                                              #d3.fl:       26.3
+  PUSH PackageVar.Nil                                        #d3.fl:       25.0
 -------
-HSIE for test.golden.TestCard._d3_chart_enter_text/0         #d3.fl:       40.0
-#Args: 0 #bound: 3
-    externals: [Cons, D3Action, Nil]
+HSIE for test.golden.TestCard._d3_chart_enter_text/1         #d3.fl:       40.0
+#Args: 1 #bound: 3
+    externals: [Any, Cons, D3Action, Nil]
     scoped = []
     scopedDefns = []
-    all vars = [v0, v1, v2]
-RETURN v2:clos2 [v0:clos0, v1:clos1]                         #d3.fl:       41.3
-CLOSURE v1 M                                                 #d3.fl:       41.3
-  PUSH PackageVar.D3Action                                   #d3.fl:       41.3
-  PUSH "append"                                              #d3.fl:       41.12
-  PUSH v0:clos0                                              #d3.fl:       41.22
-CLOSURE v2                                                   #d3.fl:       41.3
-  PUSH PackageVar.Cons                                       #d3.fl:       40.0
-  PUSH v1:clos1                                              #d3.fl:       41.3
-  PUSH PackageVar.Nil                                        #d3.fl:       40.0
-CLOSURE v0                                                   #d3.fl:       41.22
+    all vars = [v0, v1, v2, v3]
+RETURN v3:clos3 [v1:clos1, v2:clos2]                         #d3.fl:       41.3
+CLOSURE v1                                                   #d3.fl:       41.22
   PUSH PackageVar.Cons                                       #d3.fl:       41.22
   PUSH "text"                                                #d3.fl:       41.22
   PUSH PackageVar.Nil                                        #d3.fl:       41.22
+CLOSURE v2 M                                                 #d3.fl:       41.3
+  PUSH PackageVar.D3Action                                   #d3.fl:       41.3
+  PUSH "append"                                              #d3.fl:       41.12
+  PUSH v1:clos1                                              #d3.fl:       41.22
+CLOSURE v3                                                   #d3.fl:       41.3
+  PUSH PackageVar.Cons                                       #d3.fl:       40.0
+  PUSH v2:clos2                                              #d3.fl:       41.3
+  PUSH PackageVar.Nil                                        #d3.fl:       40.0
 -------
 HSIE for test.golden.TestCard._d3init_chart/0                #d3.fl:       16.14
 #Args: 0 #bound: 37

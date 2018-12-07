@@ -1,5 +1,6 @@
-function test.golden.Card._C0.go test.golden.Card 0
+function test.golden.Card._C0.go test.golden.Card 1
   case test.golden.Card._C0.go_0
+    typed Any test.golden.Card._C0._ih
   =
     @
       PackageVar.Cons
@@ -7,9 +8,13 @@ function test.golden.Card._C0.go test.golden.Card 0
         CardMember.CardMember[test.golden.Card.c]
         "put"
         42
+      =>
+        null
       @
         PackageVar.Cons
         <-
           CardMember.CardMember[test.golden.Card.c]
           "clear"
+        =>
+          null
         PackageVar.Nil

@@ -1,12 +1,21 @@
-function test.golden.Foo._C1.go test.golden.Foo 0
+function test.golden.Foo._C1.go test.golden.Foo 1
   case test.golden.Foo._C1.go_0
+    typed Any test.golden.Foo._C1._ih
   =
     @
       PackageVar.Cons
-      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (map test.golden.Foo.request Nil))
+      #tcm
+        @
+          PackageVar.map
+          CardFunction.test.golden.Foo.request
+          PackageVar.Nil
       @
         PackageVar.Cons
-        ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (map test.golden.Foo.request2 Nil))
+        #tcm
+          @
+            PackageVar.map
+            CardFunction.test.golden.Foo.request2
+            PackageVar.Nil
         PackageVar.Nil
 function test.golden.Foo.request test.golden.Foo 1
   case test.golden.Foo.request_0
@@ -20,6 +29,7 @@ function test.golden.Foo.request test.golden.Foo 1
         PackageVar.Cons
         LocalVar.test.golden.Foo.request_1.ck
         PackageVar.Nil
+      "none"
 function test.golden.Foo.request2 test.golden.Foo 1
   case test.golden.Foo.request2_0
     typed Crokey test.golden.Foo.request2_1.ck
@@ -32,3 +42,4 @@ function test.golden.Foo.request2 test.golden.Foo 1
         PackageVar.Cons
         LocalVar.test.golden.Foo.request2_1.ck
         PackageVar.Nil
+      "none"

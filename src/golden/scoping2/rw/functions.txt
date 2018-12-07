@@ -10,12 +10,15 @@ function test.golden.scoped 1
         PackageVar.Cons
         ScopedVar.Scoped[test.golden.scoped_0.request]
         PackageVar.Nil
-function test.golden.scoped_0.MyHc.reply 0
+function test.golden.scoped_0.MyHc.reply 1
   case test.golden.scoped_0.MyHc.reply_0
+    typed Any test.golden.scoped_0.MyHc._ih
   =
     @
       PackageVar.Cons
-      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (HL[test.golden.scoped_0.MyHc.requestObj]))
+      #tcm
+        @
+          HandlerLambda.HL[test.golden.scoped_0.MyHc.requestObj]
       PackageVar.Nil
 function test.golden.scoped_0.request 0
   nested test.golden.scoped_0.MyHc test.golden.scoped
@@ -27,6 +30,7 @@ function test.golden.scoped_0.request 0
       <-
         ScopedVar.Scoped[test.golden.scoped_0.ctr]
         "call"
+      =>
         @
           ScopedVar.Scoped[test.golden.scoped_0.MyHc]
       PackageVar.Nil

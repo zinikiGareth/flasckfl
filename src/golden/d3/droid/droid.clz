@@ -96,7 +96,7 @@ class TestCard$_d3_chart_enter_rect.java {
     return
   }
   static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.TestCard)self)._d3_chart_enter_rect(cxt)
+    return ((test.golden.TestCard)self)._d3_chart_enter_rect(cxt, args[0])
   }
 }
 src/golden/d3/droid-to/test/golden/TestCard$_d3_chart_enter_text.java
@@ -106,7 +106,7 @@ class TestCard$_d3_chart_enter_text.java {
     return
   }
   static java.lang.Object eval(org.ziniki.ziwsh.json.FLEvalContext cxt, java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.TestCard)self)._d3_chart_enter_text(cxt)
+    return ((test.golden.TestCard)self)._d3_chart_enter_text(cxt, args[0])
   }
 }
 src/golden/d3/droid-to/test/golden/TestCard$_d3init_chart.java
@@ -331,34 +331,34 @@ v0
     (void)new test.golden.TestCard$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object _d3_chart_enter_rect(org.ziniki.ziwsh.json.FLEvalContext _context) {
+  java.lang.Object _d3_chart_enter_rect(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
-      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox["rect"]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
-      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.D3Action.class, new java.lang.Object[2] {
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.D3Action.class, new java.lang.Object[2] {
           autobox["append"]
-          autobox[v0]
+          autobox[v1]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v1]
+          autobox[v2]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
     }
   }
-  java.lang.Object _d3_chart_enter_text(org.ziniki.ziwsh.json.FLEvalContext _context) {
+  java.lang.Object _d3_chart_enter_text(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
-      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox["text"]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
-      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.D3Action.class, new java.lang.Object[2] {
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.D3Action.class, new java.lang.Object[2] {
           autobox["append"]
-          autobox[v0]
+          autobox[v1]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v1]
+          autobox[v2]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
     }

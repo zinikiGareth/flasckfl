@@ -97,6 +97,8 @@ public class GenTestsForContracts {
 		context.checking(new Expectations() {{
 			oneOf(hMeth).argument(J.FLEVALCONTEXT, "from");
 			oneOf(iMeth).argument(J.FLEVALCONTEXT, "from");
+			oneOf(iMeth).argument(J.OBJECT, "arg0");
+			oneOf(hMeth).argument(J.OBJECT, "arg0");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.DOWN, FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType, null));
@@ -112,9 +114,11 @@ public class GenTestsForContracts {
 		checkDeclOfMethod("fred");
 		context.checking(new Expectations() {{
 			oneOf(hMeth).argument(J.FLEVALCONTEXT, "from");
-			oneOf(hMeth).argument("java.lang.String", "s");
+			oneOf(hMeth).argument(J.OBJECT, "s");
 			oneOf(iMeth).argument(J.FLEVALCONTEXT, "from");
-			oneOf(iMeth).argument("java.lang.String", "s");
+			oneOf(iMeth).argument(J.OBJECT, "s");
+			oneOf(hMeth).argument(J.OBJECT, "arg1");
+			oneOf(iMeth).argument(J.OBJECT, "arg1");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.DOWN, FunctionName.function(loc, null, "fred"), Arrays.asList(stringArg), sendReturnType, null));
@@ -130,6 +134,7 @@ public class GenTestsForContracts {
 		checkIntfDeclOfMethod("fred");
 		context.checking(new Expectations() {{
 			oneOf(uMeth).argument(J.FLEVALCONTEXT, "from");
+			oneOf(uMeth).argument(J.OBJECT, "arg0");
 		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		cd.addMethod(new RWContractMethodDecl(loc, true, ContractMethodDir.UP, FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType, null));
@@ -146,6 +151,7 @@ public class GenTestsForContracts {
 		context.checking(new Expectations() {{
 			oneOf(uMeth).argument(J.FLEVALCONTEXT, "from");
 			oneOf(uMeth).argument(J.OBJECT, "arg0");
+			oneOf(uMeth).argument(J.OBJECT, "arg1");
 		}});
 
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
@@ -162,7 +168,8 @@ public class GenTestsForContracts {
 		checkIntfDeclOfMethod("callMeBack");
 		context.checking(new Expectations() {{
 			oneOf(uMeth).argument(J.FLEVALCONTEXT, "from");
-			oneOf(uMeth).argument("test.MyHandler$Down", "h");
+			oneOf(uMeth).argument(J.OBJECT, "h");
+			oneOf(uMeth).argument(J.OBJECT, "arg1");
 		}});
 
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);

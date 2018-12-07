@@ -8,31 +8,36 @@ function test.golden.ControlledCard.B1.formats_0 test.golden.ControlledCard 0
         "show"
         CardMember.CardMember[test.golden.ControlledCard.sayHello]
       PackageVar.Nil
-function test.golden.ControlledCard._C0.setOff test.golden.ControlledCard 0
+function test.golden.ControlledCard._C0.setOff test.golden.ControlledCard 1
   case test.golden.ControlledCard._C0.setOff_0
+    typed Any test.golden.ControlledCard._C0._ih
   =
     @
       PackageVar.Cons
       @
         PackageVar.Assign
-        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this._card
+        this._card
         "sayHello"
-        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Boolean false)
+        #Boolean
+          false
       PackageVar.Nil
-function test.golden.ControlledCard._C0.setOn test.golden.ControlledCard 0
+function test.golden.ControlledCard._C0.setOn test.golden.ControlledCard 1
   case test.golden.ControlledCard._C0.setOn_0
+    typed Any test.golden.ControlledCard._C0._ih
   =
     @
       PackageVar.Cons
       @
         PackageVar.Assign
-        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this._card
+        this._card
         "sayHello"
-        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Boolean true)
+        #Boolean
+          true
       PackageVar.Nil
-function test.golden.ControlledCard._C1.saySomething test.golden.ControlledCard 1
+function test.golden.ControlledCard._C1.saySomething test.golden.ControlledCard 2
   case test.golden.ControlledCard._C1.saySomething_0
     typed String test.golden.ControlledCard._C1.saySomething.msg
+    typed Any test.golden.ControlledCard._C1._ih
   =
     @
       PackageVar.Cons
@@ -40,6 +45,8 @@ function test.golden.ControlledCard._C1.saySomething test.golden.ControlledCard 
         CardMember.CardMember[test.golden.ControlledCard.e]
         "echoIt"
         LocalVar.test.golden.ControlledCard._C1.saySomething.msg
+      =>
+        null
       PackageVar.Nil
 function test.golden.ControlledCard.echoHello test.golden.ControlledCard 1
   case test.golden.ControlledCard.echoHello_0
@@ -51,6 +58,8 @@ function test.golden.ControlledCard.echoHello test.golden.ControlledCard 1
         CardMember.CardMember[test.golden.ControlledCard.e]
         "echoIt"
         "hello clicked"
+      =>
+        null
       PackageVar.Nil
 function test.golden.ControlledCard.handlers_1.getHandler test.golden.ControlledCard 0
   case test.golden.ControlledCard.handlers_1.getHandler_0

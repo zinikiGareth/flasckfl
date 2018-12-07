@@ -259,16 +259,16 @@ test.golden._Webzip.B7.prototype.lvs_1 = function() {
   return this._card.list;
 }
 
-test.golden.Webzip.__C1.prototype.onready = function() {
+test.golden.Webzip.__C1.prototype.onready = function(v0) {
   "use strict";
-  var v0 = FLEval.closure(test.golden.Item, 'do some work');
-  var v1 = FLEval.closure(Cons, v0, Nil);
-  var v2 = FLEval.closure(Send, this._card.list, 'append', v1);
-  var v3 = FLEval.closure(test.golden.Item, 'watch rugby');
-  var v4 = FLEval.closure(Cons, v3, Nil);
-  var v5 = FLEval.closure(Send, this._card.list, 'append', v4);
-  var v6 = FLEval.closure(Cons, v5, Nil);
-  return FLEval.closure(Cons, v2, v6);
+  var v1 = FLEval.closure(test.golden.Item, 'do some work');
+  var v2 = FLEval.closure(Cons, v1, Nil);
+  var v3 = FLEval.closure(Send, this._card.list, 'append', v2, FLEval.idemHandler);
+  var v4 = FLEval.closure(test.golden.Item, 'watch rugby');
+  var v5 = FLEval.closure(Cons, v4, Nil);
+  var v6 = FLEval.closure(Send, this._card.list, 'append', v5, FLEval.idemHandler);
+  var v7 = FLEval.closure(Cons, v6, Nil);
+  return FLEval.closure(Cons, v3, v7);
 }
 
 test.golden._Webzip.prototype.inits_list = function(msgs) {

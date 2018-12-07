@@ -13,6 +13,7 @@ public class BuiltinOperation implements Locatable, Pushable {
 	public static final BuiltinOperation OCTOR = new BuiltinOperation("octor", null);
 	public static final BuiltinOperation FIELD = new BuiltinOperation("field", null);
 	public static final BuiltinOperation TUPLE = new BuiltinOperation("tuple", null);
+	public static final BuiltinOperation IDEM = new BuiltinOperation("idem", null);
 	
 	public final String opName;
 	private final InputPosition location;

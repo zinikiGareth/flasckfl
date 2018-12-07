@@ -13,5 +13,5 @@
 				<- map request []
 				<- map request2 []
 				
-		request (Crokey ck) = Send kv 'typed' [ck]
-		request2 (Crokey ck) = Send kv 'mine' [ck]
+		request (Crokey ck) = Send kv 'typed' [ck] "none"
+		request2 (Crokey ck) = Send kv 'mine' [ck] "none"

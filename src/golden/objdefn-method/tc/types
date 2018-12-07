@@ -1,1 +1,1 @@
-test.golden.WithMethod.highTime :: Cons[Assign]
+test.golden.WithMethod.highTime :: A->Cons[Assign]

@@ -15,7 +15,6 @@ import org.flasck.flas.Main;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,7 +150,6 @@ public class GoldenJVM {
 	}
 
 	@Test
-	@Ignore
 	public void checkTestCard() throws Exception {
 		compare("TestCard");
 	}
@@ -167,7 +165,6 @@ public class GoldenJVM {
 	}
 
 	@Test
-	@Ignore
 	public void checkLocalHandler() throws Exception {
 		compare("TestCard$LocalHandler");
 	}
@@ -198,7 +195,6 @@ public class GoldenJVM {
 	}
 	
 	@Test
-	@Ignore
 	public void checkC1() throws Exception {
 		compare("TestCard$_C1");
 	}

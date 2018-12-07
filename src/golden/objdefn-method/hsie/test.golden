@@ -1,16 +1,16 @@
-HSIE for test.golden.WithMethod.highTime/0                   #objdefn-meth  4.7
-#Args: 0 #bound: 2
-    externals: [Assign, Cons, Nil]
+HSIE for test.golden.WithMethod.highTime/1                   #objdefn-meth  4.7
+#Args: 1 #bound: 2
+    externals: [Any, Assign, Cons, Nil]
     scoped = []
     scopedDefns = []
-    all vars = [v0, v1]
-RETURN v1:clos1 [v0:clos0]                                   #objdefn-meth  5.5
-CLOSURE v1                                                   #objdefn-meth  5.5
-  PUSH PackageVar.Cons                                       #objdefn-meth  4.7
-  PUSH v0:clos0                                              #objdefn-meth  5.0
-  PUSH PackageVar.Nil                                        #objdefn-meth  4.7
-CLOSURE v0                                                   #objdefn-meth  5.0
+    all vars = [v0, v1, v2]
+RETURN v2:clos2 [v1:clos1]                                   #objdefn-meth  5.5
+CLOSURE v1                                                   #objdefn-meth  5.0
   PUSH PackageVar.Assign                                     #objdefn-meth  5.0
   PUSH this                                                  #objdefn-meth  5.0
   PUSH "x"                                                   #objdefn-meth  5.0
   PUSH 420                                                   #objdefn-meth  5.5
+CLOSURE v2                                                   #objdefn-meth  5.5
+  PUSH PackageVar.Cons                                       #objdefn-meth  4.7
+  PUSH v1:clos1                                              #objdefn-meth  5.0
+  PUSH PackageVar.Nil                                        #objdefn-meth  4.7

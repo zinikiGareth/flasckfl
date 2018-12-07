@@ -33,6 +33,7 @@ CLOSURE v1 S                                                 #pushback.fl:  9.3
   PUSH Scoped[test.golden.f_0.d]                             #pushback.fl:  6.8
   PUSH "calc"                                                #pushback.fl:  9.5
   PUSH v0:clos0                                              #pushback.fl:  6.11
+  IDEM                                                       #pushback.fl:  9.3
 CLOSURE v2                                                   #pushback.fl:  9.3
   PUSH PackageVar.Cons                                       #pushback.fl:  8.7
   PUSH v1:clos1                                              #pushback.fl:  9.3

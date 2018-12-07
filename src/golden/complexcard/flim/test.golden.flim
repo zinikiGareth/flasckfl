@@ -34,12 +34,6 @@
                 vfile="complexcard.fl" vline="25" voff="15">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="complexcard.fl" line="25" off="19" var="h"
-                vfile="complexcard.fl" vline="25" voff="27">
-                <SolidName name="Handler">
-                    <Package name="test.golden"/>
-                </SolidName>
-            </Typed>
         </Method>
     </Contract>
     <Contract file="complexcard.fl" line="21" name="Handler" off="9">
@@ -66,12 +60,6 @@
             <Typed file="complexcard.fl" line="28" off="8" var="x"
                 vfile="complexcard.fl" vline="28" voff="15">
                 <SolidName name="String"/>
-            </Typed>
-            <Typed file="complexcard.fl" line="28" off="19" var="h"
-                vfile="complexcard.fl" vline="28" voff="27">
-                <SolidName name="Handler">
-                    <Package name="test.golden"/>
-                </SolidName>
             </Typed>
         </Method>
     </Contract>

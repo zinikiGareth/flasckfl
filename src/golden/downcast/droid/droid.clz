@@ -16,20 +16,11 @@ class PACKAGEFUNCTIONS.java {
   }
   static java.lang.Object f(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
-      if (_0 instanceof org.flasck.jvm.fl.FLError) {
-        return _0
-      }
-      if (_0 instanceof org.flasck.jvm.builtin.Any) {
-        {
-          v1 = org.flasck.jvm.fl.FLClosure.simple(_0, new java.lang.Object[0] {})
-          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
-              autobox[v1]
-              autobox["r"]
-            })
-        }
-      }
-      return new org.flasck.jvm.fl.FLError("f: case not handled")
+      v1 = org.flasck.jvm.fl.FLClosure.simple(_0, new java.lang.Object[0] {})
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
+          autobox[v1]
+          autobox["r"]
+        })
     }
   }
 }

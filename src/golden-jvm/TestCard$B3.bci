@@ -43,13 +43,13 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ltest/runner/TestCard
     0043: return
   }
 7 Line Number Entries
-Line 209: 0
-Line 210: 6
-Line 211: 11
-Line 212: 30
-Line 213: 55
-Line 214: 61
-Line 215: 67
+Line 216: 0
+Line 217: 6
+Line 218: 11
+Line 219: 30
+Line 220: 55
+Line 221: 61
+Line 222: 67
 Ltest/runner/TestCard$B3; this (var #0 from 0 to 68)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 68)
 Ltest/runner/TestCard; card (var #2 from 0 to 68)
@@ -67,8 +67,8 @@ Method public _contentExpr (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Obj
     000B: areturn
   }
 2 Line Number Entries
-Line 218: 0
-Line 219: 10
+Line 225: 0
+Line 226: 10
 Ltest/runner/TestCard$B3; this (var #0 from 0 to 12)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 12)
 Method public contents_2 (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
@@ -93,7 +93,7 @@ Method public contents_2 (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Objec
     001B: areturn
   }
 1 Line Number Entries
-Line 223: 0
+Line 230: 0
 Ltest/runner/TestCard$B3; this (var #0 from 0 to 28)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 28)
 Method public _add_handlers (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
@@ -108,8 +108,8 @@ Method public _add_handlers (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Ob
     000A: areturn
   }
 2 Line Number Entries
-Line 227: 0
-Line 228: 9
+Line 234: 0
+Line 235: 9
 Ltest/runner/TestCard$B3; this (var #0 from 0 to 11)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 11)
 [Class SourceFile]: TestCard.java

@@ -256,4 +256,17 @@ function test.golden.TestCard.handlers_0.getHandler test.golden.TestCard 0
 function test.golden.TestCard.inits_data 0
   case test.golden.TestCard.inits_data_0
   =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Cons[Number] (Cons 5 (Cons 8 (Cons 2 (Cons 16 Nil)))))
+    #Cons[Number]
+      @
+        PackageVar.Cons
+        5
+        @
+          PackageVar.Cons
+          8
+          @
+            PackageVar.Cons
+            2
+            @
+              PackageVar.Cons
+              16
+              PackageVar.Nil

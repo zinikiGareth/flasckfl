@@ -9,8 +9,12 @@ function test.golden.Card.doit test.golden.Card 2
         PackageVar.Assign
         @
           field
-          ?? class org.flasck.flas.rewrittenForm.CardStateRef:this
+          this
           "c"
         "value"
-        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String (#field test.golden.Card.doit.g "value"))
+        #String
+          @
+            field
+            LocalVar.test.golden.Card.doit.g
+            "value"
       PackageVar.Nil

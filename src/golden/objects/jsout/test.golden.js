@@ -47,13 +47,13 @@ test.golden._Card.prototype._render = function(doc, wrapper, parent) {
   "use strict";
 }
 
-test.golden.Card.__C0.prototype.go = function() {
+test.golden.Card.__C0.prototype.go = function(v0) {
   "use strict";
-  var v0 = FLEval.closure(Cons, 42, Nil);
-  var v1 = FLEval.closure(Send, this._card.c, 'put', v0);
-  var v2 = FLEval.closure(Send, this._card.c, 'clear', Nil);
-  var v3 = FLEval.closure(Cons, v2, Nil);
-  return FLEval.closure(Cons, v1, v3);
+  var v1 = FLEval.closure(Cons, 42, Nil);
+  var v2 = FLEval.closure(Send, this._card.c, 'put', v1, FLEval.idemHandler);
+  var v3 = FLEval.closure(Send, this._card.c, 'clear', Nil, FLEval.idemHandler);
+  var v4 = FLEval.closure(Cons, v3, Nil);
+  return FLEval.closure(Cons, v2, v4);
 }
 
 test.golden;

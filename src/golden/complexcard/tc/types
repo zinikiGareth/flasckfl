@@ -5,8 +5,8 @@ test.golden.Complex.B2.formats_2 :: Cons[String]
 test.golden.Complex.B3.lvs_3 :: Croset[String]
 test.golden.Complex.B6.lvs_5 :: Croset[String]
 test.golden.Complex.B9.ors_7 :: Boolean
-test.golden.Complex.FooHandler.reply :: String->Cons[Assign]
-test.golden.Complex._C0.ready :: test.golden.Thing->Cons[Send]
+test.golden.Complex.FooHandler.reply :: String->A->Cons[Assign]
+test.golden.Complex._C0.ready :: test.golden.Thing->A->Cons[Send]
 test.golden.Complex._S0.get :: String->test.golden.Handler->Cons[Send]
 test.golden.Complex.inits_format :: String
 test.golden.Complex.inits_hello :: String

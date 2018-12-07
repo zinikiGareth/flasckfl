@@ -133,6 +133,7 @@ public class Builtin {
 			send.addField(new RWStructField(posn, false, any, "dest"));
 			send.addField(new RWStructField(posn, false, string, "method"));
 			send.addField(new RWStructField(posn, false, list.instance(posn, any), "args"));
+			send.addField(new RWStructField(posn, false, any, "handler"));
 
 			crCard.addField(new RWStructField(posn, false, map.instance(posn, string, any), "opts"));
 			crCard.addField(new RWStructField(posn, false, list.instance(posn, any), "contracts")); // maybe List[(String, CardHandle)] ?  what is CardHandle?  This is what I had "before"

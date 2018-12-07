@@ -1061,6 +1061,8 @@ public class TypeChecker2 {
 		} else if (cmd instanceof PushFunc) {
 			FunctionLiteral func = ((PushFunc)cmd).func;
 			return getTypeOf(func.location, func.name.uniqueName());
+		} else if (cmd instanceof PushBuiltin) {
+			return getTypeOf(cmd.location, "Any");
 		} else
 			throw new UtilException("Need to determine type of " + cmd.getClass());
 	}

@@ -22,6 +22,10 @@ public class PushBuiltin extends PushReturn {
 	public boolean isOctor() {
 		return this.bval.opName.equals("octor");
 	}
+	
+	public boolean isIdem() {
+		return this.bval.opName.equals("idem");
+	}
 
 	protected Object textValue() {
 		return bval.toString();

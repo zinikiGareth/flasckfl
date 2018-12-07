@@ -4,10 +4,7 @@ HSIE for test.golden.f/1                                     #downcast.fl:  4.0
     scoped = []
     scopedDefns = []
     all vars = [v0, v1, v2]
-HEAD v0                                                      #downcast.fl:  4.3
-SWITCH v0 Any                                                #downcast.fl:  4.3
-  RETURN v2:clos2 [v1:clos1]                                 #downcast.fl:  4.12
-ERROR                                                        #downcast.fl:  4.0
+RETURN v2:clos2 [v1:clos1]                                   #downcast.fl:  4.12
 CLOSURE v1 >test.golden.Role                                 #downcast.fl:  4.7
   PUSH v0:test.golden.f_0.x                                  #downcast.fl:  4.7
 CLOSURE v2                                                   #downcast.fl:  4.12

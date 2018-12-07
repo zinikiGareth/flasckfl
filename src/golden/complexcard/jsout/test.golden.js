@@ -433,32 +433,31 @@ test.golden._Complex.B9.prototype.ors_7 = function() {
   return FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
 }
 
-test.golden.Complex._FooHandler.prototype.reply = function(v0) {
+test.golden.Complex._FooHandler.prototype.reply = function(v0, v1) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (typeof v0 === 'string') {
-    var v1 = FLEval.closure(append, this.k, v0);
-    var v2 = FLEval.closure(Assign, this._card, 'hello', v1);
-    return FLEval.closure(Cons, v2, Nil);
+    var v2 = FLEval.closure(append, this.k, v0);
+    var v3 = FLEval.closure(Assign, this._card, 'hello', v2);
+    return FLEval.closure(Cons, v3, Nil);
   }
   return FLEval.error("test.golden.Complex.FooHandler.reply: case not handled");
 }
 
-test.golden.Complex.__C0.prototype.ready = function(v0) {
+test.golden.Complex.__C0.prototype.ready = function(v0, v1) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (FLEval.isA(v0, 'test.golden.Thing')) {
-    var v1 = FLEval.closure(FLEval.field, v0, 'x');
-    var v2 = FLEval.oclosure(this._card, test.golden.Complex.FooHandler, 'yo');
+    var v2 = FLEval.closure(FLEval.field, v0, 'x');
     var v3 = FLEval.closure(Cons, v2, Nil);
-    var v4 = FLEval.closure(Cons, v1, v3);
-    var v5 = FLEval.closure(Send, this._card.ds, 'get', v4);
+    var v4 = FLEval.oclosure(this._card, test.golden.Complex.FooHandler, 'yo');
+    var v5 = FLEval.closure(Send, this._card.ds, 'get', v3, v4);
     return FLEval.closure(Cons, v5, Nil);
   }
   return FLEval.error("test.golden.Complex._C0.ready: case not handled");
@@ -477,7 +476,7 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
     }
     if (typeof v0 === 'string') {
       var v2 = FLEval.closure(Cons, v0, Nil);
-      var v3 = FLEval.closure(Send, v1, 'reply', v2);
+      var v3 = FLEval.closure(Send, v1, 'reply', v2, FLEval.idemHandler);
       return FLEval.closure(Cons, v3, Nil);
     }
   }

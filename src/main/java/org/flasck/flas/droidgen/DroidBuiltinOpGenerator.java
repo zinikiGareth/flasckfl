@@ -16,7 +16,6 @@ import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.utils.StringUtil;
 
 public class DroidBuiltinOpGenerator implements BuiltinOpGenerator<IExpr> {
 	private final IMethodGenerationContext cxt;
@@ -53,6 +52,11 @@ public class DroidBuiltinOpGenerator implements BuiltinOpGenerator<IExpr> {
 	}
 
 	public void push(PushBuiltin pb, OutputHandler<IExpr> handler) {
-		handler.result(cxt.getMethod().classConst(J.FLEVAL+"$" + StringUtil.capitalize(pb.bval.opName)));
+		final MethodDefiner meth = cxt.getMethod();
+		if (pb.isIdem()) {
+			handler.result(meth.makeNew(J.IDEM_HANDLER));
+		} else
+			throw new RuntimeException("Not handled " + pb);
+//		handler.result(cxt.getMethod().classConst(J.FLEVAL+"$" + StringUtil.capitalize(pb.bval.opName)));
 	}
 }

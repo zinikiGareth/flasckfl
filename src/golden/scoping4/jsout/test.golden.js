@@ -72,17 +72,17 @@ test.golden._Card.prototype._render = function(doc, wrapper, parent) {
   "use strict";
 }
 
-test.golden.Card._ItemHandler.prototype.update = function(v1) {
+test.golden.Card._ItemHandler.prototype.update = function(v1, v2) {
   "use strict";
   v1 = FLEval.head(v1);
   if (v1 instanceof FLError) {
     return v1;
   }
   if (FLEval.isInteger(v1)) {
-    var v2 = FLEval.closure(test.golden.Card.ItemHandler.update.x, v1);
-    var v3 = FLEval.closure(Cons, v2, Nil);
-    var v4 = FLEval.closure(Send, this._card.ds, 'insert', v3);
-    return FLEval.closure(Cons, v4, Nil);
+    var v3 = FLEval.closure(test.golden.Card.ItemHandler.update.x, v1);
+    var v4 = FLEval.closure(Cons, v3, Nil);
+    var v5 = FLEval.closure(Send, this._card.ds, 'insert', v4, FLEval.idemHandler);
+    return FLEval.closure(Cons, v5, Nil);
   }
   return FLEval.error("test.golden.Card.ItemHandler.update: case not handled");
 }

@@ -20,12 +20,6 @@
                 vfile="scoping.fl" vline="7" voff="15">
                 <SolidName name="Number"/>
             </Typed>
-            <Typed file="scoping.fl" line="7" off="19" var="r"
-                vfile="scoping.fl" vline="7" voff="25">
-                <SolidName name="Reply">
-                    <Package name="test.golden"/>
-                </SolidName>
-            </Typed>
         </Method>
         <Method dir="up" file="scoping.fl" line="8" name="put" off="3" required="true">
             <Typed file="scoping.fl" line="8" off="8" var="k"

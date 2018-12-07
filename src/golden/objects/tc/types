@@ -1,1 +1,1 @@
-test.golden.Card._C0.go :: Cons[Send]
+test.golden.Card._C0.go :: A->Cons[Send]

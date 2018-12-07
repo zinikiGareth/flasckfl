@@ -14,7 +14,10 @@ function test.golden.Events.okThen test.golden.Events 1
   =
     @
       PackageVar.Cons
-      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (Debug test.golden.Events.okThen.ev))
+      #tcm
+        @
+          PackageVar.Debug
+          LocalVar.test.golden.Events.okThen.ev
       PackageVar.Nil
 function test.golden.Events.setTo test.golden.Events 2
   case test.golden.Events.setTo_0
@@ -23,5 +26,8 @@ function test.golden.Events.setTo test.golden.Events 2
   =
     @
       PackageVar.Cons
-      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (Debug test.golden.Events.setTo.ev))
+      #tcm
+        @
+          PackageVar.Debug
+          LocalVar.test.golden.Events.setTo.ev
       PackageVar.Nil

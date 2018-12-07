@@ -1,2 +1,2 @@
-test.golden.Card.ItemHandler.update :: Number->Cons[Send]
+test.golden.Card.ItemHandler.update :: Number->A->Cons[Send]
 test.golden.Card.ItemHandler.update.x :: Number

@@ -3,60 +3,57 @@ HSIE for test.golden.scoped/1                                #scoping2.fl:  7.0
     externals: [Cons, MessageWrapper, Nil, test.golden.UpC]
     scoped = []
     scopedDefns = [test.golden.scoped_0.MyHc, test.golden.scoped_0.ctr, test.golden.scoped_0.request]
-    all vars = [v4, v5, v6, v7, v8]
-HEAD v4                                                      #scoping2.fl:  7.8
-SWITCH v4 test.golden.UpC                                    #scoping2.fl:  7.8
-  RETURN v8:clos8 [v5:test.golden.scoped_0.MyHc, v6:test.gol #scoping2.fl:  7.19
+    all vars = [v3, v4, v5, v6, v7]
+HEAD v3                                                      #scoping2.fl:  7.8
+SWITCH v3 test.golden.UpC                                    #scoping2.fl:  7.8
+  RETURN v7:clos7 [v4:test.golden.scoped_0.MyHc, v5:test.gol #scoping2.fl:  7.19
 ERROR                                                        #scoping2.fl:  7.0
-CLOSURE v5 !                                                 #scoping2.fl: 12.11
+CLOSURE v4 !                                                 #scoping2.fl: 12.11
   PUSH PackageVar.test.golden.scoped_0.MyHc                  #scoping2.fl: 12.11
   PUSH Scoped[test.golden.scoped_0.requestObj]               #scoping2.fl: 16.7
-CLOSURE v6 !                                                 #scoping2.fl:  9.7
+CLOSURE v5 !                                                 #scoping2.fl:  9.7
   PUSH PackageVar.test.golden.scoped_0.request               #scoping2.fl:  9.7
-  PUSH v5:test.golden.scoped_0.MyHc                          #scoping2.fl: 12.11
-  PUSH v4:test.golden.scoped_0.ctr                           #scoping2.fl:  7.12
-CLOSURE v7                                                   #scoping2.fl:  7.38
+  PUSH v4:test.golden.scoped_0.MyHc                          #scoping2.fl: 12.11
+  PUSH v3:test.golden.scoped_0.ctr                           #scoping2.fl:  7.12
+CLOSURE v6                                                   #scoping2.fl:  7.38
   PUSH PackageVar.Cons                                       #scoping2.fl:  7.38
-  PUSH v6:test.golden.scoped_0.request                       #scoping2.fl:  9.7
+  PUSH v5:test.golden.scoped_0.request                       #scoping2.fl:  9.7
   PUSH PackageVar.Nil                                        #scoping2.fl:  7.38
-CLOSURE v8                                                   #scoping2.fl:  7.19
+CLOSURE v7                                                   #scoping2.fl:  7.19
   PUSH PackageVar.MessageWrapper                             #scoping2.fl:  7.19
   PUSH 32                                                    #scoping2.fl:  7.34
-  PUSH v7:clos7                                              #scoping2.fl:  7.38
+  PUSH v6:clos6                                              #scoping2.fl:  7.38
 -------
-HSIE for test.golden.scoped_0.MyHc.reply/0                   #scoping2.fl: 13.0
-#Args: 0 #bound: 2
-    externals: [Cons, Nil, test.golden.scoped_0.MyHc.requestObj]
+HSIE for test.golden.scoped_0.MyHc.reply/1                   #scoping2.fl: 13.0
+#Args: 1 #bound: 2
+    externals: [Any, Cons, Nil, test.golden.scoped_0.MyHc.requestObj]
     scoped = []
     scopedDefns = []
-    all vars = [v0, v1]
-RETURN v1:clos1 [v0:clos0]                                   #scoping2.fl: 16.7
-CLOSURE v1                                                   #scoping2.fl: 16.7
-  PUSH PackageVar.Cons                                       #scoping2.fl: 13.0
-  PUSH v0:clos0                                              #scoping2.fl: 16.7
-  PUSH PackageVar.Nil                                        #scoping2.fl: 13.0
-CLOSURE v0 M                                                 #scoping2.fl: 16.7
+    all vars = [v0, v1, v2]
+RETURN v2:clos2 [v1:clos1]                                   #scoping2.fl: 16.7
+CLOSURE v1 M                                                 #scoping2.fl: 16.7
   PUSH HandlerLambda.HL[test.golden.scoped_0.MyHc.requestObj #scoping2.fl: 16.7
+CLOSURE v2                                                   #scoping2.fl: 16.7
+  PUSH PackageVar.Cons                                       #scoping2.fl: 13.0
+  PUSH v1:clos1                                              #scoping2.fl: 16.7
+  PUSH PackageVar.Nil                                        #scoping2.fl: 13.0
 -------
 HSIE for test.golden.scoped_0.request/0                      #scoping2.fl:  9.7
-#Args: 0 #bound: 4
+#Args: 0 #bound: 3
     externals: [Cons, Nil, Send]
     scoped = [test.golden.scoped_0.MyHc, test.golden.scoped_0.ctr]
     scopedDefns = []
-    all vars = [v0, v1, v2, v3]
-RETURN v3:clos3 [v0:clos0, v1:clos1, v2:clos2]               #scoping2.fl: 10.3
-CLOSURE v1                                                   #scoping2.fl: 10.12
-  PUSH PackageVar.Cons                                       #scoping2.fl: 10.3
-  PUSH v0:clos0                                              #scoping2.fl: 10.12
-  PUSH PackageVar.Nil                                        #scoping2.fl: 10.3
-CLOSURE v2 S                                                 #scoping2.fl: 10.3
+    all vars = [v0, v1, v2]
+RETURN v2:clos2 [v0:clos0, v1:clos1]                         #scoping2.fl: 10.3
+CLOSURE v1 S                                                 #scoping2.fl: 10.3
   PUSH PackageVar.Send                                       #scoping2.fl: 10.3
   PUSH Scoped[test.golden.scoped_0.ctr]                      #scoping2.fl:  7.12
   PUSH "call"                                                #scoping2.fl: 10.7
-  PUSH v1:clos1                                              #scoping2.fl: 10.12
-CLOSURE v3                                                   #scoping2.fl: 10.3
+  PUSH PackageVar.Nil                                        #scoping2.fl: 10.3
+  PUSH v0:clos0                                              #scoping2.fl: 10.12
+CLOSURE v2                                                   #scoping2.fl: 10.3
   PUSH PackageVar.Cons                                       #scoping2.fl:  9.7
-  PUSH v2:clos2                                              #scoping2.fl: 10.3
+  PUSH v1:clos1                                              #scoping2.fl: 10.3
   PUSH PackageVar.Nil                                        #scoping2.fl:  9.7
 CLOSURE v0                                                   #scoping2.fl: 10.12
   PUSH Scoped[test.golden.scoped_0.MyHc]                     #scoping2.fl: 12.11

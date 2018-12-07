@@ -60,6 +60,8 @@ public class GatherExternals {
 	}
 
 	protected void dispatch(Object a) {
+		if (a == null)
+			return;
 		try {
 			Reflection.call(this, "process", a);
 		} catch (UtilException ex) {
@@ -127,6 +129,7 @@ public class GatherExternals {
 	private void process(SendExpr expr) {
 		dispatch(expr.sender);
 		dispatch(expr.args);
+		dispatch(expr.handler);
 	}
 	
 	private void process(CreateObject expr) {

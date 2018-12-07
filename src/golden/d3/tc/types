@@ -1,7 +1,7 @@
 test.golden.TestCard.B6.teas_1 :: String
 test.golden.TestCard.B6.teas_2 :: String
-test.golden.TestCard._d3_chart_enter_rect :: Cons[D3Action]
-test.golden.TestCard._d3_chart_enter_text :: Cons[D3Action]
+test.golden.TestCard._d3_chart_enter_rect :: A->Cons[D3Action]
+test.golden.TestCard._d3_chart_enter_text :: A->Cons[D3Action]
 test.golden.TestCard._gen_1 :: D3Element[A]->String
 test.golden.TestCard._gen_10 :: D3Element[A]->B
 test.golden.TestCard._gen_11 :: D3Element[A]->String

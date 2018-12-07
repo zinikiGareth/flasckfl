@@ -54,6 +54,7 @@ public class GatherScopedVars {
 		dispatch(expr.sender);
 		for (Object o : expr.args)
 			dispatch(o);
+		dispatch(expr.handler);
 	}
 	
 	public void process(TypeCheckMessages expr) {

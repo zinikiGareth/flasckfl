@@ -10,7 +10,7 @@ class NoArg$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.
 }
 src/golden/scoping/droid-to/test/golden/NoArg$Up.java
 class NoArg$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object arg0);
+  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object arg0, java.lang.Object arg1);
 }
 src/golden/scoping/droid-to/test/golden/PACKAGEFUNCTIONS$cna.java
 class PACKAGEFUNCTIONS$cna.java {
@@ -50,10 +50,11 @@ class PACKAGEFUNCTIONS.java {
               autobox[org.flasck.jvm.builtin.FLNumber.fromInt(42)]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
-          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
               autobox[_0]
               autobox["get"]
               autobox[v1]
+              autobox[new org.ziniki.ziwsh.model.TrivialIdempotentHandler()]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v2]
@@ -72,23 +73,23 @@ class PACKAGEFUNCTIONS.java {
       }
       if (_0 instanceof test.golden.Server) {
         {
-          v9 = org.flasck.jvm.fl.FLClosure.simple(test.golden.f_0$var.class, new java.lang.Object[0] {})
-          v7 = new org.flasck.jvm.fl.FLCurry(test.golden.f_0$HandleReply.class,3,new java.lang.Object[2] {
+          v8 = org.flasck.jvm.fl.FLClosure.simple(test.golden.f_0$var.class, new java.lang.Object[0] {})
+          v6 = new org.flasck.jvm.fl.FLCurry(test.golden.f_0$HandleReply.class,3,new java.lang.Object[2] {
               autobox[_0]
-              autobox[v9]
-            })
-          v8 = org.flasck.jvm.fl.FLClosure.simple(test.golden.f_0$q.class, new java.lang.Object[3] {
-              autobox[v7]
-              autobox[_0]
-              autobox[v9]
-            })
-          v10 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v8]
+            })
+          v7 = org.flasck.jvm.fl.FLClosure.simple(test.golden.f_0$q.class, new java.lang.Object[3] {
+              autobox[v6]
+              autobox[_0]
+              autobox[v8]
+            })
+          v9 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+              autobox[v7]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.MessageWrapper.class, new java.lang.Object[2] {
+              autobox[v8]
               autobox[v9]
-              autobox[v10]
             })
         }
       }
@@ -98,7 +99,7 @@ class PACKAGEFUNCTIONS.java {
 }
 src/golden/scoping/droid-to/test/golden/Reply$Down.java
 class Reply$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber k);
+  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object k, java.lang.Object arg1);
 }
 src/golden/scoping/droid-to/test/golden/Reply$Impl.java
 class Reply$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Reply$Down {
@@ -106,7 +107,7 @@ class Reply$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber k);
+  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object k, java.lang.Object arg1);
 }
 src/golden/scoping/droid-to/test/golden/Reply$Up.java
 class Reply$Up.java implements org.ziniki.ziwsh.UpContract {
@@ -123,8 +124,8 @@ class Server$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test
 }
 src/golden/scoping/droid-to/test/golden/Server$Up.java
 class Server$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber k, test.golden.Reply$Down r);
-  abstract java.lang.Object put(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber k);
+  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object k, java.lang.Object r);
+  abstract java.lang.Object put(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object k, java.lang.Object arg1);
 }
 src/golden/scoping/droid-to/test/golden/f_0$HandleReply.java
 class f_0$HandleReply.java extends test.golden.Reply$Impl {
@@ -146,7 +147,7 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
       return new test.golden.f_0$HandleReply(cxt,args[0],args[1],args[2])
     }
   }
-  java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
+  java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -154,21 +155,22 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
       }
       if (_0 instanceof org.flasck.jvm.builtin.FLNumber) {
         {
-          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
               autobox[this.var]
               autobox[this.v]
             })
-          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-              autobox[v1]
+          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+              autobox[v2]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
-          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+          v4 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
               autobox[this.server]
               autobox["put"]
-              autobox[v2]
+              autobox[v3]
+              autobox[new org.ziniki.ziwsh.model.TrivialIdempotentHandler()]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-              autobox[v3]
+              autobox[v4]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
         }
@@ -205,24 +207,21 @@ class PACKAGEFUNCTIONS.java {
   }
   static java.lang.Object q(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _s0, java.lang.Object _s1, java.lang.Object _s2) {
     {
-      v0 = org.flasck.jvm.fl.FLClosure.simple(_s0, new java.lang.Object[1] {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[_s2]
-        })
-      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
-      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(_s0, new java.lang.Object[1] {
           autobox[_s2]
-          autobox[v1]
         })
-      v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
           autobox[_s1]
           autobox["get"]
-          autobox[v2]
+          autobox[v0]
+          autobox[v1]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v3]
+          autobox[v2]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
     }

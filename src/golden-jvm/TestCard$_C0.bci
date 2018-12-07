@@ -14,9 +14,9 @@ Method public <init> (Ltest/runner/TestCard;)V
     000D: return
   }
 3 Line Number Entries
-Line 92: 0
-Line 93: 8
-Line 94: 13
+Line 93: 0
+Line 94: 8
+Line 95: 13
 Ltest/runner/TestCard$_C0; this (var #0 from 0 to 14)
 Ltest/runner/TestCard; card (var #1 from 0 to 14)
 Method public setOn (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
@@ -29,8 +29,8 @@ Method public setOn (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
     0009: areturn
   }
 2 Line Number Entries
-Line 98: 0
-Line 99: 8
+Line 99: 0
+Line 100: 8
 Ltest/runner/TestCard$_C0; this (var #0 from 0 to 10)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 10)
 Method public setOff (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
@@ -43,8 +43,8 @@ Method public setOff (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
     0009: areturn
   }
 2 Line Number Entries
-Line 104: 0
-Line 105: 8
+Line 105: 0
+Line 106: 8
 Ltest/runner/TestCard$_C0; this (var #0 from 0 to 10)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 10)
 [Class SourceFile]: TestCard.java

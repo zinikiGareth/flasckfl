@@ -25,7 +25,7 @@ test.golden.f = function(v3, v4) {
 test.golden.f_0.m = function(s0, s1) {
   "use strict";
   var v0 = FLEval.closure(Cons, s1, Nil);
-  var v1 = FLEval.closure(Send, s0, 'calc', v0);
+  var v1 = FLEval.closure(Send, s0, 'calc', v0, FLEval.idemHandler);
   return FLEval.closure(Cons, v1, Nil);
 }
 

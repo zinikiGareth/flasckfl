@@ -241,7 +241,7 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
       return new test.golden.Complex$FooHandler(cxt,card,args[0])
     }
   }
-  java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
+  java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -249,17 +249,17 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
       }
       if (_0 instanceof java.lang.String) {
         {
-          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$strAppend.class, new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$strAppend.class, new java.lang.Object[2] {
               autobox[this.k]
               autobox[_0]
             })
-          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
+          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
               autobox[this._card]
               autobox["hello"]
-              autobox[v1]
+              autobox[v2]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-              autobox[v2]
+              autobox[v3]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
         }
@@ -277,7 +277,7 @@ class Complex$_C0.java extends test.golden.Init$Impl {
     this._card = card
     return
   }
-  java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
+  java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -285,24 +285,21 @@ class Complex$_C0.java extends test.golden.Init$Impl {
       }
       if (_0 instanceof test.golden.Thing) {
         {
-          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
               autobox[_0]
               autobox["x"]
-            })
-          v2 = org.flasck.jvm.fl.FLClosure.obj(this._card, test.golden.Complex$FooHandler.class, new java.lang.Object[1] {
-              autobox["yo"]
             })
           v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v2]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
-          v4 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-              autobox[v1]
-              autobox[v3]
+          v4 = org.flasck.jvm.fl.FLClosure.obj(this._card, test.golden.Complex$FooHandler.class, new java.lang.Object[1] {
+              autobox["yo"]
             })
-          v5 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+          v5 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
               autobox[this._card.ds]
               autobox["get"]
+              autobox[v3]
               autobox[v4]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
@@ -352,10 +349,11 @@ class Complex$_S0.java extends test.golden.Offer$Impl {
                   autobox[_0]
                   autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
                 })
-              v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+              v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
                   autobox[_1]
                   autobox["reply"]
                   autobox[v2]
+                  autobox[new org.ziniki.ziwsh.model.TrivialIdempotentHandler()]
                 })
               return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
                   autobox[v3]
@@ -515,11 +513,11 @@ class DataStore$Impl.java extends org.flasck.jvm.cards.ContractImpl implements t
 }
 src/golden/complexcard/droid-to/test/golden/DataStore$Up.java
 class DataStore$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String x, test.golden.Handler$Down h);
+  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object x, java.lang.Object h);
 }
 src/golden/complexcard/droid-to/test/golden/Handler$Down.java
 class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String s);
+  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object s, java.lang.Object arg1);
 }
 src/golden/complexcard/droid-to/test/golden/Handler$Impl.java
 class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Handler$Down {
@@ -527,14 +525,14 @@ class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements tes
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String s);
+  abstract java.lang.Object reply(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object s, java.lang.Object arg1);
 }
 src/golden/complexcard/droid-to/test/golden/Handler$Up.java
 class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 src/golden/complexcard/droid-to/test/golden/Init$Down.java
 class Init$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object obj);
+  abstract java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object obj, java.lang.Object arg1);
 }
 src/golden/complexcard/droid-to/test/golden/Init$Impl.java
 class Init$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Init$Down {
@@ -542,7 +540,7 @@ class Init$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.g
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object obj);
+  abstract java.lang.Object ready(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object obj, java.lang.Object arg1);
 }
 src/golden/complexcard/droid-to/test/golden/Init$Up.java
 class Init$Up.java implements org.ziniki.ziwsh.UpContract {
@@ -559,7 +557,7 @@ class Offer$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.
 }
 src/golden/complexcard/droid-to/test/golden/Offer$Up.java
 class Offer$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String x, test.golden.Handler$Down h);
+  abstract java.lang.Object get(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object x, java.lang.Object h);
 }
 src/golden/complexcard/droid-to/test/golden/Polyed.java
 class Polyed.java extends org.flasck.jvm.fl.FLASStruct {

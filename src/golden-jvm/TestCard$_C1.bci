@@ -14,9 +14,9 @@ Method public <init> (Ltest/runner/TestCard;)V
     000D: return
   }
 3 Line Number Entries
-Line 113: 0
-Line 114: 8
-Line 115: 13
+Line 114: 0
+Line 115: 8
+Line 116: 13
 Ltest/runner/TestCard$_C1; this (var #0 from 0 to 14)
 Ltest/runner/TestCard; card (var #1 from 0 to 14)
 Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
@@ -98,18 +98,18 @@ Method public saySomething (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Obje
     007C: areturn
   }
 8 Line Number Entries
-Line 118: 0
-Line 119: 6
-Line 120: 13
-Line 121: 15
-Line 122: 22
-Line 123: 48
-Line 124: 89
-Line 126: 115
+Line 122: 0
+Line 123: 6
+Line 124: 13
+Line 125: 15
+Line 126: 22
+Line 127: 48
+Line 128: 89
+Line 130: 115
 Ltest/runner/TestCard$_C1; this (var #0 from 0 to 125)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 125)
 Ljava/lang/Object; what (var #2 from 0 to 125)
-Ljava/lang/Object; ih (var #3 from 0 to 125)
+Ljava/lang/Object; _ih (var #3 from 0 to 125)
 Lorg/flasck/jvm/fl/FLClosure; clos1 (var #4 from 48 to 115)
 Lorg/flasck/jvm/fl/FLClosure; clos2 (var #5 from 89 to 115)
 2 stack map entries

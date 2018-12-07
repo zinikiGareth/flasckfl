@@ -1,6 +1,6 @@
 src/golden/standalone/droid-to/test/golden/Bar$Down.java
 class Bar$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext from);
+  abstract java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object arg0);
 }
 src/golden/standalone/droid-to/test/golden/Bar$Impl.java
 class Bar$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Bar$Down {
@@ -8,7 +8,7 @@ class Bar$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.go
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext from);
+  abstract java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object arg0);
 }
 src/golden/standalone/droid-to/test/golden/Bar$Up.java
 class Bar$Up.java implements org.ziniki.ziwsh.UpContract {
@@ -32,25 +32,25 @@ class Foo$_C1.java extends test.golden.Bar$Impl {
     this._card = card
     return
   }
-  java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext _context) {
+  java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
     {
       v5 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.Foo$request.class,1,new java.lang.Object[0] {})
-      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
           autobox[v5]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
-      v4 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.Foo$request2.class,1,new java.lang.Object[0] {})
-      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
-          autobox[v4]
+      v6 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.Foo$request2.class,1,new java.lang.Object[0] {})
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
+          autobox[v6]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
-      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v1]
+      v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v2]
           autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[v0]
-          autobox[v2]
+          autobox[v1]
+          autobox[v3]
         })
     }
   }
@@ -102,10 +102,11 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[_0]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
-          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
               autobox[this.kv]
               autobox["typed"]
               autobox[v1]
+              autobox["none"]
             })
         }
       }
@@ -124,10 +125,11 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[_0]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
-          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[4] {
               autobox[this.kv]
               autobox["mine"]
               autobox[v1]
+              autobox["none"]
             })
         }
       }
@@ -147,6 +149,6 @@ class KeyValue$Impl.java extends org.flasck.jvm.cards.ContractImpl implements te
 }
 src/golden/standalone/droid-to/test/golden/KeyValue$Up.java
 class KeyValue$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object typed(org.ziniki.ziwsh.json.FLEvalContext from);
-  abstract java.lang.Object mine(org.ziniki.ziwsh.json.FLEvalContext from);
+  abstract java.lang.Object typed(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object arg0);
+  abstract java.lang.Object mine(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object arg0);
 }

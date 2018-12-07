@@ -17,6 +17,7 @@ CLOSURE v2 S                                                 #scoping.fl:  30.3
   PUSH v0:test.golden.cna_0.na                               #scoping.fl:  29.18
   PUSH "get"                                                 #scoping.fl:  30.6
   PUSH v1:clos1                                              #scoping.fl:  30.10
+  IDEM                                                       #scoping.fl:  30.3
 CLOSURE v3                                                   #scoping.fl:  30.3
   PUSH PackageVar.Cons                                       #scoping.fl:  29.7
   PUSH v2:clos2                                              #scoping.fl:  30.3
@@ -27,86 +28,84 @@ HSIE for test.golden.f/2                                     #scoping.fl:  16.0
     externals: [Cons, MessageWrapper, Nil, test.golden.Server]
     scoped = []
     scopedDefns = [test.golden.f_0.HandleReply, test.golden.f_0.q, test.golden.f_0.server, test.golden.f_0.var]
-    all vars = [v5, v6, v7, v8, v9, v10, v11]
-HEAD v5                                                      #scoping.fl:  16.3
-SWITCH v5 test.golden.Server                                 #scoping.fl:  16.3
-  RETURN v11:clos11 [v9:test.golden.f_0.var, v7:test.golden. #scoping.fl:  16.22
+    all vars = [v4, v5, v6, v7, v8, v9, v10]
+HEAD v4                                                      #scoping.fl:  16.3
+SWITCH v4 test.golden.Server                                 #scoping.fl:  16.3
+  RETURN v10:clos10 [v8:test.golden.f_0.var, v6:test.golden. #scoping.fl:  16.22
 ERROR                                                        #scoping.fl:  16.0
-CURRY v7 3 !                                                 #scoping.fl:  22.14
+CURRY v6 3 !                                                 #scoping.fl:  22.14
   PUSH PackageVar.test.golden.f_0.HandleReply                #scoping.fl:  22.14
-  PUSH v5:test.golden.f_0.server                             #scoping.fl:  16.10
-  PUSH v9:test.golden.f_0.var                                #scoping.fl:  17.0
-CLOSURE v8 !                                                 #scoping.fl:  19.7
+  PUSH v4:test.golden.f_0.server                             #scoping.fl:  16.10
+  PUSH v8:test.golden.f_0.var                                #scoping.fl:  17.0
+CLOSURE v7 !                                                 #scoping.fl:  19.7
   PUSH PackageVar.test.golden.f_0.q                          #scoping.fl:  19.7
-  PUSH v7:test.golden.f_0.HandleReply                        #scoping.fl:  22.14
-  PUSH v5:test.golden.f_0.server                             #scoping.fl:  16.10
-  PUSH v9:test.golden.f_0.var                                #scoping.fl:  17.0
-CLOSURE v9 !                                                 #scoping.fl:  17.0
+  PUSH v6:test.golden.f_0.HandleReply                        #scoping.fl:  22.14
+  PUSH v4:test.golden.f_0.server                             #scoping.fl:  16.10
+  PUSH v8:test.golden.f_0.var                                #scoping.fl:  17.0
+CLOSURE v8 !                                                 #scoping.fl:  17.0
   PUSH PackageVar.test.golden.f_0.var                        #scoping.fl:  17.0
-CLOSURE v10                                                  #scoping.fl:  16.42
+CLOSURE v9                                                   #scoping.fl:  16.42
   PUSH PackageVar.Cons                                       #scoping.fl:  16.42
-  PUSH v8:test.golden.f_0.q                                  #scoping.fl:  19.7
+  PUSH v7:test.golden.f_0.q                                  #scoping.fl:  19.7
   PUSH PackageVar.Nil                                        #scoping.fl:  16.42
-CLOSURE v11                                                  #scoping.fl:  16.22
+CLOSURE v10                                                  #scoping.fl:  16.22
   PUSH PackageVar.MessageWrapper                             #scoping.fl:  16.22
-  PUSH v9:test.golden.f_0.var                                #scoping.fl:  17.0
-  PUSH v10:clos10                                            #scoping.fl:  16.42
+  PUSH v8:test.golden.f_0.var                                #scoping.fl:  17.0
+  PUSH v9:clos9                                              #scoping.fl:  16.42
 -------
-HSIE for test.golden.f_0.HandleReply.reply/1                 #scoping.fl:  23.0
-#Args: 1 #bound: 4
-    externals: [+, Cons, Nil, Number, Send, test.golden.f_0.HandleReply.server, test.golden.f_0.HandleReply.v, test.golden.f_0.HandleReply.var]
+HSIE for test.golden.f_0.HandleReply.reply/2                 #scoping.fl:  23.0
+#Args: 2 #bound: 4
+    externals: [+, Any, Cons, Nil, Number, Send, test.golden.f_0.HandleReply.server, test.golden.f_0.HandleReply.v, test.golden.f_0.HandleReply.var]
     scoped = []
     scopedDefns = []
-    all vars = [v0, v1, v2, v3, v4]
+    all vars = [v0, v1, v2, v3, v4, v5]
 HEAD v0                                                      #scoping.fl:  23.6
 SWITCH v0 Number                                             #scoping.fl:  23.6
-  RETURN v4:clos4 [v1:clos1, v2:clos2, v3:clos3]             #scoping.fl:  24.3
+  RETURN v5:clos5 [v2:clos2, v3:clos3, v4:clos4]             #scoping.fl:  24.3
 ERROR                                                        #scoping.fl:  23.0
-CLOSURE v1                                                   #scoping.fl:  24.14
+CLOSURE v2                                                   #scoping.fl:  24.14
   PUSH PackageVar.+                                          #scoping.fl:  24.19
   PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.var]     #scoping.fl:  17.0
   PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.v]       #scoping.fl:  22.34
-CLOSURE v2                                                   #scoping.fl:  24.14
+CLOSURE v3                                                   #scoping.fl:  24.14
   PUSH PackageVar.Cons                                       #scoping.fl:  24.3
-  PUSH v1:clos1                                              #scoping.fl:  24.14
+  PUSH v2:clos2                                              #scoping.fl:  24.14
   PUSH PackageVar.Nil                                        #scoping.fl:  24.3
-CLOSURE v3 S                                                 #scoping.fl:  24.3
+CLOSURE v4 S                                                 #scoping.fl:  24.3
   PUSH PackageVar.Send                                       #scoping.fl:  24.3
   PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.server]  #scoping.fl:  16.10
   PUSH "put"                                                 #scoping.fl:  24.10
-  PUSH v2:clos2                                              #scoping.fl:  24.14
-CLOSURE v4                                                   #scoping.fl:  24.3
+  PUSH v3:clos3                                              #scoping.fl:  24.14
+  IDEM                                                       #scoping.fl:  24.3
+CLOSURE v5                                                   #scoping.fl:  24.3
   PUSH PackageVar.Cons                                       #scoping.fl:  23.0
-  PUSH v3:clos3                                              #scoping.fl:  24.3
+  PUSH v4:clos4                                              #scoping.fl:  24.3
   PUSH PackageVar.Nil                                        #scoping.fl:  23.0
 -------
 HSIE for test.golden.f_0.q/0                                 #scoping.fl:  19.7
-#Args: 0 #bound: 5
+#Args: 0 #bound: 4
     externals: [Cons, Nil, Send]
     scoped = [test.golden.f_0.HandleReply, test.golden.f_0.server, test.golden.f_0.var]
     scopedDefns = []
-    all vars = [v0, v1, v2, v3, v4]
-RETURN v4:clos4 [v0:clos0, v1:clos1, v2:clos2, v3:clos3]     #scoping.fl:  20.3
+    all vars = [v0, v1, v2, v3]
+RETURN v3:clos3 [v0:clos0, v1:clos1, v2:clos2]               #scoping.fl:  20.3
 CLOSURE v1                                                   #scoping.fl:  20.18
-  PUSH PackageVar.Cons                                       #scoping.fl:  20.3
-  PUSH v0:clos0                                              #scoping.fl:  20.18
-  PUSH PackageVar.Nil                                        #scoping.fl:  20.3
-CLOSURE v2                                                   #scoping.fl:  17.0
-  PUSH PackageVar.Cons                                       #scoping.fl:  20.3
+  PUSH Scoped[test.golden.f_0.HandleReply]                   #scoping.fl:  22.14
   PUSH Scoped[test.golden.f_0.var]                           #scoping.fl:  17.0
-  PUSH v1:clos1                                              #scoping.fl:  20.18
-CLOSURE v3 S                                                 #scoping.fl:  20.3
+CLOSURE v2 S                                                 #scoping.fl:  20.3
   PUSH PackageVar.Send                                       #scoping.fl:  20.3
   PUSH Scoped[test.golden.f_0.server]                        #scoping.fl:  16.10
   PUSH "get"                                                 #scoping.fl:  20.10
-  PUSH v2:clos2                                              #scoping.fl:  17.0
-CLOSURE v4                                                   #scoping.fl:  20.3
+  PUSH v0:clos0                                              #scoping.fl:  17.0
+  PUSH v1:clos1                                              #scoping.fl:  20.18
+CLOSURE v3                                                   #scoping.fl:  20.3
   PUSH PackageVar.Cons                                       #scoping.fl:  19.7
-  PUSH v3:clos3                                              #scoping.fl:  20.3
+  PUSH v2:clos2                                              #scoping.fl:  20.3
   PUSH PackageVar.Nil                                        #scoping.fl:  19.7
-CLOSURE v0                                                   #scoping.fl:  20.18
-  PUSH Scoped[test.golden.f_0.HandleReply]                   #scoping.fl:  22.14
+CLOSURE v0                                                   #scoping.fl:  17.0
+  PUSH PackageVar.Cons                                       #scoping.fl:  20.3
   PUSH Scoped[test.golden.f_0.var]                           #scoping.fl:  17.0
+  PUSH PackageVar.Nil                                        #scoping.fl:  20.3
 -------
 HSIE for test.golden.f_0.var/0                               #scoping.fl:  17.0
 #Args: 0 #bound: 0

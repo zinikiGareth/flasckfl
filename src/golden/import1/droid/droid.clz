@@ -7,7 +7,7 @@ class Foo$_C0.java extends test.import.Fred$Impl {
     this._card = card
     return
   }
-  java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0) {
+  java.lang.Object go(org.ziniki.ziwsh.json.FLEvalContext _context, java.lang.Object _0, java.lang.Object _1) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -15,16 +15,16 @@ class Foo$_C0.java extends test.import.Fred$Impl {
       }
       if (_0 instanceof org.flasck.jvm.builtin.FLNumber) {
         {
-          v1 = org.flasck.jvm.fl.FLClosure.simple(test.import.PACKAGEFUNCTIONS$f.class, new java.lang.Object[1] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(test.import.PACKAGEFUNCTIONS$f.class, new java.lang.Object[1] {
               autobox[_0]
             })
-          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
+          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
               autobox[this._card]
               autobox["a"]
-              autobox[v1]
+              autobox[v2]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-              autobox[v2]
+              autobox[v3]
               autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
         }

@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -22,6 +23,7 @@ import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.ObjectWithState;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
@@ -33,6 +35,7 @@ import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionIntro;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
@@ -94,11 +97,12 @@ public class MethodConvertor {
 		// Get the contract and from that find the method and thus the argument types
 		List<TypeWithName> types;
 		List<TypeWithName> atypes;
+		List<RWTypedPattern> handlers = new ArrayList<>();
 		if (m.fromContract == null) {
 			types = null;
 			atypes = new ArrayList<>();
 		} else {
-			atypes = types = figureCMD(m);
+			atypes = types = figureCMD(m, handlers);
 			if (types == null)
 				return null;
 		}
@@ -106,13 +110,25 @@ public class MethodConvertor {
 		if (m.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(m.name(), m.nargs(), true);
+		// TODO: this code for IdempotentHandlers goes away (or at least changes) when we
+		// have the parser do the work for us
+		boolean isPost = true;
+		RWTypedPattern handler = null;
+		if (!handlers.isEmpty()) {
+			isPost = false;
+			handler = handlers.get(0);
+		} else if (!atypes.isEmpty()) {
+			TypeWithName htype = atypes.get(atypes.size()-1);
+			if (htype instanceof RWContractDecl)
+				isPost = false;
+		}
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.name(), m.nargs()+(isPost?1:0), true);
 
 		// Now process all of the method cases
 		Type ofType = null;
 		for (RWMethodCaseDefn mcd : m.cases) {
 			InputPosition loc = mcd.intro.location;
-			if (types != null && mcd.intro.args.size() != types.size()) {
+			if (types != null && mcd.intro.args.size() != types.size() + (isPost?0:1)) {
 				if (!mcd.intro.args.isEmpty())
 					loc = ((Locatable)mcd.intro.args.get(0)).location();
 				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.fnName.uniqueName() +"': expected " + types.size() + " but was " + mcd.intro.args.size());
@@ -123,8 +139,12 @@ public class MethodConvertor {
 			for (int i=0;i<mcd.intro.args.size();i++) {
 				Object patt = mcd.intro.args.get(i);
 				TypeWithName ti = null;
-				if (types != null)
-					ti = types.get(i);
+				if (types != null) {
+					if (i >= types.size())
+						ti = handlers.get(0).type;
+					else
+						ti = types.get(i);
+				}
 				if (patt instanceof RWVarPattern) {
 					RWVarPattern vp = (RWVarPattern) patt;
 					InputPosition ploc = vp.location();
@@ -147,7 +167,9 @@ public class MethodConvertor {
 				} else
 					throw new UtilException("Cannot handle pattern " + patt.getClass());
 			}
-			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, atypes, mcd.messages, m.type.isHandler());
+			if (isPost)
+				rwargs.add(new RWTypedPattern(m.location(), rw.types.get("Any"), m.location(), new VarName(m.location(), m.name().inContext, "_ih")));
+			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, atypes, mcd.messages, m.type.isHandler(), handler);
 			ret.addCase(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.fnName, rwargs, mcd.intro.vars), ret.nextCase(), typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
@@ -164,7 +186,7 @@ public class MethodConvertor {
 
 		RWFunctionDefinition ret = new RWFunctionDefinition(eh.name(), eh.nargs(), true);
 		for (RWEventCaseDefn c : eh.cases) {
-			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
+			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false, null);
 			ret.addCase(new RWFunctionCaseDefn(c.intro, ret.nextCase(), typedObject.expr));
 		}
 		ret.gatherScopedVars();
@@ -186,7 +208,7 @@ public class MethodConvertor {
 		logger.info("Converting standalone " + method.name().uniqueName());
 		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		for (RWMethodCaseDefn c : method.cases) {
-			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, method.type.isHandler());
+			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, method.type.isHandler(), null);
 			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.fnName, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
 		RWFunctionDefinition ret = new RWFunctionDefinition(method.name(), margs.size(), true);
@@ -195,7 +217,7 @@ public class MethodConvertor {
 		return ret;
 	}
 
-	protected List<TypeWithName> figureCMD(RWMethodDefinition m) {
+	protected List<TypeWithName> figureCMD(RWMethodDefinition m, List<RWTypedPattern> handlers) {
 		if (m.fromContract == null) {
 			errors.message(m.contractLocation, "cannot find contract " + m.fromContract);
 			return null;
@@ -221,6 +243,9 @@ public class MethodConvertor {
 			return null;
 		}
 		
+		if (cmd.handler != null)
+			handlers.add(cmd.handler);
+
 		List<TypeWithName> types = new ArrayList<>();
 		boolean fail = false;
 		for (Object o : cmd.args) {
@@ -235,12 +260,12 @@ public class MethodConvertor {
 		return types;
 	}
 
-	private TypedObject convertMessagesToActionList(Rewriter rw, InputPosition location, List<Object> args, List<TypeWithName> types, List<RWMethodMessage> messages, boolean fromHandler) {
+	private TypedObject convertMessagesToActionList(Rewriter rw, InputPosition location, List<Object> args, List<TypeWithName> types, List<RWMethodMessage> messages, boolean fromHandler, RWTypedPattern methodHandler) {
 		Object ret = rw.getMe(location, new SolidName(null, "Nil"));
 		PackageVar cons = rw.getMe(location, new SolidName(null, "Cons"));
 		for (int n = messages.size()-1;n>=0;n--) {
 			RWMethodMessage mm = messages.get(n);
-			Object me = convertMessageToAction(rw, args, types, mm, fromHandler);
+			Object me = convertMessageToAction(rw, args, types, mm, fromHandler, methodHandler);
 			if (me == null) continue;
 			InputPosition loc = ((Locatable)mm.expr).location();
 			ret = new ApplyExpr(loc, cons, me, ret);
@@ -250,7 +275,7 @@ public class MethodConvertor {
 		return new TypedObject(new FunctionType(location, fnargs), ret);
 	}
 
-	private Object convertMessageToAction(Rewriter rw, List<Object> margs, List<TypeWithName> types, RWMethodMessage mm, boolean fromHandler) {
+	private Object convertMessageToAction(Rewriter rw, List<Object> margs, List<TypeWithName> types, RWMethodMessage mm, boolean fromHandler, RWTypedPattern methodHandler) {
 		if (mm.slot != null) {
 			return convertAssignMessage(rw, margs, types, mm, fromHandler);
 		} else if (mm.expr instanceof ApplyExpr) {
@@ -261,17 +286,42 @@ public class MethodConvertor {
 				root = (ApplyExpr)root.fn;
 			} else
 				args = new ArrayList<Object>();
+			/** This hack is here to handle the fact that we don't specifically call out
+			 * the subscription or idempotent handler in the parser yet.  When we do, this should go away
+			 */
+			Object handler = null;
+			if (!args.isEmpty()) {
+				Object hexpr = args.get(args.size()-1);
+				if (hexpr instanceof ApplyExpr) {
+					final ApplyExpr ae = (ApplyExpr)hexpr;
+					if (ae.fn instanceof ObjectReference) {
+						// it's a handler ...
+						args.remove(args.size()-1);
+						handler = hexpr;
+					} else if (ae.fn instanceof ScopedVar) {
+						ScopedVar vn = (ScopedVar) ae.fn;
+						PackageVar pv = rw.getMe(vn.location, vn.id);
+						if (pv != null && pv.defn instanceof RWHandlerImplements) {
+							args.remove(args.size()-1);
+							handler = hexpr;
+						}
+					}
+				}
+			}
+			/** End Hack */
 			if (root.fn instanceof BuiltinOperation && ((BuiltinOperation)root.fn).isField()) {
 				Object sender = root.args.get(0);
 				StringLiteral method = (StringLiteral) root.args.get(1);
 				if (sender instanceof CardMember && ((CardMember)sender).type instanceof TypeWithMethods)
-					return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) ((CardMember)sender).type, (Locatable) sender, method, args);
+					return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) ((CardMember)sender).type, (Locatable) sender, method, args, handler);
 				else if (sender instanceof LocalVar) {
 					LocalVar lv = (LocalVar) sender;
 					String m = lv.uniqueName();
 					Type t = null;
 					for (int i=0;t == null && i<margs.size();i++) {
-						if (margs.get(i) instanceof RWTypedPattern && ((RWTypedPattern)margs.get(i)).var.uniqueName().equals(m))
+						if (i>=types.size())
+							t = methodHandler.type;
+						else if (margs.get(i) instanceof RWTypedPattern && ((RWTypedPattern)margs.get(i)).var.uniqueName().equals(m))
 							t = ((RWTypedPattern)margs.get(i)).type;
 						else if (margs.get(i) instanceof RWVarPattern && ((RWVarPattern)margs.get(i)).var.uniqueName().equals(m))
 							t = types.get(i);
@@ -279,30 +329,30 @@ public class MethodConvertor {
 					if (t == null)
 						throw new UtilException("Can't handle this case yet (but I think it's an error): " + m + " not in " + margs);
 					if (t instanceof TypeWithMethods)
-						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) t, lv, method, args);
+						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) t, lv, method, args, handler);
 				}
 				else if (sender instanceof ScopedVar) {
 					ScopedVar vn = (ScopedVar) sender;
 					PackageVar me = rw.getMe(vn.location, vn.id);
 					if (me.defn instanceof TypeWithMethods)
-						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) me.defn, vn, method, args);
+						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) me.defn, vn, method, args, handler);
 					else
 						throw new UtilException("Can't handle this case yet");
 				}
 				else if (sender instanceof HandlerLambda) {
 					HandlerLambda l = (HandlerLambda) sender;
 					if (l.type instanceof TypeWithMethods)
-						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) l.type, l, method, args);
+						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) l.type, l, method, args, handler);
 					else if (l.type instanceof TypeOfSomethingElse) {
 						NameOfThing other = ((TypeOfSomethingElse) l.type).getTypeName();
 						PackageVar me = rw.getMe(l.location, other);
 						if (me.defn instanceof TypeWithMethods)
-							return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) me.defn, l, method, args);
+							return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) me.defn, l, method, args, handler);
 						else if (me.defn instanceof RWFunctionDefinition) {
 							RWFunctionDefinition fd = (RWFunctionDefinition) me.defn;
 							if (fd.nargs() > 0)
 								errors.message(l.location(), "cannot use function " + me.id + " of arity " + fd.nargs() + " as constant");
-							return new SendExpr(l.location(), l, method, args);
+							return new SendExpr(l.location(), l, method, args, handler);
 						}
 						else
 							throw new UtilException("Can't handle this case yet: " + me.defn.getClass());
@@ -314,7 +364,7 @@ public class MethodConvertor {
 					while (ot instanceof InstanceType) 
 						ot = ((InstanceType)ot).innerType();
 					if (ot instanceof RWObjectDefn)
-						return new SendExpr(((ApplyExpr)mm.expr).location(), sender, method, args);
+						return new SendExpr(((ApplyExpr)mm.expr).location(), sender, method, args, handler);
 					else
 						return new TypeCheckMessages(root.location, root);
 				} else
@@ -427,7 +477,7 @@ public class MethodConvertor {
 		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), new SolidName(null, "Assign")), intoObj, slotName, new AssertTypeExpr(location, slotType, mm.expr));
 	}
 
-	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<TypeWithName> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
+	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<TypeWithName> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args, Object handler) {
 		RWContractDecl cd = null;
 		TypeWithMethods proto = senderType;
 		FunctionType methodType = null;
@@ -465,6 +515,6 @@ public class MethodConvertor {
 			errors.message(method.location, "missing arguments in call of " + method.text);
 			return null;
 		}
-		return new SendExpr(location, sender, method, args);
+		return new SendExpr(location, sender, method, args, handler);
 	}
 }

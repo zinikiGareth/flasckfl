@@ -101,6 +101,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.CreateObject;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
@@ -146,6 +147,7 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
+import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.TypeCheckStringable;
 import org.flasck.flas.testrunner.UnitTests;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -785,12 +787,14 @@ public class Rewriter implements CodeGenRegistry {
 				for (ObjectMethod om : od.ctors) {
 					MethodCaseDefn m = om.getMethod();
 					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
-					ret.addConstructor(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null)));
+					List<RWTypedPattern> handler = new ArrayList<>();
+					ret.addConstructor(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null, handler)));
 				}
 				for (ObjectMethod om : od.methods) {
 					MethodCaseDefn m = om.getMethod();
 					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
-					ret.addMethod(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null)));
+					List<RWTypedPattern> handler = new ArrayList<>();
+					ret.addMethod(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null, handler)));
 				}
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
@@ -1311,21 +1315,12 @@ public class Rewriter implements CodeGenRegistry {
 
 	private RWContractMethodDecl rewriteCMD(NamingContext cx, SolidName name, ContractMethodDecl cmd) {
 		List<Object> outargs = new ArrayList<Object>();
-		final FunctionType type = deriveType(cx, cmd.location(), cmd.args, cmd.name, outargs);
-		// TODO: in the fulness of time, the parser will pass down a CMD with a specific handler field
-		// When it does, we can remove this code
-		RWTypedPattern handler = null;
-		if (!outargs.isEmpty()) {
-			Object finalArg = outargs.get(outargs.size()-1);
-			if (finalArg instanceof RWTypedPattern && (((RWTypedPattern)finalArg).type instanceof RWContractDecl)) {
-				outargs.remove(outargs.size()-1);
-				handler = (RWTypedPattern) finalArg;
-			}
-		}
-		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, outargs, type, handler);
+		List<RWTypedPattern> handlerOut = new ArrayList<>();
+		final FunctionType type = deriveType(cx, cmd.location(), cmd.args, cmd.name, outargs, handlerOut);
+		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, outargs, type, handlerOut.get(0));
 	}
 
-	private FunctionType deriveType(NamingContext cx, final InputPosition loc, final List<Object> inargs, final FunctionName cn, List<Object> outargs) {
+	private FunctionType deriveType(NamingContext cx, final InputPosition loc, final List<Object> inargs, final FunctionName cn, List<Object> outargs, List<RWTypedPattern> handlerOut) {
 		List<Type> targs = new ArrayList<Type>(); 
 		for (Object o : inargs) {
 			if (outargs != null)
@@ -1340,6 +1335,20 @@ public class Rewriter implements CodeGenRegistry {
 			} else
 				throw new UtilException("Unexpected pattern " + o.getClass());
 		}
+		// TODO: in the fulness of time, the parser will pass down a CMD with a specific handler field
+		// When it does, we can remove this code
+		RWTypedPattern handler = null;
+		if (!targs.isEmpty()) {
+			Object finalArg = targs.get(targs.size()-1);
+			if (finalArg instanceof RWContractDecl) {
+				targs.remove(targs.size()-1);
+				if (outargs != null) {
+					handler = (RWTypedPattern) outargs.remove(outargs.size()-1);
+				} else
+					handler = (RWTypedPattern) rewritePattern(cx, cn, inargs.get(inargs.size()-1));
+			}
+		}
+		handlerOut.add(handler);
 		targs.add(typeFrom(cx.resolve(loc, "Send")));
 		final FunctionType type = new FunctionType(loc, targs);
 		return type;
@@ -2123,13 +2132,18 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private void writeExpr(Indenter pw, Object expr) {
-		if (expr instanceof LocalVar || expr instanceof ExternalRef)
+		if (expr == null)
+			pw.println("null");
+		else if (expr instanceof LocalVar || expr instanceof ExternalRef)
 			pw.println(expr.getClass().getSimpleName()+"."+expr);
-		else if (expr instanceof StringLiteral || expr instanceof NumericLiteral)
+		else if (expr instanceof StringLiteral || expr instanceof NumericLiteral || expr instanceof BooleanLiteral)
 			pw.println("" + expr);
 		else if (expr instanceof BuiltinOperation)
 			pw.println(((BuiltinOperation) expr).opName);
-		else if (expr instanceof ApplyExpr) {
+		else if (expr instanceof CardStateRef) {
+			CardStateRef csr = (CardStateRef) expr;
+			pw.println(csr.toString());
+		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			pw.println("@");
 			writeExpr(pw.indent(), ae.fn);
@@ -2143,6 +2157,16 @@ public class Rewriter implements CodeGenRegistry {
 			writeExpr(pw.indent(), se.method);
 			for (Object o : se.args)
 				writeExpr(pw.indent(), o);
+			pw.println("=>");
+			writeExpr(pw.indent(), se.handler);
+		} else if (expr instanceof AssertTypeExpr) {
+			AssertTypeExpr se = (AssertTypeExpr) expr;
+			pw.println("#" + se.type);
+			writeExpr(pw.indent(), se.expr);
+		} else if (expr instanceof TypeCheckMessages) {
+			TypeCheckMessages se = (TypeCheckMessages) expr;
+			pw.println("#tcm");
+			writeExpr(pw.indent(), se.expr);
 		} else if (expr instanceof IfExpr) {
 			IfExpr ie = (IfExpr) expr;
 			pw.println("if");

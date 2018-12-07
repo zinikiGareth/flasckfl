@@ -1,1 +1,1 @@
-test.golden.f :: Any->String
+test.golden.f :: test.golden.Role->String

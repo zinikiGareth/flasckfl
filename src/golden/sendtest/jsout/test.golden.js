@@ -93,28 +93,28 @@ test.golden._ControlledCard.B1.prototype.formats_0 = function() {
   return FLEval.closure(Cons, v0, Nil);
 }
 
-test.golden.ControlledCard.__C0.prototype.setOff = function() {
+test.golden.ControlledCard.__C0.prototype.setOff = function(v0) {
   "use strict";
-  var v0 = FLEval.closure(Assign, this._card, 'sayHello', false);
-  return FLEval.closure(Cons, v0, Nil);
+  var v1 = FLEval.closure(Assign, this._card, 'sayHello', false);
+  return FLEval.closure(Cons, v1, Nil);
 }
 
-test.golden.ControlledCard.__C0.prototype.setOn = function() {
+test.golden.ControlledCard.__C0.prototype.setOn = function(v0) {
   "use strict";
-  var v0 = FLEval.closure(Assign, this._card, 'sayHello', true);
-  return FLEval.closure(Cons, v0, Nil);
+  var v1 = FLEval.closure(Assign, this._card, 'sayHello', true);
+  return FLEval.closure(Cons, v1, Nil);
 }
 
-test.golden.ControlledCard.__C1.prototype.saySomething = function(v0) {
+test.golden.ControlledCard.__C1.prototype.saySomething = function(v0, v1) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (typeof v0 === 'string') {
-    var v1 = FLEval.closure(Cons, v0, Nil);
-    var v2 = FLEval.closure(Send, this._card.e, 'echoIt', v1);
-    return FLEval.closure(Cons, v2, Nil);
+    var v2 = FLEval.closure(Cons, v0, Nil);
+    var v3 = FLEval.closure(Send, this._card.e, 'echoIt', v2, FLEval.idemHandler);
+    return FLEval.closure(Cons, v3, Nil);
   }
   return FLEval.error("test.golden.ControlledCard._C1.saySomething: case not handled");
 }
@@ -122,7 +122,7 @@ test.golden.ControlledCard.__C1.prototype.saySomething = function(v0) {
 test.golden._ControlledCard.prototype.echoHello = function(v0) {
   "use strict";
   var v1 = FLEval.closure(Cons, 'hello clicked', Nil);
-  var v2 = FLEval.closure(Send, this.e, 'echoIt', v1);
+  var v2 = FLEval.closure(Send, this.e, 'echoIt', v1, FLEval.idemHandler);
   return FLEval.closure(Cons, v2, Nil);
 }
 

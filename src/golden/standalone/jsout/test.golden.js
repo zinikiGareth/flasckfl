@@ -62,14 +62,14 @@ test.golden._Foo.prototype._render = function(doc, wrapper, parent) {
   "use strict";
 }
 
-test.golden.Foo.__C1.prototype.go = function() {
+test.golden.Foo.__C1.prototype.go = function(v0) {
   "use strict";
   var v5 = FLEval.oclosure(this._card, FLEval.curry, test.golden.Foo.prototype.request, 1);
-  var v0 = FLEval.closure(map, v5, Nil);
-  var v4 = FLEval.oclosure(this._card, FLEval.curry, test.golden.Foo.prototype.request2, 1);
-  var v1 = FLEval.closure(map, v4, Nil);
-  var v2 = FLEval.closure(Cons, v1, Nil);
-  return FLEval.closure(Cons, v0, v2);
+  var v1 = FLEval.closure(map, v5, Nil);
+  var v6 = FLEval.oclosure(this._card, FLEval.curry, test.golden.Foo.prototype.request2, 1);
+  var v2 = FLEval.closure(map, v6, Nil);
+  var v3 = FLEval.closure(Cons, v2, Nil);
+  return FLEval.closure(Cons, v1, v3);
 }
 
 test.golden.Foo.prototype.request = function(v0) {
@@ -80,7 +80,7 @@ test.golden.Foo.prototype.request = function(v0) {
   }
   if (FLEval.isA(v0, 'Crokey')) {
     var v1 = FLEval.closure(Cons, v0, Nil);
-    return FLEval.closure(Send, this.kv, 'typed', v1);
+    return FLEval.closure(Send, this.kv, 'typed', v1, 'none');
   }
   return FLEval.error("test.golden.Foo.request: case not handled");
 }
@@ -93,7 +93,7 @@ test.golden.Foo.prototype.request2 = function(v0) {
   }
   if (FLEval.isA(v0, 'Crokey')) {
     var v1 = FLEval.closure(Cons, v0, Nil);
-    return FLEval.closure(Send, this.kv, 'mine', v1);
+    return FLEval.closure(Send, this.kv, 'mine', v1, 'none');
   }
   return FLEval.error("test.golden.Foo.request2: case not handled");
 }

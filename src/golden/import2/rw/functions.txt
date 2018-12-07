@@ -6,7 +6,10 @@ function test.golden.Foo._C0.go test.golden.Foo 1
       PackageVar.Cons
       @
         PackageVar.Assign
-        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this._card
+        this._card
         "a"
-        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Number (test.import.f 16))
+        #Number
+          @
+            PackageVar.test.import.f
+            16
       PackageVar.Nil

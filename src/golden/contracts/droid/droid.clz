@@ -1,6 +1,6 @@
 src/golden/contracts/droid-to/test/golden/Foo$Down.java
 class Foo$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object goodbye(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber y);
+  abstract java.lang.Object goodbye(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object y, java.lang.Object arg1);
 }
 src/golden/contracts/droid-to/test/golden/Foo$Impl.java
 class Foo$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Foo$Down {
@@ -8,15 +8,15 @@ class Foo$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.go
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object goodbye(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLNumber y);
+  abstract java.lang.Object goodbye(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object y, java.lang.Object arg1);
 }
 src/golden/contracts/droid-to/test/golden/Foo$Up.java
 class Foo$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object hello(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String x);
+  abstract java.lang.Object hello(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object x, java.lang.Object arg1);
 }
 src/golden/contracts/droid-to/test/golden/Handler$Down.java
 class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object feedback(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String answer);
+  abstract java.lang.Object feedback(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object answer, java.lang.Object arg1);
 }
 src/golden/contracts/droid-to/test/golden/Handler$Impl.java
 class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Handler$Down {
@@ -24,7 +24,7 @@ class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements tes
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object feedback(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.String answer);
+  abstract java.lang.Object feedback(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object answer, java.lang.Object arg1);
 }
 src/golden/contracts/droid-to/test/golden/Handler$Up.java
 class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
@@ -41,11 +41,11 @@ class Request$Impl.java extends org.flasck.jvm.cards.ContractImpl implements tes
 }
 src/golden/contracts/droid-to/test/golden/Request$Up.java
 class Request$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object ask(org.ziniki.ziwsh.json.FLEvalContext from, test.golden.Handler$Down answer);
+  abstract java.lang.Object ask(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object answer);
 }
 src/golden/contracts/droid-to/test/golden/UsePolyInstance$Down.java
 class UsePolyInstance$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object giveList(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLList l);
+  abstract java.lang.Object giveList(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object l, java.lang.Object arg1);
 }
 src/golden/contracts/droid-to/test/golden/UsePolyInstance$Impl.java
 class UsePolyInstance$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.UsePolyInstance$Down {
@@ -53,7 +53,7 @@ class UsePolyInstance$Impl.java extends org.flasck.jvm.cards.ContractImpl implem
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object giveList(org.ziniki.ziwsh.json.FLEvalContext from, org.flasck.jvm.builtin.FLList l);
+  abstract java.lang.Object giveList(org.ziniki.ziwsh.json.FLEvalContext from, java.lang.Object l, java.lang.Object arg1);
 }
 src/golden/contracts/droid-to/test/golden/UsePolyInstance$Up.java
 class UsePolyInstance$Up.java implements org.ziniki.ziwsh.UpContract {

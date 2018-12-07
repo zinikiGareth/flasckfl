@@ -8,7 +8,9 @@
     <Function file="downcast.fl" line="4" name="f" off="0">
         <Function>
             <Arg>
-                <SolidName name="Any"/>
+                <SolidName name="Role">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Arg>
             <Return>
                 <SolidName name="String"/>
