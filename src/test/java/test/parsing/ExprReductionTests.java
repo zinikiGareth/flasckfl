@@ -230,8 +230,34 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
-	// f (2*x)
-	// 2*(f x)
+	@Test // f (2*x)
+	public void parensAreStrongerThanFnCall() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.unresolved("x"))).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new UnresolvedVar(pos, "f"));
+		reducer.term(new Punctuator(pos, "("));
+		reducer.term(new NumericLiteral(pos.copySetEnd(6), "2", -1));
+		reducer.term(new UnresolvedOperator(pos, "*"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(10), "x"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
+		reducer.done();
+	}
+
+	@Test // 2*(f x)
+	public void parensCanWrapAFnCall() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.unresolved("x"))).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new NumericLiteral(pos, "2", -1));
+		reducer.term(new UnresolvedOperator(pos, "*"));
+		reducer.term(new Punctuator(pos, "("));
+		reducer.term(new UnresolvedVar(pos, "f"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(10), "x"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
+		reducer.done();
+	}
+
 	// (a,b)
 	// [a,b]
 	// {a:2*4,b:f x}
