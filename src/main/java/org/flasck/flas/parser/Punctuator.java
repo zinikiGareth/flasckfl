@@ -19,10 +19,9 @@ public class Punctuator implements Expr {
 	}
 	
 	public ExprTermConsumer openParenParser(ErrorReporter errors, ExprTermConsumer builder) {
-		if (punc.equals("("))
-			return new ParenTermConsumer(location, errors, builder);
-		else
-			return null;
+		if (!punc.equals("("))
+			throw new RuntimeException("Can only call this with open punc");
+		return new ParenTermConsumer(location, errors, builder, this);
 	}
 	
 	public boolean is(String punc) {

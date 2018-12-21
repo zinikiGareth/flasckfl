@@ -24,6 +24,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private final ExprTermConsumer builder;
 	private final List<Expr> terms = new ArrayList<>();
 	private final List<OpPrec> ops = new ArrayList<>();
+	private TupleReducer reduceAs;
 
 	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder) {
 		this.errors = errors;
@@ -41,6 +42,10 @@ public class TDAExprReducer implements ExprTermConsumer {
 		this.terms.add(term);
 	}
 
+	public void asTuple(InputPosition location) {
+		reduceAs = new TupleReducer(location);
+	}
+
 	@Override
 	public void done() {
 		if (terms.isEmpty())
@@ -49,6 +54,9 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 	
 	private Expr reduce(int from, int to) {
+		if (reduceAs != null) {
+			return reduceAs.reduce(args(from, to));
+		}
 		OpPrec op = null;
 		for (OpPrec p : ops)
 			if (p.pos >= from && p.pos < to && (op == null || p.prec < op.prec))

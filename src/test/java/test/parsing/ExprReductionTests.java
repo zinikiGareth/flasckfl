@@ -258,6 +258,19 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // (a,b)
+	public void parensCanBeUsedToCreateTuples() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("()"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("b")).location("-", 1, 0, 12)));
+		}});
+		reducer.term(new Punctuator(pos, "("));
+		reducer.term(new UnresolvedVar(pos, "a"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(10), "b"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
+		reducer.done();
+	}
+
 	// (a,b)
 	// [a,b]
 	// {a:2*4,b:f x}
