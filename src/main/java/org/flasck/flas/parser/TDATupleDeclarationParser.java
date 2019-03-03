@@ -7,6 +7,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
@@ -41,7 +42,10 @@ public class TDATupleDeclarationParser implements TDAParsing {
 		while (line.hasMore()) {
 			PattToken nx = PattToken.from(line);
 			if (nx.type == PattToken.CRB) {
-				errors.message(line, "missing var in tuple declaration");
+				if (vars.isEmpty())
+					errors.message(line, "missing var in tuple declaration");
+				else
+					errors.message(line, "syntax error");
 				return null;
 			}
 //			if (nx.type != PattToken.VAR) {
@@ -74,14 +78,20 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			errors.message(line, "insufficient vars to make tuple declaration");
 			return null;
 		}
-//		errors.message(line, "syntax error");
-//		return null;
-//		if (!line.hasMore()) {
-//			errors.message(line, "tuple assignment requires expression");
-//			return null;
-//		}
-//			
-//
+		if (!line.hasMore()) {
+			errors.message(line, "syntax error");
+			return null;
+		}
+		ExprToken tok = ExprToken.from(line);
+		if (!tok.text.equals("=")) {
+			errors.message(line, "syntax error");
+			return null;
+		}
+		if (!line.hasMore()) {
+			errors.message(line, "tuple assignment requires expression");
+			return null;
+		}
+
 		return TDAMultiParser.top(errors, consumer);
 	}
 }
