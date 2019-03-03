@@ -49,6 +49,50 @@ public class TDATupleDeclarationParsingTests {
 		assertNull(nested);
 	}
 
+	@Test
+	public void aLineWithJustAnOpeningParenAndAVarIsASyntaxError() {
+		final Tokenizable line = line("(x");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "syntax error");
+		}});
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line);
+		assertNull(nested);
+	}
+
+	@Test
+	public void aLineWithAnInvalidPuncCharIsASyntaxError() {
+		final Tokenizable line = line("(}");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "syntax error");
+		}});
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line);
+		assertNull(nested);
+	}
+
+	@Test
+	public void aLineWithJustAnOpeningAndClosingParenIsAMissingVarsError() {
+		final Tokenizable line = line("()");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "missing var in tuple declaration");
+		}});
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line);
+		assertNull(nested);
+	}
+
+	@Test
+	public void aLineWithJustOneVarIsANotATupleError() {
+		final Tokenizable line = line("(x)");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "insufficient vars to make tuple declaration");
+		}});
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line);
+		assertNull(nested);
+	}
+
 	public static Tokenizable line(String string) {
 		return new Tokenizable(TDAStoryTests.line(string));
 	}

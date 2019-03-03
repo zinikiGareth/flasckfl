@@ -36,9 +36,14 @@ public class TDATupleDeclarationParser implements TDAParsing {
 		if (orb == null || orb.type != PattToken.ORB)
 			return null;
 
-//		List<LocatedName> vars = new ArrayList<LocatedName>();
-//		while (line.hasMore()) {
-//			PattToken nx = PattToken.from(line);
+		List<LocatedName> vars = new ArrayList<LocatedName>();
+		boolean haveCRB = false;
+		while (line.hasMore()) {
+			PattToken nx = PattToken.from(line);
+			if (nx.type == PattToken.CRB) {
+				errors.message(line, "missing var in tuple declaration");
+				return null;
+			}
 //			if (nx.type != PattToken.VAR) {
 //				if (vars.isEmpty())
 //					return null;
@@ -47,22 +52,36 @@ public class TDATupleDeclarationParser implements TDAParsing {
 //					return null;
 //				}
 //			}
-//			vars.add(new LocatedName(nx.location, nx.text));
-//			PattToken cm = PattToken.from(line);
-//			if (cm.type == PattToken.CRB)
-//				break;
-//			else if (cm.type != PattToken.COMMA) {
+			vars.add(new LocatedName(nx.location, nx.text));
+			PattToken cm = PattToken.from(line);
+			if (cm == null) {
 				errors.message(line, "syntax error");
 				return null;
+			}
+			if (cm.type == PattToken.CRB) {
+				haveCRB = true;
+				break;
+			}
+//			else if (cm.type != PattToken.COMMA) {
 //			}
-//		}
+		}
 		
+		if (!haveCRB) {
+			errors.message(line, "syntax error");
+			return null;
+		}
+		if (vars.size() < 2) {
+			errors.message(line, "insufficient vars to make tuple declaration");
+			return null;
+		}
+//		errors.message(line, "syntax error");
+//		return null;
 //		if (!line.hasMore()) {
 //			errors.message(line, "tuple assignment requires expression");
 //			return null;
 //		}
 //			
 //
-//		return TDAMultiParser.top(errors, consumer);
+		return TDAMultiParser.top(errors, consumer);
 	}
 }
