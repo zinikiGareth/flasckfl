@@ -3,6 +3,9 @@ package test.parsing;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.List;
+
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ParsedLineConsumer;
 import org.flasck.flas.parser.TDAFunctionParser;
@@ -182,10 +185,12 @@ public class TDATupleDeclarationParsingTests {
 		assertNull(nested);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void aLineCanExist() {
 		final Tokenizable line = line("(x,y) = x");
 		context.checking(new Expectations() {{
+			oneOf(builder).tupleDefn(with(any(List.class)), with(any(Expr.class)));
 			oneOf(builder).scopeTo(with(any(TDAFunctionParser.class)));
 		}});
 		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);
