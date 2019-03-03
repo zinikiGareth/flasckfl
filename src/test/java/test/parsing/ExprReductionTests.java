@@ -404,6 +404,34 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // {a:b}
+	public void hashWithTwoElements() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("{}"),
+										ExprMatcher.apply(ExprMatcher.operator(":"),
+											ExprMatcher.string("a"),
+											ExprMatcher.unresolved("b")),
+										ExprMatcher.apply(ExprMatcher.operator(":"),
+												ExprMatcher.string("c"),
+												ExprMatcher.apply(ExprMatcher.operator("*"),
+													ExprMatcher.unresolved("d"),
+													ExprMatcher.number(2)))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "{"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "a"));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "b"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "c"));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "d"));
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(7), "*"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(6), "2", -1));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "}"));
+		reducer.done();
+	}
+
 	// {a:2*4,b:f x}
 	// do we have anything that associates right?
 
