@@ -322,6 +322,26 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // [a*b,b,2*c)
+	public void commasForceElementReductionInLists() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("[]"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("b")), ExprMatcher.unresolved("b"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.unresolved("c"))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos.copySetEnd(0), "["));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "a"));
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(3), "*"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(4), "b"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(5), "b"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new NumericLiteral(pos.copySetEnd(6), "2", -1));
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(7), "*"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(8), "c"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "]"));
+		reducer.done();
+	}
+
 	// nested list case?
 	// {a:2*4,b:f x}
 	// do we have anything that associates right?
