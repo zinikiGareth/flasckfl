@@ -8,7 +8,6 @@ import org.flasck.flas.parser.ParsedLineConsumer;
 import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATupleDeclarationParser;
-import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -98,6 +97,28 @@ public class TDATupleDeclarationParsingTests {
 	@Test
 	public void aLineCannotHaveACommaWithoutAVar() {
 		final Tokenizable line = line("(,");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "syntax error");
+		}});
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line);
+		assertNull(nested);
+	}
+
+	@Test
+	public void variablesMustBeSeparatedByCommas() {
+		final Tokenizable line = line("(x:y) = ");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "syntax error");
+		}});
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line);
+		assertNull(nested);
+	}
+
+	@Test
+	public void variablesCannotBeLiterals() {
+		final Tokenizable line = line("(2,y) = ");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});

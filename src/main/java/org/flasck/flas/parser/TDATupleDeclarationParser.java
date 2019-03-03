@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -48,14 +47,10 @@ public class TDATupleDeclarationParser implements TDAParsing {
 					errors.message(line, "syntax error");
 				return null;
 			}
-//			if (nx.type != PattToken.VAR) {
-//				if (vars.isEmpty())
-//					return null;
-//				else {
-//					errors.message(nx.location, "syntax error parsing tuple");
-//					return null;
-//				}
-//			}
+			if (nx.type != PattToken.VAR) {
+				errors.message(line, "syntax error");
+				return null;
+			}
 			vars.add(new LocatedName(nx.location, nx.text));
 			PattToken cm = PattToken.from(line);
 			if (cm == null) {
@@ -65,9 +60,10 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			if (cm.type == PattToken.CRB) {
 				haveCRB = true;
 				break;
+			} else if (cm.type != PattToken.COMMA) {
+				errors.message(line, "syntax error");
+				return null;
 			}
-//			else if (cm.type != PattToken.COMMA) {
-//			}
 		}
 		
 		if (!haveCRB) {
