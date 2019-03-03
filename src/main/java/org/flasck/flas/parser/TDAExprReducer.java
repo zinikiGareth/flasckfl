@@ -8,6 +8,8 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parser.ParenTermConsumer.ParenCloseRewriter;
 
 public class TDAExprReducer implements ExprTermConsumer {
 	public static class OpPrec {
@@ -41,8 +43,15 @@ public class TDAExprReducer implements ExprTermConsumer {
 		this.terms.add(term);
 	}
 
-	public void seenComma(InputPosition location) {
+	public void seenComma() {
 		builder.term(reduce(0, terms.size()));
+		terms.clear();
+	}
+
+	public void seenColon(ParenCloseRewriter closer) {
+		closer.defineVar(((UnresolvedVar)terms.get(0)).var);
+//		Needs some amount of workflow, I think
+//		builder.term(reduce(0, terms.size()));
 		terms.clear();
 	}
 
