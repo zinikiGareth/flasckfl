@@ -1,11 +1,15 @@
 package org.flasck.flas.parser;
 
+import java.util.List;
+
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -50,17 +54,27 @@ public class TDAFunctionParser implements TDAParsing, ScopeReceiver {
 			ExprToken t = ExprToken.from(line);
 			if (t == null || t.type != ExprToken.IDENTIFIER)
 				return null;
+			final FunctionName fname = consumer.functionName(t.location, t.text);
 			
-			ExprToken eq = ExprToken.from(line);
-			if (eq == null) {
-				consumer.functionIntro(new FunctionIntro(consumer.functionName(t.location, t.text), null));
+			List<Object> args = null;
+			ExprToken tok;
+			while ((tok = ExprToken.from(line)) != null && !tok.text.equals("=")) {
+				
+			}
+			if (tok == null) {
+				consumer.functionIntro(new FunctionIntro(fname, args));
 				return new TDAFunctionCaseParser(errors, consumer);
 			}
 			if (!line.hasMore()) {
 				errors.message(line, "function definition requires expression");
 				return null;
 			}
-			throw new NotImplementedException();
+			new TDAExpressionParser(errors, e -> {
+				consumer.functionCase(new FunctionCaseDefn(fname, args, e));
+			}).tryParsing(line);
+
+			// TODO: I don't think this should be quite top - it should allow "as many" intro things (which? not card, but some others such as handler are good to have)
+			return TDAMultiParser.top(errors, consumer);
 		}
 	}
 
