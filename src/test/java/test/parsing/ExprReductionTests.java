@@ -174,6 +174,28 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // Nil
+	public void typeNamesAreRecognizedAsConstructors() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.unresolved("Nil")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "Nil"));
+		reducer.done();
+	}
+
+	@Test // Cons a b
+	public void constructorsAreTreatedLikeFunctions() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.unresolved("Cons"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("b")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos, "Cons"));
+		reducer.term(new UnresolvedVar(pos, "a"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "b"));
+		reducer.done();
+	}
+
 	@Test // 2 * (3+4)
 	public void parensCanMakePlusStrong() {
 		context.checking(new Expectations() {{
@@ -404,7 +426,8 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
-	@Test // {a:b}
+	// TODO?  Somebody needs to complain if we assign the same variable twice
+	@Test // {a:b,c:d*2}
 	public void hashWithTwoElements() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("{}"),
@@ -432,7 +455,6 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
-	// {a:2*4,b:f x}
 	// do we have anything that associates right?
 
 	// some error cases

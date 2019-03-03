@@ -84,10 +84,14 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	private Expr fncall(int from, int to) {
 		final Expr t0 = terms.get(from);
-		if (from+1 == to)
+		if (from+1 == to && !isConstructor(t0))
 			return t0;
 		else 
 			return new ApplyExpr(t0.location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), t0, args(from+1, to).toArray());
+	}
+
+	private boolean isConstructor(Expr t0) {
+		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isConstructor();
 	}
 
 	private List<Expr> args(int from, int to) {

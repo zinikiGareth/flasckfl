@@ -21,4 +21,8 @@ public class UnresolvedVar implements Expr {
 	public String toString() {
 		return var;
 	}
+
+	public boolean isConstructor() {
+		return Character.isUpperCase(var.charAt(0));
+	}
 }
