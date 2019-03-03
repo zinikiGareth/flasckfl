@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.Punctuator;
@@ -111,6 +112,30 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 				if (!(expr instanceof NumericLiteral))
 					return false;
 				if (!((NumericLiteral)expr).text.equals(Integer.toString(k)))
+					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
+						return false;
+				}
+				return true;
+			}
+		};
+	}
+
+	public static ExprMatcher typeof(String string) {
+		return new ExprMatcher() {
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("typeof '" + string + "'");
+			}
+
+			@Override
+			protected boolean matchesSafely(Expr expr) {
+				if (!(expr instanceof TypeExpr))
+					return false;
+				if (!((TypeExpr)expr).type.equals(string))
 					return false;
 				if (super.pos != null) {
 					if (expr.location() == null)

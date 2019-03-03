@@ -25,4 +25,8 @@ public class UnresolvedVar implements Expr {
 	public boolean isConstructor() {
 		return Character.isUpperCase(var.charAt(0));
 	}
+
+	public boolean isType() {
+		return var.equals("type");
+	}
 }

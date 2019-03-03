@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ParenTermConsumer.ParenCloseRewriter;
@@ -57,8 +58,11 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	@Override
 	public void done() {
-		if (!terms.isEmpty())
-			builder.term(reduce(0, terms.size()));
+		if (!terms.isEmpty()) {
+			Expr r = reduce(0, terms.size());
+			if (r != null)
+				builder.term(r);
+		}
 		builder.done();
 	}
 	
@@ -84,6 +88,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	private Expr fncall(int from, int to) {
 		final Expr t0 = terms.get(from);
+		if (isTypeExpr(t0))
+			return resolveTypeExpr(t0, from, to);
 		if (from+1 == to && !isConstructor(t0))
 			return t0;
 		else 
@@ -93,7 +99,20 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private boolean isConstructor(Expr t0) {
 		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isConstructor();
 	}
+	
+	private boolean isTypeExpr(Expr t0) {
+		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isType();
+	}
 
+	private Expr resolveTypeExpr(Expr t0, int from, int to) {
+		if (to != from+2) {
+			errors.message(t0.location(), "type operator must have exactly one argument");
+			return null;
+		}
+		Expr ctor = terms.get(from+1);
+		return new TypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ((UnresolvedVar)ctor).var);
+	}
+	
 	private List<Expr> args(int from, int to) {
 		List<Expr> ret = new ArrayList<>();
 		for (int i=from;i<to;i++)
