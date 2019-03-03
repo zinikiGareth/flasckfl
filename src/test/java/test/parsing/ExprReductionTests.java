@@ -308,8 +308,21 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
-	// (a,b)
-	// [a,b]
+	@Test // [a,b]
+	public void squaresCanBeUsedToCreateLists() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("[]"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("b")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "["));
+		reducer.term(new UnresolvedVar(pos, "a"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(10), "b"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "]"));
+		reducer.done();
+	}
+
+	// nested list case?
 	// {a:2*4,b:f x}
 	// do we have anything that associates right?
 

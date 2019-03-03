@@ -20,7 +20,13 @@ public class Punctuator implements Expr {
 	
 	public ExprTermConsumer openParenParser(ErrorReporter errors, ExprTermConsumer builder) {
 		if (!punc.equals("("))
-			throw new RuntimeException("Can only call this with open punc");
+			throw new RuntimeException("Can only call this with open paren");
+		return new ParenTermConsumer(location, errors, builder, this);
+	}
+	
+	public ExprTermConsumer openSquareParser(ErrorReporter errors, ExprTermConsumer builder) {
+		if (!punc.equals("["))
+			throw new RuntimeException("Can only call this with open square");
 		return new ParenTermConsumer(location, errors, builder, this);
 	}
 	

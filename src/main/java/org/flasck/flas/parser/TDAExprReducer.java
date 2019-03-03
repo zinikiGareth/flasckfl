@@ -41,7 +41,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 		this.terms.add(term);
 	}
 
-	public void asTuple(InputPosition location) {
+	public void seenComma(InputPosition location) {
 		builder.term(reduce(0, terms.size()));
 		terms.clear();
 	}

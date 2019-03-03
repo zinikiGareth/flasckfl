@@ -12,11 +12,13 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 public class ParenTermConsumer implements ExprTermConsumer {
 	public class ParenCloseRewriter implements ExprTermConsumer {
 		private final InputPosition from;
+		private final String op;
 		private int end;
 		private final List<Expr> terms = new ArrayList<>();
 
-		public ParenCloseRewriter(InputPosition from) {
+		public ParenCloseRewriter(InputPosition from, String op) {
 			this.from = from;
+			this.op = op;
 		}
 		
 		public void endAt(Expr term) {
@@ -38,7 +40,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			if (terms.size() == 1)
 				builder.term(ae);
 			else
-				builder.term(new ApplyExpr(ae.location().copySetEnd(end), new UnresolvedOperator(ae.location(), "()"), terms.toArray()));
+				builder.term(new ApplyExpr(ae.location().copySetEnd(end), new UnresolvedOperator(ae.location(), op), terms.toArray()));
 		}
 
 		@Override
@@ -57,7 +59,12 @@ public class ParenTermConsumer implements ExprTermConsumer {
 //		this.errors = errors;
 		this.builder = builder;
 		this.open = open;
-		closer = new ParenCloseRewriter(from);
+		if (open.is("("))
+			closer = new ParenCloseRewriter(from, "()");
+		else if (open.is("["))
+			closer = new ParenCloseRewriter(from, "[]");
+		else
+			throw new RuntimeException("yeah");
 		curr = new TDAExprReducer(errors, closer);
 	}
 	
@@ -65,12 +72,11 @@ public class ParenTermConsumer implements ExprTermConsumer {
 	public void term(Expr term) {
 		if (term instanceof Punctuator) {
 			Punctuator punc = (Punctuator) term;
-			if (punc.is(")")) {
+			if (punc.is(")") || punc.is("]")) {
 				closer.endAt(term);
 				curr.done();
 			} else if (punc.is(",")) {
-				if (open.is("("))
-					curr.asTuple(open.location());
+				curr.seenComma(open.location());
 			} else if (punc.is("(")) {
 				curr.term(term);
 			} else
