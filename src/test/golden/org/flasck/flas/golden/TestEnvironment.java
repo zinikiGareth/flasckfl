@@ -214,8 +214,8 @@ public class TestEnvironment {
 		for (File f : golden.listFiles()) {
 			File gen = new File(genned, f.getName());
 			assertTrue("There is no generated file for the golden " + f, gen.exists());
-			String goldhash = Crypto.hash(f);
-			String genhash = Crypto.hash(gen);
+			String goldhash = Crypto.hashTrim(f);
+			String genhash = Crypto.hashTrim(gen);
 			if (!goldhash.equals(genhash)) {
 				RunProcess proc = new RunProcess("diff");
 				proc.arg("-C5");
