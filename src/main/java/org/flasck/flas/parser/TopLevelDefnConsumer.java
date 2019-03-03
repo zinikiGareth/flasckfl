@@ -14,8 +14,8 @@ public interface TopLevelDefnConsumer extends ParsedLineConsumer {
 	void jsTo(JSReceiver sendTo);
 	void bceTo(BCEReceiver sendTo);
 	void scopeTo(ScopeReceiver sendTo);
-	void functionCase(FunctionCaseDefn o);
 	void newStruct(StructDefn sd);
 	void newContract(ContractDecl decl);
 	void functionIntro(FunctionIntro o);
+	void functionCase(FunctionCaseDefn o);
 }

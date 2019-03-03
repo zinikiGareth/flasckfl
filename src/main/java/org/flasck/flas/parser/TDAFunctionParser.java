@@ -12,10 +12,10 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAFunctionParser implements TDAParsing, ScopeReceiver {
 	private final ErrorReporter errors;
-	private final TopLevelDefnConsumer consumer;
+	private final ParsedLineConsumer consumer;
 	private FunctionParser delegate;
 
-	public TDAFunctionParser(ErrorReporter errors, TopLevelDefnConsumer consumer) {
+	public TDAFunctionParser(ErrorReporter errors, ParsedLineConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
 		consumer.scopeTo(this);

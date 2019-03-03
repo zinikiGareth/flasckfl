@@ -1,0 +1,25 @@
+find src/golden -name 'test.golden' -exec ls {}/../legacy {}/../tda \; 2>&1 |
+grep -v hsie |
+#cat
+#exit
+awk '
+$1 ~/legacy$/ { sub("/test.golden/../tda:?", "", $1); legacy[$1] = $1; next }
+$1 ~/tda$/ { sub("/test.golden/../tda:?", "", $1); tda[$1] = $1 ; next}
+$1 == "ls:" && $2 ~ /tda:/ { sub("/test.golden/../tda:?", "", $2); todo[$2] = $2 ; next }
+END {
+  for (i in todo) {
+print i
+    if (legacy[i] != "" && tda[i] != "")
+      print i
+  }
+print "legacy"
+for (i in legacy)
+  print i
+print "tda"
+for (i in tda) {
+  print i
+}
+}' #|
+exit
+sed -e 's% src/golden/% %' -e 's%/test.golden/\.\./.*%%' |
+sort

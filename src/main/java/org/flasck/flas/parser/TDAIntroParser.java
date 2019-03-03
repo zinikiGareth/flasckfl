@@ -15,9 +15,9 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class TDAIntroParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final TopLevelDefnConsumer consumer;
+	private final ParsedLineConsumer consumer;
 
-	public TDAIntroParser(ErrorReporter errors, TopLevelDefnConsumer consumer) {
+	public TDAIntroParser(ErrorReporter errors, ParsedLineConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
 	}

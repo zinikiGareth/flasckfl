@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ParsedLineConsumer;
+import org.flasck.flas.parser.TDAFunctionParser;
+import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.parser.TDATupleDeclarationParser;
+import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.reflection.Reflection;
 
@@ -31,6 +35,10 @@ public class TDAMultiParser implements TDAParsing {
 		toks.reset(0);
 		errors.message(toks, "syntax error");
 		return null;
+	}
+
+	public static TDAParsing top(ErrorReporter errors, ParsedLineConsumer sb) {
+		return new TDAMultiParser(errors, sb, TDAIntroParser.class, TDAFunctionParser.class, TDATupleDeclarationParser.class);
 	}
 
 }
