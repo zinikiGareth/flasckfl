@@ -19,7 +19,7 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 		return new ExprMatcher() {
 			@Override
 			public void describeTo(Description desc) {
-				desc.appendText("is unresolved var '" + name + "'");
+				desc.appendText("var '" + name + "'");
 				if (super.pos != null) {
 					desc.appendText("pos");
 					desc.appendValue(super.pos);
@@ -47,7 +47,7 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 		return new ExprMatcher() {
 			@Override
 			public void describeTo(Description desc) {
-				desc.appendText("is unresolved operator '" + name + "'");
+				desc.appendText("operator '" + name + "'");
 				if (super.pos != null) {
 					desc.appendText("pos");
 					desc.appendValue(super.pos);
@@ -152,13 +152,16 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 		return new ExprMatcher() {
 			@Override
 			public void describeTo(Description desc) {
-				desc.appendText("is apply of ");
+				desc.appendText("{apply (");
 				fn.describeTo(desc);
-				desc.appendText(" to");
+				desc.appendText(") to [");
+				String sep = "";
 				for (ExprMatcher m : args) {
-					desc.appendText(" ");
+					desc.appendText(sep);
 					m.describeTo(desc);
+					sep = ", ";
 				}
+				desc.appendText("]}");
 			}
 
 			@Override

@@ -342,7 +342,29 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
-	// nested list case?
+	@Test // [a,[b,c],d)
+	public void listsCanBeNested() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("[]"),
+										ExprMatcher.unresolved("a"),
+										ExprMatcher.apply(ExprMatcher.operator("[]"), ExprMatcher.unresolved("b"), ExprMatcher.unresolved("c")),
+										ExprMatcher.unresolved("d")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos.copySetEnd(0), "["));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "a"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new Punctuator(pos.copySetEnd(3), "["));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(4), "b"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(5), "c"));
+		reducer.term(new Punctuator(pos.copySetEnd(5), "]"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(8), "d"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "]"));
+		reducer.done();
+	}
+
 	// {a:2*4,b:f x}
 	// do we have anything that associates right?
 
