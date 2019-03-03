@@ -1,14 +1,19 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 
 public class ParenTermConsumer implements ExprTermConsumer {
 	public class ParenCloseRewriter implements ExprTermConsumer {
 		private final InputPosition from;
 		private int end;
+		private final List<Expr> terms = new ArrayList<>();
 
 		public ParenCloseRewriter(InputPosition from) {
 			this.from = from;
@@ -24,11 +29,20 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				ApplyExpr ae = (ApplyExpr) term;
 				term = new ApplyExpr(from.copySetEnd(end), ae.fn, ae.args);
 			}
-			builder.term(term);
+			terms.add(term);
 		}
 
 		@Override
 		public void done() {
+			final Expr ae = terms.get(0);
+			if (terms.size() == 1)
+				builder.term(ae);
+			else
+				builder.term(new ApplyExpr(ae.location().copySetEnd(end), new UnresolvedOperator(ae.location(), "()"), terms.toArray()));
+		}
+
+		@Override
+		public void showStack(StackDumper d) {
 			throw new org.zinutils.exceptions.NotImplementedException();
 		}
 	}
@@ -55,7 +69,6 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				closer.endAt(term);
 				curr.done();
 			} else if (punc.is(",")) {
-				System.out.println("is comma");
 				if (open.is("("))
 					curr.asTuple(open.location());
 			} else if (punc.is("(")) {
@@ -69,6 +82,11 @@ public class ParenTermConsumer implements ExprTermConsumer {
 	@Override
 	public void done() {
 		throw new RuntimeException("I don't think we should get here");
+	}
+
+	@Override
+	public void showStack(StackDumper d) {
+		curr.showStack(d);
 	}
 
 }

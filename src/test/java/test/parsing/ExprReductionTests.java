@@ -26,6 +26,7 @@ public class ExprReductionTests {
 	public void aLiteralByItselfIsNotFurtherReduced() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.number(42)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "42", -1));
 		reducer.done();
@@ -35,6 +36,7 @@ public class ExprReductionTests {
 	public void aFunctionCallCanBeReduced() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.number(42)).location("-", 1, 0, 4)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new UnresolvedVar(pos, "f"));
 		reducer.term(new NumericLiteral(pos.copySetEnd(4), "42", -1));
@@ -45,6 +47,7 @@ public class ExprReductionTests {
 	public void aUnaryOperatorCanBeReduced() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(42)).location("-", 1, 0, 3)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new UnresolvedOperator(pos, "-"));
 		reducer.term(new NumericLiteral(pos.copySetEnd(3), "42", -1));
@@ -55,6 +58,7 @@ public class ExprReductionTests {
 	public void aBinaryOperatorCanBeReduced() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.number(4)).location("-", 1, 0, 8)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "+"));
@@ -66,6 +70,7 @@ public class ExprReductionTests {
 	public void binaryMinusBeReducedToo() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(4), ExprMatcher.number(2)).location("-", 1, 0, 7)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "4", -1));
 		reducer.term(new UnresolvedOperator(pos, "-"));
@@ -77,6 +82,7 @@ public class ExprReductionTests {
 	public void functionToRightOfOperatorBindsTightly() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.unresolved("x"))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "+"));
@@ -89,6 +95,7 @@ public class ExprReductionTests {
 	public void functionToLeftOfOperatorBindsTightly() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.unresolved("x")), ExprMatcher.number(2)).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new UnresolvedVar(pos, "f"));
 		reducer.term(new UnresolvedVar(pos.copySetEnd(6), "x"));
@@ -101,6 +108,7 @@ public class ExprReductionTests {
 	public void unaryOperatorBindsMoreTightlyThanMultiply() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(3))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "*"));
@@ -113,6 +121,7 @@ public class ExprReductionTests {
 	public void unaryOperatorCanBePlacedInParens() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(3))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "*"));
@@ -127,6 +136,7 @@ public class ExprReductionTests {
 	public void plusAssociatesToTheLeft() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(3), ExprMatcher.number(4))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "+"));
@@ -140,6 +150,7 @@ public class ExprReductionTests {
 	public void multiplyBindsBeforePlus() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(3), ExprMatcher.number(4))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "+"));
@@ -153,6 +164,7 @@ public class ExprReductionTests {
 	public void multiplyBindsBeforePlusFromTheLeftAsWell() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.number(3)), ExprMatcher.number(4)).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "*"));
@@ -166,6 +178,7 @@ public class ExprReductionTests {
 	public void parensCanMakePlusStrong() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(3), ExprMatcher.number(4))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "*"));
@@ -181,6 +194,7 @@ public class ExprReductionTests {
 	public void multiplyOverPlusBothWays() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.unresolved("a"), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.number(3)), ExprMatcher.unresolved("b"))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new UnresolvedVar(pos, "a"));
 		reducer.term(new UnresolvedOperator(pos, "+"));
@@ -196,6 +210,7 @@ public class ExprReductionTests {
 	public void parensCanOvercomeMultiply() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.unresolved("a"), ExprMatcher.number(2)), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(3), ExprMatcher.unresolved("b"))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new Punctuator(pos, "("));
 		reducer.term(new UnresolvedVar(pos, "a"));
@@ -215,6 +230,7 @@ public class ExprReductionTests {
 	public void parensCanBeNested() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.number(3), ExprMatcher.apply(ExprMatcher.operator("-"), ExprMatcher.number(4), ExprMatcher.number(2)))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "*"));
@@ -234,6 +250,7 @@ public class ExprReductionTests {
 	public void parensAreStrongerThanFnCall() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.unresolved("x"))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new UnresolvedVar(pos, "f"));
 		reducer.term(new Punctuator(pos, "("));
@@ -248,6 +265,7 @@ public class ExprReductionTests {
 	public void parensCanWrapAFnCall() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.unresolved("x"))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new NumericLiteral(pos, "2", -1));
 		reducer.term(new UnresolvedOperator(pos, "*"));
@@ -262,11 +280,30 @@ public class ExprReductionTests {
 	public void parensCanBeUsedToCreateTuples() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("()"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("b")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
 		}});
 		reducer.term(new Punctuator(pos, "("));
 		reducer.term(new UnresolvedVar(pos, "a"));
 		reducer.term(new Punctuator(pos, ","));
 		reducer.term(new UnresolvedVar(pos.copySetEnd(10), "b"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
+		reducer.done();
+	}
+
+	@Test // (a,b,2*c)
+	public void commasActAsCloseParens() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("()"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("b"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.unresolved("c"))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos.copySetEnd(0), "("));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "a"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(4), "b"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new NumericLiteral(pos.copySetEnd(6), "2", -1));
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(7), "*"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(8), "c"));
 		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
 		reducer.done();
 	}

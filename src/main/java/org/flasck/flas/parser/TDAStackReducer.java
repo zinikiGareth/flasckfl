@@ -22,6 +22,10 @@ public class TDAStackReducer implements ExprTermConsumer {
 		public void done() {
 			throw new org.zinutils.exceptions.NotImplementedException();
 		}
+
+		@Override
+		public void showStack(StackDumper d) {
+		}
 	}
 
 	private final ErrorReporter errors;
@@ -49,5 +53,13 @@ public class TDAStackReducer implements ExprTermConsumer {
 		if (this.stack.size() != 1)
 			throw new RuntimeException("Stack too deep - should be error");
 		this.stack.get(0).done();
+	}
+
+	@Override
+	public void showStack(StackDumper d) {
+		d.levels(stack.size());
+		for (int i=stack.size()-1;i>=0;i--) {
+			stack.get(i).showStack(d.indent(stack.size() - i));
+		}
 	}
 }

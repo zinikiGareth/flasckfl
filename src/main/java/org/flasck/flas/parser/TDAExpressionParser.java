@@ -21,6 +21,11 @@ public class TDAExpressionParser implements TDAParsing {
 
 		@Override
 		public void done() {
+			// handler.done()?
+		}
+
+		@Override
+		public void showStack(StackDumper d) {
 			throw new org.zinutils.exceptions.NotImplementedException();
 		}
 	}

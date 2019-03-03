@@ -24,7 +24,6 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private final ExprTermConsumer builder;
 	private final List<Expr> terms = new ArrayList<>();
 	private final List<OpPrec> ops = new ArrayList<>();
-	private TupleReducer reduceAs;
 
 	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder) {
 		this.errors = errors;
@@ -43,7 +42,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	public void asTuple(InputPosition location) {
-		reduceAs = new TupleReducer(location);
+		builder.term(reduce(0, terms.size()));
+		terms.clear();
 	}
 
 	@Override
@@ -51,12 +51,10 @@ public class TDAExprReducer implements ExprTermConsumer {
 		if (terms.isEmpty())
 			return;
 		builder.term(reduce(0, terms.size()));
+		builder.done();
 	}
 	
 	private Expr reduce(int from, int to) {
-		if (reduceAs != null) {
-			return reduceAs.reduce(args(from, to));
-		}
 		OpPrec op = null;
 		for (OpPrec p : ops)
 			if (p.pos >= from && p.pos < to && (op == null || p.prec < op.prec))
@@ -72,7 +70,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 		if (oppos == from) { // unary operator
 			return new ApplyExpr(oe.location().copySetEnd(terms.get(to-1).location().pastEnd()), oe, reduce(from+1, to));
 		} else {
-			return new ApplyExpr(terms.get(0).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, reduce(from, oppos), reduce(oppos+1, to));
+			return new ApplyExpr(terms.get(from).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, reduce(from, oppos), reduce(oppos+1, to));
 		}
 	}
 
@@ -106,5 +104,10 @@ public class TDAExprReducer implements ExprTermConsumer {
 			errors.message(pos, "there is no precedence for operator " + op);
 			return 0;
 		}
+	}
+
+	@Override
+	public void showStack(StackDumper d) {
+		d.dump(terms);
 	}
 }
