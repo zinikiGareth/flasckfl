@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 
@@ -30,6 +31,7 @@ public class TDAStackReducer implements ExprTermConsumer {
 
 	private final ErrorReporter errors;
 	private final List<ExprTermConsumer> stack = new ArrayList<>();
+	private InputPosition lineStart;
 
 	public TDAStackReducer(ErrorReporter errors, ExprTermConsumer builder) {
 		this.errors = errors;
@@ -38,6 +40,8 @@ public class TDAStackReducer implements ExprTermConsumer {
 
 	@Override
 	public void term(Expr term) {
+		if (lineStart == null)
+			lineStart = term.location();
 		if (term instanceof Punctuator) {
 			final Punctuator punc = (Punctuator)term;
 			if (punc.is("(")) {
@@ -53,8 +57,10 @@ public class TDAStackReducer implements ExprTermConsumer {
 
 	@Override
 	public void done() {
-		if (this.stack.size() != 1)
-			throw new RuntimeException("Stack too deep - should be error");
+		if (this.stack.size() != 1) {
+			errors.message(lineStart, "syntax error");
+			return;
+		}
 		this.stack.get(0).done();
 	}
 

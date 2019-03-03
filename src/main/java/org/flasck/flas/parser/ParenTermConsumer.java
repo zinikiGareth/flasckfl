@@ -36,6 +36,13 @@ public class ParenTermConsumer implements ExprTermConsumer {
 
 		@Override
 		public void done() {
+			if (terms.size() == 0) {
+				if (op.equals("()"))
+					errors.message(from, "empty tuples are not permitted");
+				else
+					builder.term(new ApplyExpr(from.copySetEnd(end), new UnresolvedOperator(from, op)));
+				return;
+			}
 			final Expr ae = terms.get(0);
 			if (terms.size() == 1)
 				builder.term(ae);
@@ -49,14 +56,14 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		}
 	}
 
-//	private final ErrorReporter errors;
+	private final ErrorReporter errors;
 	private final ExprTermConsumer builder;
 	private final Punctuator open;
 	private final ParenCloseRewriter closer;
 	private final TDAExprReducer curr;
 
 	public ParenTermConsumer(InputPosition from, ErrorReporter errors, ExprTermConsumer builder, Punctuator open) {
-//		this.errors = errors;
+		this.errors = errors;
 		this.builder = builder;
 		this.open = open;
 		if (open.is("("))

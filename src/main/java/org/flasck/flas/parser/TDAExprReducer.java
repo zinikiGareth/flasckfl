@@ -48,9 +48,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	@Override
 	public void done() {
-		if (terms.isEmpty())
-			return;
-		builder.term(reduce(0, terms.size()));
+		if (!terms.isEmpty())
+			builder.term(reduce(0, terms.size()));
 		builder.done();
 	}
 	

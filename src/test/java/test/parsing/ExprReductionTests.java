@@ -308,6 +308,17 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // []
+	public void itIsPossibleToHaveAnEmptyList() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("[]")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "["));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "]"));
+		reducer.done();
+	}
+
 	@Test // [a,b]
 	public void squaresCanBeUsedToCreateLists() {
 		context.checking(new Expectations() {{
@@ -322,7 +333,7 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
-	@Test // [a*b,b,2*c)
+	@Test // [a*b,b,2*c]
 	public void commasForceElementReductionInLists() {
 		context.checking(new Expectations() {{
 			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("[]"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("b")), ExprMatcher.unresolved("b"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.unresolved("c"))).location("-", 1, 0, 12)));
@@ -373,8 +384,20 @@ public class ExprReductionTests {
 	public void parensCannotBeClosedIfTheyWereNeverOpened() {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "invalid tokens after expression");
+			oneOf(builder).done();
 		}});
 		reducer.term(new Punctuator(pos, ")"));
+		reducer.done();
+	}
+
+	@Test // ()
+	public void itIsNotPossibleToHaveAnEmptyTuple() {
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "empty tuples are not permitted");
+			oneOf(errors).message(pos, "syntax error");
+		}});
+		reducer.term(new Punctuator(pos, "("));
+		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
 		reducer.done();
 	}
 
