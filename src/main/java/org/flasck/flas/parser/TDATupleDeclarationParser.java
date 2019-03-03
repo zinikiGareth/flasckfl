@@ -80,6 +80,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			consumer.tupleDefn(vars, e);
 		}).tryParsing(line);
 
+		// TODO: I don't think this should be quite top - it should allow "as many" intro things (which? not card, but some others such as handler are good to have)
 		return TDAMultiParser.top(errors, consumer);
 	}
 }

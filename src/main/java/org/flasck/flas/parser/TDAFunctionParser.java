@@ -51,8 +51,16 @@ public class TDAFunctionParser implements TDAParsing, ScopeReceiver {
 			if (t == null || t.type != ExprToken.IDENTIFIER)
 				return null;
 			
-			consumer.functionIntro(new FunctionIntro(consumer.functionName(t.location, t.text), null));
-			return new TDAFunctionCaseParser(errors, consumer);
+			ExprToken eq = ExprToken.from(line);
+			if (eq == null) {
+				consumer.functionIntro(new FunctionIntro(consumer.functionName(t.location, t.text), null));
+				return new TDAFunctionCaseParser(errors, consumer);
+			}
+			if (!line.hasMore()) {
+				errors.message(line, "function definition requires expression");
+				return null;
+			}
+			throw new NotImplementedException();
 		}
 	}
 
