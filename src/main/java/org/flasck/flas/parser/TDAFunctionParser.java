@@ -7,6 +7,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.stories.FLASStory.State;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -28,9 +29,9 @@ public class TDAFunctionParser implements TDAParsing, ScopeReceiver {
 	}
 
 	@Override
-	public TDAParsing tryParsing(Tokenizable toks) {
+	public TDAParsing tryParsing(Tokenizable line) {
 		if (FLASCompiler.backwardCompatibilityMode) {
-			Object o = delegate.tryParsing(toks);
+			Object o = delegate.tryParsing(line);
 			if (o == null)
 				return null;
 			else if (o instanceof ErrorReporter)
@@ -46,7 +47,12 @@ public class TDAFunctionParser implements TDAParsing, ScopeReceiver {
 			// probably a rename of IntroParser
 			return new NoNestingParser(errors);
 		} else {
-			throw new NotImplementedException();
+			ExprToken t = ExprToken.from(line);
+			if (t == null || t.type != ExprToken.IDENTIFIER)
+				return null;
+			
+			consumer.functionIntro(new FunctionIntro(consumer.functionName(t.location, t.text), null));
+			return new TDAFunctionCaseParser(errors, consumer);
 		}
 	}
 

@@ -2,6 +2,7 @@ package org.flasck.flas.compiler;
 
 import java.io.File;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -31,6 +32,10 @@ public class ActualPhase2Processor implements Phase2Processor {
 		return new SolidName(scope.scopeName, base);
 	}
 
+	public FunctionName functionName(InputPosition location, String base) {
+		return FunctionName.function(location, scope.name(), base);
+	}
+	
 	@Override
 	public void functionIntro(FunctionIntro fn) {
 		int caseName = scope.caseName(fn.name().uniqueName());
