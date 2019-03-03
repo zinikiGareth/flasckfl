@@ -70,8 +70,10 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			closer = new ParenCloseRewriter(from, "()");
 		else if (open.is("["))
 			closer = new ParenCloseRewriter(from, "[]");
+		else if (open.is("{"))
+			closer = new ParenCloseRewriter(from, "{}");
 		else
-			throw new RuntimeException("yeah");
+			throw new RuntimeException("invalid open paren");
 		curr = new TDAExprReducer(errors, closer);
 	}
 	
@@ -79,7 +81,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 	public void term(Expr term) {
 		if (term instanceof Punctuator) {
 			Punctuator punc = (Punctuator) term;
-			if (punc.is(")") || punc.is("]")) {
+			if (punc.is(")") || punc.is("]") || punc.is("}")) {
 				closer.endAt(term);
 				curr.done();
 			} else if (punc.is(",")) {

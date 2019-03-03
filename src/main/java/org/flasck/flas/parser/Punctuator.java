@@ -30,6 +30,12 @@ public class Punctuator implements Expr {
 		return new ParenTermConsumer(location, errors, builder, this);
 	}
 	
+	public ExprTermConsumer openCurlyParser(ErrorReporter errors, ExprTermConsumer builder) {
+		if (!punc.equals("{"))
+			throw new RuntimeException("Can only call this with open curly");
+		return new ParenTermConsumer(location, errors, builder, this);
+	}
+	
 	public boolean is(String punc) {
 		return this.punc.equals(punc);
 	}

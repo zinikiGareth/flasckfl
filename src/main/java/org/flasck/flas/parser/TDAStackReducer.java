@@ -50,6 +50,9 @@ public class TDAStackReducer implements ExprTermConsumer {
 			} else if (punc.is("[")) {
 				this.stack.add(0, punc.openSquareParser(errors, new ParentConsumer()));
 				return;
+			} else if (punc.is("{")) {
+				this.stack.add(0, punc.openCurlyParser(errors, new ParentConsumer()));
+				return;
 			} 
 		}
 		this.stack.get(0).term(term);

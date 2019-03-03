@@ -376,6 +376,17 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // {}
+	public void emptyHashCase() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("{}")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "{"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "}"));
+		reducer.done();
+	}
+
 	// {a:2*4,b:f x}
 	// do we have anything that associates right?
 
