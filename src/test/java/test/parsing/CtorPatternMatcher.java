@@ -10,8 +10,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import test.parsing.CtorPatternMatcher.FieldMatcher;
-
 public class CtorPatternMatcher extends TypeSafeMatcher<Pattern> {
 	public static class FieldMatcher extends TypeSafeMatcher<ConstructorMatch.Field> {
 		private final String fld;

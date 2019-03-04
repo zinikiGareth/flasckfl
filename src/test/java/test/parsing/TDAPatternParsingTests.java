@@ -160,7 +160,6 @@ public class TDAPatternParsingTests {
 	public void anUnclosedVarIsStillASyntaxErrorEvenThoughWeReportThePresenceOfTheVar() {
 		final Tokenizable line = line("(x");
 		context.checking(new Expectations() {{
-			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
@@ -223,7 +222,6 @@ public class TDAPatternParsingTests {
 	public void itIsStillAnErrorNotToCloseYourParens() {
 		final Tokenizable line = line("(String x");
 		context.checking(new Expectations() {{
-			oneOf(builder).accept(with(TypedPatternMatcher.typed("String", "x")));
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
@@ -269,7 +267,6 @@ public class TDAPatternParsingTests {
 	public void trivialConstructorMatchRequiresCRBAfterPattern() {
 		final Tokenizable line = line("(Nil {}");
 		context.checking(new Expectations() {{
-			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
@@ -525,7 +522,17 @@ public class TDAPatternParsingTests {
 		assertNull(parser.tryParsing(line));
 	}
 
-	// Also special case of tuples: (a,b)
+	@Test
+	public void aPatternCanBeATuple() {
+		final Tokenizable line = line("(42, 86)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TuplePatternMatcher.tuple().member(ConstPatternMatcher.number(42)).member(ConstPatternMatcher.number(86))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
 	
 	public static Tokenizable line(String string) {
 		return new Tokenizable(TDAStoryTests.line(string));

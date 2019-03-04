@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
+import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -51,7 +52,7 @@ public class TDAPatternParser implements TDAParsing {
 				throw new RuntimeException("Should have matched above");
 			}
 			case PattToken.ORB: { // Complex array of cases wrapped in parens: qv 
-				return handleORBCases(toks);
+				return handleORBCases(initial, toks);
 			}
 			case PattToken.OSB: { // special list syntax
 				return handleListCases(initial, toks);
@@ -60,11 +61,38 @@ public class TDAPatternParser implements TDAParsing {
 		}
 	}
 
-	public TDAParsing handleORBCases(Tokenizable toks) {
-		TDAParsing success;
+	public TDAParsing handleORBCases(PattToken orb, Tokenizable toks) {
+		List<Pattern> tuples = new ArrayList<>();
+		TDAPatternParser delegate = new TDAPatternParser(errors, patt -> {
+			tuples.add(patt);
+		});
+		PattToken crb;
+		while (true) {
+			TDAParsing success = delegate.handleOneORBMemberCase(toks);
+			if (success == null)
+				return null;
+			crb = PattToken.from(toks);
+			if (crb == null)
+				return invalidPattern(toks);
+			if (crb.type == PattToken.CRB)
+				break;
+			if (crb.type == PattToken.COMMA)
+				continue; // now a tuple
+			return invalidPattern(toks);
+		}
+		if (tuples.isEmpty())
+			return invalidPattern(toks);
+		if (tuples.size() == 1)
+			consumer.accept(tuples.get(0));
+		else
+			consumer.accept(new TuplePattern(orb.location.copySetEnd(crb.location.off), tuples));
+		return this;
+	}
+
+	public TDAParsing handleOneORBMemberCase(Tokenizable toks) {
 		TypeNameToken qn = TypeNameToken.qualified(toks);
 		if (qn != null)
-			success = handleCasesStartingWithAType(toks, qn);
+			return handleCasesStartingWithAType(toks, qn);
 		else {
 			PattToken inside = PattToken.from(toks);
 			if (inside == null)
@@ -74,12 +102,10 @@ public class TDAPatternParser implements TDAParsing {
 				case PattToken.TRUE:
 				case PattToken.FALSE: // Constants in parens
 				{
-					success = handleConst(inside);
-					break;
+					return handleConst(inside);
 				}
 				case PattToken.VAR: {
-					success = handleASimpleVar(inside);
-					break;
+					return handleASimpleVar(inside);
 				}
 				case PattToken.TYPE: {
 					throw new RuntimeException("should be handled above");
@@ -87,12 +113,6 @@ public class TDAPatternParser implements TDAParsing {
 				default: return invalidPattern(toks);
 			}
 		}
-		if (success == null)
-			return null;
-		PattToken crb = PattToken.from(toks);
-		if (crb == null || crb.type != PattToken.CRB)
-			return invalidPattern(toks);
-		return this;
 	}
 
 	private TDAParsing handleConst(PattToken constant) {
