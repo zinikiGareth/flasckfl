@@ -1,5 +1,7 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.flasck.flas.commonBase.ConstPattern;
@@ -51,10 +53,10 @@ public class TDAPatternParser implements TDAParsing {
 			case PattToken.ORB: { // Complex array of cases wrapped in parens: qv 
 				return handleORBCases(toks);
 			}
-			default: { // anything else is an error
-				errors.message(toks, "invalid pattern");
-				return null;
+			case PattToken.OSB: { // special list syntax
+				return handleListCases(initial, toks);
 			}
+			default: return invalidPattern(toks);
 		}
 	}
 
@@ -65,10 +67,8 @@ public class TDAPatternParser implements TDAParsing {
 			success = handleCasesStartingWithAType(toks, qn);
 		else {
 			PattToken inside = PattToken.from(toks);
-			if (inside == null) {
-				errors.message(toks, "invalid pattern");
-				return null;
-			}
+			if (inside == null)
+				return invalidPattern(toks);
 			switch (inside.type) {
 				case PattToken.NUMBER:
 				case PattToken.TRUE:
@@ -84,19 +84,14 @@ public class TDAPatternParser implements TDAParsing {
 				case PattToken.TYPE: {
 					throw new RuntimeException("should be handled above");
 				}
-				default: {
-					errors.message(toks, "invalid pattern");
-					return null;
-				}
+				default: return invalidPattern(toks);
 			}
 		}
 		if (success == null)
 			return null;
 		PattToken crb = PattToken.from(toks);
-		if (crb == null || crb.type != PattToken.CRB) {
-			errors.message(toks, "invalid pattern");
-			return null;
-		}
+		if (crb == null || crb.type != PattToken.CRB)
+			return invalidPattern(toks);
 		return this;
 	}
 
@@ -139,10 +134,8 @@ public class TDAPatternParser implements TDAParsing {
 					continue;
 				else if (tok.type == PattToken.CSB)
 					break;
-				else {
-					errors.message(toks, "invalid pattern");
-					return null;
-				}
+				else
+					return invalidPattern(toks);
 			}
 			tok = PattToken.from(toks);
 			if (tok.type != PattToken.VAR) {
@@ -157,41 +150,70 @@ public class TDAPatternParser implements TDAParsing {
 		} else if (tok.type == PattToken.CRB) {
 			toks.reset(beforeChecking);
 			return handleASimpleConstructor(type);
-		} else {
-			errors.message(toks, "invalid pattern");
-			return null;
-		}
+		} else
+			return invalidPattern(toks);
 	}
 
 	public TDAParsing handleAConstructorMatch(TypeNameToken type, Tokenizable toks) {
 		ConstructorMatch m = new ConstructorMatch(type.location, type.text);
-		PattToken fld = PattToken.from(toks);
-		if (fld == null) {
-			errors.message(toks, "invalid pattern");
-			return null;
-		}
-		if (fld.type != PattToken.CCB) {
-			if (fld.type != PattToken.VAR) {
-				errors.message(toks, "invalid pattern");
-				return null;
-			}
+		while (true) {
+			PattToken fld = PattToken.from(toks);
+			if (fld == null)
+				return invalidPattern(toks);
+			if (fld.type == PattToken.CCB)
+				break;
+			if (fld.type != PattToken.VAR)
+				return invalidPattern(toks);
 			PattToken colon = PattToken.from(toks); // :
-			if (colon == null || colon.type != PattToken.COLON) {
-				errors.message(toks, "invalid pattern");
-				return null;
-			}
+			if (colon == null || colon.type != PattToken.COLON)
+				return invalidPattern(toks);
 			TDAParsing success = new TDAPatternParser(errors, patt -> {
 				m.args.add(m.new Field(fld.location, fld.text, patt));
 			}).tryParsing(toks);
 			if (success == null)
 				return null;
-			PattToken ccb = PattToken.from(toks); // CCB
-			if (ccb == null || ccb.type != PattToken.CCB) {
-				errors.message(toks, "invalid pattern");
-				return null;
-			}
+			PattToken ccb = PattToken.from(toks);
+			if (ccb == null)
+				return invalidPattern(toks);
+			if (ccb.type == PattToken.CCB)
+				break;
+			else if (ccb.type != PattToken.COMMA)
+				return invalidPattern(toks);
 		}
 		consumer.accept(m);
+		return this;
+	}
+
+	private TDAParsing handleListCases(PattToken osb, Tokenizable toks) {
+		List<Pattern> members = new ArrayList<>();
+		TDAPatternParser inner = new TDAPatternParser(errors, patt -> {
+			members.add(0, patt); // store them in reverse order
+		});
+		while (true) {
+			int from = toks.at();
+			PattToken nx = PattToken.from(toks);
+			if (nx.type == PattToken.CSB) {
+				break;
+			}
+			toks.reset(from);
+			if (inner.tryParsing(toks) == null)
+				return null;
+		}
+		ConstructorMatch ret = new ConstructorMatch(osb.location, "Nil");
+		
+		while (!members.isEmpty()) {
+			Pattern m = members.remove(0);
+			if (!(m instanceof ConstPattern)) {
+				toks.reset(m.location().off);
+				return invalidPattern(toks);
+			}
+			ConstructorMatch prev = ret;
+			ret = new ConstructorMatch(osb.location, "Cons");
+			ret.args.add(ret.new Field(m.location(), "head", m));
+			ret.args.add(ret.new Field(ret.location(), "tail", prev));
+		}
+
+		consumer.accept(ret);
 		return this;
 	}
 
@@ -200,5 +222,10 @@ public class TDAPatternParser implements TDAParsing {
 		TypedPattern m = new TypedPattern(type.location, tr, var.location, var.text);
 		consumer.accept(m);
 		return this;
+	}
+
+	public TDAParsing invalidPattern(Tokenizable toks) {
+		errors.message(toks, "invalid pattern");
+		return null;
 	}
 }

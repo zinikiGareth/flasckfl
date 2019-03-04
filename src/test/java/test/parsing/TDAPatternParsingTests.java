@@ -346,6 +346,33 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
+	public void aConstructorCanHaveMultiplePatterns() {
+		final Tokenizable line = line("(Cons { head: 0, tail: (Nil) })");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(0)).field("tail", CtorPatternMatcher.ctor("Nil"))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	// To be fair, this isn't really an "intended" behavior, it's just that the price of having it the other
+	// way much exceeded its value, so I went with the more flexible approach.
+	// This test is just here to document that.
+	@Test
+	public void aPatternCanEndWithAComma() {
+		final Tokenizable line = line("(Cons { head: 0, })");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(0))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
 	public void aConstructorCanHaveAQualifiedName() {
 		final Tokenizable line = line("basic.Nil");
 		context.checking(new Expectations() {{
@@ -462,7 +489,30 @@ public class TDAPatternParsingTests {
 		assertNull(canContinue);
 	}
 
-	// TODO: don't forget nested patterns
+	@Test
+	public void listsAreHandledAsASpecialCase() {
+		final Tokenizable line = line("[]");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void aListCanNestAPatternForTheHead() {
+		final Tokenizable line = line("[42]");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(42)).field("tail", CtorPatternMatcher.ctor("Nil"))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
 	// Also special case of lists: []
 	// Also special case of tuples: (a,b)
 	
