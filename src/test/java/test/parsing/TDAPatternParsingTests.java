@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAPatternParser;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -21,7 +22,8 @@ import test.flas.stories.TDAStoryTests;
 
 public class TDAPatternParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
+	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	@SuppressWarnings("unchecked")
 	private Consumer<Pattern> builder = context.mock(Consumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -78,7 +80,7 @@ public class TDAPatternParsingTests {
 	public void anOpenParenIsASyntaxError() {
 		final Tokenizable line = line("(");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(line, "invalid pattern");
+			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -89,7 +91,7 @@ public class TDAPatternParsingTests {
 	public void openAndCloseIsASyntaxError() {
 		final Tokenizable line = line("()");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(line, "invalid pattern");
+			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -112,7 +114,7 @@ public class TDAPatternParsingTests {
 		final Tokenizable line = line("(x");
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
-			oneOf(errors).message(line, "invalid pattern");
+			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -147,6 +149,18 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
+	public void aConstructorByItselfCanBePlacedInParensIfYouWant() {
+		final Tokenizable line = line("(Nil)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
 	public void parensCanContainTypedThings() {
 		final Tokenizable line = line("(String x)");
 		context.checking(new Expectations() {{
@@ -158,10 +172,70 @@ public class TDAPatternParsingTests {
 		assertNull(parser.tryParsing(line));
 	}
 
+	@Test
+	public void itIsStillAnErrorNotToCloseYourParens() {
+		final Tokenizable line = line("(String x");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("String", "x")));
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void trivialConstructorMatchSyntaxWorks() {
+		final Tokenizable line = line("(Nil {})");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void canPutRandomCharsAtTheEnd() {
+		final Tokenizable line = line("(Nil:");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void trivialConstructorMatchRequiresCCB() {
+		final Tokenizable line = line("(Nil {");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void trivialConstructorMatchRequiresCRBAfterPattern() {
+		final Tokenizable line = line("(Nil {}");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
 	// TODO: don't forget nested patterns
 	// Also special case of lists: []
 	// Also special case of tuples: (a,b)
 	// Polymorphic vars on type
+	// qualified type names
+	// qualified polymorphic type names
 	
 	public static Tokenizable line(String string) {
 		return new Tokenizable(TDAStoryTests.line(string));

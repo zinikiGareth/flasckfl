@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.ParsedLineConsumer;
 import org.flasck.flas.parser.TDAFunctionCaseParser;
 import org.flasck.flas.parser.TDAFunctionParser;
@@ -25,7 +26,8 @@ import test.flas.stories.TDAStoryTests;
 
 public class TDAFunctionParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
+	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	private ParsedLineConsumer builder = context.mock(ParsedLineConsumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 
@@ -62,7 +64,7 @@ public class TDAFunctionParsingTests {
 		final Tokenizable line = line("f = ");
 		context.checking(new Expectations() {{
 			oneOf(builder).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
-			oneOf(errors).message(line, "function definition requires expression");
+			oneOf(errorsMock).message(line, "function definition requires expression");
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(line);
