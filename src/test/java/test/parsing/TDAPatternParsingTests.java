@@ -278,8 +278,64 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
-	public void trivialAConstructorCanHaveAParameter() {
+	public void aConstructorCanHaveAParameter() {
 		final Tokenizable line = line("(Cons {tail: Nil})");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("tail", CtorPatternMatcher.ctor("Nil"))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void aParameterCannotJustEnd() {
+		final Tokenizable line = line("(Cons {");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void theFirstThingInAParameterCannotBeAColon() {
+		final Tokenizable line = line("(Cons {: Nil})");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void theParameterCannotHaveATypeForAFieldName() {
+		final Tokenizable line = line("(Cons {Nil: Nil})");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void theParameterMustHaveAPattern() {
+		final Tokenizable line = line("(Cons {tail: })");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void aParameterCanHaveANestedPattern() {
+		final Tokenizable line = line("(Cons { tail: (Nil) })");
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("tail", CtorPatternMatcher.ctor("Nil"))));
 		}});
@@ -404,18 +460,6 @@ public class TDAPatternParsingTests {
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
-	}
-
-//	@Test
-	public void howHardCanItBeToNestPatterns() {
-		final Tokenizable line = line("(Cons { head: Nil })");
-		context.checking(new Expectations() {{
-			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map")));
-		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
-		TDAParsing canContinue = parser.tryParsing(line);
-		assertNotNull(canContinue);
-		assertNull(parser.tryParsing(line));
 	}
 
 	// TODO: don't forget nested patterns

@@ -166,15 +166,30 @@ public class TDAPatternParser implements TDAParsing {
 	public TDAParsing handleAConstructorMatch(TypeNameToken type, Tokenizable toks) {
 		ConstructorMatch m = new ConstructorMatch(type.location, type.text);
 		PattToken fld = PattToken.from(toks);
-		if (fld != null && fld.type != PattToken.CCB) {
-			PattToken colon = PattToken.from(toks); // :
-			TypeNameToken ctor = TypeNameToken.qualified(toks); // ctor
-			m.args.add(m.new Field(fld.location, fld.text, new ConstructorMatch(ctor.location, ctor.text)));
-			fld = PattToken.from(toks); // CCB
-		}
-		if (fld == null || fld.type != PattToken.CCB) {
+		if (fld == null) {
 			errors.message(toks, "invalid pattern");
 			return null;
+		}
+		if (fld.type != PattToken.CCB) {
+			if (fld.type != PattToken.VAR) {
+				errors.message(toks, "invalid pattern");
+				return null;
+			}
+			PattToken colon = PattToken.from(toks); // :
+			if (colon == null || colon.type != PattToken.COLON) {
+				errors.message(toks, "invalid pattern");
+				return null;
+			}
+			TDAParsing success = new TDAPatternParser(errors, patt -> {
+				m.args.add(m.new Field(fld.location, fld.text, patt));
+			}).tryParsing(toks);
+			if (success == null)
+				return null;
+			PattToken ccb = PattToken.from(toks); // CCB
+			if (ccb == null || ccb.type != PattToken.CCB) {
+				errors.message(toks, "invalid pattern");
+				return null;
+			}
 		}
 		consumer.accept(m);
 		return this;
