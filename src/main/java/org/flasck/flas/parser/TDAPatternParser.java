@@ -60,6 +60,13 @@ public class TDAPatternParser implements TDAParsing {
 		}
 		TDAParsing success;
 		switch (inside.type) {
+			case PattToken.NUMBER:
+			case PattToken.TRUE:
+			case PattToken.FALSE: // Constants in parens
+			{
+				success = handleConst(inside);
+				break;
+			}
 			case PattToken.VAR: {
 				success = handleASimpleVar(inside);
 				break;

@@ -60,6 +60,18 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
+	public void numbersCanBePatternsInsideParens() { // except: why?
+		final Tokenizable line = line("(42)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(ConstPatternMatcher.number(42)));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
 	public void trueCanBeAPattern() {
 		final Tokenizable line = line("true");
 		context.checking(new Expectations() {{
