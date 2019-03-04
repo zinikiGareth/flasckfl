@@ -1,6 +1,7 @@
 package test.parsing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -276,11 +277,127 @@ public class TDAPatternParsingTests {
 		assertNull(canContinue);
 	}
 
+	@Test
+	public void aConstructorCanHaveAQualifiedName() {
+		final Tokenizable line = line("basic.Nil");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("basic.Nil"))); // TODO: should we break this up?
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+		assertFalse(line.hasMore());
+	}
+
+	@Test
+	public void aTypeCanHaveParameters() {
+		final Tokenizable line = line("(Cons[Number] nl)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("Cons", "nl")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+		assertFalse(line.hasMore());
+	}
+
+	@Test
+	public void aTypeWithParametersMustIntroduceAVar() {
+		final Tokenizable line = line("(Cons[Number])");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "type parameters can only be used with type patterns");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void aTypeWithParametersMustBeInParens() {
+		final Tokenizable line = line("Cons[Number]");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons")));
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void aTypeWithParametersCannotIntroduceAConstructorMatch() {
+		final Tokenizable line = line("(Cons[Number] {})");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "type parameters can only be used with type patterns");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void aTypeCanHaveMultipleParameters() {
+		final Tokenizable line = line("(Map[Number,String] map)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void aTypeMustHaveACommaBetweenParameters() {
+		final Tokenizable line = line("(Map[Number String] map)");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void aTypeParameterCannotSuddenlyLaunchIntoSyntax() {
+		final Tokenizable line = line("(Map[Number{}] map)");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void aTypeParameterMustBeClosed() {
+		final Tokenizable line = line("(Map[Number) map)");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
+	@Test
+	public void aTypeParameterMustBeClosedBeforeVar() {
+		final Tokenizable line = line("(Map[Number map)");
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(line, "invalid pattern");
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNull(canContinue);
+	}
+
 	// TODO: don't forget nested patterns
 	// Also special case of lists: []
 	// Also special case of tuples: (a,b)
 	// Polymorphic vars on type
-	// qualified type names
 	// qualified polymorphic type names
 	
 	public static Tokenizable line(String string) {

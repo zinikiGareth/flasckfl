@@ -11,6 +11,9 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
+
+import com.sun.xml.internal.fastinfoset.QualifiedName;
 
 public class TDAPatternParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -25,6 +28,11 @@ public class TDAPatternParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (errors.hasErrors())
 			return null;
+		
+		TypeNameToken qn = TypeNameToken.qualified(toks);
+		if (qn != null)
+			return handleASimpleConstructor(qn);
+		
 		PattToken initial = PattToken.from(toks);
 		if (initial == null)
 			return null;
@@ -39,8 +47,8 @@ public class TDAPatternParser implements TDAParsing {
 			case PattToken.VAR: { // Simple pattern: x
 				return handleASimpleVar(initial);
 			}
-			case PattToken.TYPE: { // Simple constructor match: Nil
-				return handleASimpleConstructor(initial);
+			case PattToken.TYPE: { // Simple constructor match: Nil, should have matched TNT above
+				throw new RuntimeException("Should have matched above");
 			}
 			case PattToken.ORB: { // Complex array of cases wrapped in parens: qv 
 				return handleORBCases(toks);
@@ -53,31 +61,35 @@ public class TDAPatternParser implements TDAParsing {
 	}
 
 	public TDAParsing handleORBCases(Tokenizable toks) {
-		PattToken inside = PattToken.from(toks);
-		if (inside == null) {
-			errors.message(toks, "invalid pattern");
-			return null;
-		}
 		TDAParsing success;
-		switch (inside.type) {
-			case PattToken.NUMBER:
-			case PattToken.TRUE:
-			case PattToken.FALSE: // Constants in parens
-			{
-				success = handleConst(inside);
-				break;
-			}
-			case PattToken.VAR: {
-				success = handleASimpleVar(inside);
-				break;
-			}
-			case PattToken.TYPE: {
-				success = handleCasesStartingWithAType(toks, inside);
-				break;
-			}
-			default: {
+		TypeNameToken qn = TypeNameToken.qualified(toks);
+		if (qn != null)
+			success = handleCasesStartingWithAType(toks, qn);
+		else {
+			PattToken inside = PattToken.from(toks);
+			if (inside == null) {
 				errors.message(toks, "invalid pattern");
 				return null;
+			}
+			switch (inside.type) {
+				case PattToken.NUMBER:
+				case PattToken.TRUE:
+				case PattToken.FALSE: // Constants in parens
+				{
+					success = handleConst(inside);
+					break;
+				}
+				case PattToken.VAR: {
+					success = handleASimpleVar(inside);
+					break;
+				}
+				case PattToken.TYPE: {
+					throw new RuntimeException("should be handled above");
+				}
+				default: {
+					errors.message(toks, "invalid pattern");
+					return null;
+				}
 			}
 		}
 		if (success == null)
@@ -113,29 +125,48 @@ public class TDAPatternParser implements TDAParsing {
 		return this;
 	}
 
-	public TDAParsing handleASimpleConstructor(PattToken initial) {
-		consumer.accept(new ConstructorMatch(initial.location, initial.text));
+	public TDAParsing handleASimpleConstructor(TypeNameToken type) {
+		consumer.accept(new ConstructorMatch(type.location, type.text));
 		return this;
 	}
 
-	public TDAParsing handleCasesStartingWithAType(Tokenizable toks, PattToken inside) {
+	public TDAParsing handleCasesStartingWithAType(Tokenizable toks, TypeNameToken type) {
 		int beforeChecking = toks.at();
-		PattToken var = PattToken.from(toks);
-		if (var.type == PattToken.VAR) {
-			return handleATypedReference(inside, var);
-		} else if (var.type == PattToken.OCB) {
-			return handleAConstructorMatch(inside, toks);
-		} else if (var.type == PattToken.CRB) {
+		PattToken tok = PattToken.from(toks);
+		if (tok.type == PattToken.OSB) {
+			while (true) {
+				TypeNameToken p1 = TypeNameToken.qualified(toks);
+				tok = PattToken.from(toks);
+				if (tok.type == PattToken.COMMA)
+					continue;
+				else if (tok.type == PattToken.CSB)
+					break;
+				else {
+					errors.message(toks, "invalid pattern");
+					return null;
+				}
+			}
+			tok = PattToken.from(toks);
+			if (tok.type != PattToken.VAR) {
+				errors.message(toks, "type parameters can only be used with type patterns");
+				return null;
+			}
+		}
+		if (tok.type == PattToken.VAR) {
+			return handleATypedReference(type, tok);
+		} else if (tok.type == PattToken.OCB) {
+			return handleAConstructorMatch(type, toks);
+		} else if (tok.type == PattToken.CRB) {
 			toks.reset(beforeChecking);
-			return handleASimpleConstructor(inside);
+			return handleASimpleConstructor(type);
 		} else {
 			errors.message(toks, "invalid pattern");
 			return null;
 		}
 	}
 
-	public TDAParsing handleAConstructorMatch(PattToken inside, Tokenizable toks) {
-		ConstructorMatch m = new ConstructorMatch(inside.location, inside.text);
+	public TDAParsing handleAConstructorMatch(TypeNameToken type, Tokenizable toks) {
+		ConstructorMatch m = new ConstructorMatch(type.location, type.text);
 		PattToken ccb = PattToken.from(toks); // CCB
 		if (ccb == null || ccb.type != PattToken.CCB) {
 			errors.message(toks, "invalid pattern");
@@ -145,7 +176,7 @@ public class TDAPatternParser implements TDAParsing {
 		return this;
 	}
 
-	private TDAParsing handleATypedReference(PattToken type, PattToken var) {
+	private TDAParsing handleATypedReference(TypeNameToken type, PattToken var) {
 		TypeReference tr = new TypeReference(type.location, type.text);
 		TypedPattern m = new TypedPattern(type.location, tr, var.location, var.text);
 		consumer.accept(m);
