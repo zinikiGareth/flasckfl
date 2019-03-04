@@ -278,6 +278,18 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
+	public void trivialAConstructorCanHaveAParameter() {
+		final Tokenizable line = line("(Cons {tail: Nil})");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("tail", CtorPatternMatcher.ctor("Nil"))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
 	public void aConstructorCanHaveAQualifiedName() {
 		final Tokenizable line = line("basic.Nil");
 		context.checking(new Expectations() {{
@@ -394,11 +406,21 @@ public class TDAPatternParsingTests {
 		assertNull(canContinue);
 	}
 
+//	@Test
+	public void howHardCanItBeToNestPatterns() {
+		final Tokenizable line = line("(Cons { head: Nil })");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
 	// TODO: don't forget nested patterns
 	// Also special case of lists: []
 	// Also special case of tuples: (a,b)
-	// Polymorphic vars on type
-	// qualified polymorphic type names
 	
 	public static Tokenizable line(String string) {
 		return new Tokenizable(TDAStoryTests.line(string));

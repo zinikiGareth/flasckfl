@@ -13,8 +13,6 @@ import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
-import com.sun.xml.internal.fastinfoset.QualifiedName;
-
 public class TDAPatternParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final Consumer<Pattern> consumer;
@@ -167,8 +165,14 @@ public class TDAPatternParser implements TDAParsing {
 
 	public TDAParsing handleAConstructorMatch(TypeNameToken type, Tokenizable toks) {
 		ConstructorMatch m = new ConstructorMatch(type.location, type.text);
-		PattToken ccb = PattToken.from(toks); // CCB
-		if (ccb == null || ccb.type != PattToken.CCB) {
+		PattToken fld = PattToken.from(toks);
+		if (fld != null && fld.type != PattToken.CCB) {
+			PattToken colon = PattToken.from(toks); // :
+			TypeNameToken ctor = TypeNameToken.qualified(toks); // ctor
+			m.args.add(m.new Field(fld.location, fld.text, new ConstructorMatch(ctor.location, ctor.text)));
+			fld = PattToken.from(toks); // CCB
+		}
+		if (fld == null || fld.type != PattToken.CCB) {
 			errors.message(toks, "invalid pattern");
 			return null;
 		}
