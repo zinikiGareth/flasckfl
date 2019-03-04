@@ -49,13 +49,13 @@ public class ContractMethodParser implements TDAParsing {
 		FunctionName fnName = FunctionName.contractDecl(name.location, null, name.text);
 
 		List<Object> args = new ArrayList<>();
-		TDAPatternParser pp = new TDAPatternParser(errors, toks, x-> args.add(x));
-		while (pp.parse())
+		TDAPatternParser pp = new TDAPatternParser(errors, x-> args.add(x));
+		while (pp.tryParsing(toks) != null)
 			;
 		if (errors.hasErrors())
 			return new IgnoreNestedParser();
 
-		builder.addMethod(new ContractMethodDecl(optLoc, ud.location, name.location, required, ContractMethodDir.valueOf(ud.text.toUpperCase()), fnName , args));
+		builder.addMethod(new ContractMethodDecl(optLoc, ud.location, name.location, required, ContractMethodDir.valueOf(ud.text.toUpperCase()), fnName, args));
 		return new NoNestingParser(errors);
 	}
 

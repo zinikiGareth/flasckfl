@@ -7,25 +7,23 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAPatternParser {
-	private final Tokenizable toks;
+public class TDAPatternParser implements TDAParsing {
 	private final Consumer<Object> consumer;
 
-	public TDAPatternParser(ErrorReporter errors, Tokenizable toks, Consumer<Object> consumer) {
-		this.toks = toks;
+	public TDAPatternParser(ErrorReporter errors, Consumer<Object> consumer) {
 		this.consumer = consumer;
 	}
 
-	public boolean parse() {
+	@Override
+	public TDAParsing tryParsing(Tokenizable toks) {
 		PattToken tok = PattToken.from(toks);
 		if (tok == null)
-			return false;
+			return null;
 
 		if (tok.type == PattToken.VAR) {
 			consumer.accept(new VarPattern(tok.location, tok.text));
 		}
 		
-		return true;
+		return this;
 	}
-
 }

@@ -1,5 +1,6 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -56,14 +57,24 @@ public class TDAFunctionParser implements TDAParsing, ScopeReceiver {
 				return null;
 			final FunctionName fname = consumer.functionName(t.location, t.text);
 			
-			List<Object> args = null;
-			ExprToken tok;
-			while ((tok = ExprToken.from(line)) != null && !tok.text.equals("=")) {
-				
+			List<Object> args = new ArrayList<>();
+			TDAPatternParser pp = new TDAPatternParser(errors, p -> {
+				args.add(p);
+			});
+			// TODO: this should all be a TDAPatternParser, returning to a consumer
+			// implemented here that populates args ...
+			while (pp.tryParsing(line) != null) {
 			}
-			if (tok == null) {
+			
+			// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...
+			if (!line.hasMore()) {
 				consumer.functionIntro(new FunctionIntro(fname, args));
 				return new TDAFunctionCaseParser(errors, consumer);
+			}
+			ExprToken tok = ExprToken.from(line);
+			if (tok == null || !tok.text.equals("=")) {
+				errors.message(line, "syntax error");
+				return null;
 			}
 			if (!line.hasMore()) {
 				errors.message(line, "function definition requires expression");

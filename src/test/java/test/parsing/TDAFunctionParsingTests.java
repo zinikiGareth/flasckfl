@@ -83,7 +83,7 @@ public class TDAFunctionParsingTests {
 	public void aFullFunctionDefinitionReturnsATopLevelParserOfSorts() {
 		context.checking(new Expectations() {{
 			oneOf(builder).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
-			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(builder).functionCase(with(FunctionCaseMatcher.called(null, "f")));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(line("f = 3"));
@@ -95,7 +95,7 @@ public class TDAFunctionParsingTests {
 	public void aFunctionDefinitionCanHaveAVariableArg() {
 		context.checking(new Expectations() {{
 			oneOf(builder).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
-			oneOf(builder).functionCase(with(FunctionCaseMatcher.called(null, "f")));
+			oneOf(builder).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern("x")));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(line("f x = 3"));

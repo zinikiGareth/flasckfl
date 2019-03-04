@@ -1,7 +1,10 @@
 package org.flasck.flas.compiler;
 
 import java.io.File;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -12,6 +15,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class ActualPhase2Processor implements Phase2Processor {
@@ -50,6 +54,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 		int caseName = scope.caseName(fn.intro.name().uniqueName());
 		fn.provideCaseName(caseName);
 		scope.define(errors, fn.functionName().name, fn);
+	}
+
+	@Override
+	public void tupleDefn(List<UnresolvedVar> vars, Expr expr) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
