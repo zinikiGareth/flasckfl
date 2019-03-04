@@ -200,6 +200,11 @@ public class TDAPatternParser implements TDAParsing {
 			toks.reset(from);
 			if (inner.tryParsing(toks) == null)
 				return null;
+			PattToken comma = PattToken.from(toks);
+			if (comma.type == PattToken.CSB)
+				break;
+			else if (comma.type != PattToken.COMMA)
+				return invalidPattern(toks);
 		}
 		ConstructorMatch ret = new ConstructorMatch(osb.location, "Nil");
 		

@@ -513,7 +513,18 @@ public class TDAPatternParsingTests {
 		assertNull(parser.tryParsing(line));
 	}
 
-	// Also special case of lists: []
+	@Test
+	public void aListCanNestTwoPatterns() {
+		final Tokenizable line = line("[42, 86]");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(42)).field("tail", CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(86)).field("tail", CtorPatternMatcher.ctor("Nil")))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
 	// Also special case of tuples: (a,b)
 	
 	public static Tokenizable line(String string) {
