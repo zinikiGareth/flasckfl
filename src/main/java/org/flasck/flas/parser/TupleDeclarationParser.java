@@ -47,7 +47,7 @@ public class TupleDeclarationParser implements TryParsing {
 		if (expr instanceof ErrorResult)
 			return expr;
 
-		return new TupleAssignment(vars, expr);
+		return new TupleAssignment(true, vars, expr);
 	}
 
 }

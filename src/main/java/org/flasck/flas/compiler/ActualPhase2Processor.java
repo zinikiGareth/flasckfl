@@ -13,8 +13,11 @@ import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
@@ -58,7 +61,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void tupleDefn(List<UnresolvedVar> vars, Expr expr) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+		TupleAssignment ta = new TupleAssignment(vars, expr);
+		int k=0;
+		for (UnresolvedVar x : vars) {
+			scope.define(errors, x.var, new TupleMember(x.location, ta, k++));
+		}
 	}
 
 	@Override
