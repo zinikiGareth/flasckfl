@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import java.util.function.Consumer;
 
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -29,6 +30,12 @@ public class TDAPatternParser implements TDAParsing {
 			return null;
 
 		switch (initial.type) {
+			case PattToken.NUMBER:
+			case PattToken.TRUE:
+			case PattToken.FALSE: // Constants by themselves
+			{
+				return handleConst(initial);
+			}
 			case PattToken.VAR: { // Simple pattern: x
 				return handleASimpleVar(initial);
 			}
@@ -74,6 +81,24 @@ public class TDAPatternParser implements TDAParsing {
 			return null;
 		}
 		return this;
+	}
+
+	private TDAParsing handleConst(PattToken constant) {
+		switch (constant.type) {
+			case PattToken.NUMBER: {
+				consumer.accept(new ConstPattern(constant.location, ConstPattern.INTEGER, constant.text));
+				return this;
+			}
+			case PattToken.TRUE:
+			case PattToken.FALSE:
+			{
+				consumer.accept(new ConstPattern(constant.location, ConstPattern.BOOLEAN, constant.text));
+				return this;
+			}
+			default: {
+				throw new RuntimeException("type " + constant.type + " should not come here and not be handled");
+			}
+		}
 	}
 
 	public TDAParsing handleASimpleVar(PattToken initial) {

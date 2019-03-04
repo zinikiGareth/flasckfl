@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 
 import java.util.function.Consumer;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.LocalErrorTracker;
@@ -26,7 +25,6 @@ public class TDAPatternParsingTests {
 	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	@SuppressWarnings("unchecked")
 	private Consumer<Pattern> builder = context.mock(Consumer.class);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 
 	@Test
 	public void atTheEndOfTheLineReturnNull() {
@@ -47,6 +45,42 @@ public class TDAPatternParsingTests {
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 		assertEquals(0, line.at());
+	}
+
+	@Test
+	public void numbersCanBePatterns() {
+		final Tokenizable line = line("42");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(ConstPatternMatcher.number(42)));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void trueCanBeAPattern() {
+		final Tokenizable line = line("true");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(ConstPatternMatcher.truth(true)));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void falseCanBeAPattern() {
+		final Tokenizable line = line("false");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(ConstPatternMatcher.truth(false)));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
 	}
 
 	@Test

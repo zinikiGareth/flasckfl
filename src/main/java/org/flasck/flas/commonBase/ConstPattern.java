@@ -2,7 +2,7 @@ package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class ConstPattern implements Locatable {
+public class ConstPattern implements Pattern {
 	public static final int INTEGER = 1;
 	public static final int BOOLEAN = 2;
 
