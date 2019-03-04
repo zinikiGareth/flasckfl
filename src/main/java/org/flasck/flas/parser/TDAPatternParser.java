@@ -126,9 +126,11 @@ public class TDAPatternParser implements TDAParsing {
 	public TDAParsing handleCasesStartingWithAType(Tokenizable toks, TypeNameToken type) {
 		int beforeChecking = toks.at();
 		PattToken tok = PattToken.from(toks);
+		List<TypeReference> andTypeParameters = new ArrayList<>();
 		if (tok.type == PattToken.OSB) {
 			while (true) {
 				TypeNameToken p1 = TypeNameToken.qualified(toks);
+				andTypeParameters.add(new TypeReference(p1.location, p1.text));
 				tok = PattToken.from(toks);
 				if (tok.type == PattToken.COMMA)
 					continue;
@@ -144,7 +146,7 @@ public class TDAPatternParser implements TDAParsing {
 			}
 		}
 		if (tok.type == PattToken.VAR) {
-			return handleATypedReference(type, tok);
+			return handleATypedReference(type, andTypeParameters, tok);
 		} else if (tok.type == PattToken.OCB) {
 			return handleAConstructorMatch(type, toks);
 		} else if (tok.type == PattToken.CRB) {
@@ -217,8 +219,9 @@ public class TDAPatternParser implements TDAParsing {
 		return this;
 	}
 
-	private TDAParsing handleATypedReference(TypeNameToken type, PattToken var) {
-		TypeReference tr = new TypeReference(type.location, type.text);
+	private TDAParsing handleATypedReference(TypeNameToken type, List<TypeReference> andTypeParameters, PattToken var) {
+		TypeReference tr = new TypeReference(type.location, type.text, andTypeParameters);
+		
 		TypedPattern m = new TypedPattern(type.location, tr, var.location, var.text);
 		consumer.accept(m);
 		return this;

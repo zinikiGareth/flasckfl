@@ -1,14 +1,17 @@
 package test.parsing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 public class TypedPatternMatcher extends TypeSafeMatcher<Pattern> {
 	private final String type;
 	private final String var;
+	private final List<String> typevars = new ArrayList<>();
 
 	public TypedPatternMatcher(String type, String var) {
 		this.type = type;
@@ -28,13 +31,24 @@ public class TypedPatternMatcher extends TypeSafeMatcher<Pattern> {
 	protected boolean matchesSafely(Pattern arg0) {
 		if (arg0 instanceof TypedPattern) {
 			final TypedPattern patt = (TypedPattern)arg0;
-			if (var.equals(patt.var) && type.equals(patt.type.name()))
-				return true;
+			if (!var.equals(patt.var) || !type.equals(patt.type.name()))
+				return false;
+			if (typevars.size() != patt.type.polys().size())
+				return false;
+			for (int i=0;i<typevars.size();i++) {
+				if (!typevars.get(i).equals(patt.type.polys().get(i).name()))
+					return false;
+			}
 		}
-		return false;
+		return true;
 	}
 
 	public static TypedPatternMatcher typed(String type, String var) {
 		return new TypedPatternMatcher(type, var);
+	}
+
+	public TypedPatternMatcher typevar(String tv) {
+		typevars.add(tv);
+		return this;
 	}
 }

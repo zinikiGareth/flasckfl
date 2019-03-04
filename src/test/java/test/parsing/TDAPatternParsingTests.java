@@ -389,7 +389,7 @@ public class TDAPatternParsingTests {
 	public void aTypeCanHaveParameters() {
 		final Tokenizable line = line("(Cons[Number] nl)");
 		context.checking(new Expectations() {{
-			oneOf(builder).accept(with(TypedPatternMatcher.typed("Cons", "nl")));
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("Cons", "nl").typevar("Number")));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -437,7 +437,7 @@ public class TDAPatternParsingTests {
 	public void aTypeCanHaveMultipleParameters() {
 		final Tokenizable line = line("(Map[Number,String] map)");
 		context.checking(new Expectations() {{
-			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map")));
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map").typevar("Number").typevar("String")));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
 		TDAParsing canContinue = parser.tryParsing(line);
