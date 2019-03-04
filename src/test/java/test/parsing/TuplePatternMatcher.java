@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Pattern;
-import org.flasck.flas.parsedForm.ConstructorMatch;
-import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.TuplePattern;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
