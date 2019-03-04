@@ -76,7 +76,7 @@ public class TDAContractMethodParsingTests {
 	public void methodMayHaveOneSimpleArgument() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred").arg(PatternMatcher.var("x"))));
+			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred").arg(VarPatternMatcher.var("x"))));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("up fred x"));

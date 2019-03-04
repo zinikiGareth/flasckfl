@@ -3,16 +3,18 @@ package test.parsing;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 public class ContractMethodMatcher extends TypeSafeMatcher<ContractMethodDecl> {
 	private final ContractMethodDir type;
 	private final String name;
 	private boolean optional = false;
-	private List<PatternMatcher> args = new ArrayList<>();
+	private List<Matcher<Pattern>> args = new ArrayList<>();
 
 	public ContractMethodMatcher(ContractMethodDir dir, String name) {
 		this.type = dir;
@@ -29,7 +31,7 @@ public class ContractMethodMatcher extends TypeSafeMatcher<ContractMethodDecl> {
 		arg0.appendValue(type);
 		arg0.appendText(" ");
 		arg0.appendValue(name);
-		for (PatternMatcher m : args) {
+		for (Matcher<Pattern> m : args) {
 			arg0.appendText(" ");
 			arg0.appendValue(m);
 		}
@@ -56,7 +58,7 @@ public class ContractMethodMatcher extends TypeSafeMatcher<ContractMethodDecl> {
 		return this;
 	}
 
-	public ContractMethodMatcher arg(PatternMatcher matcher) {
+	public ContractMethodMatcher arg(Matcher<Pattern> matcher) {
 		this.args.add(matcher);
 		return this;
 	}

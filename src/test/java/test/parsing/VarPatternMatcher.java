@@ -5,10 +5,10 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-public class PatternMatcher extends TypeSafeMatcher<Pattern> {
+public class VarPatternMatcher extends TypeSafeMatcher<Pattern> {
 	private final String var;
 
-	public PatternMatcher(String var) {
+	public VarPatternMatcher(String var) {
 		this.var = var;
 	}
 
@@ -22,13 +22,13 @@ public class PatternMatcher extends TypeSafeMatcher<Pattern> {
 	@Override
 	protected boolean matchesSafely(Pattern arg0) {
 		if (arg0 instanceof VarPattern) {
-			if (((VarPattern)arg0).var.equals(var))
+			if (var.equals(((VarPattern)arg0).var))
 				return true;
 		}
 		return false;
 	}
 
-	public static PatternMatcher var(String var) {
-		return new PatternMatcher(var);
+	public static VarPatternMatcher var(String var) {
+		return new VarPatternMatcher(var);
 	}
 }

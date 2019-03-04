@@ -5,8 +5,9 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Pattern;
 
-public class ConstructorMatch implements Locatable {
+public class ConstructorMatch implements Pattern {
 	public class Field implements Locatable {
 		public final String field;
 		public final Object patt;
