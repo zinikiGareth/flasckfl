@@ -1,10 +1,11 @@
 package test.parsing;
 
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-public class PatternMatcher extends TypeSafeMatcher<Object> {
+public class PatternMatcher extends TypeSafeMatcher<Pattern> {
 	private final String var;
 
 	public PatternMatcher(String var) {
@@ -19,7 +20,7 @@ public class PatternMatcher extends TypeSafeMatcher<Object> {
 	}
 
 	@Override
-	protected boolean matchesSafely(Object arg0) {
+	protected boolean matchesSafely(Pattern arg0) {
 		if (arg0 instanceof VarPattern) {
 			if (((VarPattern)arg0).var.equals(var))
 				return true;

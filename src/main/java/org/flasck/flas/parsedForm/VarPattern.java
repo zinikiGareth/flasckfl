@@ -1,9 +1,9 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Pattern;
 
-public class VarPattern implements Locatable {
+public class VarPattern implements Pattern {
 	public final InputPosition varLoc;
 	public final String var;
 

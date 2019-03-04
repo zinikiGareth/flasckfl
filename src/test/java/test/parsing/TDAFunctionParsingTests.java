@@ -6,22 +6,18 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parser.ParsedLineConsumer;
 import org.flasck.flas.parser.TDAFunctionCaseParser;
 import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TDATupleDeclarationParser;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,12 +29,6 @@ public class TDAFunctionParsingTests {
 	private ParsedLineConsumer builder = context.mock(ParsedLineConsumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 
-	// TODO: remove this and delete BC version of parser when complete
-	@BeforeClass
-	public static void makeTDA() {
-		FLASCompiler.backwardCompatibilityMode = false;
-	}
-	
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
