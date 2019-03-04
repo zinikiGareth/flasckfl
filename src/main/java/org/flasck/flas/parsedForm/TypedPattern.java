@@ -2,9 +2,9 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
-import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Pattern;
 
-public class TypedPattern implements Locatable, AsString {
+public class TypedPattern implements Pattern, AsString {
 	public final transient InputPosition typeLocation;
 	public final TypeReference type;
 	public final transient InputPosition varLocation;

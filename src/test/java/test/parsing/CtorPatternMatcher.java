@@ -40,4 +40,8 @@ public class CtorPatternMatcher extends TypeSafeMatcher<Pattern> {
 	public static CtorPatternMatcher ctor(String ctor) {
 		return new CtorPatternMatcher(ctor, new ArrayList<>());
 	}
+
+	public CtorPatternMatcher arg(Matcher<Pattern> m) {
+		return this;
+	}
 }

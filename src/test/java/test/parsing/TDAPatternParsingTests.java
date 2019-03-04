@@ -120,7 +120,7 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
-	public void aConstructorByItselfIsJustAPatternWithNoArgs() {
+	public void aConstructorByItselfIsJustATypeWithNoArgs() {
 		final Tokenizable line = line("Nil");
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
@@ -131,7 +131,38 @@ public class TDAPatternParsingTests {
 		assertNull(parser.tryParsing(line));
 	}
 
+	@Test
+	public void anUnParenedConstructorDoesNotSwallowTheRemainingVars() {
+		final Tokenizable line = line("Nil x");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
+			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void parensCanContainTypedThings() {
+		final Tokenizable line = line("(String x)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("String", "x")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
 	// TODO: don't forget nested patterns
+	// Also special case of lists: []
+	// Also special case of tuples: (a,b)
+	// Polymorphic vars on type
+	
 	public static Tokenizable line(String string) {
 		return new Tokenizable(TDAStoryTests.line(string));
 	}

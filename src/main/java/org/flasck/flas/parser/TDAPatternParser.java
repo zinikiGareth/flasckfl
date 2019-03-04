@@ -5,6 +5,9 @@ import java.util.function.Consumer;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.ConstructorMatch.Field;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -34,12 +37,28 @@ public class TDAPatternParser implements TDAParsing {
 				break;
 			}
 			case PattToken.ORB: {
-				PattToken var = PattToken.from(toks);
-				if (var == null || var.type != PattToken.VAR) {
+				PattToken first = PattToken.from(toks);
+				if (first == null) {
 					errors.message(toks, "invalid pattern");
 					return null;
 				}
-				consumer.accept(new VarPattern(var.location, var.text));
+				switch (first.type) {
+					case PattToken.VAR: {
+						consumer.accept(new VarPattern(first.location, first.text));
+						break;
+					}
+					case PattToken.TYPE: {
+						PattToken var = PattToken.from(toks);
+						TypeReference type = new TypeReference(first.location, first.text);
+						TypedPattern m = new TypedPattern(first.location, type, var.location, var.text);
+						consumer.accept(m);
+						break;
+					}
+					default: {
+						errors.message(toks, "invalid pattern");
+						return null;
+					}
+				}
 				PattToken crb = PattToken.from(toks);
 				if (crb == null || crb.type != PattToken.CRB) {
 					errors.message(toks, "invalid pattern");
