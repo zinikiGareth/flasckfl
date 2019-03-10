@@ -37,6 +37,7 @@ public class TDAFunctionParsingTests {
 			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
 		}});
 	}
+
 	@Test
 	public void aBlankLineReturnsNothingAndDoesNothing() {
 		context.checking(new Expectations() {{

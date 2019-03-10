@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -39,6 +41,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 		return new SolidName(scope.scopeName, base);
 	}
 
+	@Override
+	public CardName cardName(String name) {
+		return new CardName((PackageName) scope.scopeName, name);
+	}
+	
 	public FunctionName functionName(InputPosition location, String base) {
 		return FunctionName.function(location, scope.name(), base);
 	}
@@ -66,6 +73,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 		for (UnresolvedVar x : vars) {
 			scope.define(errors, x.var, new TupleMember(x.location, ta, k++));
 		}
+	}
+
+	@Override
+	public void newCard(CardDefinition decl) {
+		scope.define(errors, decl.simpleName, decl);
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.compiler.UnitTestTranslator;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.ziniki.cbstore.json.FLConstructorServer;
 import org.zinutils.bytecode.BCEClassLoader;
@@ -25,7 +26,7 @@ public class UnitTestPhase implements UnitTestTranslator, ScopeReceiver, BCERece
 	private final ErrorReporter errors;
 	private final List<File> tests = new ArrayList<>();
 	private final Map<String, TestScript> scripts = new HashMap<>();
-	private Scope scope;
+	private IScope scope;
 	private BCEClassLoader bce;
 	private Iterable<File> jsFiles;
 
@@ -34,7 +35,7 @@ public class UnitTestPhase implements UnitTestTranslator, ScopeReceiver, BCERece
 	}
 
 	@Override
-	public void provideScope(Scope scope) {
+	public void provideScope(IScope scope) {
 		this.scope = scope;
 	}
 	
@@ -52,8 +53,8 @@ public class UnitTestPhase implements UnitTestTranslator, ScopeReceiver, BCERece
 	public void process(File f) {
 		tests.add(f);
 		if (FLASCompiler.backwardCompatibilityMode) {
-			final String packageName = scope.scopeName.uniqueName()+"._ut";
-			TestScript script = UnitTestRunner.convertScript(errors, scope, packageName, f);
+			final String packageName = scope.name().uniqueName()+"._ut";
+			TestScript script = UnitTestRunner.convertScript(errors, (Scope)scope, packageName, f);
 			if (errors.hasErrors())
 				return;
 			/*

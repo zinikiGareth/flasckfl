@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ParsedLineConsumer;
 import org.flasck.flas.parser.TDAFunctionParser;
@@ -14,6 +15,7 @@ import org.flasck.flas.parser.TDATupleDeclarationParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -191,7 +193,7 @@ public class TDATupleDeclarationParsingTests {
 		final Tokenizable line = line("(x,y) = x");
 		context.checking(new Expectations() {{
 			oneOf(builder).tupleDefn(with(any(List.class)), with(any(Expr.class)));
-			oneOf(builder).scopeTo(with(any(TDAFunctionParser.class)));
+			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
 		}});
 		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(line);
@@ -201,5 +203,4 @@ public class TDATupleDeclarationParsingTests {
 	public static Tokenizable line(String string) {
 		return new Tokenizable(TDAStoryTests.line(string));
 	}
-
 }

@@ -1,6 +1,6 @@
 package test.builder;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -28,7 +28,7 @@ public class ScopeBuilderTests implements ScopeReceiver {
 	private final PackageName pkg = new PackageName("test.building");
 	private final InputPosition loc = new InputPosition("--", 3, 7, "posn");
 	private final TopLevelDefnConsumer sb = new ActualPhase2Processor(errors, null, "test.building");
-	private Scope s;
+	private IScope s;
 
 	@Before
 	public void setup() {
@@ -36,7 +36,7 @@ public class ScopeBuilderTests implements ScopeReceiver {
 	}
 
 	@Override
-	public void provideScope(Scope scope) {
+	public void provideScope(IScope scope) {
 		this.s = scope;
 	}
 	

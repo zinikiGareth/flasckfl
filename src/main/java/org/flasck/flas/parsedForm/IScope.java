@@ -15,4 +15,5 @@ public interface IScope extends Iterable<Scope.ScopeEntry> {
 	int caseName(String name);
 	boolean contains(String key);
 	String fullName(String name);
+	int size();
 }

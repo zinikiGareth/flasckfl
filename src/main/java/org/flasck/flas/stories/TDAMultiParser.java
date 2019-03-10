@@ -9,7 +9,6 @@ import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATupleDeclarationParser;
-import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.reflection.Reflection;
 
@@ -39,6 +38,14 @@ public class TDAMultiParser implements TDAParsing {
 
 	public static TDAParsing top(ErrorReporter errors, ParsedLineConsumer sb) {
 		return new TDAMultiParser(errors, sb, TDAIntroParser.class, TDAFunctionParser.class, TDATupleDeclarationParser.class);
+	}
+
+	// I added this method for testing purposes
+	public boolean contains(Class<?> cls) {
+		for (TDAParsing p : parsers)
+			if (cls.isInstance(p))
+				return true;
+		return false;
 	}
 
 }

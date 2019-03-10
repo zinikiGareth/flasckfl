@@ -3,25 +3,39 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
-public class TDAIntroParser implements TDAParsing {
+import test.parsing.TDACardElementsParser;
+
+public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 	private final ErrorReporter errors;
 	private final ParsedLineConsumer consumer;
+	private IScope scope;
 
 	public TDAIntroParser(ErrorReporter errors, ParsedLineConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
+		consumer.scopeTo(this);
 	}
 	
+	@Override
+	public void provideScope(IScope scope) {
+		this.scope = scope;
+	}
+
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (!toks.hasMore())
@@ -31,6 +45,17 @@ public class TDAIntroParser implements TDAParsing {
 			return null; // in the "nothing doing" sense
 
 		switch (kw.text) {
+		case "card": {
+			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid or missing type name");
+				return new IgnoreNestedParser();
+			}
+			CardName qn = (CardName)consumer.cardName(tn.text);
+			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, scope, qn);
+			consumer.newCard(card);
+			return new TDACardElementsParser(errors, null);
+		}
 		case "struct":
 		case "entity":
 		case "deal":
