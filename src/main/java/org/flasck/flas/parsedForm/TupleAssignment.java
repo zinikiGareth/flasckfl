@@ -1,24 +1,23 @@
 package org.flasck.flas.parsedForm;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import org.flasck.flas.commonBase.names.FunctionName;
 
 public class TupleAssignment {
 	public final List<LocatedName> vars;
+	private FunctionName leadName;
 	public final Object expr;
 
-	@Deprecated // I want to go to UnresolvedVar, but that's not what the downstream expects at the moment
-	public TupleAssignment(boolean deprecated, List<LocatedName> vars, Object expr) {
+	// We used located name here, not unresolvedvar, because this is defining the things
+	public TupleAssignment(List<LocatedName> vars, FunctionName leadName, Object expr) {
 		this.vars = vars;
+		this.leadName = leadName;
 		this.expr = expr;
 	}
 
-	public TupleAssignment(List<UnresolvedVar> vars, Object expr) {
-		this.vars = new ArrayList<>();
-		for (UnresolvedVar v : vars) {
-			this.vars.add(new LocatedName(v.location(), v.var));
-		}
-		this.expr = expr;
+	public FunctionName leadName() {
+		return leadName;
 	}
 
 }

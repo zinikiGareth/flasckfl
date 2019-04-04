@@ -12,13 +12,10 @@ import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
-
-import test.parsing.TDACardElementsParser;
 
 public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 	private final ErrorReporter errors;

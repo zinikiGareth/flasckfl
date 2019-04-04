@@ -5,17 +5,17 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ParsedLineConsumer;
-import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATupleDeclarationParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -190,9 +190,11 @@ public class TDATupleDeclarationParsingTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aLineCanExist() {
-		final Tokenizable line = line("(x,y) = x");
+		final Tokenizable line = line("(x,y) = f 10");
+		final FunctionName fnName = null;
 		context.checking(new Expectations() {{
-			oneOf(builder).tupleDefn(with(any(List.class)), with(any(Expr.class)));
+			oneOf(builder).functionName(with(any(InputPosition.class)), with("x")); will(returnValue(fnName));
+			oneOf(builder).tupleDefn(with(any(List.class)), with(fnName), with(any(Expr.class)));
 			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
 		}});
 		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, builder);

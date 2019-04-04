@@ -12,8 +12,8 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.UnresolvedVar;
 
 public interface ParsedLineConsumer {
 
@@ -26,7 +26,7 @@ public interface ParsedLineConsumer {
 	void newContract(ContractDecl decl);
 	void functionIntro(FunctionIntro o);
 	void functionCase(FunctionCaseDefn o);
-	void tupleDefn(List<UnresolvedVar> vars, Expr expr);
+	void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr);
 
 	void scopeTo(ScopeReceiver sendTo);
 }

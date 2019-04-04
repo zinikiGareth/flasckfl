@@ -3,18 +3,20 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class TupleDeclarationParser implements TryParsing {
-//	private final State state;
+	private final State state;
 
 	public TupleDeclarationParser(State state) {
-//		this.state = state;
+		this.state = state;
 	}
 
 	@Override
@@ -47,7 +49,9 @@ public class TupleDeclarationParser implements TryParsing {
 		if (expr instanceof ErrorResult)
 			return expr;
 
-		return new TupleAssignment(true, vars, expr);
+		FunctionName leadName = state.functionName(new ValidIdentifierToken(vars.get(0).location, vars.get(0).text, vars.get(0).location.pastEnd()));
+
+		return new TupleAssignment(vars, leadName, expr);
 	}
 
 }

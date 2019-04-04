@@ -67,11 +67,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 	}
 
 	@Override
-	public void tupleDefn(List<UnresolvedVar> vars, Expr expr) {
-		TupleAssignment ta = new TupleAssignment(vars, expr);
+	public void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr) {
+		TupleAssignment ta = new TupleAssignment(vars, leadName, expr);
 		int k=0;
-		for (UnresolvedVar x : vars) {
-			scope.define(errors, x.var, new TupleMember(x.location, ta, k++));
+		for (LocatedName x : vars) {
+			scope.define(errors, x.text, new TupleMember(x.location, ta, k++));
 		}
 	}
 

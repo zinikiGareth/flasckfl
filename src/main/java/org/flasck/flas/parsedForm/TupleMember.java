@@ -2,6 +2,7 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 
 public class TupleMember implements Locatable {
 	private InputPosition location;
@@ -17,6 +18,10 @@ public class TupleMember implements Locatable {
 	@Override
 	public InputPosition location() {
 		return location;
+	}
+
+	public FunctionName name() {
+		return ta.leadName();
 	}
 
 }

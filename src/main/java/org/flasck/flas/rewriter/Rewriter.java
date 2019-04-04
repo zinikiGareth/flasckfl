@@ -802,7 +802,11 @@ public class Rewriter implements CodeGenRegistry {
 			} else if (val instanceof HandlerImplements) {
 				// do nothing here
 			} else if (val instanceof TupleMember) {
-				// do nothing here
+				TupleMember tm = (TupleMember) val;
+				if (tm.which == 0) {
+					RWFunctionDefinition ret = new RWFunctionDefinition(tm.name(), 0, true);
+					functions.put(name, ret);
+				}
 			} else if (val instanceof UnitTests) {
 				// Do we want to start again with another package scope?
 				pass1(cx, ((UnitTests)val).scope());
@@ -1497,7 +1501,7 @@ public class Rewriter implements CodeGenRegistry {
 	public void rewrite(NamingContext cx, TupleMember c) {
 		if (c.which != 0)
 			return; // only do it for the first one
-		RWFunctionDefinition ret = functions.get(c.ta.vars.get(0).text /*functionName().uniqueName()*/);
+		RWFunctionDefinition ret = functions.get(c.ta.leadName().uniqueName());
 //		final Map<String, LocalVar> vars = new HashMap<>();
 //		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
 //		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);

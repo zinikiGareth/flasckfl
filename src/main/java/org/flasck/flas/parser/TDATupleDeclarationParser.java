@@ -3,7 +3,9 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -25,7 +27,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 		if (orb == null || orb.type != PattToken.ORB)
 			return null;
 
-		List<UnresolvedVar> vars = new ArrayList<>();
+		List<LocatedName> vars = new ArrayList<>();
 		boolean haveCRB = false;
 		while (line.hasMore()) {
 			PattToken nx = PattToken.from(line);
@@ -40,7 +42,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 				errors.message(line, "syntax error");
 				return null;
 			}
-			vars.add(new UnresolvedVar(nx.location, nx.text));
+			vars.add(new LocatedName(nx.location, nx.text));
 			PattToken cm = PattToken.from(line);
 			if (cm == null) {
 				errors.message(line, "syntax error");
@@ -76,8 +78,9 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			errors.message(line, "tuple assignment requires expression");
 			return null;
 		}
+		FunctionName leadName = consumer.functionName(vars.get(0).location, vars.get(0).text);
 		new TDAExpressionParser(errors, e -> {
-			consumer.tupleDefn(vars, e);
+			consumer.tupleDefn(vars, leadName, e);
 		}).tryParsing(line);
 
 		// TODO: I don't think this should be quite top - it should allow "as many" intro things (which? not card, but some others such as handler are good to have)
