@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -28,8 +29,13 @@ public class TDAObjectElementsParser implements TDAParsing {
 			builder.defineState(state);
 			return new TDAStructFieldParser(errors, state);
 		}
+		case "ctor": {
+			ObjectCtor ctor = new ObjectCtor();
+			builder.addConstructor(ctor);
+			return new TDAMethodMessageParser();
+		}
 		default: {
-			errors.message(toks, "extra characters at end of line");
+			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");
 			return new IgnoreNestedParser();
 		}
 		}

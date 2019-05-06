@@ -3,9 +3,11 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.ObjectElementsConsumer;
+import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAObjectElementsParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAStructFieldParser;
@@ -19,6 +21,16 @@ public class TDAObjectElementParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private ObjectElementsConsumer builder = context.mock(ObjectElementsConsumer.class);
+	
+	@Test
+	public void junkIsNotAKeyword() {
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("'junk' is not a valid object keyword"));
+		}});
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("junk"));
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
 
 	@Test
 	public void objectsCanHaveAStateParser() {
@@ -40,4 +52,13 @@ public class TDAObjectElementParsingTests {
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 	
+	@Test
+	public void objectsCanHaveAConstructor() {
+		context.checking(new Expectations() {{
+			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
+		}});
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor simple"));
+		assertTrue(nested instanceof TDAMethodMessageParser);
+	}
 }

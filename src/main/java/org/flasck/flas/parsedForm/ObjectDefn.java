@@ -41,7 +41,12 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 	}
 
 	@Override
-	public void defineState(int with) {
+	public void defineState(StateDefinition state) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void addConstructor(ObjectCtor ctor) {
 		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
