@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAObjectElementsParser implements TDAParsing {
@@ -15,6 +16,8 @@ public class TDAObjectElementsParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		StateDefinition state = new StateDefinition(toks.realinfo());
+		builder.defineState(state);
 		/*
 		// TODO: figure accessor for object case
 		final boolean accessor = false;
@@ -49,7 +52,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 		return ret.get();
 		*/
-		return null;
+		return new TDAStructFieldParser(errors, state );
 	}
 
 	@Override

@@ -40,6 +40,11 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 		return innerScope;
 	}
 
+	@Override
+	public void defineState(int with) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
 	public ObjectDefn addCtor(ObjectMethod m) {
 		ctors.add(m);
 		return this;

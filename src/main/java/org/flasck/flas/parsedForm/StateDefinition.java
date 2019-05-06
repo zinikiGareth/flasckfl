@@ -4,29 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.parser.StructFieldConsumer;
 
-public class StateDefinition implements Locatable {
-	public final List<StructField> fields = new ArrayList<StructField>();
-	private InputPosition loc;
+public class StateDefinition extends FieldsDefn implements StructFieldConsumer {
 
 	public StateDefinition(InputPosition loc) {
-		this.loc = loc;
+		this(loc, new ArrayList<>());
 	}
 	
-	@Override
-	public InputPosition location() {
-		return loc;
+	public StateDefinition(InputPosition loc, List<PolyType> polys) {
+		super(null, loc, FieldsType.STATE, null, false, polys);
 	}
 	
-	public void addField(StructField o) {
-		fields.add(o);
-	}
-
 	public boolean hasMember(String text) {
 		for (StructField sf : fields)
 			if (sf.name.equals(text))
 				return true;
 		return false;
+	}
+
+	@Override
+	public String asString() {
+		return "STATE";
 	}
 }
