@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -50,6 +54,26 @@ public class TDAObjectElementsParser implements TDAParsing {
 			ObjectCtor ctor = new ObjectCtor(var.location, var.text, args);
 			builder.addConstructor(ctor);
 			return new TDAMethodMessageParser();
+		}
+		case "acor": {
+			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {
+				@Override
+				public FunctionName functionName(InputPosition location, String base) {
+					return FunctionName.objectMethod(location, builder.name(), base);
+				}
+				
+				@Override
+				public void functionIntro(FunctionIntro o) {
+					throw new org.zinutils.exceptions.NotImplementedException();
+				}
+				
+				@Override
+				public void functionCase(FunctionCaseDefn o) {
+					builder.addAccessor(new ObjectAccessor());
+				}
+			};
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, consumer);
+			return fcp.tryParsing(toks);
 		}
 		default: {
 			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");

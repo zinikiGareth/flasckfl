@@ -14,9 +14,9 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAFunctionParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final ParsedLineConsumer consumer;
+	private final FunctionIntroConsumer consumer;
 
-	public TDAFunctionParser(ErrorReporter errors, ParsedLineConsumer consumer) {
+	public TDAFunctionParser(ErrorReporter errors, FunctionIntroConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
 	}
@@ -49,12 +49,18 @@ public class TDAFunctionParser implements TDAParsing {
 			errors.message(line, "function definition requires expression");
 			return null;
 		}
+		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
-			consumer.functionCase(new FunctionCaseDefn(fname, args, e));
+			final FunctionCaseDefn fcd = new FunctionCaseDefn(fname, args, e);
+			fcds.add(fcd);
+			consumer.functionCase(fcd);
 		}).tryParsing(line);
+		
+		if (fcds.isEmpty())
+			return new IgnoreNestedParser();
 
 		// TODO: I don't think this should be quite top - it should allow "as many" intro things (which? not card, but some others such as handler are good to have)
-		return TDAMultiParser.top(errors, consumer);
+		return TDAMultiParser.top(errors, fcds.get(0));
 	}
 
 	@Override

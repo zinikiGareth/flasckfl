@@ -4,13 +4,18 @@ import java.io.Writer;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.ScopeName;
+import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.compiler.ScopeReceiver;
+import org.flasck.flas.parser.ParsedLineConsumer;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
-public class FunctionCaseDefn implements ContainsScope, Locatable {
+public class FunctionCaseDefn implements ContainsScope, Locatable, ParsedLineConsumer {
 	public final FunctionIntro intro;
 	public final Object expr;
 	private Scope scope;
@@ -71,5 +76,61 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 	@Override
 	public String toString() {
 		return "FCD[" + intro.name().uniqueName() + "/" + intro.args.size() + "]";
+	}
+
+	// TODO: I think we should extract these to a base class that recognizes scoped things
+	// TODO: it shouldn't allow cards to be defined internally
+	@Override
+	public FunctionName functionName(InputPosition location, String base) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void functionIntro(FunctionIntro o) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void functionCase(FunctionCaseDefn o) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public SolidName qualifyName(String base) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public CardName cardName(String name) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void newCard(CardDefinition card) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void newStruct(StructDefn sd) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void newContract(ContractDecl decl) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void newObject(ObjectDefn od) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void scopeTo(ScopeReceiver sendTo) {
 	}
 }

@@ -7,7 +7,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAFunctionCaseParser implements TDAParsing {
 	private final ErrorReporter errors;
 
-	public TDAFunctionCaseParser(ErrorReporter errors, ParsedLineConsumer consumer) {
+	public TDAFunctionCaseParser(ErrorReporter errors, FunctionIntroConsumer consumer) {
 		this.errors = errors;
 	}
 

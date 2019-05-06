@@ -2,8 +2,8 @@ package org.flasck.flas.jsform;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.vcode.hsieForm.ClosureHandler;
@@ -41,7 +41,7 @@ public class JSCurryHandler implements ClosureHandler<String> {
 					sb.append(((FunctionName)clz).jsSPname());
 				else if (clz instanceof VarName)
 					sb.append(clz.uniqueName());
-				else if (clz instanceof ObjectName)
+				else if (clz instanceof SolidName)
 					sb.append(clz.uniqueName());
 				else if (clz instanceof PackageName)
 					sb.append("FLEval." + ((PackageName)clz).jsName());

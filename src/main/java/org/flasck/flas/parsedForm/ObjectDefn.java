@@ -13,6 +13,7 @@ import org.flasck.flas.parser.ObjectElementsConsumer;
 
 public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectElementsConsumer {
 	public final List<ObjectCtor> ctors = new ArrayList<>();
+	public final List<ObjectAccessor> acors = new ArrayList<>();
 	public final List<ObjectMethod> methods = new ArrayList<>();
 	private final Scope innerScope;
 	protected final List<PolyType> polys;
@@ -53,6 +54,11 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 	@Override
 	public ObjectDefn addConstructor(ObjectCtor ctor) {
 		ctors.add(ctor);
+		return this;
+	}
+
+	public ObjectDefn addAccessor(ObjectAccessor m) {
+		acors.add(m);
 		return this;
 	}
 
