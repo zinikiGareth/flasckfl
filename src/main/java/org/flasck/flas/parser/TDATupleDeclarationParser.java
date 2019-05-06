@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.LocatedName;
-import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.PattToken;
@@ -78,7 +77,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			errors.message(line, "tuple assignment requires expression");
 			return null;
 		}
-		FunctionName leadName = consumer.functionName(vars.get(0).location, vars.get(0).text);
+		FunctionName leadName = consumer.functionName(vars.get(0).location, "_tuple_" + vars.get(0).text);
 		new TDAExpressionParser(errors, e -> {
 			consumer.tupleDefn(vars, leadName, e);
 		}).tryParsing(line);

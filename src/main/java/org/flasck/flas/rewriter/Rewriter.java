@@ -804,9 +804,11 @@ public class Rewriter implements CodeGenRegistry {
 			} else if (val instanceof TupleMember) {
 				TupleMember tm = (TupleMember) val;
 				if (tm.which == 0) {
-					RWFunctionDefinition ret = new RWFunctionDefinition(tm.name(), 0, true);
-					functions.put(name, ret);
+					RWFunctionDefinition ret = new RWFunctionDefinition(tm.exprFnName(), 0, true);
+					functions.put(tm.exprFnName().uniqueName(), ret);
 				}
+				RWFunctionDefinition ret = new RWFunctionDefinition(tm.name(), 0, true);
+				functions.put(name, ret);
 			} else if (val instanceof UnitTests) {
 				// Do we want to start again with another package scope?
 				pass1(cx, ((UnitTests)val).scope());
@@ -1499,17 +1501,20 @@ public class Rewriter implements CodeGenRegistry {
 	 * @param c
 	 */
 	public void rewrite(NamingContext cx, TupleMember c) {
-		if (c.which != 0)
-			return; // only do it for the first one
-		RWFunctionDefinition ret = functions.get(c.ta.leadName().uniqueName());
-//		final Map<String, LocalVar> vars = new HashMap<>();
-//		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
-//		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
-//		RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
-//		if (rwc == null)
-//			return;
-//		ret.addCase(rwc);
-		ret.gatherScopedVars();
+		final FunctionName cn = c.name();
+		if (c.which == 0) {
+			// Rewrite the first function into an overall thing
+			final FunctionCaseDefn fcd = new FunctionCaseDefn(c.exprFnName(), new ArrayList<>(), c.ta.expr);
+			fcd.provideCaseName(-1);
+			rewrite(cx, fcd);
+		}
+		
+		// now make this point to a deref of that
+		RWFunctionDefinition me = functions.get(cn.uniqueName());
+		final RWFunctionIntro intro = new RWFunctionIntro(cn.location, cn, new ArrayList<>(), new HashMap<>());
+		final PackageVar pv = new PackageVar(cn.location, new SolidName(null, "(_)"), null);
+		final ApplyExpr extractExpr = new ApplyExpr(cn.location, pv, new NumericLiteral(cn.location, c.which), new ApplyExpr(cn.location, new PackageVar(cn.location, c.exprFnName(), null)));
+		me.addCase(new RWFunctionCaseDefn(intro, 0, extractExpr));
 	}
 
 	private void rewriteStandaloneMethod(NamingContext cx, MethodCaseDefn c, HSIEForm.CodeType codeType) {

@@ -2,6 +2,8 @@ package org.flasck.flas;
 
 import java.io.File;
 
+import org.flasck.flas.compiler.PhaseTo;
+
 public interface ConfigVisitor {
 
 	void dumpTypes(boolean d);
@@ -35,5 +37,7 @@ public interface ConfigVisitor {
 	void writeJVMTo(File file);
 
 	void writeDroidTo(File file, boolean andBuild);
+
+	void phaseTo(PhaseTo upto);
 
 }

@@ -5,8 +5,8 @@ import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.exceptions.UtilException;
 

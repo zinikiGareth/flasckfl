@@ -20,10 +20,10 @@ import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWCastExpr;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.TypeCheckStringable;
-import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.zinutils.reflection.Reflection;
 
 public class GatherScopedVars {

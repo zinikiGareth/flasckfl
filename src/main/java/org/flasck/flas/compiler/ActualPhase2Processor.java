@@ -20,7 +20,6 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
-import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class ActualPhase2Processor implements Phase2Processor {
@@ -67,11 +66,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 	}
 
 	@Override
-	public void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr) {
-		TupleAssignment ta = new TupleAssignment(vars, leadName, expr);
+	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, Expr expr) {
+		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);
 		int k=0;
 		for (LocatedName x : vars) {
-			scope.define(errors, x.text, new TupleMember(x.location, ta, k++));
+			scope.define(errors, x.text, new TupleMember(x.location, ta, k++, functionName(x.location, x.text)));
 		}
 	}
 

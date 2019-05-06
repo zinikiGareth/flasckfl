@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 /** I'm wondering if we actually need "Story" as such.

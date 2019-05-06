@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.D3Thing;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBlockIntro;
 import org.flasck.flas.parsedForm.TemplateCardReference;
@@ -31,7 +32,6 @@ import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.zinutils.exceptions.UtilException;
 

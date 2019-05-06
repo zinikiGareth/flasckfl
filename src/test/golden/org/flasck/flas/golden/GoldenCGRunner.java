@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
@@ -80,6 +81,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
 		boolean ignoreTest = new File(f, "ignore").exists();
 		boolean legacyTest = new File(f, "legacy").exists();
+		String phase = new File(f, "phase").exists() ? FileUtils.readFile(new File(f, "phase")) : PhaseTo.COMPLETE.toString();
 		boolean approvedForTDA = new File(f, "tda").exists() || new File(f, "tdaonly").exists();
 		boolean tdaOnly = new File(f, "tdaonly").exists();
 
@@ -91,29 +93,30 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 		name.insert(0, "test");
 		if (useOLD && !tdaOnly)
-			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, false);
+			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, phase, false);
 		if (useTDA && approvedForTDA) {
 			name.append("_tda");
-			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, true);
+			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, phase, true);
 		}
 	}
 
-	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, boolean legacyTest, boolean tdaTest) {
+	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, boolean legacyTest, String phase, boolean tdaTest) {
 		addMethod(bcc, name, ignoreTest, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
-				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.boolConst(legacyTest), done.boolConst(tdaTest)).flush();
+				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.boolConst(legacyTest), done.boolConst(tdaTest), done.stringConst(phase)).flush();
 			}
 		});
 	}
 	
-	public static void runGolden(String s, boolean isLegacy, boolean runAsTDA) throws Exception {
+	public static void runGolden(String s, boolean isLegacy, boolean runAsTDA, String phase) throws Exception {
 		System.out.println("Run golden test for " + s);
 		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, isLegacy, useJSRunner, useJVMRunner, checkNothing, checkEverything, stripNumbers);
 		
 		te.cleanUp();
 		
 		FLASCompiler compiler = te.configureCompiler();
+		compiler.phaseTo(PhaseTo.valueOf(phase));
 		File dir = new File(s, "test.golden");
 		if (!runAsTDA) {
 			ErrorResult er = new ErrorResult();

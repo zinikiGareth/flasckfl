@@ -234,7 +234,7 @@ public class FLASStory {
 					TupleAssignment ta = (TupleAssignment) o;
 					int k=0;
 					for (LocatedName x : ta.vars) {
-						ret.define(er, x.text, new TupleMember(x.location, ta, k++));
+						ret.define(er, x.text, new TupleMember(x.location, ta, k++, null));
 					}
 					// I don't think we need to do anything here, but if recursion is called for, we probably have a scope
 				} else if (o instanceof StructDefn) {

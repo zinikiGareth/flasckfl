@@ -8,11 +8,13 @@ public class TupleMember implements Locatable {
 	private InputPosition location;
 	public final TupleAssignment ta;
 	public final int which;
+	private final FunctionName myName;
 
-	public TupleMember(InputPosition location, TupleAssignment ta, int which) {
+	public TupleMember(InputPosition location, TupleAssignment ta, int which, FunctionName myName) {
 		this.location = location;
 		this.ta = ta;
 		this.which = which;
+		this.myName = myName;
 	}
 
 	@Override
@@ -20,8 +22,11 @@ public class TupleMember implements Locatable {
 		return location;
 	}
 
-	public FunctionName name() {
-		return ta.leadName();
+	public FunctionName exprFnName() {
+		return ta.exprFnName();
 	}
 
+	public FunctionName name() {
+		return myName;
+	}
 }

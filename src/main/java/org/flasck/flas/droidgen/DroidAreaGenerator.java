@@ -20,15 +20,15 @@ import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.FieldObject;
 import org.zinutils.bytecode.GenericAnnotator;
+import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.bytecode.GenericAnnotator.PendingVar;
-import org.zinutils.bytecode.JavaInfo.Access;
 
 public class DroidAreaGenerator implements AreaGenerator {
 	final ByteCodeSink bcc;

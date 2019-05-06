@@ -1,6 +1,6 @@
 package test.names;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;

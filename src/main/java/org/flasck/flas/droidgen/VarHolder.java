@@ -7,8 +7,8 @@ import java.util.Map;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
-import org.zinutils.exceptions.UtilException;
 import org.zinutils.bytecode.Var;
+import org.zinutils.exceptions.UtilException;
 
 public class VarHolder {
 	final Map<String, Var> svars = new HashMap<String, Var>();

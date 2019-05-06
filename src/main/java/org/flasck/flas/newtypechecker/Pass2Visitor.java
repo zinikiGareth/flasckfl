@@ -2,6 +2,7 @@ package org.flasck.flas.newtypechecker;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.HandlerLambda;

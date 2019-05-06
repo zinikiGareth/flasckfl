@@ -92,6 +92,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private BuilderSink sink = new BuilderSink();
 	private ErrorResult errors = new ErrorResult();
 	private PrintWriter errorWriter;
+	private PhaseTo phaseTo;
 
 	public FLASCompiler(Configuration config) {
 		if (config != null)
@@ -220,6 +221,11 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		webzips.add(called);
 	}
 	
+	@Override
+	public void phaseTo(PhaseTo upto) {
+		this.phaseTo = upto;
+	}
+	
 	@Deprecated
 	public void includePrior(CompileResult cr) {
 		priors.add(cr);
@@ -291,6 +297,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			mark = errors.mark();
 		}
 		if (errors.hasErrors())
+			return;
+		if (phaseTo == PhaseTo.PARSING)
 			return;
 		p2.process();
 		if (errors.hasErrors()) {

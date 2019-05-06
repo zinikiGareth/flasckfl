@@ -29,10 +29,10 @@ import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
-import org.zinutils.bytecode.JavaInfo.Access;
 
 public class GenTestsForContracts {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

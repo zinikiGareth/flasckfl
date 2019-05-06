@@ -40,7 +40,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.ziniki.ziwsh.model.IdempotentHandler;
-import org.ziniki.ziwsh.model.InternalHandle;
 
 public class ScriptBuilderTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
