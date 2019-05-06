@@ -370,7 +370,7 @@ public class FLASStory {
 						MethodCaseDefn mcd = (MethodCaseDefn) omm.what;
 						mcd.provideCaseName(od.caseFor(mcd.intro.name().name));
 						addMethodMessages(er, mcd.messages, b.nested);
-						od.addCtor(new ObjectMethod(mcd));
+//						od.addCtor(new ObjectMethod(mcd));
 					}
 					else
 						er.message(b, "syntax error"); // this might be a syntax error, or might not ...

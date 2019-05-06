@@ -1,0 +1,5 @@
+	object State A
+		state
+			A a
+			Number q
+			String s

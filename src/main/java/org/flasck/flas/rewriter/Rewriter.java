@@ -784,12 +784,12 @@ public class Rewriter implements CodeGenRegistry {
 				ObjectDefn od = (ObjectDefn)val;
 				RWObjectDefn ret = new RWObjectDefn(od.location(), od.name(), od.generate, rewritePolys(od.polys()));
 				objects.put(name, ret);
-				for (ObjectMethod om : od.ctors) {
-					MethodCaseDefn m = om.getMethod();
-					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
-					List<RWTypedPattern> handler = new ArrayList<>();
-					ret.addConstructor(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null, handler)));
-				}
+//				for (ObjectMethod om : od.ctors) {
+//					MethodCaseDefn m = om.getMethod();
+//					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
+//					List<RWTypedPattern> handler = new ArrayList<>();
+//					ret.addConstructor(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null, handler)));
+//				}
 				for (ObjectMethod om : od.methods) {
 					MethodCaseDefn m = om.getMethod();
 					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
@@ -998,14 +998,14 @@ public class Rewriter implements CodeGenRegistry {
 //				ret = new ApplyExpr(loc, assoc, new StringLiteral(sf.location(), sf.name), rx, ret);
 //			}
 //		}
-		for (ObjectMethod c : od.ctors) {
-			final FunctionName fnName = c.getMethod().methodName();
-			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
-			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(fnName.location, fnName, new ArrayList<>(), null), 0, new CreateObject(fnName.location, od.name(), ret));
-			fn.addCase(fcd0);
-			fn.gatherScopedVars();
-			functions.put(fn.uniqueName(), fn);
-		}
+//		for (ObjectMethod c : od.ctors) {
+//			final FunctionName fnName = c.getMethod().methodName();
+//			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
+//			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(fnName.location, fnName, new ArrayList<>(), null), 0, new CreateObject(fnName.location, od.name(), ret));
+//			fn.addCase(fcd0);
+//			fn.gatherScopedVars();
+//			functions.put(fn.uniqueName(), fn);
+//		}
 		for (ObjectMethod m : od.methods) {
 			final RWMethodDefinition rwm = rw.getMethod(m.getMethod().methodName());
 			rewriteCase(ox, rwm, m.getMethod(), false, true);

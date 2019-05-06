@@ -79,14 +79,25 @@ public class TDAObjectIntroParsingTests {
 	}
 
 	@Test
-	public void polymorphicVarsMustBeValid() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("object Store xx");
+	public void aPolymorphicObjectDefinitionCannotBeInBrackets() {
+		final Tokenizable toks = TDABasicIntroParsingTests.line("object Store[A]");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(toks, "invalid type argument");
+			oneOf(errors).message(with(TokenizableMatcher.match("[A]")), with("syntax error"));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void polymorphicVarsMustBeValid() {
+		final Tokenizable toks = TDABasicIntroParsingTests.line("object Store xx");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "syntax error");
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test

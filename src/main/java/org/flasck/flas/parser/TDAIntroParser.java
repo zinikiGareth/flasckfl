@@ -91,8 +91,8 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			while (toks.hasMore()) {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
 				if (ta == null) {
-					errors.message(toks, "invalid type argument");
-					return null;
+					errors.message(toks, "syntax error");
+					return new IgnoreNestedParser();
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}

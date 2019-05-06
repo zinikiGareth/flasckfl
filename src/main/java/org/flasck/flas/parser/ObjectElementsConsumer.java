@@ -5,8 +5,8 @@ import org.flasck.flas.parsedForm.StateDefinition;
 
 public interface ObjectElementsConsumer {
 
-	void defineState(StateDefinition state);
+	ObjectElementsConsumer defineState(StateDefinition state);
 
-	void addConstructor(ObjectCtor ctor);
+	ObjectElementsConsumer addConstructor(ObjectCtor ctor);
 
 }

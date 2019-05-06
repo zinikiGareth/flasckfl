@@ -12,7 +12,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 
 public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectElementsConsumer {
-	public final List<ObjectMethod> ctors = new ArrayList<>();
+	public final List<ObjectCtor> ctors = new ArrayList<>();
 	public final List<ObjectMethod> methods = new ArrayList<>();
 	private final Scope innerScope;
 	protected final List<PolyType> polys;
@@ -21,6 +21,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 	private final SolidName name;
 	public final InputPosition kw;
 	public final boolean generate;
+	private StateDefinition state;
 
 	public ObjectDefn(InputPosition kw, InputPosition location, SolidName tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
@@ -41,17 +42,17 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 	}
 
 	@Override
-	public void defineState(StateDefinition state) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+	public ObjectDefn defineState(StateDefinition state) {
+		if (this.state != null) {
+			throw new RuntimeException("Fix this case with a test");
+		}
+		this.state = state;
+		return this;
 	}
 
 	@Override
-	public void addConstructor(ObjectCtor ctor) {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	public ObjectDefn addCtor(ObjectMethod m) {
-		ctors.add(m);
+	public ObjectDefn addConstructor(ObjectCtor ctor) {
+		ctors.add(ctor);
 		return this;
 	}
 
