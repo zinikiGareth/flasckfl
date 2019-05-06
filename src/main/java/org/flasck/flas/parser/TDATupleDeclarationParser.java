@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.LocatedName;
@@ -84,5 +85,9 @@ public class TDATupleDeclarationParser implements TDAParsing {
 
 		// TODO: I don't think this should be quite top - it should allow "as many" intro things (which? not card, but some others such as handler are good to have)
 		return TDAMultiParser.top(errors, consumer);
+	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
 	}
 }

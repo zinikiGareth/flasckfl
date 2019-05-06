@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
@@ -92,6 +93,10 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 		default:
 			return null;
 		}
+	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
 	}
 
 }

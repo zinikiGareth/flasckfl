@@ -1,5 +1,6 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.tokenizers.Tokenizable;
 
@@ -14,6 +15,10 @@ public class NoNestingParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		errors.message(toks, "a nested block is not allowed here");
 		return null;
+	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
 	}
 
 }

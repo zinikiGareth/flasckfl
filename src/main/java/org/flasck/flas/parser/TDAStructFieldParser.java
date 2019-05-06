@@ -52,4 +52,8 @@ public class TDAStructFieldParser implements TDAParsing {
 		}
 		return ret.get();
 	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
+	}
 }

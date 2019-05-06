@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.ContinuedLine;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.Tokenizable;
 
@@ -14,6 +15,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
  */
 public class TDANester implements BlockConsumer {
 	private final List<TDAParsing> stack = new ArrayList<>();
+	private InputPosition lastloc;
 
 	public TDANester(TDAParsing topLevel) {
 		stack.add(topLevel);
@@ -36,11 +38,22 @@ public class TDANester implements BlockConsumer {
 			return;
 		// need to store that as the parser for depth+1
 		// we may want to tell the nested parsers we're closing them
-		while (stack.size() > depth)
-			stack.remove(stack.size()-1);
-		TDAParsing nesting = stack.get(depth-1).tryParsing(new Tokenizable(currline));
+		final Tokenizable tkz = new Tokenizable(currline);
+		lastloc = tkz.realinfo();
+		while (stack.size() > depth) {
+			TDAParsing endScope = stack.remove(stack.size()-1);
+			endScope.scopeComplete(tkz.realinfo());
+		}
+		TDAParsing nesting = stack.get(depth-1).tryParsing(tkz);
 		if (nesting != null)
 			stack.add(nesting);
 	}
 
+	@Override
+	public void flush() {
+		while (stack.size() > 0) {
+			TDAParsing endScope = stack.remove(stack.size()-1);
+			endScope.scopeComplete(lastloc);
+		}
+	}
 }

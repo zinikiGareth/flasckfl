@@ -7,4 +7,5 @@ public interface BlockConsumer {
 	// TODO: this may need some "line number" or "InputPosition" or something
 	void comment(String text);
 	void line(int depth, ContinuedLine currline);
+	void flush();
 }

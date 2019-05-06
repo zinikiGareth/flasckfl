@@ -61,6 +61,20 @@ public class TDAFunctionParsingTests {
 	}
 
 	@Test
+	public void aNameMustHaveAnindentedCaseParserThatSeesSomething() {
+		final Tokenizable line = line("f");
+		context.checking(new Expectations() {{
+			oneOf(builder).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
+			oneOf(builder).functionIntro(with(any(FunctionIntro.class)));
+			oneOf(errorsMock).hasErrors(); will(returnValue(false));
+			oneOf(errorsMock).message(with(any(InputPosition.class)), with("no function cases specified")	);
+		}});
+		TDAFunctionParser parser = new TDAFunctionParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(line);
+		nested.scopeComplete(line.realinfo());
+	}
+
+	@Test
 	public void aFunctionDeclCannotEndAtTheEquals() {
 		final Tokenizable line = line("f = ");
 		context.checking(new Expectations() {{

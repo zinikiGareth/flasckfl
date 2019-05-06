@@ -1,5 +1,6 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
@@ -46,6 +47,10 @@ public class TDAExprParser implements TDAParsing {
 				throw new RuntimeException("Not found");
 			}
 		}
+	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
 	}
 
 }

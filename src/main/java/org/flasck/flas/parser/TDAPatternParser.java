@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.errors.ErrorReporter;
@@ -255,5 +256,9 @@ public class TDAPatternParser implements TDAParsing {
 	public TDAParsing invalidPattern(Tokenizable toks) {
 		errors.message(toks, "invalid pattern");
 		return null;
+	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
 	}
 }

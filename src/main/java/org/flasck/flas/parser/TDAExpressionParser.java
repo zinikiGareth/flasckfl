@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import java.util.function.Consumer;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -39,6 +40,11 @@ public class TDAExpressionParser implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		return parser.tryParsing(toks);
+	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 }

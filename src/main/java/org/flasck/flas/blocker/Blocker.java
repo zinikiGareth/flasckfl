@@ -60,7 +60,6 @@ public class Blocker {
 
 	private void consume(String file, int lineNumber, String text) {
 		Indent ind = getIndent(text);
-//			System.out.println(lineNo + " " + ind + ": " + l);
 		text = text.trim();
 		if (ind == null || (ind.tabs == 0 && ind.spaces == 0)) {
 			consumer.comment(text);
@@ -90,6 +89,7 @@ public class Blocker {
 	public void flush() {
 		if (currline != null)
 			consumer.line(currLevel, currline);
+		consumer.flush();
 	}
 
 	@Deprecated

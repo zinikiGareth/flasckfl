@@ -1,5 +1,6 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class IgnoreNestedParser implements TDAParsing {
@@ -9,4 +10,7 @@ public class IgnoreNestedParser implements TDAParsing {
 		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
+	@Override
+	public void scopeComplete(InputPosition location) {
+	}
 }

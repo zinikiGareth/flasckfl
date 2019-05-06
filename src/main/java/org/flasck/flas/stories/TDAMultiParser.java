@@ -3,6 +3,7 @@ package org.flasck.flas.stories;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ParsedLineConsumer;
 import org.flasck.flas.parser.TDAFunctionParser;
@@ -48,4 +49,7 @@ public class TDAMultiParser implements TDAParsing {
 		return false;
 	}
 
+	@Override
+	public void scopeComplete(InputPosition location) {
+	}
 }
