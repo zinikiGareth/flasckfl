@@ -3,7 +3,6 @@ package test.parsing;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.ObjectElementsConsumer;
@@ -55,10 +54,22 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveAConstructor() {
 		context.checking(new Expectations() {{
-			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
+			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("simple")));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor simple"));
+		assertTrue(nested instanceof TDAMethodMessageParser);
+	}
+	
+	@Test
+	public void objectsCanHaveAConstructorWithAnArgument() {
+		context.checking(new Expectations() {{
+			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
+		}});
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor args x"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
 }
