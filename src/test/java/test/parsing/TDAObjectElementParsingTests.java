@@ -87,4 +87,40 @@ public class TDAObjectElementParsingTests {
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
+
+	@Test
+	public void objectsCanHaveAccessorMethodsWithFunctionArguments() {
+		final SolidName objname = new SolidName(null, "foo");
+		context.checking(new Expectations() {{
+			oneOf(builder).name(); will(returnValue(objname));
+			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(null, "myname"))));
+		}});
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname x (Number y) = x + y"));
+		assertTrue(nested instanceof TDAMultiParser);
+	}
+
+	@Test
+	public void objectsCanHaveUpdateMethods() {
+		context.checking(new Expectations() {{
+			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(null, "myname")));
+		}});
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update"));
+		assertTrue(nested instanceof TDAMethodMessageParser);
+	}
+
+	@Test
+	public void objectsCanHaveUpdateMethodsWithArguments() {
+		context.checking(new Expectations() {{
+			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(null, "myname")));
+		}});
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update (String s)"));
+		assertTrue(nested instanceof TDAMethodMessageParser);
+	}
+
 }

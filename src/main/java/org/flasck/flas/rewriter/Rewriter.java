@@ -68,7 +68,6 @@ import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -129,7 +128,6 @@ import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
-import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTemplate;
@@ -789,12 +787,12 @@ public class Rewriter implements CodeGenRegistry {
 //					List<RWTypedPattern> handler = new ArrayList<>();
 //					ret.addConstructor(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null, handler)));
 //				}
-				for (ObjectMethod om : od.methods) {
-					MethodCaseDefn m = om.getMethod();
-					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
-					List<RWTypedPattern> handler = new ArrayList<>();
-					ret.addMethod(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null, handler)));
-				}
+//				for (ObjectMethod om : od.methods) {
+//					MethodCaseDefn m = om.getMethod();
+//					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
+//					List<RWTypedPattern> handler = new ArrayList<>();
+//					ret.addMethod(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null, handler)));
+//				}
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
 				structs.put(name, new RWStructDefn(sd.location(), sd.type, sd.name, sd.generate, rewritePolys(sd.polys())));
@@ -983,9 +981,9 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private void rewriteObject(NamingContext cx, ObjectDefn od) {
-		RWObjectDefn rw = objects.get(od.name().uniqueName());
-		Object ret = cx.resolve(od.location(), "NilMap");
-		final ObjectContext ox = new ObjectContext(cx, od, rw.polys());
+//		RWObjectDefn rw = objects.get(od.name().uniqueName());
+//		Object ret = cx.resolve(od.location(), "NilMap");
+//		final ObjectContext ox = new ObjectContext(cx, od, rw.polys());
 //		for (StructField sf : od.fields) {
 //			Type st = rewrite(ox, sf.type, false);
 //			rw.addField(new RWStructField(sf.loc, false, st, sf.name, null));
@@ -1005,11 +1003,11 @@ public class Rewriter implements CodeGenRegistry {
 //			fn.gatherScopedVars();
 //			functions.put(fn.uniqueName(), fn);
 //		}
-		for (ObjectMethod m : od.methods) {
-			final RWMethodDefinition rwm = rw.getMethod(m.getMethod().methodName());
-			rewriteCase(ox, rwm, m.getMethod(), false, true);
-			methods.put(m.getMethod().methodName().uniqueName(), rwm);
-		}
+//		for (ObjectMethod m : od.methods) {
+//			final RWMethodDefinition rwm = rw.getMethod(m.getMethod().methodName());
+//			rewriteCase(ox, rwm, m.getMethod(), false, true);
+//			methods.put(m.getMethod().methodName().uniqueName(), rwm);
+//		}
 	}
 
 	private RWTemplate rewrite(TemplateContext cx, Template template) {

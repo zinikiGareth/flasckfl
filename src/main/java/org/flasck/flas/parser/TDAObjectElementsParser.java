@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -74,6 +75,22 @@ public class TDAObjectElementsParser implements TDAParsing {
 			};
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, consumer);
 			return fcp.tryParsing(toks);
+		}
+		case "method": {
+			ValidIdentifierToken var = VarNameToken.from(toks);
+			List<Pattern> args = new ArrayList<>();
+			TDAPatternParser pp = new TDAPatternParser(errors, p -> {
+				args.add(p);
+			});
+			while (pp.tryParsing(toks) != null)
+				;
+			if (toks.hasMore()) {
+				errors.message(toks, "extra characters at end of line");
+				return new IgnoreNestedParser();
+			}
+			ObjectMethod meth = new ObjectMethod(var.location, var.text, args);
+			builder.addMethod(meth);
+			return new TDAMethodMessageParser();
 		}
 		default: {
 			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");

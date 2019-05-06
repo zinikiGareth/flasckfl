@@ -48,7 +48,6 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMember;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -383,7 +382,7 @@ public class FLASStory {
 					MethodCaseDefn mcd = (MethodCaseDefn) omm.what;
 					mcd.provideCaseName(od.caseFor(mcd.intro.name().name));
 					addMethodMessages(er, mcd.messages, b.nested);
-					od.addMethod(new ObjectMethod(mcd));
+//					od.addMethod(new ObjectMethod(mcd));
 					break;
 				}
 				case ObjectMember.INTERNAL:

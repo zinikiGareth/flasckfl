@@ -33,7 +33,6 @@ import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -188,8 +187,8 @@ public class PFDumper {
 			for (PolyType p : od.polys())
 				dumpPosition(pw, p.location(), false);
 			pw.println("");
-			for (ObjectMethod om : od.methods)
-				dumpRecursive(pw.indent(), om.getMethod());
+//			for (ObjectMethod om : od.methods)
+//				dumpRecursive(pw.indent(), om.getMethod());
 		} else if (obj instanceof StructField) {
 			StructField sf = (StructField) obj;
 			pw.print(sf.name);
