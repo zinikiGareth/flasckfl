@@ -32,10 +32,8 @@ public class TDAFunctionParser implements TDAParsing {
 		TDAPatternParser pp = new TDAPatternParser(errors, p -> {
 			args.add(p);
 		});
-		// TODO: this should all be a TDAPatternParser, returning to a consumer
-		// implemented here that populates args ...
-		while (pp.tryParsing(line) != null) {
-		}
+		while (pp.tryParsing(line) != null)
+			;
 		
 		// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...
 		if (!line.hasMore()) {

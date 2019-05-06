@@ -13,15 +13,15 @@ public class FunctionCaseMatcher extends TypeSafeMatcher<FunctionCaseDefn> {
 
 	private final PackageName pkg;
 	private final String name;
-	private final List<String> patterns = new ArrayList<>();
+	private final List<PatternMatcher> patterns = new ArrayList<>();
 
 	public FunctionCaseMatcher(PackageName pkg, String name) {
 		this.pkg = pkg;
 		this.name = name;
 	}
 
-	public FunctionCaseMatcher pattern(String string) {
-		patterns.add(string);
+	public FunctionCaseMatcher pattern(PatternMatcher pattern) {
+		patterns.add(pattern);
 		return this;
 	}
 
@@ -45,6 +45,10 @@ public class FunctionCaseMatcher extends TypeSafeMatcher<FunctionCaseDefn> {
 			return false;
 		if (patterns.size() != arg0.intro.args.size())
 			return false;
+		for (PatternMatcher p : patterns) {
+			if (!p.matches(arg0.intro.args.get(0)))
+				return false;
+		}
 		return true;
 	}
 

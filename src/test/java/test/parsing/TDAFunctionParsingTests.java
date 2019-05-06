@@ -102,10 +102,22 @@ public class TDAFunctionParsingTests {
 	public void aFunctionDefinitionCanHaveAVariableArg() {
 		context.checking(new Expectations() {{
 			oneOf(builder).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
-			oneOf(builder).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern("x")));
+			oneOf(builder).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern(PatternMatcher.var("x"))));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(line("f x = 3"));
+		assertNotNull(nested);
+		assertTrue(nested instanceof TDAMultiParser);
+	}
+
+	@Test
+	public void aFunctionDefinitionCanHaveATypedArg() {
+		context.checking(new Expectations() {{
+			oneOf(builder).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
+			oneOf(builder).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern(PatternMatcher.typed("Number", "n"))));
+		}});
+		TDAFunctionParser parser = new TDAFunctionParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(line("f (Number n) = n"));
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAMultiParser);
 	}

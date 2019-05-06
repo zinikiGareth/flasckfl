@@ -10,7 +10,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class CtorPatternMatcher extends TypeSafeMatcher<Pattern> {
+public class CtorPatternMatcher extends PatternMatcher {
 	public static class FieldMatcher extends TypeSafeMatcher<ConstructorMatch.Field> {
 		private final String fld;
 		private final Matcher<Pattern> m;
@@ -68,10 +68,6 @@ public class CtorPatternMatcher extends TypeSafeMatcher<Pattern> {
 			return true;
 		}
 		return false;
-	}
-
-	public static CtorPatternMatcher ctor(String ctor) {
-		return new CtorPatternMatcher(ctor);
 	}
 
 	public CtorPatternMatcher field(String fld, Matcher<Pattern> m) {

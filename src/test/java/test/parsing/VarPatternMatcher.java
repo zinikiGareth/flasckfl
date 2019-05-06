@@ -3,9 +3,8 @@ package test.parsing;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 
-public class VarPatternMatcher extends TypeSafeMatcher<Pattern> {
+public class VarPatternMatcher extends PatternMatcher {
 	private final String var;
 
 	public VarPatternMatcher(String var) {
@@ -26,9 +25,5 @@ public class VarPatternMatcher extends TypeSafeMatcher<Pattern> {
 				return true;
 		}
 		return false;
-	}
-
-	public static VarPatternMatcher var(String var) {
-		return new VarPatternMatcher(var);
 	}
 }

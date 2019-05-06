@@ -6,9 +6,8 @@ import java.util.List;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 
-public class TypedPatternMatcher extends TypeSafeMatcher<Pattern> {
+public class TypedPatternMatcher extends PatternMatcher {
 	private final String type;
 	private final String var;
 	private final List<String> typevars = new ArrayList<>();
@@ -41,10 +40,6 @@ public class TypedPatternMatcher extends TypeSafeMatcher<Pattern> {
 			}
 		}
 		return true;
-	}
-
-	public static TypedPatternMatcher typed(String type, String var) {
-		return new TypedPatternMatcher(type, var);
 	}
 
 	public TypedPatternMatcher typevar(String tv) {
