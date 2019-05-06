@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAObjectElementsParser implements TDAParsing {
@@ -16,43 +17,22 @@ public class TDAObjectElementsParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		StateDefinition state = new StateDefinition(toks.realinfo());
-		builder.defineState(state);
-		/*
-		// TODO: figure accessor for object case
-		final boolean accessor = false;
-		TypeReference type = (TypeReference) new TypeExprParser().tryParsing(toks);
-		if (type == null) {
-			errors.message(toks, "field must have a valid type definition");
-			return null;
-		}
-		ValidIdentifierToken kw = VarNameToken.from(toks);
-		if (kw == null) {
-			errors.message(toks, "field must have a valid field name");
-			return null;
-		}
-		if (kw.text.equals("id")) {
-			errors.message(toks, "'id' is a reserved field name");
-			return null;
-		}
-		ReturnParser ret = new ReturnParser();
-		if (!toks.hasMore()) {
-			builder.addField(new StructField(kw.location, accessor, type, kw.text));
-			ret.noNest(errors);
-		} else {
-			toks.skipWS();
-			InputPosition assOp = toks.realinfo();
-			String op = toks.getTo(2);
-			if (!"<-".equals(op)) {
-				errors.message(toks, "expected <- or end of line");
-				return null;
+		KeywordToken kw = KeywordToken.from(toks);
+		switch (kw.text) {
+		case "state": {
+			if (toks.hasMore()) {
+				errors.message(toks, "extra characters at end of line");
+				return new IgnoreNestedParser();
 			}
-			assOp.endAt(toks.at());
-			new TDAExpressionParser(errors, expr -> { if (!errors.hasErrors()) {ret.noNest(errors); builder.addField(new StructField(kw.location, assOp, accessor, type, kw.text, expr));}}).tryParsing(toks);
+			StateDefinition state = new StateDefinition(toks.realinfo());
+			builder.defineState(state);
+			return new TDAStructFieldParser(errors, state);
 		}
-		return ret.get();
-		*/
-		return new TDAStructFieldParser(errors, state );
+		default: {
+			errors.message(toks, "extra characters at end of line");
+			return new IgnoreNestedParser();
+		}
+		}
 	}
 
 	@Override
