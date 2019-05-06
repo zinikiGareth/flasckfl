@@ -3,7 +3,6 @@ package test.parsing;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;

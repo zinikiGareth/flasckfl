@@ -73,6 +73,10 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}
+			if (toks.hasMore()) {
+				errors.message(toks, "tokens after end of line");
+				return new IgnoreNestedParser();
+			}
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase()), consumer.qualifyName(tn.text), true, polys);
 			consumer.newStruct(sd);
 			return new TDAStructFieldParser(errors, sd);
@@ -83,7 +87,20 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
-			ObjectDefn od = new ObjectDefn(kw.location, tn.location, consumer.qualifyName(tn.text), true, new ArrayList<>());
+			List<PolyType> polys = new ArrayList<>();
+			while (toks.hasMore()) {
+				PolyTypeToken ta = PolyTypeToken.from(toks);
+				if (ta == null) {
+					errors.message(toks, "invalid type argument");
+					return null;
+				} else
+					polys.add(new PolyType(ta.location, ta.text));
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "tokens after end of line");
+				return new IgnoreNestedParser();
+			}
+			ObjectDefn od = new ObjectDefn(kw.location, tn.location, consumer.qualifyName(tn.text), true, polys);
 			consumer.newObject(od);
 			return new TDAObjectElementsParser(errors, od);
 		}

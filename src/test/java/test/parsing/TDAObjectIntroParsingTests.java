@@ -1,14 +1,11 @@
 package test.parsing;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAObjectElementsParser;
@@ -44,7 +41,6 @@ public class TDAObjectIntroParsingTests {
 		assertTrue(nested instanceof TDAObjectElementsParser);
 	}
 
-	/*
 	@Test
 	public void thereMustBeATypeName() {
 		Tokenizable toks = TDABasicIntroParsingTests.line("object");
@@ -72,17 +68,18 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void aPolymorphicObjectDefinitionCreatesTheRightScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Cons"); will(returnValue(new SolidName(null, "Cons")));
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("Cons").poly("A").locs(0,7)));
+			allowing(builder).qualifyName("Store"); will(returnValue(new SolidName(null, "Store")));
+			oneOf(builder).newObject(with(ObjectDefnMatcher.match("Store").poly("A").locs(0,7)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Cons A"));
-		assertTrue(nested instanceof TDAObjectFieldParser);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store A"));
+		assertTrue(nested instanceof TDAObjectElementsParser);
 	}
 
+	/*
 	@Test
 	public void polymorphicVarsMustBeValid() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("object Cons xx");
+		final Tokenizable toks = TDABasicIntroParsingTests.line("object Store xx");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid type argument");
 		}});
