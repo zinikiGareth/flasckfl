@@ -193,7 +193,7 @@ public class TDATupleDeclarationParsingTests {
 		final Tokenizable line = line("(x,y) = f 10");
 		final FunctionName fnName = null;
 		context.checking(new Expectations() {{
-			oneOf(builder).functionName(with(any(InputPosition.class)), with("x")); will(returnValue(fnName));
+			oneOf(builder).functionName(with(any(InputPosition.class)), with("_tuple_x")); will(returnValue(fnName));
 			oneOf(builder).tupleDefn(with(any(List.class)), with(fnName), with(any(Expr.class)));
 			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
 		}});

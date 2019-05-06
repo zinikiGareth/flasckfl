@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 
 public interface ParsedLineConsumer {
@@ -24,6 +25,7 @@ public interface ParsedLineConsumer {
 	void newCard(CardDefinition card);
 	void newStruct(StructDefn sd);
 	void newContract(ContractDecl decl);
+	void newObject(ObjectDefn od);
 	void functionIntro(FunctionIntro o);
 	void functionCase(FunctionCaseDefn o);
 	void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr);

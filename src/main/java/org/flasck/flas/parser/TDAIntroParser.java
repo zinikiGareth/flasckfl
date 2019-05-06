@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.IScope;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -75,6 +76,16 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase()), consumer.qualifyName(tn.text), true, polys);
 			consumer.newStruct(sd);
 			return new TDAStructFieldParser(errors, sd);
+		}
+		case "object": {
+			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid or missing type name");
+				return new IgnoreNestedParser();
+			}
+			ObjectDefn od = new ObjectDefn(kw.location, tn.location, consumer.qualifyName(tn.text), true, new ArrayList<>());
+			consumer.newObject(od);
+			return new TDAObjectElementsParser(errors, od);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);

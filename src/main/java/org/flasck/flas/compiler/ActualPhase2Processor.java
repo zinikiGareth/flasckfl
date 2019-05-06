@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -87,6 +88,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 	@Override
 	public void newContract(ContractDecl decl) {
 		scope.define(errors, decl.nameAsName().baseName(), decl);
+	}
+
+	@Override
+	public void newObject(ObjectDefn od) {
+		scope.define(errors, od.name().baseName(), od);
 	}
 
 	@Override

@@ -407,13 +407,13 @@ public class Rewriter implements CodeGenRegistry {
 			objName = od.name();
 			for (PolyVar v : polys)
 				this.polys.put(v.name(), v);
-			for (StructField sf : od.fields) {
-				try {
-					members.put(sf.name, rewrite(this, sf.type, true));
-				} catch (ResolutionException ex) {
-					errors.message(ex.location, ex.getMessage());
-				}
-			}
+//			for (StructField sf : od.fields) {
+//				try {
+//					members.put(sf.name, rewrite(this, sf.type, true));
+//				} catch (ResolutionException ex) {
+//					errors.message(ex.location, ex.getMessage());
+//				}
+//			}
 		}
 
 		@Override
@@ -987,17 +987,17 @@ public class Rewriter implements CodeGenRegistry {
 		RWObjectDefn rw = objects.get(od.name().uniqueName());
 		Object ret = cx.resolve(od.location(), "NilMap");
 		final ObjectContext ox = new ObjectContext(cx, od, rw.polys());
-		for (StructField sf : od.fields) {
-			Type st = rewrite(ox, sf.type, false);
-			rw.addField(new RWStructField(sf.loc, false, st, sf.name, null));
-			if (sf.init != null) {
-				InputPosition loc = ((Locatable)sf.init).location();
-				Object rx = rewriteExpr(ox, sf.init);
-				rx = new AssertTypeExpr(loc, (TypeWithName) st, rx);
-				PackageVar assoc = (PackageVar) cx.resolve(loc, "Assoc");
-				ret = new ApplyExpr(loc, assoc, new StringLiteral(sf.location(), sf.name), rx, ret);
-			}
-		}
+//		for (StructField sf : od.fields) {
+//			Type st = rewrite(ox, sf.type, false);
+//			rw.addField(new RWStructField(sf.loc, false, st, sf.name, null));
+//			if (sf.init != null) {
+//				InputPosition loc = ((Locatable)sf.init).location();
+//				Object rx = rewriteExpr(ox, sf.init);
+//				rx = new AssertTypeExpr(loc, (TypeWithName) st, rx);
+//				PackageVar assoc = (PackageVar) cx.resolve(loc, "Assoc");
+//				ret = new ApplyExpr(loc, assoc, new StringLiteral(sf.location(), sf.name), rx, ret);
+//			}
+//		}
 		for (ObjectMethod c : od.ctors) {
 			final FunctionName fnName = c.getMethod().methodName();
 			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);

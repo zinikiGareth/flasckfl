@@ -9,7 +9,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
 
 public abstract class FieldsDefn implements AsString, Locatable {
-	public enum FieldsType { STRUCT, ENTITY, DEAL, OFFER, OBJECT }
+	public enum FieldsType { STRUCT, ENTITY, DEAL, OFFER }
 
 	public final boolean generate;
 	public final InputPosition kw;

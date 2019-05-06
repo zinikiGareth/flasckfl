@@ -400,8 +400,8 @@ public class FLASStory {
 				Object fd = fld.tryParsing(tkz);
 				if (fd instanceof ErrorReporter)
 					er.merge((ErrorReporter) om);
-				else if (fd instanceof StructField)
-					od.addField((StructField) fd);
+//				else if (fd instanceof StructField)
+//					od.addField((StructField) fd);
 				else {
 					Object func = fp.tryParsing(tkz);
 					if (func instanceof FunctionCaseDefn || func instanceof FunctionIntro)

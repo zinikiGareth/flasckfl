@@ -519,9 +519,9 @@ public class TypeChecker2 {
 						constraints.add(c.var, freshPolys(convertType(sf.type), new HashMap<>()));
 					} else if (od != null) {
 						Type ot;
-						if (od.findField(fname) != null) {
+/*						if (od.findField(fname) != null) {
 							ot = od.findField(fname).type;
-						} else if (od.hasMethod(fname)) {
+						} else */ if (od.hasMethod(fname)) {
 							ot = od.getMethodType(fname);
 						} else
 							throw new UtilException("There is no field " + fname + " in object " + sn);

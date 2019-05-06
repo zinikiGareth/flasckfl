@@ -9,21 +9,23 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.TypeWithMethods;
+import org.flasck.flas.types.TypeWithNameAndPolys;
 
-public class RWObjectDefn extends RWStructDefn implements TypeWithMethods, AsString, Locatable {
+public class RWObjectDefn extends TypeWithNameAndPolys implements TypeWithMethods, AsString, Locatable {
 	public final List<RWObjectMethod> ctors = new ArrayList<RWObjectMethod>();
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
+	public final transient boolean generate;
 
 	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, PolyVar... polys) {
 		this(location, tn, generate, Arrays.asList(polys));
 	}
 	
 	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, List<PolyVar> polys) {
-		super(location, FieldsType.OBJECT, tn, generate, polys);
+		super(null, location, tn, polys);
+		this.generate = generate;
 	}
 
 	public String uniqueName() {
