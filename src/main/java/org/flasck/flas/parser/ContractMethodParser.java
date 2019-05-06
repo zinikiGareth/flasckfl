@@ -58,5 +58,4 @@ public class ContractMethodParser implements TDAParsing {
 		builder.addMethod(new ContractMethodDecl(optLoc, ud.location, name.location, required, ContractMethodDir.valueOf(ud.text.toUpperCase()), fnName, args));
 		return new NoNestingParser(errors);
 	}
-
 }

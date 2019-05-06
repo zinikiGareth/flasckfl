@@ -371,16 +371,6 @@ public class FLASStory {
 						mcd.provideCaseName(od.caseFor(mcd.intro.name().name));
 						addMethodMessages(er, mcd.messages, b.nested);
 						od.addCtor(new ObjectMethod(mcd));
-//					if (omm.what instanceof FunctionIntro)
-//						throw new UtilException("Should work, but not implemented: see other FunctionIntro cases in FLASStory and doCompoundFunction, but I think everything is broken");
-//					else if (omm.what instanceof FunctionCaseDefn) {
-//						FunctionCaseDefn fcd = (FunctionCaseDefn) omm.what;
-//						int caseName = od.innerScope().caseName(fcd.intro.name().uniqueName());
-//						fcd.provideCaseName(caseName);
-//						od.innerScope().define(fcd.functionName().name, fcd);
-//						if (!b.nested.isEmpty()) {
-//							doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), b.nested);
-//						}
 					}
 					else
 						er.message(b, "syntax error"); // this might be a syntax error, or might not ...
