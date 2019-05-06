@@ -1,8 +1,10 @@
 package test.parsing;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
@@ -76,7 +78,6 @@ public class TDAObjectIntroParsingTests {
 		assertTrue(nested instanceof TDAObjectElementsParser);
 	}
 
-	/*
 	@Test
 	public void polymorphicVarsMustBeValid() {
 		final Tokenizable toks = TDABasicIntroParsingTests.line("object Store xx");
@@ -89,17 +90,6 @@ public class TDAObjectIntroParsingTests {
 	}
 
 	@Test
-	public void weCanTellAnEntityApartFromAObject() {
-		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Fred"); will(returnValue(new SolidName(new PackageName("test.names"), "Fred")));
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.names.Fred").locs(0,7).as(FieldsDefn.FieldsType.ENTITY)));
-		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("entity Fred"));
-		assertTrue(nested instanceof TDAObjectFieldParser);
-	}
-
-	@Test
 	public void objectsInPackagesHaveQualifiedNames() {
 		context.checking(new Expectations() {{
 			allowing(builder).qualifyName("InPackage"); will(returnValue(new SolidName(new PackageName("test.names"), "InPackage")));
@@ -107,7 +97,6 @@ public class TDAObjectIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object InPackage"));
-		assertTrue(nested instanceof TDAObjectFieldParser);
+		assertTrue(nested instanceof TDAObjectElementsParser);
 	}
-	*/
 }
