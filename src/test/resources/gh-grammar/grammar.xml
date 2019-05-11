@@ -1,0 +1,103 @@
+<grammar>
+  <lex token='EQ' pattern='='>
+  	<p>Defines the variable/function definition operator.</p>
+  </lex>
+  <lex token='var-name' pattern='[a-z][A-Za-z0-9_]*'>
+  	<p>Function and variable names are one or more characters, where
+  	the first character must be a lower case alphabetic character.</p>
+  </lex>
+  
+  <production name='file'>
+    <section title='Files'>
+	    <description>
+	        FLAS units are grouped into files.
+	        There are no specific rules about how units are grouped and grouping
+	        units together in a file offers no special privileges of access.
+
+       This is the set of units that can be defined at the top level in files.
+       Since many of these may also be defined within nested function scopes,
+       this is defined as a production of those together with the others that cannot.
+
+       These units can only be declared at the top level in a file.
+	    </description>
+	</section>
+    <many>
+      <ref production='top-level-unit' />
+    </many>
+  </production>
+  <production name='top-level-unit'>
+    <section title='Files'/>
+    <or>
+      <ref production='top-level-definition'/>
+      <ref production='function-scope-unit'/>
+    </or>
+  </production>
+  <production name='top-level-definition'>
+    <section title='Files'/>
+    <or>
+      <ref production='struct-declaration'/>
+      <ref production='union-declaration'/>
+      <ref production='card-declaration'/>
+      <ref production='contract-declaration'/>
+    </or>
+  </production>
+  <production name='function-scope-unit'>
+    <section title='Scoping'>
+	    <description>
+	       This set of units can be defined at the top level in files or within the
+	       scope of a function.
+	    </description>
+	</section>
+    <or>
+      <ref production='function-case-declaration'/>
+      <ref production='standalone-method-declaration'/>
+      <ref production='handler-declaration'/>
+    </or>
+  </production>
+  <production name='function-case-declaration'>
+    <section title='Functions'>
+	    <description>
+	       Constants and functions can be declared either at the top level or within nested scopes.
+	       When declared within a nested scope, all the surrounding variables and definitions are available
+	       for reference by name.
+	       Note that a complete function declaration is made up of multiple cases applying to specific patterns.
+	       All of the cases must be declared “together” without any intervening blocks, but this is not
+	       included in this grammar specification.
+	       There are two ways to declare a function case.
+	       It is possible to declare a single expression on the same line as the function declaration.
+	       Or the function name and argument patterns can appear on one line, and one or more guarded equations
+	       can appear on subsequent lines. 
+	    </description>
+	</section>
+    <or>
+      <ref production='one-line-function-case-declaration'/>
+      <ref production='multi-line-function-case-declaration'/>
+    </or>
+  </production>
+  <production name='one-line-function-case-declaration'>
+    <section title='Functions'/>
+    <seq>
+      <token type='var-name'/>
+      <many>
+      	<ref production='argument-pattern'/>
+      </many>
+      <token type='EQ'/>
+      <ref production='expression'/>
+      <indent>
+      	<ref production='function-scope-unit'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='multi-line-function-case-declaration'>
+    <section title='Functions'/>
+    <seq>
+      <token type='var-name'/>
+      <many>
+      	<ref production='argument-pattern'/>
+      </many>
+      <indent>
+      	<ref production='guarded-equations'/>
+      </indent>
+    </seq>
+  </production>
+</grammar>
