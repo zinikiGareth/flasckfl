@@ -2,11 +2,14 @@ package doc.grammar;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
+import org.zinutils.utils.FileUtils;
 import org.zinutils.xml.XML;
 
 // The idea here is to produce random sentences according to the grammar and see what happens.
@@ -15,14 +18,25 @@ import org.zinutils.xml.XML;
 public class SentenceProducer {
 
 	@Test
-	public void testRandomSentenceProduction() {
+	public void testRandomSentenceProduction() throws Exception {
 		Grammar g = Grammar.from(XML.fromResource("/gh-grammar/grammar.xml"));
 		String top = g.top();
-		ProductionVisitor visitor = new SPProductionVisitor(g, 1193L);
+		final long var = 1193L;
+		SPProductionVisitor visitor = new SPProductionVisitor(g, var);
 		visitor.referTo(top);
+		System.out.println("--------");
+		System.out.println(visitor.sentence);
+		System.out.println("========");
+		File td = Files.createTempDirectory("flas").toFile();
+		final File root = new File(td, "test." + var);
+		root.mkdir();
+		final File tmp = new File(root, Long.toString(var) + ".fl");
+		FileUtils.writeFile(tmp, visitor.sentence.toString());
+		org.flasck.flas.Main.main(new String[] { "--phase", "PARSING", root.toString() });
 	}
 
 	public class SPProductionVisitor implements ProductionVisitor {
+		private StringBuilder sentence = new StringBuilder("\t");
 		private final Grammar grammar;
 		private final Random r;
 		private int indent = 1;
@@ -75,19 +89,28 @@ public class SentenceProducer {
 			String t = genToken(token);
 			Pattern p = Pattern.compile(lexer.pattern);
 			assertTrue("generated token for " + token + " did not match pattern definition", p.matcher(t).matches());
-			System.out.print(t);
+			sentence.append(t);
+			sentence.append(" ");
 		}
 
 		@Override
 		public void indent() {
 			indent++;
 			System.out.println("indent = " + indent);
+			sentence.append("\n");
+			for (int i=0;i<indent;i++) {
+				sentence.append("\t");
+			}
 		}
 
 		@Override
 		public void exdent() {
 			indent--;
 			System.out.println("indent = " + indent);
+			sentence.append("\n");
+			for (int i=0;i<indent;i++) {
+				sentence.append("\t");
+			}
 		}
 
 		private String genToken(String token) {

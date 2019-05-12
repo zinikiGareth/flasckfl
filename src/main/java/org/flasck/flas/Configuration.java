@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.compiler.PhaseTo;
+
 public class Configuration {
 	private boolean unitjvm = false, unitjs = false;
 	private boolean dumpTypes;
@@ -18,6 +20,7 @@ public class Configuration {
 	private List<String> useWebZips = new ArrayList<>();
 	private boolean buildDroid = true;
 	boolean tda = true;
+	private PhaseTo upto = PhaseTo.COMPLETE;
 
 	public Configuration() {
 		// TODO Auto-generated constructor stub
@@ -31,6 +34,8 @@ public class Configuration {
 			if (arg.startsWith("-")) {
 				if (arg.equals("--dump"))
 					dumpTypes = true;
+				else if (arg.equals("--phase"))
+					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--flim")) {
 					if (hasMore == 0) {
 						System.out.println("--flim <dir>");
@@ -125,6 +130,7 @@ public class Configuration {
 		visitor.writeDroidTo(writeDroid, buildDroid );
 		visitor.webZipDir(webZipDir);
 		visitor.webZipDownloads(webZipDownloads);
+		visitor.phaseTo(upto );
 		for (String s : useWebZips)
 			visitor.useWebZip(s);
 		if (unitjs || !unitjvm)

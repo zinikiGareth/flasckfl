@@ -18,6 +18,9 @@
   <lex token='EQ' pattern='='>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
+  <lex token='GUARD' pattern='|'>
+  	<p>Defines the variable/function definition operator.</p>
+  </lex>
   <lex token='OCB' pattern='\{'>
   	<p>An opening curly bracket introduces a constructor pattern match or object creation.</p>
   </lex>
@@ -141,6 +144,36 @@
       <indent>
       	<ref production='guarded-equations'/>
       </indent>
+    </seq>
+  </production>
+  <production name='guarded-equations'>
+    <section title='Functions'/>
+    <seq>
+      <many>
+	    <ref production='guarded-expression'/>
+	  </many>
+	  <optional>
+	    <ref production='guarded-default-expression'/>
+	  </optional>
+      <indent>
+      	<ref production='function-scope'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='guarded-expression'>
+    <section title='Functions'/>
+    <seq>
+	    <token type='GUARD'/>
+	    <ref production='expression'/>
+	    <token type='EQ'/>
+	    <ref production='expression'/>
+    </seq>
+  </production>
+  <production name='guarded-default-expression'>
+    <section title='Functions'/>
+    <seq>
+	    <token type='EQ'/>
+	    <ref production='expression'/>
     </seq>
   </production>
   <production name='argument-pattern'>
