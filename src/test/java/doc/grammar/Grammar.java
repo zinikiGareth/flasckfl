@@ -2,7 +2,6 @@ package doc.grammar;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -13,12 +12,12 @@ import org.zinutils.xml.XMLElement;
 
 public class Grammar {
 	private final LinkedHashMap<String, Section> sections;
-	private final LinkedHashSet<Production> productions;
+	private final LinkedHashMap<String, Production> productions;
 	private final Set<Lexer> lexers = new TreeSet<>();
 
 	private Grammar() {
 		sections = new LinkedHashMap<>();
-		productions = new LinkedHashSet<>();
+		productions = new LinkedHashMap<>();
 	}
 	
 	public static Grammar from(XML xml) {
@@ -69,7 +68,10 @@ public class Grammar {
 				Definition defn = parseDefn(ruleName, rule);
 				theProd = new Production(ruleNumber++, ruleName, defn);
 			}
-			this.productions.add(theProd);
+			if (this.productions.containsKey(theProd.name)) {
+				throw new RuntimeException("Duplicate definition of production " + theProd.name);
+			}
+			this.productions.put(theProd.name, theProd);
 			s.add(theProd);
 		}
 	}
@@ -133,7 +135,11 @@ public class Grammar {
 	}
 
 	private Definition handleOptional(String ruleName, XMLElement rule) {
-		Definition defn = parseDefn(ruleName, rule.uniqueElement("ref"));
+		Definition defn;
+		if (!rule.elementChildren("token").isEmpty())
+			defn = parseDefn(ruleName, rule.uniqueElement("token"));
+		else
+			defn = parseDefn(ruleName, rule.uniqueElement("ref"));
 		rule.attributesDone();
 		return new OptionalDefinition(defn);
 	}
@@ -163,32 +169,27 @@ public class Grammar {
 	}
 
 	public Iterable<Production> productions() {
-		return productions;
+		return productions.values();
 	}
 
 	public String top() {
-		return productions.iterator().next().name;
+		return productions.values().iterator().next().name;
 	}
 
 	public Production findRule(String name) {
-		for (Production p : productions) {
-			if (p.name.equals(name))
-				return p;
-		}
-		throw new RuntimeException("Could not find production for " + name);
+		Production ret = productions.get(name);
+		if (ret == null)
+			throw new RuntimeException("Could not find production for " + name);
+		return ret;
 	}
 	
 	public Set<String> allProductions() {
-		Set<String> ret = new TreeSet<>();
-		for (Production p : productions) {
-			ret.add(p.name);
-		}
-		return ret;
+		return productions.keySet();
 	}
 
 	public Set<String> allReferences() {
 		Set<String> ret = new TreeSet<>();
-		for (Production p : productions) {
+		for (Production p : productions.values()) {
 			p.collectReferences(ret);
 		}
 		return ret;
@@ -204,7 +205,7 @@ public class Grammar {
 
 	public Set<String> tokenUsages() {
 		Set<String> ret = new TreeSet<>();
-		for (Production p : productions) {
+		for (Production p : productions.values()) {
 			p.collectTokens(ret);
 		}
 		return ret;

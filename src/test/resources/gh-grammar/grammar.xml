@@ -1,7 +1,13 @@
 <grammar>
-  <lex token='BINOP' pattern='[-+*/]'>
+  <lex token='APPLY' pattern='\.'>
+  	<p>The apply operator.</p>
+  </lex>
+  <lex token='BINOP' pattern='[-+*/.]'>
   	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
+  </lex>
+  <lex token='CARD' pattern='card'>
+  	<p>The <tt>card</tt> keyword introduces a card definition.</p>
   </lex>
   <lex token='CCB' pattern='\}'>
   	<p>A closing curly bracket delimits the end of an constructor pattern or object creation.</p>
@@ -9,11 +15,17 @@
   <lex token='COMMA' pattern=','>
   	<p>Separates similar items in a list.</p>
   </lex>
+  <lex token='CONTRACT' pattern='contract'>
+  	<p>The <tt>contract</tt> keyword introduces a contract declaration.</p>
+  </lex>
   <lex token='CRB' pattern='\)'>
   	<p>A closing round bracket delimits the end of an expression or pattern.</p>
   </lex>
   <lex token='CSB' pattern='\]'>
   	<p>A closing square bracket delimits the end of a list operation or polymorphic variable list.</p>
+  </lex>
+  <lex token='DIR' pattern='up|down'>
+  	<p>The <tt>up</tt> and <tt>down</tt> keywords indicate the sense in which a contract method is called.</p>
   </lex>
   <lex token='EOL' pattern='\n'>
   	<p>Specifies the end of a line.</p>
@@ -24,8 +36,20 @@
   <lex token='GUARD' pattern='|'>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
+  <lex token='HANDLER' pattern='handler'>
+  	<p>The <tt>handler</tt> keyword introduces a handler definition.</p>
+  </lex>
+  <lex token='METHOD' pattern='method'>
+  	<p>The <tt>method</tt> keyword introduces a standalone method definition.</p>
+  </lex>
+  <lex token='OBJECT' pattern='object'>
+  	<p>The <tt>object</tt> keyword introduces an object declaration.</p>
+  </lex>
   <lex token='OCB' pattern='\{'>
   	<p>An opening curly bracket introduces a constructor pattern match or object creation.</p>
+  </lex>
+  <lex token='OPTIONAL' pattern='optional'>
+  	<p>The <tt>optional</tt> keyword indicates that a contract method does not need to be implemented.</p>
   </lex>
   <lex token='OR' pattern='|'>
   	<p>A token to separate cases in a union declaration.</p>
@@ -36,14 +60,23 @@
   <lex token='OSB' pattern='\['>
   	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
   </lex>
+  <lex token='PUT' pattern='&lt;-'>
+  	<p>Method actions are defined using the PUT operator.</p>
+  </lex>
   <lex token='SEND' pattern='&lt;-'>
   	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
   </lex>
+  <lex token='STATE' pattern='state'>
+  	<p>The <tt>state</tt> keyword introduces a card or object state.</p>
+  </lex>
   <lex token='STRUCT' pattern='struct'>
-  	<p>The <tt>struct</tt> keyword introduces a struct definition.</p>
+  	<p>The <tt>struct</tt> keyword introduces a struct declaration.</p>
+  </lex>
+  <lex token='TEMPLATE' pattern='template'>
+  	<p>The <tt>template</tt> keyword introduces a template definition.</p>
   </lex>
   <lex token='UNION' pattern='union'>
-  	<p>The <tt>union</tt> keyword introduces a union definition.</p>
+  	<p>The <tt>union</tt> keyword introduces a union declaration.</p>
   </lex>
   <lex token='UNOP' pattern='[\-]'>
   	<p>One of the standard unary operators.  They have precedence, but this is not apparent from the grammar.</p>
@@ -63,6 +96,9 @@
   
   <production name='file'>
     <section title='Files'>
+    <!-- In a description, ${file} should turn into (1) so that you can say
+         "in rule ${file}" and have "in rule (1)" come out.
+      -->
 	    <description>
 	    <p>
 	        FLAS units are grouped into files.
@@ -95,8 +131,9 @@
     <or>
       <ref production='struct-declaration'/>
       <ref production='union-declaration'/>
-      <ref production='card-declaration'/>
       <ref production='contract-declaration'/>
+      <ref production='object-declaration'/>
+      <ref production='card-declaration'/>
     </or>
   </production>
   <production name='function-scope'>
@@ -113,9 +150,9 @@
 	    </description>
 	</section>
     <or>
-      <ref production='function-case-declaration'/>
-      <ref production='standalone-method-declaration'/>
-      <ref production='handler-declaration'/>
+      <ref production='function-case-definition'/>
+      <ref production='standalone-method-definition'/>
+      <ref production='handler-definition'/>
     </or>
   </production>
   <production name='struct-declaration'>
@@ -196,7 +233,41 @@
       <ref production='type-reference'/>
     </seq>
   </production>
-  <production name='function-case-declaration'>
+  <production name='contract-declaration'>
+    <section title='Contracts'>
+      <description>
+      </description>
+    </section>
+    <seq>
+      <token type='CONTRACT'/>
+      <token type='type-name'/>
+      <indent>
+      	<ref production='contract-method-decls'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='contract-method-decls'>
+    <section title='Contracts'/>
+    <seq>
+      <many>
+      	<ref production='contract-method-decl'/>
+      </many>
+    </seq>
+  </production>
+  <production name='contract-method-decl'>
+    <section title='Contracts'/>
+    <seq>
+      <optional>
+        <token type='OPTIONAL'/>
+      </optional>
+      <token type='DIR'/>
+      <token type='var-name'/>
+      <many>
+      	<ref production='argument-pattern-typed'/>
+      </many>
+    </seq>
+  </production>
+  <production name='function-case-definition'>
     <section title='Functions'>
 	    <description>
 	       Constants and functions can be declared either at the top level or within nested scopes.
@@ -212,11 +283,11 @@
 	    </description>
 	</section>
     <or>
-      <ref production='simple-function-case-declaration'/>
-      <ref production='guarded-function-case-declaration'/>
+      <ref production='simple-function-case-definition'/>
+      <ref production='guarded-function-case-definition'/>
     </or>
   </production>
-  <production name='simple-function-case-declaration'>
+  <production name='simple-function-case-definition'>
     <section title='Functions'/>
     <seq>
       <token type='var-name'/>
@@ -230,7 +301,7 @@
       </indent>
     </seq>
   </production>
-  <production name='guarded-function-case-declaration'>
+  <production name='guarded-function-case-definition'>
     <section title='Functions'/>
     <seq>
       <token type='var-name'/>
@@ -282,6 +353,16 @@
       <ref production='argument-pattern-list'/>
       <ref production='argument-pattern-typed'/>
       <ref production='argument-pattern-ctor'/>
+    </or>
+  </production>
+  <production name='argument-pattern-maybe-typed'>
+    <section title='Patterns'>
+    	  <description>
+    	  </description>
+    </section>
+    <or>
+      <ref production='argument-pattern-variable'/>
+      <ref production='argument-pattern-typed'/>
     </or>
   </production>
   <production name='argument-pattern-variable'>
@@ -357,6 +438,7 @@
       <many>
         <ref production='comma-type-reference'/>
       </many>
+      <token type='CSB'/>
     </seq>
   </production>
   <production name='comma-type-reference'>
@@ -392,6 +474,197 @@
         <ref production='expression'/>
         <token type='CRB'/>
       </seq>
+      <!-- also list & object creators [], {} -->
     </or>
   </production>
+  <production name='handler-definition'>
+    <section title='Handler'>
+      <description>
+      </description>
+    </section>
+    <seq>
+      <token type='HANDLER'/>
+      <token type='type-name'/>
+      <token type='type-name'/>
+      <many>
+      	<ref production='argument-pattern-maybe-typed' />
+      </many>
+      <indent>
+        <ref production='method-definition'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='standalone-method-definition'>
+    <section title='Method'>
+      <description>
+      </description>
+    </section>
+    <seq>
+      <token type='METHOD'/>
+      <ref production='method-definition'/>
+    </seq>
+  </production>
+  <production name='method-definition'>
+    <section title='Method'/>
+    <seq>
+      <token type='var-name'/>
+      <many>
+        <ref production='argument-pattern'/>
+      </many>
+      <indent>
+      	<ref production='method-actions'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='method-actions'>
+    <section title='Method'/>
+    <seq>
+      <many>
+        <ref production='method-action'/>
+      </many>
+      <indent>
+        <ref production='function-scope-unit'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='method-action'>
+    <section title='Method'/>
+    <or>
+      <ref production='message-method-action'/>
+      <ref production='assign-method-action'/>
+    </or>
+  </production>
+  <production name='message-method-action'>
+    <section title='Method'/>
+    <seq>
+    	  <token type='PUT' />
+    	  <ref production='service-method' />
+    	  <many>
+    	    <ref production='expression' />
+    	  </many>
+    	  <token type='EOL' />
+    </seq>
+  </production>
+  <production name='service-method'>
+    <section title='Method'/>
+    <seq>
+    	  <token type='var-name'/>
+    	  <token type='APPLY' />
+    	  <token type='var-name'/>
+    </seq>
+  </production>
+  <production name='assign-method-action'>
+    <section title='Method'/>
+    <seq>
+    	  <ref production='member-path' />
+    	  <token type='PUT' />
+      <ref production='expression' />
+    	  <token type='EOL' />
+    </seq>
+  </production>
+  <production name='member-path'>
+    <section title='Method'/>
+    <seq>
+    	  <token type='var-name'/>
+    	  <many>
+    	    <ref production='member-path-apply'/>
+    	  </many>
+    </seq>
+  </production>
+  <production name='member-path-apply'>
+    <section title='Method'/>
+    <seq>
+    	  <token type='APPLY' />
+    	  <token type='var-name'/>
+    </seq>
+  </production>
+  <production name='object-declaration'>
+    <section title='Object'>
+      <description>
+      </description>
+    </section>
+    <seq>
+    	  <token type='OBJECT' />
+    	  <token type='type-name'/>
+    	  <indent>
+    	    <ref production='object-contents'/>
+    	  </indent>
+    </seq>
+  </production>
+  <production name='object-contents'>
+    <section title='Object'/>
+    <seq>
+    	  <ref production='state-declaration'/>
+    	  <ref production='default-or-many-templates'/>
+      <ref production='function-scope-unit'/>
+    </seq>
+  </production>
+  <production name='state-declaration'>
+    <section title='Object'/>
+    <seq>
+    	  <token type='STATE'/>
+    	  <indent>
+    	    <ref production='struct-field-list'/>
+    	  </indent>
+    </seq>
+  </production>
+  <production name='default-or-many-templates'>
+    <section title='Object'/>
+    <or>
+      <ref production='default-template-definition'/>
+      <many>
+        <ref production='named-template-definition'/>
+      </many>
+    </or>
+  </production>
+  <production name='default-template-definition'>
+    <section title='Object'/>
+    <seq>
+      <token type='TEMPLATE'/>
+      <indent>
+        <ref production='template-action'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='named-template-definition'>
+    <section title='Object'/>
+    <seq>
+      <token type='TEMPLATE'/>
+      <token type='var-name'/>
+      <indent>
+        <ref production='template-action'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='card-declaration'>
+    <section title='Card'>
+      <description>
+      </description>
+    </section>
+    <seq>
+    	  <token type='CARD' />
+    	  <token type='type-name'/>
+    	  <indent>
+    	    <ref production='card-contents'/>
+    	  </indent>
+    </seq>
+  </production>
+  <production name='card-contents'>
+    <section title='Card'/>
+    <seq>
+    	  <ref production='state-declaration'/>
+    	  <optional>
+        <ref production='default-template-definition'/>
+    	  </optional>
+      <many>
+        <ref production='named-template-definition'/>
+      </many>
+      <ref production='card-scope-unit'/>
+    </seq>
+  </production>
+  <!--
+  contract-impl[2 types]
+  event*
+  function-scope-unit
+  -->
 </grammar>

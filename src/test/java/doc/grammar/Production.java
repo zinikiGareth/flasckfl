@@ -4,8 +4,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 public class Production {
 	public final int number;
 	public final String name;
