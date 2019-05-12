@@ -1,12 +1,15 @@
 package doc.grammar;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Set;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class Production {
 	public final int number;
 	public final String name;
-	private final Definition defn;
+	protected final Definition defn;
 
 	public Production(int ruleNumber, String ruleName, Definition defn) {
 		this.number = ruleNumber;
@@ -29,5 +32,9 @@ public class Production {
 
 	public void collectTokens(Set<String> ret) {
 		defn.collectTokens(ret);
+	}
+
+	public void visit(ProductionVisitor visitor) {
+		visitor.choices(Arrays.asList(defn));
 	}
 }

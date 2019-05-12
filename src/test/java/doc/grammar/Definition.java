@@ -9,4 +9,6 @@ public abstract class Definition {
 	public abstract void collectReferences(Set<String> ret);
 
 	public abstract void collectTokens(Set<String> ret);
+
+	public abstract void visit(ProductionVisitor productionVisitor);
 }

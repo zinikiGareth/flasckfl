@@ -2,6 +2,7 @@ package doc.grammar;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -30,5 +31,18 @@ public class OrProduction extends Production {
 		super.collectReferences(ret);
 		for (Definition d : defns)
 			d.collectReferences(ret);
+	}
+
+	@Override
+	public void collectTokens(Set<String> ret) {
+		super.collectTokens(ret);
+		for (Definition d : defns)
+			d.collectTokens(ret);
+	}
+
+	public void visit(ProductionVisitor visitor) {
+		List<Definition> ds = new ArrayList<>(defns);
+		ds.add(defn);
+		visitor.choices(ds);
 	}
 }

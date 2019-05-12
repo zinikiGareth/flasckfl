@@ -1,6 +1,39 @@
 <grammar>
+  <lex token='BINOP' pattern='[-+*/]'>
+  	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
+  	<p class='comment'>We should specify the precedence here.</p>
+  </lex>
+  <lex token='CCB' pattern='\}'>
+  	<p>A closing curly bracket delimits the end of an constructor pattern or object creation.</p>
+  </lex>
+  <lex token='COMMA' pattern=','>
+  	<p>Separates similar items in a list.</p>
+  </lex>
+  <lex token='CRB' pattern='\)'>
+  	<p>A closing round bracket delimits the end of an expression or pattern.</p>
+  </lex>
+  <lex token='CSB' pattern='\]'>
+  	<p>A closing square bracket delimits the end of a list operation or polymorphic variable list.</p>
+  </lex>
   <lex token='EQ' pattern='='>
   	<p>Defines the variable/function definition operator.</p>
+  </lex>
+  <lex token='OCB' pattern='\{'>
+  	<p>An opening curly bracket introduces a constructor pattern match or object creation.</p>
+  </lex>
+  <lex token='ORB' pattern='\('>
+  	<p>An opening square bracket introduces a sub-element of an expression or pattern.</p>
+  </lex>
+  <lex token='OSB' pattern='\['>
+  	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
+  </lex>
+  <lex token='UNOP' pattern='[\-]'>
+  	<p>One of the standard unary operators.  They have precedence, but this is not apparent from the grammar.</p>
+  	<p class='comment'>We should specify the precedence here.</p>
+  </lex>
+  <lex token='type-name' pattern='[A-Z][A-Za-z0-9_][A-Za-z0-9_]+'>
+  	<p>Concrete type names must start with a capital letter and have at
+  	least three characters in the name.</p>
   </lex>
   <lex token='var-name' pattern='[a-z][A-Za-z0-9_]*'>
   	<p>Function and variable names are one or more characters, where
@@ -10,15 +43,19 @@
   <production name='file'>
     <section title='Files'>
 	    <description>
+	    <p>
 	        FLAS units are grouped into files.
 	        There are no specific rules about how units are grouped and grouping
 	        units together in a file offers no special privileges of access.
-
+</p>
+<p>
        This is the set of units that can be defined at the top level in files.
        Since many of these may also be defined within nested function scopes,
        this is defined as a production of those together with the others that cannot.
-
+</p>
+<p>
        These units can only be declared at the top level in a file.
+</p>
 	    </description>
 	</section>
     <many>
@@ -40,6 +77,12 @@
       <ref production='card-declaration'/>
       <ref production='contract-declaration'/>
     </or>
+  </production>
+  <production name='function-scope'>
+    <section title='Files'/>
+    <many>
+      <ref production='function-scope-unit' />
+    </many>
   </production>
   <production name='function-scope-unit'>
     <section title='Scoping'>
@@ -70,11 +113,11 @@
 	    </description>
 	</section>
     <or>
-      <ref production='one-line-function-case-declaration'/>
-      <ref production='multi-line-function-case-declaration'/>
+      <ref production='simple-function-case-declaration'/>
+      <ref production='guarded-function-case-declaration'/>
     </or>
   </production>
-  <production name='one-line-function-case-declaration'>
+  <production name='simple-function-case-declaration'>
     <section title='Functions'/>
     <seq>
       <token type='var-name'/>
@@ -84,11 +127,11 @@
       <token type='EQ'/>
       <ref production='expression'/>
       <indent>
-      	<ref production='function-scope-unit'/>
+      	<ref production='function-scope'/>
       </indent>
     </seq>
   </production>
-  <production name='multi-line-function-case-declaration'>
+  <production name='guarded-function-case-declaration'>
     <section title='Functions'/>
     <seq>
       <token type='var-name'/>
@@ -99,5 +142,122 @@
       	<ref production='guarded-equations'/>
       </indent>
     </seq>
+  </production>
+  <production name='argument-pattern'>
+    <section title='Patterns'>
+    	  <description>
+    	  </description>
+    </section>
+    <or>
+      <ref production='argument-pattern-variable'/>
+      <ref production='argument-pattern-list'/>
+      <ref production='argument-pattern-typed'/>
+      <ref production='argument-pattern-ctor'/>
+    </or>
+  </production>
+  <production name='argument-pattern-variable'>
+    <section title='Patterns'/>
+    <token type='var-name'/>
+  </production>
+  <production name='argument-pattern-list'>
+    <section title='Patterns'/>
+    <or>
+      <seq>
+        <token type='OSB'/>
+        <token type='CSB'/>
+      </seq>
+      <seq>
+        <token type='OSB'/>
+        <ref production='argument-pattern'/>
+        <many>
+          <ref production='comma-argument-pattern'/>
+        </many>
+        <token type='CSB'/>
+      </seq>
+    </or>
+  </production>
+  <production name='comma-argument-pattern'>
+    <section title='Patterns'/>
+    <seq>
+      <token type='COMMA'/>
+      <ref production='argument-pattern'/>
+    </seq>
+  </production>
+  <production name='argument-pattern-typed'>
+    <section title='Patterns'/>
+    <seq>
+      <token type='ORB'/>
+      <ref production='type-reference'/>
+      <token type='var-name'/>
+      <token type='CRB'/>
+    </seq>
+  </production>
+  <production name='argument-pattern-ctor'>
+    <section title='Patterns'/>
+    <seq>
+      <token type='OCB'/>
+      <token type='type-name'/>
+      <many>
+      	<ref production='argument-pattern'/>
+      </many>
+      <token type='CCB'/>
+    </seq>
+  </production>
+  <production name='type-reference'>
+    <section title='Types'>
+      <description>
+      </description>
+    </section>
+    <seq>
+      <token type='type-name'/>
+      <optional>
+        <ref production='poly-type-list'/>
+      </optional>
+    </seq>
+  </production>
+  <production name='poly-type-list'>
+    <section title='Types'/>
+    <seq>
+      <token type='OSB'/>
+      <ref production='type-reference'/>
+      <many>
+        <ref production='comma-type-reference'/>
+      </many>
+    </seq>
+  </production>
+  <production name='comma-type-reference'>
+    <section title='Types'/>
+    <seq>
+      <token type='COMMA'/>
+      <ref production='type-reference'/>
+    </seq>
+  </production>
+  <production name='expression'>
+    <section title='Expressions'>
+      <description>
+      </description>
+    </section>
+    <or>
+      <seq>
+        <token type='var-name'/>
+        <many>
+          <ref production='expression'/>
+        </many>
+      </seq>
+      <seq>
+        <token type='UNOP'/>
+        <ref production='expression'/>
+      </seq>
+      <seq>
+        <ref production='expression'/>
+        <token type='BINOP'/>
+        <ref production='expression'/>
+      </seq>
+      <seq>
+        <token type='ORB'/>
+        <ref production='expression'/>
+        <token type='CRB'/>
+      </seq>
+    </or>
   </production>
 </grammar>

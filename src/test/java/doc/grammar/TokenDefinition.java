@@ -26,4 +26,9 @@ public class TokenDefinition extends Definition {
 		ret.add(token);
 	}
 
+	@Override
+	public void visit(ProductionVisitor productionVisitor) {
+		productionVisitor.token(token);
+	}
+
 }

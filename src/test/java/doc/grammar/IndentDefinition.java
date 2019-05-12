@@ -27,4 +27,11 @@ public class IndentDefinition extends Definition {
 	public void collectTokens(Set<String> ret) {
 		defn.collectTokens(ret);
 	}
+
+	@Override
+	public void visit(ProductionVisitor productionVisitor) {
+		productionVisitor.indent();
+		defn.visit(productionVisitor);
+		productionVisitor.exdent();
+	}
 }

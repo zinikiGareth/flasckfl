@@ -3,16 +3,17 @@ package doc.grammar;
 import java.io.PrintWriter;
 import java.util.Set;
 
-public class ManyDefinition extends Definition {
+public class OptionalDefinition extends Definition {
 	private final Definition child;
 
-	public ManyDefinition(Definition child) {
+	public OptionalDefinition(Definition child) {
 		this.child = child;
 	}
 
+	@Override
 	public void showGrammarFor(PrintWriter str) {
 		child.showGrammarFor(str);
-		str.print("<span class='production-many'>*</span>");
+		str.print("<span class='production-optional'>?</span>");
 	}
 
 	@Override
@@ -27,6 +28,7 @@ public class ManyDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.zeroOrMore(child);
+		productionVisitor.zeroOrOne(child);
 	}
+
 }

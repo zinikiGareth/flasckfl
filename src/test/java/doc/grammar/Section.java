@@ -12,7 +12,9 @@ public class Section {
 
 	public Section(String title, XMLElement desc) {
 		this.title = title;
-		this.desc = desc.text();
+		StringBuilder sb = new StringBuilder();
+		desc.serializeChildrenTo(sb);
+		this.desc = sb.toString();
 	}
 
 	@Override

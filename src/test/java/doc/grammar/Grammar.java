@@ -32,7 +32,9 @@ public class Grammar {
 	private void parseLexers(XML xml) {
 		List<XMLElement> lexers = xml.top().elementChildren("lex");
 		for (XMLElement xe : lexers) {
-			this.lexers.add(new Lexer(xe.required("token"), xe.required("pattern"), xe.text()));
+			StringBuilder sb = new StringBuilder();
+			xe.serializeChildrenTo(sb);
+			this.lexers.add(new Lexer(xe.required("token"), xe.required("pattern"), sb.toString()));
 			xe.attributesDone();
 		}
 	}
@@ -105,6 +107,8 @@ public class Grammar {
 			return handleIndent(ruleName, rule);
 		case "many":
 			return handleMany(ruleName, rule);
+		case "optional":
+			return handleOptional(ruleName, rule);
 		case "ref":
 			return handleRef(ruleName, rule);
 		case "seq":
@@ -126,6 +130,12 @@ public class Grammar {
 		Definition defn = parseDefn(ruleName, rule.uniqueElement("ref"));
 		rule.attributesDone();
 		return new ManyDefinition(defn);
+	}
+
+	private Definition handleOptional(String ruleName, XMLElement rule) {
+		Definition defn = parseDefn(ruleName, rule.uniqueElement("ref"));
+		rule.attributesDone();
+		return new OptionalDefinition(defn);
 	}
 
 	private Definition handleRef(String ruleName, XMLElement rule) {
@@ -158,6 +168,14 @@ public class Grammar {
 
 	public String top() {
 		return productions.iterator().next().name;
+	}
+
+	public Production findRule(String name) {
+		for (Production p : productions) {
+			if (p.name.equals(name))
+				return p;
+		}
+		throw new RuntimeException("Could not find production for " + name);
 	}
 	
 	public Set<String> allProductions() {
@@ -194,5 +212,13 @@ public class Grammar {
 
 	public Set<Lexer> lexers() {
 		return lexers;
+	}
+
+	public Lexer findToken(String token) {
+		for (Lexer l : lexers) {
+			if (l.token.equals(token))
+				return l;
+		}
+		throw new RuntimeException("There is no token " + token);
 	}
 }

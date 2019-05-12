@@ -36,4 +36,10 @@ public class SequenceDefinition extends Definition {
 			d.collectTokens(ret);
 		}
 	}
+
+	@Override
+	public void visit(ProductionVisitor productionVisitor) {
+		for (Definition d : elts)
+			d.visit(productionVisitor);
+	}
 }

@@ -57,7 +57,7 @@ public class GenerateGrammarDoc {
 		unused.removeAll(refs);
 		refs.removeAll(prods);
 		System.out.println("unused: " + unused);
-		System.out.println("undefined: " + refs);
+		System.out.println("undefined (" + refs.size() + "): " + refs);
 		assertEquals(new TreeSet<>(), unused);
 //		assertEquals(new TreeSet<>(), refs);
 	}

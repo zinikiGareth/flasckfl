@@ -26,4 +26,9 @@ public class RefDefinition extends Definition {
 	public void collectTokens(Set<String> ret) {
 	}
 
+	@Override
+	public void visit(ProductionVisitor productionVisitor) {
+		productionVisitor.referTo(child);
+	}
+
 }
