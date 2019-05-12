@@ -15,6 +15,9 @@
   <lex token='CSB' pattern='\]'>
   	<p>A closing square bracket delimits the end of a list operation or polymorphic variable list.</p>
   </lex>
+  <lex token='EOL' pattern='\n'>
+  	<p>Specifies the end of a line.</p>
+  </lex>
   <lex token='EQ' pattern='='>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
@@ -24,15 +27,30 @@
   <lex token='OCB' pattern='\{'>
   	<p>An opening curly bracket introduces a constructor pattern match or object creation.</p>
   </lex>
+  <lex token='OR' pattern='|'>
+  	<p>A token to separate cases in a union declaration.</p>
+  </lex>
   <lex token='ORB' pattern='\('>
   	<p>An opening square bracket introduces a sub-element of an expression or pattern.</p>
   </lex>
   <lex token='OSB' pattern='\['>
   	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
   </lex>
+  <lex token='SEND' pattern='&lt;-'>
+  	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
+  </lex>
+  <lex token='STRUCT' pattern='struct'>
+  	<p>The <tt>struct</tt> keyword introduces a struct definition.</p>
+  </lex>
+  <lex token='UNION' pattern='union'>
+  	<p>The <tt>union</tt> keyword introduces a union definition.</p>
+  </lex>
   <lex token='UNOP' pattern='[\-]'>
   	<p>One of the standard unary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
+  </lex>
+  <lex token='poly-var' pattern='[A-Z][A-Z]?'>
+  	<p>Polymorphic variable names must be one or two capital letters.</p>
   </lex>
   <lex token='type-name' pattern='[A-Z][A-Za-z0-9_][A-Za-z0-9_]+'>
   	<p>Concrete type names must start with a capital letter and have at
@@ -99,6 +117,84 @@
       <ref production='standalone-method-declaration'/>
       <ref production='handler-declaration'/>
     </or>
+  </production>
+  <production name='struct-declaration'>
+    <section title='Data Declarations'>
+	    <description>
+	    </description>
+	</section>
+    <seq>
+      <token type='STRUCT'/>
+      <token type='type-name'/>
+      <optional>
+        <ref production='poly-var-list'/>
+      </optional>
+      <indent>
+        <ref production='struct-field-list'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='poly-var-list'>
+    <section title='Data Declarations'/>
+    <seq>
+      <token type='OSB'/>
+      <token type='poly-var'/>
+      <many>
+        <ref production='comma-poly-var'/>
+      </many>
+      <token type='CSB'/>
+    </seq>
+  </production>
+  <production name='comma-poly-var'>
+    <section title='Data Declarations'/>
+    <seq>
+      <token type='COMMA'/>
+      <token type='poly-var'/>
+    </seq>
+  </production>
+  <production name='struct-field-list'>
+    <section title='Data Declarations'/>
+    <many>
+      <ref production='struct-field-decl'/>
+    </many>
+  </production>
+  <production name='struct-field-decl'>
+    <section title='Data Declarations'/>
+    <seq>
+      <ref production='type-reference'/>
+      <token type='var-name'/>
+      <optional>
+      	<ref production='struct-initializer'/>
+      </optional>
+      <token type='EOL'/>
+    </seq>
+  </production>
+  <production name='struct-initializer'>
+    <section title='Data Declarations'/>
+    <seq>
+      <token type='SEND'/>
+      <ref production='expression'/>
+    </seq>
+  </production>
+  <production name='union-declaration'>
+    <section title='Data Declarations'/>
+    <seq>
+      <token type='UNION'/>
+      <token type='type-name'/>
+      <token type='EQ'/>
+      <ref production='type-reference'/>
+      <many>
+        <ref production='or-type-reference'/>
+      </many>
+      <token type='EOL'/>
+    </seq>
+  </production>
+  <production name='or-type-reference'>
+    <section title='Data Declarations'/>
+    <seq>
+      <token type='OR'/>
+      <ref production='type-reference'/>
+    </seq>
   </production>
   <production name='function-case-declaration'>
     <section title='Functions'>
@@ -241,12 +337,17 @@
       <description>
       </description>
     </section>
-    <seq>
-      <token type='type-name'/>
-      <optional>
-        <ref production='poly-type-list'/>
-      </optional>
-    </seq>
+    <or>
+      <seq>
+        <token type='type-name'/>
+        <optional>
+          <ref production='poly-type-list'/>
+        </optional>
+      </seq>
+      <seq>
+        <token type='poly-var'/>
+      </seq>
+    </or>
   </production>
   <production name='poly-type-list'>
     <section title='Types'/>
