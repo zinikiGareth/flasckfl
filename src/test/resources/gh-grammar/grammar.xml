@@ -33,11 +33,17 @@
   <lex token='EQ' pattern='='>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
+  <lex token='EVENT' pattern='event'>
+  	<p>The <tt>event</tt> keyword introduces an event handler.</p>
+  </lex>
   <lex token='GUARD' pattern='|'>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
   <lex token='HANDLER' pattern='handler'>
-  	<p>The <tt>handler</tt> keyword introduces a handler definition.</p>
+  	<p>The <tt>handler</tt> keyword introduces a callback handler.</p>
+  </lex>
+  <lex token='IMPLEMENTS' pattern='implements'>
+  	<p>The <tt>implements</tt> keyword introduces a contract implementation in a service or card.</p>
   </lex>
   <lex token='METHOD' pattern='method'>
   	<p>The <tt>method</tt> keyword introduces a standalone method definition.</p>
@@ -65,6 +71,9 @@
   </lex>
   <lex token='SEND' pattern='&lt;-'>
   	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
+  </lex>
+  <lex token='SERVICE' pattern='service'>
+  	<p>The <tt>service</tt> keyword introduces a service declaration.</p>
   </lex>
   <lex token='STATE' pattern='state'>
   	<p>The <tt>state</tt> keyword introduces a card or object state.</p>
@@ -133,6 +142,7 @@
       <ref production='union-declaration'/>
       <ref production='contract-declaration'/>
       <ref production='object-declaration'/>
+      <ref production='service-declaration'/>
       <ref production='card-declaration'/>
     </or>
   </production>
@@ -636,6 +646,39 @@
       </indent>
     </seq>
   </production>
+  <production name='service-declaration'>
+    <section title='Service'>
+      <description>
+      </description>
+    </section>
+    <seq>
+    	  <token type='SERVICE' />
+    	  <token type='type-name'/>
+    	  <indent>
+    	    <ref production='service-contents'/>
+    	  </indent>
+    </seq>
+  </production>
+  <production name='service-contents'>
+    <section title='Service'/>
+    <seq>
+    	  <ref production='state-declaration'/>
+      <ref production='service-scope'/>
+    </seq>
+  </production>
+  <production name='service-scope'>
+    <section title='Service'/>
+    <many>
+      <ref production='service-scope-unit'/>
+    </many>
+  </production>
+  <production name='service-scope-unit'>
+    <section title='Service'/>
+    <or>
+    	  <ref production='implements-contract'/>
+      <ref production='function-scope-unit'/>
+    </or>
+  </production>
   <production name='card-declaration'>
     <section title='Card'>
       <description>
@@ -659,12 +702,69 @@
       <many>
         <ref production='named-template-definition'/>
       </many>
-      <ref production='card-scope-unit'/>
+      <ref production='card-scope'/>
     </seq>
   </production>
-  <!--
-  contract-impl[2 types]
-  event*
-  function-scope-unit
-  -->
+  <production name='card-scope'>
+    <section title='Card'/>
+    <many>
+      <ref production='card-scope-unit'/>
+    </many>
+  </production>
+  <production name='card-scope-unit'>
+    <section title='Card'/>
+    <or>
+    	  <ref production='event-handler'/>
+      <ref production='service-scope-unit'/>
+    </or>
+  </production>
+  <production name='implements-contract'>
+    <section title='Implements Contract'>
+      <description>
+      </description>
+    </section>
+    <seq>
+    	  <token type='IMPLEMENTS' />
+    	  <token type='type-name'/>
+    	  <optional>
+        <token type='var-name'/>
+    	  </optional>
+    	  <indent>
+    	    <ref production='implementation-method'/>
+    	  </indent>
+    </seq>
+  </production>
+  <production name='implementation-method'>
+    <section title='Implements Contract'/>
+    <seq>
+      <token type='var-name'/>
+      <many>
+        <ref production='argument-pattern-variable'/>
+      </many>
+      <indent>
+      	<ref production='method-actions'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='event-handler'>
+    <section title='Events'>
+      <description>
+        <p>An event handler is a special type of method on a card, which can respond to UI events.</p>
+        <p>Although not part of the grammar, each event will receive an appropriate event object as its final argument.</p>
+        <p>Event handlers are not called directly by the system but through the template mechanism (see some rule) and are generally curried, in that some arguments are presented as part of the configuration, and the event itself is provided by the system when called.</p>
+      </description>
+    </section>
+    <seq>
+      <token type='EVENT'/>
+      <ref production='method-definition'/>
+    </seq>
+  </production>
+  <production name='template-action'>
+    <section title='Templates'>
+      <description>
+        <p>Templates are still somewhat at the research phase.  I know I want to use WebZip and then bind things later, but I have notes at best.</p>
+      </description>
+    </section>
+    <token type='SEND'/>
+  </production>
 </grammar>

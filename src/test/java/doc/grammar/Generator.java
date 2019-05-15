@@ -9,26 +9,26 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.zinutils.utils.FileUtils;
 
 public class Generator {
-	private final File idx;
+	private final File html;
 	private final File srcDir;
 
 	public Generator(File srcDir, File out) {
 		this.srcDir = srcDir;
-		this.idx = new File(out, "index.html");
+		this.html = new File(out, "grammar.html");
 	}
 
-	public void generateIndexHTML(Grammar grammar) throws FileNotFoundException {
-		FileUtils.copy(new File(srcDir, "index.head.html"), idx);
-		FileUtils.appendToFile(new File(srcDir, "preamble.html"), idx);
-		FileUtils.appendToFile(new File(srcDir, "blocking.html"), idx);
-		FileUtils.appendToFile(new File(srcDir, "lexical.html"), idx);
-		PrintWriter str = new PrintWriter(new FileOutputStream(idx, true));
+	public void generateGrammarHTML(Grammar grammar) throws FileNotFoundException {
+		FileUtils.copy(new File(srcDir, "grammar.head.html"), html);
+		// TODO: pull all of these into the XML doc as sections ...
+		FileUtils.appendToFile(new File(srcDir, "preamble.html"), html);
+		FileUtils.appendToFile(new File(srcDir, "blocking.html"), html);
+		FileUtils.appendToFile(new File(srcDir, "lexical.html"), html);
+		PrintWriter str = new PrintWriter(new FileOutputStream(html, true));
 		generateLexical(grammar, str);
 		generateSummary(grammar, str);
 		generateDefinitionSections(grammar, str);
 		str.close();
-		FileUtils.appendToFile(new File(srcDir, "index.tail.html"), idx);
-		FileUtils.cat(idx);
+		FileUtils.appendToFile(new File(srcDir, "grammar.tail.html"), html);
 	}
 
 	private void generateLexical(Grammar grammar, PrintWriter str) {

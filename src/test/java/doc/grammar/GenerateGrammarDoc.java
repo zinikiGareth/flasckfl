@@ -31,7 +31,7 @@ public class GenerateGrammarDoc {
 		XML grammarAsXML = XML.fromFile(new File(srcDir, "grammar.xml"));
 		Grammar grammar = Grammar.from(grammarAsXML);
 		Generator gen = new Generator(srcDir, out);
-		gen.generateIndexHTML(grammar);
+		gen.generateGrammarHTML(grammar);
 		checkTokens(grammar);
 		checkProductions(grammar);
 	}
@@ -43,8 +43,6 @@ public class GenerateGrammarDoc {
 		unused.remove(grammar.top());
 		unused.removeAll(refs);
 		refs.removeAll(prods);
-		System.out.println("unused tokens: " + unused);
-		System.out.println("undefined tokens: " + refs);
 		assertEquals(new TreeSet<>(), unused);
 		assertEquals(new TreeSet<>(), refs);
 	}
@@ -56,9 +54,7 @@ public class GenerateGrammarDoc {
 		unused.remove(grammar.top());
 		unused.removeAll(refs);
 		refs.removeAll(prods);
-		System.out.println("unused: " + unused);
-		System.out.println("undefined (" + refs.size() + "): " + refs);
 		assertEquals(new TreeSet<>(), unused);
-//		assertEquals(new TreeSet<>(), refs);
+		assertEquals(new TreeSet<>(), refs);
 	}
 }
