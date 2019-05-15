@@ -18,20 +18,39 @@ public class Generator {
 	}
 
 	public void generateGrammarHTML(Grammar grammar) throws FileNotFoundException {
-		FileUtils.copy(new File(srcDir, "grammar.head.html"), html);
 		// TODO: pull all of these into the XML doc as sections ...
-		FileUtils.appendToFile(new File(srcDir, "preamble.html"), html);
-		FileUtils.appendToFile(new File(srcDir, "blocking.html"), html);
-		FileUtils.appendToFile(new File(srcDir, "lexical.html"), html);
-		PrintWriter str = new PrintWriter(new FileOutputStream(html, true));
+//		FileUtils.appendToFile(new File(srcDir, "preamble.html"), html);
+//		FileUtils.appendToFile(new File(srcDir, "blocking.html"), html);
+//		FileUtils.appendToFile(new File(srcDir, "lexical.html"), html);
+		PrintWriter str = new PrintWriter(new FileOutputStream(html));
+		generateHead(grammar, str);
+		includeBurble(grammar, str, "preamble");
 		generateLexical(grammar, str);
 		generateSummary(grammar, str);
 		generateDefinitionSections(grammar, str);
+		generateTail(str);
 		str.close();
-		FileUtils.appendToFile(new File(srcDir, "grammar.tail.html"), html);
+		FileUtils.cat(html);
+	}
+
+	private void generateHead(Grammar grammar, PrintWriter str) {
+		str.println("<html>");
+		str.println("<head>");
+		str.println("<title>" + StringEscapeUtils.escapeHtml4(grammar.title) + "</title>");
+		for (String css : grammar.cssFiles()) {
+			str.println("<link type='text/css' rel='stylesheet' href='" + StringEscapeUtils.escapeHtml4(css) + "'/>");
+		}
+		str.println("</head>");
+		str.println("<body>");
+		str.println("<h1>" + StringEscapeUtils.escapeHtml4(grammar.title) + "</h1>");
+	}
+
+	private void includeBurble(Grammar grammar, PrintWriter str, String which) {
+		str.print(grammar.getBurble(which));
 	}
 
 	private void generateLexical(Grammar grammar, PrintWriter str) {
+		includeBurble(grammar, str, "lex");
 		for (Lexer l : grammar.lexers()) {
 			str.print("<h3>" + StringEscapeUtils.escapeHtml4(l.token) + "</h3>");
 			str.print("<span class='pattern-title'>Pattern:</span><span class='pattern'>" + StringEscapeUtils.escapeHtml4(l.pattern) + "</span>");
@@ -61,4 +80,8 @@ public class Generator {
 		}
 	}
 
+	private void generateTail(PrintWriter str) {
+		str.print("</body>\n");
+		str.print("</html>\n");
+	}
 }

@@ -1,4 +1,11 @@
-<grammar>
+<grammar title='FLAS Grammar'>
+  <css href='grammar.css' />
+  <burble name='preamble'>
+    <p>FLAS is an actor-based functional language for cards.</p>
+  </burble>
+  <burble name='lex'>
+    <h2>Lexical Issues</h2>
+  </burble>
   <lex token='APPLY' pattern='\.'>
   	<p>The apply operator.</p>
   </lex>

@@ -1,6 +1,7 @@
 package doc.grammar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -11,25 +12,50 @@ import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;
 
 public class Grammar {
+	public final String title;
 	private final LinkedHashMap<String, Section> sections;
 	private final LinkedHashMap<String, Production> productions;
+	private final HashMap<String, String> burbles = new HashMap<>();
 	private final Set<Lexer> lexers = new TreeSet<>();
+	private List<String> cssFiles = new ArrayList<>();
 
-	private Grammar() {
+	private Grammar(String title) {
+		this.title = title;
 		sections = new LinkedHashMap<>();
 		productions = new LinkedHashMap<>();
 	}
 	
 	public static Grammar from(XML xml) {
-		final Grammar ret = new Grammar();
-		xml.top().assertTag("grammar");
-		ret.parseLexers(xml);
-		ret.parseProductions(xml);
+		final XMLElement xe = xml.top();
+		xe.assertTag("grammar");
+		final Grammar ret = new Grammar(xe.required("title"));
+		xe.attributesDone();
+		ret.readCSSFiles(xe);
+		ret.readBurbles(xe);
+		ret.parseLexers(xe);
+		ret.parseProductions(xe);
 		return ret;
 	}
 
-	private void parseLexers(XML xml) {
-		List<XMLElement> lexers = xml.top().elementChildren("lex");
+	private void readCSSFiles(XMLElement xe) {
+		List<XMLElement> css = xe.elementChildren("css");
+		for (XMLElement ce : css) {
+			cssFiles.add(ce.required("href"));
+			ce.attributesDone();
+		}
+	}
+
+	private void readBurbles(XMLElement xe) {
+		List<XMLElement> burbles = xe.elementChildren("burble");
+		for (XMLElement b : burbles) {
+			StringBuilder sb = new StringBuilder();
+			b.serializeChildrenTo(sb);
+			this.burbles.put(b.get("name"), sb.toString());
+		}
+	}
+
+	private void parseLexers(XMLElement xml) {
+		List<XMLElement> lexers = xml.elementChildren("lex");
 		for (XMLElement xe : lexers) {
 			StringBuilder sb = new StringBuilder();
 			xe.serializeChildrenTo(sb);
@@ -38,8 +64,8 @@ public class Grammar {
 		}
 	}
 
-	public void parseProductions(XML xml) {
-		List<XMLElement> productions = xml.top().elementChildren("production");
+	public void parseProductions(XMLElement xml) {
+		List<XMLElement> productions = xml.elementChildren("production");
 		int ruleNumber = 1;
 		for (XMLElement p : productions) {
 			final String ruleName = p.get("name");
@@ -221,5 +247,15 @@ public class Grammar {
 				return l;
 		}
 		throw new RuntimeException("There is no token " + token);
+	}
+
+	public List<String> cssFiles() {
+		return cssFiles ;
+	}
+
+	public String getBurble(String which) {
+		if (!burbles.containsKey(which))
+			throw new RuntimeException("There is no burble for " + which);
+		return burbles.get(which);
 	}
 }
