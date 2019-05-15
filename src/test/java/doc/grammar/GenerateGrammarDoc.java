@@ -30,7 +30,7 @@ public class GenerateGrammarDoc {
 		}
 		XML grammarAsXML = XML.fromFile(new File(srcDir, "grammar.xml"));
 		Grammar grammar = Grammar.from(grammarAsXML);
-		Generator gen = new Generator(srcDir, out);
+		Generator gen = new Generator(out);
 		gen.generateGrammarHTML(grammar);
 		checkTokens(grammar);
 		checkProductions(grammar);

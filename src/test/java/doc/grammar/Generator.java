@@ -10,18 +10,12 @@ import org.zinutils.utils.FileUtils;
 
 public class Generator {
 	private final File html;
-	private final File srcDir;
 
-	public Generator(File srcDir, File out) {
-		this.srcDir = srcDir;
+	public Generator(File out) {
 		this.html = new File(out, "grammar.html");
 	}
 
 	public void generateGrammarHTML(Grammar grammar) throws FileNotFoundException {
-		// TODO: pull all of these into the XML doc as sections ...
-//		FileUtils.appendToFile(new File(srcDir, "preamble.html"), html);
-//		FileUtils.appendToFile(new File(srcDir, "blocking.html"), html);
-//		FileUtils.appendToFile(new File(srcDir, "lexical.html"), html);
 		PrintWriter str = new PrintWriter(new FileOutputStream(html));
 		generateHead(grammar, str);
 		includeBurble(grammar, str, "preamble");
@@ -38,7 +32,7 @@ public class Generator {
 		str.println("<head>");
 		str.println("<title>" + StringEscapeUtils.escapeHtml4(grammar.title) + "</title>");
 		for (String css : grammar.cssFiles()) {
-			str.println("<link type='text/css' rel='stylesheet' href='" + StringEscapeUtils.escapeHtml4(css) + "'/>");
+			str.println("<link type='text/css' rel='stylesheet' href='" + StringEscapeUtils.escapeHtml4(css) + "'>");
 		}
 		str.println("</head>");
 		str.println("<body>");
