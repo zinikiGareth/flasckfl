@@ -43,8 +43,8 @@ public class GenerateGrammarDoc {
 		unused.remove(grammar.top());
 		unused.removeAll(refs);
 		refs.removeAll(prods);
-		assertEquals(new TreeSet<>(), unused);
-		assertEquals(new TreeSet<>(), refs);
+		assertEquals("unused tokens", new TreeSet<>(), unused);
+		assertEquals("undefined tokens", new TreeSet<>(), refs);
 	}
 
 	public void checkProductions(Grammar grammar) {
@@ -54,7 +54,7 @@ public class GenerateGrammarDoc {
 		unused.remove(grammar.top());
 		unused.removeAll(refs);
 		refs.removeAll(prods);
-		assertEquals(new TreeSet<>(), unused);
-		assertEquals(new TreeSet<>(), refs);
+		assertEquals("unused productions", new TreeSet<>(), unused);
+		assertEquals("undefined productions", new TreeSet<>(), refs);
 	}
 }

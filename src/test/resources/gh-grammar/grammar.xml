@@ -34,6 +34,12 @@
   <lex token='DIR' pattern='up|down'>
   	<p>The <tt>up</tt> and <tt>down</tt> keywords indicate the sense in which a contract method is called.</p>
   </lex>
+  <lex token='ENTITY' pattern='entity'>
+  	<p>The <tt>entity</tt> keyword introduces an entity definition.</p>
+  </lex>
+  <lex token='ENVELOPE' pattern='envelope'>
+  	<p>The <tt>envelope</tt> keyword introduces an envelope definition.</p>
+  </lex>
   <lex token='EOL' pattern='\n'>
   	<p>Specifies the end of a line.</p>
   </lex>
@@ -42,6 +48,9 @@
   </lex>
   <lex token='EVENT' pattern='event'>
   	<p>The <tt>event</tt> keyword introduces an event handler.</p>
+  </lex>
+  <lex token='FALSE' pattern='false'>
+  	<p>The boolean literal <tt>false</tt>.</p>
   </lex>
   <lex token='GUARD' pattern='|'>
   	<p>Defines the variable/function definition operator.</p>
@@ -54,6 +63,9 @@
   </lex>
   <lex token='METHOD' pattern='method'>
   	<p>The <tt>method</tt> keyword introduces a standalone method definition.</p>
+  </lex>
+  <lex token='NUMBER' pattern='[0-9.e+-]+'>
+  	<p>A numeric literal.</p>
   </lex>
   <lex token='OBJECT' pattern='object'>
   	<p>The <tt>object</tt> keyword introduces an object declaration.</p>
@@ -79,17 +91,26 @@
   <lex token='SEND' pattern='&lt;-'>
   	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
   </lex>
+  <lex token='SENDTO' pattern='=&gt;'>
+  	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
+  </lex>
   <lex token='SERVICE' pattern='service'>
   	<p>The <tt>service</tt> keyword introduces a service declaration.</p>
   </lex>
   <lex token='STATE' pattern='state'>
   	<p>The <tt>state</tt> keyword introduces a card or object state.</p>
   </lex>
+  <lex token='STRING' pattern='"[^"]*"|&apos;[^&apos;]*&apos;'>
+  	<p>A string literal.</p>
+  </lex>
   <lex token='STRUCT' pattern='struct'>
   	<p>The <tt>struct</tt> keyword introduces a struct declaration.</p>
   </lex>
   <lex token='TEMPLATE' pattern='template'>
   	<p>The <tt>template</tt> keyword introduces a template definition.</p>
+  </lex>
+  <lex token='TRUE' pattern='true'>
+  	<p>The boolean literal <tt>true</tt>.</p>
   </lex>
   <lex token='UNION' pattern='union'>
   	<p>The <tt>union</tt> keyword introduces a union declaration.</p>
@@ -98,8 +119,17 @@
   	<p>One of the standard unary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
   </lex>
+  <lex token='WRAPS' pattern='wraps'>
+  	<p>The <tt>wraps</tt> keyword introduces a definition that wraps an entity in an envelope.</p>
+  </lex>
+  <lex token='event-name' pattern='[a-z][a-z0-9-]*'>
+  	<p>The mnemonic name of an event, such as 'click' or 'scroll-down'.</p>
+  </lex>
   <lex token='poly-var' pattern='[A-Z][A-Z]?'>
   	<p>Polymorphic variable names must be one or two capital letters.</p>
+  </lex>
+  <lex token='template-name' pattern='[a-z][a-z0-9-]*'>
+  	<p>The name of a template or template item, which must match the name of a provided webzip element.</p>
   </lex>
   <lex token='type-name' pattern='[A-Z][A-Za-z0-9_][A-Za-z0-9_]+'>
   	<p>Concrete type names must start with a capital letter and have at
@@ -250,6 +280,7 @@
       <ref production='type-reference'/>
     </seq>
   </production>
+  <!--  TODO: entity, envelopes, wraps -->
   <production name='contract-declaration'>
     <section title='Contracts'>
       <description>
@@ -612,7 +643,7 @@
     <section title='Object'/>
     <seq>
     	  <ref production='state-declaration'/>
-    	  <ref production='default-or-many-templates'/>
+    	  <ref production='many-templates'/>
       <ref production='function-scope-unit'/>
     </seq>
   </production>
@@ -623,34 +654,6 @@
     	  <indent>
     	    <ref production='struct-field-list'/>
     	  </indent>
-    </seq>
-  </production>
-  <production name='default-or-many-templates'>
-    <section title='Object'/>
-    <or>
-      <ref production='default-template-definition'/>
-      <many>
-        <ref production='named-template-definition'/>
-      </many>
-    </or>
-  </production>
-  <production name='default-template-definition'>
-    <section title='Object'/>
-    <seq>
-      <token type='TEMPLATE'/>
-      <indent>
-        <ref production='template-action'/>
-      </indent>
-    </seq>
-  </production>
-  <production name='named-template-definition'>
-    <section title='Object'/>
-    <seq>
-      <token type='TEMPLATE'/>
-      <token type='var-name'/>
-      <indent>
-        <ref production='template-action'/>
-      </indent>
     </seq>
   </production>
   <production name='service-declaration'>
@@ -703,12 +706,7 @@
     <section title='Card'/>
     <seq>
     	  <ref production='state-declaration'/>
-    	  <optional>
-        <ref production='default-template-definition'/>
-    	  </optional>
-      <many>
-        <ref production='named-template-definition'/>
-      </many>
+      <ref production='many-templates'/>
       <ref production='card-scope'/>
     </seq>
   </production>
@@ -766,12 +764,130 @@
       <ref production='method-definition'/>
     </seq>
   </production>
-  <production name='template-action'>
+  <production name='many-templates'>
     <section title='Templates'>
       <description>
-        <p>Templates are still somewhat at the research phase.  I know I want to use WebZip and then bind things later, but I have notes at best.</p>
+        <p>Each card can have zero or more templates.  If it has no templates, it cannot have any visual representation.</p>
+        <p>If it has at least one template, the first template name must be defined as a <tt>card</tt> in an associated webzip file.  Other templates must be associated with <tt>item</tt>s in a webzip file.</p>
+        <p>Each template consists of a set of binding of values to portions of the template.</p>
       </description>
     </section>
-    <token type='SEND'/>
+    <many>
+      <ref production='named-template-definition'/>
+    </many>
+  </production>
+  <production name='named-template-definition'>
+    <section title='Templates'/>
+    <seq>
+      <token type='TEMPLATE'/>
+      <token type='template-name'/>
+      <indent>
+        <ref production='template-bind'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='template-bind'>
+    <section title='Template Bindings'>
+      <description>
+        <p>Each binding is responsible for filling one slot in the template, which can be of type <tt>punnet</tt>, <tt>container</tt> or <tt>content</tt>.</p>
+        <p>The first case of rule ${one-template-bind} enables a value to be "assigned" to a slot in the template.  The exact semantics of this depend on the slot type; see <a href='index.html#connecting-elements-to-cards'>connecting elements to cards</a> for details.</p>
+        <p>The second case allows the assignment to be conditional on another expression.  In this case, the conditional (first) expression of each case of rule ${option-template-bind}, which must be of type boolean, is considered and the first one to evaluate to <tt>true</tt> is selected.  The value (second) expression is then used as the value.  The second clause of rule ${option-template-bind} may only be used once, and must be the last instance in a given binding.</p>
+        <p>The degenerate (third) case for rule ${one-template-bind} can only be used to customize <tt>style</tt> elements.  In this case the template name is provided and the styles and events are immediate descendants of this.</p>
+        <p>For <tt>container</tt> slots <i>only</i>, it is possible to specify an <tt>item</tt> template that the value should be passed to using rule ${pass-to-template}.</p>
+        <p>Styling and event handling may be added to all elements except <tt>punnet</tt>s, which hand off styling and event handling to their contained cards.  In general, this will also not be used with <tt>container</tt> slots.</p>
+      </description>
+    </section>
+    <seq>
+      <ref production='one-template-bind'/>
+      <indent>
+        <ref production='template-customization'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='one-template-bind'>
+    <section title='Template Bindings'/>
+    <or>
+      <seq>
+	    <token type='template-name'/>
+	    <token type='SEND'/>
+	    <token type='expr'/>
+	    <optional>
+	    	  <ref production='pass-to-template' />
+	    </optional>
+	  </seq>
+      <seq>
+	    <token type='template-name'/>
+        <indent>
+          <ref production='option-template-bind'/>
+        </indent>
+	  </seq>
+      <seq>
+	    <token type='template-name'/>
+	  </seq>
+    </or>
+  </production>
+  <production name='option-template-bind'>
+    <section title='Template Bindings'/>
+    <or>
+      <seq>
+	    <token type='OR'/>
+	    <token type='expr'/>
+	    <token type='SEND'/>
+	    <token type='expr'/>
+	    <optional>
+	    	  <ref production='pass-to-template' />
+	    </optional>
+	  </seq>
+      <seq>
+	    <token type='OR'/>
+	    <token type='SEND'/>
+	    <token type='expr'/>
+	    <optional>
+	    	  <ref production='pass-to-template' />
+	    </optional>
+	  </seq>
+    </or>
+  </production>
+  <production name='pass-to-template'>
+    <section title='Template Bindings'/>
+    <seq>
+      <token type='SENDTO'/>
+      <token type='template-name'/>
+    </seq>
+  </production>
+  <production name='template-customization'>
+    <section title='Template Bindings'/>
+    <or>
+      <ref production="template-style"/>
+      <ref production="template-event"/>
+    </or>
+  </production>
+  <production name='template-style'>
+    <section title='Template Customization'>
+    		<description>
+    			<p>For <tt>content</tt> and <tt>style</tt> elements, it is possible to <i>customize</i> the element by applying styling and adding event handlers.</p>
+    			<p>Rule ${template-style} defines the behaviour for styling.  Any number of styling rules may be applied; each will match the <tt>expr</tt> and, if true, will add the classes identified by the strings to the element's class list.</p>
+    			<p>Rule ${template-event} defines event handlers.  Each of the predefined events can be mapped exactly once per element.  The outcome will be the invocation of an event handler defined on the card as <tt>var-name</tt>.  It will receive a set of arguments along with an event object of a type appropriate for the named event.</p>
+    		</description>
+    </section>
+    <seq>
+      <token type='OR'/>
+      <ref production='expr'/>
+      <token type='SENDTO' />
+      <one-or-more>
+      	<token type='STRING'/>
+      </one-or-more>
+    </seq>
+  </production>
+  <production name='template-event'>
+    <section title='Template Customization' />
+    <seq>
+      <token type='event-name' />
+      <token type='SENDTO'/>
+      <token type='var-name'/>
+      <many>
+      	<ref production='expr' />
+      </many>
+    </seq>
   </production>
 </grammar>

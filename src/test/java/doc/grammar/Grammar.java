@@ -2,6 +2,7 @@ package doc.grammar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -134,7 +135,9 @@ public class Grammar {
 		case "indent":
 			return handleIndent(ruleName, rule);
 		case "many":
-			return handleMany(ruleName, rule);
+			return handleMany(ruleName, rule, true);
+		case "one-or-more":
+			return handleMany(ruleName, rule, false);
 		case "optional":
 			return handleOptional(ruleName, rule);
 		case "ref":
@@ -154,10 +157,14 @@ public class Grammar {
 		return new IndentDefinition(defn);
 	}
 
-	private ManyDefinition handleMany(String ruleName, XMLElement rule) {
-		Definition defn = parseDefn(ruleName, rule.uniqueElement("ref"));
+	private ManyDefinition handleMany(String ruleName, XMLElement rule, boolean allowZero) {
+		Definition defn;
+		if (!rule.elementChildren("ref").isEmpty())
+			defn = parseDefn(ruleName, rule.uniqueElement("ref"));
+		else
+			defn = parseDefn(ruleName, rule.uniqueElement("token"));
 		rule.attributesDone();
-		return new ManyDefinition(defn);
+		return new ManyDefinition(defn, allowZero);
 	}
 
 	private Definition handleOptional(String ruleName, XMLElement rule) {
@@ -257,5 +264,24 @@ public class Grammar {
 		if (!burbles.containsKey(which))
 			throw new RuntimeException("There is no burble for " + which);
 		return burbles.get(which);
+	}
+
+	public String substituteRuleVars(String desc) {
+		StringBuilder sb = new StringBuilder(desc);
+		int from = 0;
+		while ((from = sb.indexOf("${", from)) != -1) {
+			int to = sb.indexOf("}", from);
+			if (to == -1)
+				throw new RuntimeException("Mismatched rule reference" + sb.substring(from));
+			String name = sb.substring(from+2, to);
+			if (!productions.containsKey(name))
+				throw new RuntimeException("Cannot reference ${" + name + "}");
+			Iterator<String> it = productions.keySet().iterator();
+			for (int i=1;it.hasNext();i++) {
+				if (it.next().equals(name))
+					sb.replace(from, to+1, "(" + (i) + ")");
+			}
+		}
+		return sb.toString();
 	}
 }

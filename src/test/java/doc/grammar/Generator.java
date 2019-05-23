@@ -69,7 +69,7 @@ public class Generator {
 				p.show(str);
 			}
 			str.println("<div class='section-description'>");
-			str.print(s.desc);
+			str.print(grammar.substituteRuleVars(s.desc));
 			str.println("</div>");
 		}
 	}
