@@ -33,7 +33,7 @@ public class SimpleUnitTestRunnerTests {
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	FLASCompiler sc = new FLASCompiler(null);
 	ErrorResult errors = new ErrorResult();
-	Rewriter rw = new Rewriter(errors, null, null, null);
+	Rewriter rw = new Rewriter(errors, null, null);
 	TypeChecker2 tc = new TypeChecker2(errors, rw);
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	CompileResult prior;

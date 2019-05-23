@@ -51,7 +51,7 @@ public abstract class BaseRunnerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ErrorResult errors = new ErrorResult();
-	Rewriter rw = new Rewriter(errors, null, null, null);
+	Rewriter rw = new Rewriter(errors, null, null);
 	TypeChecker2 tc = new TypeChecker2(errors, rw);
 	// TODO: defining bce here feels out of place and should be in the JVMRunnerTest
 	// But it is "part of" the CompileResult.  Why?
