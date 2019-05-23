@@ -19,6 +19,9 @@
   <lex token='CCB' pattern='\}'>
   	<p>A closing curly bracket delimits the end of an constructor pattern or object creation.</p>
   </lex>
+  <lex token='COLON' pattern=':'>
+  	<p>Can be an operator or can be used to define object literals.</p>
+  </lex>
   <lex token='COMMA' pattern=','>
   	<p>Separates similar items in a list.</p>
   </lex>
@@ -142,24 +145,11 @@
   
   <production name='file'>
     <section title='Files'>
-    <!-- In a description, ${file} should turn into (1) so that you can say
-         "in rule ${file}" and have "in rule (1)" come out.
-      -->
-	    <description>
-	    <p>
-	        FLAS units are grouped into files.
-	        There are no specific rules about how units are grouped and grouping
-	        units together in a file offers no special privileges of access.
-</p>
-<p>
-       This is the set of units that can be defined at the top level in files.
-       Since many of these may also be defined within nested function scopes,
-       this is defined as a production of those together with the others that cannot.
-</p>
-<p>
-       These units can only be declared at the top level in a file.
-</p>
-	    </description>
+	  <description>
+	    <p>FLAS units are grouped into files.  There are no specific rules about how units are grouped and grouping units together in a file offers no special privileges of access.</p>
+        <p>This is the set of units that can be defined at the top level in files.  Since many of these may also be defined within nested function scopes, this is defined as a production of those together with the others that cannot.</p>
+        <p>These units can only be declared at the top level in a file.</p>
+	  </description>
 	</section>
     <many>
       <ref production='top-level-unit' />
@@ -177,6 +167,9 @@
     <or>
       <ref production='struct-declaration'/>
       <ref production='union-declaration'/>
+      <ref production='entity-declaration'/>
+      <ref production='envelope-declaration'/>
+      <ref production='wraps-declaration'/>
       <ref production='contract-declaration'/>
       <ref production='object-declaration'/>
       <ref production='service-declaration'/>
@@ -209,6 +202,19 @@
 	</section>
     <seq>
       <token type='STRUCT'/>
+      <token type='type-name'/>
+      <optional>
+        <ref production='poly-var-list'/>
+      </optional>
+      <indent>
+        <ref production='struct-field-list'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='entity-declaration'>
+    <section title='Data Declarations' />
+    <seq>
+      <token type='ENTITY'/>
       <token type='type-name'/>
       <optional>
         <ref production='poly-var-list'/>
@@ -280,7 +286,66 @@
       <ref production='type-reference'/>
     </seq>
   </production>
-  <!--  TODO: entity, envelopes, wraps -->
+  <production name='envelope-declaration'>
+    <section title='Envelopes'>
+    	  <description>
+    	    <p>Envelopes are used to provide consistent access to a range of entities.  In this way, they can be considered similar to <tt>union</tt> objects or <tt>typeclasses</tt> in Haskell.</p>
+    	    <p>An envelope is defined in the same way as an entity, and all <i>instances</i> of an envelope must be <tt>entity</tt> declarations.</p>
+    	    <p>The <tt>wraps</tt> definition specifies that an <tt>envelope</tt> can be represented by a specific <tt>entity</tt>.  This is then implemented by identifying how each variable in the envelope is made available from expressions which are phrased in terms of the members of the entity.</p>
+    	    <p>This mapping is strictly one way.  It is not possible to <i>assign</i> to fields of an envelope.</p>
+    	  </description>
+    </section>
+    <seq>
+      <token type='ENVELOPE'/>
+      <token type='type-name'/>
+      <optional>
+        <ref production='poly-var-list'/>
+      </optional>
+      <indent>
+        <ref production='envelope-field-list'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='envelope-field-list'>
+    <section title='Envelopes'/>
+    <many>
+      <ref production='envelope-field-decl'/>
+    </many>
+  </production>
+  <production name='envelope-field-decl'>
+    <section title='Envelopes'/>
+    <seq>
+      <ref production='type-reference'/>
+      <token type='var-name'/>
+      <token type='EOL'/>
+    </seq>
+  </production>
+  <production name='wraps-declaration'>
+    <section title='Envelopes' />
+    <seq>
+      <token type='WRAPS'/>
+      <token type='type-name'/>
+      <token type='SEND' />
+      <token type='type-name'/>
+      <indent>
+        <ref production='wraps-binding-list'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='wraps-binding-list'>
+    <section title='Envelopes'/>
+    <many>
+      <ref production='wraps-binding-decl'/>
+    </many>
+  </production>
+  <production name='wraps-binding-decl'>
+    <section title='Envelopes'/>
+    <seq>
+      <token type='var-name'/>
+      <ref production='struct-initializer'/>
+      <token type='EOL'/>
+    </seq>
+  </production>
   <production name='contract-declaration'>
     <section title='Contracts'>
       <description>
@@ -503,6 +568,9 @@
     </section>
     <or>
       <seq>
+        <ref production='literal'/>
+      </seq>
+      <seq>
         <token type='var-name'/>
         <many>
           <ref production='expression'/>
@@ -518,12 +586,79 @@
         <ref production='expression'/>
       </seq>
       <seq>
+        <ref production='expression'/>
+        <token type='COLON'/>
+        <ref production='expression'/>
+      </seq>
+      <seq>
         <token type='ORB'/>
         <ref production='expression'/>
         <token type='CRB'/>
       </seq>
-      <!-- also list & object creators [], {} -->
     </or>
+  </production>
+  <production name='literal'>
+    <section title='Expressions' />
+    <or>
+      <token type='NUMBER' />
+      <token type='STRING' />
+      <token type='TRUE' />
+      <token type='FALSE' />
+      <ref production='list-literal'/>
+      <ref production='object-literal'/>
+    </or>
+  </production>
+  <production name='list-literal'>
+    <section title='Expressions' />
+    <or>
+      <seq>
+        <token type='OSB' />
+        <token type='CSB' />
+      </seq>
+      <seq>
+        <token type='OSB' />
+        <ref production='expression' />
+        <many>
+          <ref production='comma-expression' />
+        </many>
+        <token type='CSB' />
+      </seq>
+    </or>
+  </production>
+  <production name='comma-expression'>
+    <section title='Expressions' />
+    <seq>
+      <token type='COMMA' />
+      <ref production='expression' />
+    </seq>
+  </production>
+  <production name='object-literal'>
+    <section title='Expressions' />
+    <or>
+      <seq>
+        <token type='OCB' />
+        <token type='CCB' />
+      </seq>
+      <seq>
+        <token type='OCB' />
+        <token type='var-name' />
+        <token type='COLON' />
+        <ref production='expression' />
+        <many>
+          <ref production='comma-object-member' />
+        </many>
+        <token type='CCB' />
+      </seq>
+    </or>
+  </production>
+  <production name='comma-object-member'>
+    <section title='Expressions' />
+    <seq>
+      <token type='COMMA' />
+      <token type='var-name' />
+      <token type='COLON' />
+      <ref production='expression' />
+    </seq>
   </production>
   <production name='handler-definition'>
     <section title='Handler'>
@@ -810,7 +945,7 @@
       <seq>
 	    <token type='template-name'/>
 	    <token type='SEND'/>
-	    <token type='expr'/>
+	    <ref production='expression'/>
 	    <optional>
 	    	  <ref production='pass-to-template' />
 	    </optional>
@@ -831,9 +966,9 @@
     <or>
       <seq>
 	    <token type='OR'/>
-	    <token type='expr'/>
+	    <ref production='expression'/>
 	    <token type='SEND'/>
-	    <token type='expr'/>
+	    <ref production='expression'/>
 	    <optional>
 	    	  <ref production='pass-to-template' />
 	    </optional>
@@ -841,7 +976,7 @@
       <seq>
 	    <token type='OR'/>
 	    <token type='SEND'/>
-	    <token type='expr'/>
+	    <ref production='expression'/>
 	    <optional>
 	    	  <ref production='pass-to-template' />
 	    </optional>
@@ -872,7 +1007,7 @@
     </section>
     <seq>
       <token type='OR'/>
-      <ref production='expr'/>
+      <ref production='expression'/>
       <token type='SENDTO' />
       <one-or-more>
       	<token type='STRING'/>
@@ -886,7 +1021,7 @@
       <token type='SENDTO'/>
       <token type='var-name'/>
       <many>
-      	<ref production='expr' />
+      	<ref production='expression' />
       </many>
     </seq>
   </production>
