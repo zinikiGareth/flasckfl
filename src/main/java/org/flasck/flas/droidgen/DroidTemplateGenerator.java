@@ -2,7 +2,6 @@ package org.flasck.flas.droidgen;
 
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.TemplateName;
-import org.flasck.flas.htmlzip.Block;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -42,7 +41,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public DroidAreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo, Block webzip) {
+	public DroidAreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo, Object webzip) {
 		ByteCodeSink bcc = bce.newClass(areaName.javaClassName());
 		bcc.generateAssociatedSourceFile();
 		String baseClz = J.AREAPKG + base;

@@ -43,14 +43,14 @@ Method public <init> (Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/displ
     0044: return
   }
 8 Line Number Entries
-Line 29: 0
-Line 30: 6
-Line 31: 20
-Line 32: 32
-Line 33: 42
-Line 34: 54
-Line 35: 64
-Line 36: 68
+Line 28: 0
+Line 29: 6
+Line 30: 20
+Line 31: 32
+Line 32: 42
+Line 33: 54
+Line 34: 64
+Line 35: 68
 Ltest/runner/TestCard; this (var #0 from 0 to 69)
 Lorg/flasck/jvm/cards/CardDespatcher; despatcher (var #1 from 0 to 69)
 Lorg/flasck/jvm/display/DisplayEngine; display (var #2 from 0 to 69)
@@ -96,8 +96,8 @@ Method public init (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
     0038: areturn
   }
 2 Line Number Entries
-Line 41: 0
-Line 42: 32
+Line 40: 0
+Line 41: 32
 Ltest/runner/TestCard; this (var #0 from 0 to 57)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 57)
 Ljava/lang/Object; v0 (var #2 from 32 to 57)
@@ -111,7 +111,7 @@ Method public inits_tracker (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Ob
     0009: areturn
   }
 1 Line Number Entries
-Line 52: 0
+Line 51: 0
 Ltest/runner/TestCard; this (var #0 from 0 to 10)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 10)
 Method public render (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/String;)V
@@ -132,8 +132,8 @@ Method public render (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/String;)V
     0018: return
   }
 2 Line Number Entries
-Line 57: 0
-Line 58: 24
+Line 56: 0
+Line 57: 24
 Ltest/runner/TestCard; this (var #0 from 0 to 25)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 25)
 Ljava/lang/String; into (var #2 from 0 to 25)
@@ -202,10 +202,10 @@ Method public domy (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)Ljav
     005F: areturn
   }
 4 Line Number Entries
-Line 61: 0
-Line 62: 26
-Line 63: 38
-Line 64: 70
+Line 60: 0
+Line 61: 26
+Line 62: 38
+Line 63: 70
 Ltest/runner/TestCard; this (var #0 from 0 to 96)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 96)
 Ljava/lang/Object; ev (var #2 from 0 to 96)
@@ -331,12 +331,12 @@ Method public echoHello (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;
     00B7: areturn
   }
 6 Line Number Entries
-Line 68: 0
-Line 69: 26
-Line 70: 63
-Line 71: 96
-Line 72: 137
-Line 73: 164
+Line 67: 0
+Line 68: 26
+Line 69: 63
+Line 70: 96
+Line 71: 137
+Line 72: 164
 Ltest/runner/TestCard; this (var #0 from 0 to 184)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 184)
 Ljava/lang/Object; ev (var #2 from 0 to 184)
@@ -423,14 +423,14 @@ Method public echoMessage (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Objec
     0079: areturn
   }
 8 Line Number Entries
-Line 77: 0
-Line 78: 6
-Line 79: 13
-Line 80: 15
-Line 81: 22
-Line 82: 48
-Line 83: 86
-Line 85: 112
+Line 76: 0
+Line 77: 6
+Line 78: 13
+Line 79: 15
+Line 80: 22
+Line 81: 48
+Line 82: 86
+Line 84: 112
 Ltest/runner/TestCard; this (var #0 from 0 to 122)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 122)
 Ljava/lang/Object; s (var #2 from 0 to 122)

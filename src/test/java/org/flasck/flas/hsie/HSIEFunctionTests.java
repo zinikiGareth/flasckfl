@@ -30,7 +30,7 @@ public class HSIEFunctionTests {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
 		c1.provideCaseName(0);
 		s.define(errors, "primes", c1);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm primesForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.primes"));
 		assertNotNull(primesForm);
@@ -51,7 +51,7 @@ public class HSIEFunctionTests {
 		s.define(errors, "fib", c2);
 		s.define(errors, "fib", c3);
 		assertEquals(0, errors.count());
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm fibForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.fib"));
 		assertNotNull(fibForm);
@@ -71,7 +71,7 @@ public class HSIEFunctionTests {
 		s.define(errors, "take", c1);
 		s.define(errors, "take", c2);
 		s.define(errors, "take", c3);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm takeForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.take"));
 		assertNotNull(takeForm);

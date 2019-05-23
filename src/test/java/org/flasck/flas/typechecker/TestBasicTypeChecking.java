@@ -79,7 +79,7 @@ public class TestBasicTypeChecking {
 		list.addCase(nil);
 		list.addCase(cons);
 		pkg.define("List", list);
-		rw = new Rewriter(errors, new ArrayList<>(), pkg, null);
+		rw = new Rewriter(errors, new ArrayList<>(), pkg);
 		tc = new TypeChecker2(errors, rw);
 		tc.populateTypes();
 		/*
@@ -333,7 +333,7 @@ public class TestBasicTypeChecking {
 		assertNotNull(g1);
 		g1.provideCaseName(0);
 		s.define(errors, "g", g1);
-		Rewriter rewriter = new Rewriter(errors, null, biscope, null);
+		Rewriter rewriter = new Rewriter(errors, null, biscope);
 		rewriter.rewritePackageScope(null, null, "ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
 		tc = new TypeChecker2(errors, rewriter);

@@ -20,9 +20,9 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)V
     001B: return
   }
 3 Line Number Entries
-Line 149: 0
-Line 150: 15
-Line 151: 27
+Line 148: 0
+Line 149: 15
+Line 150: 27
 Ltest/runner/TestCard$LocalHandler; this (var #0 from 0 to 28)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 28)
 Ljava/lang/Object; card (var #2 from 0 to 28)
@@ -150,14 +150,14 @@ Method public missing (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Object;)L
     00C1: areturn
   }
 8 Line Number Entries
-Line 157: 0
-Line 158: 15
-Line 159: 42
-Line 160: 58
-Line 161: 85
-Line 162: 106
-Line 163: 147
-Line 164: 174
+Line 156: 0
+Line 157: 15
+Line 158: 42
+Line 159: 58
+Line 160: 85
+Line 161: 106
+Line 162: 147
+Line 163: 174
 Ltest/runner/TestCard$LocalHandler; this (var #0 from 0 to 194)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 194)
 Ljava/lang/Object; _ih (var #2 from 0 to 194)
@@ -179,7 +179,7 @@ Method public static eval (Lorg/ziniki/ziwsh/json/FLEvalContext;Ljava/lang/Objec
     0009: areturn
   }
 1 Line Number Entries
-Line 168: 0
+Line 167: 0
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #0 from 0 to 10)
 Ljava/lang/Object; card (var #1 from 0 to 10)
 [Ljava/lang/Object; args (var #2 from 0 to 10)

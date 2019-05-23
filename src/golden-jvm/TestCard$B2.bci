@@ -34,13 +34,13 @@ Method public <init> (Lorg/ziniki/ziwsh/json/FLEvalContext;Ltest/runner/TestCard
     0030: return
   }
 7 Line Number Entries
-Line 188: 0
-Line 189: 6
-Line 190: 11
-Line 191: 17
-Line 192: 36
-Line 193: 42
-Line 194: 48
+Line 187: 0
+Line 188: 6
+Line 189: 11
+Line 190: 17
+Line 191: 36
+Line 192: 42
+Line 193: 48
 Ltest/runner/TestCard$B2; this (var #0 from 0 to 49)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 49)
 Ltest/runner/TestCard; card (var #2 from 0 to 49)
@@ -58,8 +58,8 @@ Method public _setVariableFormats (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/l
     000B: areturn
   }
 2 Line Number Entries
-Line 197: 0
-Line 198: 10
+Line 196: 0
+Line 197: 10
 Ltest/runner/TestCard$B2; this (var #0 from 0 to 12)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 12)
 Method public _add_handlers (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
@@ -74,8 +74,8 @@ Method public _add_handlers (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Ob
     000A: areturn
   }
 2 Line Number Entries
-Line 202: 0
-Line 203: 9
+Line 201: 0
+Line 202: 9
 Ltest/runner/TestCard$B2; this (var #0 from 0 to 11)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 11)
 Method public formats_0 (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object;
@@ -116,8 +116,8 @@ Method public formats_0 (Lorg/ziniki/ziwsh/json/FLEvalContext;)Ljava/lang/Object
     0034: areturn
   }
 2 Line Number Entries
-Line 207: 0
-Line 208: 28
+Line 206: 0
+Line 207: 28
 Ltest/runner/TestCard$B2; this (var #0 from 0 to 53)
 Lorg/ziniki/ziwsh/json/FLEvalContext; cx (var #1 from 0 to 53)
 Lorg/flasck/jvm/fl/FLClosure; clos1 (var #2 from 28 to 53)

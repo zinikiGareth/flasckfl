@@ -33,10 +33,6 @@ import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.PackageImporter;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.htmlzip.BuilderSink;
-import org.flasck.flas.htmlzip.MultiSink;
-import org.flasck.flas.htmlzip.ShowCardSink;
-import org.flasck.flas.htmlzip.SplitZip;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
@@ -89,7 +85,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private final List<String> webzips = new ArrayList<>();
 	private File webzipdir;
 	private File webdownloaddir;
-	private BuilderSink sink = new BuilderSink();
 	private ErrorResult errors = new ErrorResult();
 	private PrintWriter errorWriter;
 	private PhaseTo phaseTo;
@@ -248,25 +243,25 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	private void scanWebZip(final String called) {
-		File f = new File(webzipdir, called);
-		if (webdownloaddir != null) {
-			File dl = new File(webdownloaddir, called);
-			if (dl.exists()) {
-				System.out.println("Moving download file " + dl + " to " + f);
-				FileUtils.copy(dl, f);
-				FileUtils.deleteDirectoryTree(dl);
-			}
-		}
-		if (!f.exists()) {
-			System.err.println("There is no webzip " + f);
-		}
-		SplitZip sz = new SplitZip();
-		try {
-			sz.split(new MultiSink(sink, new ShowCardSink()), f);
-		} catch (IOException ex) {
-			System.err.println("Failed to read " + f);
-			System.err.println(ex);
-		}
+//		File f = new File(webzipdir, called);
+//		if (webdownloaddir != null) {
+//			File dl = new File(webdownloaddir, called);
+//			if (dl.exists()) {
+//				System.out.println("Moving download file " + dl + " to " + f);
+//				FileUtils.copy(dl, f);
+//				FileUtils.deleteDirectoryTree(dl);
+//			}
+//		}
+//		if (!f.exists()) {
+//			System.err.println("There is no webzip " + f);
+//		}
+//		SplitZip sz = new SplitZip();
+//		try {
+//			sz.split(new MultiSink(sink, new ShowCardSink()), f);
+//		} catch (IOException ex) {
+//			System.err.println("Failed to read " + f);
+//			System.err.println(ex);
+//		}
 	}
 
 	// Now read and parse all the files, passing it on to the alleged phase2
@@ -425,7 +420,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		PrintWriter tcPW = null;
 		try {
 			ImportPackage rootPkg = Builtin.builtins();
-			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg, sink);
+			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
 			final ByteCodeEnvironment bce = new ByteCodeEnvironment();

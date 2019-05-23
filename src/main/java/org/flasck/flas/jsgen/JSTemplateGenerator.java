@@ -1,13 +1,10 @@
 package org.flasck.flas.jsgen;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.TemplateName;
-import org.flasck.flas.htmlzip.Block;
-import org.flasck.flas.htmlzip.CardVisitor;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.template.AreaGenerator;
@@ -30,7 +27,7 @@ public class JSTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo, Block webzip) {
+	public AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo, Object webzip) {
 		JSForm fn = JSForm.flex(areaName.jsName() +" = function(parent)").needBlock();
 		target.add(fn);
 		target.add(JSForm.flex(areaName.jsName() +".prototype = new " + base + "()"));
@@ -44,7 +41,7 @@ public class JSTemplateGenerator implements TemplateGenerator {
 			moreArgs = ", '" + customTag + "'";
 			if (nsTag != null)
 				moreArgs = moreArgs + ", " + nsTag;
-		} else if (webzip != null) {
+/*		} else if (webzip != null) {
 			webzip.visit(new CardVisitor() {
 				boolean first = true;
 //				String file;
@@ -88,6 +85,7 @@ public class JSTemplateGenerator implements TemplateGenerator {
 				}
 			});
 			moreArgs = ", null, null, d";
+			*/
 		}
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
 		fn.add(JSForm.flex("if (!parent) return"));

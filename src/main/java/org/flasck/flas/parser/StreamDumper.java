@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
-import org.jsoup.internal.StringUtil;
+import org.zinutils.utils.Justification;
 
 public class StreamDumper implements StackDumper {
 	private final PrintWriter writer;
@@ -23,7 +23,7 @@ public class StreamDumper implements StackDumper {
 
 	@Override
 	public StackDumper indent(int i) {
-		return new StreamDumper(writer, StringUtil.padding(2*i));
+		return new StreamDumper(writer, Justification.pad(2*i));
 	}
 
 	@Override

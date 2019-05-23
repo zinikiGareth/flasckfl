@@ -36,7 +36,7 @@ public class HSIECodeGenerator {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = plus1 1"));
 		c1.provideCaseName(0);
 		s.define(errors, "f", c1);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.functions.put("plus1", new RWFunctionDefinition(FunctionName.function(posn, null, "plus1"), 1, false));
 		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -54,7 +54,7 @@ public class HSIECodeGenerator {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id1 (decode (id1 32))"));
 		c1.provideCaseName(0);
 		s.define(errors, "f", c1);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.functions.put("id1", new RWFunctionDefinition(FunctionName.function(posn, null, "id1"), 1, false));
 		rw.functions.put("decode", new RWFunctionDefinition(FunctionName.function(posn, null, "decode"), 1, false));
 		rw.rewritePackageScope(null, null, "ME", s);
@@ -73,7 +73,7 @@ public class HSIECodeGenerator {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("push (Cons[A] x) (A y) = Cons y x"));
 		c1.provideCaseName(0);
 		s.define(errors, "push", c1);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -90,7 +90,7 @@ public class HSIECodeGenerator {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f (List[A] x) = 10"));
 		c1.provideCaseName(0);
 		s.define(errors, "f", c1);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -110,7 +110,7 @@ public class HSIECodeGenerator {
 		g1.provideCaseName(0);
 		s.define(errors, "f", c1);
 		s.define(errors, "g", g1);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -129,7 +129,7 @@ public class HSIECodeGenerator {
 		g1.provideCaseName(0);
 		s.define(errors, "f", c1);
 		s.define(errors, "g", g1);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins(), null);
+		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
