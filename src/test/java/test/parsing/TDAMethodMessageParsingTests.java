@@ -8,11 +8,9 @@ import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TDAStructFieldParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -48,14 +46,23 @@ public class TDAMethodMessageParsingTests {
 
 	// And in this corner, we have "ASSIGN" messages, see Rule assign-method-action
 	@Test
-	@Ignore
-	public void objectsCanHaveAStateParser() {
+	public void weCanAssignToAStateMemberByName() {
 		context.checking(new Expectations() {{
-//			oneOf(builder).defineState(with(any(StateDefinition.class)));
+			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x").with(ExprMatcher.number(42)).location("fred", 1, 2, 4)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("state"));
-		assertTrue(nested instanceof TDAStructFieldParser);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("x <- 42"));
+		assertTrue(nested instanceof NoNestingParser);
+	}
+
+	@Test
+	public void weCanAssignToANestedMemberByPath() {
+		context.checking(new Expectations() {{
+			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x", "y").with(ExprMatcher.number(42)).location("fred", 1, 4, 6)));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("x.y <- 42"));
+		assertTrue(nested instanceof NoNestingParser);
 	}
 
 	// TODO: What about things like "Debug"?
@@ -64,14 +71,72 @@ public class TDAMethodMessageParsingTests {
 	
 	// and then we have a bunch of error cases
 	@Test
-	@Ignore
-	public void junkIsNotAKeyword() {
+	public void cantHaveJustArrowByItself() {
 		context.checking(new Expectations() {{
-			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("'junk' is not a valid object keyword"));
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("no expression to send"));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("junk"));
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<-"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
+	@Test
+	public void cantAssignWithJustAnArrow() {
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("no expression to send"));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("x <-"));
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void cantAssignASlotWithoutAnArrow() {
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected <-"));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a.x 42"));
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void cantNestSlotsWithoutDot() {
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected <-"));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a x <- 42"));
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void cantHaveTwoDots() {
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected identifier"));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a .. x <- 42"));
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void fieldCantBeConstant() {
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected identifier"));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("'hello' <- 42"));
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void nestedFieldCantBeConstant() {
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected identifier"));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a . 15 <- 42"));
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
 }
