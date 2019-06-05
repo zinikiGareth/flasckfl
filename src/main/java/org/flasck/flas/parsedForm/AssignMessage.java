@@ -5,13 +5,12 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
-@Deprecated
-public class MethodMessage {
+public class AssignMessage {
 	public final InputPosition kw;
 	public final List<Locatable> slot;
 	public final Object expr;
 
-	public MethodMessage(InputPosition kw, List<Locatable> slot, Object expr) {
+	public AssignMessage(InputPosition kw, List<Locatable> slot, Object expr) {
 		this.kw = kw;
 		this.slot = slot;
 		this.expr = expr;
@@ -19,6 +18,6 @@ public class MethodMessage {
 	
 	@Override
 	public String toString() {
-		return (slot != null ? slot.toString() : "") + " <- " + expr.toString();
+		return slot.toString() + " <- " + expr.toString();
 	}
 }

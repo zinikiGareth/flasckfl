@@ -6,6 +6,9 @@
   <burble name='lex'>
     <h2>Lexical Issues</h2>
   </burble>
+  <lex token='ACOR' pattern='acor'>
+  	<p>The <tt>acor</tt> keyword introduces an object accessor function.</p>
+  </lex>
   <lex token='APPLY' pattern='\.'>
   	<p>The apply operator.</p>
   </lex>
@@ -33,6 +36,9 @@
   </lex>
   <lex token='CSB' pattern='\]'>
   	<p>A closing square bracket delimits the end of a list operation or polymorphic variable list.</p>
+  </lex>
+  <lex token='CTOR' pattern='ctor'>
+  	<p>The <tt>ctor</tt> keyword introduces an object constructor declaration.</p>
   </lex>
   <lex token='DIR' pattern='up|down'>
   	<p>The <tt>up</tt> and <tt>down</tt> keywords indicate the sense in which a contract method is called.</p>
@@ -686,8 +692,19 @@
   <production name='standalone-method-definition'>
     <section title='Method'>
       <description>
+      Note that standalone and object methods have the same syntax, but they are sufficiently different to make it worth making it clear
+      In rule ${message-method-action}, the second case is supposed to represent the user creating either a single <tt>Action</tt> object or a list of them.
+      Any other <tt>expression</tt> will end up being rejected at typecheck.
+      Note that the first case of the rule is not, per se, a valid expression since the service object is not in scope, but actually it will parse as one.
       </description>
     </section>
+    <seq>
+      <token type='METHOD'/>
+      <ref production='method-definition'/>
+    </seq>
+  </production>
+  <production name='object-method-definition'>
+    <section title='Method' />
     <seq>
       <token type='METHOD'/>
       <ref production='method-definition'/>
@@ -725,17 +742,26 @@
   </production>
   <production name='message-method-action'>
     <section title='Method'/>
-    <seq>
-    	  <token type='PUT' />
-    	  <ref production='service-method' />
-    	  <many>
-    	    <ref production='expression' />
-    	  </many>
-    	  <token type='EOL' />
-    </seq>
+    <tested by="test.parsing.TDAMethodMessageParsingTests" />
+    <or>
+      <seq>
+      	<token type='PUT' />
+      	<ref production='service-method' />
+    	    <many>
+    	      <ref production='expression' />
+    	    </many>
+    	    <token type='EOL' />
+      </seq>
+      <seq>
+      	<token type='PUT' />
+        <ref production='expression' />
+    	    <token type='EOL' />
+      </seq>
+    </or>
   </production>
   <production name='service-method'>
     <section title='Method'/>
+    <tested by="test.parsing.TDAMethodMessageParsingTests" />
     <seq>
     	  <token type='var-name'/>
     	  <token type='APPLY' />
@@ -744,6 +770,7 @@
   </production>
   <production name='assign-method-action'>
     <section title='Method'/>
+    <tested by="test.parsing.TDAMethodMessageParsingTests" />
     <seq>
     	  <ref production='member-path' />
     	  <token type='PUT' />
@@ -782,10 +809,11 @@
   </production>
   <production name='object-contents'>
     <section title='Object'/>
+    <tested by="test.parsing.TDAObjectElementParsingTests" have="1,3" />
     <seq>
     	  <ref production='state-declaration'/>
     	  <ref production='many-templates'/>
-      <ref production='function-scope-unit'/>
+      <ref production='object-scope-unit'/>
     </seq>
   </production>
   <production name='state-declaration'>
@@ -795,6 +823,32 @@
     	  <indent>
     	    <ref production='struct-field-list'/>
     	  </indent>
+    </seq>
+  </production>
+  <production name='object-scope-unit'>
+    <section title='Object'/>
+    <tested by="test.parsing.TDAObjectElementParsingTests" have="1,2,3" />
+    <producer shares='10 25 25 10 10'/>
+    <or>
+      <ref production='object-ctor-definition'/>
+      <ref production='object-acor-definition'/>
+      <ref production='object-method-definition'/>
+      <ref production='function-case-definition'/>
+      <ref production='handler-definition'/>
+    </or>
+  </production>
+  <production name='object-ctor-definition'>
+    <section title='Object'/>
+    <seq>
+      <token type='CTOR' />
+      <ref production='method-definition'/>
+    </seq>
+  </production>
+  <production name='object-acor-definition'>
+    <section title='Object'/>
+    <seq>
+      <token type='ACOR' />
+      <ref production='function-case-definition'/>
     </seq>
   </production>
   <production name='service-declaration'>

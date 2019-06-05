@@ -1,24 +1,23 @@
 package org.flasck.flas.parsedForm;
 
-import java.util.List;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
-@Deprecated
-public class MethodMessage {
+public class SendMessage implements Locatable {
 	public final InputPosition kw;
-	public final List<Locatable> slot;
 	public final Object expr;
 
-	public MethodMessage(InputPosition kw, List<Locatable> slot, Object expr) {
+	public SendMessage(InputPosition kw, Object expr) {
 		this.kw = kw;
-		this.slot = slot;
 		this.expr = expr;
+	}
+	
+	public InputPosition location() {
+		return kw;
 	}
 	
 	@Override
 	public String toString() {
-		return (slot != null ? slot.toString() : "") + " <- " + expr.toString();
+		return "<- " + expr.toString();
 	}
 }

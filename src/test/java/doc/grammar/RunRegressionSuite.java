@@ -51,8 +51,6 @@ public class RunRegressionSuite {
 				mycase.add(rules.getString(i));
 			}
 		}
-		System.out.println("Ran " + dirs.size() + " - " + passed.size() + " passed; " + failed.size() + " failed");
-		
 		Set<String> allKeys = new TreeSet<>(new Grammar.RuleComparator());
 		@SuppressWarnings("unchecked")
 		Iterator<String> it = jo.keys();
@@ -69,6 +67,9 @@ public class RunRegressionSuite {
 		}
 		
 		assertEquals("Not all regression tests were run", dirs.size(), passed.size() + failed.size());
+
+		System.out.println("Ran " + dirs.size() + " - " + passed.size() + " passed; " + failed.size() + " failed");
+		
 //		assertTrue(failed.size() + " regression tests failed", failed.isEmpty());
 	}
 }

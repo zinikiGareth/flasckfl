@@ -90,6 +90,25 @@ public class PatternMatchingTests {
 		assertEquals(0, ((ConstructorMatch)f.patt).args.size());
 	}
 
+	@Test
+	public void testConstructorWithTwoFields() {
+		PatternParser pp = new PatternParser();
+		Object patt = pp.tryParsing(new Tokenizable("(Cons { head: h, tail: Nil })"));
+		assertNotNull(patt);
+		assertTrue(patt instanceof ConstructorMatch);
+		assertEquals("Cons", ((ConstructorMatch)patt).ctor);
+		assertEquals(2, ((ConstructorMatch)patt).args.size());
+		ConstructorMatch.Field f1 = ((ConstructorMatch)patt).args.get(0);
+		assertEquals("head", f1.field);
+		assertTrue(f1.patt instanceof VarPattern);
+		assertEquals("h", ((VarPattern)f1.patt).var);
+		ConstructorMatch.Field f2 = ((ConstructorMatch)patt).args.get(1);
+		assertEquals("tail", f2.field);
+		assertTrue(f2.patt instanceof ConstructorMatch);
+		assertEquals("Nil", ((ConstructorMatch)f2.patt).ctor);
+		assertEquals(0, ((ConstructorMatch)f2.patt).args.size());
+	}
+
 
 //	(P,P ...)    - tuple of patterns
 

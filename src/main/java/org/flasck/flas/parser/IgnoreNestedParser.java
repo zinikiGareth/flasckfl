@@ -7,7 +7,7 @@ public class IgnoreNestedParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+		return this;
 	}
 
 	@Override

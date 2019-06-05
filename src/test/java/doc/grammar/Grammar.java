@@ -76,6 +76,9 @@ public class Grammar {
 			XMLElement section = p.uniqueElement("section");
 			Section s = requireSection(section);
 			
+			List<XMLElement> testers = p.elementChildren("tested");
+			boolean needsMoreTesting = testers.isEmpty() || (testers.size() == 1 && testers.get(0).hasAttribute("have"));
+					
 			List<Integer> probs = null;
 			List<XMLElement> producers = p.elementChildren("producer");
 			if (producers.size() > 1)
@@ -90,7 +93,7 @@ public class Grammar {
 			// find it by discarding all the "standard" options
 			List<XMLElement> rules = new ArrayList<>();
 			for (XMLElement r : p.elementChildren()) {
-				if (r.hasTag("section") || r.hasTag("description") || r.hasTag("producer"))
+				if (r.hasTag("section") || r.hasTag("description") || r.hasTag("producer") || r.hasTag("tested"))
 					continue;
 				rules.add(r);
 			}
@@ -112,6 +115,8 @@ public class Grammar {
 			if (this.productions.containsKey(theProd.name)) {
 				throw new RuntimeException("Duplicate definition of production " + theProd.name);
 			}
+			if (needsMoreTesting)
+				theProd.needsMoreTesting();
 			this.productions.put(theProd.name, theProd);
 			s.add(theProd);
 		}

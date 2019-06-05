@@ -168,8 +168,10 @@ public class SentenceProducer {
 			case "SENDTO":
 				return pattern;
 
+			case "ACOR":
 			case "CARD":
 			case "CONTRACT":
+			case "CTOR":
 			case "ENTITY":
 			case "ENVELOPE":
 			case "EVENT":

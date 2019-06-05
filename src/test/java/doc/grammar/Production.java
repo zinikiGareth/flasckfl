@@ -7,6 +7,7 @@ public class Production {
 	public final int number;
 	public final String name;
 	protected final Definition defn;
+	private boolean needsMoreTesting;
 
 	public Production(int ruleNumber, String ruleName, Definition defn) {
 		this.number = ruleNumber;
@@ -24,11 +25,15 @@ public class Production {
 
 	public void show(PrintWriter str) {
 		str.println("<div class='production-block'>");
-		str.println("  <div class='production-number'>(" + number + ")</div>");
+		str.println("  <div class='production-number" + highlightTestingNeeded() + "'>(" + number + ")</div>");
 		str.println("  <div class='production-name'>" + name + "</div>");
 		str.println("  <div class='production-op'>::=</div>");
 		defn.showGrammarFor(str);
 		str.println("</div>");
+	}
+
+	private String highlightTestingNeeded() {
+		return needsMoreTesting?" production-needs-testing":"";
 	}
 
 	public void collectReferences(Set<String> ret) {
@@ -41,5 +46,9 @@ public class Production {
 
 	public void visit(ProductionVisitor visitor) {
 		defn.visit(visitor);
+	}
+
+	public void needsMoreTesting() {
+		this.needsMoreTesting = true;
 	}
 }

@@ -1,7 +1,7 @@
 package test.flas.testrunner;
 
-import static test.flas.testrunner.ExprMatcher.number;
-import static test.flas.testrunner.ExprMatcher.unresolved;
+import static test.parsing.ExprMatcher.number;
+import static test.parsing.ExprMatcher.unresolved;
 
 import java.util.ArrayList;
 import java.util.Arrays;

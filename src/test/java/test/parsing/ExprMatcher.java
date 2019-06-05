@@ -1,4 +1,4 @@
-package test.flas.testrunner;
+package test.parsing;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
