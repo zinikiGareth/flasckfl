@@ -13,13 +13,18 @@ import org.flasck.flas.compiler.FLASCompiler;
 public class Main {
 	public static void main(String[] args) {
 		setLogLevels();
+		boolean failed = noExit(args);
+		System.exit(failed?1:0);
+	}
+
+	public static boolean noExit(String[] args) {
 		Configuration config = new Configuration();
 		boolean failed = false;
 		try {
 			List<File> inputs = config.process(args);
 			if (inputs.isEmpty()) {
 				System.err.println("No input directories specified");
-				return;
+				return true;
 			}
 			FLASCompiler compiler = new FLASCompiler(config);
 			compiler.errorWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true));
@@ -33,7 +38,7 @@ public class Main {
 			System.err.println(ex.getMessage());
 			failed = true;
 		}
-		System.exit(failed?1:0);
+		return failed;
 	}
 
 	private static void processInput(Configuration config, FLASCompiler compiler, File input) {
@@ -43,7 +48,8 @@ public class Main {
 			else
 				compiler.compile(input);
 		} catch (Throwable ex) {
-			ex.printStackTrace();
+//			ex.printStackTrace();
+			compiler.reportException(ex);
 		}
 	}
 

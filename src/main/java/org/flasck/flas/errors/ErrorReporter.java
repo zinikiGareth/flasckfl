@@ -10,6 +10,7 @@ public interface ErrorReporter {
 	ErrorReporter message(Block b, String msg);
 	ErrorReporter message(Tokenizable line, String msg);
 	ErrorReporter message(FLASError e);
+	ErrorReporter reportException(Throwable ex);
 
 	void merge(ErrorReporter o);
 

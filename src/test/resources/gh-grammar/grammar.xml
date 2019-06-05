@@ -17,7 +17,7 @@
   	<p>The <tt>card</tt> keyword introduces a card definition.</p>
   </lex>
   <lex token='CCB' pattern='\}'>
-  	<p>A closing curly bracket delimits the end of an constructor pattern or object creation.</p>
+  	<p>A closing curly bracket delimits the end of a constructor pattern or object creation.</p>
   </lex>
   <lex token='COLON' pattern=':'>
   	<p>Can be an operator or can be used to define object literals.</p>
@@ -55,7 +55,7 @@
   <lex token='FALSE' pattern='false'>
   	<p>The boolean literal <tt>false</tt>.</p>
   </lex>
-  <lex token='GUARD' pattern='|'>
+  <lex token='GUARD' pattern='\|'>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
   <lex token='HANDLER' pattern='handler'>
@@ -79,7 +79,7 @@
   <lex token='OPTIONAL' pattern='optional'>
   	<p>The <tt>optional</tt> keyword indicates that a contract method does not need to be implemented.</p>
   </lex>
-  <lex token='OR' pattern='|'>
+  <lex token='OR' pattern='\|'>
   	<p>A token to separate cases in a union declaration.</p>
   </lex>
   <lex token='ORB' pattern='\('>
@@ -142,7 +142,10 @@
   	<p>Function and variable names are one or more characters, where
   	the first character must be a lower case alphabetic character.</p>
   </lex>
-  
+
+<!-- todo: 'file' should be an OR of flas-file, ut-file, pt-file or st-file
+   - each of those should then have its own grammar
+  -->  
   <production name='file'>
     <section title='Files'>
 	  <description>
@@ -189,6 +192,7 @@
 	       scope of a function.
 	    </description>
 	</section>
+    <producer shares='50 25 25'/>
     <or>
       <ref production='function-case-definition'/>
       <ref production='standalone-method-definition'/>
@@ -293,6 +297,7 @@
     	    <p>An envelope is defined in the same way as an entity, and all <i>instances</i> of an envelope must be <tt>entity</tt> declarations.</p>
     	    <p>The <tt>wraps</tt> definition specifies that an <tt>envelope</tt> can be represented by a specific <tt>entity</tt>.  This is then implemented by identifying how each variable in the envelope is made available from expressions which are phrased in terms of the members of the entity.</p>
     	    <p>This mapping is strictly one way.  It is not possible to <i>assign</i> to fields of an envelope.</p>
+    	    <p>For more details, see <a href='index.html#envelopes'>envelopes</a>.</p>
     	  </description>
     </section>
     <seq>
@@ -429,9 +434,9 @@
   <production name='guarded-equations'>
     <section title='Functions'/>
     <seq>
-      <many>
+      <one-or-more>
 	    <ref production='guarded-expression'/>
-	  </many>
+	  </one-or-more>
 	  <optional>
 	    <ref production='guarded-default-expression'/>
 	  </optional>
@@ -566,6 +571,7 @@
       <description>
       </description>
     </section>
+    <producer shares='50 20 5 10 5 5'/>
     <or>
       <seq>
         <ref production='literal'/>
@@ -926,7 +932,7 @@
       <description>
         <p>Each binding is responsible for filling one slot in the template, which can be of type <tt>punnet</tt>, <tt>container</tt> or <tt>content</tt>.</p>
         <p>The first case of rule ${one-template-bind} enables a value to be "assigned" to a slot in the template.  The exact semantics of this depend on the slot type; see <a href='index.html#connecting-elements-to-cards'>connecting elements to cards</a> for details.</p>
-        <p>The second case allows the assignment to be conditional on another expression.  In this case, the conditional (first) expression of each case of rule ${option-template-bind}, which must be of type boolean, is considered and the first one to evaluate to <tt>true</tt> is selected.  The value (second) expression is then used as the value.  The second clause of rule ${option-template-bind} may only be used once, and must be the last instance in a given binding.</p>
+        <p>The second case allows the assignment to be conditional on another expression.  In this case, the conditional (first) expression of each case of rule ${option-template-bind}, which must be of type boolean, is considered and the first one to evaluate to <tt>true</tt> is selected.  The value (second) expression is then used as the value.  The rule ${default-option-template-bind} may be used to specify a default assignment if none of the previous cases match.</p>
         <p>The degenerate (third) case for rule ${one-template-bind} can only be used to customize <tt>style</tt> elements.  In this case the template name is provided and the styles and events are immediate descendants of this.</p>
         <p>For <tt>container</tt> slots <i>only</i>, it is possible to specify an <tt>item</tt> template that the value should be passed to using rule ${pass-to-template}.</p>
         <p>Styling and event handling may be added to all elements except <tt>punnet</tt>s, which hand off styling and event handling to their contained cards.  In general, this will also not be used with <tt>container</tt> slots.</p>
@@ -953,7 +959,7 @@
       <seq>
 	    <token type='template-name'/>
         <indent>
-          <ref production='option-template-bind'/>
+          <ref production='option-template-binds'/>
         </indent>
 	  </seq>
       <seq>
@@ -961,27 +967,39 @@
 	  </seq>
     </or>
   </production>
+  <production name='option-template-binds'>
+    <section title='Template Bindings'/>
+    <seq>
+      <many>
+        <ref production='option-template-bind'/>
+      </many>
+      <optional>
+        <ref production='default-option-template-bind'/>
+      </optional>
+    </seq>
+  </production>
   <production name='option-template-bind'>
     <section title='Template Bindings'/>
-    <or>
-      <seq>
-	    <token type='OR'/>
-	    <ref production='expression'/>
-	    <token type='SEND'/>
-	    <ref production='expression'/>
-	    <optional>
-	    	  <ref production='pass-to-template' />
-	    </optional>
-	  </seq>
-      <seq>
-	    <token type='OR'/>
-	    <token type='SEND'/>
-	    <ref production='expression'/>
-	    <optional>
-	    	  <ref production='pass-to-template' />
-	    </optional>
-	  </seq>
-    </or>
+    <seq>
+      <token type='OR'/>
+	  <ref production='expression'/>
+	  <token type='SEND'/>
+	  <ref production='expression'/>
+	  <optional>
+	  	  <ref production='pass-to-template' />
+	  </optional>
+	</seq>
+  </production>
+  <production name='default-option-template-bind'>
+    <section title='Template Bindings'/>
+    <seq>
+	  <token type='OR'/>
+	  <token type='SEND'/>
+	  <ref production='expression'/>
+	  <optional>
+	    <ref production='pass-to-template' />
+	  </optional>
+	</seq>
   </production>
   <production name='pass-to-template'>
     <section title='Template Bindings'/>

@@ -42,6 +42,8 @@ public class ParsingPhase implements ParserScanner {
 			errors.message(new InputPosition(f.getName(), -1, -1, null), "file does not exist");
 		} catch (IOException ex) {
 			errors.message(new InputPosition(f.getName(), -1, -1, null), ex.toString());
+		} catch (Throwable t) {
+			errors.reportException(t);
 		}
 	}
 

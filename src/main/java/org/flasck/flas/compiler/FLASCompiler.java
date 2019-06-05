@@ -267,7 +267,9 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	// Now read and parse all the files, passing it on to the alleged phase2
 	public void parse(File dir) {
 		if (!dir.isDirectory()) {
+			ErrorMark mark = errors.mark();
 			errors.message((InputPosition)null, "there is no input directory " + dir);
+			errors.showFromMark(mark, errorWriter, 4);
 			return;
 		}
 
@@ -694,5 +696,9 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 	public boolean hasErrors() {
 		return errors.hasErrors();
+	}
+	
+	public void reportException(Throwable ex) {
+		errors.reportException(ex);
 	}
 }

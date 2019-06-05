@@ -1,6 +1,7 @@
 package doc.grammar;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -75,11 +76,21 @@ public class Grammar {
 			XMLElement section = p.uniqueElement("section");
 			Section s = requireSection(section);
 			
+			List<Integer> probs = null;
+			List<XMLElement> producers = p.elementChildren("producer");
+			if (producers.size() > 1)
+				throw new RuntimeException("Production '" + ruleName + "' had multiple 'producer' blocks");
+			if (producers.size() == 1) {
+				String[] shares = producers.get(0).required("shares").split(" ");
+				probs = new ArrayList<Integer>();
+				for (String sh : shares)
+					probs.add(Integer.parseInt(sh));
+			}
 			// there are many possible production rules; it should have exactly one of them
 			// find it by discarding all the "standard" options
 			List<XMLElement> rules = new ArrayList<>();
 			for (XMLElement r : p.elementChildren()) {
-				if (r.hasTag("section") || r.hasTag("description"))
+				if (r.hasTag("section") || r.hasTag("description") || r.hasTag("producer"))
 					continue;
 				rules.add(r);
 			}
@@ -90,7 +101,10 @@ public class Grammar {
 			// At the top level, it's either a "single" or an "or".  "Single" is boring, so is omitted and the definition immediately follows
 			Production theProd;
 			if (rule.hasTag("or")) {
-				theProd = handleOr(ruleNumber++, ruleName, rule);
+				OrProduction orProd = handleOr(ruleNumber++, ruleName, rule);
+				theProd = orProd;
+				if (probs != null)
+					orProd.probs(probs);
 			} else {
 				Definition defn = parseDefn(ruleName, rule);
 				theProd = new Production(ruleNumber++, ruleName, defn);
@@ -220,6 +234,18 @@ public class Grammar {
 		return productions.keySet();
 	}
 
+	public Set<String> allProductionCases() {
+		Set<String> ret = new TreeSet<>(new RuleComparator());
+		for (Production p : productions.values()) {
+			if (p instanceof OrProduction) {
+				for (int i=0;i<((OrProduction)p).size();i++)
+					ret.add(p.ruleNumber() + "." + (i+1) + " " + p.ruleName());
+			} else
+				ret.add(p.ruleNumber() + " " + p.ruleName());
+		}
+		return ret;
+	}
+
 	public Set<String> allReferences() {
 		Set<String> ret = new TreeSet<>();
 		for (Production p : productions.values()) {
@@ -283,5 +309,17 @@ public class Grammar {
 			}
 		}
 		return sb.toString();
+	}
+
+	public static class RuleComparator implements Comparator<String> {
+		@Override
+		public int compare(String o1, String o2) {
+			return Float.compare(parse(o1), parse(o2));
+		}
+
+		private float parse(String o2) {
+			int idx = o2.indexOf(' ');
+			return Float.parseFloat(o2.substring(0, idx));
+		}
 	}
 }

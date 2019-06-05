@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface ProductionVisitor {
 
-	void choices(List<Definition> asList);
+	void choices(OrProduction prod, List<Definition> defns, List<Integer> probs, int maxProb);
 
 	void zeroOrOne(Definition child);
 	void zeroOrMore(Definition child);
@@ -13,9 +13,10 @@ public interface ProductionVisitor {
 
 	void token(String token);
 
-	void indent();
+	boolean indent();
 
 	void exdent();
+
 
 
 }

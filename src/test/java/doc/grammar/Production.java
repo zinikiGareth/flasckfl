@@ -1,7 +1,6 @@
 package doc.grammar;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Set;
 
 public class Production {
@@ -13,6 +12,14 @@ public class Production {
 		this.number = ruleNumber;
 		this.name = ruleName;
 		this.defn = defn;
+	}
+
+	public String ruleName() {
+		return name;
+	}
+
+	public int ruleNumber() {
+		return number;
 	}
 
 	public void show(PrintWriter str) {
@@ -33,6 +40,6 @@ public class Production {
 	}
 
 	public void visit(ProductionVisitor visitor) {
-		visitor.choices(Arrays.asList(defn));
+		defn.visit(visitor);
 	}
 }

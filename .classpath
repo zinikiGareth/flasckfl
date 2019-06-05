@@ -17,5 +17,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/UI4J"/>
 	<classpathentry kind="src" path="/cbjson"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JSOUP"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/HTTP"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

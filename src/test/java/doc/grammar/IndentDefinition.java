@@ -30,7 +30,8 @@ public class IndentDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.indent();
+		if (!productionVisitor.indent())
+			return;
 		defn.visit(productionVisitor);
 		productionVisitor.exdent();
 	}

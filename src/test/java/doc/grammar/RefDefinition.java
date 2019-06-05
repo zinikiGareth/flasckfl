@@ -31,4 +31,8 @@ public class RefDefinition extends Definition {
 		productionVisitor.referTo(child);
 	}
 
+	@Override
+	public String toString() {
+		return "Ref[" + child + "]";
+	}
 }

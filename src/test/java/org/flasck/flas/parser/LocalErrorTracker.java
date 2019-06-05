@@ -38,6 +38,12 @@ public class LocalErrorTracker implements ErrorReporter {
 		return other.message(e);
 	}
 
+	@Override
+	public ErrorReporter reportException(Throwable ex) {
+		seenLocalErrors = true;
+		return other.reportException(ex);
+	}
+
 	public void merge(ErrorReporter o) {
 		seenLocalErrors = true;
 		other.merge(o);

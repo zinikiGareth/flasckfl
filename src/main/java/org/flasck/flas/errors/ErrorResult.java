@@ -1,6 +1,7 @@
 package org.flasck.flas.errors;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Iterator;
@@ -35,6 +36,16 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 
 	public ErrorResult message(InputPosition pos, String msg) {
 		return message(new FLASError(pos, msg));
+	}
+
+	public ErrorResult reportException(Throwable ex) {
+		final StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		ex.printStackTrace(pw);
+		String st = sw.toString();
+		int idx = st.indexOf('\n');
+		idx = st.indexOf('\n', idx+1);
+		return message((InputPosition)null, st.substring(0, idx).replaceAll("\n", " "));
 	}
 
 	public void merge(ErrorReporter from) {
