@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ParenTermConsumer.ParenCloseRewriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAExprReducer implements ExprTermConsumer {
 	public static class OpPrec {
@@ -27,6 +28,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private final ExprTermConsumer builder;
 	private final List<Expr> terms = new ArrayList<>();
 	private final List<OpPrec> ops = new ArrayList<>();
+	private UnresolvedOperator haveDot;
+	private boolean haveErrors;
 
 	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder) {
 		this.errors = errors;
@@ -35,12 +38,38 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	@Override
 	public void term(Expr term) {
+		if (haveErrors)
+			return;
+		if (haveDot != null) {
+			if (!(term instanceof UnresolvedVar)) {
+				errors.message(term.location(), "field access requires a field name");
+				haveErrors = true;
+				return;
+			} else {
+				Expr strobj = terms.remove(terms.size() - 1);
+				terms.add(new ApplyExpr(strobj.location().copySetEnd(term.location().pastEnd()), haveDot, strobj, term));
+				haveDot = null;
+				return;
+			}
+		}
 		if (term instanceof Punctuator) {
 			errors.message(term.location(), "invalid tokens after expression");
+			haveErrors = true;
 			return;
 		}
-		if (term instanceof UnresolvedOperator)
-			ops.add(new OpPrec(terms.size(), precedence(term.location(), ((UnresolvedOperator)term).op)));
+		if (term instanceof UnresolvedOperator) {
+			final UnresolvedOperator op = (UnresolvedOperator)term;
+			if (op.op.equals(".")) {
+				if (terms.isEmpty()) {
+					errors.message(term.location(), "field access requires a struct or object");
+					haveErrors = true;
+					return;
+				}
+				haveDot = op;
+				return;
+			} else
+				ops.add(new OpPrec(terms.size(), precedence(term.location(), op.op)));
+		}
 		this.terms.add(term);
 	}
 
@@ -58,7 +87,11 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	@Override
 	public void done() {
-		if (!terms.isEmpty()) {
+		if (!haveErrors && haveDot != null) {
+			errors.message(haveDot.location(), "field access requires an explicit field name");
+			haveErrors = true;
+		}
+		if (!haveErrors && !terms.isEmpty()) {
 			Expr r = reduce(0, terms.size());
 			if (r != null)
 				builder.term(r);
@@ -72,15 +105,17 @@ public class TDAExprReducer implements ExprTermConsumer {
 			if (p.pos >= from && p.pos < to && (op == null || p.prec < op.prec))
 				op = p;
 		if (op != null)
-			return handleOperators(from, to, op.pos);
+			return handleOperators(from, to, op.pos, op.prec);
 		else
 			return fncall(from, to);
 	}
 
-	private Expr handleOperators(int from, int to, int oppos) {
+	private Expr handleOperators(int from, int to, int oppos, int prec) {
 		Expr oe = terms.get(oppos);
 		if (oppos == from) { // unary operator
 			return new ApplyExpr(oe.location().copySetEnd(terms.get(to-1).location().pastEnd()), oe, reduce(from+1, to));
+		} else if (prec == 10) {
+			throw new NotImplementedException();
 		} else {
 			return new ApplyExpr(terms.get(from).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, reduce(from, oppos), reduce(oppos+1, to));
 		}
@@ -123,8 +158,6 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private int precedence(InputPosition pos, String op) {
 		boolean isUnary = terms.isEmpty() || (!ops.isEmpty() && ops.get(ops.size()-1).pos == terms.size()-1);
 		switch (op) {
-		case ".":
-			return 10;
 		case "*":
 		case "/":
 			return 6;

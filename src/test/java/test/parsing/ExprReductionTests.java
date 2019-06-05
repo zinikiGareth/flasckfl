@@ -102,6 +102,117 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // s . a
+	public void canGetAField() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("s"), ExprMatcher.unresolved("a")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos, "s"));
+		reducer.term(new UnresolvedOperator(pos, "."));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "a"));
+		reducer.done();
+	}
+
+	@Test // ds . f x => (ds.f) x
+	public void dotOperatorMakesNewFunctionToCall() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("ds"), ExprMatcher.unresolved("f")), ExprMatcher.unresolved("x")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos, "ds"));
+		reducer.term(new UnresolvedOperator(pos, "."));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(6), "f"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "x"));
+		reducer.done();
+	}
+
+	@Test // f s . x => f (s.x)
+	public void dotOperatorHasPriorityInAnArgList() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("s"), ExprMatcher.unresolved("x"))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos, "f"));
+		reducer.term(new UnresolvedVar(pos, "s"));
+		reducer.term(new UnresolvedOperator(pos, "."));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "x"));
+		reducer.done();
+	}
+
+	@Test // s . m . a => (s.m).a
+	public void dotAssociatesLeft() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("s"), ExprMatcher.unresolved("m")), ExprMatcher.unresolved("a")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos, "s"));
+		reducer.term(new UnresolvedOperator(pos, "."));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "m"));
+		reducer.term(new UnresolvedOperator(pos, "."));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "a"));
+		reducer.done();
+	}
+
+	@Test // (f x) . a
+	public void parensOverrideDotAssociativity() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.unresolved("x")), ExprMatcher.unresolved("a")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "("));
+		reducer.term(new UnresolvedVar(pos, "f"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(3), "x"));
+		reducer.term(new Punctuator(pos.copySetEnd(4), ")"));
+		reducer.term(new UnresolvedOperator(pos, "."));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(12), "a"));
+		reducer.done();
+	}
+
+	@Test // s . => error
+	public void cantLeaveADotHanging() {
+		context.checking(new Expectations() {{
+			oneOf(errors).message(with(pos.copySetEnd(6)), with("field access requires an explicit field name"));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos, "s"));
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(6), "."));
+		reducer.done();
+	}
+
+	@Test // s . 3 => error
+	public void cantUseAConstantForTheFieldName() {
+		context.checking(new Expectations() {{
+			oneOf(errors).message(with(pos), with("field access requires a field name"));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos, "s"));
+		reducer.term(new UnresolvedOperator(pos, "."));
+		reducer.term(new NumericLiteral(pos, "42", 6));
+		reducer.done();
+	}
+
+	@Test // . a => error
+	public void cantStartWithADot() {
+		context.checking(new Expectations() {{
+			oneOf(errors).message(with(pos), with("field access requires a struct or object"));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedOperator(pos, "."));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(6), "a"));
+		reducer.done();
+	}
+
+	@Test // . => error
+	public void cantHaveADotByItself() {
+		context.checking(new Expectations() {{
+			oneOf(errors).message(with(pos.copySetEnd(6)), with("field access requires a struct or object"));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(6), "."));
+		reducer.done();
+	}
+
 	@Test // 2 * -3
 	public void unaryOperatorBindsMoreTightlyThanMultiply() {
 		context.checking(new Expectations() {{
