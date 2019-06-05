@@ -2,6 +2,7 @@ package test.flas.stories;
 
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.parser.TDAParsing;
@@ -80,6 +81,7 @@ public class TDAStoryTests {
 		context.checking(new Expectations() {{
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world"))); will(returnValue(nested));
 			oneOf(nested).tryParsing(with(TokenizableMatcher.match("a second line")));
+			oneOf(nested).scopeComplete(with(any(InputPosition.class)));
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("back at top"))); will(returnValue(null));
 		}});
 		TDANester story = new TDANester(topLevel);
@@ -97,6 +99,7 @@ public class TDAStoryTests {
 		context.checking(new Expectations() {{
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world"))); will(returnValue(nested));
 			oneOf(nested).tryParsing(with(TokenizableMatcher.match("a second line")));
+			oneOf(nested).scopeComplete(with(any(InputPosition.class)));
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("back at top"))); will(returnValue(nested2));
 			oneOf(nested2).tryParsing(with(TokenizableMatcher.match("second nesting")));
 		}});

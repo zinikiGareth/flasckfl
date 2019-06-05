@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -15,12 +16,14 @@ import org.flasck.flas.Main;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.cgharness.CGHarnessTestBase;
 import org.zinutils.utils.FileUtils;
 
+@Ignore
 public class GoldenJVM {
 	static Logger logger = LoggerFactory.getLogger("HSIE");
 	static String checkEverythingS = System.getProperty("org.flasck.golden.check");
@@ -76,6 +79,7 @@ public class GoldenJVM {
 		compiler.unitTestPath(utpath);
 		compiler.unitjs(useJSRunner);
 		compiler.unitjvm(useJVMRunner);
+		compiler.errorWriter(new PrintWriter(System.out));
 		try {
 			compiler.writeJVMTo(droidTo);
 			compiler.compile(dir);
