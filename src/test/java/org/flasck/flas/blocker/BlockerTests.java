@@ -18,6 +18,9 @@ public class BlockerTests {
 	public void setup() {
 		errors = context.mock(ErrorReporter.class);
 		consumer = context.mock(BlockConsumer.class);
+		context.checking(new Expectations() {{
+			allowing(consumer).flush();
+		}});
 		blocker = new Blocker(errors, consumer);
 	}
 	
