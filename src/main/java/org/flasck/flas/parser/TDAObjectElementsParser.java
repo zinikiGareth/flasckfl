@@ -54,7 +54,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}
 			ObjectCtor ctor = new ObjectCtor(var.location, var.text, args);
 			builder.addConstructor(ctor);
-			return new TDAMethodMessageParser();
+			return new TDAMethodMessageParser(errors, null);
 		}
 		case "acor": {
 			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {
@@ -90,7 +90,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}
 			ObjectMethod meth = new ObjectMethod(var.location, var.text, args);
 			builder.addMethod(meth);
-			return new TDAMethodMessageParser();
+			return new TDAMethodMessageParser(errors, null);
 		}
 		default: {
 			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");

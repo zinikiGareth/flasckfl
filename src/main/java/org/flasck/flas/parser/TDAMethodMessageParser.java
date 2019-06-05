@@ -18,9 +18,10 @@ public class TDAMethodMessageParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		InputPosition start = toks.realinfo();
 		ExprToken tok = ExprToken.from(toks);
 		if ("<-".equals(tok.text)) {
-			InputPosition pos = toks.realinfo();
+			InputPosition pos = start.copySetEnd(toks.at());
 			new TDAExpressionParser(errors, t -> {
 				SendMessage msg = new SendMessage(pos, t);
 				builder.sendMessage(msg);

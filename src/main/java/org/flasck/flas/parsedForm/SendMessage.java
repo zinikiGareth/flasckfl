@@ -18,6 +18,6 @@ public class SendMessage implements Locatable {
 	
 	@Override
 	public String toString() {
-		return "<- " + expr.toString();
+		return "<- " + expr.toString() + " @ " + kw;
 	}
 }

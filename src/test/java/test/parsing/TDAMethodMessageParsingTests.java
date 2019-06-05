@@ -25,10 +25,22 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanInvokeSendOnAServiceWithoutAnyArguments() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot")))));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.fetchRoot"));
+		// I'm not sure if this is quite right, because of the weird thing about the final method being able to have an indented block for everybody
+		// That needs separate testing elsewhere
+		assertTrue(nested instanceof NoNestingParser);
+	}
+
+	@Test
+	public void weCanInvokeSendOnAServiceWithOneArgument() {
+		context.checking(new Expectations() {{
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("data"), ExprMatcher.unresolved("get")), ExprMatcher.string("hello"))).location("fred", 1, 0, 2)));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.get 'hello'"));
 		// I'm not sure if this is quite right, because of the weird thing about the final method being able to have an indented block for everybody
 		// That needs separate testing elsewhere
 		assertTrue(nested instanceof NoNestingParser);

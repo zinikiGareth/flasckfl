@@ -575,6 +575,8 @@
   <production name='expression'>
     <section title='Expressions'>
       <description>
+      We need to include . notation for fields, along with the fact that it has very high priority, so should probably be somewhere around the literal stage.
+      But we don't particularly focus on operator precedence, so including it as a BINOP and noting that is probably fine.
       </description>
     </section>
     <producer shares='50 20 5 10 5 5'/>
