@@ -84,7 +84,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private final List<File> utpaths = new ArrayList<File>();
 	private final List<String> webzips = new ArrayList<>();
 	private File webzipdir;
-	private File webdownloaddir;
 	private ErrorResult errors = new ErrorResult();
 	private PrintWriter errorWriter;
 	private PhaseTo phaseTo;
@@ -199,11 +198,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	@Override
 	public void unitjvm(boolean b) {
 		this.unitjvm = b;
-	}
-
-	@Override
-	public void webZipDownloads(File file) {
-		this.webdownloaddir = file;
 	}
 
 	@Override

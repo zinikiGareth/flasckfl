@@ -129,8 +129,7 @@ public class Configuration {
 		visitor.writeJVMTo(writeJVM);
 		visitor.writeDroidTo(writeDroid, buildDroid );
 		visitor.webZipDir(webZipDir);
-		visitor.webZipDownloads(webZipDownloads);
-		visitor.phaseTo(upto );
+		visitor.phaseTo(upto);
 		for (String s : useWebZips)
 			visitor.useWebZip(s);
 		if (unitjs || !unitjvm)

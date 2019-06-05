@@ -14,8 +14,6 @@ public interface ConfigVisitor {
 
 	void webZipDir(File file);
 
-	void webZipDownloads(File file);
-
 	void unitjvm(boolean b);
 
 	void unitjs(boolean b);
