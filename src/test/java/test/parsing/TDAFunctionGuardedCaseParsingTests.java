@@ -4,7 +4,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
@@ -44,7 +43,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 	@Test
 	public void itsLegalToJustHaveADefaultCaseThusSimplyIdentingTheExpression() {
 		context.checking(new Expectations() {{
-			oneOf(intro).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(intro).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
 		}});
 		parser.tryParsing(TDAFunctionParsingTests.line("= 42"));
 		parser.scopeComplete(pos);
@@ -61,7 +60,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 	@Test
 	public void itsLegalToJustHaveASingleGuardedCase() {
 		context.checking(new Expectations() {{
-			oneOf(intro).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(intro).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
 		}});
 		parser.tryParsing(TDAFunctionParsingTests.line("| true = 42"));
 		parser.scopeComplete(pos);
@@ -70,8 +69,8 @@ public class TDAFunctionGuardedCaseParsingTests {
 	@Test
 	public void obviouslyOneGuardAndOneDefaultAreFine() {
 		context.checking(new Expectations() {{
-			oneOf(intro).functionCase(with(any(FunctionCaseDefn.class)));
-			oneOf(intro).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(intro).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
+			oneOf(intro).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
 		}});
 		parser.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
 		parser.tryParsing(TDAFunctionParsingTests.line("= 42"));
