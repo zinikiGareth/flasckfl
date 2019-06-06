@@ -407,6 +407,7 @@
       <description>
       </description>
     </section>
+    <tested by='test.parsing.TDAContractIntroParsingTests' />
     <seq>
       <token type='CONTRACT'/>
       <token type='type-name'/>
@@ -417,6 +418,7 @@
   </production>
   <production name='contract-method-decls'>
     <section title='Contracts'/>
+    <tested by='test.parsing.TDAContractIntroParsingTests' />
     <seq>
       <many>
       	<ref production='contract-method-decl'/>

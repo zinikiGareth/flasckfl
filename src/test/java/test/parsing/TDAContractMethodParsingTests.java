@@ -42,7 +42,7 @@ public class TDAContractMethodParsingTests {
 	}
 
 	@Test
-	public void sidewayIsNotADirection() {
+	public void sidewaysIsNotADirection() {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(any(Tokenizable.class)), with("missing or invalid direction"));
 		}});
