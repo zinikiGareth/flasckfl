@@ -1,6 +1,7 @@
 package test.parsing;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.commonBase.names.CardName;
@@ -9,10 +10,12 @@ import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.IScope;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parser.TDACardElementsParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.tokenizers.Tokenizable;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
@@ -21,13 +24,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.CaptureAction;
 
-// TODO: The next phase of going TDA is to port all the "card" elements
-// I think this test should just test the basic structure of that and that we
-// can call "card" and get the right multi back
-// It might also check some flows at the top level (e.g. can't have state twice)
-// NB: ***** We want to move away from templates as we currently have them and just use webzip, so don't duplicate all that template logic *****
-//     ***** See FlasZin notes for a little more info *****
 public class TDATopLevelCardMatcher {
 	public static class ProvideScope implements Action {
 		private IScope scope;
@@ -53,24 +51,44 @@ public class TDATopLevelCardMatcher {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
 	private IScope scope = context.mock(IScope.class);
+	private TDAParsing cardParser;
+	private CardDefinition card;
 
 	@Before
 	public void setup() {
+		CaptureAction captureCard = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			allowing(builder).scopeTo(with(any(ScopeReceiver.class))); will(new ProvideScope(scope));
+			allowing(builder).cardName("CardA"); will(returnValue(new CardName(new PackageName("A"), "CardA")));
+			oneOf(builder).newCard(with(CardDefnMatcher.called("A.CardA"))); will(captureCard);
+			oneOf(scope).define(with(errors), with("CardA"), with(any(CardDefinition.class)));
 		}});
+		TDAIntroParser intro = new TDAIntroParser(errors, builder);
+		cardParser = intro.tryParsing(TDABasicIntroParsingTests.line("card CardA"));
+		card = (CardDefinition) captureCard.get(0);
 	}
 
 	@Test
 	public void theIntroParserCanHandleCard() {
+		assertNotNull(cardParser);
+		assertTrue(cardParser instanceof TDACardElementsParser);
+	}
+
+	@Test
+	public void aCardCanHaveAStateDeclaration() {
+		assertNull(card.state);
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("state"));
+		assertTrue(card.state instanceof StateDefinition);
+	}
+
+	@Test
+	public void theCardCannotHaveTwoStateDeclarations() {
+		final Tokenizable line = TDABasicIntroParsingTests.line("state");
 		context.checking(new Expectations() {{
-			allowing(builder).cardName("CardA"); will(returnValue(new CardName(new PackageName("A"), "CardA")));
-			oneOf(builder).newCard(with(CardDefnMatcher.called("A.CardA")));
-			oneOf(scope).define(with(errors), with("CardA"), with(any(CardDefinition.class)));
+			oneOf(errors).message(line.realinfo().copySetEnd(5), "multiple state declarations");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("card CardA"));
-		assertNotNull(nested);
-		assertTrue(nested instanceof TDACardElementsParser);
+		assertNull(card.state);
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("state"));
+		cardParser.tryParsing(line);
 	}
 }

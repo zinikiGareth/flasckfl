@@ -6,6 +6,7 @@ import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 
 public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer {

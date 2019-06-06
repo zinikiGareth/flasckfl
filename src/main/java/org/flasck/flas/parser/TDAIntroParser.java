@@ -54,7 +54,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			CardName qn = (CardName)consumer.cardName(tn.text);
 			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, scope, qn);
 			consumer.newCard(card);
-			return new TDACardElementsParser(errors, null);
+			return new TDACardElementsParser(errors, card);
 		}
 		case "struct":
 		case "entity":

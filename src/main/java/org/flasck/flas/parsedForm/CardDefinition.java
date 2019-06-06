@@ -10,8 +10,9 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.CardElementsConsumer;
 
-public class CardDefinition implements ContainsScope, Locatable {
+public class CardDefinition implements ContainsScope, Locatable, CardElementsConsumer {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
@@ -38,6 +39,11 @@ public class CardDefinition implements ContainsScope, Locatable {
 	@Override
 	public InputPosition location() {
 		return location;
+	}
+
+	@Override
+	public void defineState(StateDefinition stateDefinition) {
+		this.state = stateDefinition;
 	}
 
 	public void addContractImplementation(ContractImplements o) {

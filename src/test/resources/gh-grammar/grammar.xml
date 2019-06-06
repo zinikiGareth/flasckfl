@@ -930,7 +930,7 @@
   </production>
   <production name='object-scope-unit'>
     <section title='Object'/>
-    <tested by='test.parsing.TDAObjectElementParsingTests' have="1,2,3" />
+    <tested by='test.parsing.TDAObjectElementParsingTests' have="1,2,3,4" />
     <producer shares='10 25 25 10 10'/>
     <or>
       <ref production='object-ctor-definition'/>
