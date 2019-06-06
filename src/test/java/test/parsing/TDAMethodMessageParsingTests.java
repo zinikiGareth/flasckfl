@@ -11,6 +11,7 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -19,6 +20,13 @@ public class TDAMethodMessageParsingTests {
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private MethodMessagesConsumer builder = context.mock(MethodMessagesConsumer.class);
 	private LastOneOnlyNestedParser nestedFunctionScope = context.mock(LastOneOnlyNestedParser.class);
+	
+	@Before
+	public void setup() {
+		context.checking(new Expectations() {{
+			allowing(nestedFunctionScope).anotherParent();
+		}});
+	}
 	
 	// In this corner, we have "SEND" messages, see Rule message-method-action
 	@Test

@@ -25,6 +25,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		nestedParser.anotherParent();
 		ExprToken tok = ExprToken.from(toks);
 		List<Expr> seen = new ArrayList<>();
 		if ("<-".equals(tok.text)) {

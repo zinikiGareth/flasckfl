@@ -6,14 +6,26 @@ import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class LastActionScopeParser implements LastOneOnlyNestedParser {
+	private final ErrorReporter errors;
 	private final TDAParsing parser;
+	private Tokenizable seenSomething;
+	private boolean reportedError;
 
 	public LastActionScopeParser(ErrorReporter errors, FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel) {
+		this.errors = errors;
 		this.parser = TDAMultiParser.functionScopeUnit(errors, namer, topLevel, topLevel);
 	}
 
+	public void anotherParent() {
+		if (seenSomething != null && !reportedError) {
+			errors.message(seenSomething, "nested scope must be after last action");
+			reportedError = true;
+		}
+	}
+	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		seenSomething = toks;
 		return parser.tryParsing(toks);
 	}
 
