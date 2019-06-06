@@ -67,6 +67,17 @@ public class TDAFunctionGuardedCaseParsingTests {
 		parser.scopeComplete(pos);
 	}
 
+	@Test
+	public void obviouslyOneGuardAndOneDefaultAreFine() {
+		context.checking(new Expectations() {{
+			oneOf(intro).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(intro).functionCase(with(any(FunctionCaseDefn.class)));
+		}});
+		parser.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
+		parser.tryParsing(TDAFunctionParsingTests.line("= 42"));
+		parser.scopeComplete(pos);
+	}
+
 	// many cases
 	// not more than one default case
 	// default case must come last
