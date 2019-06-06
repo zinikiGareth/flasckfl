@@ -4,6 +4,7 @@ import java.io.Writer;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.ScopeName;
@@ -13,12 +14,23 @@ import org.zinutils.exceptions.UtilException;
 
 public class FunctionCaseDefn implements ContainsScope, Locatable, FunctionNameProvider {
 	public final FunctionIntro intro;
+	public final Expr guard;
 	public final Object expr;
 	private Scope scope;
 	private ScopeName caseName;
 
+	@Deprecated
 	public FunctionCaseDefn(FunctionName name, List<Object> args, Object expr) {
 		intro = new FunctionIntro(name, args);
+		this.guard = null;
+		if (expr == null)
+			throw new UtilException("Cannot build function case with null expr");
+		this.expr = expr;
+	}
+
+	public FunctionCaseDefn(FunctionName name, List<Object> args, Expr guard, Expr expr) {
+		intro = new FunctionIntro(name, args);
+		this.guard = guard;
 		if (expr == null)
 			throw new UtilException("Cannot build function case with null expr");
 		this.expr = expr;

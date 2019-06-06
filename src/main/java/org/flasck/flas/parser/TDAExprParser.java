@@ -19,6 +19,7 @@ public class TDAExprParser implements TDAParsing {
 
 	public TDAParsing tryParsing(Tokenizable line) {
 		while (true) {
+			int mark = line.at();
 			ExprToken tok = ExprToken.from(line);
 			if (tok == null) {
 				builder.done();
@@ -35,6 +36,12 @@ public class TDAExprParser implements TDAParsing {
 				builder.term(new UnresolvedVar(tok.location, tok.text));
 				break;
 			case ExprToken.SYMBOL:
+				// A "declaration" operator ends an expression without being consumed
+				if ("=".equals(tok.text)) {
+					line.reset(mark);
+					builder.done();
+					return null;
+				}
 				builder.term(new UnresolvedOperator(tok.location, tok.text));
 				break;
 			case ExprToken.PUNC:

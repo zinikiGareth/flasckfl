@@ -47,5 +47,29 @@ public class TDAFunctionGuardedCaseParsingTests {
 			oneOf(intro).functionCase(with(any(FunctionCaseDefn.class)));
 		}});
 		parser.tryParsing(TDAFunctionParsingTests.line("= 42"));
+		parser.scopeComplete(pos);
 	}
+
+	@Test
+	public void itsNotLegalToHaveNoCases() {
+		context.checking(new Expectations() {{
+			oneOf(errorsMock).message(pos, "no function cases specified");
+		}});
+		parser.scopeComplete(pos);
+	}
+
+	@Test
+	public void itsLegalToJustHaveASingleGuardedCase() {
+		context.checking(new Expectations() {{
+			oneOf(intro).functionCase(with(any(FunctionCaseDefn.class)));
+		}});
+		parser.tryParsing(TDAFunctionParsingTests.line("| true = 42"));
+		parser.scopeComplete(pos);
+	}
+
+	// many cases
+	// not more than one default case
+	// default case must come last
+	// nested scope must come at end
 }
+
