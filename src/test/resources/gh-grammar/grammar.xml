@@ -692,6 +692,7 @@
     </seq>
   </production>
   <production name='standalone-method-definition'>
+    <tested by='TDAMethodNestedParsingTests' />
     <section title='Method'>
       <description>
       Note that standalone and object methods have the same syntax, but they are sufficiently different to make it worth making it clear
@@ -713,6 +714,7 @@
     </seq>
   </production>
   <production name='method-definition'>
+    <tested by='TDAMethodNestedParsingTests' />
     <section title='Method'/>
     <seq>
       <token type='var-name'/>
@@ -725,6 +727,7 @@
     </seq>
   </production>
   <production name='method-actions'>
+    <tested by='TDAMethodNestedParsingTests' />
     <section title='Method'/>
     <seq>
       <many>
@@ -736,6 +739,7 @@
     </seq>
   </production>
   <production name='method-action'>
+    <tested by='TDAMethodNestedParsingTests' />
     <section title='Method'/>
     <or>
       <ref production='message-method-action'/>
@@ -840,6 +844,7 @@
     </or>
   </production>
   <production name='object-ctor-definition'>
+    <tested by='TDAMethodNestedParsingTests' />
     <section title='Object'/>
     <seq>
       <token type='CTOR' />

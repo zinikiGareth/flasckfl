@@ -9,16 +9,21 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAFunctionParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final FunctionNameProvider functionNamer;
 	private final FunctionIntroConsumer consumer;
+	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDAFunctionParser(ErrorReporter errors, FunctionIntroConsumer consumer) {
+	public TDAFunctionParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
+		this.functionNamer = functionNamer;
 		this.consumer = consumer;
+		this.topLevel = topLevel;
 	}
 	
 	@Override
@@ -26,7 +31,7 @@ public class TDAFunctionParser implements TDAParsing {
 		ExprToken t = ExprToken.from(line);
 		if (t == null || t.type != ExprToken.IDENTIFIER)
 			return null;
-		final FunctionName fname = consumer.functionName(t.location, t.text);
+		final FunctionName fname = functionNamer.functionName(t.location, t.text);
 		
 		List<Object> args = new ArrayList<>();
 		TDAPatternParser pp = new TDAPatternParser(errors, p -> {
@@ -59,13 +64,21 @@ public class TDAFunctionParser implements TDAParsing {
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser();
 
-		// TODO: I don't think this should be quite top - it should allow "as many" intro things (which? not card, but some others such as handler are good to have)
-		return TDAMultiParser.top(errors, fcds.get(0));
+		return TDAMultiParser.functionScopeUnit(errors, functionNamer, topLevel, topLevel);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
 		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel) {
+		return new TDAParserConstructor() {
+			@Override
+			public TDAParsing construct(ErrorReporter errors) {
+				return new TDAFunctionParser(errors, namer, consumer, topLevel);
+			}
+		};
 	}
 
 }

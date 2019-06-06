@@ -1,12 +1,15 @@
 package org.flasck.flas.parser;
 
-import org.flasck.flas.blockForm.InputPosition;
+import java.util.List;
+
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LocatedName;
 
 public interface FunctionIntroConsumer {
-	FunctionName functionName(InputPosition location, String base);
+	void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr);
 	void functionIntro(FunctionIntro o);
 	void functionCase(FunctionCaseDefn o);
 }

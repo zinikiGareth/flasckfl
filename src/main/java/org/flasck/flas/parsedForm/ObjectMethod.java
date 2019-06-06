@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.commonBase.names.FunctionName;
 
-public class ObjectMethod {
-
-	public ObjectMethod(InputPosition location, String text, List<Pattern> args) {
-		// TODO Auto-generated constructor stub
+public class ObjectMethod extends ObjectActionHandler {
+	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args) {
+		super(location, name, args);
 	}
 }

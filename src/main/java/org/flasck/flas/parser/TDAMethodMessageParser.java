@@ -15,10 +15,12 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAMethodMessageParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final MethodMessagesConsumer builder;
+	private final LastOneOnlyNestedParser nestedParser;
 
-	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder) {
+	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser) {
 		this.errors = errors;
 		this.builder = builder;
+		this.nestedParser = nestedParser;
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 		}
-		return new NoNestingParser(errors);
+		return nestedParser;
 	}
 
 	@Override

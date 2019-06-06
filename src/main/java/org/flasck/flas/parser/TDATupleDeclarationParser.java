@@ -8,17 +8,22 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDATupleDeclarationParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final ParsedLineConsumer consumer;
+	private final FunctionNameProvider functionNamer;
+	private final FunctionIntroConsumer consumer;
+	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDATupleDeclarationParser(ErrorReporter errors, ParsedLineConsumer consumer) {
+	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
-		this.consumer = consumer;
+		this.functionNamer = functionNamer;
+		this.consumer = sb;
+		this.topLevel = topLevel;
 	}
 	
 	@Override
@@ -78,16 +83,24 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			errors.message(line, "tuple assignment requires expression");
 			return null;
 		}
-		FunctionName leadName = consumer.functionName(vars.get(0).location, "_tuple_" + vars.get(0).text);
+		FunctionName leadName = functionNamer.functionName(vars.get(0).location, "_tuple_" + vars.get(0).text);
 		new TDAExpressionParser(errors, e -> {
 			consumer.tupleDefn(vars, leadName, e);
 		}).tryParsing(line);
 
-		// TODO: I don't think this should be quite top - it should allow "as many" intro things (which? not card, but some others such as handler are good to have)
-		return TDAMultiParser.top(errors, consumer);
+		return TDAMultiParser.functionScopeUnit(errors, functionNamer, consumer, topLevel);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+	}
+
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
+		return new TDAParserConstructor() {
+			@Override
+			public TDAParsing construct(ErrorReporter errors) {
+				return new TDATupleDeclarationParser(errors, namer, sb, topLevel);
+			}
+		};
 	}
 }

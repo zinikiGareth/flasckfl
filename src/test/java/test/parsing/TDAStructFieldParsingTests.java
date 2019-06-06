@@ -102,7 +102,6 @@ public class TDAStructFieldParsingTests {
 		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg <- 13)");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(any(InputPosition.class)), with("invalid tokens after expression"));
-			oneOf(errors).hasErrors(); will(returnValue(true));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);

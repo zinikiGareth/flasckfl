@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 public class FunctionCaseMatcher extends TypeSafeMatcher<FunctionCaseDefn> {
 
-	private final PackageName pkg;
+	private final NameOfThing pkg;
 	private final String name;
 	private final List<PatternMatcher> patterns = new ArrayList<>();
 
-	public FunctionCaseMatcher(PackageName pkg, String name) {
+	public FunctionCaseMatcher(NameOfThing pkg, String name) {
 		this.pkg = pkg;
 		this.name = name;
 	}
@@ -52,7 +52,7 @@ public class FunctionCaseMatcher extends TypeSafeMatcher<FunctionCaseDefn> {
 		return true;
 	}
 
-	public static FunctionCaseMatcher called(PackageName pkg, String name) {
+	public static FunctionCaseMatcher called(NameOfThing pkg, String name) {
 		return new FunctionCaseMatcher(pkg, name);
 	}
 

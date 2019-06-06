@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -21,10 +22,10 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 	private final ErrorReporter errors;
-	private final ParsedLineConsumer consumer;
+	private final TopLevelDefinitionConsumer consumer;
 	private IScope scope;
 
-	public TDAIntroParser(ErrorReporter errors, ParsedLineConsumer consumer) {
+	public TDAIntroParser(ErrorReporter errors, TopLevelDefinitionConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
 		consumer.scopeTo(this);
@@ -102,7 +103,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			}
 			ObjectDefn od = new ObjectDefn(kw.location, tn.location, consumer.qualifyName(tn.text), true, polys);
 			consumer.newObject(od);
-			return new TDAObjectElementsParser(errors, od);
+			return new TDAObjectElementsParser(errors, od, consumer);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
@@ -125,6 +126,15 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+	}
+
+	public static TDAParserConstructor constructor(TopLevelDefinitionConsumer consumer) {
+		return new TDAParserConstructor() {
+			@Override
+			public TDAParsing construct(ErrorReporter errors) {
+				return new TDAIntroParser(errors, consumer);
+			}
+		};
 	}
 
 }

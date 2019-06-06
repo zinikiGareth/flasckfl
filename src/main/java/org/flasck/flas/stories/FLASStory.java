@@ -86,6 +86,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
+@Deprecated
 public class FLASStory {
 	public static class State {
 		public final NameOfThing pkgName;
@@ -356,7 +357,7 @@ public class FLASStory {
 			if (b.isComment())
 				continue;
 			Tokenizable tkz = new Tokenizable(b);
-			InputPosition posn = tkz.realinfo();
+//			InputPosition posn = tkz.realinfo();
 			Object om = omp.tryParsing(tkz);
 			if (om instanceof ErrorReporter)
 				er.merge((ErrorReporter) om);

@@ -6,9 +6,9 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDACardElementsParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final ParsedLineConsumer consumer;
+	private final TopLevelDefinitionConsumer consumer;
 
-	public TDACardElementsParser(ErrorReporter errors, ParsedLineConsumer consumer) {
+	public TDACardElementsParser(ErrorReporter errors, TopLevelDefinitionConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
 	}

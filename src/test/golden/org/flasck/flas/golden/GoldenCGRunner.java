@@ -75,6 +75,13 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			if (p == null || p.matcher(dir.getPath()).find())
 				addGoldenTest(bcc, dir);
 		}
+		if (bcc.methodCount() == 1) {
+			addMethod(bcc, "classEmpty", false, new TestMethodContentProvider() {
+				@Override
+				public void defineMethod(NewMethodDefiner done) {
+				}
+			});
+		}
 		return new Class<?>[] { generate(cl, bcc) };
 	}
 

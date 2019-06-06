@@ -52,7 +52,7 @@ public class ActualPhase2Processor implements Phase2Processor {
 	
 	@Override
 	public void functionIntro(FunctionIntro fn) {
-		int caseName = scope.caseName(fn.name().uniqueName());
+//		int caseName = scope.caseName(fn.name().uniqueName());
 		// TODO: we need some kind of callback on complete to finish this off
 		// see FLASStory: 220
 //		fn.provideCaseName(caseName);

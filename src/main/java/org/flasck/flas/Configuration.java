@@ -15,7 +15,6 @@ public class Configuration {
 	private File writeJS;
 	private File writeDroid;
 	private File writeJVM;
-	private File webZipDownloads;
 	private File webZipDir;
 	private List<String> useWebZips = new ArrayList<>();
 	private boolean buildDroid = true;
@@ -76,12 +75,6 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeJVM = new File(args[++i]);
-				} else if (arg.equals("--webzipdownloads")) {
-					if (hasMore == 0) {
-						System.out.println("--webzipdownloads <download-dir>");
-						System.exit(1);
-					}
-					webZipDownloads = new File(args[++i]);
 				} else if (arg.equals("--webzipdir")) {
 					if (hasMore == 0) {
 						System.out.println("--webzipdir <dir>");

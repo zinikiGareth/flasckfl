@@ -12,7 +12,7 @@ public class ObjectCtorMatcher extends TypeSafeMatcher<ObjectCtor> {
 	private final List<PatternMatcher> args = new ArrayList<>();
 
 	private ObjectCtorMatcher(String name) {
-		this.name = name;
+		this.name = "_ctor_" + name;
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class ObjectCtorMatcher extends TypeSafeMatcher<ObjectCtor> {
 
 	@Override
 	protected boolean matchesSafely(ObjectCtor ctor) {
-		if (!ctor.name().equals(name))
+		if (!ctor.name().name.equals(name))
 			return false;
 		if (ctor.args().size() != args.size())
 			return false;

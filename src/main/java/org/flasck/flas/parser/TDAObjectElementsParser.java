@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -18,13 +20,15 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAObjectElementsParser implements TDAParsing {
+public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider {
 	private final ErrorReporter errors;
 	private final ObjectElementsConsumer builder;
+	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDAObjectElementsParser(ErrorReporter errors, ObjectElementsConsumer od) {
+	public TDAObjectElementsParser(ErrorReporter errors, ObjectElementsConsumer od, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.builder = od;
+		this.topLevel = topLevel;
 	}
 
 	@Override
@@ -42,6 +46,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(toks);
+			FunctionName fnName = FunctionName.objectCtor(var.location, builder.name(), var.text);
 			List<Pattern> args = new ArrayList<>();
 			TDAPatternParser pp = new TDAPatternParser(errors, p -> {
 				args.add(p);
@@ -52,17 +57,12 @@ public class TDAObjectElementsParser implements TDAParsing {
 				errors.message(toks, "extra characters at end of line");
 				return new IgnoreNestedParser();
 			}
-			ObjectCtor ctor = new ObjectCtor(var.location, var.text, args);
+			ObjectCtor ctor = new ObjectCtor(var.location, fnName, args);
 			builder.addConstructor(ctor);
-			return new TDAMethodMessageParser(errors, ctor);
+			return new TDAMethodMessageParser(errors, ctor, new LastActionScopeParser(errors, this, topLevel));
 		}
 		case "acor": {
 			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {
-				@Override
-				public FunctionName functionName(InputPosition location, String base) {
-					return FunctionName.objectMethod(location, builder.name(), base);
-				}
-				
 				@Override
 				public void functionIntro(FunctionIntro o) {
 					throw new org.zinutils.exceptions.NotImplementedException();
@@ -72,12 +72,18 @@ public class TDAObjectElementsParser implements TDAParsing {
 				public void functionCase(FunctionCaseDefn o) {
 					builder.addAccessor(new ObjectAccessor());
 				}
+
+				@Override
+				public void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr) {
+					throw new org.zinutils.exceptions.NotImplementedException();
+				}
 			};
-			TDAFunctionParser fcp = new TDAFunctionParser(errors, consumer);
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, this, consumer, topLevel);
 			return fcp.tryParsing(toks);
 		}
 		case "method": {
 			ValidIdentifierToken var = VarNameToken.from(toks);
+			FunctionName fnName = FunctionName.objectCtor(var.location, builder.name(), var.text);
 			List<Pattern> args = new ArrayList<>();
 			TDAPatternParser pp = new TDAPatternParser(errors, p -> {
 				args.add(p);
@@ -88,9 +94,9 @@ public class TDAObjectElementsParser implements TDAParsing {
 				errors.message(toks, "extra characters at end of line");
 				return new IgnoreNestedParser();
 			}
-			ObjectMethod meth = new ObjectMethod(var.location, var.text, args);
+			ObjectMethod meth = new ObjectMethod(var.location, fnName, args);
 			builder.addMethod(meth);
-			return new TDAMethodMessageParser(errors, null);
+			return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, this, topLevel));
 		}
 		default: {
 			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");
@@ -99,6 +105,11 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 	}
 
+	@Override
+	public FunctionName functionName(InputPosition location, String base) {
+		return FunctionName.objectMethod(location, builder.name(), base);
+	}
+	
 	@Override
 	public void scopeComplete(InputPosition location) {
 	}
