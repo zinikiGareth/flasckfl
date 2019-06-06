@@ -54,7 +54,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}
 			ObjectCtor ctor = new ObjectCtor(var.location, var.text, args);
 			builder.addConstructor(ctor);
-			return new TDAMethodMessageParser(errors, null);
+			return new TDAMethodMessageParser(errors, ctor);
 		}
 		case "acor": {
 			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {

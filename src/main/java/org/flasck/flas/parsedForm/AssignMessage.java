@@ -3,9 +3,8 @@ package org.flasck.flas.parsedForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
 
-public class AssignMessage implements Locatable {
+public class AssignMessage implements ActionMessage {
 	public final InputPosition kw;
 	public final List<UnresolvedVar> slot;
 	public final Object expr;

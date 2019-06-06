@@ -1,9 +1,8 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
 
-public class SendMessage implements Locatable {
+public class SendMessage implements ActionMessage {
 	public final InputPosition kw;
 	public final Object expr;
 
