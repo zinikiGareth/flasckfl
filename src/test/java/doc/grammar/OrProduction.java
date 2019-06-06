@@ -56,7 +56,7 @@ public class OrProduction extends Production {
 
 	public void probs(List<Integer> probs) {
 		if (size() != probs.size())
-			throw new RuntimeException("Have " + probs.size() + " probabilities for " + size() + " cases");
+			throw new RuntimeException("Have " + probs.size() + " probabilities for " + size() + " cases in " + this.name);
 		this.probs = new ArrayList<>();
 		this.maxProb = 0;
 		for (int i : probs)

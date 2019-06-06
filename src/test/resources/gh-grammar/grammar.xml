@@ -228,9 +228,10 @@
 	       scope of a function.
 	    </description>
 	</section>
-    <producer shares='50 25 25'/>
+    <producer shares='50 20 20 20'/>
     <or>
       <ref production='function-case-definition'/>
+      <ref production='tuple-definition'/>
       <ref production='standalone-method-definition'/>
       <ref production='handler-definition'/>
     </or>
@@ -519,6 +520,31 @@
     <seq>
 	    <token type='EQ'/>
 	    <ref production='expression'/>
+    </seq>
+  </production>
+  <production name='tuple-definition'>
+    <section title='Functions'/>
+    <tested by='test.parsing.TDATupleDeclarationParsingTests' />
+    <seq>
+    	  <token type='ORB' />
+      <token type='var-name'/>
+      <many>
+      	<ref production='comma-var-name' />
+      </many>
+    	  <token type='CRB' />
+      <token type='EQ'/>
+      <ref production='expression'/>
+      <indent>
+      	<ref production='function-scope'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='comma-var-name'>
+    <section title='Functions' />
+    <tested by='test.parsing.TDATupleDeclarationParsingTests' />
+    <seq>
+      <token type='COMMA' />
+      <token type='var-name' />
     </seq>
   </production>
   <production name='argument-pattern'>
