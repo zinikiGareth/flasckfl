@@ -11,22 +11,28 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAFunctionCaseParser implements TDAParsing {
+public class TDAFunctionCaseParser implements TDAParsing, FunctionNameProvider {
 	private final ErrorReporter errors;
 	private final FunctionIntroConsumer consumer;
 	private final FunctionName fname;
 	private final List<Object> args;
 	private final List<FunctionCaseDefn> cases = new ArrayList<>();
+	private InputPosition haveDefault;
+	private boolean reportedError;
+	private LastOneOnlyNestedParser nestedParser;
 
-	public TDAFunctionCaseParser(ErrorReporter errors, FunctionIntroConsumer consumer, FunctionName fname, List<Object> args) {
+	public TDAFunctionCaseParser(ErrorReporter errors, FunctionIntroConsumer consumer, FunctionName fname, List<Object> args, LastOneOnlyNestedParser nestedParser) {
 		this.errors = errors;
 		this.consumer = consumer;
 		this.fname = fname;
 		this.args = args;
+		this.nestedParser = nestedParser;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable line) {
+		nestedParser.anotherParent();
+		InputPosition start = line.realinfo();
 		ExprToken tok = ExprToken.from(line);
 		if (tok == null || (!tok.text.equals("=") && !tok.text.equals("|"))) {
 			errors.message(line, "syntax error");
@@ -39,7 +45,13 @@ public class TDAFunctionCaseParser implements TDAParsing {
 		
 		// Look for and collect a guard, if any
 		List<Expr> optionalGuard = new ArrayList<>();
-		if (tok.text.equals("|")) {
+		if (reportedError)
+			return null;
+		else if (haveDefault != null) {
+			errors.message(start, "default case has already been specified");
+			reportedError = true;
+			return null;
+		} else if (tok.text.equals("|")) {
 			// it's a guard
 			new TDAExpressionParser(errors, e -> {
 				optionalGuard.add(e);
@@ -56,6 +68,8 @@ public class TDAFunctionCaseParser implements TDAParsing {
 				errors.message(line, "function definition requires expression");
 				return null;
 			}
+		} else {
+			haveDefault = start;
 		}
 
 		// Collect the expression
@@ -68,13 +82,17 @@ public class TDAFunctionCaseParser implements TDAParsing {
 			cases.add(fcd);
 		}).tryParsing(line);
 		
-		// TODO: should be a LOONP
-		return new IgnoreNestedParser();
+		return nestedParser;
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (cases.isEmpty())
 			errors.message(location, "no function cases specified");
+	}
+
+	@Override
+	public FunctionName functionName(InputPosition location, String base) {
+		return FunctionName.function(location, fname, base);
 	}
 }

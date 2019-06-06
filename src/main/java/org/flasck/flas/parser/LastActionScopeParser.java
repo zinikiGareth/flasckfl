@@ -7,18 +7,20 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	private final ErrorReporter errors;
+	private final String lastThing;
 	private final TDAParsing parser;
 	private Tokenizable seenSomething;
 	private boolean reportedError;
 
-	public LastActionScopeParser(ErrorReporter errors, FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel) {
+	public LastActionScopeParser(ErrorReporter errors, FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel, String lastThing) {
 		this.errors = errors;
+		this.lastThing = lastThing;
 		this.parser = TDAMultiParser.functionScopeUnit(errors, namer, topLevel, topLevel);
 	}
 
 	public void anotherParent() {
 		if (seenSomething != null && !reportedError) {
-			errors.message(seenSomething, "nested scope must be after last action");
+			errors.message(seenSomething, "nested scope must be after last " + lastThing);
 			reportedError = true;
 		}
 	}
@@ -31,7 +33,6 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 }
