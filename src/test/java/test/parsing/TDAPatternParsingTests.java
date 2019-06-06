@@ -219,6 +219,18 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
+	public void parensCanContainPolyTypedThings() {
+		final Tokenizable line = line("(A x)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("A", "x")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
 	public void itIsStillAnErrorNotToCloseYourParens() {
 		final Tokenizable line = line("(String x");
 		context.checking(new Expectations() {{

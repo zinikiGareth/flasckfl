@@ -600,6 +600,7 @@
       <description>
       </description>
     </section>
+    <tested by='test.parsing.TDAPatternParsingTests' />
     <or>
       <seq>
         <token type='type-name'/>
@@ -614,6 +615,7 @@
   </production>
   <production name='poly-type-list'>
     <section title='Types'/>
+    <tested by='test.parsing.TDAPatternParsingTests' />
     <seq>
       <token type='OSB'/>
       <ref production='type-reference'/>
@@ -625,6 +627,7 @@
   </production>
   <production name='comma-type-reference'>
     <section title='Types'/>
+    <tested by='test.parsing.TDAPatternParsingTests' />
     <seq>
       <token type='COMMA'/>
       <ref production='type-reference'/>
@@ -637,6 +640,7 @@
       But we don't particularly focus on operator precedence, so including it as a BINOP and noting that is probably fine.
       </description>
     </section>
+    <tested by='test.parsing.ExprReductionTests' />
     <producer shares='50 20 5 10 5 5'/>
     <or>
       <seq>
@@ -671,6 +675,7 @@
   </production>
   <production name='literal'>
     <section title='Expressions' />
+    <tested by='test.parsing.ExprTokenizationTests' />
     <or>
       <token type='NUMBER' />
       <token type='STRING' />
@@ -682,6 +687,7 @@
   </production>
   <production name='list-literal'>
     <section title='Expressions' />
+    <tested by='test.parsing.ExprReductionTests' />
     <or>
       <seq>
         <token type='OSB' />
@@ -699,6 +705,7 @@
   </production>
   <production name='comma-expression'>
     <section title='Expressions' />
+    <tested by='test.parsing.ExprReductionTests' />
     <seq>
       <token type='COMMA' />
       <ref production='expression' />
