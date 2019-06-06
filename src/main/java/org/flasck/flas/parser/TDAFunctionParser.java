@@ -43,7 +43,7 @@ public class TDAFunctionParser implements TDAParsing {
 		// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...
 		if (!line.hasMore()) {
 			consumer.functionIntro(new FunctionIntro(fname, args));
-			return new TDAFunctionCaseParser(errors, consumer);
+			return new TDAFunctionCaseParser(errors, consumer, fname, args);
 		}
 		ExprToken tok = ExprToken.from(line);
 		if (tok == null || !tok.text.equals("=")) {

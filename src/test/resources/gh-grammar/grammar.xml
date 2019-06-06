@@ -413,6 +413,7 @@
   </production>
   <production name='simple-function-case-definition'>
     <section title='Functions'/>
+    <tested by="TDAFunctionParsingTests" />
     <seq>
       <token type='var-name'/>
       <many>
@@ -427,6 +428,7 @@
   </production>
   <production name='guarded-function-case-definition'>
     <section title='Functions'/>
+    <tested by="TDAFunctionGuardedCaseParsingTests" />
     <seq>
       <token type='var-name'/>
       <many>
@@ -439,6 +441,7 @@
   </production>
   <production name='guarded-equations'>
     <section title='Functions'/>
+    <tested by="TDAFunctionGuardedCaseParsingTests" />
     <seq>
       <one-or-more>
 	    <ref production='guarded-expression'/>
@@ -453,6 +456,7 @@
   </production>
   <production name='guarded-expression'>
     <section title='Functions'/>
+    <tested by="TDAFunctionGuardedCaseParsingTests" />
     <seq>
 	    <token type='GUARD'/>
 	    <ref production='expression'/>
@@ -462,6 +466,7 @@
   </production>
   <production name='guarded-default-expression'>
     <section title='Functions'/>
+    <tested by="TDAFunctionGuardedCaseParsingTests" />
     <seq>
 	    <token type='EQ'/>
 	    <ref production='expression'/>
@@ -472,6 +477,7 @@
     	  <description>
     	  </description>
     </section>
+    <tested by="TDAPatternParsingTests" />
     <or>
       <ref production='argument-pattern-variable'/>
       <ref production='argument-pattern-list'/>
@@ -480,10 +486,8 @@
     </or>
   </production>
   <production name='argument-pattern-maybe-typed'>
-    <section title='Patterns'>
-    	  <description>
-    	  </description>
-    </section>
+    <section title='Patterns' />
+    <tested by="TDAPatternParsingTests" />
     <or>
       <ref production='argument-pattern-variable'/>
       <ref production='argument-pattern-typed'/>
@@ -491,10 +495,12 @@
   </production>
   <production name='argument-pattern-variable'>
     <section title='Patterns'/>
+    <tested by="TDAPatternParsingTests" />
     <token type='var-name'/>
   </production>
   <production name='argument-pattern-list'>
     <section title='Patterns'/>
+    <tested by="TDAPatternParsingTests" />
     <or>
       <seq>
         <token type='OSB'/>
@@ -512,6 +518,7 @@
   </production>
   <production name='comma-argument-pattern'>
     <section title='Patterns'/>
+    <tested by="TDAPatternParsingTests" />
     <seq>
       <token type='COMMA'/>
       <ref production='argument-pattern'/>
@@ -519,6 +526,7 @@
   </production>
   <production name='argument-pattern-typed'>
     <section title='Patterns'/>
+    <tested by="TDAPatternParsingTests" />
     <seq>
       <token type='ORB'/>
       <ref production='type-reference'/>
@@ -528,6 +536,7 @@
   </production>
   <production name='argument-pattern-ctor'>
     <section title='Patterns'/>
+    <tested by="TDAPatternParsingTests" />
     <seq>
       <token type='OCB'/>
       <token type='type-name'/>
