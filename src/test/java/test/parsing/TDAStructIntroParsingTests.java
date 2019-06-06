@@ -80,6 +80,17 @@ public class TDAStructIntroParsingTests {
 	}
 
 	@Test
+	public void aPolymorphicStructDefinitionMayHaveMultipleVars() {
+		context.checking(new Expectations() {{
+			allowing(builder).qualifyName("Map"); will(returnValue(new SolidName(null, "Map")));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("Map").poly("A").poly("B").locs(0,7)));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Map A B"));
+		assertTrue(nested instanceof TDAStructFieldParser);
+	}
+
+	@Test
 	public void polymorphicVarsMustBeValid() {
 		final Tokenizable toks = TDABasicIntroParsingTests.line("struct Cons xx");
 		context.checking(new Expectations() {{

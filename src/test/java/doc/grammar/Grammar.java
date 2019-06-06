@@ -125,9 +125,11 @@ public class Grammar {
 	private Section requireSection(XMLElement xe) {
 		String title = xe.required("title");
 		Section ret;
-		if (sections.containsKey(title))
+		if (sections.containsKey(title)) {
 			ret = sections.get(title);
-		else {
+			if (!xe.elementChildren("description").isEmpty())
+				throw new RuntimeException("Non-first occurrence of section " + title + " had a description that would be ignored");
+		} else {
 			try {
 				ret = new Section(title, xe.uniqueElement("description"));
 				this.sections.put(title, ret);

@@ -26,7 +26,7 @@ public class SentenceProducer {
 	}
 	
 	public File sentence(long var, Consumer<Set<String>> sendUsed) throws Throwable {
-		String top = grammar.top();
+		String top = "source-file"; //grammar.top();
 		SPProductionVisitor visitor = new SPProductionVisitor(grammar, var*100L);
 		visitor.referTo(top);
 		sendUsed.accept(visitor.used);
@@ -172,6 +172,7 @@ public class SentenceProducer {
 			case "CARD":
 			case "CONTRACT":
 			case "CTOR":
+			case "DEAL":
 			case "ENTITY":
 			case "ENVELOPE":
 			case "EVENT":
@@ -180,6 +181,7 @@ public class SentenceProducer {
 			case "IMPLEMENTS":
 			case "METHOD":
 			case "OBJECT":
+			case "OFFER":
 			case "OPTIONAL":
 			case "SERVICE":
 			case "STATE":
