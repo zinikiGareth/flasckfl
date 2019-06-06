@@ -12,6 +12,8 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 
 public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectElementsConsumer {
+	private StateDefinition state;
+	private final List<Template> templates = new ArrayList<>();
 	public final List<ObjectCtor> ctors = new ArrayList<>();
 	public final List<ObjectAccessor> acors = new ArrayList<>();
 	public final List<ObjectMethod> methods = new ArrayList<>();
@@ -22,7 +24,6 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 	private final SolidName name;
 	public final InputPosition kw;
 	public final boolean generate;
-	private StateDefinition state;
 
 	public ObjectDefn(InputPosition kw, InputPosition location, SolidName tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
@@ -48,6 +49,12 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 			throw new RuntimeException("Fix this case with a test");
 		}
 		this.state = state;
+		return this;
+	}
+
+	@Override
+	public ObjectElementsConsumer addTemplate(Template template) {
+		this.templates.add(template);
 		return this;
 	}
 

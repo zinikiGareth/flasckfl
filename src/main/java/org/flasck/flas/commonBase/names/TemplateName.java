@@ -4,15 +4,15 @@ import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class TemplateName implements NameOfThing, Comparable<TemplateName> {
-	private final CardName cardName;
+	private final NameOfThing cardName;
 	private String name;
 
-	public TemplateName(CardName cardName) {
+	public TemplateName(NameOfThing cardName) {
 		this.cardName = cardName;
 		this.name = null;
 	}
 	
-	public TemplateName(CardName cardName, String name) {
+	public TemplateName(NameOfThing cardName, String name) {
 		this.cardName = cardName;
 		this.name = name;
 	}

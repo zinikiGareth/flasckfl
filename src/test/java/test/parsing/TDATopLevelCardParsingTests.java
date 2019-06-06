@@ -1,5 +1,6 @@
 package test.parsing;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -26,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
-public class TDATopLevelCardMatcher {
+public class TDATopLevelCardParsingTests {
 	public static class ProvideScope implements Action {
 		private IScope scope;
 
@@ -90,5 +91,18 @@ public class TDATopLevelCardMatcher {
 		assertNull(card.state);
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("state"));
 		cardParser.tryParsing(line);
+	}
+
+	@Test
+	public void theCardCanHaveASingleTemplateDeclaration() {
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
+		assertEquals(1, card.templates.size());
+	}
+
+	@Test
+	public void theCardCanHaveMultipleTemplateDeclarations() {
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
+		assertEquals(2, card.templates.size());
 	}
 }

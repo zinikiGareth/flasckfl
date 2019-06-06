@@ -911,7 +911,7 @@
   </production>
   <production name='object-contents'>
     <section title='Object'/>
-    <tested by='test.parsing.TDAObjectElementParsingTests' have="1,3" />
+    <tested by='test.parsing.TDAObjectElementParsingTests' />
     <seq>
     	  <ref production='state-declaration'/>
     	  <ref production='many-templates'/>
@@ -994,6 +994,7 @@
       <description>
       </description>
     </section>
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
     	  <token type='CARD' />
     	  <token type='type-name'/>
@@ -1004,6 +1005,7 @@
   </production>
   <production name='card-contents'>
     <section title='Card'/>
+    <tested by='test.parsing.TDATopLevelCardParsingTests' have='1'/>
     <seq>
     	  <ref production='state-declaration'/>
       <ref production='many-templates'/>

@@ -11,7 +11,9 @@ public class Template implements Locatable {
 	public final InputPosition kw;
 	private final InputPosition loc;
 	public final TemplateName name;
+	@Deprecated
 	public final List<LocatedToken> args;
+	@Deprecated
 	public final TemplateLine content;
 
 	public Template(InputPosition kw, InputPosition loc, TemplateName name, List<LocatedToken> args, TemplateLine content) {

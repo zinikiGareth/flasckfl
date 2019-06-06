@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.ObjectElementsConsumer;
@@ -128,4 +129,24 @@ public class TDAObjectElementParsingTests {
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
 
+	@Test
+	public void theCardCanHaveASingleTemplateDeclaration() {
+		context.checking(new Expectations() {{
+			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			oneOf(builder).addTemplate(with(any(Template.class)));
+		}});
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		/*TDAParsing nested = */ parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
+//		assertTrue(nested instanceof TDAMethodMessageParser);
+//		assertEquals(1, card.templates.size());
+	}
+
+	/*
+	@Test
+	public void theCardCanHaveMultipleTemplateDeclarations() {
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
+		assertEquals(2, card.templates.size());
+	}
+	*/
 }

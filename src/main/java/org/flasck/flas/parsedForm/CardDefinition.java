@@ -9,6 +9,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.CardElementsConsumer;
 
@@ -39,6 +40,16 @@ public class CardDefinition implements ContainsScope, Locatable, CardElementsCon
 	@Override
 	public InputPosition location() {
 		return location;
+	}
+
+	@Override
+	public TemplateName templateName(String text) {
+		return new TemplateName(cardName, text);
+	}
+
+	@Override
+	public void addTemplate(Template template) {
+		templates.add(template);
 	}
 
 	@Override

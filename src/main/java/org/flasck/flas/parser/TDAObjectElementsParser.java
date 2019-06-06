@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -15,7 +16,9 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
@@ -43,6 +46,13 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 			StateDefinition state = new StateDefinition(toks.realinfo());
 			builder.defineState(state);
 			return new TDAStructFieldParser(errors, state);
+		}
+		case "template": {
+			TemplateNameToken tn = TemplateNameToken.from(toks);
+			builder.addTemplate(new Template(kw.location, tn.location, new TemplateName(builder.name(), tn.text), null, null));
+
+			// This is CLEARLY wrong, but we don't have tests for that yet
+			return new NoNestingParser(errors);
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(toks);
