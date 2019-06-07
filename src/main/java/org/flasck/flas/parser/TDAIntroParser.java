@@ -141,6 +141,12 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			consumer.newContract(decl);
 			return new ContractMethodParser(errors, decl);
 		}
+		case "handler": {
+//			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
+//			MethodConsumer evConsumer = em -> { consumer.addEventHandler(em); };
+			HandlerNameProvider provider = text -> consumer.handlerName(text);
+			return new TDAHandlerParser(errors, consumer, provider).parseHandler(kw.location, false, toks);
+		}
 		default:
 			return null;
 		}

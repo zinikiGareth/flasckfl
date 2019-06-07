@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -15,6 +16,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -48,6 +50,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 		return new CardName((PackageName) scope.scopeName, name);
 	}
 	
+	@Override
+	public HandlerName handlerName(String base) {
+		return new HandlerName(scope.scopeName, base);
+	}
+
 	public FunctionName functionName(InputPosition location, String base) {
 		return FunctionName.function(location, scope.name(), base);
 	}
@@ -75,6 +82,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 		for (LocatedName x : vars) {
 			scope.define(errors, x.text, new TupleMember(x.location, ta, k++, functionName(x.location, x.text)));
 		}
+	}
+
+	@Override
+	public void newHandler(HandlerImplements hi) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
