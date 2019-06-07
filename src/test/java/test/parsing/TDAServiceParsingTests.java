@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
@@ -104,14 +105,20 @@ public class TDAServiceParsingTests {
 	}
 
 	@Test
-	public void cardsCanHaveNestedFunctions() {
+	public void servicesCanHaveNestedFunctions() {
 		context.checking(new Expectations() {{
 			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
 	}
 
+	@Test
+	public void servicesCanHaveNestedHandlers() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+		}});
+		serviceParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
+	}
+
 	// provides
-	// functions & tuples
-	// handler
 }

@@ -179,6 +179,7 @@
   </production>
   <production name='source-file'>
     <section title='Files' />
+	<tested by='test.parsing.' /> <!-- spread over many -->
     <many>
       <ref production='top-level-unit' />
     </many>
@@ -197,6 +198,7 @@
   </production>
   <production name='top-level-unit'>
     <section title='Files'/>
+	<tested by='test.parsing.' /> <!-- spread over many -->
     <or>
       <ref production='top-level-definition'/>
       <ref production='function-scope-unit'/>
@@ -204,6 +206,7 @@
   </production>
   <production name='top-level-definition'>
     <section title='Files'/>
+	<tested by='test.parsing.' have='1,3,4,5,8,9,10,11'/> <!-- spread over many -->
     <or>
       <ref production='struct-declaration'/>
       <ref production='union-declaration'/>
@@ -220,6 +223,7 @@
   </production>
   <production name='function-scope'>
     <section title='Files'/>
+	<tested by='test.parsing.' /> <!-- spread over many -->
     <many>
       <ref production='function-scope-unit' />
     </many>
@@ -231,6 +235,7 @@
 	       scope of a function.
 	    </description>
 	</section>
+	<tested by='test.parsing.' /> <!-- spread over many -->
     <producer shares='50 20 20 20'/>
     <or>
       <ref production='function-case-definition'/>
@@ -773,6 +778,7 @@
       <description>
       </description>
     </section>
+    <tested by='test.parsing.TDAHandlerIntroParsingTests' />
     <seq>
       <token type='HANDLER'/>
       <token type='type-name'/>
@@ -781,7 +787,7 @@
       	<ref production='argument-pattern-maybe-typed' />
       </many>
       <indent>
-        <ref production='method-definition'/>
+        <ref production='implementation-method'/>
       </indent>
     </seq>
   </production>
@@ -933,7 +939,7 @@
   </production>
   <production name='object-scope-unit'>
     <section title='Object'/>
-    <tested by='test.parsing.TDAObjectElementParsingTests' have="1,2,3,4" />
+    <tested by='test.parsing.TDAObjectElementParsingTests' />
     <producer shares='10 25 25 10 10'/>
     <or>
       <ref production='object-ctor-definition'/>
@@ -964,6 +970,7 @@
       <description>
       </description>
     </section>
+    <tested by='test.parsing.TDAServiceParsingTests' />
     <seq>
     	  <token type='SERVICE' />
     	  <token type='type-name'/>
@@ -974,6 +981,7 @@
   </production>
   <production name='service-contents'>
     <section title='Service'/>
+    <tested by='test.parsing.TDAServiceParsingTests' />
     <seq>
     	  <ref production='state-declaration'/>
       <ref production='service-scope'/>
@@ -981,6 +989,7 @@
   </production>
   <production name='service-scope'>
     <section title='Service'/>
+    <tested by='test.parsing.TDAServiceParsingTests' />
     <many>
       <ref production='service-scope-unit'/>
     </many>

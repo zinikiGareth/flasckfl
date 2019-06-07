@@ -5,10 +5,11 @@ import java.util.ArrayList;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
-public class TDAHandlerParser {
+public class TDAHandlerParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final FunctionScopeUnitConsumer builder;
 	private final HandlerNameProvider namer;
@@ -17,6 +18,22 @@ public class TDAHandlerParser {
 		this.errors = errors;
 		this.builder = builder;
 		this.namer = provider;
+	}
+
+	@Override
+	public TDAParsing tryParsing(Tokenizable toks) {
+		if (!toks.hasMore())
+			return null;
+		KeywordToken kw = KeywordToken.from(toks);
+		if (kw == null || !kw.text.equals("handler"))
+			return null; // in the "nothing doing" sense
+
+		return parseHandler(kw.location, false, toks);
+	}
+
+	@Override
+	public void scopeComplete(InputPosition location) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	public TDAParsing parseHandler(InputPosition kw, boolean inCard, Tokenizable line) {

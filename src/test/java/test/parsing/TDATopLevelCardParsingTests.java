@@ -11,6 +11,7 @@ import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -131,7 +132,14 @@ public class TDATopLevelCardParsingTests {
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
 	}
 
+	@Test
+	public void cardsCanHaveNestedHandlers() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+		}});
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
+	}
+
 	// implements
-	// functions & tuples
 	// handler
 }

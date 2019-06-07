@@ -9,9 +9,9 @@ import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAIntroParser;
-import org.flasck.flas.parser.TDAObjectElementsParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -39,7 +39,7 @@ public class TDAObjectIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
-		assertTrue(nested instanceof TDAObjectElementsParser);
+		assertTrue(nested instanceof TDAMultiParser);
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class TDAObjectIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store A"));
-		assertTrue(nested instanceof TDAObjectElementsParser);
+		assertTrue(nested instanceof TDAMultiParser);
 	}
 
 	@Test
@@ -107,6 +107,6 @@ public class TDAObjectIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object InPackage"));
-		assertTrue(nested instanceof TDAObjectElementsParser);
+		assertTrue(nested instanceof TDAMultiParser);
 	}
 }

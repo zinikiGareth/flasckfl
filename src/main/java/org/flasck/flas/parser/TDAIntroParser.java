@@ -6,6 +6,8 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -57,9 +59,11 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			CardName qn = (CardName)consumer.cardName(tn.text);
 			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, scope, qn);
 			consumer.newCard(card);
+			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
 			return new TDAMultiParser(errors, 
 				errors -> new TDACardElementsParser(errors, card, consumer),
+				errors -> new TDAHandlerParser(errors, consumer, handlerNamer),
 				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
 			);
 		}
@@ -72,9 +76,11 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			CardName qn = (CardName)consumer.cardName(tn.text);
 			ServiceDefinition svc = new ServiceDefinition(errors, kw.location, tn.location, scope, qn);
 			consumer.newService(svc);
+			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
 			return new TDAMultiParser(errors, 
 				errors -> new TDAServiceElementsParser(errors, svc, consumer),
+				errors -> new TDAHandlerParser(errors, consumer, handlerNamer),
 				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
 			);
 		}
@@ -123,9 +129,16 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
-			ObjectDefn od = new ObjectDefn(kw.location, tn.location, consumer.qualifyName(tn.text), true, polys);
+			final SolidName on = consumer.qualifyName(tn.text);
+			ObjectDefn od = new ObjectDefn(kw.location, tn.location, on, true, polys);
 			consumer.newObject(od);
-			return new TDAObjectElementsParser(errors, od, consumer);
+			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
+			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
+			return new TDAMultiParser(errors, 
+				errors -> new TDAObjectElementsParser(errors, od, consumer),
+				errors -> new TDAHandlerParser(errors, consumer, handlerNamer),
+				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
+			);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
@@ -142,8 +155,6 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			return new ContractMethodParser(errors, decl);
 		}
 		case "handler": {
-//			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
-//			MethodConsumer evConsumer = em -> { consumer.addEventHandler(em); };
 			HandlerNameProvider provider = text -> consumer.handlerName(text);
 			return new TDAHandlerParser(errors, consumer, provider).parseHandler(kw.location, false, toks);
 		}

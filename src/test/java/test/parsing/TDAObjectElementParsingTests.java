@@ -130,7 +130,7 @@ public class TDAObjectElementParsingTests {
 	}
 
 	@Test
-	public void theCardCanHaveASingleTemplateDeclaration() {
+	public void objectsCanHaveASingleTemplateDeclaration() {
 		context.checking(new Expectations() {{
 			allowing(errorsMock).hasErrors(); will(returnValue(false));
 			oneOf(builder).addTemplate(with(any(Template.class)));
@@ -141,7 +141,7 @@ public class TDAObjectElementParsingTests {
 	}
 
 	@Test
-	public void theCardCanHaveMultipleTemplateDeclarations() {
+	public void objectsCanHaveMultipleTemplateDeclarations() {
 		context.checking(new Expectations() {{
 			allowing(errorsMock).hasErrors(); will(returnValue(false));
 			oneOf(builder).addTemplate(with(any(Template.class)));
