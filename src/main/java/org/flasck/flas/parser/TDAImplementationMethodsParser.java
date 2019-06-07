@@ -3,7 +3,7 @@ package org.flasck.flas.parser;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAManyMethodsParser implements TDAParsing {
+public class TDAImplementationMethodsParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {

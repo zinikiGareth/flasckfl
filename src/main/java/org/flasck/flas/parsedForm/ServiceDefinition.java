@@ -42,6 +42,10 @@ public class ServiceDefinition implements ContainsScope, Locatable, ServiceEleme
 		this.state = stateDefinition;
 	}
 
+	public void addProvidedService(ContractService contractService) {
+		services.add(contractService);
+	}
+
 	public void addContractService(ContractService o) {
 		services.add(o);
 	}

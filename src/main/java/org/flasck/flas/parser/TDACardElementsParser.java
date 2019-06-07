@@ -3,11 +3,16 @@ package org.flasck.flas.parser;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
+import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 	private final ErrorReporter errors;
@@ -41,6 +46,44 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 			consumer.addTemplate(new Template(kw.location, tn.location, consumer.templateName(tn.text), null, null));
 			// TODO: this ISN'T right, but there isn't a test making me do anything else yet ...
 			return new NoNestingParser(errors);
+		}
+		case "provides": {
+			TypeNameToken tn = TypeNameToken.qualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid contract reference");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "extra tokens at end of line");
+				return new IgnoreNestedParser();
+			}
+			consumer.addProvidedService(new ContractService(kw.location, tn.location, tn.text, null, null));
+			return new TDAImplementationMethodsParser();
+		}
+		case "implements": {
+			TypeNameToken tn = TypeNameToken.qualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid contract reference");
+				return new IgnoreNestedParser();
+			}
+			
+			InputPosition varloc = null;
+			String varname = null;
+			if (toks.hasMore()) {
+				ValidIdentifierToken var = VarNameToken.from(toks);
+				if (var == null) {
+					errors.message(toks, "invalid service var name");
+					return new IgnoreNestedParser();
+				}
+				varloc = var.location;
+				varname = var.text;
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "extra tokens at end of line");
+				return new IgnoreNestedParser();
+			}
+			consumer.addContractImplementation(new ContractImplements(kw.location, tn.location, tn.text, varloc, varname));
+			return new TDAImplementationMethodsParser();
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);

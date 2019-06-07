@@ -62,6 +62,11 @@ public class CardDefinition implements ContainsScope, Locatable, CardElementsCon
 	}
 	
 	@Override
+	public void addProvidedService(ContractService contractService) {
+		this.services.add(contractService);
+	}
+
+	@Override
 	public void defineState(StateDefinition stateDefinition) {
 		this.state = stateDefinition;
 	}

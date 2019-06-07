@@ -66,7 +66,7 @@ public class TDAHandlerParser implements TDAParsing {
 			lambdas.add(patt);
 		}
 		builder.newHandler(new HandlerImplements(kw, named.location, tn.location, namer.provide(named.text), tn.text, inCard, lambdas));
-		return new TDAManyMethodsParser();
+		return new TDAImplementationMethodsParser();
 	}
 
 }

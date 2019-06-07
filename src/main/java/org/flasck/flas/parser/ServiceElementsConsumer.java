@@ -1,6 +1,7 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.StateDefinition;
 
 public interface ServiceElementsConsumer {
@@ -9,4 +10,5 @@ public interface ServiceElementsConsumer {
 	// Or at least a specific namer
 	CardName cardName();
 	void defineState(StateDefinition stateDefinition);
+	void addProvidedService(ContractService contractService);
 }

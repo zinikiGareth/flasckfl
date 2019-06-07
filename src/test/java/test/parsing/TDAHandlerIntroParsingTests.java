@@ -8,7 +8,7 @@ import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parser.TDAIntroParser;
-import org.flasck.flas.parser.TDAManyMethodsParser;
+import org.flasck.flas.parser.TDAImplementationMethodsParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.jmock.Expectations;
@@ -37,7 +37,7 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
-		assertTrue(nested instanceof TDAManyMethodsParser);
+		assertTrue(nested instanceof TDAImplementationMethodsParser);
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName"));
-		assertTrue(nested instanceof TDAManyMethodsParser);
+		assertTrue(nested instanceof TDAImplementationMethodsParser);
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class TDAHandlerIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName x (String s)"));
-		assertTrue(nested instanceof TDAManyMethodsParser);
+		assertTrue(nested instanceof TDAImplementationMethodsParser);
 	}
 
 	// TODO: error cases

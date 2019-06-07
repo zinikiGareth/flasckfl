@@ -140,6 +140,21 @@ public class TDATopLevelCardParsingTests {
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
 	}
 
-	// implements
-	// handler
+	@Test
+	public void cardsCanProvideServicesThroughContracts() {
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("provides org.ziniki.ContractName"));
+		assertEquals(1, card.services.size());
+	}
+
+	@Test
+	public void cardsCanImplementBehaviorThroughContracts() {
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("implements org.ziniki.ContractName"));
+		assertEquals(1, card.contracts.size());
+	}
+
+	@Test
+	public void cardsCanUtilizeServicesThroughContracts() {
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("implements org.ziniki.ContractName var"));
+		assertEquals(1, card.contracts.size());
+	}
 }

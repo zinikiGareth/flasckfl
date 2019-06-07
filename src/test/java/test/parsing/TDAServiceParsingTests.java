@@ -1,5 +1,6 @@
 package test.parsing;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -55,7 +56,7 @@ public class TDAServiceParsingTests {
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
 	private IScope scope = context.mock(IScope.class);
 	private TDAParsing serviceParser;
-	private ServiceDefinition card;
+	private ServiceDefinition svc;
 
 	@Before
 	public void setup() {
@@ -69,7 +70,7 @@ public class TDAServiceParsingTests {
 		}});
 		TDAIntroParser intro = new TDAIntroParser(errors, builder);
 		serviceParser = intro.tryParsing(TDABasicIntroParsingTests.line("service ServiceA"));
-		card = (ServiceDefinition) captureCard.get(0);
+		svc = (ServiceDefinition) captureCard.get(0);
 	}
 
 	@Test
@@ -80,9 +81,9 @@ public class TDAServiceParsingTests {
 
 	@Test
 	public void aCardCanHaveAStateDeclaration() {
-		assertNull(card.state);
+		assertNull(svc.state);
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("state"));
-		assertTrue(card.state instanceof StateDefinition);
+		assertTrue(svc.state instanceof StateDefinition);
 	}
 
 	@Test
@@ -91,7 +92,7 @@ public class TDAServiceParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line.realinfo().copySetEnd(5), "multiple state declarations");
 		}});
-		assertNull(card.state);
+		assertNull(svc.state);
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("state"));
 		serviceParser.tryParsing(line);
 	}
@@ -120,5 +121,12 @@ public class TDAServiceParsingTests {
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
 	}
 
-	// provides
+	@Test
+	public void servicesCanProvideThroughContracts() {
+		context.checking(new Expectations() {{
+//			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+		}});
+		serviceParser.tryParsing(TDABasicIntroParsingTests.line("provides org.ziniki.ContractName"));
+		assertEquals(1, svc.services.size());
+	}
 }

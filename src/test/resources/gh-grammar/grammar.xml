@@ -996,6 +996,7 @@
   </production>
   <production name='service-scope-unit'>
     <section title='Service'/>
+    <tested by='test.parsing.TDAServiceParsingTests' />
     <or>
     	  <ref production='provides-contract'/>
       <ref production='function-scope-unit'/>
@@ -1003,6 +1004,7 @@
   </production>
   <production name='provides-contract'>
     <section title='Service' />
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
     	  <token type='PROVIDES' />
     	  <token type='type-name'/>
@@ -1043,7 +1045,7 @@
   </production>
   <production name='card-scope-unit'>
     <section title='Card'/>
-    <tested by='test.parsing.TDATopLevelCardParsingTests' have='1'/>
+    <tested by='test.parsing.TDATopLevelCardParsingTests'/>
     <or>
     	  <ref production='event-handler'/>
     	  <ref production='implements-contract'/>
@@ -1055,6 +1057,7 @@
       <description>
       </description>
     </section>
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
     	  <token type='IMPLEMENTS' />
     	  <token type='type-name'/>
