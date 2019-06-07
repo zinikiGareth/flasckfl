@@ -27,6 +27,7 @@ public class CardDefinition implements ContainsScope, Locatable, CardElementsCon
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final Scope fnScope;
 	public final CardName cardName;
+	public final List<ObjectMethod> eventHandlers = new ArrayList<>();
 
 	public CardDefinition(ErrorReporter errors, InputPosition kw, InputPosition location, IScope outer, CardName name) {
 		this.kw = kw;
@@ -42,6 +43,10 @@ public class CardDefinition implements ContainsScope, Locatable, CardElementsCon
 		return location;
 	}
 
+	public CardName cardName() {
+		return cardName;
+	}
+
 	@Override
 	public TemplateName templateName(String text) {
 		return new TemplateName(cardName, text);
@@ -52,6 +57,10 @@ public class CardDefinition implements ContainsScope, Locatable, CardElementsCon
 		templates.add(template);
 	}
 
+	public void addEventHandler(ObjectMethod handler) {
+		eventHandlers.add(handler);
+	}
+	
 	@Override
 	public void defineState(StateDefinition stateDefinition) {
 		this.state = stateDefinition;

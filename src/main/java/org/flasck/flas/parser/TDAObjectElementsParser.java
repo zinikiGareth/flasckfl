@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -14,7 +15,6 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -93,20 +93,9 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 		}
 		case "method": {
 			ValidIdentifierToken var = VarNameToken.from(toks);
-			FunctionName fnName = FunctionName.objectCtor(var.location, builder.name(), var.text);
-			List<Pattern> args = new ArrayList<>();
-			TDAPatternParser pp = new TDAPatternParser(errors, p -> {
-				args.add(p);
-			});
-			while (pp.tryParsing(toks) != null)
-				;
-			if (toks.hasMore()) {
-				errors.message(toks, "extra characters at end of line");
-				return new IgnoreNestedParser();
-			}
-			ObjectMethod meth = new ObjectMethod(var.location, fnName, args);
-			builder.addMethod(meth);
-			return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, this, topLevel, "action"));
+			final SolidName name = builder.name();
+			FunctionName fnName = FunctionName.objectMethod(var.location, name, var.text);
+			return new TDAMethodParser(errors, this, builder, topLevel).parseMethod(fnName, toks);
 		}
 		default: {
 			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");

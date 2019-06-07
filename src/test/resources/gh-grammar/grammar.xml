@@ -1005,7 +1005,7 @@
   </production>
   <production name='card-contents'>
     <section title='Card'/>
-    <tested by='test.parsing.TDATopLevelCardParsingTests' have='1'/>
+    <tested by='test.parsing.TDATopLevelCardParsingTests'/>
     <seq>
     	  <ref production='state-declaration'/>
       <ref production='many-templates'/>
@@ -1014,12 +1014,14 @@
   </production>
   <production name='card-scope'>
     <section title='Card'/>
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <many>
       <ref production='card-scope-unit'/>
     </many>
   </production>
   <production name='card-scope-unit'>
     <section title='Card'/>
+    <tested by='test.parsing.TDATopLevelCardParsingTests' have='1'/>
     <or>
     	  <ref production='event-handler'/>
       <ref production='service-scope-unit'/>
@@ -1061,6 +1063,7 @@
         <p>Event handlers are not called directly by the system but through the template mechanism (see some rule) and are generally curried, in that some arguments are presented as part of the configuration, and the event itself is provided by the system when called.</p>
       </description>
     </section>
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
       <token type='EVENT'/>
       <ref production='method-definition'/>
@@ -1074,6 +1077,7 @@
         <p>Each template consists of a set of binding of values to portions of the template.</p>
       </description>
     </section>
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <many>
       <ref production='named-template-definition'/>
     </many>

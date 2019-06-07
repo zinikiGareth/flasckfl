@@ -69,9 +69,8 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 		return this;
 	}
 
-	public ObjectDefn addMethod(ObjectMethod m) {
+	public void addMethod(ObjectMethod m) {
 		methods.add(m);
-		return this;
 	}
 
 	public SolidName name() {

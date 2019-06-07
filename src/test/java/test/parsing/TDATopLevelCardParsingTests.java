@@ -59,6 +59,7 @@ public class TDATopLevelCardParsingTests {
 	public void setup() {
 		CaptureAction captureCard = new CaptureAction(null);
 		context.checking(new Expectations() {{
+			allowing(errors).hasErrors(); will(returnValue(false));
 			allowing(builder).scopeTo(with(any(ScopeReceiver.class))); will(new ProvideScope(scope));
 			allowing(builder).cardName("CardA"); will(returnValue(new CardName(new PackageName("A"), "CardA")));
 			oneOf(builder).newCard(with(CardDefnMatcher.called("A.CardA"))); will(captureCard);
@@ -105,4 +106,15 @@ public class TDATopLevelCardParsingTests {
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
 		assertEquals(2, card.templates.size());
 	}
+	
+	@Test
+	public void cardsCanHaveEventHandlers() {
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("event foo ev"));
+		assertEquals(1, card.eventHandlers.size());
+	}
+
+	// implements
+	// functions & tuples
+	// standalone methods
+	// handler
 }
