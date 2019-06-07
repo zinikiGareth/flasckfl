@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -55,6 +56,17 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, scope, qn);
 			consumer.newCard(card);
 			return new TDACardElementsParser(errors, card, consumer);
+		}
+		case "service": {
+			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid or missing type name");
+				return new IgnoreNestedParser();
+			}
+			CardName qn = (CardName)consumer.cardName(tn.text);
+			ServiceDefinition card = new ServiceDefinition(errors, kw.location, tn.location, scope, qn);
+			consumer.newService(card);
+			return new TDAServiceElementsParser(errors, card, consumer);
 		}
 		case "struct":
 		case "entity":

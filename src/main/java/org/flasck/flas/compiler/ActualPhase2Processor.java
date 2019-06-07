@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -78,6 +79,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 	@Override
 	public void newCard(CardDefinition decl) {
 		scope.define(errors, decl.simpleName, decl);
+	}
+
+	@Override
+	public void newService(ServiceDefinition card) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override

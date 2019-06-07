@@ -71,7 +71,7 @@
   	<p>The <tt>handler</tt> keyword introduces a callback handler.</p>
   </lex>
   <lex token='IMPLEMENTS' pattern='implements'>
-  	<p>The <tt>implements</tt> keyword introduces a contract implementation in a service or card.</p>
+  	<p>The <tt>implements</tt> keyword introduces a contract implementation in a card.</p>
   </lex>
   <lex token='METHOD' pattern='method'>
   	<p>The <tt>method</tt> keyword introduces a standalone method definition.</p>
@@ -99,6 +99,9 @@
   </lex>
   <lex token='OSB' pattern='\['>
   	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
+  </lex>
+  <lex token='PROVIDES' pattern='provides'>
+  	<p>The <tt>provides</tt> keyword introduces a block indicating that the service portion of a contract will be provided.</p>
   </lex>
   <lex token='PUT' pattern='&lt;-'>
   	<p>Method actions are defined using the PUT operator.</p>
@@ -985,9 +988,19 @@
   <production name='service-scope-unit'>
     <section title='Service'/>
     <or>
-    	  <ref production='implements-contract'/>
+    	  <ref production='provides-contract'/>
       <ref production='function-scope-unit'/>
     </or>
+  </production>
+  <production name='provides-contract'>
+    <section title='Service' />
+    <seq>
+    	  <token type='PROVIDES' />
+    	  <token type='type-name'/>
+    	  <indent>
+    	    <ref production='implementation-method'/>
+    	  </indent>
+    </seq>
   </production>
   <production name='card-declaration'>
     <section title='Card'>
@@ -1024,6 +1037,7 @@
     <tested by='test.parsing.TDATopLevelCardParsingTests' have='1'/>
     <or>
     	  <ref production='event-handler'/>
+    	  <ref production='implements-contract'/>
       <ref production='service-scope-unit'/>
     </or>
   </production>
