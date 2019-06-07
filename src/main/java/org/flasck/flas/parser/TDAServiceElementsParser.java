@@ -7,7 +7,6 @@ import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvider {
 	private final ErrorReporter errors;
@@ -28,7 +27,7 @@ public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvide
 		case "state": {
 			if (seenState) {
 				errors.message(kw.location, "multiple state declarations");
-				return null;
+				return new IgnoreNestedParser();
 			}
 			final StateDefinition state = new StateDefinition(toks.realinfo());
 			consumer.defineState(state);
@@ -36,8 +35,13 @@ public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvide
 			
 			return new TDAStructFieldParser(errors, state);
 		}
+		case "method": {
+			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
+			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(sm); };
+			return new TDAMethodParser(errors, this, smConsumer, topLevel).parseMethod(namer, toks);
+		}
 		default:
-			throw new NotImplementedException();
+			return null;
 		}
 	}
 

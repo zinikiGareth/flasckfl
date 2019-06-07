@@ -8,14 +8,15 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.IScope;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parser.TDACardElementsParser;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TDAServiceElementsParser;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -71,9 +72,9 @@ public class TDAServiceParsingTests {
 	}
 
 	@Test
-	public void theIntroParserCanHandleCard() {
+	public void theIntroParserCanHandleService() {
 		assertNotNull(serviceParser);
-		assertTrue(serviceParser instanceof TDAServiceElementsParser);
+		assertTrue(serviceParser instanceof TDAMultiParser);
 	}
 
 	@Test
@@ -94,8 +95,23 @@ public class TDAServiceParsingTests {
 		serviceParser.tryParsing(line);
 	}
 
+	@Test
+	public void servicesCanHaveStandaloneMethods() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newStandaloneMethod(with(any(ObjectMethod.class)));
+		}});
+		serviceParser.tryParsing(TDABasicIntroParsingTests.line("method m"));
+	}
+
+	@Test
+	public void cardsCanHaveNestedFunctions() {
+		context.checking(new Expectations() {{
+			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
+		}});
+		serviceParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
+	}
+
 	// provides
 	// functions & tuples
-	// standalone methods
 	// handler
 }

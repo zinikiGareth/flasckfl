@@ -93,6 +93,10 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.OCTOR, on, "_ctor_" + name);
 	}
 
+	public static FunctionName standaloneMethod(InputPosition location, NameOfThing pkg, String name) {
+		return new FunctionName(location, CodeType.STANDALONE, pkg, name);
+	}
+
 	public NameOfThing containingCard() {
 		if (inContext == null)
 			return null;

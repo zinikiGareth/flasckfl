@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -83,6 +84,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void newService(ServiceDefinition card) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public void newStandaloneMethod(ObjectMethod meth) {
 		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 

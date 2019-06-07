@@ -8,6 +8,8 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
+import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDAMethodParser {
 	private final ErrorReporter errors;
@@ -22,7 +24,8 @@ public class TDAMethodParser {
 		this.topLevel = topLevel;
 	}
 	
-	public TDAParsing parseMethod(FunctionName fnName, Tokenizable toks) {
+	public TDAParsing parseMethod(FunctionNameProvider methodNamer, Tokenizable toks) {
+		ValidIdentifierToken var = VarNameToken.from(toks);
 		List<Pattern> args = new ArrayList<>();
 		TDAPatternParser pp = new TDAPatternParser(errors, p -> {
 			args.add(p);
@@ -33,7 +36,8 @@ public class TDAMethodParser {
 			errors.message(toks, "extra characters at end of line");
 			return new IgnoreNestedParser();
 		}
-		ObjectMethod meth = new ObjectMethod(fnName.location, fnName, args);
+		FunctionName fnName = methodNamer.functionName(var.location, var.text);
+		ObjectMethod meth = new ObjectMethod(var.location, fnName, args);
 		builder.addMethod(meth);
 		return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action"));
 	}

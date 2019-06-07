@@ -8,9 +8,6 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.tokenizers.ValidIdentifierToken;
-import org.flasck.flas.tokenizers.VarNameToken;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 	private final ErrorReporter errors;
@@ -31,7 +28,7 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 		case "state": {
 			if (seenState) {
 				errors.message(kw.location, "multiple state declarations");
-				return null;
+				return new IgnoreNestedParser();
 			}
 			final StateDefinition state = new StateDefinition(toks.realinfo());
 			consumer.defineState(state);
@@ -46,13 +43,17 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 			return new NoNestingParser(errors);
 		}
 		case "event": {
-			ValidIdentifierToken var = VarNameToken.from(toks);
-			FunctionName fnName = FunctionName.eventMethod(var.location, consumer.cardName(), var.text);
+			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
 			MethodConsumer evConsumer = em -> { consumer.addEventHandler(em); };
-			return new TDAMethodParser(errors, this, evConsumer, topLevel).parseMethod(fnName, toks);
+			return new TDAMethodParser(errors, this, evConsumer, topLevel).parseMethod(namer, toks);
+		}
+		case "method": {
+			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
+			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(sm); };
+			return new TDAMethodParser(errors, this, smConsumer, topLevel).parseMethod(namer, toks);
 		}
 		default:
-			throw new NotImplementedException();
+			return null;
 		}
 	}
 

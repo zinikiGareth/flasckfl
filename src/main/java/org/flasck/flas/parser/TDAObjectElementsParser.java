@@ -7,7 +7,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -92,10 +91,8 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 			return fcp.tryParsing(toks);
 		}
 		case "method": {
-			ValidIdentifierToken var = VarNameToken.from(toks);
-			final SolidName name = builder.name();
-			FunctionName fnName = FunctionName.objectMethod(var.location, name, var.text);
-			return new TDAMethodParser(errors, this, builder, topLevel).parseMethod(fnName, toks);
+			FunctionNameProvider namer = (loc, text) -> FunctionName.objectMethod(loc, builder.name(), text);
+			return new TDAMethodParser(errors, this, builder, topLevel).parseMethod(namer, toks);
 		}
 		default: {
 			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");

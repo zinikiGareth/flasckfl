@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -15,6 +16,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
@@ -55,7 +57,11 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			CardName qn = (CardName)consumer.cardName(tn.text);
 			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, scope, qn);
 			consumer.newCard(card);
-			return new TDACardElementsParser(errors, card, consumer);
+			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
+			return new TDAMultiParser(errors, 
+				errors -> new TDACardElementsParser(errors, card, consumer),
+				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
+			);
 		}
 		case "service": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
@@ -64,9 +70,13 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				return new IgnoreNestedParser();
 			}
 			CardName qn = (CardName)consumer.cardName(tn.text);
-			ServiceDefinition card = new ServiceDefinition(errors, kw.location, tn.location, scope, qn);
-			consumer.newService(card);
-			return new TDAServiceElementsParser(errors, card, consumer);
+			ServiceDefinition svc = new ServiceDefinition(errors, kw.location, tn.location, scope, qn);
+			consumer.newService(svc);
+			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
+			return new TDAMultiParser(errors, 
+				errors -> new TDAServiceElementsParser(errors, svc, consumer),
+				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
+			);
 		}
 		case "struct":
 		case "entity":
