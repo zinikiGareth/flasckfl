@@ -57,8 +57,9 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
-			consumer.addProvidedService(new ContractService(kw.location, tn.location, tn.text, null, null));
-			return new TDAImplementationMethodsParser();
+			final ContractService contractService = new ContractService(kw.location, tn.location, tn.text, null, null);
+			consumer.addProvidedService(contractService);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, contractService.getRealName(), text), contractService, topLevel);
 		}
 		case "implements": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -82,8 +83,9 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
-			consumer.addContractImplementation(new ContractImplements(kw.location, tn.location, tn.text, varloc, varname));
-			return new TDAImplementationMethodsParser();
+			final ContractImplements ci = new ContractImplements(kw.location, tn.location, tn.text, varloc, varname);
+			consumer.addContractImplementation(ci);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, ci.getRealName(), text), ci, topLevel);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);

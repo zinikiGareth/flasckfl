@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -13,11 +14,13 @@ public class TDAHandlerParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final FunctionScopeUnitConsumer builder;
 	private final HandlerNameProvider namer;
+	private final TopLevelDefinitionConsumer topLevel;
 
-	public TDAHandlerParser(ErrorReporter errors, FunctionScopeUnitConsumer builder, HandlerNameProvider provider) {
+	public TDAHandlerParser(ErrorReporter errors, FunctionScopeUnitConsumer builder, HandlerNameProvider provider, TopLevelDefinitionConsumer topLevel) {
 		this.errors = errors;
 		this.builder = builder;
 		this.namer = provider;
+		this.topLevel = topLevel;
 	}
 
 	@Override
@@ -65,8 +68,9 @@ public class TDAHandlerParser implements TDAParsing {
 			}
 			lambdas.add(patt);
 		}
-		builder.newHandler(new HandlerImplements(kw, named.location, tn.location, namer.provide(named.text), tn.text, inCard, lambdas));
-		return new TDAImplementationMethodsParser();
+		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, namer.provide(named.text), tn.text, inCard, lambdas);
+		builder.newHandler(hi);
+		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hi.getRealName(), text), hi, topLevel);
 	}
 
 }

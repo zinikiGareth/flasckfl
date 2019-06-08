@@ -26,11 +26,12 @@ public class TDAObjectElementParsingTests {
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private ObjectElementsConsumer builder = context.mock(ObjectElementsConsumer.class);
 	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
+	final SolidName objName = new SolidName(null, "MyObject");
 	
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
-			allowing(builder).name(); will(returnValue(new SolidName(null, "MyObject")));
+			allowing(builder).name(); will(returnValue(objName));
 		}});
 	}
 	@Test
@@ -111,7 +112,7 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveUpdateMethods() {
 		context.checking(new Expectations() {{
 			allowing(errorsMock).hasErrors(); will(returnValue(false));
-			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(null, "myname")));
+			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update"));
@@ -122,7 +123,7 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveUpdateMethodsWithArguments() {
 		context.checking(new Expectations() {{
 			allowing(errorsMock).hasErrors(); will(returnValue(false));
-			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(null, "myname")));
+			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update (String s)"));

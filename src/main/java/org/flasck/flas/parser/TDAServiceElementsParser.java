@@ -47,18 +47,13 @@ public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvide
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();
 			}
-//			if (!toks.hasMore())
-//				return new ContractService(kw.location, tn.location, tn.text, null, null);
-//			ValidIdentifierToken var = VarNameToken.from(toks);
-//			if (var == null)
-//				return ErrorResult.oneMessage(toks, "invalid service var name");
 			if (toks.hasMore()) {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
-//			consumer.newProvidedService(new ContractService(kw.location, tn.location, tn.text, var.location, var.text));
-			consumer.addProvidedService(new ContractService(kw.location, tn.location, tn.text, null, null));
-			return new TDAImplementationMethodsParser();
+			final ContractService cs = new ContractService(kw.location, tn.location, tn.text, null, null);
+			consumer.addProvidedService(cs);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cs.getRealName(), text), cs, topLevel);
 		}
 		default:
 			return null;

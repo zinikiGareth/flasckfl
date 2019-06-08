@@ -63,7 +63,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
 			return new TDAMultiParser(errors, 
 				errors -> new TDACardElementsParser(errors, card, consumer),
-				errors -> new TDAHandlerParser(errors, consumer, handlerNamer),
+				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
 				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
 			);
 		}
@@ -80,7 +80,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
 			return new TDAMultiParser(errors, 
 				errors -> new TDAServiceElementsParser(errors, svc, consumer),
-				errors -> new TDAHandlerParser(errors, consumer, handlerNamer),
+				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
 				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
 			);
 		}
@@ -136,7 +136,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
 			return new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, od, consumer),
-				errors -> new TDAHandlerParser(errors, consumer, handlerNamer),
+				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
 				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
 			);
 		}
@@ -156,7 +156,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 		}
 		case "handler": {
 			HandlerNameProvider provider = text -> consumer.handlerName(text);
-			return new TDAHandlerParser(errors, consumer, provider).parseHandler(kw.location, false, toks);
+			return new TDAHandlerParser(errors, consumer, provider, consumer).parseHandler(kw.location, false, toks);
 		}
 		default:
 			return null;

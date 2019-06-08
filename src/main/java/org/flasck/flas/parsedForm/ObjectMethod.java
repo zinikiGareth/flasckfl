@@ -10,4 +10,9 @@ public class ObjectMethod extends ObjectActionHandler {
 	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args) {
 		super(location, name, args);
 	}
+	
+	@Override
+	public String toString() {
+		return name().uniqueName() + "/" + args().size();
+	}
 }

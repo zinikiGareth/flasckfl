@@ -7,7 +7,6 @@ import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 
@@ -22,7 +21,7 @@ public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer {
 	void newStruct(StructDefn sd);
 	void newContract(ContractDecl decl);
 	void newObject(ObjectDefn od);
-	void newStandaloneMethod(ObjectMethod meth);
 
+	@Deprecated
 	void scopeTo(ScopeReceiver sendTo);
 }
