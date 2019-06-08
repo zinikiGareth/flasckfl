@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.parser.TDATemplateBindingParser;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -99,8 +100,9 @@ public class TDATopLevelCardParsingTests {
 
 	@Test
 	public void theCardCanHaveASingleTemplateDeclaration() {
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
+		TDAParsing nested = cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 		assertEquals(1, card.templates.size());
+		assertTrue(nested instanceof TDATemplateBindingParser);
 	}
 
 	@Test

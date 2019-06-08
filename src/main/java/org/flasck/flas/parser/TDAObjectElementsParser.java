@@ -49,10 +49,9 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
-			builder.addTemplate(new Template(kw.location, tn.location, new TemplateName(builder.name(), tn.text), null, null));
-
-			// This is CLEARLY wrong, but we don't have tests for that yet
-			return new NoNestingParser(errors);
+			final Template template = new Template(kw.location, tn.location, new TemplateName(builder.name(), tn.text), null, null);
+			builder.addTemplate(template);
+			return new TDATemplateBindingParser(errors, template);
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(toks);

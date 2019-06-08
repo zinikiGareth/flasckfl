@@ -6,8 +6,9 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.TemplateName;
+import org.flasck.flas.parser.TemplateBindingConsumer;
 
-public class Template implements Locatable {
+public class Template implements Locatable, TemplateBindingConsumer {
 	public final InputPosition kw;
 	private final InputPosition loc;
 	public final TemplateName name;
@@ -27,6 +28,11 @@ public class Template implements Locatable {
 	@Override
 	public InputPosition location() {
 		return loc;
+	}
+
+	@Override
+	public void addBinding(TemplateBinding binding) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override

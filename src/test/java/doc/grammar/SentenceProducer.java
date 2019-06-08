@@ -183,6 +183,7 @@ public class SentenceProducer {
 			case "OBJECT":
 			case "OFFER":
 			case "OPTIONAL":
+			case "PROVIDES":
 			case "SERVICE":
 			case "STATE":
 			case "STRUCT":

@@ -44,9 +44,9 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
-			consumer.addTemplate(new Template(kw.location, tn.location, consumer.templateName(tn.text), null, null));
-			// TODO: this ISN'T right, but there isn't a test making me do anything else yet ...
-			return new NoNestingParser(errors);
+			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.text), null, null);
+			consumer.addTemplate(template);
+			return new TDATemplateBindingParser(errors, template);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
