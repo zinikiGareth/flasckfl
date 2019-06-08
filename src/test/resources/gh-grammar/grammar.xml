@@ -1129,6 +1129,7 @@
         <p>Styling and event handling may be added to all elements except <tt>punnet</tt>s, which hand off styling and event handling to their contained cards.  In general, this will also not be used with <tt>container</tt> slots.</p>
       </description>
     </section>
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <ref production='one-template-bind'/>
       <indent>
@@ -1138,6 +1139,7 @@
   </production>
   <production name='one-template-bind'>
     <section title='Template Bindings'/>
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <or>
       <seq>
 	    <token type='template-name'/>
@@ -1160,6 +1162,7 @@
   </production>
   <production name='option-template-binds'>
     <section title='Template Bindings'/>
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <many>
         <ref production='option-template-bind'/>
@@ -1171,6 +1174,7 @@
   </production>
   <production name='option-template-bind'>
     <section title='Template Bindings'/>
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <token type='OR'/>
 	  <ref production='expression'/>
@@ -1183,8 +1187,8 @@
   </production>
   <production name='default-option-template-bind'>
     <section title='Template Bindings'/>
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
-	  <token type='OR'/>
 	  <token type='SEND'/>
 	  <ref production='expression'/>
 	  <optional>
@@ -1194,19 +1198,13 @@
   </production>
   <production name='pass-to-template'>
     <section title='Template Bindings'/>
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <token type='SENDTO'/>
       <token type='template-name'/>
     </seq>
   </production>
   <production name='template-customization'>
-    <section title='Template Bindings'/>
-    <or>
-      <ref production="template-style"/>
-      <ref production="template-event"/>
-    </or>
-  </production>
-  <production name='template-style'>
     <section title='Template Customization'>
     		<description>
     			<p>For <tt>content</tt> and <tt>style</tt> elements, it is possible to <i>customize</i> the element by applying styling and adding event handlers.</p>
@@ -1214,6 +1212,13 @@
     			<p>Rule ${template-event} defines event handlers.  Each of the predefined events can be mapped exactly once per element.  The outcome will be the invocation of an event handler defined on the card as <tt>var-name</tt>.  It will receive a set of arguments along with an event object of a type appropriate for the named event.</p>
     		</description>
     </section>
+    <or>
+      <ref production="template-style"/>
+      <ref production="template-event"/>
+    </or>
+  </production>
+  <production name='template-style'>
+    <section title='Template Customization' />
     <seq>
       <token type='OR'/>
       <ref production='expression'/>

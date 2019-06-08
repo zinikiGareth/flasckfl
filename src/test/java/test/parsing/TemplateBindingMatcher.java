@@ -2,7 +2,6 @@ package test.parsing;
 
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 public class TemplateBindingMatcher extends TypeSafeMatcher<TemplateBinding> {
@@ -43,11 +42,13 @@ public class TemplateBindingMatcher extends TypeSafeMatcher<TemplateBinding> {
 	protected boolean matchesSafely(TemplateBinding bind) {
 		if (!name.equals(bind.slot))
 			return false;
-		if ((expr == null) != (bind.expr == null))
+		if ((expr == null) != (bind.defaultBinding == null || bind.defaultBinding.expr == null))
 			return false;
-		if (expr != null && !expr.equals(bind.expr.toString()))
+		if (expr != null && !expr.equals(bind.defaultBinding.expr.toString()))
 			return false;
-		if ((sendsTo == null) != (bind.sendsTo == null))
+		if ((sendsTo == null) != (bind.defaultBinding == null || bind.defaultBinding.sendsTo == null))
+			return false;
+		if (sendsTo != null && !sendsTo.equals(bind.defaultBinding.sendsTo))
 			return false;
 		return true;
 	}

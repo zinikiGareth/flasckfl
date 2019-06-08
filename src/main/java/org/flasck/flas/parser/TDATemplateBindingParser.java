@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -27,8 +28,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
-		Expr expr = null;
-		String sendsTo = null;
+		TemplateBindingOption simple = null;
 		if (toks.hasMore()) {
 			ExprToken send = ExprToken.from(toks);
 			if (send == null || !"<-".equals(send.text)) {
@@ -46,7 +46,8 @@ public class TDATemplateBindingParser implements TDAParsing {
 				errors.message(toks, "no expression to send");
 				return new IgnoreNestedParser();
 			}
-			expr = seen.get(0);
+			Expr expr = seen.get(0);
+			String sendsTo = null;
 			if (toks.hasMore()) {
 				ExprToken format = ExprToken.from(toks);
 				if (format == null || !"=>".equals(format.text)) {
@@ -60,10 +61,12 @@ public class TDATemplateBindingParser implements TDAParsing {
 				}
 				sendsTo = dest.text;
 			}
+			simple = new TemplateBindingOption(null, expr, sendsTo);
 		}
-		consumer.addBinding(new TemplateBinding(tok.text, expr, sendsTo));
+		final TemplateBinding binding = new TemplateBinding(tok.text, simple);
+		consumer.addBinding(binding);
 		// TODO: this actually needs to be something that might be this, but might be a customization one depending on what they do
-		return new TDATemplateOptionsParser(errors);
+		return new TDATemplateOptionsParser(errors, binding);
 	}
 
 	@Override

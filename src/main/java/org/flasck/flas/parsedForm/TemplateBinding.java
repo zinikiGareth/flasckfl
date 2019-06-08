@@ -1,20 +1,20 @@
 package org.flasck.flas.parsedForm;
 
-import org.flasck.flas.commonBase.Expr;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TemplateBinding {
 	public final String slot;
-	public final Expr expr;
-	public final String sendsTo;
+	public TemplateBindingOption defaultBinding;
+	public final List<TemplateBindingOption> conditionalBindings = new ArrayList<>();
 
-	public TemplateBinding(String slot, Expr expr, String sendsTo) {
+	public TemplateBinding(String slot, TemplateBindingOption simple) {
 		this.slot = slot;
-		this.expr = expr;
-		this.sendsTo = sendsTo;
+		this.defaultBinding = simple;
 	}
 	
 	@Override
 	public String toString() {
-		return "Binding[" + slot + "<-"+ expr + "=>" + sendsTo+"]";
+		return "Binding[" + slot + "<-"+ defaultBinding.expr + "=>" + defaultBinding.sendsTo+"]";
 	}
 }

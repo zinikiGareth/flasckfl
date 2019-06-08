@@ -2,7 +2,10 @@ package test.parsing;
 
 import static org.junit.Assert.*;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.TDAParsing;
@@ -15,6 +18,9 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.CaptureAction;
+
+import test.flas.testrunner.StringLiteralMatcher;
 
 public class TDATemplateParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -22,18 +28,11 @@ public class TDATemplateParsingTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TDATemplateBindingParser parser;
 	private TemplateBindingConsumer consumer = context.mock(TemplateBindingConsumer.class);
-//	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
-//	private IScope scope = context.mock(IScope.class);
-//	private TDAParsing cardParser;
-//	private CardDefinition card;
+	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
 
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
-//			allowing(builder).scopeTo(with(any(ScopeReceiver.class))); will(new ProvideScope(scope));
-//			allowing(builder).cardName("CardA"); will(returnValue(new CardName(new PackageName("A"), "CardA")));
-//			oneOf(builder).newCard(with(CardDefnMatcher.called("A.CardA"))); will(captureCard);
-//			oneOf(scope).define(with(errors), with("CardA"), with(any(CardDefinition.class)));
 		}});
 		parser = new TDATemplateBindingParser(tracker, consumer);
 	}
@@ -105,7 +104,193 @@ public class TDATemplateParsingTests {
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
-	// => template
+	@Test
+	public void aNameByItselfMayHaveADefaultSendOptionWithoutSendTo() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
+		nested.scopeComplete(pos);
+		final TemplateBindingOption db = ((TemplateBinding)captureIt.get(0)).defaultBinding;
+		assertNotNull(db);
+		assertNull(db.cond);
+		assertTrue(new StringLiteralMatcher("hello").matches(db.expr));
+	}
+
+	@Test
+	public void forTheObjectCaseADefaultExpressionMayHaveATemplate() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("<- obj => template-7"));
+		nested.scopeComplete(pos);
+		final TemplateBindingOption db = ((TemplateBinding)captureIt.get(0)).defaultBinding;
+		assertNotNull(db);
+		assertNull(db.cond);
+		assertTrue(ExprMatcher.unresolved("obj").matches(db.expr));
+	}
+
+	@Test
+	public void aNameByItselfMayHaveAConditionalSendOptionWithoutSendTo() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- 'hello'"));
+		nested.scopeComplete(pos);
+		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
+		assertEquals(1, binding.conditionalBindings.size());
+		assertNull(binding.defaultBinding);
+		TemplateBindingOption db = binding.conditionalBindings.get(0);
+		assertTrue(ExprMatcher.unresolved("true").matches(db.cond));
+		assertTrue(new StringLiteralMatcher("hello").matches(db.expr));
+		assertNull(db.sendsTo);
+	}
+
+	@Test
+	public void aNameByItselfMayHaveAConditionalSendOptionWithSendTo() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- obj => my-template"));
+		nested.scopeComplete(pos);
+		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
+		assertEquals(1, binding.conditionalBindings.size());
+		assertNull(binding.defaultBinding);
+		TemplateBindingOption db = binding.conditionalBindings.get(0);
+		assertTrue(ExprMatcher.unresolved("true").matches(db.cond));
+		assertTrue(ExprMatcher.unresolved("obj").matches(db.expr));
+		assertEquals("my-template", db.sendsTo);
+	}
+
+	@Test
+	public void aNameByItselfMayHaveMultipleConditionals() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- 'hello'"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("| false <- 42"));
+		nested.scopeComplete(pos);
+		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
+		assertEquals(2, binding.conditionalBindings.size());
+		assertNull(binding.defaultBinding);
+	}
+
+	@Test
+	public void aNameByItselfMayHaveMultipleConditionalsAndADefault() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- 'hello'"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("| false <- 42"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("<- 86"));
+		nested.scopeComplete(pos);
+		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
+		assertEquals(2, binding.conditionalBindings.size());
+		assertNotNull(binding.defaultBinding);
+	}
+
+	@Test
+	public void aNameByItselfMustHaveSomeNestedContent() {
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area")));
+			oneOf(errors).message(pos, "simple template name must have options or customization");
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.scopeComplete(pos);
+	}
+
+	@Test
+	public void multipleDefaultBindingsAreNotPermitted() {
+		CaptureAction captureIt = new CaptureAction(null);
+		final Tokenizable errline = TDABasicIntroParsingTests.line("<- 42");
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+			oneOf(errors).message(errline, "multiple default bindings are not permitted");
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
+		nested.tryParsing(errline);
+		nested.scopeComplete(pos);
+		assertNotNull(((TemplateBinding)captureIt.get(0)).defaultBinding);
+	}
+
+	@Test
+	public void defaultBindingsCannotHaveJunkAtTheEnd() {
+		CaptureAction captureIt = new CaptureAction(null);
+		final Tokenizable errline = TDABasicIntroParsingTests.line("<- 42 =");
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+			oneOf(errors).message(errline, "syntax error");
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(errline);
+		nested.scopeComplete(pos);
+	}
+
+	@Test
+	public void aTemplateBindingOnOneLineCannotHaveNestedOptions() {
+		CaptureAction captureIt = new CaptureAction(null);
+		final Tokenizable errline = TDABasicIntroParsingTests.line("<- 42");
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo("object-template"))); will(captureIt);
+			oneOf(errors).message(errline, "multiple default bindings are not permitted");
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
+		nested.tryParsing(errline);
+		nested.scopeComplete(pos);
+	}
+
+	@Test
+	public void aTemplateBindingOnOneLineCannotHaveNestedConditionals() {
+		CaptureAction captureIt = new CaptureAction(null);
+		final Tokenizable errline = TDABasicIntroParsingTests.line("| true <- 42");
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo("object-template"))); will(captureIt);
+			oneOf(errors).message(errline, "conditional bindings are not permitted after the default has been specified");
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
+		nested.tryParsing(errline);
+		nested.scopeComplete(pos);
+	}
+
+	@Test
+	public void aTemplateBindingCannotHaveNestedConditionalsAfterANestedDefault() {
+		CaptureAction captureIt = new CaptureAction(null);
+		final Tokenizable errline = TDABasicIntroParsingTests.line("| true <- 42");
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+			oneOf(errors).message(errline, "conditional bindings are not permitted after the default has been specified");
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("<- 86"));
+		nested.tryParsing(errline);
+		nested.scopeComplete(pos);
+	}
+
+	@Test
+	public void cannotHaveRandomNestedLines() {
+		CaptureAction captureIt = new CaptureAction(null);
+		final Tokenizable errline = TDABasicIntroParsingTests.line("= 91");
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+			oneOf(errors).message(errline, "syntax error");
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(errline);
+		nested.scopeComplete(pos);
+	}
+
 	// handle having or not having option binds but having customization 
-	// test that the degenerate case must have customization (on scopecomplete)
 }
