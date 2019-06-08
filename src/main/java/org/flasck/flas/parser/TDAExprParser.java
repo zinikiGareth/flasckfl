@@ -36,8 +36,8 @@ public class TDAExprParser implements TDAParsing {
 				builder.term(new UnresolvedVar(tok.location, tok.text));
 				break;
 			case ExprToken.SYMBOL:
-				// A "declaration" operator ends an expression without being consumed
-				if ("=".equals(tok.text)) {
+				// A "declaration" or "sendto" operator ends an expression without being consumed
+				if ("=".equals(tok.text) || "=>".equals(tok.text)) {
 					line.reset(mark);
 					builder.done();
 					return null;

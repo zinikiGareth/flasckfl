@@ -2,29 +2,19 @@ package test.parsing;
 
 import static org.junit.Assert.*;
 
-import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LocalErrorTracker;
-import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATemplateBindingParser;
 import org.flasck.flas.parser.TDATemplateOptionsParser;
 import org.flasck.flas.parser.TemplateBindingConsumer;
-import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.support.jmock.CaptureAction;
-
-import test.parsing.TDATopLevelCardParsingTests.ProvideScope;
 
 public class TDATemplateParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -60,10 +50,29 @@ public class TDATemplateParsingTests {
 	@Test
 	public void aTemplateNameCanTakeAnExpression() {
 		context.checking(new Expectations() {{
-			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area")));
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member")));
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member"));
 		assertTrue(nested instanceof TDATemplateOptionsParser);
+	}
+
+	@Test
+	public void forTheObjectCaseABindingMustSpecifyTheObjectTemplateToUseForRendering() {
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo("object-template")));
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
+		assertTrue(nested instanceof TDATemplateOptionsParser);
+	}
+
+	@Test
+	public void aTemplateNameWithSendMustHaveAnExpression() {
+		final Tokenizable line = TDABasicIntroParsingTests.line("styling-area <-");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "no expression to send");
+		}});
+		TDAParsing nested = parser.tryParsing(line);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -76,6 +85,27 @@ public class TDATemplateParsingTests {
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
-	
-	// test that the degenerate case must have a scope (on scopecomplete)
+	@Test
+	public void aTemplateNameWithSendToMustHaveDoneSendFirst() {
+		final Tokenizable line = TDABasicIntroParsingTests.line("styling-area => object-template");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "missing expression");
+		}});
+		TDAParsing nested = parser.tryParsing(line);
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void aTemplateNameWithSendToMustHaveATemplateNameToSendTo() {
+		final Tokenizable line = TDABasicIntroParsingTests.line("styling-area <- obj =>");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "missing template name");
+		}});
+		TDAParsing nested = parser.tryParsing(line);
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	// => template
+	// handle having or not having option binds but having customization 
+	// test that the degenerate case must have customization (on scopecomplete)
 }
