@@ -332,22 +332,13 @@
   </production>
   <production name='union-declaration'>
     <section title='Data Declarations'/>
+	<tested by='test.parsing.TDAUnionParsingTests' />
     <seq>
       <token type='UNION'/>
       <token type='type-name'/>
-      <token type='EQ'/>
-      <ref production='type-reference'/>
-      <many>
-        <ref production='or-type-reference'/>
-      </many>
-      <token type='EOL'/>
-    </seq>
-  </production>
-  <production name='or-type-reference'>
-    <section title='Data Declarations'/>
-    <seq>
-      <token type='OR'/>
-      <ref production='type-reference'/>
+      <indent>
+        <ref production='type-reference'/>
+      </indent>
     </seq>
   </production>
   <production name='envelope-declaration'>
@@ -1071,6 +1062,7 @@
   </production>
   <production name='implementation-method'>
     <section title='Implements Contract'/>
+    <tested by='test.parsing.ImplentationTestingParser' />
     <seq>
       <token type='var-name'/>
       <many>

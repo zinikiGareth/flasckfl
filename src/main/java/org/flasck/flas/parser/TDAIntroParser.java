@@ -126,9 +126,9 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}
-			final UnionTypeDefn sd = new UnionTypeDefn(tn.location, true, consumer.qualifyName(tn.text), polys);
-			consumer.newUnion(sd);
-			return new TDAUnionFieldParser();
+			final UnionTypeDefn ud = new UnionTypeDefn(tn.location, true, consumer.qualifyName(tn.text), polys);
+			consumer.newUnion(ud);
+			return new TDAUnionFieldParser(errors, ud);
 		}
 		case "object": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);

@@ -17,6 +17,10 @@ public class ReturnParser {
 		ret = new NoNestingParser(errors);
 	}
 
+	public void ignore() {
+		ret = new IgnoreNestedParser();
+	}
+
 	public TDAParsing get() {
 		return ret;
 	}

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.StructFieldConsumer;
 import org.flasck.flas.parser.TDAParsing;
@@ -20,6 +22,7 @@ import test.flas.testrunner.StringLiteralMatcher;
 public class TDAStructFieldParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private StructFieldConsumer builder = context.mock(StructFieldConsumer.class);
 
 	@Test
@@ -50,7 +53,7 @@ public class TDAStructFieldParsingTests {
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -61,7 +64,7 @@ public class TDAStructFieldParsingTests {
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -72,7 +75,7 @@ public class TDAStructFieldParsingTests {
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
@@ -83,14 +86,14 @@ public class TDAStructFieldParsingTests {
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test
 	public void aFieldMayHaveAnInitializer() {
 		context.checking(new Expectations() {{
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, new StringLiteralMatcher("foo"))));
-			oneOf(errors).hasErrors(); will(returnValue(false));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("String msg <- 'foo'"));
@@ -103,8 +106,8 @@ public class TDAStructFieldParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(any(InputPosition.class)), with("invalid tokens after expression"));
 		}});
-		TDAStructFieldParser parser = new TDAStructFieldParser(errors, builder);
+		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 }

@@ -7,8 +7,9 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.parser.UnionFieldConsumer;
 
-public class UnionTypeDefn implements Locatable {
+public class UnionTypeDefn implements Locatable, UnionFieldConsumer {
 	public final transient boolean generate;
 	private final InputPosition location;
 	private final SolidName name;
