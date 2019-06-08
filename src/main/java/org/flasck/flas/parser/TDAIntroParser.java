@@ -13,6 +13,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
@@ -21,6 +22,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -87,6 +89,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 		}
 		case "struct":
 		case "entity":
+		case "envelope":
 		case "deal":
 		case "offer": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
@@ -107,9 +110,35 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
-			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase()), consumer.qualifyName(tn.text), true, polys);
+			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
+			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, consumer.qualifyName(tn.text), true, polys);
 			consumer.newStruct(sd);
-			return new TDAStructFieldParser(errors, sd);
+			return new TDAStructFieldParser(errors, sd, ty);
+		}
+		case "wraps": {
+			TypeNameToken tn = TypeNameToken.qualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid or missing envelope name");
+				return new IgnoreNestedParser();
+			}
+			ExprToken send = ExprToken.from(toks);
+			if (toks == null || !"<-".equals(send.text)) {
+				errors.message(toks, "wraps must have <-");
+				return new IgnoreNestedParser();
+			}
+			TypeNameToken from = TypeNameToken.qualified(toks);
+			if (from == null) {
+				errors.message(toks, "invalid or missing wrapped type name");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "tokens after end of line");
+				return new IgnoreNestedParser();
+			}
+			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, consumer.qualifyName(tn.text), true, new ArrayList<>());
+			sd.wrapped(consumer.qualifyName(from.text));
+			consumer.newStruct(sd);
+			return new TDAStructFieldParser(errors, sd, FieldsType.WRAPS);
 		}
 		case "union": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);

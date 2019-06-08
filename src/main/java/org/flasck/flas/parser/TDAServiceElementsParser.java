@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -34,7 +35,7 @@ public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvide
 			consumer.defineState(state);
 			seenState = true;
 			
-			return new TDAStructFieldParser(errors, state);
+			return new TDAStructFieldParser(errors, state, FieldsType.STATE);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);

@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class ActualPhase2Processor implements Phase2Processor {
@@ -107,6 +108,11 @@ public class ActualPhase2Processor implements Phase2Processor {
 	@Override
 	public void newStruct(StructDefn sd) {
 		scope.define(errors, sd.name.baseName(), sd);
+	}
+
+	@Override
+	public void newUnion(UnionTypeDefn with) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override

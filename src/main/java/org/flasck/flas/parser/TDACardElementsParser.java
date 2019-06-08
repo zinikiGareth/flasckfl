@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -39,7 +40,7 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 			consumer.defineState(state);
 			seenState = true;
 			
-			return new TDAStructFieldParser(errors, state);
+			return new TDAStructFieldParser(errors, state, FieldsType.STATE);
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);

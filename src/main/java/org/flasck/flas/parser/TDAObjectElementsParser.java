@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -44,7 +45,7 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 			}
 			StateDefinition state = new StateDefinition(toks.realinfo());
 			builder.defineState(state);
-			return new TDAStructFieldParser(errors, state);
+			return new TDAStructFieldParser(errors, state, FieldsType.STATE);
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);

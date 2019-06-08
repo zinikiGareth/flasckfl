@@ -11,6 +11,8 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.StructFieldConsumer;
 
 public class StructDefn extends FieldsDefn implements AsString, Locatable, StructFieldConsumer {
+	private SolidName wrapped;
+
 	// for tests
 	public StructDefn(InputPosition location, FieldsDefn.FieldsType type, String pkg, String tn, boolean generate, PolyType... polys) {
 		this(null, location, type, new SolidName(new PackageName(pkg), tn), generate, Arrays.asList(polys));
@@ -25,6 +27,10 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Struc
 
 	public SolidName name() {
 		return name;
+	}
+
+	public void wrapped(SolidName wrapped) {
+		this.wrapped = wrapped;
 	}
 
 	public String toString() {

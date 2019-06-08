@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -11,10 +12,12 @@ import org.flasck.flas.tokenizers.VarNameToken;
 public class TDAStructFieldParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final StructFieldConsumer builder;
+	private final FieldsType fieldsType;
 
-	public TDAStructFieldParser(ErrorReporter errors, StructFieldConsumer builder) {
+	public TDAStructFieldParser(ErrorReporter errors, StructFieldConsumer builder, FieldsType fieldsType) {
 		this.errors = errors;
 		this.builder = builder;
+		this.fieldsType = fieldsType;
 	}
 
 	@Override
@@ -37,9 +40,17 @@ public class TDAStructFieldParser implements TDAParsing {
 		}
 		ReturnParser ret = new ReturnParser();
 		if (!toks.hasMore()) {
+			if (fieldsType == FieldsType.WRAPS) {
+				errors.message(toks, "wraps fields must have initializers");
+				return new IgnoreNestedParser();
+			}
 			builder.addField(new StructField(kw.location, accessor, type, kw.text));
 			ret.noNest(errors);
 		} else {
+			if (fieldsType == FieldsType.ENVELOPE) {
+				errors.message(toks, "envelope fields may not have initializers");
+				return new IgnoreNestedParser();
+			}
 			toks.skipWS();
 			InputPosition assOp = toks.realinfo();
 			String op = toks.getTo(2);

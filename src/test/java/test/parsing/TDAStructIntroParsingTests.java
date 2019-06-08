@@ -1,7 +1,6 @@
 package test.parsing;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.commonBase.names.PackageName;
@@ -109,6 +108,29 @@ public class TDAStructIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("entity Fred"));
+		assertTrue(nested instanceof TDAStructFieldParser);
+	}
+
+	@Test
+	public void envelopesCanBeDefinedInTheSameWay() {
+		context.checking(new Expectations() {{
+			allowing(builder).qualifyName("Fred"); will(returnValue(new SolidName(new PackageName("test.names"), "Fred")));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,9).as(FieldsDefn.FieldsType.ENVELOPE)));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("envelope Fred"));
+		assertTrue(nested instanceof TDAStructFieldParser);
+	}
+
+	@Test
+	public void wrapsAreVerySimilarToo() {
+		context.checking(new Expectations() {{
+			allowing(builder).qualifyName("Fred"); will(returnValue(new SolidName(new PackageName("test.names"), "Fred")));
+			allowing(builder).qualifyName("InstanceOfFred"); will(returnValue(new SolidName(new PackageName("test.names"), "InstanceOfFred")));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
 
