@@ -98,7 +98,7 @@ public class TDAStructIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(toks);
-		assertNull(nested);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test

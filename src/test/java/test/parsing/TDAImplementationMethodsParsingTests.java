@@ -24,25 +24,14 @@ public class TDAImplementationMethodsParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ImplementationMethodConsumer consumer = context.mock(ImplementationMethodConsumer.class);
 	private TopLevelDefnConsumer topLevel = context.mock(TopLevelDefnConsumer.class);
-//	private IScope scope = context.mock(IScope.class);
-//	private TDAParsing cardParser;
-//	private CardDefinition card;
 	private TDAImplementationMethodsParser parser;
 	private FunctionNameProvider namer = context.mock(FunctionNameProvider.class);
 
 	@Before
 	public void setup() {
-//		CaptureAction captureCard = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-//			allowing(builder).scopeTo(with(any(ScopeReceiver.class))); will(new ProvideScope(scope));
-//			allowing(builder).cardName("CardA"); will(returnValue(new CardName(new PackageName("A"), "CardA")));
-//			oneOf(builder).newCard(with(CardDefnMatcher.called("A.CardA"))); will(captureCard);
-//			oneOf(scope).define(with(errors), with("CardA"), with(any(CardDefinition.class)));
 		}});
-//		TDAIntroParser intro = new TDAIntroParser(errors, builder);
-//		cardParser = intro.tryParsing(TDABasicIntroParsingTests.line("card CardA"));
-//		card = (CardDefinition) captureCard.get(0);
 		parser = new TDAImplementationMethodsParser(errors, namer, consumer, topLevel);
 	}
 
@@ -81,6 +70,6 @@ public class TDAImplementationMethodsParsingTests {
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 	
-	// symbols are not valid
-	// complex types are not valid
+	// TODO: symbols are not valid
+	// TODO: complex types are not valid
 }

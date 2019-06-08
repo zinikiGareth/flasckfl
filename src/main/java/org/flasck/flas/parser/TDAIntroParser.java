@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -98,7 +99,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
 				if (ta == null) {
 					errors.message(toks, "invalid type argument");
-					return null;
+					return new IgnoreNestedParser();
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}
@@ -109,6 +110,25 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase()), consumer.qualifyName(tn.text), true, polys);
 			consumer.newStruct(sd);
 			return new TDAStructFieldParser(errors, sd);
+		}
+		case "union": {
+			TypeNameToken tn = TypeNameToken.unqualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid or missing type name");
+				return new IgnoreNestedParser();
+			}
+			List<PolyType> polys = new ArrayList<>();
+			while (toks.hasMore()) {
+				PolyTypeToken ta = PolyTypeToken.from(toks);
+				if (ta == null) {
+					errors.message(toks, "invalid type argument");
+					return new IgnoreNestedParser();
+				} else
+					polys.add(new PolyType(ta.location, ta.text));
+			}
+			final UnionTypeDefn sd = new UnionTypeDefn(tn.location, true, consumer.qualifyName(tn.text), polys);
+			consumer.newUnion(sd);
+			return new TDAUnionFieldParser();
 		}
 		case "object": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);

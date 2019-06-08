@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 
 public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer {
 
@@ -19,6 +20,7 @@ public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer {
 	void newCard(CardDefinition card);
 	void newService(ServiceDefinition card);
 	void newStruct(StructDefn sd);
+	void newUnion(UnionTypeDefn with);
 	void newContract(ContractDecl decl);
 	void newObject(ObjectDefn od);
 
