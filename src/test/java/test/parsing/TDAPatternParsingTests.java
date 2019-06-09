@@ -408,6 +408,19 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
+	public void aTypeCanHaveParametersWithParameters() {
+		final Tokenizable line = line("(Map[A,List[A]] map)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map").typevar("A").typevar("List")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+		assertFalse(line.hasMore());
+	}
+
+	@Test
 	public void aTypeWithParametersMustIntroduceAVar() {
 		final Tokenizable line = line("(Cons[Number])");
 		context.checking(new Expectations() {{
@@ -419,11 +432,23 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
-	public void aTypeWithParametersMustBeInParens() {
-		final Tokenizable line = line("Cons[Number]");
+	public void aTypeWithParametersMustBeInParensOtherwiseYouGetTwoArgumentsTheFirstBeingATypeConstantAndTheSecondOfWhichIsAList() {
+		final Tokenizable line = line("Type[A]");
 		context.checking(new Expectations() {{
-			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons")));
-			oneOf(errorsMock).message(line, "invalid pattern");
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Type")));
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", TypedPatternMatcher.ctor("A")).field("tail", TypedPatternMatcher.ctor("Nil"))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNotNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void aTypeWithParametersMustBeInParensAndHaveAVarToGetTheRightResult() {
+		final Tokenizable line = line("(Type[A] var)");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(TypedPatternMatcher.typed("Type", "var").typevar("A")));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -515,6 +540,18 @@ public class TDAPatternParsingTests {
 		final Tokenizable line = line("[42]");
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(42)).field("tail", CtorPatternMatcher.ctor("Nil"))));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
+	public void aListCanNestAVarPatternForTheHead() {
+		final Tokenizable line = line("[a]");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", PatternMatcher.var("a")).field("tail", CtorPatternMatcher.ctor("Nil"))));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, builder);
 		TDAParsing canContinue = parser.tryParsing(line);

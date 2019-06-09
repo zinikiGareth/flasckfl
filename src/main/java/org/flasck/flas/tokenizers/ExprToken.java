@@ -48,7 +48,7 @@ public class ExprToken {
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))
 			return new ExprToken(NUMBER, NumberToken.from(line));
-		else if ("()[]{}.,".indexOf(c) != -1) {
+		else if ("()[]{}.,:".indexOf(c) != -1) {
 			line.advance();
 			return new ExprToken(loc.copySetEnd(line.at()), PUNC, line.fromMark(mark));
 		} else {

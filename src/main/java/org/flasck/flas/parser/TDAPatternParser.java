@@ -31,6 +31,7 @@ public class TDAPatternParser implements TDAParsing {
 		if (errors.hasErrors())
 			return null;
 		
+		// This case is for the simple case such as "Nil" where a no-arg constructor can match by itself
 		TypeNameToken qn = TypeNameToken.qualified(toks);
 		if (qn != null)
 			return handleASimpleConstructor(qn);
@@ -91,9 +92,12 @@ public class TDAPatternParser implements TDAParsing {
 	}
 
 	public TDAParsing handleOneORBMemberCase(Tokenizable toks) {
+		int mark = toks.at();
 		TypeNameToken qn = TypeNameToken.qualified(toks);
-		if (qn != null)
+		if (qn != null) {
+			toks.reset(mark); // let it read it again
 			return handleCasesStartingWithAType(toks, qn);
+		}
 		else {
 			PattToken inside = PattToken.from(toks);
 			if (inside == null)
@@ -144,30 +148,56 @@ public class TDAPatternParser implements TDAParsing {
 		return this;
 	}
 
-	public TDAParsing handleCasesStartingWithAType(Tokenizable toks, TypeNameToken type) {
-		int beforeChecking = toks.at();
+	public TypeReference readTypeReference(Tokenizable toks) {
+		TypeNameToken qn = TypeNameToken.qualified(toks);
+		if (qn == null) {
+			throw new RuntimeException("I think we should know what we're getting at this point, but if not turn this into an error");
+		}
+		int mark = toks.at();
 		PattToken tok = PattToken.from(toks);
 		List<TypeReference> andTypeParameters = new ArrayList<>();
 		if (tok.type == PattToken.OSB) {
 			while (true) {
-				TypeNameToken p1 = TypeNameToken.qualified(toks);
-				andTypeParameters.add(new TypeReference(p1.location, p1.text));
+				TypeReference typeArg = readTypeReference(toks);
+				if (typeArg == null) {
+					// it failed, we fail ...
+					return null;
+				}
+				andTypeParameters.add(typeArg);
 				tok = PattToken.from(toks);
 				if (tok.type == PattToken.COMMA)
 					continue;
 				else if (tok.type == PattToken.CSB)
 					break;
-				else
-					return invalidPattern(toks);
+				else {
+					errors.message(toks, "invalid pattern");
+					return null;
+				}
 			}
-			tok = PattToken.from(toks);
-			if (tok.type != PattToken.VAR) {
-				errors.message(toks, "type parameters can only be used with type patterns");
-				return null;
-			}
+		} else {
+			// whatever it was, we didn't want it, so put it back in the pool for somebody else
+			toks.reset(mark);
 		}
+		return new TypeReference(qn.location, qn.text, andTypeParameters);
+	}
+	
+	public TDAParsing handleCasesStartingWithAType(Tokenizable toks, TypeNameToken type) {
+		TypeReference tr = readTypeReference(toks);
+		if (tr == null) {
+			// it didn't parse, so give up hope
+			return null;
+		}
+		int beforeChecking = toks.at();
+		
+		// Now, see aht else we've got ...
+		PattToken tok = PattToken.from(toks);
 		if (tok.type == PattToken.VAR) {
-			return handleATypedReference(type, andTypeParameters, tok);
+			TypedPattern m = new TypedPattern(type.location, tr, tok.location, tok.text);
+			consumer.accept(m);
+			return this;
+		} else if (tr.hasPolys()) {
+			errors.message(toks, "type parameters can only be used with type patterns");
+			return null;
 		} else if (tok.type == PattToken.OCB) {
 			return handleAConstructorMatch(type, toks);
 		} else if (tok.type == PattToken.CRB) {
@@ -231,10 +261,10 @@ public class TDAPatternParser implements TDAParsing {
 		
 		while (!members.isEmpty()) {
 			Pattern m = members.remove(0);
-			if (!(m instanceof ConstPattern)) {
-				toks.reset(m.location().off);
-				return invalidPattern(toks);
-			}
+//			if (!(m instanceof ConstPattern)) {
+//				toks.reset(m.location().off);
+//				return invalidPattern(toks);
+//			}
 			ConstructorMatch prev = ret;
 			ret = new ConstructorMatch(osb.location, "Cons");
 			ret.args.add(ret.new Field(m.location(), "head", m));
@@ -242,14 +272,6 @@ public class TDAPatternParser implements TDAParsing {
 		}
 
 		consumer.accept(ret);
-		return this;
-	}
-
-	private TDAParsing handleATypedReference(TypeNameToken type, List<TypeReference> andTypeParameters, PattToken var) {
-		TypeReference tr = new TypeReference(type.location, type.text, andTypeParameters);
-		
-		TypedPattern m = new TypedPattern(type.location, tr, var.location, var.text);
-		consumer.accept(m);
 		return this;
 	}
 

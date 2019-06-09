@@ -32,7 +32,6 @@ public class Template implements Locatable, TemplateBindingConsumer {
 
 	@Override
 	public void addBinding(TemplateBinding binding) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override

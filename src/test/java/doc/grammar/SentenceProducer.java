@@ -53,7 +53,7 @@ public class SentenceProducer {
 		@Override
 		public void zeroOrOne(Definition child) {
 			boolean wanted = r.nextBoolean();
-//			System.out.println("Choosing " + wanted + " for optional " + child);
+			System.out.println("Choosing " + wanted + " for optional " + child);
 			if (wanted) {
 				child.visit(this);
 			}
@@ -62,7 +62,7 @@ public class SentenceProducer {
 		@Override
 		public void zeroOrMore(Definition child) {
 			int cnt = r.nextInt(3);
-			// System.out.println("Choosing " + cnt + " iterations of " + child);
+			System.out.println("Choosing " + cnt + " iterations of " + child);
 			for (int i=0;i<cnt;i++) {
 				child.visit(this);
 			}
@@ -76,7 +76,7 @@ public class SentenceProducer {
 				if (!(p instanceof OrProduction)) {
 					final String rn = p.ruleNumber() + " " + p.ruleName();
 					used.add(rn);
-//					System.out.println("Rule " + rn);
+					System.out.println("Rule " + rn);
 				}
 			} catch (RuntimeException ex) {
 				System.out.println(ex);
@@ -92,7 +92,7 @@ public class SentenceProducer {
 				if (probs.get(i) > ni) {
 					final String rn = prod.ruleNumber() + "." + (i+1) + " " + prod.ruleName();
 					used.add(rn);
-//					System.out.println("Rule " + rn);
+					System.out.println("Rule " + rn);
 					asList.get(i).visit(this);
 					return;
 				}
@@ -103,6 +103,7 @@ public class SentenceProducer {
 		public void token(String token) {
 			final Lexer lexer = grammar.findToken(token);
 			String t = genToken(token, lexer.pattern);
+			System.out.println("    " + t);
 			Pattern p = Pattern.compile(lexer.pattern);
 			assertTrue("generated token for " + token + "(" + t + ") did not match pattern definition (" + lexer.pattern + ")", p.matcher(t).matches());
 			if (token.equals("EOL"))

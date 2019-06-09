@@ -473,6 +473,19 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // ([])
+	public void anEmptyListMayBeWrappedInParens() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("[]")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "("));
+		reducer.term(new Punctuator(pos, "["));
+		reducer.term(new Punctuator(pos.copySetEnd(8), "]"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
+		reducer.done();
+	}
+
 	@Test // [a,b]
 	public void squaresCanBeUsedToCreateLists() {
 		context.checking(new Expectations() {{
@@ -587,6 +600,41 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	// Some complex cases that came up in regression testing
+	
+	@Test // { tgh : { } , tduhnh : - - vwsoskr 816 }
+	public void aComplexHash() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("{}"),
+										ExprMatcher.apply(ExprMatcher.operator(":"),
+											ExprMatcher.string("tgh"),
+											ExprMatcher.apply(ExprMatcher.operator("{}"))),
+										ExprMatcher.apply(ExprMatcher.operator(":"),
+											ExprMatcher.string("tduhnh"),
+											ExprMatcher.apply(ExprMatcher.operator("-"),
+												ExprMatcher.apply(ExprMatcher.operator("-"),
+													ExprMatcher.apply(ExprMatcher.unresolved("vwsoskr"), ExprMatcher.number(816))
+											
+											))))));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "{"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "tgh"));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new Punctuator(pos, "{"));
+		reducer.term(new Punctuator(pos.copySetEnd(4), "}"));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(6), "tduhnh"));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new UnresolvedOperator(pos, "-"));
+		reducer.term(new UnresolvedOperator(pos, "-"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(8), "vwsoskr"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(10), "816", 12));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "}"));
+		reducer.done();
+	}
+	
+	
 	// do we have anything that associates right?
 
 	// some error cases

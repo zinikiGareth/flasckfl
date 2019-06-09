@@ -65,13 +65,11 @@ public class TDATemplateBindingParser implements TDAParsing {
 		}
 		final TemplateBinding binding = new TemplateBinding(tok.text, simple);
 		consumer.addBinding(binding);
-		// TODO: this actually needs to be something that might be this, but might be a customization one depending on what they do
 		return new TDATemplateOptionsParser(errors, binding);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 }

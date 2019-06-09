@@ -89,11 +89,11 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 	}
 	
 	public void showTo(Writer pw, int ind) throws IOException {
-		showFromMark(new ErrorMark(null), pw, ind);
+		showFromMark(new Marker(), pw, ind);
 	}
 	
 	public ErrorMark mark() {
-		return new ErrorMark(this);
+		return new Marker();
 	}
 
 	public String singleString() throws IOException {
@@ -101,6 +101,7 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 		showTo(w, 0);
 		return w.toString();
 	}
+	
 	public static ErrorResult oneMessage(Tokenizable line, String msg) {
 		return new ErrorResult().message(line, msg);
 	}
@@ -122,4 +123,24 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 	public Iterator<FLASError> iterator() {
 		return errors.iterator();
 	}
+	
+	private class Marker implements ErrorMark {
+		private Set<FLASError> have = new TreeSet<>();
+
+		public Marker() {
+			for (FLASError e : errors)
+				have.add(e);
+		}
+
+		@Override
+		public boolean hasMore() {
+			return count() > have.size();
+		}
+		
+		@Override
+		public boolean contains(FLASError e) {
+			return have.contains(e);
+		}
+	}
+
 }

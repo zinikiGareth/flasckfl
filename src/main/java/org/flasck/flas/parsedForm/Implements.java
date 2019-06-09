@@ -37,7 +37,6 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 
 	@Override
 	public void addImplementationMethod(ObjectMethod method) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Deprecated

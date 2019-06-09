@@ -2,6 +2,7 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
@@ -20,7 +21,8 @@ public class TDAMethodMessageParsingTests {
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private MethodMessagesConsumer builder = context.mock(MethodMessagesConsumer.class);
 	private LastOneOnlyNestedParser nestedFunctionScope = context.mock(LastOneOnlyNestedParser.class);
-	
+	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
@@ -39,6 +41,7 @@ public class TDAMethodMessageParsingTests {
 		// I'm not sure if this is quite right, because of the weird thing about the final method being able to have an indented block for everybody
 		// That needs separate testing elsewhere
 		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		parser.scopeComplete(pos);
 	}
 
 	@Test

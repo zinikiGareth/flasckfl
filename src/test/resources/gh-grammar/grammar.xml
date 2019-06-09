@@ -463,6 +463,7 @@
     <tested by='test.parsing.TDAFunctionParsingTests' />
     <or>
       <ref production='simple-function-case-definition'/>
+      <ref production='degenerate-guarded-function-case-definition'/>
       <ref production='guarded-function-case-definition'/>
     </or>
   </production>
@@ -478,6 +479,19 @@
       <ref production='expression'/>
       <indent>
       	<ref production='function-scope'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='degenerate-guarded-function-case-definition'>
+    <section title='Functions'/>
+    <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
+    <seq>
+      <token type='var-name'/>
+      <many>
+      	<ref production='argument-pattern'/>
+      </many>
+      <indent>
+      	<ref production='guarded-default-expression'/>
       </indent>
     </seq>
   </production>
@@ -517,6 +531,7 @@
 	    <ref production='expression'/>
 	    <token type='EQ'/>
 	    <ref production='expression'/>
+	    <token type='EOL'/>
     </seq>
   </production>
   <production name='guarded-default-expression'>
@@ -525,6 +540,7 @@
     <seq>
 	    <token type='EQ'/>
 	    <ref production='expression'/>
+	    <token type='EOL'/>
     </seq>
   </production>
   <production name='tuple-definition'>
@@ -617,13 +633,42 @@
   <production name='argument-pattern-ctor'>
     <section title='Patterns'/>
     <tested by='test.parsing.TDAPatternParsingTests' />
+    <or>
+      <seq>
+        <token type='ORB'/>
+        <token type='type-name'/>
+        <token type='OCB'/>
+        <token type='CCB'/>
+        <token type='CRB'/>
+      </seq>
+      <seq>
+        <token type='ORB'/>
+        <token type='type-name'/>
+        <token type='OCB'/>
+        <ref production='field-argument-pattern'/>
+        <many>
+      	  <ref production='comma-field-argument-pattern'/>
+        </many>
+        <token type='CCB'/>
+        <token type='CRB'/>
+      </seq>
+    </or>
+  </production>
+  <production name='field-argument-pattern'>
+    <section title='Patterns'/>
+    <tested by='test.parsing.TDAPatternParsingTests' />
     <seq>
-      <token type='OCB'/>
-      <token type='type-name'/>
-      <many>
-      	<ref production='argument-pattern'/>
-      </many>
-      <token type='CCB'/>
+      <token type='var-name'/>
+      <token type='COLON'/>
+      <ref production='argument-pattern'/>
+    </seq>
+  </production>
+  <production name='comma-field-argument-pattern'>
+    <section title='Patterns'/>
+    <tested by='test.parsing.TDAPatternParsingTests' />
+    <seq>
+      <token type='COMMA'/>
+      <ref production='field-argument-pattern'/>
     </seq>
   </production>
   <production name='type-reference'>

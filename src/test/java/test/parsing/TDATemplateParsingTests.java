@@ -53,6 +53,7 @@ public class TDATemplateParsingTests {
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
 		assertTrue(nested instanceof TDATemplateOptionsParser);
+		parser.scopeComplete(pos);
 	}
 
 	@Test

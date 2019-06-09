@@ -15,4 +15,5 @@ public interface ErrorReporter {
 	void merge(ErrorReporter o);
 
 	boolean hasErrors();
+	ErrorMark mark();
 }

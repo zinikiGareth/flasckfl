@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
@@ -53,6 +54,7 @@ public class TDAServiceParsingTests {
 
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
 	private IScope scope = context.mock(IScope.class);
 	private TDAParsing serviceParser;
@@ -66,9 +68,9 @@ public class TDAServiceParsingTests {
 			allowing(builder).scopeTo(with(any(ScopeReceiver.class))); will(new ProvideScope(scope));
 			allowing(builder).cardName("ServiceA"); will(returnValue(new CardName(new PackageName("A"), "ServiceA")));
 			oneOf(builder).newService(with(ServiceDefnMatcher.called("A.ServiceA"))); will(captureCard);
-			oneOf(scope).define(with(errors), with("ServiceA"), with(any(ServiceDefinition.class)));
+			oneOf(scope).define(with(tracker), with("ServiceA"), with(any(ServiceDefinition.class)));
 		}});
-		TDAIntroParser intro = new TDAIntroParser(errors, builder);
+		TDAIntroParser intro = new TDAIntroParser(tracker, builder);
 		serviceParser = intro.tryParsing(TDABasicIntroParsingTests.line("service ServiceA"));
 		svc = (ServiceDefinition) captureCard.get(0);
 	}

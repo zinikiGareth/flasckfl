@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -33,12 +34,15 @@ public class TDAFunctionParser implements TDAParsing {
 			return null;
 		final FunctionName fname = functionNamer.functionName(t.location, t.text);
 		
+		ErrorMark currErr = errors.mark();
 		List<Object> args = new ArrayList<>();
 		TDAPatternParser pp = new TDAPatternParser(errors, p -> {
 			args.add(p);
 		});
 		while (pp.tryParsing(line) != null)
 			;
+		if (currErr.hasMore())
+			return new IgnoreNestedParser();
 		
 		// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...
 		if (!line.hasMore()) {

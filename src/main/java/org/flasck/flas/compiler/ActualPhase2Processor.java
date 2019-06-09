@@ -87,7 +87,6 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void newHandler(HandlerImplements hi) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
@@ -97,12 +96,10 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void newService(ServiceDefinition card) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
 	public void newStandaloneMethod(ObjectMethod meth) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
@@ -112,7 +109,6 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void newUnion(UnionTypeDefn with) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override

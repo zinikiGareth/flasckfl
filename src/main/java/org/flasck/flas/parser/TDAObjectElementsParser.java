@@ -74,7 +74,7 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {
 				@Override
 				public void functionIntro(FunctionIntro o) {
-					throw new org.zinutils.exceptions.NotImplementedException();
+					builder.addAccessor(new ObjectAccessor());
 				}
 				
 				@Override

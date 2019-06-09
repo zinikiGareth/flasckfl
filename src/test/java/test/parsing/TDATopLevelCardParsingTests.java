@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATemplateBindingParser;
@@ -54,6 +55,7 @@ public class TDATopLevelCardParsingTests {
 
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
 	private IScope scope = context.mock(IScope.class);
 	private TDAParsing cardParser;
@@ -67,9 +69,9 @@ public class TDATopLevelCardParsingTests {
 			allowing(builder).scopeTo(with(any(ScopeReceiver.class))); will(new ProvideScope(scope));
 			allowing(builder).cardName("CardA"); will(returnValue(new CardName(new PackageName("A"), "CardA")));
 			oneOf(builder).newCard(with(CardDefnMatcher.called("A.CardA"))); will(captureCard);
-			oneOf(scope).define(with(errors), with("CardA"), with(any(CardDefinition.class)));
+			oneOf(scope).define(with(tracker), with("CardA"), with(any(CardDefinition.class)));
 		}});
-		TDAIntroParser intro = new TDAIntroParser(errors, builder);
+		TDAIntroParser intro = new TDAIntroParser(tracker, builder);
 		cardParser = intro.tryParsing(TDABasicIntroParsingTests.line("card CardA"));
 		card = (CardDefinition) captureCard.get(0);
 	}

@@ -28,8 +28,8 @@ import test.flas.stories.TDAStoryTests;
 
 public class TDAFunctionParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
-	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
+	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private FunctionNameProvider functionNamer = context.mock(FunctionNameProvider.class);
 	private FunctionIntroConsumer intro = context.mock(FunctionIntroConsumer.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
@@ -46,7 +46,7 @@ public class TDAFunctionParsingTests {
 	public void aBlankLineReturnsNothingAndDoesNothing() {
 		context.checking(new Expectations() {{
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(errors, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line(""));
 		assertNull(nested);
 	}
@@ -58,7 +58,7 @@ public class TDAFunctionParsingTests {
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(errors, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAFunctionCaseParser);
@@ -70,10 +70,9 @@ public class TDAFunctionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
-			oneOf(errorsMock).hasErrors(); will(returnValue(false));
-			oneOf(errorsMock).message(with(any(InputPosition.class)), with("no function cases specified")	);
+			oneOf(errors).message(with(any(InputPosition.class)), with("no function cases specified")	);
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(errorsMock, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line);
 		nested.scopeComplete(line.realinfo());
 	}
@@ -83,9 +82,9 @@ public class TDAFunctionParsingTests {
 		final Tokenizable line = line("f = ");
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
-			oneOf(errorsMock).message(line, "function definition requires expression");
+			oneOf(errors).message(line, "function definition requires expression");
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(errors, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -96,7 +95,7 @@ public class TDAFunctionParsingTests {
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
 			oneOf(intro).functionCase(with(FunctionCaseMatcher.called(null, "f")));
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(errors, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f = 3"));
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAMultiParser);
@@ -108,7 +107,7 @@ public class TDAFunctionParsingTests {
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
 			oneOf(intro).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern(PatternMatcher.var("x"))));
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(errors, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f x = 3"));
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAMultiParser);
@@ -120,7 +119,7 @@ public class TDAFunctionParsingTests {
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
 			oneOf(intro).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern(PatternMatcher.typed("Number", "n"))));
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(errors, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f (Number n) = n"));
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAMultiParser);

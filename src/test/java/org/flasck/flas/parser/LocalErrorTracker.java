@@ -1,7 +1,12 @@
 package org.flasck.flas.parser;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -13,47 +18,71 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class LocalErrorTracker implements ErrorReporter {
 	private final ErrorReporter other;
 	boolean seenLocalErrors = false;
+	private Set<AtomicBoolean> marks = new HashSet<>();
 	
 	public LocalErrorTracker(ErrorReporter other) {
 		this.other = other;
 	}
 
 	public ErrorReporter message(InputPosition pos, String msg) {
-		seenLocalErrors = true;
+		seenErrors();
 		return other.message(pos, msg);
 	}
 
 	public ErrorReporter message(Block b, String msg) {
-		seenLocalErrors = true;
+		seenErrors();
 		return other.message(b, msg);
 	}
 
 	public ErrorReporter message(Tokenizable line, String msg) {
-		seenLocalErrors = true;
+		seenErrors();
 		return other.message(line, msg);
 	}
 
 	public ErrorReporter message(FLASError e) {
-		seenLocalErrors = true;
+		seenErrors();
 		return other.message(e);
+	}
+
+	public void seenErrors() {
+		seenLocalErrors = true;
+		for (AtomicBoolean b : marks)
+			b.set(true);
 	}
 
 	@Override
 	public ErrorReporter reportException(Throwable ex) {
-		seenLocalErrors = true;
+		seenErrors();
 		return other.reportException(ex);
 	}
 
 	public void merge(ErrorReporter o) {
-		seenLocalErrors = true;
+		seenErrors();
 		other.merge(o);
 	}
 
 	public void fakeErrorWithoutNeedingAssertion() {
-		seenLocalErrors = true;
+		seenErrors();
 	}
 	
 	public boolean hasErrors() {
 		return seenLocalErrors;
+	}
+
+	@Override
+	public ErrorMark mark() {
+		AtomicBoolean ab = new AtomicBoolean(false);
+		marks.add(ab);
+		return new ErrorMark() {
+			@Override
+			public boolean hasMore() {
+				return ab.get();
+			}
+
+			@Override
+			public boolean contains(FLASError e) {
+				throw new org.zinutils.exceptions.NotImplementedException();
+			}
+		};
 	}
 }

@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAObjectElementsParser;
@@ -23,7 +24,8 @@ import org.junit.Test;
 
 public class TDAObjectElementParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
-	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
+	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private ObjectElementsConsumer builder = context.mock(ObjectElementsConsumer.class);
 	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
 	final SolidName objName = new SolidName(null, "MyObject");
@@ -37,9 +39,9 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void junkIsNotAKeyword() {
 		context.checking(new Expectations() {{
-			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("'junk' is not a valid object keyword"));
+			oneOf(errors).message(with(any(Tokenizable.class)), with("'junk' is not a valid object keyword"));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("junk"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -49,7 +51,7 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).defineState(with(any(StateDefinition.class)));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("state"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
@@ -57,9 +59,9 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectStateCannotHaveANameOrAnything() {
 		context.checking(new Expectations() {{
-			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("extra characters at end of line"));
+			oneOf(errors).message(with(any(Tokenizable.class)), with("extra characters at end of line"));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("state Fred"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -67,10 +69,10 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveAConstructor() {
 		context.checking(new Expectations() {{
-			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("simple")));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor simple"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -78,10 +80,10 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveAConstructorWithAnArgument() {
 		context.checking(new Expectations() {{
-			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor args x"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -89,10 +91,10 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveAccessorMethods() { // Correct me if I'm wrong, but these are really functions, because they don't do state updates
 		context.checking(new Expectations() {{
-			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(null, "myname"))));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
@@ -100,10 +102,10 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveAccessorMethodsWithFunctionArguments() {
 		context.checking(new Expectations() {{
-			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(null, "myname"))));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname x (Number y) = x + y"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
@@ -111,10 +113,10 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveUpdateMethods() {
 		context.checking(new Expectations() {{
-			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -122,10 +124,10 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveUpdateMethodsWithArguments() {
 		context.checking(new Expectations() {{
-			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update (String s)"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -133,10 +135,10 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveASingleTemplateDeclaration() {
 		context.checking(new Expectations() {{
-			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		/*TDAParsing nested = */ parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 //		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -144,11 +146,11 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveMultipleTemplateDeclarations() {
 		context.checking(new Expectations() {{
-			allowing(errorsMock).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errorsMock, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 		parser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
 //		assertTrue(nested instanceof TDAMethodMessageParser);
