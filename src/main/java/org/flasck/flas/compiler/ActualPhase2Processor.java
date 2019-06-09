@@ -91,7 +91,7 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void newCard(CardDefinition decl) {
-		scope.define(errors, decl.simpleName, decl);
+//		scope.define(errors, decl.simpleName, decl);
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class ActualPhase2Processor implements Phase2Processor {
 
 	@Override
 	public void newStruct(StructDefn sd) {
-		scope.define(errors, sd.name.baseName(), sd);
+//		scope.define(errors, sd.name.baseName(), sd);
 	}
 
 	@Override

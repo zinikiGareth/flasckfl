@@ -1228,6 +1228,7 @@
 	  <optional>
 	  	  <ref production='pass-to-template' />
 	  </optional>
+	  <token type='EOL' />
 	</seq>
   </production>
   <production name='default-option-template-bind'>
@@ -1239,6 +1240,7 @@
 	  <optional>
 	    <ref production='pass-to-template' />
 	  </optional>
+	  <token type='EOL' />
 	</seq>
   </production>
   <production name='pass-to-template'>
