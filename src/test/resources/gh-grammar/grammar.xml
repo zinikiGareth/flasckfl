@@ -1212,6 +1212,7 @@
     			<p>Rule ${template-event} defines event handlers.  Each of the predefined events can be mapped exactly once per element.  The outcome will be the invocation of an event handler defined on the card as <tt>var-name</tt>.  It will receive a set of arguments along with an event object of a type appropriate for the named event.</p>
     		</description>
     </section>
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <or>
       <ref production="template-style"/>
       <ref production="template-event"/>
@@ -1219,6 +1220,7 @@
   </production>
   <production name='template-style'>
     <section title='Template Customization' />
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <token type='OR'/>
       <ref production='expression'/>
@@ -1230,6 +1232,7 @@
   </production>
   <production name='template-event'>
     <section title='Template Customization' />
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <token type='event-name' />
       <token type='SENDTO'/>

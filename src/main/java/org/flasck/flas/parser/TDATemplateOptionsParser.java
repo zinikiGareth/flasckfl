@@ -5,13 +5,16 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateEvent;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TDATemplateOptionsParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -30,8 +33,8 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		seenContent = true;
 		ExprToken tok = ExprToken.from(toks);
 		if (tok == null) {
-			// TODO: the event case comes down here, I think, because it can be an event name
-			throw new NotImplementedException();
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
 		}
 		if ("|".equals(tok.text)) {
 			if (binding.defaultBinding != null) {
@@ -47,14 +50,24 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			tok = ExprToken.from(toks);
-			if (tok == null || !"<-".equals(tok.text)) {
+			if (tok == null) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
-			TemplateBindingOption tbo = readTemplateBinding(toks);
-			if (tbo == null)
+			if ("<-".equals(tok.text)) {
+				TemplateBindingOption tbo = readTemplateBinding(toks);
+				if (tbo == null)
+					return new IgnoreNestedParser();
+				binding.conditionalBindings.add(tbo.conditionalOn(seen.get(0)));
+			} else if ("=>".equals(tok.text)) {
+				TemplateStylingOption tso = readTemplateStyles(seen.get(0), toks);
+				if (tso == null)
+					return new IgnoreNestedParser();
+				binding.conditionalStylings.add(tso);
+			} else {
+				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
-			binding.conditionalBindings.add(tbo.conditionalOn(seen.get(0)));
+			}
 		} else if ("<-".equals(tok.text)) {
 			// It's a default send binding
 			if (binding.defaultBinding != null) {
@@ -65,6 +78,13 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			if (tbo == null)
 				return new IgnoreNestedParser();
 			binding.defaultBinding = tbo;
+		} else if (tok.type == ExprToken.IDENTIFIER) {
+			// it's an event handler
+			TemplateEvent ev = readEvent(tok, toks);
+			if (ev == null)
+				return new IgnoreNestedParser();
+			binding.events.add(ev);
+			return new IgnoreNestedParser();
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
@@ -99,6 +119,37 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			return null;
 		}
 		return new TemplateBindingOption(null, seen.get(0), sendTo);
+	}
+
+	private TemplateStylingOption readTemplateStyles(Expr expr, Tokenizable toks) {
+		List<StringLiteral> styles = new ArrayList<>();
+		while (toks.hasMore()) {
+			InputPosition pos = toks.realinfo();
+			String s = StringToken.from(toks);
+			if (s == null) {
+				errors.message(toks, "invalid style");
+				return null;
+			}
+			styles.add(new StringLiteral(pos, s));
+		}
+		return new TemplateStylingOption(expr, styles);
+	}
+
+	private TemplateEvent readEvent(ExprToken eventName, Tokenizable toks) {
+		ExprToken tok = ExprToken.from(toks);
+		if (tok == null || !"=>".equals(tok.text)) {
+			errors.message(toks, "syntax error");
+			return null;
+		}
+		List<Expr> seen = new ArrayList<>();
+		new TDAExpressionParser(errors, t -> {
+			seen.add(t);
+		}).tryParsing(toks);
+		if (seen.isEmpty()) {
+			errors.message(toks, "missing event handler");
+			return null;
+		}
+		return new TemplateEvent(eventName.text, seen.get(0));
 	}
 
 	@Override
