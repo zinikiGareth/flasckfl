@@ -3,12 +3,10 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplateBinding {
+public class TemplateBinding extends TemplateCustomization {
 	public final String slot;
 	public TemplateBindingOption defaultBinding;
 	public final List<TemplateBindingOption> conditionalBindings = new ArrayList<>();
-	public final List<TemplateStylingOption> conditionalStylings = new ArrayList<>();
-	public final List<TemplateEvent> events = new ArrayList<>();
 
 	public TemplateBinding(String slot, TemplateBindingOption simple) {
 		this.slot = slot;

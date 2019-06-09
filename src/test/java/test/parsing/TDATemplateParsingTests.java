@@ -1,7 +1,11 @@
 package test.parsing;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -12,6 +16,7 @@ import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.LocalErrorTracker;
+import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATemplateBindingParser;
 import org.flasck.flas.parser.TDATemplateOptionsParser;
@@ -223,6 +228,26 @@ public class TDATemplateParsingTests {
 	}
 
 	@Test
+	public void aDefaultBindingMayHaveAConditionalStyling() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
+		TDAParsing nomore = styling.tryParsing(TDABasicIntroParsingTests.line("| true => 'style1'"));
+		assertTrue(nomore instanceof NoNestingParser);
+		styling.scopeComplete(pos);
+		nested.scopeComplete(pos);
+		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
+		assertEquals(1, binding.defaultBinding.conditionalStylings.size());
+		TemplateStylingOption db = binding.defaultBinding.conditionalStylings.get(0);
+		assertThat(db.cond, is(ExprMatcher.unresolved("true")));
+		assertEquals(1, db.styles.size());
+		assertThat(db.styles.get(0), is(new StringLiteralMatcher("style1")));
+	}
+
+	@Test
 	public void aNameByItselfMayHaveAnEventHandler() {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
@@ -234,6 +259,25 @@ public class TDATemplateParsingTests {
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.events.size());
 		TemplateEvent db = binding.events.get(0);
+		assertEquals("click", db.event);
+		assertThat(db.expr, is(ExprMatcher.apply(ExprMatcher.unresolved("handle"), ExprMatcher.unresolved("x"))));
+	}
+
+	@Test
+	public void aDefaultBindingMayHaveAnEventHandler() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
+		TDAParsing nomore = styling.tryParsing(TDABasicIntroParsingTests.line("click => handle x"));
+		assertTrue(nomore instanceof NoNestingParser);
+		styling.scopeComplete(pos);
+		nested.scopeComplete(pos);
+		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
+		assertEquals(1, binding.defaultBinding.events.size());
+		TemplateEvent db = binding.defaultBinding.events.get(0);
 		assertEquals("click", db.event);
 		assertThat(db.expr, is(ExprMatcher.apply(ExprMatcher.unresolved("handle"), ExprMatcher.unresolved("x"))));
 	}
@@ -317,6 +361,20 @@ public class TDATemplateParsingTests {
 	}
 
 	@Test
+	public void cannotMixBindingsAndCustomization() {
+		CaptureAction captureIt = new CaptureAction(null);
+		final Tokenizable errline = TDABasicIntroParsingTests.line("| true => 'style1'");
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+			oneOf(errors).message(with(any(InputPosition.class)), with("cannot mix bindings and customization"));
+		}});
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("<- 86"));
+		nested.tryParsing(errline);
+		nested.scopeComplete(pos);
+	}
+
+	@Test
 	public void cannotHaveRandomNestedLines() {
 		CaptureAction captureIt = new CaptureAction(null);
 		final Tokenizable errline = TDABasicIntroParsingTests.line("= 91");
@@ -328,7 +386,4 @@ public class TDATemplateParsingTests {
 		nested.tryParsing(errline);
 		nested.scopeComplete(pos);
 	}
-
-	// handle having or not having option binds but having customization
-	// it should be possible for event handlers to handle multiple events reasonably
 }

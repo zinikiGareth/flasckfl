@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateCustomization;
 import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -19,11 +20,19 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDATemplateOptionsParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final TemplateBinding binding;
+	private final TemplateCustomization customizer;
 	private boolean seenContent;
 
 	public TDATemplateOptionsParser(ErrorReporter errors, TemplateBinding binding) {
 		this.errors = errors;
 		this.binding = binding;
+		this.customizer = binding;
+	}
+
+	public TDATemplateOptionsParser(ErrorReporter errors, TemplateBindingOption option) {
+		this.errors = errors;
+		this.binding = null;
+		this.customizer = option;
 	}
 
 	// This has to handle both options and customization because they are so similar
@@ -36,9 +45,14 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
+		TemplateBindingOption tc = null;
 		if ("|".equals(tok.text)) {
-			if (binding.defaultBinding != null) {
-				errors.message(toks, "conditional bindings are not permitted after the default has been specified");
+			if (binding != null && binding.defaultBinding != null) {
+				InputPosition pos = toks.realinfo();
+				if (toksHasSend(toks))
+					errors.message(toks, "conditional bindings are not permitted after the default has been specified");
+				else
+					errors.message(pos, "cannot mix bindings and customization");
 				return new IgnoreNestedParser();
 			}
 			List<Expr> seen = new ArrayList<>();
@@ -58,12 +72,13 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				TemplateBindingOption tbo = readTemplateBinding(toks);
 				if (tbo == null)
 					return new IgnoreNestedParser();
-				binding.conditionalBindings.add(tbo.conditionalOn(seen.get(0)));
+				tc = tbo.conditionalOn(seen.get(0));
+				binding.conditionalBindings.add(tc);
 			} else if ("=>".equals(tok.text)) {
 				TemplateStylingOption tso = readTemplateStyles(seen.get(0), toks);
 				if (tso == null)
 					return new IgnoreNestedParser();
-				binding.conditionalStylings.add(tso);
+				customizer.conditionalStylings.add(tso);
 			} else {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
@@ -74,22 +89,24 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(toks, "multiple default bindings are not permitted");
 				return new IgnoreNestedParser();
 			}
-			TemplateBindingOption tbo = readTemplateBinding(toks);
-			if (tbo == null)
+			tc = readTemplateBinding(toks);
+			if (tc == null)
 				return new IgnoreNestedParser();
-			binding.defaultBinding = tbo;
+			binding.defaultBinding = tc;
 		} else if (tok.type == ExprToken.IDENTIFIER) {
 			// it's an event handler
 			TemplateEvent ev = readEvent(tok, toks);
 			if (ev == null)
 				return new IgnoreNestedParser();
-			binding.events.add(ev);
-			return new IgnoreNestedParser();
+			customizer.events.add(ev);
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
-		return new NoNestingParser(errors);
+		if (tc != null)
+			return new TDATemplateOptionsParser(errors, tc);
+		else
+			return new NoNestingParser(errors);
 	}
 
 	private TemplateBindingOption readTemplateBinding(Tokenizable toks) {
@@ -160,4 +177,14 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		}
 	}
 
+	private boolean toksHasSend(Tokenizable toks) {
+		while (toks.hasMore()) {
+			ExprToken tok = ExprToken.from(toks);
+			if (tok == null)
+				return false;
+			else if (tok.text.equals("<-"))
+				return true;
+		}
+		return false;
+	}
 }
