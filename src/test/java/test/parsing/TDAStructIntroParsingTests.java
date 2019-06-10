@@ -130,8 +130,28 @@ public class TDAStructIntroParsingTests {
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred"));
+		final Tokenizable line = TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred");
+		TDAParsing nested = parser.tryParsing(line);
 		assertTrue(nested instanceof TDAStructFieldParser);
+		nested.scopeComplete(line.realinfo());
+		parser.scopeComplete(line.realinfo());
+	}
+
+	@Test
+	public void wrapsFieldsDontHaveTypesThough() {
+		context.checking(new Expectations() {{
+			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(builder).qualifyName("Fred"); will(returnValue(new SolidName(new PackageName("test.names"), "Fred")));
+			allowing(builder).qualifyName("InstanceOfFred"); will(returnValue(new SolidName(new PackageName("test.names"), "InstanceOfFred")));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		final Tokenizable line = TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred");
+		TDAParsing nested = parser.tryParsing(line);
+		assertTrue(nested instanceof TDAStructFieldParser);
+		nested.tryParsing(TDABasicIntroParsingTests.line("fredX <- fredI"));
+		nested.scopeComplete(line.realinfo());
+		parser.scopeComplete(line.realinfo());
 	}
 
 	@Test

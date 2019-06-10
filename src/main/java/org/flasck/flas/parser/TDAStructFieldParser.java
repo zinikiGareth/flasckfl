@@ -24,17 +24,20 @@ public class TDAStructFieldParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		// TODO: figure accessor for object case
 		final boolean accessor = false;
-		TypeReference type = (TypeReference) new TypeExprParser().tryParsing(toks);
-		if (type == null) {
-			errors.message(toks, "field must have a valid type definition");
-			return new IgnoreNestedParser();
+		TypeReference type = null;
+		if (fieldsType != FieldsType.WRAPS) {
+			type = (TypeReference) new TypeExprParser().tryParsing(toks);
+			if (type == null) {
+				errors.message(toks, "field must have a valid type definition");
+				return new IgnoreNestedParser();
+			}
 		}
-		ValidIdentifierToken kw = VarNameToken.from(toks);
-		if (kw == null) {
+		ValidIdentifierToken field = VarNameToken.from(toks);
+		if (field == null) {
 			errors.message(toks, "field must have a valid field name");
 			return new IgnoreNestedParser();
 		}
-		if (kw.text.equals("id")) {
+		if (field.text.equals("id")) {
 			errors.message(toks, "'id' is a reserved field name");
 			return new IgnoreNestedParser();
 		}
@@ -44,7 +47,7 @@ public class TDAStructFieldParser implements TDAParsing {
 				errors.message(toks, "wraps fields must have initializers");
 				return new IgnoreNestedParser();
 			}
-			builder.addField(new StructField(kw.location, accessor, type, kw.text));
+			builder.addField(new StructField(field.location, accessor, type, field.text));
 			ret.noNest(errors);
 		} else {
 			if (fieldsType == FieldsType.ENVELOPE) {
@@ -59,12 +62,13 @@ public class TDAStructFieldParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			assOp.endAt(toks.at());
+			TypeReference ft = type;
 			new TDAExpressionParser(errors, expr -> {
 				if (errors.hasErrors()) {
 					ret.ignore();
 				} else {
 					ret.noNest(errors);
-					builder.addField(new StructField(kw.location, assOp, accessor, type, kw.text, expr));
+					builder.addField(new StructField(field.location, assOp, accessor, ft, field.text, expr));
 				}
 			}).tryParsing(toks);
 			if (errors.hasErrors())

@@ -124,7 +124,7 @@ public class TDAStructFieldParsingTests {
 
 	@Test
 	public void wrapsFieldsMustHaveInitializers() {
-		final Tokenizable toks = TDABasicIntroParsingTests.line("String msg");
+		final Tokenizable toks = TDABasicIntroParsingTests.line("msg");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "wraps fields must have initializers");
 		}});
