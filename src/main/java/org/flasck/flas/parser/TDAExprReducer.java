@@ -53,9 +53,13 @@ public class TDAExprReducer implements ExprTermConsumer {
 			}
 		}
 		if (term instanceof Punctuator) {
-			errors.message(term.location(), "invalid tokens after expression");
-			haveErrors = true;
-			return;
+			if (((Punctuator) term).is(":")) {
+				term = new UnresolvedOperator(term.location(), ":");
+			} else {
+				errors.message(term.location(), "invalid tokens after expression");
+				haveErrors = true;
+				return;
+			}
 		}
 		if (term instanceof UnresolvedOperator) {
 			final UnresolvedOperator op = (UnresolvedOperator)term;
@@ -166,6 +170,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 				return 9;
 		case "+":
 			return 5;
+		case ":":
+			return 3;
 		case "==":
 		case "<":
 		case "<=":

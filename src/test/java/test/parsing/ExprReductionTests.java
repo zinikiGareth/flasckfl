@@ -634,6 +634,31 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 	
+	@Test // { tgh : { } , tduhnh : - - vwsoskr 816 }
+	public void aComplexExpr() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(
+										ExprMatcher.apply(ExprMatcher.operator(":"),
+											ExprMatcher.apply(ExprMatcher.operator("+"),
+												ExprMatcher.unresolved("true"),
+												ExprMatcher.number(516)),
+											ExprMatcher.apply(ExprMatcher.operator("-"),
+												ExprMatcher.apply(ExprMatcher.operator("[]")),
+												ExprMatcher.number(472))
+											)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "true"));
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(2), "+"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(10), "516", 12));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new Punctuator(pos, "["));
+		reducer.term(new Punctuator(pos.copySetEnd(4), "]"));
+		reducer.term(new UnresolvedOperator(pos, "-"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(10), "472", 12));
+		reducer.done();
+	}
+	
 	
 	// do we have anything that associates right?
 

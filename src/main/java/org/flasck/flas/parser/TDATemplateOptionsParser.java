@@ -171,7 +171,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition pos) {
-		if (!seenContent) {
+		if (binding != null && !seenContent) {
 			errors.message(pos, "simple template name must have options or customization");
 			return;
 		}

@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -10,7 +11,7 @@ import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
-public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvider {
+public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
 	private final ErrorReporter errors;
 	private final ServiceElementsConsumer consumer;
 	private final TopLevelDefinitionConsumer topLevel;
@@ -40,7 +41,7 @@ public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvide
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
 			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(sm); };
-			return new TDAMethodParser(errors, this, smConsumer, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this, this, smConsumer, topLevel).parseMethod(namer, toks);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -69,6 +70,11 @@ public class TDAServiceElementsParser implements TDAParsing, FunctionNameProvide
 	@Override
 	public FunctionName functionName(InputPosition location, String base) {
 		return FunctionName.function(location, consumer.cardName(), base);
+	}
+
+	@Override
+	public HandlerName provide(String baseName) {
+		return new HandlerName(consumer.cardName(), baseName);
 	}
 
 }

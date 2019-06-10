@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
@@ -15,7 +16,7 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
+public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
 	private final ErrorReporter errors;
 	private final CardElementsConsumer consumer;
 	private final TopLevelDefinitionConsumer topLevel;
@@ -91,12 +92,12 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
 			MethodConsumer evConsumer = em -> { consumer.addEventHandler(em); };
-			return new TDAMethodParser(errors, this, evConsumer, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this, this, evConsumer, topLevel).parseMethod(namer, toks);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
 			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(sm); };
-			return new TDAMethodParser(errors, this, smConsumer, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this, this, smConsumer, topLevel).parseMethod(namer, toks);
 		}
 		default:
 			return null;
@@ -105,7 +106,6 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
@@ -113,4 +113,8 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider {
 		return FunctionName.function(location, consumer.cardName(), base);
 	}
 
+	@Override
+	public HandlerName provide(String baseName) {
+		return new HandlerName(consumer.cardName(), baseName);
+	}
 }

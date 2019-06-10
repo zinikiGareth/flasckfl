@@ -10,15 +10,16 @@ import java.util.TreeSet;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CounterSet;
 import org.zinutils.utils.FileUtils;
 
 public class RunRegressionSuite {
+	final File root = new File("src/regression");
 
 	@Test
 	public void testAll() throws Throwable {
-		final File root = new File("src/regression");
 		if (!root.exists()) {
 			GenerateRegressionSuite.generateInto(root);
 		}
@@ -29,15 +30,7 @@ public class RunRegressionSuite {
 		CounterSet<String> success = new CounterSet<>();
 		CounterSet<String> failure = new CounterSet<>();
 		for (File f : dirs) {
-			final File dir = FileUtils.combine(root, f);
-			for (File q : FileUtils.findFilesMatching(dir, "*.fl"))
-				FileUtils.cat(q);
-			boolean result;
-			try {
-				result = !org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", dir.toString() });
-			} catch (Exception ex) {
-				result = false;
-			}
+			boolean result = runCase(f);
 			CounterSet<String> mycase;
 			JSONArray rules = jo.getJSONArray(f.getName());
 			if (result) {
@@ -71,5 +64,24 @@ public class RunRegressionSuite {
 		System.out.println("Ran " + dirs.size() + " - " + passed.size() + " passed; " + failed.size() + " failed");
 		
 //		assertTrue(failed.size() + " regression tests failed", failed.isEmpty());
+	}
+
+	@Test
+	@Ignore
+	public void testOne() {
+		runCase(new File("test.22372"));
+	}
+	
+	public boolean runCase(File f) {
+		final File dir = FileUtils.combine(root, f);
+		for (File q : FileUtils.findFilesMatching(dir, "*.fl"))
+			FileUtils.cat(q);
+		boolean result;
+		try {
+			result = !org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", dir.toString() });
+		} catch (Exception ex) {
+			result = false;
+		}
+		return result;
 	}
 }

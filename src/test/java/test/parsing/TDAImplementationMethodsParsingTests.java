@@ -51,8 +51,11 @@ public class TDAImplementationMethodsParsingTests {
 			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, "bar x"), null, "bar")));
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "bar").withArgs(1)));
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("bar x"));
+		final Tokenizable line = TDABasicIntroParsingTests.line("bar x");
+		TDAParsing nested = parser.tryParsing(line);
 		assertTrue(nested instanceof TDAMethodMessageParser);
+		nested.scopeComplete(line.realinfo());
+		parser.scopeComplete(line.realinfo());
 	}
 
 	@Test

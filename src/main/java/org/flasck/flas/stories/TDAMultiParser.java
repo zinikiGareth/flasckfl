@@ -8,8 +8,11 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
+import org.flasck.flas.parser.HandlerNameProvider;
 import org.flasck.flas.parser.TDAFunctionParser;
+import org.flasck.flas.parser.TDAHandlerParser;
 import org.flasck.flas.parser.TDAIntroParser;
+import org.flasck.flas.parser.TDAMethodParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATupleDeclarationParser;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -43,9 +46,8 @@ public class TDAMultiParser implements TDAParsing {
 		return new TDAMultiParser(errors, TDAIntroParser.constructor(sb), TDAFunctionParser.constructor(namer, sb, sb), TDATupleDeclarationParser.constructor(namer, sb, sb));
 	}
 	
-	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionNameProvider namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
-		// TODO: this should include some of the intro stuff, specifically handlers and standalone methods ...
-		return new TDAMultiParser(errors, /*TDAIntroParser.constructor(sb), */TDAFunctionParser.constructor(namer, sb, topLevel), TDATupleDeclarationParser.constructor(namer, sb, topLevel));
+	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionNameProvider namer, HandlerNameProvider hnamer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
+		return new TDAMultiParser(errors, TDAHandlerParser.constructor(hnamer, topLevel), TDAMethodParser.constructor(namer, hnamer, sb, topLevel), TDAFunctionParser.constructor(namer, sb, topLevel), TDATupleDeclarationParser.constructor(namer, sb, topLevel));
 	}
 
 	// I added this method for testing purposes

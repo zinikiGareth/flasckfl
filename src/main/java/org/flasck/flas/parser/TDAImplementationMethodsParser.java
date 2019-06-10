@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -47,7 +48,8 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 		final ObjectMethod meth = new ObjectMethod(name.location, namer.functionName(name.location, name.text), args);
 		consumer.addImplementationMethod(meth);
 		FunctionNameProvider scopeNamer = (loc, text) -> FunctionName.function(loc, meth.name(), text);
-		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, scopeNamer, topLevel, "action");
+		final HandlerNameProvider handlerNamer = text -> new HandlerName(meth.name(), text);
+		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, scopeNamer, handlerNamer, topLevel, "action");
 		return new TDAMethodMessageParser(errors, meth, nestedParser);
 	}
 

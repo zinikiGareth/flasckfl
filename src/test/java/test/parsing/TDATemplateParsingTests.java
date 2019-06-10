@@ -121,7 +121,9 @@ public class TDATemplateParsingTests {
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
+		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
+		assertTrue(styling instanceof TDATemplateOptionsParser);
+		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
 		final TemplateBindingOption db = ((TemplateBinding)captureIt.get(0)).defaultBinding;
 		assertNotNull(db);
@@ -218,7 +220,9 @@ public class TDATemplateParsingTests {
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("| true => 'style1'"));
+		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("| true => 'style1'"));
+		assertTrue(styling instanceof NoNestingParser);
+		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.conditionalStylings.size());

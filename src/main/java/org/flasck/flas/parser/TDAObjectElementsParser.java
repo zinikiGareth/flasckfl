@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -23,7 +24,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider {
+public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
 	private final ErrorReporter errors;
 	private final ObjectElementsConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
@@ -68,7 +69,7 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 			}
 			ObjectCtor ctor = new ObjectCtor(var.location, fnName, args);
 			builder.addConstructor(ctor);
-			return new TDAMethodMessageParser(errors, ctor, new LastActionScopeParser(errors, this, topLevel, "action"));
+			return new TDAMethodMessageParser(errors, ctor, new LastActionScopeParser(errors, this, this, topLevel, "action"));
 		}
 		case "acor": {
 			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {
@@ -92,7 +93,7 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.objectMethod(loc, builder.name(), text);
-			return new TDAMethodParser(errors, this, builder, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this, this, builder, topLevel).parseMethod(namer, toks);
 		}
 		default: {
 			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");
@@ -106,6 +107,11 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 		return FunctionName.objectMethod(location, builder.name(), base);
 	}
 	
+	@Override
+	public HandlerName provide(String baseName) {
+		return new HandlerName(builder.name(), baseName);
+	}
+
 	@Override
 	public void scopeComplete(InputPosition location) {
 	}

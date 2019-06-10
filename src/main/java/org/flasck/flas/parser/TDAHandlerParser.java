@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -14,9 +15,9 @@ public class TDAHandlerParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final FunctionScopeUnitConsumer builder;
 	private final HandlerNameProvider namer;
-	private final TopLevelDefinitionConsumer topLevel;
+	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDAHandlerParser(ErrorReporter errors, FunctionScopeUnitConsumer builder, HandlerNameProvider provider, TopLevelDefinitionConsumer topLevel) {
+	public TDAHandlerParser(ErrorReporter errors, FunctionScopeUnitConsumer builder, HandlerNameProvider provider, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.builder = builder;
 		this.namer = provider;
@@ -71,6 +72,15 @@ public class TDAHandlerParser implements TDAParsing {
 		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, namer.provide(named.text), tn.text, inCard, lambdas);
 		builder.newHandler(hi);
 		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hi.getRealName(), text), hi, topLevel);
+	}
+
+	public static TDAParserConstructor constructor(HandlerNameProvider namer, FunctionScopeUnitConsumer topLevel) {
+		return new TDAParserConstructor() {
+			@Override
+			public TDAParsing construct(ErrorReporter errors) {
+				return new TDAHandlerParser(errors, topLevel, namer, topLevel);
+			}
+		};
 	}
 
 }
