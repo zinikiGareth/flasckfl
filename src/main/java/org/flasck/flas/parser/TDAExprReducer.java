@@ -6,7 +6,9 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -28,7 +30,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private final ExprTermConsumer builder;
 	private final List<Expr> terms = new ArrayList<>();
 	private final List<OpPrec> ops = new ArrayList<>();
-	private UnresolvedOperator haveDot;
+	private DotOperator haveDot;
 	private boolean haveErrors;
 
 	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder) {
@@ -47,7 +49,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 				return;
 			} else {
 				Expr strobj = terms.remove(terms.size() - 1);
-				terms.add(new ApplyExpr(strobj.location().copySetEnd(term.location().pastEnd()), haveDot, strobj, term));
+				terms.add(new MemberExpr(strobj.location().copySetEnd(term.location().pastEnd()), strobj, term));
 				haveDot = null;
 				return;
 			}
@@ -61,18 +63,18 @@ public class TDAExprReducer implements ExprTermConsumer {
 				return;
 			}
 		}
+		if (term instanceof DotOperator) {
+			if (terms.isEmpty()) {
+				errors.message(term.location(), "field access requires a struct or object");
+				haveErrors = true;
+				return;
+			}
+			haveDot = (DotOperator) term;
+			return;
+		}
 		if (term instanceof UnresolvedOperator) {
 			final UnresolvedOperator op = (UnresolvedOperator)term;
-			if (op.op.equals(".")) {
-				if (terms.isEmpty()) {
-					errors.message(term.location(), "field access requires a struct or object");
-					haveErrors = true;
-					return;
-				}
-				haveDot = op;
-				return;
-			} else
-				ops.add(new OpPrec(terms.size(), precedence(term.location(), op.op)));
+			ops.add(new OpPrec(terms.size(), precedence(term.location(), op.op)));
 		}
 		this.terms.add(term);
 	}
@@ -85,8 +87,6 @@ public class TDAExprReducer implements ExprTermConsumer {
 
 	public void seenColon(ParenCloseRewriter closer) {
 		closer.defineVar(((UnresolvedVar)terms.get(0)).var);
-//		Needs some amount of workflow, I think
-//		builder.term(reduce(0, terms.size()));
 		terms.clear();
 	}
 

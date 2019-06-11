@@ -84,7 +84,7 @@ public class ExprTokenizationTests {
 	@Test
 	public void testDotIsParsedAsASymbol() {
 		context.checking(new Expectations() {{
-			oneOf(builder).term(with(ExprMatcher.operator(".").location("test", 1, 0, 1))); inSequence(order);
+			oneOf(builder).term(with(ExprMatcher.dot().location("test", 1, 0, 1))); inSequence(order);
 			oneOf(builder).done(); inSequence(order);
 		}});
 		assertNull(parser.tryParsing(new Tokenizable(".")));

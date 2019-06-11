@@ -3,8 +3,10 @@ package test.parsing;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -60,6 +62,32 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 				if (!(expr instanceof UnresolvedOperator))
 					return false;
 				if (!((UnresolvedOperator)expr).op.equals(name))
+					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
+						return false;
+				}
+				return true;
+			}
+		};
+	}
+	
+	public static ExprMatcher dot() {
+		return new ExprMatcher() {
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("dot");
+				if (super.pos != null) {
+					desc.appendText("pos");
+					desc.appendValue(super.pos);
+				}
+			}
+
+			@Override
+			protected boolean matchesSafely(Expr expr) {
+				if (!(expr instanceof DotOperator))
 					return false;
 				if (super.pos != null) {
 					if (expr.location() == null)
@@ -207,6 +235,35 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 				}
 				for (int i=0;i<args.length;i++) {
 					if (!args[i].matches(ae.args.get(i)))
+						return false;
+				}
+				return true;
+			}
+		};
+	}
+
+	public static ExprMatcher member(ExprMatcher from, ExprMatcher fld) {
+		return new ExprMatcher() {
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("(. ");
+				from.describeTo(desc);
+				desc.appendText(" ");
+				fld.describeTo(desc);
+				desc.appendText(")");
+			}
+
+			@Override
+			protected boolean matchesSafely(Expr expr) {
+				if (!(expr instanceof MemberExpr))
+					return false;
+				MemberExpr ae = (MemberExpr) expr;
+				if (!from.matches(ae.from) || !fld.matches(ae.fld))
+					return false;
+				if (super.pos != null) {
+					if (expr.location() == null)
+						return false;
+					if (super.pos.compareTo(expr.location()) != 0)
 						return false;
 				}
 				return true;

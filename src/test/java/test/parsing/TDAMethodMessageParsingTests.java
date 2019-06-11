@@ -34,7 +34,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanInvokeSendOnAServiceWithoutAnyArguments() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.fetchRoot"));
@@ -47,7 +47,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void weCanInvokeSendOnAServiceWithOneArgument() {
 		context.checking(new Expectations() {{
-			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.apply(ExprMatcher.operator("."), ExprMatcher.unresolved("data"), ExprMatcher.unresolved("get")), ExprMatcher.string("hello"))).location("fred", 1, 0, 2)));
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("get")), ExprMatcher.string("hello"))).location("fred", 1, 0, 2)));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.get 'hello'"));
