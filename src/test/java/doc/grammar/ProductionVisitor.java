@@ -7,8 +7,8 @@ public interface ProductionVisitor {
 	void choices(OrProduction prod, List<Definition> defns, List<Integer> probs, int maxProb);
 
 	void zeroOrOne(Definition child);
-	void zeroOrMore(Definition child);
-	void oneOrMore(Definition child);
+	void zeroOrMore(Definition child, boolean withEOL);
+	void oneOrMore(Definition child, boolean withEOL);
 
 	void referTo(String child);
 
@@ -17,4 +17,5 @@ public interface ProductionVisitor {
 	boolean indent();
 
 	void exdent();
+
 }

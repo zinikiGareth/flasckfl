@@ -17,6 +17,7 @@ import org.zinutils.xml.XML;
 // In general, a valid sentence according to the grammar should at least parse
 // (there are many reasons it wouldn't get further, like undefined references, but I can't see why it wouldn't parse short of hitting limits of one kind or another)
 public class SentenceProducer {
+	private boolean debug = false;
 	private final Grammar grammar;
 	private final File td;
 
@@ -53,27 +54,34 @@ public class SentenceProducer {
 		@Override
 		public void zeroOrOne(Definition child) {
 			boolean wanted = r.nextBoolean();
-			System.out.println("Choosing " + wanted + " for optional " + child);
+			if (debug)
+				System.out.println("Choosing " + wanted + " for optional " + child);
 			if (wanted) {
 				child.visit(this);
 			}
 		}
 
 		@Override
-		public void zeroOrMore(Definition child) {
+		public void zeroOrMore(Definition child, boolean withEOL) {
 			int cnt = r.nextInt(3);
-			System.out.println("Choosing " + cnt + " iterations of " + child);
+			if (debug)
+				System.out.println("Choosing " + cnt + " iterations of " + child);
 			for (int i=0;i<cnt;i++) {
 				child.visit(this);
+				if (withEOL)
+					token("EOL");
 			}
 		}
 		
 		@Override
-		public void oneOrMore(Definition child) {
+		public void oneOrMore(Definition child, boolean withEOL) {
 			int cnt = r.nextInt(3)+1;
-			System.out.println("Choosing " + cnt + " iterations of " + child);
+			if (debug)
+				System.out.println("Choosing " + cnt + " iterations of " + child);
 			for (int i=0;i<cnt;i++) {
 				child.visit(this);
+				if (withEOL)
+					token("EOL");
 			}
 		}
 
@@ -85,7 +93,8 @@ public class SentenceProducer {
 				if (!(p instanceof OrProduction)) {
 					final String rn = p.ruleNumber() + " " + p.ruleName();
 					used.add(rn);
-					System.out.println("Rule " + rn);
+					if (debug)
+						System.out.println("Rule " + rn);
 				}
 			} catch (RuntimeException ex) {
 				System.out.println(ex);
@@ -101,7 +110,8 @@ public class SentenceProducer {
 				if (probs.get(i) > ni) {
 					final String rn = prod.ruleNumber() + "." + (i+1) + " " + prod.ruleName();
 					used.add(rn);
-					System.out.println("Rule " + rn);
+					if (debug)
+						System.out.println("Rule " + rn);
 					asList.get(i).visit(this);
 					return;
 				}
@@ -112,7 +122,8 @@ public class SentenceProducer {
 		public void token(String token) {
 			final Lexer lexer = grammar.findToken(token);
 			String t = genToken(token, lexer.pattern);
-			System.out.println("    " + t);
+			if (debug)
+				System.out.println("    " + t);
 			Pattern p = Pattern.compile(lexer.pattern);
 			assertTrue("generated token for " + token + "(" + t + ") did not match pattern definition (" + lexer.pattern + ")", p.matcher(t).matches());
 			if (token.equals("EOL"))
@@ -241,5 +252,9 @@ public class SentenceProducer {
 				sb.append((char)(fst + r.nextInt(range)));
 			return sb.toString();
 		}
+	}
+
+	public void debugMode() {
+		this.debug = true;
 	}
 }

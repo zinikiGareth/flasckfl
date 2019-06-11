@@ -154,7 +154,11 @@ public class Grammar {
 	private Definition parseDefn(String ruleName, XMLElement rule) {
 		switch (rule.tag()) {
 		case "indent":
-			return handleIndent(ruleName, rule);
+			return handleIndent(ruleName, rule, false, true);
+		case "indent-one":
+			return handleIndent(ruleName, rule, true, false);
+		case "indent-non-zero":
+			return handleIndent(ruleName, rule, false, false);
 		case "many":
 			return handleMany(ruleName, rule, true);
 		case "one-or-more":
@@ -172,10 +176,10 @@ public class Grammar {
 		}
 	}
 
-	private IndentDefinition handleIndent(String ruleName, XMLElement rule) {
+	private IndentDefinition handleIndent(String ruleName, XMLElement rule, boolean exactlyOne, boolean allowZero) {
 		Definition defn = parseDefn(ruleName, rule.uniqueElement("ref"));
 		rule.attributesDone();
-		return new IndentDefinition(defn);
+		return new IndentDefinition(defn, exactlyOne, allowZero);
 	}
 
 	private ManyDefinition handleMany(String ruleName, XMLElement rule, boolean allowZero) {

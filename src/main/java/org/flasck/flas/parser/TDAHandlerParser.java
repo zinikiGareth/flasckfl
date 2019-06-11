@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.stories.TDAParserConstructor;

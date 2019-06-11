@@ -1,16 +1,12 @@
 package test.parsing;
 
-import java.util.function.Consumer;
-
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.Punctuator;
-import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAStackReducer;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;

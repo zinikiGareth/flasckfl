@@ -2,15 +2,11 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
-import org.flasck.flas.commonBase.names.HandlerName;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
-import org.flasck.flas.parser.TDAImplementationMethodsParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.jmock.Expectations;

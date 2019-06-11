@@ -17,7 +17,8 @@ public class RandomSentenceTest {
 	public void testRandomSentenceProduction() throws Throwable {
 		File td = Files.createTempDirectory("flas").toFile();
 		SentenceProducer p = new SentenceProducer(td, "/gh-grammar/grammar.xml");
-		File tmp = p.sentence(21329, used -> System.out.println(used));
+		p.debugMode();
+		File tmp = p.sentence(27160, used -> System.out.println(used));
 		FileUtils.cat(tmp);
 		boolean failed = org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", td.toString() });
 		assertFalse(failed);

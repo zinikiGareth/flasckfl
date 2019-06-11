@@ -336,9 +336,9 @@
     <seq>
       <token type='UNION'/>
       <token type='type-name'/>
-      <indent>
+      <indent-non-zero>
         <ref production='type-reference'/>
-      </indent>
+      </indent-non-zero>
     </seq>
   </production>
   <production name='envelope-declaration'>
@@ -490,9 +490,9 @@
       <many>
       	<ref production='argument-pattern'/>
       </many>
-      <indent>
+      <indent-one>
       	<ref production='guarded-default-expression'/>
-      </indent>
+      </indent-one>
     </seq>
   </production>
   <production name='guarded-function-case-definition'>
@@ -503,9 +503,9 @@
       <many>
       	<ref production='argument-pattern'/>
       </many>
-      <indent>
+      <indent-one>
       	<ref production='guarded-equations'/>
-      </indent>
+      </indent-one>
     </seq>
   </production>
   <production name='guarded-equations'>
@@ -957,9 +957,9 @@
     <seq>
     	  <token type='OBJECT' />
     	  <token type='type-name'/>
-    	  <indent>
+    	  <indent-one>
     	    <ref production='object-contents'/>
-    	  </indent>
+    	  </indent-one>
     </seq>
   </production>
   <production name='object-contents'>
@@ -1018,9 +1018,9 @@
     <seq>
     	  <token type='SERVICE' />
     	  <token type='type-name'/>
-    	  <indent>
+    	  <indent-one>
     	    <ref production='service-contents'/>
-    	  </indent>
+    	  </indent-one>
     </seq>
   </production>
   <production name='service-contents'>
@@ -1066,9 +1066,9 @@
     <seq>
     	  <token type='CARD' />
     	  <token type='type-name'/>
-    	  <indent>
+    	  <indent-one>
     	    <ref production='card-contents'/>
-    	  </indent>
+    	  </indent-one>
     </seq>
   </production>
   <production name='card-contents'>
@@ -1168,23 +1168,13 @@
     <section title='Template Bindings'>
       <description>
         <p>Each binding is responsible for filling one slot in the template, which can be of type <tt>punnet</tt>, <tt>container</tt> or <tt>content</tt>.</p>
-        <p>The first case of rule ${one-template-bind} enables a value to be "assigned" to a slot in the template.  The exact semantics of this depend on the slot type; see <a href='index.html#connecting-elements-to-cards'>connecting elements to cards</a> for details.</p>
+        <p>The first case of rule ${template-bind} enables a value to be "assigned" to a slot in the template.  The exact semantics of this depend on the slot type; see <a href='index.html#connecting-elements-to-cards'>connecting elements to cards</a> for details.</p>
         <p>The second case allows the assignment to be conditional on another expression.  In this case, the conditional (first) expression of each case of rule ${option-template-bind}, which must be of type boolean, is considered and the first one to evaluate to <tt>true</tt> is selected.  The value (second) expression is then used as the value.  The rule ${default-option-template-bind} may be used to specify a default assignment if none of the previous cases match.</p>
-        <p>The degenerate (third) case for rule ${one-template-bind} can only be used to customize <tt>style</tt> elements.  In this case the template name is provided and the styles and events are immediate descendants of this.</p>
+        <p>The degenerate (third) case for rule ${template-bind} can only be used to customize <tt>style</tt> elements.  In this case the template name is provided and the styles and events are immediate descendants of this.</p>
         <p>For <tt>container</tt> slots <i>only</i>, it is possible to specify an <tt>item</tt> template that the value should be passed to using rule ${pass-to-template}.</p>
         <p>Styling and event handling may be added to all elements except <tt>punnet</tt>s, which hand off styling and event handling to their contained cards.  In general, this will also not be used with <tt>container</tt> slots.</p>
       </description>
     </section>
-    <tested by='test.parsing.TDATemplateParsingTests' />
-    <seq>
-      <ref production='one-template-bind'/>
-      <indent>
-        <ref production='template-customization'/>
-      </indent>
-    </seq>
-  </production>
-  <production name='one-template-bind'>
-    <section title='Template Bindings'/>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <or>
       <seq>
@@ -1194,29 +1184,46 @@
 	    <optional>
 	    	  <ref production='pass-to-template' />
 	    </optional>
-	  </seq>
-      <seq>
-	    <token type='template-name'/>
         <indent>
-          <ref production='option-template-binds'/>
+          <ref production='template-customization'/>
         </indent>
 	  </seq>
       <seq>
 	    <token type='template-name'/>
+        <indent-one>
+          <ref production='option-template-binds'/>
+        </indent-one>
+	  </seq>
+      <seq>
+	    <token type='template-name'/>
+        <indent-non-zero>
+          <ref production='template-customization'/>
+        </indent-non-zero>
 	  </seq>
     </or>
   </production>
   <production name='option-template-binds'>
     <section title='Template Bindings'/>
     <tested by='test.parsing.TDATemplateParsingTests' />
-    <seq>
-      <many>
-        <ref production='option-template-bind'/>
-      </many>
-      <optional>
+    <or>
+      <seq>
+        <one-or-more>
+          <ref production='option-template-bind'/>
+        </one-or-more>
+        <optional>
+          <ref production='default-option-template-bind'/>
+        </optional>
+        <indent>
+          <ref production='template-customization'/>
+        </indent>
+      </seq>
+      <seq>
         <ref production='default-option-template-bind'/>
-      </optional>
-    </seq>
+        <indent>
+          <ref production='template-customization'/>
+        </indent>
+      </seq>
+    </or>
   </production>
   <production name='option-template-bind'>
     <section title='Template Bindings'/>
