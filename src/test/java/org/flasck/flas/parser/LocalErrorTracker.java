@@ -75,7 +75,7 @@ public class LocalErrorTracker implements ErrorReporter {
 		marks.add(ab);
 		return new ErrorMark() {
 			@Override
-			public boolean hasMore() {
+			public boolean hasMoreNow() {
 				return ab.get();
 			}
 

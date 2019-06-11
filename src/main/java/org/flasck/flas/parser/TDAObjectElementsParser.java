@@ -96,8 +96,7 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 			return new TDAMethodParser(errors, this, this, builder, topLevel).parseMethod(namer, toks);
 		}
 		default: {
-			errors.message(toks, "'" + kw.text + "' is not a valid object keyword");
-			return new IgnoreNestedParser();
+			return null;
 		}
 		}
 	}

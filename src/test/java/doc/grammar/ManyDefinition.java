@@ -34,6 +34,9 @@ public class ManyDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.zeroOrMore(child);
+		if (allowZero)
+			productionVisitor.zeroOrMore(child);
+		else
+			productionVisitor.oneOrMore(child);
 	}
 }

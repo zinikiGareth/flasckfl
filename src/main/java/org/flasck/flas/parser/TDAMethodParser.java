@@ -37,6 +37,9 @@ public class TDAMethodParser {
 		});
 		while (pp.tryParsing(toks) != null)
 			;
+		if (errors.hasErrors()) 
+			return new IgnoreNestedParser();
+		
 		if (toks.hasMore()) {
 			errors.message(toks, "extra characters at end of line");
 			return new IgnoreNestedParser();

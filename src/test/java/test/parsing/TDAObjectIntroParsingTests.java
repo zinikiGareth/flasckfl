@@ -7,7 +7,9 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
@@ -22,6 +24,7 @@ import org.junit.Test;
 public class TDAObjectIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
 
 	@Before
@@ -40,6 +43,20 @@ public class TDAObjectIntroParsingTests {
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
 		assertTrue(nested instanceof TDAMultiParser);
+	}
+
+	@Test
+	public void anObjectCanIncludeAFunction() {
+		context.checking(new Expectations() {{
+			allowing(builder).qualifyName("Store"); will(returnValue(new SolidName(null, "Store")));
+			oneOf(builder).newObject(with(ObjectDefnMatcher.match("Store")));
+			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(tracker, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
+		assertTrue(nested instanceof TDAMultiParser);
+		nested.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
+		nested.scopeComplete(null);
 	}
 
 	@Test

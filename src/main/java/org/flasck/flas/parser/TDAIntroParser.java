@@ -69,7 +69,8 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			return new TDAMultiParser(errors, 
 				errors -> new TDACardElementsParser(errors, card, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
+				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, consumer)
 			);
 		}
 		case "service": {
@@ -86,7 +87,8 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			return new TDAMultiParser(errors, 
 				errors -> new TDAServiceElementsParser(errors, svc, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
+				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, consumer)
 			);
 		}
 		case "struct":
@@ -188,7 +190,8 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 			return new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, od, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer)
+				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, consumer)
 			);
 		}
 		case "contract": {

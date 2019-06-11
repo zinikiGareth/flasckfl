@@ -34,7 +34,7 @@ public class TDAMethodIntroParsingTests {
 	@Test
 	public void aStandaloneMethodCanBeDefined() {
 		context.checking(new Expectations() {{
-			oneOf(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newStandaloneMethod(with(any(ObjectMethod.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, builder);

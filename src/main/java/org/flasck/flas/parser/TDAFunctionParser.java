@@ -42,7 +42,7 @@ public class TDAFunctionParser implements TDAParsing {
 		});
 		while (pp.tryParsing(line) != null)
 			;
-		if (currErr.hasMore())
+		if (currErr.hasMoreNow())
 			return new IgnoreNestedParser();
 		
 		// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...

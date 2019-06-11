@@ -5,7 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
@@ -55,7 +59,7 @@ public class TDATopLevelCardParsingTests {
 
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
-	private ErrorReporter tracker = new LocalErrorTracker(errors);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
 	private IScope scope = context.mock(IScope.class);
 	private TDAParsing cardParser;
@@ -129,6 +133,13 @@ public class TDATopLevelCardParsingTests {
 	}
 
 	@Test
+	public void cardsWithStandaloneMethodsDontCascadeErrorsBecausePatternParsingIsIgnored() {
+		// throw an error to simulate cascade
+		tracker.fakeErrorWithoutNeedingAssertion();
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("method m (String s)"));
+	}
+
+	@Test
 	public void cardsCanHaveNestedFunctions() {
 		context.checking(new Expectations() {{
 			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
@@ -160,5 +171,14 @@ public class TDATopLevelCardParsingTests {
 	public void cardsCanUtilizeServicesThroughContracts() {
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("implements org.ziniki.ContractName var"));
 		assertEquals(1, card.contracts.size());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void cardsCanDefineNestedTuples() {
+		context.checking(new Expectations() {{
+			oneOf(builder).tupleDefn(with(any(List.class)), with(any(FunctionName.class)), with(any(Expr.class)));
+		}});
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("(x,y) = f 2"));
 	}
 }

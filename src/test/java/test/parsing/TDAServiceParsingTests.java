@@ -5,7 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
@@ -130,5 +134,14 @@ public class TDAServiceParsingTests {
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("provides org.ziniki.ContractName"));
 		assertEquals(1, svc.services.size());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void cardsCanDefineNestedTuples() {
+		context.checking(new Expectations() {{
+			oneOf(builder).tupleDefn(with(any(List.class)), with(any(FunctionName.class)), with(any(Expr.class)));
+		}});
+		serviceParser.tryParsing(TDABasicIntroParsingTests.line("(x,y) = f 2"));
 	}
 }

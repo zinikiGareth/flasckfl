@@ -69,7 +69,7 @@ public class RunRegressionSuite {
 	@Test
 	@Ignore
 	public void testOne() {
-		runCase(new File("test.24451"));
+		runCase(new File("test.24143"));
 	}
 	
 	public boolean runCase(File f) {

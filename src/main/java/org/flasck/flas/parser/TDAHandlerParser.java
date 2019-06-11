@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.stories.TDAParserConstructor;
@@ -60,14 +61,9 @@ public class TDAHandlerParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		ArrayList<Object> lambdas = new ArrayList<Object>();
-		while (line.hasMore()) {
-			PatternParser pp = new PatternParser();
-			Object patt = pp.tryParsing(line);
-			if (patt == null) {
-				errors.message(line, "invalid contract argument pattern");
-				return new IgnoreNestedParser();
-			}
-			lambdas.add(patt);
+		while (line.hasMore() && !errors.hasErrors()) {
+			TDAPatternParser pp = new TDAPatternParser(errors, patt -> lambdas.add(patt));
+			pp.tryParsing(line);
 		}
 		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, namer.provide(named.text), tn.text, inCard, lambdas);
 		builder.newHandler(hi);

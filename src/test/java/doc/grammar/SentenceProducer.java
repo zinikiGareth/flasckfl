@@ -67,6 +67,15 @@ public class SentenceProducer {
 				child.visit(this);
 			}
 		}
+		
+		@Override
+		public void oneOrMore(Definition child) {
+			int cnt = r.nextInt(3)+1;
+			System.out.println("Choosing " + cnt + " iterations of " + child);
+			for (int i=0;i<cnt;i++) {
+				child.visit(this);
+			}
+		}
 
 		@Override
 		public void referTo(String child) {

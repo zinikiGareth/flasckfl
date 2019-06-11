@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.HandlerNameProvider;
+import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAFunctionParser;
 import org.flasck.flas.parser.TDAHandlerParser;
 import org.flasck.flas.parser.TDAIntroParser;
@@ -31,6 +33,7 @@ public class TDAMultiParser implements TDAParsing {
 
 	// needs to return the parser that will do the children
 	public TDAParsing tryParsing(Tokenizable toks) {
+		ErrorMark mark = errors.mark();
 		for (TDAParsing p : parsers) {
 			toks.reset(0);
 			final TDAParsing nested = p.tryParsing(toks);
@@ -38,8 +41,9 @@ public class TDAMultiParser implements TDAParsing {
 				return nested;
 		}
 		toks.reset(0);
-		errors.message(toks, "syntax error");
-		return null;
+		if (!mark.hasMoreNow())
+			errors.message(toks, "syntax error");
+		return new IgnoreNestedParser();
 	}
 
 	public static TDAParsing topLevelUnit(ErrorReporter errors, FunctionNameProvider namer, TopLevelDefinitionConsumer sb) {

@@ -8,6 +8,7 @@ public interface ProductionVisitor {
 
 	void zeroOrOne(Definition child);
 	void zeroOrMore(Definition child);
+	void oneOrMore(Definition child);
 
 	void referTo(String child);
 
@@ -16,7 +17,4 @@ public interface ProductionVisitor {
 	boolean indent();
 
 	void exdent();
-
-
-
 }

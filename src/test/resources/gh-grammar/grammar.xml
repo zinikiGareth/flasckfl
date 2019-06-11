@@ -549,9 +549,9 @@
     <seq>
     	  <token type='ORB' />
       <token type='var-name'/>
-      <many>
+      <one-or-more>
       	<ref production='comma-var-name' />
-      </many>
+      </one-or-more>
     	  <token type='CRB' />
       <token type='EQ'/>
       <ref production='expression'/>
@@ -1155,6 +1155,7 @@
   </production>
   <production name='named-template-definition'>
     <section title='Templates'/>
+    <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <token type='TEMPLATE'/>
       <token type='template-name'/>

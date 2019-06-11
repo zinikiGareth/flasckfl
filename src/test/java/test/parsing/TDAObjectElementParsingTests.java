@@ -1,5 +1,6 @@
 package test.parsing;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.commonBase.names.SolidName;
@@ -38,12 +39,9 @@ public class TDAObjectElementParsingTests {
 	}
 	@Test
 	public void junkIsNotAKeyword() {
-		context.checking(new Expectations() {{
-			oneOf(errors).message(with(any(Tokenizable.class)), with("'junk' is not a valid object keyword"));
-		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("junk"));
-		assertTrue(nested instanceof IgnoreNestedParser);
+		assertNull(nested);
 	}
 
 	@Test

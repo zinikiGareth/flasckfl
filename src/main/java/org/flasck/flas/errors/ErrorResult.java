@@ -133,7 +133,7 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 		}
 
 		@Override
-		public boolean hasMore() {
+		public boolean hasMoreNow() {
 			return count() > have.size();
 		}
 		

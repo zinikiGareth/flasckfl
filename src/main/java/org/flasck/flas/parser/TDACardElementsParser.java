@@ -31,6 +31,9 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		KeywordToken kw = KeywordToken.from(toks);
+		if (kw == null) {
+			return null;
+		}
 		switch (kw.text) {
 		case "state": {
 			if (seenState) {
