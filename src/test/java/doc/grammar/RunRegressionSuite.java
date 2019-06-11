@@ -69,18 +69,20 @@ public class RunRegressionSuite {
 	@Test
 	@Ignore
 	public void testOne() {
-		runCase(new File("test.22372"));
+		runCase(new File("test.24451"));
 	}
 	
 	public boolean runCase(File f) {
 		final File dir = FileUtils.combine(root, f);
-		for (File q : FileUtils.findFilesMatching(dir, "*.fl"))
-			FileUtils.cat(q);
 		boolean result;
 		try {
 			result = !org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", dir.toString() });
 		} catch (Exception ex) {
 			result = false;
+		}
+		if (!result) {
+			for (File q : FileUtils.findFilesMatching(dir, "*.fl"))
+				FileUtils.cat(q);
 		}
 		return result;
 	}

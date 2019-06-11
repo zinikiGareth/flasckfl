@@ -111,7 +111,10 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 			protected boolean matchesSafely(Expr expr) {
 				if (!(expr instanceof NumericLiteral))
 					return false;
-				if (!((NumericLiteral)expr).text.equals(Integer.toString(k)))
+				final NumericLiteral number = (NumericLiteral)expr;
+				if (number.text == null && number.val != k)
+					return false;
+				else if (number.text != null && !number.text.equals(Integer.toString(k)))
 					return false;
 				if (super.pos != null) {
 					if (expr.location() == null)

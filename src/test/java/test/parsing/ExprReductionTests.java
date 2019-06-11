@@ -1,12 +1,16 @@
 package test.parsing;
 
+import java.util.function.Consumer;
+
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.Punctuator;
+import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAStackReducer;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -486,6 +490,65 @@ public class ExprReductionTests {
 		reducer.done();
 	}
 
+	@Test // (a:l)
+	public void aListCanBeAssembledWithTheColonOperator() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator(":"), ExprMatcher.unresolved("a"), ExprMatcher.unresolved("l")).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "("));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "a"));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "l"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));
+		reducer.done();
+	}
+
+	@Test // {a: 42:l }
+	public void aListCanBeAssembledWithTheColonOperatorInsideAnObjectLiteral() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("{}"), ExprMatcher.apply(ExprMatcher.operator(":"), ExprMatcher.string("a"), ExprMatcher.apply(ExprMatcher.operator(":"), ExprMatcher.number(42), ExprMatcher.unresolved("l")))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "{"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "a"));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(2), 42));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "l"));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "}"));
+		reducer.done();
+	}
+
+	/** This is an insanely complicated case which comes about because we use the same processor for each
+	 * term in an object literal.  We need to be sure we clean up our stack after each expression, otherwise
+	 * we "remember" where the "+" was in the first instance and try and reduce to it in the second.
+	 */
+	@Test
+	public void weCleanUpPropertlyAfterEachComma() {
+		context.checking(new Expectations() {{
+			oneOf(builder).term(with(ExprMatcher.apply(ExprMatcher.operator("{}"),
+										ExprMatcher.apply(ExprMatcher.operator(":"), ExprMatcher.string("a"), ExprMatcher.apply(ExprMatcher.operator("+"), ExprMatcher.apply(ExprMatcher.unresolved("f"), ExprMatcher.number(2)), ExprMatcher.number(2))),
+										ExprMatcher.apply(ExprMatcher.operator(":"), ExprMatcher.string("b"), ExprMatcher.apply(ExprMatcher.operator("*"), ExprMatcher.number(2), ExprMatcher.number(2)))).location("-", 1, 0, 12)));
+			oneOf(builder).done();
+		}});
+		reducer.term(new Punctuator(pos, "{"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "a"));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "f"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(2), 2));
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(7), "+"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(2), 2));
+		reducer.term(new Punctuator(pos, ","));
+		reducer.term(new UnresolvedVar(pos.copySetEnd(2), "b"));
+		reducer.term(new Punctuator(pos, ":"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(2), 2));
+		reducer.term(new UnresolvedOperator(pos.copySetEnd(7), "*"));
+		reducer.term(new NumericLiteral(pos.copySetEnd(2), 2));
+		reducer.term(new Punctuator(pos.copySetEnd(12), "}"));
+		reducer.done();
+	}
+	
 	@Test // [a,b]
 	public void squaresCanBeUsedToCreateLists() {
 		context.checking(new Expectations() {{

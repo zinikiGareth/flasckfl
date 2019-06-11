@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
@@ -32,6 +33,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 	private final ErrorReporter errors;
 	private final TopLevelDefinitionConsumer consumer;
 	private IScope scope;
+	private NameOfThing pkg;
 
 	public TDAIntroParser(ErrorReporter errors, TopLevelDefinitionConsumer consumer) {
 		this.errors = errors;
@@ -206,6 +208,12 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 		case "handler": {
 			HandlerNameProvider provider = text -> consumer.handlerName(text);
 			return new TDAHandlerParser(errors, consumer, provider, consumer).parseHandler(kw.location, false, toks);
+		}
+		case "method": {
+			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
+			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
+			MethodConsumer smConsumer = sm -> { consumer.newStandaloneMethod(sm); };
+			return new TDAMethodParser(errors, namer, hnamer, smConsumer, consumer).parseMethod(namer, toks);
 		}
 		default:
 			return null;

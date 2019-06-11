@@ -12,7 +12,7 @@ import org.flasck.flas.vcode.hsieForm.VarInSource;
 public class NumericLiteral implements Expr, Pushable {
 	public final InputPosition location;
 	public final String text;
-	private final Integer val;
+	public final Integer val;
 
 	public NumericLiteral(InputPosition loc, String text, int end) {
 		this.location = loc;
@@ -44,6 +44,9 @@ public class NumericLiteral implements Expr, Pushable {
 
 	@Override
 	public String toString() {
-		return text;
+		if (text != null)
+			return text;
+		else
+			return Integer.toString(val);
 	}
 }

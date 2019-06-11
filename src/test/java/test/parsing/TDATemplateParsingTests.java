@@ -288,6 +288,24 @@ public class TDATemplateParsingTests {
 	}
 
 	@Test
+	public void aSimpleBindingMayHaveAConditionalStyle() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("mmhhezj").expr("(- true eg)"))); will(captureIt);
+		}});
+		TDAParsing styling = parser.tryParsing(TDABasicIntroParsingTests.line("mmhhezj <- true - eg"));
+		TDAParsing nomore = styling.tryParsing(TDABasicIntroParsingTests.line("| 'bsCy+/n5r7Rh-VjPK' => 'yhbLy_?e.7<sn'"));
+		assertTrue(nomore instanceof NoNestingParser);
+		styling.scopeComplete(pos);
+		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
+		assertEquals(0, binding.defaultBinding.events.size());
+		assertEquals(1, binding.defaultBinding.conditionalStylings.size());
+		TemplateStylingOption db = binding.defaultBinding.conditionalStylings.get(0);
+//		assertEquals("click", db.event);
+//		assertThat(db.expr, is(ExprMatcher.apply(ExprMatcher.unresolved("handle"), ExprMatcher.unresolved("x"))));
+	}
+
+	@Test
 	public void aNameByItselfMustHaveSomeNestedContent() {
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area")));
@@ -331,7 +349,7 @@ public class TDATemplateParsingTests {
 		final Tokenizable errline = TDABasicIntroParsingTests.line("<- 42");
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo("object-template"))); will(captureIt);
-			oneOf(errors).message(errline, "multiple default bindings are not permitted");
+			oneOf(errors).message(errline, "syntax error");
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
 		nested.tryParsing(errline);

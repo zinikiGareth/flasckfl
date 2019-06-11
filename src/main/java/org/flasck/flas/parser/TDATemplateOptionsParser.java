@@ -47,13 +47,12 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		}
 		TemplateBindingOption tc = null;
 		if ("|".equals(tok.text)) {
-			if (binding != null && binding.defaultBinding != null) {
-				InputPosition pos = toks.realinfo();
-				if (toksHasSend(toks))
-					errors.message(toks, "conditional bindings are not permitted after the default has been specified");
-				else
-					errors.message(pos, "cannot mix bindings and customization");
+			if ((binding == null || binding.defaultBinding != null) && toksHasSend(toks)) {
+				errors.message(toks, "conditional bindings are not permitted after the default has been specified");
 				return new IgnoreNestedParser();
+			}
+			else if (binding != null && binding.defaultBinding != null) {
+				errors.message(tok.location, "cannot mix bindings and customization");
 			}
 			List<Expr> seen = new ArrayList<>();
 			new TDAExpressionParser(errors, t -> {
@@ -84,6 +83,10 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 		} else if ("<-".equals(tok.text)) {
+			if (binding == null) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
 			// It's a default send binding
 			if (binding.defaultBinding != null) {
 				errors.message(toks, "multiple default bindings are not permitted");
@@ -178,13 +181,18 @@ public class TDATemplateOptionsParser implements TDAParsing {
 	}
 
 	private boolean toksHasSend(Tokenizable toks) {
+		int mark = toks.at();
+		boolean ret = false;
 		while (toks.hasMore()) {
 			ExprToken tok = ExprToken.from(toks);
 			if (tok == null)
-				return false;
-			else if (tok.text.equals("<-"))
-				return true;
+				break;
+			else if (tok.text.equals("<-")) {
+				ret = true;
+				break;
+			}
 		}
-		return false;
+		toks.reset(mark);
+		return ret;
 	}
 }

@@ -68,12 +68,17 @@ public class ParenTermConsumer implements ExprTermConsumer {
 		public void showStack(StackDumper d) {
 			throw new org.zinutils.exceptions.NotImplementedException();
 		}
+
+		public boolean isObjectLiteral() {
+			return op.equals("{}");
+		}
 	}
 
 	private final ErrorReporter errors;
 	private final ExprTermConsumer builder;
 	private final ParenCloseRewriter closer;
 	private final TDAExprReducer curr;
+	private boolean expectingColon;
 
 	public ParenTermConsumer(InputPosition from, ErrorReporter errors, ExprTermConsumer builder, Punctuator open) {
 		this.errors = errors;
@@ -82,9 +87,10 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			closer = new ParenCloseRewriter(from, "()");
 		else if (open.is("["))
 			closer = new ParenCloseRewriter(from, "[]");
-		else if (open.is("{"))
+		else if (open.is("{")) {
 			closer = new ParenCloseRewriter(from, "{}");
-		else
+			expectingColon = true;
+		} else
 			throw new RuntimeException("invalid open paren");
 		curr = new TDAExprReducer(errors, closer);
 	}
@@ -98,8 +104,14 @@ public class ParenTermConsumer implements ExprTermConsumer {
 				curr.done();
 			} else if (punc.is(",")) {
 				curr.seenComma();
+				if (closer.isObjectLiteral())
+					expectingColon = true;
 			} else if (punc.is(":")) {
-				curr.seenColon(closer);
+				if (closer.isObjectLiteral() && expectingColon && punc.is(":")) {
+					curr.seenColon(closer);
+					expectingColon = false;
+				} else
+					curr.term(new UnresolvedOperator(punc.location, ":"));
 			} else if (punc.is("(")) {
 				curr.term(term);
 			} else

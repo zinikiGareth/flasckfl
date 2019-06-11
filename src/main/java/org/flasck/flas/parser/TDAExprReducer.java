@@ -80,6 +80,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 	public void seenComma() {
 		builder.term(reduce(0, terms.size()));
 		terms.clear();
+		ops.clear();
 	}
 
 	public void seenColon(ParenCloseRewriter closer) {
@@ -121,7 +122,9 @@ public class TDAExprReducer implements ExprTermConsumer {
 		} else if (prec == 10) {
 			throw new NotImplementedException();
 		} else {
-			return new ApplyExpr(terms.get(from).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, reduce(from, oppos), reduce(oppos+1, to));
+			final Expr rhs = reduce(oppos+1, to);
+			final Expr lhs = reduce(from, oppos);
+			return new ApplyExpr(terms.get(from).location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), oe, lhs, rhs);
 		}
 	}
 
