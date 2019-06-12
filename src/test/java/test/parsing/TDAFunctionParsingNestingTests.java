@@ -1,13 +1,13 @@
 package test.parsing;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parser.FunctionNameProvider;
+import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -21,16 +21,14 @@ public class TDAFunctionParsingNestingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
-	private FunctionNameProvider functionNamer = context.mock(FunctionNameProvider.class);
+	private TopLevelNamer functionNamer = new PackageNamer("test.pkg");
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 
 	@Test
 	public void weCanHaveTwoFunctionsInTheSameScope() {
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
 			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("g")); will(returnValue(FunctionName.function(pos, null, "g")));
 			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
 		}});
 		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder);
@@ -43,7 +41,6 @@ public class TDAFunctionParsingNestingTests {
 	public void errorsFromPatternsShouldntCascade() {
 		final Tokenizable line = line("f (T T) = 42");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
 			oneOf(errors).message(line, "invalid pattern");
 //			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
 //			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("g")); will(returnValue(FunctionName.function(pos, null, "g")));
@@ -57,10 +54,8 @@ public class TDAFunctionParsingNestingTests {
 	@Test
 	public void weCanHaveTwoFunctionsWithGuardsInTheSameScope() {
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
 			oneOf(builder).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("g")); will(returnValue(FunctionName.function(pos, null, "g")));
 			oneOf(builder).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
 		}});

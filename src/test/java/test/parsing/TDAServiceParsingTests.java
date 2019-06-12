@@ -8,18 +8,18 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -34,6 +34,7 @@ public class TDAServiceParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
+	private TopLevelNamer namer = new PackageNamer("test.pkg");
 	private TDAParsing serviceParser;
 	private ServiceDefinition svc;
 
@@ -42,10 +43,9 @@ public class TDAServiceParsingTests {
 		CaptureAction captureCard = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			allowing(builder).cardName("ServiceA"); will(returnValue(new CardName(new PackageName("A"), "ServiceA")));
-			oneOf(builder).newService(with(ServiceDefnMatcher.called("A.ServiceA"))); will(captureCard);
+			oneOf(builder).newService(with(ServiceDefnMatcher.called("test.pkg.ServiceA"))); will(captureCard);
 		}});
-		TDAIntroParser intro = new TDAIntroParser(tracker, builder);
+		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
 		serviceParser = intro.tryParsing(TDABasicIntroParsingTests.line("service ServiceA"));
 		svc = (ServiceDefinition) captureCard.get(0);
 	}

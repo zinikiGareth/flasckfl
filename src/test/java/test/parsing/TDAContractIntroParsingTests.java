@@ -5,14 +5,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parser.ContractMethodParser;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -25,14 +26,14 @@ public class TDAContractIntroParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
-
+	private TopLevelNamer namer = new PackageNamer("test.pkg");
+	
 	@Test
 	public void theSimplestContractDefinitionAcceptsANameAndReturnsAMethodParser() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Data"); will(returnValue(new SolidName(null, "Data")));
 			oneOf(builder).newContract(with(any(ContractDecl.class)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		assertTrue(nested instanceof ContractMethodParser);
 	}
@@ -41,10 +42,9 @@ public class TDAContractIntroParsingTests {
 	public void aContractMayHaveAMethod() {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Data"); will(returnValue(new SolidName(null, "Data")));
 			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
 		}});
-		TDAIntroParser parser = new TDAIntroParser(tracker, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("up foo"));
 		nested.scopeComplete(new InputPosition("-", 10, 0, "hello"));
@@ -56,10 +56,9 @@ public class TDAContractIntroParsingTests {
 	public void aContractMayHaveMultipleMethods() {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Data"); will(returnValue(new SolidName(null, "Data")));
 			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
 		}});
-		TDAIntroParser parser = new TDAIntroParser(tracker, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("up foo"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("down bar"));
@@ -74,7 +73,7 @@ public class TDAContractIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -86,7 +85,7 @@ public class TDAContractIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -98,7 +97,7 @@ public class TDAContractIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "tokens after end of line");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);

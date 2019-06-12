@@ -3,14 +3,14 @@ package test.parsing;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -23,14 +23,14 @@ public class TDAObjectIntroParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
+	private TopLevelNamer namer = new PackageNamer("test.pkg");
 
 	@Test
 	public void theSimplestObjectCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Store"); will(returnValue(new SolidName(null, "Store")));
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("Store")));
+			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store")));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
@@ -38,11 +38,10 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void anObjectCanIncludeAFunction() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Store"); will(returnValue(new SolidName(null, "Store")));
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("Store")));
+			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store")));
 			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(tracker, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
 		assertTrue(nested instanceof TDAMultiParser);
 		nested.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
@@ -55,7 +54,7 @@ public class TDAObjectIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -67,7 +66,7 @@ public class TDAObjectIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -76,10 +75,9 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void aPolymorphicObjectDefinitionCreatesTheRightScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Store"); will(returnValue(new SolidName(null, "Store")));
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("Store").poly("A").locs(0,7)));
+			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store").poly("A").locs(0,7)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store A"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
@@ -90,7 +88,7 @@ public class TDAObjectIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(TokenizableMatcher.match("[A]")), with("syntax error"));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -101,7 +99,7 @@ public class TDAObjectIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "syntax error");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -109,10 +107,9 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void objectsInPackagesHaveQualifiedNames() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("InPackage"); will(returnValue(new SolidName(new PackageName("test.names"), "InPackage")));
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.names.InPackage")));
+			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.InPackage")));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object InPackage"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}

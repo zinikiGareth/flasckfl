@@ -3,14 +3,15 @@ package test.parsing;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAStructFieldParser;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -21,14 +22,14 @@ public class TDAOfferIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
+	private TopLevelNamer namer = new PackageNamer("test.pkg");
 
 	@Test
 	public void theSimplestOfferCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Coffee"); will(returnValue(new SolidName(null, "Coffee")));
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("Coffee").as(FieldsDefn.FieldsType.OFFER)));
+			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.pkg.Coffee").as(FieldsDefn.FieldsType.OFFER)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("offer Coffee"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
@@ -39,7 +40,7 @@ public class TDAOfferIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -51,7 +52,7 @@ public class TDAOfferIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);

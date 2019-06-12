@@ -117,7 +117,7 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 	}
 
 	@Override
-	public HandlerName provide(String baseName) {
+	public HandlerName handlerName(String baseName) {
 		return new HandlerName(consumer.cardName(), baseName);
 	}
 }

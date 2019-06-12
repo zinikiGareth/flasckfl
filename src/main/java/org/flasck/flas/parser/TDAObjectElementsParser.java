@@ -107,7 +107,7 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 	}
 	
 	@Override
-	public HandlerName provide(String baseName) {
+	public HandlerName handlerName(String baseName) {
 		return new HandlerName(builder.name(), baseName);
 	}
 

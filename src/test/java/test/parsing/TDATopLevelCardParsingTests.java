@@ -8,19 +8,19 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATemplateBindingParser;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -35,6 +35,7 @@ public class TDATopLevelCardParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
+	private TopLevelNamer namer = new PackageNamer("test.pkg");
 	private TDAParsing cardParser;
 	private CardDefinition card;
 
@@ -43,10 +44,9 @@ public class TDATopLevelCardParsingTests {
 		CaptureAction captureCard = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			allowing(builder).cardName("CardA"); will(returnValue(new CardName(new PackageName("A"), "CardA")));
-			oneOf(builder).newCard(with(CardDefnMatcher.called("A.CardA"))); will(captureCard);
+			oneOf(builder).newCard(with(CardDefnMatcher.called("test.pkg.CardA"))); will(captureCard);
 		}});
-		TDAIntroParser intro = new TDAIntroParser(tracker, builder);
+		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
 		cardParser = intro.tryParsing(TDABasicIntroParsingTests.line("card CardA"));
 		card = (CardDefinition) captureCard.get(0);
 	}

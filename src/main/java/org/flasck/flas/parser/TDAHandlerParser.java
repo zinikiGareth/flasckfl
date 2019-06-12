@@ -64,7 +64,7 @@ public class TDAHandlerParser implements TDAParsing {
 			TDAPatternParser pp = new TDAPatternParser(errors, patt -> lambdas.add(patt));
 			pp.tryParsing(line);
 		}
-		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, namer.provide(named.text), tn.text, inCard, lambdas);
+		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, namer.handlerName(named.text), tn.text, inCard, lambdas);
 		builder.newHandler(hi);
 		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hi.getRealName(), text), hi, topLevel);
 	}

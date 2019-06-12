@@ -7,7 +7,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
-import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -30,10 +29,11 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 public class TDAIntroParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final TopLevelDefinitionConsumer consumer;
-	private NameOfThing pkg;
+	private final TopLevelNamer namer;
 
-	public TDAIntroParser(ErrorReporter errors, TopLevelDefinitionConsumer consumer) {
+	public TDAIntroParser(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer consumer) {
 		this.errors = errors;
+		this.namer = namer;
 		this.consumer = consumer;
 	}
 	
@@ -52,7 +52,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
-			CardName qn = (CardName)consumer.cardName(tn.text);
+			CardName qn = namer.cardName(tn.text);
 			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, qn);
 			consumer.newCard(card);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
@@ -70,7 +70,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
-			CardName qn = (CardName)consumer.cardName(tn.text);
+			CardName qn = namer.cardName(tn.text);
 			ServiceDefinition svc = new ServiceDefinition(errors, kw.location, tn.location, qn);
 			consumer.newService(svc);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
@@ -106,7 +106,7 @@ public class TDAIntroParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
-			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, consumer.qualifyName(tn.text), true, polys);
+			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, namer.solidName(tn.text), true, polys);
 			consumer.newStruct(sd);
 			return new TDAStructFieldParser(errors, sd, ty);
 		}
@@ -130,8 +130,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
-			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, consumer.qualifyName(tn.text), true, new ArrayList<>());
-			sd.wrapped(consumer.qualifyName(from.text));
+			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, namer.solidName(tn.text), true, new ArrayList<>());
 			consumer.newStruct(sd);
 			return new TDAStructFieldParser(errors, sd, FieldsType.WRAPS);
 		}
@@ -150,7 +149,7 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(new PolyType(ta.location, ta.text));
 			}
-			final UnionTypeDefn ud = new UnionTypeDefn(tn.location, true, consumer.qualifyName(tn.text), polys);
+			final UnionTypeDefn ud = new UnionTypeDefn(tn.location, true, namer.solidName(tn.text), polys);
 			consumer.newUnion(ud);
 			return new TDAUnionFieldParser(errors, ud);
 		}
@@ -173,16 +172,16 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
-			final SolidName on = consumer.qualifyName(tn.text);
+			final SolidName on = namer.solidName(tn.text);
 			ObjectDefn od = new ObjectDefn(kw.location, tn.location, on, true, polys);
 			consumer.newObject(od);
-			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
-			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
+//			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
+//			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
 			return new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, od, consumer),
-				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, consumer)
+				errors -> new TDAHandlerParser(errors, consumer, namer, consumer),
+				errors -> new TDAFunctionParser(errors, namer, consumer, consumer),
+				errors -> new TDATupleDeclarationParser(errors, namer, consumer, consumer)
 			);
 		}
 		case "contract": {
@@ -195,19 +194,19 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
-			ContractDecl decl = new ContractDecl(kw.location, tn.location, consumer.qualifyName(tn.text));
+			ContractDecl decl = new ContractDecl(kw.location, tn.location, namer.solidName(tn.text));
 			consumer.newContract(decl);
 			return new ContractMethodParser(errors, decl);
 		}
 		case "handler": {
-			HandlerNameProvider provider = text -> consumer.handlerName(text);
-			return new TDAHandlerParser(errors, consumer, provider, consumer).parseHandler(kw.location, false, toks);
+//			HandlerNameProvider provider = text -> consumer.handlerName(text);
+			return new TDAHandlerParser(errors, consumer, namer, consumer).parseHandler(kw.location, false, toks);
 		}
 		case "method": {
-			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
-			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
+//			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
+//			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
 			MethodConsumer smConsumer = sm -> { consumer.newStandaloneMethod(sm); };
-			return new TDAMethodParser(errors, namer, hnamer, smConsumer, consumer).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, namer, namer, smConsumer, consumer).parseMethod(namer, toks);
 		}
 		default:
 			return null;
@@ -218,11 +217,11 @@ public class TDAIntroParser implements TDAParsing {
 	public void scopeComplete(InputPosition location) {
 	}
 
-	public static TDAParserConstructor constructor(TopLevelDefinitionConsumer consumer) {
+	public static TDAParserConstructor constructor(TopLevelNamer namer, TopLevelDefinitionConsumer consumer) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDAIntroParser(errors, consumer);
+				return new TDAIntroParser(errors, namer, consumer);
 			}
 		};
 	}

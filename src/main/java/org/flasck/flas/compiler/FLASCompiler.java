@@ -253,7 +253,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 		String inPkg = dir.getName();
 		System.out.println("Package " + inPkg);
-		ActualPhase2Processor p2 = new ActualPhase2Processor(errors, this, inPkg);
+		Repository p2 = new Repository();
 		ParsingPhase p1 = new ParsingPhase(errors, p2);
 		// UnitTestPhase ut = new UnitTestPhase(errors);
 		ErrorMark mark = errors.mark();

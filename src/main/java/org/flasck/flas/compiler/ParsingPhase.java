@@ -9,22 +9,21 @@ import java.io.LineNumberReader;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parser.FunctionNameProvider;
-import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.PackageNamer;
+import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
 
-public class ParsingPhase implements ParserScanner, FunctionNameProvider {
+public class ParsingPhase implements ParserScanner {
 	private final ErrorReporter errors;
 	private final Blocker blocker;
 	private final NameOfThing pkgName = null;
 
-	public ParsingPhase(ErrorReporter errors, TopLevelDefnConsumer sb) {
+	public ParsingPhase(ErrorReporter errors, TopLevelDefinitionConsumer sb) {
 		this.errors = errors;
 		// new Detoxer(errors, p2);
-		TDANester story = new TDANester(TDAMultiParser.topLevelUnit(errors, this, sb));
+		TDANester story = new TDANester(TDAMultiParser.topLevelUnit(errors, new PackageNamer(pkgName), sb));
 //		LineParser parser = new LineParser(errors/*, detoxer*/);
 		this.blocker = new Blocker(errors, story);
 	}
@@ -49,10 +48,5 @@ public class ParsingPhase implements ParserScanner, FunctionNameProvider {
 		} catch (Throwable t) {
 			errors.reportException(t);
 		}
-	}
-
-	@Override
-	public FunctionName functionName(InputPosition location, String base) {
-		return FunctionName.function(location, pkgName, base);
 	}
 }

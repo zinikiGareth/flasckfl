@@ -18,6 +18,7 @@ import org.flasck.flas.parser.TDAMethodParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATupleDeclarationParser;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAMultiParser implements TDAParsing {
@@ -46,8 +47,8 @@ public class TDAMultiParser implements TDAParsing {
 		return new IgnoreNestedParser();
 	}
 
-	public static TDAParsing topLevelUnit(ErrorReporter errors, FunctionNameProvider namer, TopLevelDefinitionConsumer sb) {
-		return new TDAMultiParser(errors, TDAIntroParser.constructor(sb), TDAFunctionParser.constructor(namer, sb, sb), TDATupleDeclarationParser.constructor(namer, sb, sb));
+	public static TDAParsing topLevelUnit(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer sb) {
+		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, sb, sb), TDATupleDeclarationParser.constructor(namer, sb, sb));
 	}
 	
 	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionNameProvider namer, HandlerNameProvider hnamer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {

@@ -4,10 +4,12 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -17,6 +19,7 @@ public class TDAMethodIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
+	private TopLevelNamer namer = new PackageNamer("test.pkg");
 
 	@Test
 	public void aStandaloneMethodCanBeDefined() {
@@ -24,7 +27,7 @@ public class TDAMethodIntroParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newStandaloneMethod(with(any(ObjectMethod.class)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method foo"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}

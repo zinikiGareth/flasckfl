@@ -4,14 +4,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
+import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAUnionFieldParser;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.parser.UnionFieldConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -23,14 +24,14 @@ public class TDAUnionParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
+	private TopLevelNamer namer = new PackageNamer("test.pkg");
 
 	@Test
 	public void theUnionKeywordAppearsOnALineWithAType() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("Foo"); will(returnValue(new SolidName(null, "Foo")));
-			oneOf(builder).newUnion(with(UnionDefnMatcher.match("Foo")));
+			oneOf(builder).newUnion(with(UnionDefnMatcher.match("test.pkg.Foo")));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("union Foo"));
 		assertTrue(nested instanceof TDAUnionFieldParser);
 	}
@@ -38,10 +39,9 @@ public class TDAUnionParsingTests {
 	@Test
 	public void aUnionDefinitionMayBePolymorphic() {
 		context.checking(new Expectations() {{
-			allowing(builder).qualifyName("List"); will(returnValue(new SolidName(null, "List")));
-			oneOf(builder).newUnion(with(UnionDefnMatcher.match("List").poly("A")));
+			oneOf(builder).newUnion(with(UnionDefnMatcher.match("test.pkg.List").poly("A")));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("union List A"));
 		assertTrue(nested instanceof TDAUnionFieldParser);
 	}
@@ -52,7 +52,7 @@ public class TDAUnionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -64,7 +64,7 @@ public class TDAUnionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -76,7 +76,7 @@ public class TDAUnionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid type argument");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -87,7 +87,7 @@ public class TDAUnionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid type argument");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
