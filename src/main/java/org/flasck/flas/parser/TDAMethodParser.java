@@ -16,15 +16,13 @@ import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDAMethodParser {
 	private final ErrorReporter errors;
-	private final FunctionNameProvider namer;
-	private final HandlerNameProvider handlerNamer;
+	private final FunctionScopeNamer namer;
 	private final MethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDAMethodParser(ErrorReporter errors, FunctionNameProvider namer, HandlerNameProvider handlerNamer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel) {
+	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.namer = namer;
-		this.handlerNamer = handlerNamer;
 		this.builder = builder;
 		this.topLevel = topLevel;
 	}
@@ -47,10 +45,10 @@ public class TDAMethodParser {
 		FunctionName fnName = methodNamer.functionName(var.location, var.text);
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args);
 		builder.addMethod(meth);
-		return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, namer, handlerNamer, topLevel, "action"));
+		return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action"));
 	}
 
-	public static TDAParserConstructor constructor(FunctionNameProvider namer, HandlerNameProvider handlerNamer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
+	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
@@ -60,7 +58,7 @@ public class TDAMethodParser {
 						KeywordToken kw = KeywordToken.from(toks);
 						if (kw == null || !"method".equals(kw.text))
 							return null;
-						return new TDAMethodParser(errors, namer, handlerNamer, m -> topLevel.newStandaloneMethod(m), topLevel).parseMethod(namer, toks);
+						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(m), topLevel).parseMethod(namer, toks);
 					}
 					
 					@Override

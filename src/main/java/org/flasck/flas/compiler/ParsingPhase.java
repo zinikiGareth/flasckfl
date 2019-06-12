@@ -22,9 +22,7 @@ public class ParsingPhase implements ParserScanner {
 
 	public ParsingPhase(ErrorReporter errors, TopLevelDefinitionConsumer sb) {
 		this.errors = errors;
-		// new Detoxer(errors, p2);
 		TDANester story = new TDANester(TDAMultiParser.topLevelUnit(errors, new PackageNamer(pkgName), sb));
-//		LineParser parser = new LineParser(errors/*, detoxer*/);
 		this.blocker = new Blocker(errors, story);
 	}
 

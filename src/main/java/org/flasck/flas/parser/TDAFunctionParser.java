@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -46,11 +45,10 @@ public class TDAFunctionParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		
 		// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...
-		final FunctionNameProvider innerFunctionNamer = (loc,base) -> FunctionName.function(loc, fname, base);
-		final HandlerNameProvider handlerNamer = text -> new HandlerName(fname, text);
+		InnerPackageNamer innerNamer = new InnerPackageNamer(fname);
 		if (!line.hasMore()) {
 			consumer.functionIntro(new FunctionIntro(fname, args));
-			return new TDAFunctionCaseParser(errors, consumer, fname, args, new LastActionScopeParser(errors, innerFunctionNamer, handlerNamer, topLevel, "case"));
+			return new TDAFunctionCaseParser(errors, consumer, fname, args, new LastActionScopeParser(errors, innerNamer, topLevel, "case"));
 		}
 		ExprToken tok = ExprToken.from(line);
 		if (tok == null || !tok.text.equals("=")) {
@@ -71,7 +69,7 @@ public class TDAFunctionParser implements TDAParsing {
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser();
 
-		return TDAMultiParser.functionScopeUnit(errors, innerFunctionNamer, handlerNamer, topLevel, topLevel);
+		return TDAMultiParser.functionScopeUnit(errors, innerNamer, topLevel, topLevel);
 	}
 
 	@Override

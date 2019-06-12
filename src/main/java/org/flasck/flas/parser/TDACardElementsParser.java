@@ -18,12 +18,14 @@ import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
 	private final ErrorReporter errors;
+	private final TemplateNamer namer;
 	private final CardElementsConsumer consumer;
 	private final TopLevelDefinitionConsumer topLevel;
 	private boolean seenState;
 
-	public TDACardElementsParser(ErrorReporter errors, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel) {
+	public TDACardElementsParser(ErrorReporter errors, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel) {
 		this.errors = errors;
+		this.namer = namer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 	}
@@ -95,12 +97,12 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
 			MethodConsumer evConsumer = em -> { consumer.addEventHandler(em); };
-			return new TDAMethodParser(errors, this, this, evConsumer, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel).parseMethod(namer, toks);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
 			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(sm); };
-			return new TDAMethodParser(errors, this, this, smConsumer, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel).parseMethod(namer, toks);
 		}
 		default:
 			return null;

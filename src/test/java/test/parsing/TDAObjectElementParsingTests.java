@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.ObjectElementsConsumer;
+import org.flasck.flas.parser.ObjectNestedNamer;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAObjectElementsParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -18,7 +19,6 @@ import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -29,16 +29,11 @@ public class TDAObjectElementParsingTests {
 	private ObjectElementsConsumer builder = context.mock(ObjectElementsConsumer.class);
 	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
 	final SolidName objName = new SolidName(null, "MyObject");
-	
-	@Before
-	public void setup() {
-		context.checking(new Expectations() {{
-			allowing(builder).name(); will(returnValue(objName));
-		}});
-	}
+	private ObjectNestedNamer namer = new ObjectNestedNamer(objName);
+
 	@Test
 	public void junkIsNotAKeyword() {
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("junk"));
 		assertNull(nested);
 	}
@@ -48,7 +43,7 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).defineState(with(any(StateDefinition.class)));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("state"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
@@ -58,7 +53,7 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(any(Tokenizable.class)), with("extra characters at end of line"));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("state Fred"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -69,7 +64,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("simple")));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor simple"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -80,7 +75,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor args x"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -91,7 +86,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(null, "myname"))));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
@@ -102,7 +97,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(null, "myname"))));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname x (Number y) = x + y"));
 		assertTrue(nested instanceof TDAMultiParser);
 	}
@@ -113,7 +108,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -124,7 +119,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update (String s)"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -135,7 +130,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		/*TDAParsing nested = */ parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 //		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -147,7 +142,7 @@ public class TDAObjectElementParsingTests {
 			oneOf(builder).addTemplate(with(any(Template.class)));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 		parser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
 //		assertTrue(nested instanceof TDAMethodMessageParser);

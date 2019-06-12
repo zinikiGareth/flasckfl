@@ -58,7 +58,7 @@ public class TDAIntroParser implements TDAParsing {
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
 			return new TDAMultiParser(errors, 
-				errors -> new TDACardElementsParser(errors, card, consumer),
+				errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
 				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, consumer)
@@ -76,7 +76,7 @@ public class TDAIntroParser implements TDAParsing {
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
 			return new TDAMultiParser(errors, 
-				errors -> new TDAServiceElementsParser(errors, svc, consumer),
+				errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
 				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, consumer)
@@ -178,7 +178,7 @@ public class TDAIntroParser implements TDAParsing {
 //			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
 //			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
 			return new TDAMultiParser(errors, 
-				errors -> new TDAObjectElementsParser(errors, od, consumer),
+				errors -> new TDAObjectElementsParser(errors, new ObjectNestedNamer(on), od, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, namer, consumer),
 				errors -> new TDAFunctionParser(errors, namer, consumer, consumer),
 				errors -> new TDATupleDeclarationParser(errors, namer, consumer, consumer)
@@ -206,7 +206,7 @@ public class TDAIntroParser implements TDAParsing {
 //			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
 //			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
 			MethodConsumer smConsumer = sm -> { consumer.newStandaloneMethod(sm); };
-			return new TDAMethodParser(errors, namer, namer, smConsumer, consumer).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, namer, smConsumer, consumer).parseMethod(namer, toks);
 		}
 		default:
 			return null;

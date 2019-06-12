@@ -7,8 +7,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.HandlerName;
-import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -24,13 +22,15 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
+public class TDAObjectElementsParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final TemplateNamer namer;
 	private final ObjectElementsConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDAObjectElementsParser(ErrorReporter errors, ObjectElementsConsumer od, FunctionScopeUnitConsumer topLevel) {
+	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
+		this.namer = namer;
 		this.builder = od;
 		this.topLevel = topLevel;
 	}
@@ -50,13 +50,13 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
-			final Template template = new Template(kw.location, tn.location, new TemplateName(builder.name(), tn.text), null, null);
+			final Template template = new Template(kw.location, tn.location, namer.template(tn.text), null, null);
 			builder.addTemplate(template);
 			return new TDATemplateBindingParser(errors, template);
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(toks);
-			FunctionName fnName = FunctionName.objectCtor(var.location, builder.name(), var.text);
+			FunctionName fnName = namer.ctor(var.location, var.text);
 			List<Pattern> args = new ArrayList<>();
 			TDAPatternParser pp = new TDAPatternParser(errors, p -> {
 				args.add(p);
@@ -69,7 +69,7 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 			}
 			ObjectCtor ctor = new ObjectCtor(var.location, fnName, args);
 			builder.addConstructor(ctor);
-			return new TDAMethodMessageParser(errors, ctor, new LastActionScopeParser(errors, this, this, topLevel, "action"));
+			return new TDAMethodMessageParser(errors, ctor, new LastActionScopeParser(errors, namer, topLevel, "action"));
 		}
 		case "acor": {
 			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {
@@ -88,27 +88,17 @@ public class TDAObjectElementsParser implements TDAParsing, FunctionNameProvider
 					throw new org.zinutils.exceptions.NotImplementedException();
 				}
 			};
-			TDAFunctionParser fcp = new TDAFunctionParser(errors, this, consumer, topLevel);
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, consumer, topLevel);
 			return fcp.tryParsing(toks);
 		}
 		case "method": {
-			FunctionNameProvider namer = (loc, text) -> FunctionName.objectMethod(loc, builder.name(), text);
-			return new TDAMethodParser(errors, this, this, builder, topLevel).parseMethod(namer, toks);
+			FunctionNameProvider methodNamer = (loc, text) -> namer.method(loc, text);
+			return new TDAMethodParser(errors, namer, builder, topLevel).parseMethod(methodNamer, toks);
 		}
 		default: {
 			return null;
 		}
 		}
-	}
-
-	@Override
-	public FunctionName functionName(InputPosition location, String base) {
-		return FunctionName.objectMethod(location, builder.name(), base);
-	}
-	
-	@Override
-	public HandlerName handlerName(String baseName) {
-		return new HandlerName(builder.name(), baseName);
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.stories.TDAMultiParser;
@@ -89,9 +88,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			consumer.tupleDefn(vars, leadName, e);
 		}).tryParsing(line);
 
-		FunctionNameProvider nestedFunctionNamer = (loc, text) -> FunctionName.function(loc, leadName, text);
-		HandlerNameProvider handlerNamer = text -> new HandlerName(leadName, text);
-		return TDAMultiParser.functionScopeUnit(errors, nestedFunctionNamer, handlerNamer, consumer, topLevel);
+		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(leadName), consumer, topLevel);
 	}
 
 	@Override
