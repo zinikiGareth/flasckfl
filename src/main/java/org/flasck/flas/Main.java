@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.errors.ErrorMark;
 
 public class Main {
 	public static void main(String[] args) {
@@ -42,14 +43,14 @@ public class Main {
 	}
 
 	private static void processInput(Configuration config, FLASCompiler compiler, File input) {
+		ErrorMark mark = compiler.errors().mark();
 		try {
 			if (config.tda)
-				compiler.parse(input);
-//			else
-//				compiler.compile(input);
+				mark = compiler.parse(input);
 		} catch (Throwable ex) {
-//			ex.printStackTrace();
 			compiler.reportException(ex);
+		} finally {
+			compiler.errors().showFromMark(mark, compiler.errorWriter(), 0);
 		}
 	}
 

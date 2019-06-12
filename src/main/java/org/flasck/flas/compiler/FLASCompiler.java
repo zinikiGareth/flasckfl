@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -243,18 +244,15 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	// Now read and parse all the files, passing it on to the alleged phase2
-	public void parse(File dir) {
-		if (!dir.isDirectory()) {
-			ErrorMark mark = errors.mark();
-			errors.message((InputPosition) null, "there is no input directory " + dir);
-			errors.showFromMark(mark, errorWriter, 4);
-			return;
-		}
+	public ErrorMark parse(File dir) {
+		if (!dir.isDirectory())
+			throw new RuntimeException("there is no input directory " + dir);
 
 		String inPkg = dir.getName();
+		checkPackageName(inPkg);
 		System.out.println("Package " + inPkg);
 		Repository p2 = new Repository();
-		ParsingPhase p1 = new ParsingPhase(errors, p2);
+		ParsingPhase p1 = new ParsingPhase(errors, inPkg, p2);
 		// UnitTestPhase ut = new UnitTestPhase(errors);
 		ErrorMark mark = errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
@@ -262,8 +260,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			p1.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
 			mark = errors.mark();
-
 		}
+		return mark;
 		/*
 		 * for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
 		 * System.out.println(" > " + f.getName()); ut.process(f);
@@ -273,6 +271,14 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		 * errorWriter, 4); return; } p2.bceTo(ut); if (errors.hasErrors()) {
 		 * errors.showFromMark(mark, errorWriter, 4); return; }
 		 */
+	}
+
+	private void checkPackageName(String inPkg) {
+		String[] bits = inPkg.split("\\.");
+		for (String s : bits) {
+			if (!Character.isLowerCase(s.charAt(0)))
+				throw new RuntimeException("Package must have valid package name");
+		}
 	}
 
 	CompileResult stage2(ErrorReporter er, String priorPackage, IScope priorScope, String inPkg, Scope scope)
@@ -540,5 +546,13 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 	public void reportException(Throwable ex) {
 		errors.reportException(ex);
+	}
+
+	public ErrorResult errors() {
+		return errors;
+	}
+
+	public Writer errorWriter() {
+		return errorWriter;
 	}
 }

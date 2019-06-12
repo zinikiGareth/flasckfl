@@ -30,6 +30,7 @@ import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 import org.zinutils.exceptions.UtilException;
 
+@Deprecated
 public class TemplateLineParser implements TryParsing{
 
 	@Override

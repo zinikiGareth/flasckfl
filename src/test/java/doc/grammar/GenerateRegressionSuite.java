@@ -28,7 +28,7 @@ public class GenerateRegressionSuite {
 		for (long i=21000;i<29000;i+=7) {
 			final long j = i;
 			SentenceProducer p = new SentenceProducer(top, grammar);
-			p.sentence(i, used -> store(jo, allUsed, "test." + Long.toString(j), used));
+			p.sentence(i, used -> store(jo, allUsed, "test.r" + Long.toString(j), used));
 		}
 		File meta = new File(top, "META.json");
 		FileUtils.writeFile(meta, jo.toString());

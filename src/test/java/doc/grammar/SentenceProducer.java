@@ -31,9 +31,9 @@ public class SentenceProducer {
 		SPProductionVisitor visitor = new SPProductionVisitor(grammar, var*100L);
 		visitor.referTo(top);
 		sendUsed.accept(visitor.used);
-		final File root = new File(td, "test." + var);
+		final File root = new File(td, "test.r" + var);
 		FileUtils.assertDirectory(root);
-		final File tmp = new File(root, Long.toString(var) + ".fl");
+		final File tmp = new File(root, "r"+ Long.toString(var) + ".fl");
 		FileUtils.writeFile(tmp, visitor.sentence.toString());
 		return tmp;
 	}

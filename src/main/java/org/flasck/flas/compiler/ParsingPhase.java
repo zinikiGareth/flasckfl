@@ -9,7 +9,6 @@ import java.io.LineNumberReader;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
-import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -18,11 +17,10 @@ import org.flasck.flas.stories.TDAMultiParser;
 public class ParsingPhase implements ParserScanner {
 	private final ErrorReporter errors;
 	private final Blocker blocker;
-	private final NameOfThing pkgName = null;
 
-	public ParsingPhase(ErrorReporter errors, TopLevelDefinitionConsumer sb) {
+	public ParsingPhase(ErrorReporter errors, String inPkg, TopLevelDefinitionConsumer sb) {
 		this.errors = errors;
-		TDANester story = new TDANester(TDAMultiParser.topLevelUnit(errors, new PackageNamer(pkgName), sb));
+		TDANester story = new TDANester(TDAMultiParser.topLevelUnit(errors, new PackageNamer(inPkg), sb));
 		this.blocker = new Blocker(errors, story);
 	}
 
