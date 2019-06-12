@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAPatternParser;
 import org.flasck.flas.tokenizers.Tokenizable;

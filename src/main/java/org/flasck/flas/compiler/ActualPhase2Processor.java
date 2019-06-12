@@ -138,11 +138,6 @@ public class ActualPhase2Processor implements Phase2Processor {
 	}
 
 	@Override
-	public void scopeTo(ScopeReceiver sendTo) {
-		sendTo.provideScope(scope);
-	}
-
-	@Override
 	public void bceTo(BCEReceiver sendTo) {
 		if (bce == null)
 			throw new RuntimeException("Too soon");

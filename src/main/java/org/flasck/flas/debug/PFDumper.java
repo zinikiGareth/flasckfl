@@ -164,7 +164,7 @@ public class PFDumper {
 			dumpList(pw, cd.contracts);
 			dumpList(pw, cd.handlers);
 			dumpList(pw, cd.services);
-			dumpScope(pw, cd.innerScope());
+			dumpScope(pw, null /* cd.innerScope() */);
 		} else if (obj instanceof StateDefinition) {
 			StateDefinition sd = (StateDefinition) obj;
 			pw.print("state");

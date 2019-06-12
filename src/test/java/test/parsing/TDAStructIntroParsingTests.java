@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parser.IgnoreNestedParser;
@@ -16,7 +15,6 @@ import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -24,13 +22,6 @@ public class TDAStructIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
-
-	@Before
-	public void setup() {
-		context.checking(new Expectations() {{
-			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
-		}});
-	}
 
 	@Test
 	public void theSimplestStructCreatesAScopeEntryAndReturnsAFieldParser() {

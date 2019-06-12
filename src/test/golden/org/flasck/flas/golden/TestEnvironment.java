@@ -19,7 +19,6 @@ import java.util.zip.ZipOutputStream;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.debug.PFDumper;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.stories.StoryRet;
 import org.zinutils.system.RunProcess;
 import org.zinutils.utils.Crypto;
 import org.zinutils.utils.FileUtils;
@@ -167,16 +166,9 @@ public class TestEnvironment {
 		FileUtils.assertDirectory(dir);
 	}
 
-	public void dump(File input, StoryRet sr, ErrorResult er) throws FileNotFoundException {
+	public void dump(File input, Object sr, ErrorResult er) throws FileNotFoundException {
 		PFDumper dumper = new PFDumper();
 		Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
-		if (sr.scope != null) {
-			pw.println("package test.golden");
-			dumper.dumpScope(pw, sr.scope);
-		}
-		if (sr.er != null) {
-			er.merge(sr.er);
-		}
 		pw.close();
 	}
 

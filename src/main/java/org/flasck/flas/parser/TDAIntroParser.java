@@ -38,7 +38,6 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 	public TDAIntroParser(ErrorReporter errors, TopLevelDefinitionConsumer consumer) {
 		this.errors = errors;
 		this.consumer = consumer;
-		consumer.scopeTo(this);
 	}
 	
 	@Override
@@ -62,7 +61,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				return new IgnoreNestedParser();
 			}
 			CardName qn = (CardName)consumer.cardName(tn.text);
-			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, scope, qn);
+			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, qn);
 			consumer.newCard(card);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
@@ -80,7 +79,7 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 				return new IgnoreNestedParser();
 			}
 			CardName qn = (CardName)consumer.cardName(tn.text);
-			ServiceDefinition svc = new ServiceDefinition(errors, kw.location, tn.location, scope, qn);
+			ServiceDefinition svc = new ServiceDefinition(errors, kw.location, tn.location, qn);
 			consumer.newService(svc);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);

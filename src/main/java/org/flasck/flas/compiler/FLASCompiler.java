@@ -42,15 +42,12 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.stories.FLASStory;
-import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateTraversor;
 import org.flasck.flas.testrunner.FileUnitTestResultHandler;
 import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.flas.testrunner.TestScript;
-import org.flasck.flas.testrunner.UnitTestPhase;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.testrunner.UnitTests;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -271,7 +268,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		System.out.println("Package " + inPkg);
 		ActualPhase2Processor p2 = new ActualPhase2Processor(errors, this, inPkg);
 		ParsingPhase p1 = new ParsingPhase(errors, p2);
-		UnitTestPhase ut = new UnitTestPhase(errors);
+//		UnitTestPhase ut = new UnitTestPhase(errors);
 		ErrorMark mark = errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			System.out.println(" > " + f.getName());
@@ -280,7 +277,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			mark = errors.mark();
 			
 		}
-		p2.scopeTo(ut);
+		/*
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
 			System.out.println(" > " + f.getName());
 			ut.process(f);
@@ -297,108 +294,11 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			return;
 		}
 		p2.bceTo(ut);
-		p2.jsTo(ut);
-		ut.runTests(unitjvm, unitjs, writeTestReports, utpaths);
 		if (errors.hasErrors()) {
 			errors.showFromMark(mark, errorWriter, 4);
 			return;
 		}
-	}
-
-	// The objective of this method is to convert an entire package directory at one go
-	// Thus the entire context of this is a single package
-	@Deprecated // I'm deprecating this because I want to go to a different flow
-	public CompileResult compile(File dir) throws ErrorResultException, IOException, ClassNotFoundException {
-		String inPkg = dir.getName();
-		if (!dir.isDirectory()) {
-			errors.message((InputPosition)null, "there is no input directory " + dir);
-			return null;
-		}
-
-		boolean failed = false;
-		final FLASStory storyProc = new FLASStory();
-		final Scope scope = Scope.topScope(inPkg);
-		final List<String> pkgs = new ArrayList<String>();
-		pkgs.add(inPkg);
-		
-		ErrorMark mark = errors.mark();
-
-		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
-			System.out.println(" > " + f.getName());
-			FileReader r = null;
-			try {
-				r = new FileReader(f);
-				readIntoScope(inPkg, errors, storyProc, scope, f.getName(), r);
-			} catch (IOException ex1) {
-				failed = true;
-				ex1.printStackTrace();
-			} finally {
-				if (r != null) try { r.close(); } catch (IOException ex3) {}
-			}
-		}
-
-		if (failed || errors.hasErrors()) {
-			errors.showFromMark(mark, errorWriter, 4);
-			return null;
-		}
-
-		CompileResult cr;
-		try {
-			cr = stage2(errors, null, null, inPkg, scope);
-			if (cr == null)
-				return null;
-		} catch (ErrorResultException ex) {
-			((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 0);
-			throw ex;
-		}
-
-		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
-			MultiTextEmitter results;
-			boolean close;
-			if (writeTestReports != null && writeTestReports.isDirectory()) {
-				results = new MultiTextEmitter(new File(writeTestReports, f.getName().replaceFirst(".ut$", ".txt")));
-				close = true;
-			} else {
-				results = new MultiTextEmitter(System.out);
-				close = false;
-			}
-			
-			try {
-				FLASCompiler sc = new FLASCompiler(null);
-				sc.includePrior(cr);
-				sc.writeJVMTo(this.writeJVM);
-				// TODO: we probably need to configure the compiler here ...
-				UnitTestRunner utr = new UnitTestRunner(errors);
-				utr.sendResultsTo(new FileUnitTestResultHandler(results));
-				
-				// We presumably needs some set of options to say which runners
-				// we want to execute - could be more than one
-				if (unitjvm) {
-					FLConstructorServer cx = new FLConstructorServer(cr.bce.getClassLoader(), new EntityHoldingStore());
-					cx = cx.attachRuntimeCache(new FLASTransactionContext(cx));
-					JVMRunner jvmRunner = new JVMRunner(cr, cx);
-					for (File p : utpaths)
-						jvmRunner.considerResource(p);
-					TestScript scr = utr.prepare(sc, jvmRunner, cr.getPackage().uniqueName() +".script", cr.getScope(), f);
-					utr.run(jvmRunner, scr);
-				}
-				if (unitjs) {
-					JSRunner jsRunner = new JSRunner(cr);
-					TestScript scr = utr.prepare(sc, jsRunner, cr.getPackage().uniqueName() +".script", cr.getScope(), f);
-					utr.run(jsRunner, scr);
-				}
-			} catch (ErrorResultException ex) {
-				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 0);
-				return null;
-			} finally {
-				if (close)
-					results.close();
-			}
-		}
-		
-		// TODO: we also want to support general *.pt (protocol test) files and run them against cards/services that claim to support that protocol
-		
-		return cr;
+		*/
 	}
 
 	CompileResult stage2(ErrorReporter er, String priorPackage, IScope priorScope, String inPkg, Scope scope) throws ErrorResultException, IOException {
@@ -572,21 +472,11 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		}
 	}
 
-	protected void readIntoScope(String inPkg, ErrorResult errors, final FLASStory storyProc, final Scope scope, String fileName, Reader r) throws IOException {
-		// 1. Use indentation to break the input file up into blocks
-		List<Block> blocks = makeBlocks(errors, fileName, r);
-		
-		// 2. Use the parser factory and story to convert blocks to a package definition
-		storyProc.process(inPkg, scope, errors, blocks, true);
-	}
-
 	@Override
 	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, String flas) throws IOException, ErrorResultException {
 		this.internalBuildJVM();
 		ErrorResult errors = new ErrorResult();
-		final FLASStory storyProc = new FLASStory();
 		final Scope scope = Scope.topScope(pkg);
-		readIntoScope(pkg, errors, storyProc, scope, "script.fl", new StringReader(flas));
 		return stage2(errors, priorPackage, priorScope, pkg, scope);
 	}
 
@@ -629,32 +519,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			else
 				hsiePW.println("-------");
 			h.dump(hsiePW);
-		}
-	}
-
-	// Just obtain a parse tree 
-	public StoryRet parse(String inPkg, String input) {
-		ErrorResult er = new ErrorResult();
-		final FLASStory storyProc = new FLASStory();
-		final Scope scope = Scope.topScope(inPkg);
-		StoryRet ret = new StoryRet(er, scope);
-		StringReader r = null;
-		try {
-			r = new StringReader(input);
-
-			// 1. Use indentation to break the input file up into blocks
-			List<Block> blocks = makeBlocks(er, "-", r);
-			if (er.hasErrors())
-				return ret;
-			
-			// 2. Use the parser factory and story to convert blocks to a package definition
-			storyProc.process(inPkg, scope, er, blocks, true);
-			return ret;
-		} catch (IOException ex1) {
-			ex1.printStackTrace();
-			return null;
-		} finally {
-			r.close();
 		}
 	}
 

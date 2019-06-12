@@ -71,7 +71,7 @@ public class GoldenJVM {
 		TestEnvironment.clean(errs);
 		TestEnvironment.clean(droidTo);
 		TestEnvironment.clean(droid);
-		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, out.getPath(), true, useJSRunner, useJVMRunner, false, checkEverything, stripNumbers);
+//		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, out.getPath(), true, useJSRunner, useJVMRunner, false, checkEverything, stripNumbers);
 		
 		Main.setLogLevels();
 		FLASCompiler compiler = new FLASCompiler(null);
@@ -80,15 +80,15 @@ public class GoldenJVM {
 		compiler.unitjs(useJSRunner);
 		compiler.unitjvm(useJVMRunner);
 		compiler.errorWriter(new PrintWriter(System.out));
-		try {
+//		try {
 			compiler.writeJVMTo(droidTo);
-			compiler.compile(dir);
-		} catch (ErrorResultException ex) {
-			GoldenCGRunner.handleErrors(te, errs, ex.errors, null);
-		} catch (Throwable t) {
-			t.printStackTrace();
-			throw t;
-		}
+//			compiler.compile(dir);
+//		} catch (ErrorResultException ex) {
+//			GoldenCGRunner.handleErrors(te, errs, ex.errors, null);
+//		} catch (Throwable t) {
+//			t.printStackTrace();
+//			throw t;
+//		}
 		
 		droidToClasses = new File(droidTo, "test/runner");
 		assertTrue("JVM was not created", droidToClasses.isDirectory());

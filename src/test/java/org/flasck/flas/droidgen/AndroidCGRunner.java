@@ -30,38 +30,37 @@ public class AndroidCGRunner extends CGHarnessRunner {
 		FLASCompiler compiler = new FLASCompiler(null);
 		compiler.searchIn(new File("src/main/resources/flim"));
 		compiler.unitTestPath(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
-		CompileResult cr = compiler.compile(new File("src/test/resources/cards/test.ziniki"));
 
 		CGHClassLoaderImpl zcl = new CGHClassLoaderImpl();
 		List<Class<?>> ret = new ArrayList<Class<?>>();
 
-		ByteCodeEnvironment bce = cr.bce;
-		compare(bce, zcl, ret, "test.ziniki.CounterObj");
-		compare(bce, zcl, ret, "test.ziniki.CounterCard");
-		compare(bce, zcl, ret, "test.ziniki.CounterCard$B1");
-		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C0");
-		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C1");
-		compare(bce, zcl, ret, "test.ziniki.CounterCard$CountUp");
+//		ByteCodeEnvironment bce = cr.bce;
+//		compare(bce, zcl, ret, "test.ziniki.CounterObj");
+//		compare(bce, zcl, ret, "test.ziniki.CounterCard");
+//		compare(bce, zcl, ret, "test.ziniki.CounterCard$B1");
+//		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C0");
+//		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C1");
+//		compare(bce, zcl, ret, "test.ziniki.CounterCard$CountUp");
 		return ret.toArray(new Class<?>[ret.size()]);
 	}
 
-	private static void compare(ByteCodeEnvironment bce, CGHClassLoaderImpl zcl, List<Class<?>> ret, String clz) {
-		try {
-			byte[] bs = FileUtils.readAllStream(new FileInputStream("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes/" + FileUtils.convertDottedToSlashPath(clz) + ".class"));
-			expected.put(clz, bs);
-		} catch (FileNotFoundException ex) {
-			// it doesn't exist so won't be found later ...
-		}
-
-		// Need to copy "everything" across from BCE to holder ... or else bind the two to begin with
-		ByteCodeCreator bcc = bce.get(clz);
-		if (bcc != null)
-			holder.addEntry(bcc.getCreatedName(), bcc);
-
-		// And build the test cases
-		Class<?> testClass = testClass(zcl, bce, clz, false);
-		ret.add(testClass);
-	}
+//	private static void compare(ByteCodeEnvironment bce, CGHClassLoaderImpl zcl, List<Class<?>> ret, String clz) {
+//		try {
+//			byte[] bs = FileUtils.readAllStream(new FileInputStream("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes/" + FileUtils.convertDottedToSlashPath(clz) + ".class"));
+//			expected.put(clz, bs);
+//		} catch (FileNotFoundException ex) {
+//			// it doesn't exist so won't be found later ...
+//		}
+//
+//		// Need to copy "everything" across from BCE to holder ... or else bind the two to begin with
+//		ByteCodeCreator bcc = bce.get(clz);
+//		if (bcc != null)
+//			holder.addEntry(bcc.getCreatedName(), bcc);
+//
+//		// And build the test cases
+//		Class<?> testClass = testClass(zcl, bce, clz, false);
+//		ret.add(testClass);
+//	}
 
 	@Override
 	protected void cleanUp() {

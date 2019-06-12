@@ -69,7 +69,7 @@ public abstract class BaseRunnerTests {
 	public void setup() {
 		Main.setLogLevels();
 		mainScope.define(errors, "x", null);
-		CardDefinition cd = new CardDefinition(errors, loc, loc, mainScope, cn);
+		CardDefinition cd = new CardDefinition(errors, loc, loc, cn);
 		{
 			ContractImplements ctr = new ContractImplements(loc, loc, "SetState", null, null);
 			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C0"), "setOn"), new ArrayList<>())));

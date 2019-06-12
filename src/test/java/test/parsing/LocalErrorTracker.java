@@ -1,4 +1,4 @@
-package org.flasck.flas.parser;
+package test.parsing;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -2,19 +2,16 @@ package test.parsing;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parser.FunctionNameProvider;
-import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,13 +24,6 @@ public class TDAFunctionParsingNestingTests {
 	private FunctionNameProvider functionNamer = context.mock(FunctionNameProvider.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
-
-	@Before
-	public void setup() {
-		context.checking(new Expectations() {{
-			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
-		}});
-	}
 
 	@Test
 	public void weCanHaveTwoFunctionsInTheSameScope() {

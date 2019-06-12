@@ -45,8 +45,8 @@ public class Main {
 		try {
 			if (config.tda)
 				compiler.parse(input);
-			else
-				compiler.compile(input);
+//			else
+//				compiler.compile(input);
 		} catch (Throwable ex) {
 //			ex.printStackTrace();
 			compiler.reportException(ex);

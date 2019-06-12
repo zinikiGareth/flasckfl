@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parser.ContractMethodParser;
@@ -17,7 +16,6 @@ import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
@@ -25,15 +23,8 @@ import org.zinutils.support.jmock.CaptureAction;
 public class TDAContractIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
-
-	@Before
-	public void setup() {
-		context.checking(new Expectations() {{
-			allowing(errors).hasErrors(); will(returnValue(false));
-			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
-		}});
-	}
 
 	@Test
 	public void theSimplestContractDefinitionAcceptsANameAndReturnsAMethodParser() {
@@ -53,7 +44,7 @@ public class TDAContractIntroParsingTests {
 			allowing(builder).qualifyName("Data"); will(returnValue(new SolidName(null, "Data")));
 			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("up foo"));
 		nested.scopeComplete(new InputPosition("-", 10, 0, "hello"));
@@ -68,7 +59,7 @@ public class TDAContractIntroParsingTests {
 			allowing(builder).qualifyName("Data"); will(returnValue(new SolidName(null, "Data")));
 			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("up foo"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("down bar"));

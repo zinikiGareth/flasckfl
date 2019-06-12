@@ -14,7 +14,6 @@ import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.stories.StoryRet;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -125,17 +124,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		FLASCompiler compiler = te.configureCompiler();
 		compiler.phaseTo(PhaseTo.valueOf(phase));
 		File dir = new File(s, "test.golden");
-		if (!runAsTDA) {
-			ErrorResult er = new ErrorResult();
-			for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {
-				StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
-				te.dump(input, sr, er);
-			}
-			if (er.hasErrors()) {
-				handleErrors(te, s, er);
-				return;
-			}
-		}
 
 		if (runAsTDA) {
 			final File actualErrors = new File(s, "errors-tmp");
@@ -145,16 +133,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			compiler.parse(dir);
 			checkExpectedErrors(te, expectedErrors, actualErrors);
 //			throw new UtilException("Didn't think about UTs did you?");
-		} else {
-			try {
-				compiler.compile(dir);
-				File errors = new File(s, "errors");
-				if (errors.isDirectory())
-					fail("expected errors, but none occurred");
-			} catch (ErrorResultException ex) {
-				handleErrors(te, s, ex.errors);
-				return;
-			}
 		}
 		
 		te.checkTestResults();

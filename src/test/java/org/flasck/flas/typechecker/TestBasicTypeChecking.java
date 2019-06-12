@@ -31,7 +31,6 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
@@ -321,7 +320,7 @@ public class TestBasicTypeChecking {
 	// I think it should work NOW because we should have a constraint on the input arg of f
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
 		ImportPackage biscope = Builtin.builtins();
-		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
+		FunctionParser p = null; // new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);

@@ -5,11 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parser.IgnoreNestedParser;
-import org.flasck.flas.parser.LocalErrorTracker;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
@@ -17,7 +15,6 @@ import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -26,13 +23,6 @@ public class TDAObjectIntroParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefnConsumer builder = context.mock(TopLevelDefnConsumer.class);
-
-	@Before
-	public void setup() {
-		context.checking(new Expectations() {{
-			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
-		}});
-	}
 
 	@Test
 	public void theSimplestObjectCreatesAScopeEntryAndReturnsAFieldParser() {

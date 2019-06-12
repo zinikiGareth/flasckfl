@@ -8,7 +8,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
@@ -197,7 +196,6 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("_tuple_x")); will(returnValue(fnName));
 			oneOf(builder).tupleDefn(with(any(List.class)), with(fnName), with(any(Expr.class)));
-			allowing(builder).scopeTo(with(any(ScopeReceiver.class)));
 		}});
 		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(errors, functionNamer, builder, builder);
 		TDAParsing nested = parser.tryParsing(line);

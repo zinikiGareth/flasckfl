@@ -315,7 +315,7 @@ public class Rewriter implements CodeGenRegistry {
 			super(cx);
 			this.cardName = name;
 			this.areaActions = areaActions;
-			this.innerScope = cd.innerScope();
+			this.innerScope = null; //cd.innerScope();
 			if (!doAll)
 				return;
 			if (cd.state != null) {
@@ -719,7 +719,7 @@ public class Rewriter implements CodeGenRegistry {
 				CardDefinition cd = (CardDefinition) val;
 				CardGrouping cg = createCard((PackageContext)cx, cd);
 				final CardContext ic = new CardContext((PackageContext) cx, cg.getName(), cg.areaActions, cd, false);
-				pass1(ic, cd.fnScope);
+				pass1(ic, null /*cd.fnScope*/);
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
 				String fn = c.functionName().uniqueName();
@@ -824,7 +824,7 @@ public class Rewriter implements CodeGenRegistry {
 					CardGrouping cg = pass2Card(cx, cd);
 					if (!errors.hasErrors()) {
 						CardContext c2 = new CardContext((PackageContext) cx, cg.getName(), cg.areaActions, cd, true);
-						pass2(c2, cd.innerScope());
+						pass2(c2, null /*cd.innerScope() */);
 						for (HandlerImplements h : cd.handlers) {
 							RWHandlerImplements rw = pass2HI(c2, h);
 							if (rw != null)
@@ -969,11 +969,11 @@ public class Rewriter implements CodeGenRegistry {
 			templates.add(rewrite(new TemplateContext(c2), cd.templates.iterator().next()));
 		
 		for (HandlerImplements hi : cd.handlers) {
-			rewriteHI(c2, hi, cd.innerScope());
+			rewriteHI(c2, hi, null /* cd.innerScope() */);
 		}
 		
 		grp.platforms.putAll(cd.platforms);
-		pass3(c2, cd.fnScope);
+		pass3(c2, null /*cd.fnScope*/);
 	}
 
 	private void rewriteObject(NamingContext cx, ObjectDefn od) {
