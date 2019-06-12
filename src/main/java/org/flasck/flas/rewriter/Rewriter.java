@@ -575,18 +575,18 @@ public class Rewriter implements CodeGenRegistry {
 		private final IScope inner;
 		private final boolean fromMethod;
 		private final FunctionName funcName;
-		private final ScopeName caseName;
+		private final FunctionName caseName;
 
-		FunctionCaseContext(NamingContext cx, FunctionName funcName, ScopeName scopeName, Map<String, LocalVar> locals, IScope inner, boolean fromMethod) {
+		FunctionCaseContext(NamingContext cx, FunctionName funcName, FunctionName caseName, Map<String, LocalVar> locals, IScope inner, boolean fromMethod) {
 			super(cx);
 			this.funcName = funcName;
-			this.caseName = scopeName;
+			this.caseName = caseName;
 			this.bound = locals;
 			this.inner = inner;
 			this.fromMethod = fromMethod;
 		}
 
-		public ScopeName name() {
+		public FunctionName name() {
 			return caseName;
 		}
 		
@@ -735,7 +735,7 @@ public class Rewriter implements CodeGenRegistry {
 					RWFunctionDefinition ret = new RWFunctionDefinition(c.intro.name(),c.nargs(), true);
 					functions.put(name, ret);
 				}
-				pass1(new Pass1ScopeContext(cx), c.innerScope());
+				pass1(new Pass1ScopeContext(cx), null /*c.innerScope()*/);
 			} else if (val instanceof MethodCaseDefn) {
 				MethodCaseDefn m = (MethodCaseDefn) val;
 				String mn = m.methodName().uniqueName();
@@ -836,8 +836,8 @@ public class Rewriter implements CodeGenRegistry {
 				}
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
-				FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), null, c.innerScope(), false);
-				pass2(fccx, c.innerScope());
+				FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), null,null /*c.innerScope()*/, false);
+				pass2(fccx, null /*c.innerScope()*/);
 			} else if (val instanceof MethodCaseDefn) {
 			} else if (val instanceof EventCaseDefn) {
 				// Nothing to do in pass2 ... was set up in pass1 and will be resolved in pass3
@@ -1444,7 +1444,7 @@ public class Rewriter implements CodeGenRegistry {
 				methods.put(c.intro.name().uniqueName(), rm);
 				Map<String, LocalVar> vars = new TreeMap<>();
 				gatherVars(errors, this, hc, rm.name(), rm.name(), vars, c.intro);
-				FunctionCaseContext hfc = new FunctionCaseContext(hc, rm.name(), (ScopeName)c.innerScope().name(), vars, c.innerScope(), true);
+				FunctionCaseContext hfc = new FunctionCaseContext(hc, rm.name(), null, vars, null/*c.innerScope()*/, true);
 				
 				pass3(hfc, c.innerScope());
 			}
@@ -1477,7 +1477,7 @@ public class Rewriter implements CodeGenRegistry {
 		RWFunctionDefinition ret = functions.get(c.functionName().uniqueName());
 		final Map<String, LocalVar> vars = new HashMap<>();
 		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
-		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
+		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, null /*c.innerScope()*/, false);
 		RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
 		if (rwc == null)
 			return;
@@ -1498,7 +1498,7 @@ public class Rewriter implements CodeGenRegistry {
 		if (c.which == 0) {
 			// Rewrite the first function into an overall thing
 			final FunctionCaseDefn fcd = new FunctionCaseDefn(c.exprFnName(), new ArrayList<>(), c.ta.expr);
-			fcd.provideCaseName(-1);
+//			fcd.provideCaseName(-1);
 			rewrite(cx, fcd);
 		}
 		
@@ -1520,14 +1520,14 @@ public class Rewriter implements CodeGenRegistry {
 		Map<String, LocalVar> vars = new HashMap<>();
 		NameOfThing name = useCases ? c.caseName() : c.methodName();
 		gatherVars(errors, this, cx, c.methodName(), name, vars, c.intro);
-		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), fromHandler), c, vars));
+		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), null, vars, null, fromHandler), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
 		RWEventHandlerDefinition rw = eventHandlers.get(c.intro.name().uniqueName());
 		Map<String, LocalVar> vars = new HashMap<>();
 		gatherVars(errors, this, cx, rw.name(), rw.name(), vars, c.intro);
-		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), false), c, vars));
+		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), null, vars, null, false), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, StructDefn sd) {
@@ -1580,7 +1580,7 @@ public class Rewriter implements CodeGenRegistry {
 		if (expr == null)
 			return null;
 		RWFunctionCaseDefn ret = new RWFunctionCaseDefn(intro, csNo, expr);
-		pass3(new NestedScopeContext(cx), c.innerScope());
+		pass3(new NestedScopeContext(cx), null /*c.innerScope()*/);
 		return ret;
 	}
 

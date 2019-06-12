@@ -44,6 +44,10 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.FUNCTION, pkg, name);
 	}
 
+	public static FunctionName caseName(FunctionName inside, int cs) {
+		return new FunctionName(inside.location, inside.codeType, inside, "_" + cs);
+	}
+
 	// struct initializers
 	public static FunctionName initializer(InputPosition location, NameOfThing inStruct, String name) {
 		return new FunctionName(location, CodeType.INITIALIZER, inStruct, name);

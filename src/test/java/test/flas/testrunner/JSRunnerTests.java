@@ -6,7 +6,9 @@ import java.nio.file.Files;
 
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JSRunner;
+import org.junit.Ignore;
 
+@Ignore
 public class JSRunnerTests extends BaseRunnerTests {
 	
 	protected void prepareRunner() throws IOException, ErrorResultException {

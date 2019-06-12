@@ -20,6 +20,7 @@ public class Configuration {
 	private boolean buildDroid = true;
 	boolean tda = true;
 	private PhaseTo upto = PhaseTo.COMPLETE;
+	private File dumprepo = null;
 
 	public Configuration() {
 		// TODO Auto-generated constructor stub
@@ -35,6 +36,8 @@ public class Configuration {
 					dumpTypes = true;
 				else if (arg.equals("--phase"))
 					upto = PhaseTo.valueOf(args[++i]);
+				else if (arg.equals("--dumprepo"))
+					dumprepo = new File(args[++i]);
 				else if (arg.equals("--flim")) {
 					if (hasMore == 0) {
 						System.out.println("--flim <dir>");
@@ -123,6 +126,8 @@ public class Configuration {
 		visitor.writeDroidTo(writeDroid, buildDroid );
 		visitor.webZipDir(webZipDir);
 		visitor.phaseTo(upto);
+		if (dumprepo != null)
+			visitor.dumpRepoTo(dumprepo);
 		for (String s : useWebZips)
 			visitor.useWebZip(s);
 		if (unitjs || !unitjvm)

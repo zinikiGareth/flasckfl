@@ -56,14 +56,14 @@ public class TestScript implements TestScriptBuilder {
 			String key = "expr" + nextStep;
 			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), evalExpr);
-			fn.provideCaseName(0);
+//			fn.provideCaseName(0);
 			scope.define(reporter, key, fn);
 		}
 		{
 			String key = "value" + nextStep;
 			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), valueExpr);
-			fn.provideCaseName(0);
+//			fn.provideCaseName(0);
 			scope.define(reporter, key, fn);
 		}
 		nextStep++;
@@ -95,7 +95,7 @@ public class TestScript implements TestScriptBuilder {
 				String key = "arg" + nextStep;
 				FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
 				FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
-				fn.provideCaseName(0);
+//				fn.provideCaseName(0);
 				scope.define(reporter, key, fn);
 			}
 			posns.add(nextStep);
@@ -109,7 +109,7 @@ public class TestScript implements TestScriptBuilder {
 					String key = "earg" + nextStep;
 					FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
 					FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
-					fn.provideCaseName(0);
+//					fn.provideCaseName(0);
 					scope.define(reporter, key, fn);
 				}
 				eargs.add(nextStep);
@@ -130,7 +130,7 @@ public class TestScript implements TestScriptBuilder {
 				String key = "arg" + nextStep;
 				FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
 				FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
-				fn.provideCaseName(0);
+//				fn.provideCaseName(0);
 				scope.define(reporter, key, fn);
 			}
 			posns.add(nextStep);
@@ -144,7 +144,7 @@ public class TestScript implements TestScriptBuilder {
 					String key = "earg" + nextStep;
 					FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
 					FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
-					fn.provideCaseName(0);
+//					fn.provideCaseName(0);
 					scope.define(reporter, key, fn);
 				}
 				eargs.add(nextStep);

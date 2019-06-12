@@ -12,12 +12,11 @@ import org.flasck.flas.parser.FunctionNameProvider;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
-public class FunctionCaseDefn implements ContainsScope, Locatable, FunctionNameProvider {
+public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 	public final FunctionIntro intro;
 	public final Expr guard;
 	public final Object expr;
-	private Scope scope;
-	private ScopeName caseName;
+	private FunctionName caseName;
 
 	@Deprecated
 	public FunctionCaseDefn(FunctionName name, List<Object> args, Object expr) {
@@ -37,11 +36,6 @@ public class FunctionCaseDefn implements ContainsScope, Locatable, FunctionNameP
 	}
 
 	@Override
-	public IScope innerScope() {
-		return scope;
-	}
-
-	@Override
 	public InputPosition location() {
 		return intro.location;
 	}
@@ -58,12 +52,11 @@ public class FunctionCaseDefn implements ContainsScope, Locatable, FunctionNameP
 		return intro.name();
 	}
 
-	public void provideCaseName(int caseNum) {
-		this.caseName = new ScopeName(this.intro.name().inContext, this.intro.name().name+"_"+caseNum);
-		this.scope = new Scope(this.caseName);
+	public void provideCaseName(FunctionName name) {
+		this.caseName = name;
 	}
 
-	public ScopeName caseName() {
+	public FunctionName caseName() {
 		if (caseName == null)
 			throw new UtilException("Asked for caseName when none provided");
 		return caseName;

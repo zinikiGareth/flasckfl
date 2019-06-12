@@ -1,7 +1,13 @@
 package org.flasck.flas.compiler;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -17,29 +23,62 @@ import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
-import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class Repository implements TopLevelDefinitionConsumer {
-	private ByteCodeEnvironment bce;
-	private Iterable<File> jsFiles;
+	class FunctionBits {
+		final FunctionIntro intro;
+		final List<FunctionCaseDefn> defns = new ArrayList<>();
+
+		public FunctionBits(FunctionIntro fn) {
+			this.intro = fn;
+		}
+		
+		public FunctionName caseName() {
+			int cs = defns.size();
+			return FunctionName.caseName(intro.name(), cs);
+		}
+
+		public void dumpTo(PrintWriter pw) {
+			pw.println(this.intro);
+			for (FunctionCaseDefn fcd : defns) {
+				pw.print("  ");
+				pw.println(fcd);
+			}
+		}
+	}
+	private final Map<String, FunctionBits> functions = new TreeMap<>();
 	
 	public Repository() {
 	}
 	
 	@Override
 	public void functionIntro(FunctionIntro fn) {
-//		int caseName = scope.caseName(fn.name().uniqueName());
+		final FunctionName fnName = fn.name();
+		final String name = fnName.uniqueName();
+		if (functions.containsKey(name))
+			throw new DuplicateNameException(fnName);
+		FunctionBits bits = new FunctionBits(fn);
+		functions.put(name, bits);
 		// TODO: we need some kind of callback on complete to finish this off
 		// see FLASStory: 220
-//		fn.provideCaseName(caseName);
+//		fn.provideCaseName(bits.caseName());
 //		scope.define(errors, fn.functionName().name, fn);
 	}
 
 	@Override
 	public void functionCase(FunctionCaseDefn fn) {
-//		int caseName = scope.caseName(fn.intro.name().uniqueName());
-//		fn.provideCaseName(caseName);
+		final FunctionName fnName = fn.intro.name();
+		final String name = fnName.uniqueName();
+		FunctionBits bits;
+		if (!functions.containsKey(name)) {
+			bits = new FunctionBits(fn.intro);
+		} else {
+			bits = functions.get(name);
+		}
+		bits.defns.add(fn);
+		fn.provideCaseName(bits.caseName());
 	}
 
 	@Override
@@ -85,6 +124,15 @@ public class Repository implements TopLevelDefinitionConsumer {
 	@Override
 	public void newObject(ObjectDefn od) {
 //		scope.define(errors, od.name().baseName(), od);
+	}
+
+	public void dumpTo(File dumpRepo) throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter(dumpRepo);
+		for (Entry<String, FunctionBits> x : functions.entrySet()) {
+			pw.print(x.getKey() + " = ");
+			x.getValue().dumpTo(pw);
+		}
+		pw.close();
 	}
 
 //	@Override

@@ -30,7 +30,7 @@ public class HSIEFunctionTests {
 		FunctionParser p = null; // new FunctionParser(new FLASStory.State(null, "ME"));
 		@SuppressWarnings("null")
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
-		c1.provideCaseName(0);
+		// c1.provideCaseName(0);
 		s.define(errors, "primes", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, null, "ME", s);
@@ -45,11 +45,11 @@ public class HSIEFunctionTests {
 		FunctionParser p = null; // new FunctionParser(new FLASStory.State(null, "ME"));
 		@SuppressWarnings("null")
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 0 = 1"));
-		c1.provideCaseName(0);
+		// c1.provideCaseName(0);
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 1 = 1"));
-		c2.provideCaseName(1);
+		// c2.provideCaseName(1);
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib n = fib (n-1) + fib (n-2)"));
-		c3.provideCaseName(2);
+//		c3.provideCaseName(2);
 		s.define(errors, "fib", c1);
 		s.define(errors, "fib", c2);
 		s.define(errors, "fib", c3);
@@ -67,11 +67,11 @@ public class HSIEFunctionTests {
 		FunctionParser p = null; // new FunctionParser(new FLASStory.State(null, "ME"));
 		@SuppressWarnings("null")
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n [] = []"));
-		c1.provideCaseName(0);
+		// c1.provideCaseName(0);
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take 0 Cons = []"));
-		c2.provideCaseName(1);
+//		c2.provideCaseName(1);
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n (a:b) = a:(take (n-1) b)"));
-		c3.provideCaseName(2);
+//		c3.provideCaseName(2);
 		s.define(errors, "take", c1);
 		s.define(errors, "take", c2);
 		s.define(errors, "take", c3);

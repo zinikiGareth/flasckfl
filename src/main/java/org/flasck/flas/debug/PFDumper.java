@@ -150,7 +150,7 @@ public class PFDumper {
 			dumpList(pw, fcd.intro.args);
 			pw.println(" =");
 			dumpRecursive(pw.indent(), fcd.expr);
-			dumpScope(pw, fcd.innerScope());
+			dumpScope(pw, null /*fcd.innerScope()*/);
 		} else if (obj instanceof CardDefinition) {
 			CardDefinition cd = (CardDefinition) obj;
 			pw.print("card " + cd.cardName.uniqueName());

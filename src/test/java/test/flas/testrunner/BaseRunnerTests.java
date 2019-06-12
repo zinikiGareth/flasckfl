@@ -197,7 +197,7 @@ public abstract class BaseRunnerTests {
 	
 	protected FunctionCaseDefn function(String name, Object expr) {
 		FunctionCaseDefn defn = new FunctionCaseDefn(FunctionName.function(loc, new PackageName("test.runner.script"), name), new ArrayList<>(), expr);
-		defn.provideCaseName(0);
+//		defn.provideCaseName(0);
 		return defn;
 	}
 }

@@ -38,4 +38,6 @@ public interface ConfigVisitor {
 
 	void phaseTo(PhaseTo upto);
 
+	void dumpRepoTo(File dumprepo);
+
 }

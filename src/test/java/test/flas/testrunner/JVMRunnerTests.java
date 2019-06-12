@@ -7,8 +7,10 @@ import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.jvm.EntityHoldingStore;
 import org.flasck.jvm.cards.FLASTransactionContext;
+import org.junit.Ignore;
 import org.ziniki.cbstore.json.FLConstructorServer;
 
+@Ignore
 public class JVMRunnerTests extends BaseRunnerTests {
 	
 	protected void prepareRunner() throws IOException, ErrorResultException {

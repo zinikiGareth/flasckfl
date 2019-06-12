@@ -20,7 +20,11 @@ public class RandomSentenceTest {
 		p.debugMode();
 		File tmp = p.sentence(27160, used -> System.out.println(used));
 		FileUtils.cat(tmp);
-		boolean failed = org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", td.toString() });
+		File repoFile = File.createTempFile("repo", ".txt");
+		boolean failed = org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), td.toString() });
+		System.out.println("------ " + repoFile);
+		FileUtils.cat(repoFile);
+		System.out.println("------");
 		assertFalse(failed);
 		FileUtils.deleteDirectoryTree(td);
 	}

@@ -70,6 +70,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private File webzipdir;
 	private ErrorResult errors = new ErrorResult();
 	private PrintWriter errorWriter;
+	private File dumpRepo;
 //	private PhaseTo phaseTo;
 
 	public FLASCompiler(Configuration config) {
@@ -138,6 +139,11 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			return;
 		}
 		this.writeDepends = file;
+	}
+
+	@Override
+	public void dumpRepoTo(File dumprepo) {
+		this.dumpRepo = dumprepo;
 	}
 
 	@Override
@@ -251,8 +257,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		String inPkg = dir.getName();
 		checkPackageName(inPkg);
 		System.out.println("Package " + inPkg);
-		Repository p2 = new Repository();
-		ParsingPhase p1 = new ParsingPhase(errors, inPkg, p2);
+		Repository repository = new Repository();
+		ParsingPhase p1 = new ParsingPhase(errors, inPkg, repository);
 		// UnitTestPhase ut = new UnitTestPhase(errors);
 		ErrorMark mark = errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
@@ -260,6 +266,13 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			p1.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
 			mark = errors.mark();
+		}
+		if (dumpRepo != null) {
+			try {
+				repository.dumpTo(dumpRepo);
+			} catch (IOException ex) {
+				System.out.println("Could not dump repository to " + dumpRepo);
+			}
 		}
 		return mark;
 		/*
