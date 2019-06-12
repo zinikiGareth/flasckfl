@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.collections.CollectionUtils;
@@ -24,10 +23,6 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 	public ErrorResult message(FLASError e) {
 		errors.add(e);
 		return this;
-	}
-	
-	public ErrorResult message(Block b, String msg) {
-		return message(new Tokenizable(b), msg);
 	}
 	
 	public ErrorResult message(Tokenizable line, String msg) {

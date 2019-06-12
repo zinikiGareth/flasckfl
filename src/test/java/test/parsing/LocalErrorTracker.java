@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -27,11 +26,6 @@ public class LocalErrorTracker implements ErrorReporter {
 	public ErrorReporter message(InputPosition pos, String msg) {
 		seenErrors();
 		return other.message(pos, msg);
-	}
-
-	public ErrorReporter message(Block b, String msg) {
-		seenErrors();
-		return other.message(b, msg);
 	}
 
 	public ErrorReporter message(Tokenizable line, String msg) {

@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.compiler.FLASCompiler;
-import org.flasck.flas.errors.ErrorResultException;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;

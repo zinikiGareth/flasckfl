@@ -1,24 +1,18 @@
 package org.flasck.flas.droidgen;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
-import org.zinutils.bytecode.ByteCodeCreator;
-import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunner;
-import org.zinutils.utils.FileUtils;
 
 public class AndroidCGRunner extends CGHarnessRunner {
 	public AndroidCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException, ClassNotFoundException {

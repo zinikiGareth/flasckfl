@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.ArgumentException;
-import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class PackageFinder {
 					PackageImporter.importInto(this, errors, rw, pkgName, xml);
 				} catch (Exception ex) {
 					ex.printStackTrace();
-					errors.message((Block)null, ex.toString());
+					errors.message((InputPosition)null, ex.toString());
 				} finally {
 				}
 			}

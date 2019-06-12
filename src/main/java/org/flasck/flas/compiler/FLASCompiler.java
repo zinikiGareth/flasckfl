@@ -2,12 +2,9 @@ package org.flasck.flas.compiler;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,9 +16,7 @@ import java.util.TreeMap;
 import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.ConfigVisitor;
 import org.flasck.flas.Configuration;
-import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorMark;
@@ -44,22 +39,13 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateTraversor;
-import org.flasck.flas.testrunner.FileUnitTestResultHandler;
-import org.flasck.flas.testrunner.JSRunner;
-import org.flasck.flas.testrunner.JVMRunner;
-import org.flasck.flas.testrunner.TestScript;
-import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.testrunner.UnitTests;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.jvm.EntityHoldingStore;
-import org.flasck.jvm.cards.FLASTransactionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ziniki.cbstore.json.FLConstructorServer;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.FileUtils;
-import org.zinutils.utils.MultiTextEmitter;
 
 public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
@@ -95,22 +81,23 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	public void dumpTypes(boolean d) {
 		this.dumpTypes = d;
 	}
-	
+
 	@Override
 	public void searchIn(File file) {
 		pkgdirs.add(file);
 	}
-	
+
 	public void unitTestPath(File file) {
 		utpaths.add(file);
 	}
-	
+
 	@Override
 	public void writeJVMTo(File file) {
 		writeJVM = file;
 	}
-	
-	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put it
+
+	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put
+	// it
 	@Override
 	public void writeDroidTo(File file, boolean andBuild) {
 		if (file == null || file.getPath().equals("null"))
@@ -119,7 +106,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		if (!andBuild)
 			builder.dontBuild();
 	}
-	
+
 	public void internalBuildJVM() {
 		builder = new DroidBuilder();
 		builder.dontBuild();
@@ -206,12 +193,12 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	public void useWebZip(String called) {
 		webzips.add(called);
 	}
-	
+
 	@Override
 	public void phaseTo(PhaseTo upto) {
 		this.phaseTo = upto;
 	}
-	
+
 	@Deprecated
 	public void includePrior(CompileResult cr) {
 		priors.add(cr);
@@ -226,7 +213,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		if (webzips.isEmpty())
 			return;
 		if (webzipdir == null) {
-			errors.message((Block)null, "using webzips requires a webzipdir");
+			errors.message((InputPosition) null, "using webzips requires a webzipdir");
 			return;
 		}
 		for (String s : webzips)
@@ -234,32 +221,32 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	private void scanWebZip(final String called) {
-//		File f = new File(webzipdir, called);
-//		if (webdownloaddir != null) {
-//			File dl = new File(webdownloaddir, called);
-//			if (dl.exists()) {
-//				System.out.println("Moving download file " + dl + " to " + f);
-//				FileUtils.copy(dl, f);
-//				FileUtils.deleteDirectoryTree(dl);
-//			}
-//		}
-//		if (!f.exists()) {
-//			System.err.println("There is no webzip " + f);
-//		}
-//		SplitZip sz = new SplitZip();
-//		try {
-//			sz.split(new MultiSink(sink, new ShowCardSink()), f);
-//		} catch (IOException ex) {
-//			System.err.println("Failed to read " + f);
-//			System.err.println(ex);
-//		}
+		// File f = new File(webzipdir, called);
+		// if (webdownloaddir != null) {
+		// File dl = new File(webdownloaddir, called);
+		// if (dl.exists()) {
+		// System.out.println("Moving download file " + dl + " to " + f);
+		// FileUtils.copy(dl, f);
+		// FileUtils.deleteDirectoryTree(dl);
+		// }
+		// }
+		// if (!f.exists()) {
+		// System.err.println("There is no webzip " + f);
+		// }
+		// SplitZip sz = new SplitZip();
+		// try {
+		// sz.split(new MultiSink(sink, new ShowCardSink()), f);
+		// } catch (IOException ex) {
+		// System.err.println("Failed to read " + f);
+		// System.err.println(ex);
+		// }
 	}
 
 	// Now read and parse all the files, passing it on to the alleged phase2
 	public void parse(File dir) {
 		if (!dir.isDirectory()) {
 			ErrorMark mark = errors.mark();
-			errors.message((InputPosition)null, "there is no input directory " + dir);
+			errors.message((InputPosition) null, "there is no input directory " + dir);
 			errors.showFromMark(mark, errorWriter, 4);
 			return;
 		}
@@ -268,49 +255,37 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		System.out.println("Package " + inPkg);
 		ActualPhase2Processor p2 = new ActualPhase2Processor(errors, this, inPkg);
 		ParsingPhase p1 = new ParsingPhase(errors, p2);
-//		UnitTestPhase ut = new UnitTestPhase(errors);
+		// UnitTestPhase ut = new UnitTestPhase(errors);
 		ErrorMark mark = errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			System.out.println(" > " + f.getName());
 			p1.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
 			mark = errors.mark();
-			
+
 		}
 		/*
-		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
-			System.out.println(" > " + f.getName());
-			ut.process(f);
-			errors.showFromMark(mark, errorWriter, 4);
-			mark = errors.mark();
-		}
-		if (errors.hasErrors())
-			return;
-		if (phaseTo == PhaseTo.PARSING)
-			return;
-		p2.process();
-		if (errors.hasErrors()) {
-			errors.showFromMark(mark, errorWriter, 4);
-			return;
-		}
-		p2.bceTo(ut);
-		if (errors.hasErrors()) {
-			errors.showFromMark(mark, errorWriter, 4);
-			return;
-		}
-		*/
+		 * for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
+		 * System.out.println(" > " + f.getName()); ut.process(f);
+		 * errors.showFromMark(mark, errorWriter, 4); mark = errors.mark(); } if
+		 * (errors.hasErrors()) return; if (phaseTo == PhaseTo.PARSING) return;
+		 * p2.process(); if (errors.hasErrors()) { errors.showFromMark(mark,
+		 * errorWriter, 4); return; } p2.bceTo(ut); if (errors.hasErrors()) {
+		 * errors.showFromMark(mark, errorWriter, 4); return; }
+		 */
 	}
 
-	CompileResult stage2(ErrorReporter er, String priorPackage, IScope priorScope, String inPkg, Scope scope) throws ErrorResultException, IOException {
+	CompileResult stage2(ErrorReporter er, String priorPackage, IScope priorScope, String inPkg, Scope scope)
+			throws ErrorResultException, IOException {
 		ErrorResult errors = (ErrorResult) er;
-		File writeTo = writeJS!= null ? new File(writeJS, inPkg + ".js"):null;
-		File exportTo = writeFlim!=null?new File(writeFlim, inPkg + ".flim"):null;
-			
+		File writeTo = writeJS != null ? new File(writeJS, inPkg + ".js") : null;
+		File exportTo = writeFlim != null ? new File(writeFlim, inPkg + ".flim") : null;
+
 		// 3. Rework any "syntatic sugar" forms into their proper forms
 		new SugarDetox(errors).detox(scope);
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
-		
+
 		FileWriter wjs = null;
 		FileOutputStream wex = null;
 		PrintWriter tcPW = null;
@@ -322,14 +297,15 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			final ByteCodeEnvironment bce = new ByteCodeEnvironment();
 
 			rewriter.importPackage1(rootPkg);
-			
+
 			for (CompileResult cr : priors) {
-				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage().uniqueName(), cr.exports());
+				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage().uniqueName(),
+						cr.exports());
 			}
-			
+
 			rewriter.rewritePackageScope(priorPackage, priorScope, inPkg, scope);
 			abortIfErrors(errors);
-			
+
 			if (writeRW != null) {
 				rewriter.writeGeneratableTo(new File(writeRW, "analysis.txt"));
 			}
@@ -349,9 +325,9 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			dg.registerWith(rewriter);
 
 			rewriter.visitGenerators();
-			
-//			System.out.println("defns = " + rewriter.functions.keySet());
-			
+
+			// System.out.println("defns = " + rewriter.functions.keySet());
+
 			// 6. Convert methods to functions
 			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
 			MethodConvertor mc = new MethodConvertor(errors, rewriter);
@@ -370,14 +346,14 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			abortIfErrors(errors);
 			if (writeDepends != null)
 				writeDependencies(da, defns);
-			
+
 			for (Set<RWFunctionDefinition> orch : defns) {
 				showDefns(orch);
 			}
-			
+
 			// 8. Now process each set
-			//   a. convert functions to HSIE
-			//   b. typechecking
+			// a. convert functions to HSIE
+			// b. typechecking
 
 			TypeChecker2 tc2 = new TypeChecker2(errors, rewriter);
 			if (trackTC != null) {
@@ -391,23 +367,25 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 				hsie.createForms(d);
 			}
 			hsie.liftLambdas();
-			
+
 			for (Set<RWFunctionDefinition> d : defns) {
-				
+
 				// 8a. Convert each orchard to HSIE
 				Set<HSIEForm> forms = hsie.orchard(d);
 				abortIfErrors(errors);
-				
+
 				// 8b. Typecheck all the methods together
 				tc2.typecheck(forms);
-				
-				// TODO: this is over-eager.  We should check if we depend on any of the failures are required by subsequent steps.
+
+				// TODO: this is over-eager. We should check if we depend on any of the failures
+				// are required by subsequent steps.
 				abortIfErrors(errors);
 			}
-			// 9. Check whether functions are curried and add in the appropriate indications if so
+			// 9. Check whether functions are curried and add in the appropriate indications
+			// if so
 			handleCurrying(curry, tc2, hsie.allForms());
 			abortIfErrors(errors);
-			
+
 			if (writeHSIE != null) {
 				PrintWriter hsiePW = new PrintWriter(new File(writeHSIE, inPkg));
 				dumpForms(hsiePW, hsie.allForms());
@@ -415,8 +393,9 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			}
 
 			// 10. Generate code from templates
-			new TemplateTraversor(rewriter, Arrays.asList(dg.templateGenerator(), gen.templateGenerator())).generate(rewriter, target);
-			
+			new TemplateTraversor(rewriter, Arrays.asList(dg.templateGenerator(), gen.templateGenerator()))
+					.generate(rewriter, target);
+
 			// 11. Save learned state for export
 			if (exportTo != null)
 				tc2.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
@@ -426,7 +405,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			abortIfErrors(errors);
 
 			// 13. Write final outputs
-			
+
 			// 13a. Issue JavaScript
 			if (writeTo != null) {
 				try {
@@ -441,15 +420,17 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			// 13b. Issue JVM bytecodes
 			if (writeJVM != null) {
 				try {
-					// Doing this makes things clean, but stops you putting multiple things in the same directory
-//					FileUtils.cleanDirectory(writeJVM);
+					// Doing this makes things clean, but stops you putting multiple things in the
+					// same directory
+					// FileUtils.cleanDirectory(writeJVM);
 					for (ByteCodeCreator bcc : bce.all()) {
-						File wto = new File(writeJVM, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
+						File wto = new File(writeJVM,
+								FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
 						bcc.writeTo(wto);
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
-					errors.message((InputPosition)null, ex.toString());
+					errors.message((InputPosition) null, ex.toString());
 				}
 			}
 
@@ -459,21 +440,30 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 				builder.write(bce);
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				errors.message((InputPosition)null, ex.getMessage());
+				errors.message((InputPosition) null, ex.getMessage());
 			}
 			abortIfErrors(errors);
 
 			return new CompileResult(scope, bce, tc2).addJS(writeTo);
 		} finally {
-			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
-			try { if (wex != null) wex.close(); } catch (IOException ex) {}
+			try {
+				if (wjs != null)
+					wjs.close();
+			} catch (IOException ex) {
+			}
+			try {
+				if (wex != null)
+					wex.close();
+			} catch (IOException ex) {
+			}
 			if (tcPW != null)
 				tcPW.close();
 		}
 	}
 
 	@Override
-	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, String flas) throws IOException, ErrorResultException {
+	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, String flas)
+			throws IOException, ErrorResultException {
 		this.internalBuildJVM();
 		ErrorResult errors = new ErrorResult();
 		final Scope scope = Scope.topScope(pkg);
@@ -481,13 +471,15 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	@Override
-	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, Scope scope) throws IOException, ErrorResultException {
+	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, Scope scope)
+			throws IOException, ErrorResultException {
 		this.internalBuildJVM();
 		return stage2(new ErrorResult(), priorPackage, priorScope, pkg, scope);
 	}
 
 	@Override
-	public CompileResult createJS(String pkg, String priorPackage, IScope priorScope, Scope scope) throws IOException, ErrorResultException {
+	public CompileResult createJS(String pkg, String priorPackage, IScope priorScope, Scope scope)
+			throws IOException, ErrorResultException {
 		return stage2(new ErrorResult(), priorPackage, priorScope, pkg, scope);
 	}
 
@@ -511,7 +503,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private void dumpForms(PrintWriter hsiePW, Collection<HSIEForm> hs) {
 		if (hsiePW == null)
 			return;
-		
+
 		boolean first = true;
 		for (HSIEForm h : hs) {
 			if (first)
@@ -525,16 +517,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private void abortIfErrors(ErrorResult errors) throws ErrorResultException {
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<Block> makeBlocks(ErrorResult er, String file, Reader r) throws IOException {
-		Object res = Blocker.block(file, r);
-		if (res instanceof ErrorResult) {
-			er.merge((ErrorResult) res);
-			return null;
-		}
-		return (List<Block>) res;
 	}
 
 	private void handleCurrying(ApplyCurry curry, TypeChecker2 tc, Collection<HSIEForm> collection) {
@@ -555,7 +537,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	public boolean hasErrors() {
 		return errors.hasErrors();
 	}
-	
+
 	public void reportException(Throwable ex) {
 		errors.reportException(ex);
 	}

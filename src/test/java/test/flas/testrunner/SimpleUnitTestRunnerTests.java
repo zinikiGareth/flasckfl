@@ -24,10 +24,12 @@ import org.flasck.flas.types.Type;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
+@Ignore
 public class SimpleUnitTestRunnerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);

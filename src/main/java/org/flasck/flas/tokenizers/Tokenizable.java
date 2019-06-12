@@ -1,6 +1,5 @@
 package org.flasck.flas.tokenizers;
 
-import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
@@ -11,10 +10,6 @@ public class Tokenizable {
 	private final StringBuilder input;
 	private int pos;
 
-	public Tokenizable(Block b) {
-		this(b == null ? null : b.line);
-	}
-	
 	public Tokenizable(ContinuedLine l) {
 		if (l == null) {
 			this.input = null;

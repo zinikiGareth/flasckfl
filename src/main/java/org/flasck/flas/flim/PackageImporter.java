@@ -3,7 +3,6 @@ package org.flasck.flas.flim;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -60,7 +59,7 @@ public class PackageImporter {
 			if (exists == null)
 				finder.loadFlim(errors, ipn);
 			else if (!exists.isLoaded()) {
-				errors.message((Block)null, "cannot import package " + pkgName + " because it has a circular dependency on " + ipn);
+				errors.message((InputPosition)null, "cannot import package " + pkgName + " because it has a circular dependency on " + ipn);
 				return;
 			}
 			// else we have already loaded it, so no probs
