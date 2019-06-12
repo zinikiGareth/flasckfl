@@ -16,6 +16,7 @@ import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.testrunner.UnitTests;
 import org.zinutils.exceptions.UtilException;
 
+@Deprecated
 public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 	public static class ScopeEntry implements Entry<String, Object> {
 		private final InputPosition location;

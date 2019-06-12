@@ -9,13 +9,11 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.ServiceDefinition;
@@ -29,10 +27,9 @@ import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
-public class TDAIntroParser implements TDAParsing, ScopeReceiver {
+public class TDAIntroParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final TopLevelDefinitionConsumer consumer;
-	private IScope scope;
 	private NameOfThing pkg;
 
 	public TDAIntroParser(ErrorReporter errors, TopLevelDefinitionConsumer consumer) {
@@ -40,11 +37,6 @@ public class TDAIntroParser implements TDAParsing, ScopeReceiver {
 		this.consumer = consumer;
 	}
 	
-	@Override
-	public void provideScope(IScope scope) {
-		this.scope = scope;
-	}
-
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		if (!toks.hasMore())

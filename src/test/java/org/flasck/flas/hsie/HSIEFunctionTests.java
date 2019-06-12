@@ -28,6 +28,7 @@ public class HSIEFunctionTests {
 	public void testConvertingConstant() {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = null; // new FunctionParser(new FLASStory.State(null, "ME"));
+		@SuppressWarnings("null")
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
 		c1.provideCaseName(0);
 		s.define(errors, "primes", c1);
@@ -42,6 +43,7 @@ public class HSIEFunctionTests {
 	public void testConvertingFib() {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = null; // new FunctionParser(new FLASStory.State(null, "ME"));
+		@SuppressWarnings("null")
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 0 = 1"));
 		c1.provideCaseName(0);
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 1 = 1"));
@@ -63,6 +65,7 @@ public class HSIEFunctionTests {
 	public void testConvertingTake() throws Exception {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = null; // new FunctionParser(new FLASStory.State(null, "ME"));
+		@SuppressWarnings("null")
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n [] = []"));
 		c1.provideCaseName(0);
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take 0 Cons = []"));

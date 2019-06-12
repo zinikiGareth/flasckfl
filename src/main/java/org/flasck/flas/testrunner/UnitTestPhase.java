@@ -11,22 +11,18 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.BCEReceiver;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.JSReceiver;
-import org.flasck.flas.compiler.ScopeReceiver;
 import org.flasck.flas.compiler.UnitTestTranslator;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.parsedForm.IScope;
-import org.flasck.flas.parsedForm.Scope;
 import org.ziniki.cbstore.json.FLConstructorServer;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.MultiTextEmitter;
 
-public class UnitTestPhase implements UnitTestTranslator, ScopeReceiver, BCEReceiver, JSReceiver {
+public class UnitTestPhase implements UnitTestTranslator, BCEReceiver, JSReceiver {
 	private final ErrorReporter errors;
 	private final List<File> tests = new ArrayList<>();
 	private final Map<String, TestScript> scripts = new HashMap<>();
-	private IScope scope;
 	private BCEClassLoader bce;
 	private Iterable<File> jsFiles;
 
@@ -34,11 +30,6 @@ public class UnitTestPhase implements UnitTestTranslator, ScopeReceiver, BCERece
 		this.errors = errors;
 	}
 
-	@Override
-	public void provideScope(IScope scope) {
-		this.scope = scope;
-	}
-	
 	@Override
 	public void provideBCE(ByteCodeEnvironment bce) {
 		this.bce = new BCEClassLoader(bce);
@@ -53,8 +44,8 @@ public class UnitTestPhase implements UnitTestTranslator, ScopeReceiver, BCERece
 	public void process(File f) {
 		tests.add(f);
 		if (FLASCompiler.backwardCompatibilityMode) {
-			final String packageName = scope.name().uniqueName()+"._ut";
-			TestScript script = UnitTestRunner.convertScript(errors, (Scope)scope, packageName, f);
+//			final String packageName = scope.name().uniqueName()+"._ut";
+//			TestScript script = UnitTestRunner.convertScript(errors, (Scope)scope, packageName, f);
 			if (errors.hasErrors())
 				return;
 			/*
@@ -62,7 +53,7 @@ public class UnitTestPhase implements UnitTestTranslator, ScopeReceiver, BCERece
 			new PFDumper().dumpScope(new Indenter(new PrintWriter(System.out)), script.scope());
 			System.out.println("========================");
 			*/
-			scripts.put(f.getName(), script);
+//			scripts.put(f.getName(), script);
 		} else {
 			throw new org.zinutils.exceptions.NotImplementedException();
 		}

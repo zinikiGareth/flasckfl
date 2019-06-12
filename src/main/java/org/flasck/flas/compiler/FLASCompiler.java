@@ -51,8 +51,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	public static boolean backwardCompatibilityMode = true;
 	private boolean dumpTypes = false;
-	private boolean unitjs;
-	private boolean unitjvm;
+//	private boolean unitjs;
+//	private boolean unitjvm;
 	private final List<File> pkgdirs = new ArrayList<File>();
 	private File writeRW;
 	private DroidBuilder builder = new DroidBuilder();
@@ -62,14 +62,14 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private File writeJVM;
 	private File trackTC;
 	private File writeJS;
-	private File writeTestReports;
+//	private File writeTestReports;
 	private final List<CompileResult> priors = new ArrayList<>();
 	private final List<File> utpaths = new ArrayList<File>();
 	private final List<String> webzips = new ArrayList<>();
 	private File webzipdir;
 	private ErrorResult errors = new ErrorResult();
 	private PrintWriter errorWriter;
-	private PhaseTo phaseTo;
+//	private PhaseTo phaseTo;
 
 	public FLASCompiler(Configuration config) {
 		if (config != null)
@@ -171,17 +171,17 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			System.out.println("there is no directory " + file);
 			return;
 		}
-		this.writeTestReports = file;
+//		this.writeTestReports = file;
 	}
 
 	@Override
 	public void unitjs(boolean b) {
-		this.unitjs = b;
+//		this.unitjs = b;
 	}
 
 	@Override
 	public void unitjvm(boolean b) {
-		this.unitjvm = b;
+//		this.unitjvm = b;
 	}
 
 	@Override
@@ -196,7 +196,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 	@Override
 	public void phaseTo(PhaseTo upto) {
-		this.phaseTo = upto;
+//		this.phaseTo = upto;
 	}
 
 	@Deprecated

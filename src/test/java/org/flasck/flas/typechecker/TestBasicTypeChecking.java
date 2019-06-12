@@ -321,6 +321,7 @@ public class TestBasicTypeChecking {
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
 		ImportPackage biscope = Builtin.builtins();
 		FunctionParser p = null; // new FunctionParser(new FLASStory.State(null, "ME"));
+		@SuppressWarnings("null")
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);
