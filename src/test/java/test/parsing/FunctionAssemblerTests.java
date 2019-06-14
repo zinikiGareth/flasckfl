@@ -24,6 +24,12 @@ public class FunctionAssemblerTests {
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 
 	@Test
+	public void nothingHappensWithoutSomethingHappening() {
+		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
+		asm.moveOn();
+	}
+
+	@Test
 	public void aSimpleIntroByItselfIsAssembled() {
 		context.checking(new Expectations() {{
 			oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0).intros(1)));

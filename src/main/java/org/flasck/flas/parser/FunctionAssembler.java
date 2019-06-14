@@ -31,8 +31,9 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 		curr.intro(next);
 	}
 
+	@Override
 	public void moveOn() {
-		if (!broken)
+		if (!broken && curr != null)
 			consumer.functionDefn(curr);
 		curr = null;
 		broken = false;

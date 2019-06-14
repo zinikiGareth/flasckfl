@@ -88,6 +88,7 @@ public class TDAServiceParsingTests {
 			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
+		serviceParser.scopeComplete(null);
 	}
 
 	@Test

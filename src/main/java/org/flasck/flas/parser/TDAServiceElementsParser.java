@@ -67,6 +67,5 @@ public class TDAServiceElementsParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 }

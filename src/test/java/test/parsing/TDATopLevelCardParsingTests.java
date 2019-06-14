@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -38,6 +39,7 @@ public class TDATopLevelCardParsingTests {
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
 	private TDAParsing cardParser;
 	private CardDefinition card;
+	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 
 	@Before
 	public void setup() {
@@ -115,7 +117,9 @@ public class TDATopLevelCardParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
+		TDAParsing nested = cardParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
+		nested.scopeComplete(pos);
+		cardParser.scopeComplete(pos);
 	}
 
 	@Test
