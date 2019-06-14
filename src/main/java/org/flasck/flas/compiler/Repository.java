@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
@@ -53,6 +54,12 @@ public class Repository implements TopLevelDefinitionConsumer {
 	}
 	
 	@Override
+	public void functionDefn(FunctionDefinition func) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	/*
+	@Override
 	public void functionIntro(FunctionIntro fn) {
 		final FunctionName fnName = fn.name();
 		final String name = fnName.uniqueName();
@@ -80,7 +87,7 @@ public class Repository implements TopLevelDefinitionConsumer {
 		bits.defns.add(fn);
 		fn.provideCaseName(bits.caseName());
 	}
-
+*/
 	@Override
 	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, Expr expr) {
 		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);

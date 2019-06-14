@@ -4,9 +4,10 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
 import org.zinutils.exceptions.UtilException;
 
-public class FunctionIntro {
+public class FunctionIntro implements FunctionGuardedEquationConsumer {
 	public final InputPosition location;
 	public final List<Object> args;
 	private FunctionName fname;
@@ -21,6 +22,11 @@ public class FunctionIntro {
 		if (fname == null)
 			throw new UtilException("Deprecated");
 		return fname;
+	}
+
+	@Override
+	public void functionCase(FunctionCaseDefn o) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override

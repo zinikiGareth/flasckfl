@@ -46,9 +46,10 @@ public class TDAFunctionParser implements TDAParsing {
 		
 		// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...
 		InnerPackageNamer innerNamer = new InnerPackageNamer(fname);
+		final FunctionIntro intro = new FunctionIntro(fname, args);
+		consumer.functionIntro(intro);
 		if (!line.hasMore()) {
-			consumer.functionIntro(new FunctionIntro(fname, args));
-			return new TDAFunctionCaseParser(errors, consumer, fname, args, new LastActionScopeParser(errors, innerNamer, topLevel, "case"));
+			return new TDAFunctionGuardedEquationParser(errors, intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case"));
 		}
 		ExprToken tok = ExprToken.from(line);
 		if (tok == null || !tok.text.equals("=")) {
@@ -61,15 +62,16 @@ public class TDAFunctionParser implements TDAParsing {
 		}
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
-			final FunctionCaseDefn fcd = new FunctionCaseDefn(fname, args, null, e);
+			final FunctionCaseDefn fcd = new FunctionCaseDefn(null, e);
 			fcds.add(fcd);
-			consumer.functionCase(fcd);
+			intro.functionCase(fcd);
 		}).tryParsing(line);
 		
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser();
 
-		return TDAMultiParser.functionScopeUnit(errors, innerNamer, topLevel, topLevel);
+		FunctionIntroConsumer assembler = new FunctionAssembler(topLevel);
+		return TDAMultiParser.functionScopeUnit(errors, innerNamer, assembler, topLevel);
 	}
 
 	@Override

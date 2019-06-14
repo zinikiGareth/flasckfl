@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
@@ -39,7 +39,7 @@ public class TDAObjectIntroParsingTests {
 	public void anObjectCanIncludeAFunction() {
 		context.checking(new Expectations() {{
 			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store")));
-			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));

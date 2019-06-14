@@ -10,7 +10,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
@@ -85,7 +85,7 @@ public class TDAServiceParsingTests {
 	@Test
 	public void servicesCanHaveNestedFunctions() {
 		context.checking(new Expectations() {{
-			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
 	}

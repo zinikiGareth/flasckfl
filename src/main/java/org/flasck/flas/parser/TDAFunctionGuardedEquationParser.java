@@ -5,27 +5,22 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAFunctionCaseParser implements TDAParsing, FunctionNameProvider {
+public class TDAFunctionGuardedEquationParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final FunctionIntroConsumer consumer;
-	private final FunctionName fname;
-	private final List<Object> args;
+	private final FunctionGuardedEquationConsumer consumer;
 	private final List<FunctionCaseDefn> cases = new ArrayList<>();
 	private InputPosition haveDefault;
 	private boolean reportedError;
 	private LastOneOnlyNestedParser nestedParser;
 
-	public TDAFunctionCaseParser(ErrorReporter errors, FunctionIntroConsumer consumer, FunctionName fname, List<Object> args, LastOneOnlyNestedParser nestedParser) {
+	public TDAFunctionGuardedEquationParser(ErrorReporter errors, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser) {
 		this.errors = errors;
 		this.consumer = consumer;
-		this.fname = fname;
-		this.args = args;
 		this.nestedParser = nestedParser;
 	}
 
@@ -76,7 +71,7 @@ public class TDAFunctionCaseParser implements TDAParsing, FunctionNameProvider {
 		List<FunctionCaseDefn> fcds = new ArrayList<>();
 		new TDAExpressionParser(errors, e -> {
 			Expr guard = optionalGuard.isEmpty() ? null : optionalGuard.get(0);
-			final FunctionCaseDefn fcd = new FunctionCaseDefn(fname, args, guard, e);
+			final FunctionCaseDefn fcd = new FunctionCaseDefn(guard, e);
 			fcds.add(fcd);
 			consumer.functionCase(fcd);
 			cases.add(fcd);
@@ -89,10 +84,5 @@ public class TDAFunctionCaseParser implements TDAParsing, FunctionNameProvider {
 	public void scopeComplete(InputPosition location) {
 		if (cases.isEmpty())
 			errors.message(location, "no function cases specified");
-	}
-
-	@Override
-	public FunctionName functionName(InputPosition location, String base) {
-		return FunctionName.function(location, fname, base);
 	}
 }

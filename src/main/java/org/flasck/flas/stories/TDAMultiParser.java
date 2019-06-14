@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.FunctionAssembler;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionScopeNamer;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
@@ -47,11 +48,12 @@ public class TDAMultiParser implements TDAParsing {
 	}
 
 	public static TDAParsing topLevelUnit(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer sb) {
-		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, sb, sb), TDATupleDeclarationParser.constructor(namer, sb, sb));
+		FunctionIntroConsumer assembler = new FunctionAssembler(sb);
+		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, assembler, sb), TDATupleDeclarationParser.constructor(namer, sb));
 	}
 	
 	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
-		return new TDAMultiParser(errors, TDAHandlerParser.constructor(namer, topLevel), TDAMethodParser.constructor(namer, sb, topLevel), TDAFunctionParser.constructor(namer, sb, topLevel), TDATupleDeclarationParser.constructor(namer, sb, topLevel));
+		return new TDAMultiParser(errors, TDAHandlerParser.constructor(namer, topLevel), TDAMethodParser.constructor(namer, sb, topLevel), TDAFunctionParser.constructor(namer, sb, topLevel), TDATupleDeclarationParser.constructor(namer, topLevel));
 	}
 
 	// I added this method for testing purposes

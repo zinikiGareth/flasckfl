@@ -4,18 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -76,16 +73,6 @@ public class TDAObjectElementsParser implements TDAParsing {
 				@Override
 				public void functionIntro(FunctionIntro o) {
 					builder.addAccessor(new ObjectAccessor());
-				}
-				
-				@Override
-				public void functionCase(FunctionCaseDefn o) {
-					builder.addAccessor(new ObjectAccessor());
-				}
-
-				@Override
-				public void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr) {
-					throw new org.zinutils.exceptions.NotImplementedException();
 				}
 			};
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, consumer, topLevel);

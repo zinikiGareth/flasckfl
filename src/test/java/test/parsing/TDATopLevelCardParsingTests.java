@@ -11,7 +11,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -113,7 +113,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanHaveNestedFunctions() {
 		context.checking(new Expectations() {{
-			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
 	}

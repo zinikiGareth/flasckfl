@@ -1,9 +1,11 @@
 package test.parsing;
 
+import static org.junit.Assert.assertTrue;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -12,6 +14,8 @@ import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -24,14 +28,19 @@ public class TDAFunctionParsingNestingTests {
 	private TopLevelNamer functionNamer = new PackageNamer("test.pkg");
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private TDAParsing parser;
 
+	@Before
+	public void setup() {
+		parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder);
+	}
+	
 	@Test
 	public void weCanHaveTwoFunctionsInTheSameScope() {
 		context.checking(new Expectations() {{
-			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
-			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
+			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
 		}});
-		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder);
 		parser.tryParsing(line("f = 42"));
 		parser.tryParsing(line("g = 86"));
 		parser.scopeComplete(pos);
@@ -54,10 +63,8 @@ public class TDAFunctionParsingNestingTests {
 	@Test
 	public void weCanHaveTwoFunctionsWithGuardsInTheSameScope() {
 		context.checking(new Expectations() {{
-			oneOf(builder).functionIntro(with(any(FunctionIntro.class)));
-			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
-			oneOf(builder).functionIntro(with(any(FunctionIntro.class)));
-			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
+			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
+			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
 		}});
 		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder);
 		TDAParsing nested = parser.tryParsing(line("f"));
@@ -67,6 +74,60 @@ public class TDAFunctionParsingNestingTests {
 		nested.tryParsing(line("| false = 86"));
 		nested.scopeComplete(pos);
 		parser.scopeComplete(pos);
+	}
+
+
+	// These want to go somewhere else where they fit, like NESTING tests
+	@Test
+	public void aNestedScopeIsLegalAsLongAsItComesAtTheEnd() {
+		context.checking(new Expectations() {{
+//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
+//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
+//			oneOf(topLevel).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
+		}});
+		TDAParsing guards = parser.tryParsing(line("f"));
+		guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
+		TDAParsing nested = guards.tryParsing(TDAFunctionParsingTests.line("= 42"));
+		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		nested.tryParsing(TDAFunctionParsingTests.line("g = 'hello'"));
+		nested.scopeComplete(pos);
+		guards.scopeComplete(pos);
+	}
+
+	@Test
+	@Ignore
+	public void aNestedScopeIsLegalAsLongAsItComesAtTheEndEvenWithNoDefault() {
+		context.checking(new Expectations() {{
+//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
+//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
+//			oneOf(topLevel).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
+		}});
+		TDAParsing guards = parser.tryParsing(line("f"));
+		guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
+		TDAParsing nested = guards.tryParsing(TDAFunctionParsingTests.line("| x == 12 = 42"));
+		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		nested.tryParsing(TDAFunctionParsingTests.line("g = 'hello'"));
+		nested.scopeComplete(pos);
+		guards.scopeComplete(pos);
+	}
+
+	@Test
+	@Ignore
+	public void aNestedScopeIsNotLegalBeforeTheFinalCase() {
+		final Tokenizable nestedLine = TDAFunctionParsingTests.line("g = 'hello'");
+		context.checking(new Expectations() {{
+//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
+//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
+//			oneOf(topLevel).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
+			oneOf(errors).message(nestedLine, "nested scope must be after last case");
+		}});
+		TDAParsing guards = parser.tryParsing(line("f"));
+		TDAParsing nested = guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
+		assertTrue(nested instanceof LastOneOnlyNestedParser);
+		nested.tryParsing(nestedLine);
+		nested.scopeComplete(pos);
+		guards.tryParsing(TDAFunctionParsingTests.line("= 42"));
+		guards.scopeComplete(pos);
 	}
 
 	public static Tokenizable line(String string) {

@@ -57,11 +57,12 @@ public class TDAIntroParser implements TDAParsing {
 			consumer.newCard(card);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
+			FunctionIntroConsumer assembler = new FunctionAssembler(consumer);
 			return new TDAMultiParser(errors, 
 				errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, consumer)
+				errors -> new TDAFunctionParser(errors, functionNamer, assembler, consumer),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
 			);
 		}
 		case "service": {
@@ -75,11 +76,12 @@ public class TDAIntroParser implements TDAParsing {
 			consumer.newService(svc);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
+			FunctionIntroConsumer assembler = new FunctionAssembler(consumer);
 			return new TDAMultiParser(errors, 
 				errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, consumer, consumer),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, consumer)
+				errors -> new TDAFunctionParser(errors, functionNamer, assembler, consumer),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
 			);
 		}
 		case "struct":
@@ -175,13 +177,12 @@ public class TDAIntroParser implements TDAParsing {
 			final SolidName on = namer.solidName(tn.text);
 			ObjectDefn od = new ObjectDefn(kw.location, tn.location, on, true, polys);
 			consumer.newObject(od);
-//			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
-//			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
+			FunctionIntroConsumer assembler = new FunctionAssembler(consumer);
 			return new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, new ObjectNestedNamer(on), od, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, namer, consumer),
-				errors -> new TDAFunctionParser(errors, namer, consumer, consumer),
-				errors -> new TDATupleDeclarationParser(errors, namer, consumer, consumer)
+				errors -> new TDAFunctionParser(errors, namer, assembler, consumer),
+				errors -> new TDATupleDeclarationParser(errors, namer, consumer)
 			);
 		}
 		case "contract": {

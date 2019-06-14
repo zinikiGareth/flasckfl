@@ -16,14 +16,12 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDATupleDeclarationParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final FunctionNameProvider functionNamer;
-	private final FunctionIntroConsumer consumer;
-	private final FunctionScopeUnitConsumer topLevel;
+	private final FunctionScopeUnitConsumer consumer;
 
-	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
+	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionScopeUnitConsumer consumer) {
 		this.errors = errors;
 		this.functionNamer = functionNamer;
-		this.consumer = sb;
-		this.topLevel = topLevel;
+		this.consumer = consumer;
 	}
 	
 	@Override
@@ -88,18 +86,19 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			consumer.tupleDefn(vars, leadName, e);
 		}).tryParsing(line);
 
-		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(leadName), consumer, topLevel);
+		FunctionIntroConsumer assembler = new FunctionAssembler(consumer);
+		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(leadName), assembler, consumer);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
 	}
 
-	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDATupleDeclarationParser(errors, namer, sb, topLevel);
+				return new TDATupleDeclarationParser(errors, namer, topLevel);
 			}
 		};
 	}
