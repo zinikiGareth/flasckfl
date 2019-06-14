@@ -1,10 +1,13 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class TupleAssignment {
+public class TupleAssignment implements RepositoryEntry {
 	public final List<LocatedName> vars;
 	private FunctionName exprFnName;
 	public final Object expr;
@@ -20,4 +23,13 @@ public class TupleAssignment {
 		return exprFnName;
 	}
 
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println(toString());
+	}
+
+	@Override
+	public String toString() {
+		return "TupleAssignment{" + vars.stream().map(ln -> ln.text).collect(Collectors.toList()) + "=" + expr + "}";
+	}
 }

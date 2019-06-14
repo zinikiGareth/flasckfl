@@ -470,9 +470,8 @@
   <production name='simple-function-case-definition'>
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionParsingTests' />
-    <match pattern='Function\[${name}/.*\]' />
     <seq>
-      <token type='var-name' append-to-name='true' />
+      <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
       <many>
       	<ref production='argument-pattern'/>
       </many>
@@ -486,9 +485,8 @@
   <production name='degenerate-guarded-function-case-definition'>
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
-    <match pattern='Function\[${name}/.*\]' />
     <seq>
-      <token type='var-name' append-to-name='true' />
+      <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
       <many>
       	<ref production='argument-pattern'/>
       </many>
@@ -500,9 +498,8 @@
   <production name='guarded-function-case-definition'>
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
-    <match pattern='Function\[${name}/.*\]' />
     <seq>
-      <token type='var-name' append-to-name='true' />
+      <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
       <many>
       	<ref production='argument-pattern'/>
       </many>
@@ -551,7 +548,7 @@
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
     	  <token type='ORB' />
-      <token type='var-name'/>
+      <token type='var-name' names='TupleMember\[${name}/.*\]' />
       <one-or-more>
       	<ref production='comma-var-name' />
       </one-or-more>
@@ -568,7 +565,7 @@
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
       <token type='COMMA' />
-      <token type='var-name' />
+      <token type='var-name' names='TupleMember\[${name}/.*\]' />
     </seq>
   </production>
   <production name='argument-pattern'>

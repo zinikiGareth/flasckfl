@@ -93,7 +93,7 @@ public class Grammar {
 			// find it by discarding all the "standard" options
 			List<XMLElement> rules = new ArrayList<>();
 			for (XMLElement r : p.elementChildren()) {
-				if (r.hasTag("section") || r.hasTag("description") || r.hasTag("producer") || r.hasTag("tested") || r.hasTag("match"))
+				if (r.hasTag("section") || r.hasTag("description") || r.hasTag("producer") || r.hasTag("tested"))
 					continue;
 				rules.add(r);
 			}
@@ -111,12 +111,6 @@ public class Grammar {
 			} else {
 				Definition defn = parseDefn(ruleName, rule);
 				theProd = new Production(ruleNumber++, ruleName, defn);
-			}
-			List<XMLElement> matchers = p.elementChildren("match");
-			for (XMLElement xe : matchers) {
-				String patt = xe.required("pattern");
-				theProd.namePattern(patt);
-				xe.attributesDone();
 			}
 			if (this.productions.containsKey(theProd.name)) {
 				throw new RuntimeException("Duplicate definition of production " + theProd.name);
@@ -224,9 +218,9 @@ public class Grammar {
 
 	private TokenDefinition handleToken(String ruleName, XMLElement rule) {
 		String type = rule.required("type");
-		String nameAppender = rule.optional("append-to-name");
+		String nameAppender = rule.optional("names");
 		rule.attributesDone();
-		return new TokenDefinition(type, "true".equals(nameAppender));
+		return new TokenDefinition(type, nameAppender);
 	}
 
 	public Iterable<Section> sections() {

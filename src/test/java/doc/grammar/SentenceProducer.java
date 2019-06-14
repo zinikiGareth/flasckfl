@@ -95,7 +95,7 @@ public class SentenceProducer {
 			for (int i=0;i<cnt;i++) {
 				visit(child);
 				if (withEOL)
-					token("EOL", false);
+					token("EOL", null);
 			}
 		}
 		
@@ -107,7 +107,7 @@ public class SentenceProducer {
 			for (int i=0;i<cnt;i++) {
 				visit(child);
 				if (withEOL)
-					token("EOL", false);
+					token("EOL", null);
 			}
 		}
 
@@ -127,9 +127,6 @@ public class SentenceProducer {
 				return;
 			}
 			p.visit(this);
-			for (String np : p.namePatterns()) {
-				matchers.put(assembleName(), np);
-			}
 		}
 
 		private String assembleName() {
@@ -160,7 +157,7 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void token(String token, boolean nameAppend) {
+		public void token(String token, String patternMatcher) {
 			final Lexer lexer = grammar.findToken(token);
 			String t = genToken(token, lexer.pattern);
 			if (debug)
@@ -179,9 +176,10 @@ public class SentenceProducer {
 				haveSomething = true;
 			}
 			sentence.append(t);
-			if (nameAppend) {
+			if (patternMatcher != null) {
 				removeAbove(indent-1);
 				nameParts.add(new NamePart(indent, t));
+				matchers.put(assembleName(), patternMatcher);
 			}
 		}
 

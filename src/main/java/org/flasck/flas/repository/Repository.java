@@ -10,6 +10,8 @@ import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -19,6 +21,8 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 
@@ -30,46 +34,21 @@ public class Repository implements TopLevelDefinitionConsumer {
 	
 	@Override
 	public void functionDefn(FunctionDefinition func) {
+		if (dict.containsKey(func.name().uniqueName()))
+			throw new DuplicateNameException(func.name());
 		dict.put(func.name().uniqueName(), func);
 	}
 
-	/*
-	@Override
-	public void functionIntro(FunctionIntro fn) {
-		final FunctionName fnName = fn.name();
-		final String name = fnName.uniqueName();
-		if (functions.containsKey(name))
-			throw new DuplicateNameException(fnName);
-		FunctionBits bits = new FunctionBits(fn);
-		functions.put(name, bits);
-		// TODO: we need some kind of callback on complete to finish this off
-		// see FLASStory: 220
-//		fn.provideCaseName(bits.caseName());
-//		scope.define(errors, fn.functionName().name, fn);
-	}
-
-	@Override
-	public void functionCase(FunctionCaseDefn fn) {
-		final FunctionName fnName = fn.intro.name();
-		final String name = fnName.uniqueName();
-		FunctionBits bits;
-		if (!functions.containsKey(name)) {
-			bits = new FunctionBits(fn.intro);
-			functions.put(name, bits);
-		} else {
-			bits = functions.get(name);
-		}
-		bits.defns.add(fn);
-		fn.provideCaseName(bits.caseName());
-	}
-*/
 	@Override
 	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, Expr expr) {
-//		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);
-//		int k=0;
-//		for (LocatedName x : vars) {
-//			scope.define(errors, x.text, new TupleMember(x.location, ta, k++, functionName(x.location, x.text)));
-//		}
+		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);
+		dict.put(exprFnName.uniqueName(), ta);
+		NameOfThing pkg = exprFnName.inContext;
+		int k=0;
+		for (LocatedName x : vars) {
+			FunctionName tn = FunctionName.function(x.location, pkg, x.text);
+			dict.put(tn.uniqueName(), new TupleMember(x.location, ta, k++, tn));
+		}
 	}
 
 	@Override

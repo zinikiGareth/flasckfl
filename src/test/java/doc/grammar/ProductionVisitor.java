@@ -12,7 +12,7 @@ public interface ProductionVisitor {
 
 	void referTo(String child);
 
-	void token(String token, boolean nameAppend);
+	void token(String token, String patternMatcher);
 
 	boolean indent();
 

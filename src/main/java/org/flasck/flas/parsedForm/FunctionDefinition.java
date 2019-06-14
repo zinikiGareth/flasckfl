@@ -35,7 +35,7 @@ public class FunctionDefinition implements RepositoryEntry {
 	
 	@Override
 	public void dumpTo(PrintWriter pw) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+		pw.println(this.toString());
 	}
 
 	@Override
