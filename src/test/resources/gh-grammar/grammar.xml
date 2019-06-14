@@ -548,7 +548,9 @@
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
     	  <token type='ORB' />
-      <token type='var-name' names='TupleMember\[${name}/.*\]' />
+      <token type='var-name' names='TupleMember\[${name}.*\]'>
+      	<named amended='_tuple_${final}' pattern='TupleAssignment\{${final}=&gt;\[.*\]=.*\}' />
+      </token>
       <one-or-more>
       	<ref production='comma-var-name' />
       </one-or-more>
@@ -565,7 +567,7 @@
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
       <token type='COMMA' />
-      <token type='var-name' names='TupleMember\[${name}/.*\]' />
+      <token type='var-name' names='TupleMember\[${name}.*\]' />
     </seq>
   </production>
   <production name='argument-pattern'>

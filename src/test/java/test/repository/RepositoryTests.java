@@ -15,7 +15,6 @@ import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.RepositoryEntry;
 import org.junit.Test;
 
 public class RepositoryTests {

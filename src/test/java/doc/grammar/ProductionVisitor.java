@@ -2,6 +2,8 @@ package doc.grammar;
 
 import java.util.List;
 
+import doc.grammar.TokenDefinition.Matcher;
+
 public interface ProductionVisitor {
 
 	void choices(OrProduction prod, List<Definition> defns, List<Integer> probs, int maxProb);
@@ -12,7 +14,7 @@ public interface ProductionVisitor {
 
 	void referTo(String child);
 
-	void token(String token, String patternMatcher);
+	void token(String token, String patternMatcher, List<Matcher> matchers);
 
 	boolean indent();
 

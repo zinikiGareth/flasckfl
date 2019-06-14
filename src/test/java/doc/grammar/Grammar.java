@@ -220,7 +220,15 @@ public class Grammar {
 		String type = rule.required("type");
 		String nameAppender = rule.optional("names");
 		rule.attributesDone();
-		return new TokenDefinition(type, nameAppender);
+		final TokenDefinition ret = new TokenDefinition(type, nameAppender);
+		List<XMLElement> matchers = rule.elementChildren("named");
+		for (XMLElement xe : matchers) {
+			String amendedName = xe.required("amended");
+			String pattern = xe.required("pattern");
+			ret.addMatcher(amendedName, pattern);
+			xe.attributesDone();
+		}
+		return ret;
 	}
 
 	public Iterable<Section> sections() {

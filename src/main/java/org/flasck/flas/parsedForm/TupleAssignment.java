@@ -30,6 +30,6 @@ public class TupleAssignment implements RepositoryEntry {
 
 	@Override
 	public String toString() {
-		return "TupleAssignment{" + vars.stream().map(ln -> ln.text).collect(Collectors.toList()) + "=" + expr + "}";
+		return "TupleAssignment{" + exprFnName.name + "=>" + vars.stream().map(ln -> ln.text).collect(Collectors.toList()) + "=" + expr + "}";
 	}
 }

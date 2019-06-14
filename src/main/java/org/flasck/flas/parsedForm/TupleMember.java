@@ -35,6 +35,11 @@ public class TupleMember implements Locatable, RepositoryEntry {
 
 	@Override
 	public void dumpTo(PrintWriter pw) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+		pw.println(toString());
+	}
+	
+	@Override
+	public String toString() {
+		return "TupleMember[" + myName.uniqueName() + "]";
 	}
 }

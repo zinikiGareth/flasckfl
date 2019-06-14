@@ -30,13 +30,16 @@ public class RepoChecker {
 					continue;
 				}
 				String name = s.substring(0, idx).trim();
+				int id2 = name.lastIndexOf(".");
+				String finalS = s.substring(id2+1, idx).trim();
 				String defn = s.substring(idx+1).trim();
 				if (!ms.containsKey(name)) {
 					System.out.println("There is no matcher for: " + name);
 					ret = false;
 					continue;
 				}
-				Pattern patt = Pattern.compile(ms.remove(name).replace("${name}", name));
+				final String pattS = ms.remove(name).replace("${name}", name).replace("${final}", finalS);
+				Pattern patt = Pattern.compile(pattS);
 				Matcher m = patt.matcher(defn);
 				if (!m.find()) {
 					System.out.println("Var '" + name + "' has defn '" + defn + "' which does not match pattern: " + patt);

@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.xml.XML;
 
+import doc.grammar.TokenDefinition.Matcher;
+
 // The idea here is to produce random sentences according to the grammar and see what happens.
 // In general, a valid sentence according to the grammar should at least parse
 // (there are many reasons it wouldn't get further, like undefined references, but I can't see why it wouldn't parse short of hitting limits of one kind or another)
@@ -95,7 +97,7 @@ public class SentenceProducer {
 			for (int i=0;i<cnt;i++) {
 				visit(child);
 				if (withEOL)
-					token("EOL", null);
+					token("EOL", null, new ArrayList<>());
 			}
 		}
 		
@@ -107,7 +109,7 @@ public class SentenceProducer {
 			for (int i=0;i<cnt;i++) {
 				visit(child);
 				if (withEOL)
-					token("EOL", null);
+					token("EOL", null, new ArrayList<>());
 			}
 		}
 
@@ -129,18 +131,6 @@ public class SentenceProducer {
 			p.visit(this);
 		}
 
-		private String assembleName() {
-			StringBuilder sb = new StringBuilder();
-			boolean first = true;
-			for (NamePart np : nameParts) {
-				if (!first)
-					sb.append(".");
-				sb.append(np.name);
-				first = false;
-			}
-			return sb.toString();
-		}
-
 		@Override
 		public void choices(OrProduction prod, List<Definition> asList, List<Integer> probs, int maxProb) {
 			final int ni = r.nextInt(maxProb);
@@ -157,7 +147,7 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void token(String token, String patternMatcher) {
+		public void token(String token, String patternMatcher, List<Matcher> matchers) {
 			final Lexer lexer = grammar.findToken(token);
 			String t = genToken(token, lexer.pattern);
 			if (debug)
@@ -176,11 +166,29 @@ public class SentenceProducer {
 				haveSomething = true;
 			}
 			sentence.append(t);
-			if (patternMatcher != null) {
+			if (patternMatcher != null || !matchers.isEmpty()) {
 				removeAbove(indent-1);
 				nameParts.add(new NamePart(indent, t));
-				matchers.put(assembleName(), patternMatcher);
 			}
+			if (patternMatcher != null)
+				this.matchers.put(assembleName(null), patternMatcher);
+			for (Matcher m : matchers) {
+				this.matchers.put(assembleName(m.amendedName), m.pattern);
+			}
+		}
+
+		private String assembleName(String amendFinal) {
+			StringBuilder sb = new StringBuilder();
+			for (int i=0;i<nameParts.size();i++) {
+				NamePart np = nameParts.get(i);
+				if (i > 0)
+					sb.append(".");
+				if (amendFinal != null && i == nameParts.size()-1) { // final part
+					sb.append(amendFinal.replace("${final}", np.name));
+				} else
+					sb.append(np.name);
+			}
+			return sb.toString();
 		}
 
 		@Override
