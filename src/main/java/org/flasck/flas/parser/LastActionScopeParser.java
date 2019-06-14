@@ -15,7 +15,7 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing) {
 		this.errors = errors;
 		this.lastThing = lastThing;
-		FunctionIntroConsumer assembler = new FunctionAssembler(topLevel);
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel);
 		this.parser = TDAMultiParser.functionScopeUnit(errors, namer, assembler, topLevel);
 	}
 

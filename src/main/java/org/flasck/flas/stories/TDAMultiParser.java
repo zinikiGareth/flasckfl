@@ -48,7 +48,7 @@ public class TDAMultiParser implements TDAParsing {
 	}
 
 	public static TDAParsing topLevelUnit(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer sb) {
-		FunctionIntroConsumer assembler = new FunctionAssembler(sb);
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb);
 		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, assembler, sb), TDATupleDeclarationParser.constructor(namer, sb));
 	}
 	

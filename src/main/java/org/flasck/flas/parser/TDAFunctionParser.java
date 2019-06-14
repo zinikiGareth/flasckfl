@@ -70,7 +70,7 @@ public class TDAFunctionParser implements TDAParsing {
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser();
 
-		FunctionIntroConsumer assembler = new FunctionAssembler(topLevel);
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel);
 		return TDAMultiParser.functionScopeUnit(errors, innerNamer, assembler, topLevel);
 	}
 

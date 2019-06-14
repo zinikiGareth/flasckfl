@@ -7,6 +7,7 @@ import org.hamcrest.TypeSafeMatcher;
 public class FunctionDefinitionMatcher extends TypeSafeMatcher<FunctionDefinition> {
 	private final String name;
 	private Integer nargs;
+	private Integer nintros;
 
 	public FunctionDefinitionMatcher(String name) {
 		this.name = name;
@@ -17,18 +18,35 @@ public class FunctionDefinitionMatcher extends TypeSafeMatcher<FunctionDefinitio
 		return this;
 	}
 
+	public FunctionDefinitionMatcher intros(int nintros) {
+		this.nintros = nintros;
+		return this;
+	}
+
 	@Override
 	public void describeTo(Description desc) {
 		desc.appendText("Function[");
 		desc.appendValue(name);
+		if (nargs != null) {
+			desc.appendText("(");
+			desc.appendValue(nargs);
+			desc.appendText(")");
+		}
+		if (nintros != null) {
+			desc.appendText("{");
+			desc.appendValue(nintros);
+			desc.appendText("}");
+		}
 		desc.appendText("]");
 	}
 
 	@Override
 	protected boolean matchesSafely(FunctionDefinition fd) {
-		if (!fd.getName().uniqueName().equals(name))
+		if (!fd.name().uniqueName().equals(name))
 			return false;
-		if (nargs != null && !(nargs.equals(fd.getArgCount())))
+		if (nargs != null && !(nargs.equals(fd.argCount())))
+			return false;
+		if (nintros != null && !(nintros.equals(fd.intros().size())))
 			return false;
 		return true;
 	}
