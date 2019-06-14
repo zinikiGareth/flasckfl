@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -11,6 +12,7 @@ public class FunctionIntro implements FunctionGuardedEquationConsumer {
 	public final InputPosition location;
 	public final List<Object> args;
 	private FunctionName fname;
+	private final List<FunctionCaseDefn> cases = new ArrayList<>();
 
 	public FunctionIntro(FunctionName fname, List<Object> args) {
 		this.location = fname.location;
@@ -26,7 +28,11 @@ public class FunctionIntro implements FunctionGuardedEquationConsumer {
 
 	@Override
 	public void functionCase(FunctionCaseDefn o) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+		cases.add(o);
+	}
+	
+	public List<FunctionCaseDefn> cases() {
+		return cases;
 	}
 
 	@Override

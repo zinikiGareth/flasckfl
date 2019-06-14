@@ -74,6 +74,7 @@ public class TDAFunctionParsingTests {
 		final Tokenizable line = line("f = ");
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
+			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(errors).message(line, "function definition requires expression");
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
@@ -85,6 +86,7 @@ public class TDAFunctionParsingTests {
 	public void aFullFunctionDefinitionReturnsATopLevelParserOfSorts() {
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
+			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(guards).functionCase(with(FunctionCaseMatcher.called(null, "f")));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
@@ -97,6 +99,7 @@ public class TDAFunctionParsingTests {
 	public void aFunctionDefinitionCanHaveAVariableArg() {
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
+			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(guards).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern(PatternMatcher.var("x"))));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
@@ -109,6 +112,7 @@ public class TDAFunctionParsingTests {
 	public void aFunctionDefinitionCanHaveATypedArg() {
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, null, "f")));
+			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(guards).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern(PatternMatcher.typed("Number", "n"))));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
