@@ -15,7 +15,6 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -95,7 +94,6 @@ public class TDAFunctionParsingNestingTests {
 	}
 
 	@Test
-	@Ignore
 	public void aNestedScopeIsLegalAsLongAsItComesAtTheEndEvenWithNoDefault() {
 		context.checking(new Expectations() {{
 //			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
@@ -112,7 +110,6 @@ public class TDAFunctionParsingNestingTests {
 	}
 
 	@Test
-	@Ignore
 	public void aNestedScopeIsNotLegalBeforeTheFinalCase() {
 		final Tokenizable nestedLine = TDAFunctionParsingTests.line("g = 'hello'");
 		context.checking(new Expectations() {{

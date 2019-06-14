@@ -1,11 +1,13 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class FunctionDefinition {
+public class FunctionDefinition implements RepositoryEntry {
 	private final FunctionName name;
 	private final int nargs;
 	private final List<FunctionIntro> intros = new ArrayList<>();
@@ -29,6 +31,11 @@ public class FunctionDefinition {
 	
 	public List<FunctionIntro> intros() {
 		return intros;
+	}
+	
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override

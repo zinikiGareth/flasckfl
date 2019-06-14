@@ -8,7 +8,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;
@@ -30,7 +29,6 @@ public class TDAFunctionParsingTests {
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private FunctionNameProvider functionNamer = context.mock(FunctionNameProvider.class);
 	private FunctionIntroConsumer intro = context.mock(FunctionIntroConsumer.class);
-	private FunctionGuardedEquationConsumer guards = context.mock(FunctionGuardedEquationConsumer.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 

@@ -74,6 +74,11 @@ public class TDAObjectElementsParser implements TDAParsing {
 				public void functionIntro(FunctionIntro o) {
 					builder.addAccessor(new ObjectAccessor());
 				}
+
+				@Override
+				public void moveOn() {
+					throw new org.zinutils.exceptions.NotImplementedException();
+				}
 			};
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, consumer, topLevel);
 			return fcp.tryParsing(toks);

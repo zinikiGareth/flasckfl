@@ -33,6 +33,10 @@ public class RandomSentenceTest {
 				if (!f) {
 					if (!RepoChecker.checkRepo(repoFile, ms))
 						failed.set(true);
+					if (!ms.isEmpty()) {
+						System.out.println("Names not found: " + ms.keySet());
+						failed.set(true);
+					}
 				} else {
 					System.out.println("Compilation failed");
 					failed.set(true);

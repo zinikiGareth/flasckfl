@@ -1,9 +1,8 @@
-package org.flasck.flas.compiler;
+package org.flasck.flas.repository;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,49 +12,25 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 
 public class Repository implements TopLevelDefinitionConsumer {
-	class FunctionBits {
-		final FunctionIntro intro;
-		final List<FunctionCaseDefn> defns = new ArrayList<>();
-
-		public FunctionBits(FunctionIntro fn) {
-			this.intro = fn;
-		}
-		
-		public FunctionName caseName() {
-			int cs = defns.size();
-			return FunctionName.caseName(intro.name(), cs);
-		}
-
-		public void dumpTo(PrintWriter pw) {
-			pw.println(this.intro);
-			for (FunctionCaseDefn fcd : defns) {
-				pw.print("  ");
-				pw.println(fcd);
-			}
-		}
-	}
-	private final Map<String, FunctionBits> functions = new TreeMap<>();
+	private final Map<String, RepositoryEntry> dict = new TreeMap<>();
 	
 	public Repository() {
 	}
 	
 	@Override
 	public void functionDefn(FunctionDefinition func) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+		dict.put(func.name().uniqueName(), func);
 	}
 
 	/*
@@ -90,8 +65,8 @@ public class Repository implements TopLevelDefinitionConsumer {
 */
 	@Override
 	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, Expr expr) {
-		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);
-		int k=0;
+//		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);
+//		int k=0;
 //		for (LocatedName x : vars) {
 //			scope.define(errors, x.text, new TupleMember(x.location, ta, k++, functionName(x.location, x.text)));
 //		}
@@ -135,11 +110,16 @@ public class Repository implements TopLevelDefinitionConsumer {
 
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(dumpRepo);
-		for (Entry<String, FunctionBits> x : functions.entrySet()) {
+		for (Entry<String, RepositoryEntry> x : dict.entrySet()) {
 			pw.print(x.getKey() + " = ");
 			x.getValue().dumpTo(pw);
 		}
 		pw.close();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends RepositoryEntry> T get(String string) {
+		return (T)dict.get(string);
 	}
 
 //	@Override

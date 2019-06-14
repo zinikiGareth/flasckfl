@@ -1,18 +1,14 @@
 package test.parsing;
 
-import static org.junit.Assert.assertTrue;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;
-import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 

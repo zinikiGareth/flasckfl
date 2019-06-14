@@ -36,6 +36,7 @@ import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.repository.Repository;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.sugardetox.SugarDetox;
