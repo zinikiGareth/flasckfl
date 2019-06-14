@@ -32,7 +32,6 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateListVar;

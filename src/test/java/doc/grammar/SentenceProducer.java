@@ -3,9 +3,12 @@ package doc.grammar;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -26,16 +29,31 @@ public class SentenceProducer {
 		this.grammar = Grammar.from(XML.fromResource(grammar));
 	}
 	
-	public File sentence(long var, Consumer<Set<String>> sendUsed) throws Throwable {
+	public void sentence(long var, Consumer<SentenceData> sendUsed) throws Throwable {
 		String top = "source-file"; //grammar.top();
-		SPProductionVisitor visitor = new SPProductionVisitor(grammar, var*100L);
+		final String pkg = "test.r" + var;
+		SPProductionVisitor visitor = new SPProductionVisitor(grammar, pkg, var*100L);
 		visitor.referTo(top);
-		sendUsed.accept(visitor.used);
-		final File root = new File(td, "test.r" + var);
+		final File root = new File(td, pkg);
 		FileUtils.assertDirectory(root);
 		final File tmp = new File(root, "r"+ Long.toString(var) + ".fl");
 		FileUtils.writeFile(tmp, visitor.sentence.toString());
-		return tmp;
+		sendUsed.accept(new SentenceData(visitor.used, visitor.matchers, tmp));
+	}
+
+	public class NamePart {
+		public NamePart(int indent, String token) {
+			indentLevel = indent;
+			name = token;
+		}
+		
+		private int indentLevel;
+		private String name;
+		
+		@Override
+		public String toString() {
+			return indentLevel + ":" + name;
+		}
 	}
 
 	public class SPProductionVisitor implements ProductionVisitor {
@@ -45,19 +63,27 @@ public class SentenceProducer {
 		private int indent = 1;
 		private boolean haveSomething;
 		private Set<String> used = new TreeSet<>();
+		private List<NamePart> nameParts = new ArrayList<>();
+		private Map<String, String> matchers = new TreeMap<>();
 		
-		public SPProductionVisitor(Grammar g, long l) {
+		public SPProductionVisitor(Grammar g, String pkg, long l) {
 			this.grammar = g;
 			this.r = new Random(l);
+			nameParts.add(new NamePart(0, pkg));
 		}
 
+		@Override
+		public void visit(Definition child) {
+			child.visit(this);
+		}
+		
 		@Override
 		public void zeroOrOne(Definition child) {
 			boolean wanted = r.nextBoolean();
 			if (debug)
 				System.out.println("Choosing " + wanted + " for optional " + child);
 			if (wanted) {
-				child.visit(this);
+				visit(child);
 			}
 		}
 
@@ -67,9 +93,9 @@ public class SentenceProducer {
 			if (debug)
 				System.out.println("Choosing " + cnt + " iterations of " + child);
 			for (int i=0;i<cnt;i++) {
-				child.visit(this);
+				visit(child);
 				if (withEOL)
-					token("EOL");
+					token("EOL", false);
 			}
 		}
 		
@@ -79,9 +105,9 @@ public class SentenceProducer {
 			if (debug)
 				System.out.println("Choosing " + cnt + " iterations of " + child);
 			for (int i=0;i<cnt;i++) {
-				child.visit(this);
+				visit(child);
 				if (withEOL)
-					token("EOL");
+					token("EOL", false);
 			}
 		}
 
@@ -101,6 +127,21 @@ public class SentenceProducer {
 				return;
 			}
 			p.visit(this);
+			for (String np : p.namePatterns()) {
+				matchers.put(assembleName(), np);
+			}
+		}
+
+		private String assembleName() {
+			StringBuilder sb = new StringBuilder();
+			boolean first = true;
+			for (NamePart np : nameParts) {
+				if (!first)
+					sb.append(".");
+				sb.append(np.name);
+				first = false;
+			}
+			return sb.toString();
 		}
 
 		@Override
@@ -112,14 +153,14 @@ public class SentenceProducer {
 					used.add(rn);
 					if (debug)
 						System.out.println("Rule " + rn);
-					asList.get(i).visit(this);
+					visit(asList.get(i));
 					return;
 				}
 			}
 		}
 
 		@Override
-		public void token(String token) {
+		public void token(String token, boolean nameAppend) {
 			final Lexer lexer = grammar.findToken(token);
 			String t = genToken(token, lexer.pattern);
 			if (debug)
@@ -138,6 +179,10 @@ public class SentenceProducer {
 				haveSomething = true;
 			}
 			sentence.append(t);
+			if (nameAppend) {
+				removeAbove(indent-1);
+				nameParts.add(new NamePart(indent, t));
+			}
 		}
 
 		@Override
@@ -153,9 +198,21 @@ public class SentenceProducer {
 		@Override
 		public void exdent() {
 			indent--;
+			int above = indent;
+			removeAbove(above);
 			if (haveSomething)
 				sentence.append("\n");
 			haveSomething = false;
+		}
+
+		public void removeAbove(int above) {
+			for (int i=0;i<nameParts.size();) {
+				NamePart part = nameParts.get(i);
+				if (part.indentLevel > above)
+					nameParts.remove(i);
+				else
+					i++;
+			}
 		}
 
 		private String genToken(String token, String pattern) {

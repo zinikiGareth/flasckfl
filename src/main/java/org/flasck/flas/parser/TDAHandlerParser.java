@@ -37,7 +37,6 @@ public class TDAHandlerParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	public TDAParsing parseHandler(InputPosition kw, boolean inCard, Tokenizable line) {

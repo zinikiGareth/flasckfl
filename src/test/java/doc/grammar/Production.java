@@ -1,6 +1,7 @@
 package doc.grammar;
 
 import java.io.PrintWriter;
+import java.util.HashSet;
 import java.util.Set;
 
 public class Production {
@@ -8,6 +9,7 @@ public class Production {
 	public final String name;
 	protected final Definition defn;
 	private boolean needsMoreTesting;
+	private final Set<String> namePatts = new HashSet<>();
 
 	public Production(int ruleNumber, String ruleName, Definition defn) {
 		this.number = ruleNumber;
@@ -21,6 +23,10 @@ public class Production {
 
 	public int ruleNumber() {
 		return number;
+	}
+	
+	public Set<String> namePatterns() {
+		return namePatts;
 	}
 
 	public void show(PrintWriter str) {
@@ -45,10 +51,14 @@ public class Production {
 	}
 
 	public void visit(ProductionVisitor visitor) {
-		defn.visit(visitor);
+		visitor.visit(defn);
 	}
 
 	public void needsMoreTesting() {
 		this.needsMoreTesting = true;
+	}
+
+	public void namePattern(String patt) {
+		namePatts.add(patt);
 	}
 }

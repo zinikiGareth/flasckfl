@@ -7,9 +7,11 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public class TokenDefinition extends Definition {
 	private final String token;
+	private final boolean nameAppend;
 
-	public TokenDefinition(String token) {
+	public TokenDefinition(String token, boolean nameAppend) {
 		this.token = token;
+		this.nameAppend = nameAppend;
 	}
 
 	@Override
@@ -28,7 +30,7 @@ public class TokenDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.token(token);
+		productionVisitor.token(token, nameAppend);
 	}
 
 }

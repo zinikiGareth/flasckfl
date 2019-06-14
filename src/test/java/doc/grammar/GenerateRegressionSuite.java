@@ -33,6 +33,7 @@ public class GenerateRegressionSuite {
 		File meta = new File(top, "META.json");
 		FileUtils.writeFile(meta, jo.toString());
 
+FileUtils.cat(meta);
 		// Assert that all the productions in the grammar are used at least once in the regression suite
 		Set<String> allProds = Grammar.from(XML.fromResource(grammar)).allProductionCases();
 		allProds.removeAll(allUsed);
@@ -41,10 +42,14 @@ public class GenerateRegressionSuite {
 		return meta;
 	}
 
-	private static void store(JSONObject jo, Set<String> allUsed, String key, Set<String> used) {
+	private static void store(JSONObject jo, Set<String> allUsed, String key, SentenceData used) {
 		try {
-			jo.put(key, used);
-			allUsed.addAll(used);
+			// TODO: need to capture the matchers, too
+			JSONObject thisOne = new JSONObject();
+			thisOne.put("used", used.productionsUsed);
+			thisOne.put("matchers", used.matchers);
+			jo.put(key, thisOne);
+			allUsed.addAll(used.productionsUsed);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

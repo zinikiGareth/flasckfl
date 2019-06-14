@@ -12,10 +12,12 @@ public interface ProductionVisitor {
 
 	void referTo(String child);
 
-	void token(String token);
+	void token(String token, boolean nameAppend);
 
 	boolean indent();
 
 	void exdent();
+
+	void visit(Definition defn);
 
 }

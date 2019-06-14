@@ -64,5 +64,7 @@ public class TDAMultiParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		for (TDAParsing p : parsers)
+			p.scopeComplete(location);
 	}
 }

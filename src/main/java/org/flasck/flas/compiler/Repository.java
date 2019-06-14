@@ -23,7 +23,6 @@ import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 
 public class Repository implements TopLevelDefinitionConsumer {
@@ -74,6 +73,7 @@ public class Repository implements TopLevelDefinitionConsumer {
 		FunctionBits bits;
 		if (!functions.containsKey(name)) {
 			bits = new FunctionBits(fn.intro);
+			functions.put(name, bits);
 		} else {
 			bits = functions.get(name);
 		}

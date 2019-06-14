@@ -452,7 +452,7 @@
 	       When declared within a nested scope, all the surrounding variables and definitions are available
 	       for reference by name.
 	       Note that a complete function declaration is made up of multiple cases applying to specific patterns.
-	       All of the cases must be declared “together” without any intervening blocks, but this is not
+	       All of the cases must be declared ``together'' without any intervening blocks, but this is not
 	       included in this grammar specification.
 	       There are two ways to declare a function case.
 	       It is possible to declare a single expression on the same line as the function declaration.
@@ -470,8 +470,9 @@
   <production name='simple-function-case-definition'>
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionParsingTests' />
+    <match pattern='Function\[${name}/.*\]' />
     <seq>
-      <token type='var-name'/>
+      <token type='var-name' append-to-name='true' />
       <many>
       	<ref production='argument-pattern'/>
       </many>
@@ -485,8 +486,9 @@
   <production name='degenerate-guarded-function-case-definition'>
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
+    <match pattern='Function\[${name}/.*\]' />
     <seq>
-      <token type='var-name'/>
+      <token type='var-name' append-to-name='true' />
       <many>
       	<ref production='argument-pattern'/>
       </many>
@@ -498,8 +500,9 @@
   <production name='guarded-function-case-definition'>
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
+    <match pattern='Function\[${name}/.*\]' />
     <seq>
-      <token type='var-name'/>
+      <token type='var-name' append-to-name='true' />
       <many>
       	<ref production='argument-pattern'/>
       </many>
