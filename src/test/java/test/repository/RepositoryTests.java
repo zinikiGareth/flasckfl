@@ -8,9 +8,11 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -133,5 +135,21 @@ public class RepositoryTests {
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>());
 		StandaloneMethod meth = new StandaloneMethod(om);
 		r.newStandaloneMethod(meth);
+	}
+
+	@Test
+	public void canAddAHandlerToTheRepository() {
+		Repository r = new Repository();
+		HandlerImplements hi = new HandlerImplements(pos, pos, pos, new HandlerName(pkg, "X"), "Y", false, new ArrayList<>());
+		r.newHandler(hi);
+		assertEquals(hi, r.get("test.repo.X"));
+	}
+
+	@Test(expected=DuplicateNameException.class)
+	public void cannotAddAHandlerToTheRepositoryTwice() {
+		Repository r = new Repository();
+		HandlerImplements hi = new HandlerImplements(pos, pos, pos, new HandlerName(pkg, "X"), "Y", false, new ArrayList<>());
+		r.newHandler(hi);
+		r.newHandler(hi);
 	}
 }

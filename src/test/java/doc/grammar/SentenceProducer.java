@@ -181,7 +181,9 @@ public class SentenceProducer {
 					patt = futurePattern;
 					futurePattern = null;
 				}
-				String doAmend = m.amendedName.replace("${final}", t);
+				String doAmend = t;
+				if (m.amendedName != null)
+					doAmend = m.amendedName.replace("${final}", t);
 				replace(doAmend, m.scoper);
 				this.matchers.put(assembleName(doAmend), patt);
 			}

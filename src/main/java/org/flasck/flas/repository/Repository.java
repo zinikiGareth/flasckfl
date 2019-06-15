@@ -34,29 +34,30 @@ public class Repository implements TopLevelDefinitionConsumer {
 	
 	@Override
 	public void functionDefn(FunctionDefinition func) {
-		if (dict.containsKey(func.name().uniqueName()))
-			throw new DuplicateNameException(func.name());
-		dict.put(func.name().uniqueName(), func);
+		addEntry(func.name(), func);
 	}
 
 	@Override
 	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, Expr expr) {
-		if (dict.containsKey(exprFnName.uniqueName()))
-			throw new DuplicateNameException(exprFnName);
 		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);
-		dict.put(exprFnName.uniqueName(), ta);
+		addEntry(exprFnName, ta);
 		NameOfThing pkg = exprFnName.inContext;
 		int k=0;
 		for (LocatedName x : vars) {
 			FunctionName tn = FunctionName.function(x.location, pkg, x.text);
-			if (dict.containsKey(tn.uniqueName()))
-				throw new DuplicateNameException(tn);
-			dict.put(tn.uniqueName(), new TupleMember(x.location, ta, k++, tn));
+			addEntry(tn, new TupleMember(x.location, ta, k++, tn));
 		}
 	}
 
 	@Override
 	public void newHandler(HandlerImplements hi) {
+		addEntry(hi.handlerName, hi);
+	}
+
+	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {
+		if (dict.containsKey(name.uniqueName()))
+			throw new DuplicateNameException(name);
+		dict.put(name.uniqueName(), entry);
 	}
 
 	@Override
@@ -70,9 +71,7 @@ public class Repository implements TopLevelDefinitionConsumer {
 
 	@Override
 	public void newStandaloneMethod(StandaloneMethod meth) {
-		if (dict.containsKey(meth.name().uniqueName()))
-			throw new DuplicateNameException(meth.name());
-		dict.put(meth.name().uniqueName(), meth);
+		addEntry(meth.name(), meth);
 	}
 
 	@Override

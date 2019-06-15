@@ -1,11 +1,13 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class HandlerImplements extends Implements {
+public class HandlerImplements extends Implements implements RepositoryEntry {
 	public final String baseName;
 	public final List<Object> boundVars;
 	public final boolean inCard;
@@ -23,5 +25,15 @@ public class HandlerImplements extends Implements {
 	
 	public HandlerName getRealName() {
 		return (HandlerName) realName;
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println(toString());
+	}
+	
+	@Override
+	public String toString() {
+		return "HandlerImplements[" + handlerName.uniqueName() + "]";
 	}
 }

@@ -828,7 +828,7 @@
     <seq>
       <token type='HANDLER'/>
       <token type='type-name'/>
-      <token type='type-name'/>
+      <token type='type-name' names='HandlerImplements\[${name}\]'/>
       <many>
       	<ref production='argument-pattern-maybe-typed' />
       </many>
