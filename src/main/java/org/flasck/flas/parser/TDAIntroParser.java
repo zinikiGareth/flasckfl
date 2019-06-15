@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.ServiceDefinition;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.stories.TDAMultiParser;
@@ -206,7 +207,7 @@ public class TDAIntroParser implements TDAParsing {
 		case "method": {
 //			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
 //			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
-			MethodConsumer smConsumer = sm -> { consumer.newStandaloneMethod(sm); };
+			MethodConsumer smConsumer = om -> { consumer.newStandaloneMethod(new StandaloneMethod(om)); };
 			return new TDAMethodParser(errors, namer, smConsumer, consumer).parseMethod(namer, toks);
 		}
 		default:

@@ -7,11 +7,11 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
-import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 
 public interface FunctionScopeUnitConsumer {
 	void functionDefn(FunctionDefinition func);
 	void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr);
 	void newHandler(HandlerImplements hi);
-	void newStandaloneMethod(ObjectMethod meth);
+	void newStandaloneMethod(StandaloneMethod meth);
 }

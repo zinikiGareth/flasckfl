@@ -6,6 +6,10 @@ import doc.grammar.TokenDefinition.Matcher;
 
 public interface ProductionVisitor {
 
+	boolean indent();
+	void visit(Definition defn);
+	void exdent();
+
 	void choices(OrProduction prod, List<Definition> defns, List<Integer> probs, int maxProb);
 
 	void zeroOrOne(Definition child);
@@ -14,12 +18,6 @@ public interface ProductionVisitor {
 
 	void referTo(String child);
 
+	void futurePattern(String pattern);
 	void token(String token, String patternMatcher, List<Matcher> matchers);
-
-	boolean indent();
-
-	void exdent();
-
-	void visit(Definition defn);
-
 }

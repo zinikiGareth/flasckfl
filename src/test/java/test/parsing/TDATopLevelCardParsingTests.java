@@ -14,7 +14,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
@@ -100,7 +100,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanHaveStandaloneMethods() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStandaloneMethod(with(any(ObjectMethod.class)));
+			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("method m"));
 	}

@@ -12,8 +12,8 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
@@ -77,7 +77,7 @@ public class TDAServiceParsingTests {
 	@Test
 	public void servicesCanHaveStandaloneMethods() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStandaloneMethod(with(any(ObjectMethod.class)));
+			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("method m"));
 	}

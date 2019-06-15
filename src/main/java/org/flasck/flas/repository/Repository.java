@@ -18,8 +18,8 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -41,12 +41,16 @@ public class Repository implements TopLevelDefinitionConsumer {
 
 	@Override
 	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, Expr expr) {
+		if (dict.containsKey(exprFnName.uniqueName()))
+			throw new DuplicateNameException(exprFnName);
 		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);
 		dict.put(exprFnName.uniqueName(), ta);
 		NameOfThing pkg = exprFnName.inContext;
 		int k=0;
 		for (LocatedName x : vars) {
 			FunctionName tn = FunctionName.function(x.location, pkg, x.text);
+			if (dict.containsKey(tn.uniqueName()))
+				throw new DuplicateNameException(tn);
 			dict.put(tn.uniqueName(), new TupleMember(x.location, ta, k++, tn));
 		}
 	}
@@ -65,7 +69,10 @@ public class Repository implements TopLevelDefinitionConsumer {
 	}
 
 	@Override
-	public void newStandaloneMethod(ObjectMethod meth) {
+	public void newStandaloneMethod(StandaloneMethod meth) {
+		if (dict.containsKey(meth.name().uniqueName()))
+			throw new DuplicateNameException(meth.name());
+		dict.put(meth.name().uniqueName(), meth);
 	}
 
 	@Override

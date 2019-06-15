@@ -12,6 +12,8 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.repository.Repository;
@@ -72,6 +74,28 @@ public class RepositoryTests {
 		assertEquals("test.repo.c", tm.name().uniqueName());
 	}
 
+	@Test(expected=DuplicateNameException.class)
+	public void cannotAddALeadTupleMemberToTheRepositoryTwice() {
+		Repository r = new Repository();
+		putATupleIntoTheRepository(r);
+		FunctionName exprFnName = FunctionName.function(pos, pkg, "_tuple_a");
+		List<LocatedName> vars = new ArrayList<>();
+		vars.add(new LocatedName(pos, "a"));
+		vars.add(new LocatedName(pos, "x"));
+		r.tupleDefn(vars, exprFnName, simpleExpr);
+	}
+
+	@Test(expected=DuplicateNameException.class)
+	public void cannotAddASecondaryTupleMemberToTheRepositoryTwice() {
+		Repository r = new Repository();
+		putATupleIntoTheRepository(r);
+		FunctionName exprFnName = FunctionName.function(pos, pkg, "_tuple_x");
+		List<LocatedName> vars = new ArrayList<>();
+		vars.add(new LocatedName(pos, "x"));
+		vars.add(new LocatedName(pos, "b"));
+		r.tupleDefn(vars, exprFnName, simpleExpr);
+	}
+
 	public List<LocatedName> putATupleIntoTheRepository(Repository r) {
 		FunctionName exprFnName = FunctionName.function(pos, pkg, "_tuple_a");
 		List<LocatedName> vars = new ArrayList<>();
@@ -83,11 +107,31 @@ public class RepositoryTests {
 		return vars;
 	}
 
-//	@Test(expected=DuplicateNameException.class)
-//	public void cannotAddAFunctionToTheRepositoryTwice() {
-//		Repository r = new Repository();
-//		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, new PackageName("test.repo"), "fred"), 2);
-//		r.functionDefn(fn);
-//		r.functionDefn(fn);
-//	}
+	@Test
+	public void canAddAStandaloneMethodToTheRepository() {
+		Repository r = new Repository();
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>());
+		StandaloneMethod meth = new StandaloneMethod(om);
+		r.newStandaloneMethod(meth);
+		assertEquals(meth, r.get("test.repo.m"));
+	}
+
+	@Test(expected=DuplicateNameException.class)
+	public void cannotAddAStandaloneMethodToTheRepositoryTwice() {
+		Repository r = new Repository();
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>());
+		StandaloneMethod meth = new StandaloneMethod(om);
+		r.newStandaloneMethod(meth);
+		r.newStandaloneMethod(meth);
+	}
+
+	@Test(expected=DuplicateNameException.class)
+	public void cannotAddAStandaloneMethodToTheRepositoryIfAFunctionIsAlreadyThere() {
+		Repository r = new Repository();
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
+		r.functionDefn(fn);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>());
+		StandaloneMethod meth = new StandaloneMethod(om);
+		r.newStandaloneMethod(meth);
+	}
 }

@@ -838,7 +838,6 @@
     </seq>
   </production>
   <production name='standalone-method-definition'>
-    <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <section title='Method'>
       <description>
       Note that standalone and object methods have the same syntax, but they are sufficiently different to make it worth making it clear
@@ -847,8 +846,10 @@
       Note that the first case of the rule is not, per se, a valid expression since the service object is not in scope, but actually it will parse as one.
       </description>
     </section>
+    <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <seq>
       <token type='METHOD'/>
+      <will-name pattern='StandaloneMethod\[${name}/[0-9]+\]' /> <!-- this will bind to the use-name in the method-definition -->
       <ref production='method-definition'/>
     </seq>
   </production>
@@ -857,6 +858,7 @@
 	<tested by='test.parsing.TDAObjectElementParsingTests' />
 	<seq>
       <token type='METHOD'/>
+      <will-name pattern='ObjectMethod[${name}]' /> <!-- I'm not convinced this will turn up in the repo, but it might ... -->
       <ref production='method-definition'/>
     </seq>
   </production>
@@ -864,7 +866,9 @@
     <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <section title='Method'/>
     <seq>
-      <token type='var-name'/>
+      <token type='var-name'>
+      	<use-name/> <!--  this picks up the value from the 'enclosing' will-name -->
+      </token>
       <many>
         <ref production='argument-pattern'/>
       </many>
@@ -1000,6 +1004,7 @@
     <tested by='test.parsing.TDAObjectElementParsingTests' />
     <seq>
       <token type='CTOR' />
+      <will-name pattern='ObjectCtor\[${name}/[0-9]+\]' /> <!-- this will bind to the use-name in the method-definition -->
       <ref production='method-definition'/>
     </seq>
   </production>
@@ -1139,6 +1144,7 @@
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
       <token type='EVENT'/>
+      <will-name pattern='Event\[${name}/[0-9]+\]' /> <!-- this will bind to the use-name in the method-definition -->
       <ref production='method-definition'/>
     </seq>
   </production>

@@ -7,6 +7,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -101,7 +102,7 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
-			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(sm); };
+			MethodConsumer smConsumer = om -> { topLevel.newStandaloneMethod(new StandaloneMethod(om)); };
 			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel).parseMethod(namer, toks);
 		}
 		default:

@@ -171,6 +171,8 @@ public class Grammar {
 			return handleSeq(ruleName, rule);
 		case "token":
 			return handleToken(ruleName, rule);
+		case "will-name":
+			return handleWillName(ruleName, rule);
 		default:
 			throw new RuntimeException("Production '" + ruleName + "' references unknown production rule " + rule.tag());
 		}
@@ -228,7 +230,18 @@ public class Grammar {
 			ret.addMatcher(amendedName, pattern);
 			xe.attributesDone();
 		}
+		List<XMLElement> useMatchers = rule.elementChildren("use-name");
+		for (XMLElement xe : useMatchers) {
+			xe.attributesDone();
+			ret.addMatcher(null, null);
+		}
 		return ret;
+	}
+
+	private Definition handleWillName(String ruleName, XMLElement rule) {
+		String pattern = rule.required("pattern");
+		rule.attributesDone();
+		return new WillNameDefinition(pattern);
 	}
 
 	public Iterable<Section> sections() {

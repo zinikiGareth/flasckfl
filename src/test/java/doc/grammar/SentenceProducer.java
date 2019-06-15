@@ -67,6 +67,7 @@ public class SentenceProducer {
 		private Set<String> used = new TreeSet<>();
 		private List<NamePart> nameParts = new ArrayList<>();
 		private Map<String, String> matchers = new TreeMap<>();
+		private String futurePattern;
 		
 		public SPProductionVisitor(Grammar g, String pkg, long l) {
 			this.grammar = g;
@@ -173,8 +174,22 @@ public class SentenceProducer {
 			if (patternMatcher != null)
 				this.matchers.put(assembleName(null), patternMatcher);
 			for (Matcher m : matchers) {
-				this.matchers.put(assembleName(m.amendedName), m.pattern);
+				String patt = m.pattern;
+				if (patt == null) {
+					if (futurePattern == null)
+						throw new RuntimeException("Cannot use pattern because it has not been set");
+					patt = futurePattern;
+					futurePattern = null;
+				}
+				this.matchers.put(assembleName(m.amendedName), patt);
 			}
+		}
+
+		@Override
+		public void futurePattern(String pattern) {
+			if (futurePattern != null)
+				throw new RuntimeException("Cannot set next pattern without using previous pattern");
+			futurePattern = pattern;
 		}
 
 		private String assembleName(String amendFinal) {
