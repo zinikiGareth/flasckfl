@@ -11,10 +11,12 @@ public class TokenDefinition extends Definition {
 	public class Matcher {
 		public final String amendedName;
 		public final String pattern;
+		public final boolean scoper;
 
-		public Matcher(String amendedName, String pattern) {
+		public Matcher(String amendedName, String pattern, boolean scoper) {
 			this.amendedName = amendedName;
 			this.pattern = pattern;
+			this.scoper = scoper;
 		}
 	}
 
@@ -46,7 +48,7 @@ public class TokenDefinition extends Definition {
 		productionVisitor.token(token, patternMatcher, matchers);
 	}
 
-	public void addMatcher(String amendedName, String pattern) {
-		matchers.add(new Matcher(amendedName, pattern));
+	public void addMatcher(String amendedName, String pattern, boolean scoper) {
+		matchers.add(new Matcher(amendedName, pattern, scoper));
 	}
 }

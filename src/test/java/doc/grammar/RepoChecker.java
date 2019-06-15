@@ -49,6 +49,10 @@ public class RepoChecker {
 //				System.out.println("Fine: " + name + " " + defn + " (" + patt + ")");
 			}
 		}
+		if (!ms.isEmpty()) {
+			System.out.println("Names not found: " + ms.keySet());
+			ret = false;
+		}
 		return ret;
 	}
 

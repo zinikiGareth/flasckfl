@@ -44,13 +44,15 @@ public class SentenceProducer {
 	}
 
 	public class NamePart {
-		public NamePart(int indent, String token) {
+		public NamePart(int indent, String token, boolean scoping) {
 			indentLevel = indent;
 			name = token;
+			this.scoping = scoping;
 		}
 		
-		private int indentLevel;
-		private String name;
+		private final int indentLevel;
+		private final String name;
+		private final boolean scoping;
 		
 		@Override
 		public String toString() {
@@ -72,7 +74,7 @@ public class SentenceProducer {
 		public SPProductionVisitor(Grammar g, String pkg, long l) {
 			this.grammar = g;
 			this.r = new Random(l);
-			nameParts.add(new NamePart(0, pkg));
+			nameParts.add(new NamePart(0, pkg, true));
 		}
 
 		@Override
@@ -167,12 +169,10 @@ public class SentenceProducer {
 				haveSomething = true;
 			}
 			sentence.append(t);
-			if (patternMatcher != null || !matchers.isEmpty()) {
-				removeAbove(indent-1);
-				nameParts.add(new NamePart(indent, t));
+			if (patternMatcher != null) {
+				replace(t, false);
+				this.matchers.put(assembleName(t), patternMatcher);
 			}
-			if (patternMatcher != null)
-				this.matchers.put(assembleName(null), patternMatcher);
 			for (Matcher m : matchers) {
 				String patt = m.pattern;
 				if (patt == null) {
@@ -181,8 +181,21 @@ public class SentenceProducer {
 					patt = futurePattern;
 					futurePattern = null;
 				}
-				this.matchers.put(assembleName(m.amendedName), patt);
+				String doAmend = m.amendedName.replace("${final}", t);
+				replace(doAmend, m.scoper);
+				this.matchers.put(assembleName(doAmend), patt);
 			}
+		}
+
+		private void replace(String t, boolean scoping) {
+			NamePart np = null;
+			for (NamePart p : nameParts)
+				if (p.indentLevel == indent)
+					np = p;
+			if (np != null && !np.scoping)
+				removeAbove(indent-1);
+			if (np == null || !np.scoping)
+				nameParts.add(new NamePart(indent, t, scoping));
 		}
 
 		@Override
@@ -192,17 +205,14 @@ public class SentenceProducer {
 			futurePattern = pattern;
 		}
 
-		private String assembleName(String amendFinal) {
+		private String assembleName(String desiredName) {
 			StringBuilder sb = new StringBuilder();
-			for (int i=0;i<nameParts.size();i++) {
+			for (int i=0;i<nameParts.size()-1;i++) {
 				NamePart np = nameParts.get(i);
-				if (i > 0)
-					sb.append(".");
-				if (amendFinal != null && i == nameParts.size()-1) { // final part
-					sb.append(amendFinal.replace("${final}", np.name));
-				} else
-					sb.append(np.name);
+				sb.append(np.name);
+				sb.append(".");
 			}
+			sb.append(desiredName);
 			return sb.toString();
 		}
 

@@ -549,7 +549,7 @@
     <seq>
     	  <token type='ORB' />
       <token type='var-name' names='TupleMember\[${name}.*\]'>
-      	<named amended='_tuple_${final}' pattern='TupleAssignment\{${final}=&gt;\[.*\]=.*\}' />
+      	<named amended='_tuple_${final}' pattern='TupleAssignment\{${final}=&gt;\[.*\]=.*\}' scope='true' />
       </token>
       <one-or-more>
       	<ref production='comma-var-name' />

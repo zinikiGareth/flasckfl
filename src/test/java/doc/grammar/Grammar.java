@@ -227,13 +227,14 @@ public class Grammar {
 		for (XMLElement xe : matchers) {
 			String amendedName = xe.required("amended");
 			String pattern = xe.required("pattern");
-			ret.addMatcher(amendedName, pattern);
+			boolean scoper = xe.optionalBoolean("scope", false);
+			ret.addMatcher(amendedName, pattern, scoper);
 			xe.attributesDone();
 		}
 		List<XMLElement> useMatchers = rule.elementChildren("use-name");
 		for (XMLElement xe : useMatchers) {
 			xe.attributesDone();
-			ret.addMatcher(null, null);
+			ret.addMatcher(null, null, false);
 		}
 		return ret;
 	}

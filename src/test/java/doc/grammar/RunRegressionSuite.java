@@ -22,7 +22,6 @@ public class RunRegressionSuite {
 	final File root = new File("src/regression");
 
 	@Test
-	@Ignore
 	public void testAll() throws Throwable {
 		if (!root.exists()) {
 			GenerateRegressionSuite.generateInto(root);
@@ -73,6 +72,7 @@ public class RunRegressionSuite {
 	}
 
 	@Test
+	@Ignore
 	public void testOne() throws Exception {
 		JSONObject jo = new JSONObject(FileUtils.readFile(new File(root, "META.json")));
 		final String name = "test.r21014";
