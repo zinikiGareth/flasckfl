@@ -47,7 +47,7 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 			consumer.defineState(state);
 			seenState = true;
 			
-			return new TDAStructFieldParser(errors, state, FieldsType.STATE);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(topLevel, namer, state), FieldsType.STATE);
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);

@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -76,7 +77,12 @@ public class Repository implements TopLevelDefinitionConsumer {
 
 	@Override
 	public void newStruct(StructDefn sd) {
-//		scope.define(errors, sd.name.baseName(), sd);
+		addEntry(sd.name(), sd);
+	}
+
+	@Override
+	public void field(NameOfThing name, StructField sf) {
+		addEntry(name, sf);
 	}
 
 	@Override
@@ -90,7 +96,7 @@ public class Repository implements TopLevelDefinitionConsumer {
 
 	@Override
 	public void newObject(ObjectDefn od) {
-//		scope.define(errors, od.name().baseName(), od);
+		addEntry(od.name(), od);
 	}
 
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {

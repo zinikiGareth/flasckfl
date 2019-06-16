@@ -3,11 +3,11 @@ package test.parsing;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.parser.ObjectNestedNamer;
@@ -15,6 +15,7 @@ import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAObjectElementsParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAStructFieldParser;
+import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -27,9 +28,10 @@ public class TDAObjectElementParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
 	private ObjectElementsConsumer builder = context.mock(ObjectElementsConsumer.class);
-	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
+	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
 	final SolidName objName = new SolidName(null, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(objName);
+	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 
 	@Test
 	public void junkIsNotAKeyword() {
@@ -84,11 +86,14 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveAccessorMethods() { // Correct me if I'm wrong, but these are really functions, because they don't do state updates
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(null, "myname"))));
+			oneOf(topLevel).functionDefn(with(FunctionDefinitionMatcher.named("MyObject.myname")));
+			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(new SolidName(null, "MyObject"), "myname"))));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
 		assertTrue(nested instanceof TDAMultiParser);
+		nested.scopeComplete(pos);
+		parser.scopeComplete(pos);
 	}
 
 	@Test
@@ -100,6 +105,25 @@ public class TDAObjectElementParsingTests {
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname x (Number y) = x + y"));
 		assertTrue(nested instanceof TDAMultiParser);
+	}
+
+	@Test
+	public void anObjectCanHaveMultipleAccessorMethods() {
+		context.checking(new Expectations() {{
+			allowing(errors).hasErrors(); will(returnValue(false));
+			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(new SolidName(null, "MyObject"), "myname"))));
+			oneOf(topLevel).functionDefn(with(FunctionDefinitionMatcher.named("MyObject.myname")));
+			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(new SolidName(null, "MyObject"), "othername"))));
+			oneOf(topLevel).functionDefn(with(FunctionDefinitionMatcher.named("MyObject.othername")));
+		}});
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
+		assertTrue(nested instanceof TDAMultiParser);
+		nested.scopeComplete(pos);
+		nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor othername = 76"));
+		assertTrue(nested instanceof TDAMultiParser);
+		nested.scopeComplete(pos);
+		parser.scopeComplete(pos);
 	}
 
 	@Test

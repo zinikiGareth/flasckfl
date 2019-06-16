@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,8 +11,9 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.ObjectElementsConsumer;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectElementsConsumer {
+public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectElementsConsumer, RepositoryEntry {
 	private StateDefinition state;
 	private final List<Template> templates = new ArrayList<>();
 	public final List<ObjectCtor> ctors = new ArrayList<>();
@@ -106,5 +108,15 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 			ret = methodCases.get(name);
 		methodCases.put(name, ret+1);
 		return ret;
+	}
+	
+	@Override
+	public String toString() {
+		return "ObjectDefinition[" + asString() + "]";
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println(toString());
 	}
 }

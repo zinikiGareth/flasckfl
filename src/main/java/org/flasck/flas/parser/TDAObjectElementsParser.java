@@ -23,9 +23,10 @@ public class TDAObjectElementsParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final TemplateNamer namer;
 	private final ObjectElementsConsumer builder;
-	private final FunctionScopeUnitConsumer topLevel;
+	private final TopLevelDefinitionConsumer topLevel;
+	private TDAFunctionParser currParser;
 
-	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, FunctionScopeUnitConsumer topLevel) {
+	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, TopLevelDefinitionConsumer topLevel) {
 		this.errors = errors;
 		this.namer = namer;
 		this.builder = od;
@@ -34,6 +35,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		InputPosition location = toks.realinfo();
 		KeywordToken kw = KeywordToken.from(toks);
 		switch (kw.text) {
 		case "state": {
@@ -43,7 +45,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}
 			StateDefinition state = new StateDefinition(toks.realinfo());
 			builder.defineState(state);
-			return new TDAStructFieldParser(errors, state, FieldsType.STATE);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(topLevel, namer, state), FieldsType.STATE);
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
@@ -69,18 +71,23 @@ public class TDAObjectElementsParser implements TDAParsing {
 			return new TDAMethodMessageParser(errors, ctor, new LastActionScopeParser(errors, namer, topLevel, "action"));
 		}
 		case "acor": {
+			if (currParser != null)
+				currParser.scopeComplete(location);
+			FunctionAssembler fa = new FunctionAssembler(errors, topLevel);
 			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {
 				@Override
 				public void functionIntro(FunctionIntro o) {
+					fa.functionIntro(o);
 					builder.addAccessor(new ObjectAccessor());
 				}
 
 				@Override
 				public void moveOn() {
-					throw new org.zinutils.exceptions.NotImplementedException();
+					fa.moveOn();
 				}
 			};
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, consumer, topLevel);
+			currParser = fcp;
 			return fcp.tryParsing(toks);
 		}
 		case "method": {
@@ -95,5 +102,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		if (currParser != null)
+			currParser.scopeComplete(location);
 	}
 }

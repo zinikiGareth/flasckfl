@@ -45,10 +45,9 @@ public abstract class FieldsDefn implements AsString, Locatable {
 		return polys;
 	}
 
-	public AsString addField(StructField sf) {
+	public void addField(StructField sf) {
 		// TODO: validate that any poly fields here are defined in the provided list of polys
 		fields.add(sf);
-		return this;
 	}
 
 	public StructField findField(String var) {

@@ -3,8 +3,10 @@ package test.parsing;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
@@ -127,6 +129,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
+			oneOf(builder).field(with(any(NameOfThing.class)), with(any(StructField.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		final Tokenizable line = TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred");

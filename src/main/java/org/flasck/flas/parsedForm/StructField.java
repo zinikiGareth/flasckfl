@@ -1,10 +1,13 @@
 package org.flasck.flas.parsedForm;
 
 
+import java.io.PrintWriter;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class StructField implements Locatable {
+public class StructField implements Locatable, RepositoryEntry {
 	public final InputPosition loc;
 	public final InputPosition assOp;
 	public final boolean accessor;
@@ -29,9 +32,14 @@ public class StructField implements Locatable {
 	public InputPosition location() {
 		return loc;
 	}
-	
+
 	@Override
 	public String toString() {
 		return type + " " + name + " (" + type.location().off + "/" + loc.off + ")";
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println("Field[" + toString() + "]");
 	}
 }

@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -111,7 +112,7 @@ public class TDAIntroParser implements TDAParsing {
 			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
 			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, namer.solidName(tn.text), true, polys);
 			consumer.newStruct(sd);
-			return new TDAStructFieldParser(errors, sd, ty);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), ty);
 		}
 		case "wraps": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -135,7 +136,7 @@ public class TDAIntroParser implements TDAParsing {
 			}
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, namer.solidName(tn.text), true, new ArrayList<>());
 			consumer.newStruct(sd);
-			return new TDAStructFieldParser(errors, sd, FieldsType.WRAPS);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), FieldsType.WRAPS);
 		}
 		case "union": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);

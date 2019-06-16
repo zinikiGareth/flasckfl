@@ -1,6 +1,7 @@
 package test.repository;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,14 +11,22 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parser.ConsumeStructFields;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.repository.Repository;
 import org.junit.Test;
 
@@ -135,6 +144,41 @@ public class RepositoryTests {
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>());
 		StandaloneMethod meth = new StandaloneMethod(om);
 		r.newStandaloneMethod(meth);
+	}
+
+	@Test
+	public void canAddAObjectDefnToTheRepository() {
+		Repository r = new Repository();
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
+		r.newObject(od);
+		assertEquals(od, r.get("test.repo.Obj"));
+	}
+
+	@Test
+	public void canAddAStructDefnToTheRepository() {
+		Repository r = new Repository();
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructName"), true, new ArrayList<>());
+		r.newStruct(sd);
+		assertEquals(sd, r.get("test.repo.StructName"));
+	}
+
+	@Test
+	public void canAddADealDefnToTheRepository() { // it's just a struct
+		Repository r = new Repository();
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.DEAL, new SolidName(pkg, "MyDeal"), true, new ArrayList<>());
+		r.newStruct(sd);
+		assertEquals(sd, r.get("test.repo.MyDeal"));
+	}
+
+	@Test
+	public void structFieldsAreAddedToTheRepository() {
+		Repository r = new Repository();
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "TheStruct"), true, new ArrayList<>());
+		ConsumeStructFields csf = new ConsumeStructFields(r, (loc, t) -> new VarName(loc, sd.name(), t), sd);
+		r.newStruct(sd);
+		final StructField sf = new StructField(pos, true, new TypeReference(pos, "A"), "x");
+		csf.addField(sf);
+		assertEquals(sf, r.get("test.repo.TheStruct.x"));
 	}
 
 	@Test

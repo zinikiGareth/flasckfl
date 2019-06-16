@@ -5,12 +5,12 @@ import static org.junit.Assert.assertEquals;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectCtor;
-import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.parser.ObjectNestedNamer;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAObjectElementsParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -30,7 +30,7 @@ public class TDAMethodNestingParsingTests {
 	private ObjectElementsConsumer builder = context.mock(ObjectElementsConsumer.class);
 	private SolidName name = new SolidName(null, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(name);
-	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
+	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
 	
 	@Test
 	public void anObjectCtorCanHaveActionsWithNoNesting() {

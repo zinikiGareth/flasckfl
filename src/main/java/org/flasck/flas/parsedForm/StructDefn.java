@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,9 +9,9 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.parser.StructFieldConsumer;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class StructDefn extends FieldsDefn implements AsString, Locatable, StructFieldConsumer {
+public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry {
 	// for tests
 	public StructDefn(InputPosition location, FieldsDefn.FieldsType type, String pkg, String tn, boolean generate, PolyType... polys) {
 		this(null, location, type, new SolidName(new PackageName(pkg), tn), generate, Arrays.asList(polys));
@@ -46,6 +47,11 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Struc
 			sb.append("}");
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println(this.type + "[" + dump() +"]");
 	}
 
 	public String asString() {

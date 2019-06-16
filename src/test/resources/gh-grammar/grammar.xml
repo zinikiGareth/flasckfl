@@ -252,7 +252,7 @@
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
       <token type='STRUCT'/>
-      <token type='type-name'/>
+    	  <token type='type-name' names='StructDefinition\[\]' />
       <many>
         <token type='poly-var'/>
       </many>
@@ -266,7 +266,7 @@
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
       <token type='ENTITY'/>
-      <token type='type-name'/>
+    	  <token type='type-name' names='EntityDefinition\[\]' />
       <many>
         <token type='poly-var'/>
       </many>
@@ -280,7 +280,7 @@
 	<tested by='test.parsing.TDADealIntroParsingTests' />
     <seq>
       <token type='DEAL'/>
-      <token type='type-name'/>
+    	  <token type='type-name' names='DEAL\[${name}.*\]' />
       <many>
         <token type='poly-var'/>
       </many>
@@ -294,7 +294,7 @@
 	<tested by='test.parsing.TDAOfferIntroParsingTests' />
     <seq>
       <token type='OFFER'/>
-      <token type='type-name'/>
+    	  <token type='type-name' names='OfferDefinition\[${name}\]' />
       <many>
         <token type='poly-var'/>
       </many>
@@ -315,7 +315,7 @@
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
     <seq>
       <ref production='type-reference'/>
-      <token type='var-name'/>
+      <token type='var-name' names='Field\[.* ${final} .*\]'/>
       <optional>
       	<ref production='struct-initializer'/>
       </optional>
@@ -962,7 +962,7 @@
     <tested by='test.parsing.TDAObjectIntroParsingTests' />
     <seq>
     	  <token type='OBJECT' />
-    	  <token type='type-name'/>
+    	  <token type='type-name' names='ObjectDefinition\[${name}\]' />
     	  <indent-one>
     	    <ref production='object-contents'/>
     	  </indent-one>

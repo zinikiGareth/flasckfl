@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parser.StructFieldConsumer;
 
-public class StateDefinition extends FieldsDefn implements StructFieldConsumer {
+public class StateDefinition extends FieldsDefn {
 
 	public StateDefinition(InputPosition loc) {
 		this(loc, new ArrayList<>());
