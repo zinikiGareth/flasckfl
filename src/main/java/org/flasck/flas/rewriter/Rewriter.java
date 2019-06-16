@@ -1,5 +1,7 @@
 package org.flasck.flas.rewriter;
 
+import static org.hamcrest.Matchers.nullValue;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -95,7 +97,6 @@ import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
-import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
@@ -906,8 +907,8 @@ public class Rewriter implements CodeGenRegistry {
 			RWContractImplements rw = rewriteCI(cx, ci);
 			if (rw == null)
 				continue;
-			grp.contracts.add(new ContractGrouping((SolidName) rw.getTypeName(), ci.getRealName(), rw.referAsVar));
-			cardImplements.put(ci.getRealName(), rw);
+//			grp.contracts.add(new ContractGrouping((SolidName) rw.getTypeName(), ci.getRealName(), rw.referAsVar));
+//			cardImplements.put(ci.getRealName(), rw);
 			if (rw.referAsVar != null)
 				grp.struct.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 		}
@@ -916,14 +917,15 @@ public class Rewriter implements CodeGenRegistry {
 			RWContractService rw = rewriteCS(cx, cs);
 			if (rw == null)
 				continue;
-			grp.services.add(new ServiceGrouping(rw.name(), cs.getRealName(), rw.referAsVar));
-			cardServices.put(cs.getRealName(), rw);
+//			grp.services.add(new ServiceGrouping(rw.name(), cs.getRealName(), rw.referAsVar));
+//			cardServices.put(cs.getRealName(), rw);
 			if (rw.referAsVar != null)
 				grp.struct.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 		}
 		return grp;
 	}
 
+	@SuppressWarnings("null")
 	private void rewriteCard(NamingContext cx, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
@@ -937,7 +939,7 @@ public class Rewriter implements CodeGenRegistry {
 		}
 		
 		for (ContractImplements ci : cd.contracts) {
-			RWContractImplements rw = cardImplements.get(ci.getRealName());
+			RWContractImplements rw = null; //cardImplements.get(ci.getRealName());
 
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name().uniqueName()))
@@ -952,7 +954,7 @@ public class Rewriter implements CodeGenRegistry {
 		}
 		
 		for (ContractService cs : cd.services) {
-			RWContractService rw = cardServices.get(cs.getRealName());
+			RWContractService rw = null; //cardServices.get(cs.getRealName());
 
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name().uniqueName()))
@@ -1365,13 +1367,14 @@ public class Rewriter implements CodeGenRegistry {
 
 	private RWContractImplements rewriteCI(NamingContext cx, ContractImplements ci) {
 		try {
-			Object av = cx.resolve(ci.location(), ci.name());
+			Object av = null; // cx.resolve(ci.location(), ci.name());
 			if (av == null || !(av instanceof PackageVar)) {
 				errors.message(ci.location(), "cannot find a valid definition of contract " + ci.name());
 				return null;
 			}
+			@SuppressWarnings("unused")
 			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
-			return new RWContractImplements(ci.kw, ci.location(), ci.getRealName(), (SolidName) cd.getTypeName(), ci.varLocation, ci.referAsVar);
+			return new RWContractImplements(ci.kw, ci.location(), null /*ci.getRealName()*/, (SolidName) cd.getTypeName(), ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -1380,13 +1383,14 @@ public class Rewriter implements CodeGenRegistry {
 
 	private RWContractService rewriteCS(NamingContext cx, ContractService cs) {
 		try {
-			Object av = cx.resolve(cs.location(), cs.name());
+			Object av = null; // cx.resolve(cs.location(), cs.name());
 			if (av == null || !(av instanceof PackageVar)) {
 				errors.message(cs.location(), "cannot find a valid definition of contract " + cs.name());
 				return null;
 			}
+			@SuppressWarnings("unused")
 			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
-			return new RWContractService(cs.kw, cs.location(), cs.getRealName(), (SolidName) cd.getTypeName(), cs.vlocation, cs.referAsVar);
+			return new RWContractService(cs.kw, cs.location(), null /*cs.getRealName()*/, (SolidName) cd.getTypeName(), cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -1397,7 +1401,7 @@ public class Rewriter implements CodeGenRegistry {
 		TypeWithName any = (TypeWithName) getObject(cx.nested.resolve(hi.location(), "Any"));
 		Object av = null;
 		try {
-			av = cx.resolve(hi.location(), hi.name());
+			av = nullValue(); // cx.resolve(hi.location(), hi.name());
 		} catch (ResolutionException ex) {
 			// remains null, see below ...
 		}

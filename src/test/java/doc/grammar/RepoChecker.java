@@ -14,9 +14,6 @@ import org.zinutils.utils.FileUtils;
 public class RepoChecker {
 
 	public static boolean checkRepo(File repoFile, Map<String, String> ms) throws IOException, FileNotFoundException {
-		System.out.println("------ " + repoFile);
-		FileUtils.cat(repoFile);
-		System.out.println("------");
 		boolean ret = true;
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(repoFile))) {
 			String s;
@@ -52,6 +49,11 @@ public class RepoChecker {
 		if (!ms.isEmpty()) {
 			System.out.println("Names not found: " + ms.keySet());
 			ret = false;
+		}
+		if (!ret) {
+			System.out.println("------ " + repoFile);
+			FileUtils.cat(repoFile);
+			System.out.println("------");
 		}
 		return ret;
 	}

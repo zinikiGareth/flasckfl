@@ -184,7 +184,7 @@ public class RepositoryTests {
 	@Test
 	public void canAddAHandlerToTheRepository() {
 		Repository r = new Repository();
-		HandlerImplements hi = new HandlerImplements(pos, pos, pos, new HandlerName(pkg, "X"), "Y", false, new ArrayList<>());
+		HandlerImplements hi = new HandlerImplements(pos, pos, pos, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
 		r.newHandler(hi);
 		assertEquals(hi, r.get("test.repo.X"));
 	}
@@ -192,7 +192,7 @@ public class RepositoryTests {
 	@Test(expected=DuplicateNameException.class)
 	public void cannotAddAHandlerToTheRepositoryTwice() {
 		Repository r = new Repository();
-		HandlerImplements hi = new HandlerImplements(pos, pos, pos, new HandlerName(pkg, "X"), "Y", false, new ArrayList<>());
+		HandlerImplements hi = new HandlerImplements(pos, pos, pos, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
 		r.newHandler(hi);
 		r.newHandler(hi);
 	}

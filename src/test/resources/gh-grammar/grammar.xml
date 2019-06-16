@@ -266,7 +266,7 @@
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
       <token type='ENTITY'/>
-    	  <token type='type-name' names='EntityDefinition\[\]' />
+    	  <token type='type-name' names='ENTITY\[${name}.*\]' />
       <many>
         <token type='poly-var'/>
       </many>
@@ -294,7 +294,7 @@
 	<tested by='test.parsing.TDAOfferIntroParsingTests' />
     <seq>
       <token type='OFFER'/>
-    	  <token type='type-name' names='OfferDefinition\[${name}\]' />
+    	  <token type='type-name' names='OFFER\[${name}.*\]' />
       <many>
         <token type='poly-var'/>
       </many>
@@ -1024,7 +1024,7 @@
     <tested by='test.parsing.TDAServiceParsingTests' />
     <seq>
     	  <token type='SERVICE' />
-    	  <token type='type-name'/>
+    	  <token type='type-name' names='Service\[\]' />
     	  <indent-one>
     	    <ref production='service-contents'/>
     	  </indent-one>

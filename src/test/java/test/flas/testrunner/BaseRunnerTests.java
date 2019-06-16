@@ -2,14 +2,12 @@ package test.flas.testrunner;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -20,13 +18,8 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.testrunner.AssertFailed;
@@ -70,16 +63,16 @@ public abstract class BaseRunnerTests {
 		Main.setLogLevels();
 		mainScope.define(errors, "x", null);
 		CardDefinition cd = new CardDefinition(errors, loc, loc, cn);
-		{
-			ContractImplements ctr = new ContractImplements(loc, loc, "SetState", null, null);
-			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C0"), "setOn"), new ArrayList<>())));
-			cd.contracts.add(ctr);
-		}
-		{
-			ContractImplements ctr = new ContractImplements(loc, loc, "Echo", null, null);
-			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C1"), "saySomething"), Arrays.asList(new TypedPattern(loc, new TypeReference(loc, "String"), loc, "s")))));
-			cd.contracts.add(ctr);
-		}
+//		{
+//			ContractImplements ctr = new ContractImplements(loc, loc, "SetState", null, null);
+//			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C0"), "setOn"), new ArrayList<>())));
+//			cd.contracts.add(ctr);
+//		}
+//		{
+//			ContractImplements ctr = new ContractImplements(loc, loc, "Echo", null, null);
+//			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C1"), "saySomething"), Arrays.asList(new TypedPattern(loc, new TypeReference(loc, "String"), loc, "s")))));
+//			cd.contracts.add(ctr);
+//		}
 		mainScope.define(errors, "TestCard", cd);
 		tc.define("test.runner.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		prior = new CompileResult(mainScope, bce, tc);

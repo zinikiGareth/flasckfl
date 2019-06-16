@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -63,9 +64,9 @@ public class TDAHandlerParser implements TDAParsing {
 			TDAPatternParser pp = new TDAPatternParser(errors, patt -> lambdas.add(patt));
 			pp.tryParsing(line);
 		}
-		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, namer.handlerName(named.text), tn.text, inCard, lambdas);
+		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, namer.handlerName(named.text), new TypeReference(tn.location, tn.text), inCard, lambdas);
 		builder.newHandler(hi);
-		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hi.getRealName(), text), hi, topLevel);
+		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hi.name(), text), hi, topLevel);
 	}
 
 	public static TDAParserConstructor constructor(HandlerNameProvider namer, FunctionScopeUnitConsumer topLevel) {

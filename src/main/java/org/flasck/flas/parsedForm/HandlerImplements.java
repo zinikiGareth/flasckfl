@@ -14,8 +14,8 @@ public class HandlerImplements extends Implements implements RepositoryEntry {
 	public final InputPosition typeLocation;
 	public final HandlerName handlerName;
 
-	public HandlerImplements(InputPosition kw, InputPosition location, InputPosition typeLocation, HandlerName handlerName, String type, boolean inCard, List<Object> lambdas) {
-		super(kw, location, type);
+	public HandlerImplements(InputPosition kw, InputPosition location, InputPosition typeLocation, HandlerName handlerName, TypeReference implementing, boolean inCard, List<Object> lambdas) {
+		super(kw, location, implementing);
 		this.typeLocation = typeLocation;
 		this.handlerName = handlerName;
 		this.baseName = handlerName.baseName;
@@ -23,10 +23,6 @@ public class HandlerImplements extends Implements implements RepositoryEntry {
 		this.boundVars = lambdas;
 	}
 	
-	public HandlerName getRealName() {
-		return (HandlerName) realName;
-	}
-
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println(toString());

@@ -7,6 +7,7 @@ import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -57,9 +58,9 @@ public class TDAServiceElementsParser implements TDAParsing {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
-			final ContractService cs = new ContractService(kw.location, tn.location, tn.text, null, null);
+			final ContractService cs = new ContractService(kw.location, tn.location, new TypeReference(tn.location, tn.text), null, null);
 			consumer.addProvidedService(cs);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cs.getRealName(), text), cs, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cs.name(), text), cs, topLevel);
 		}
 		default:
 			return null;

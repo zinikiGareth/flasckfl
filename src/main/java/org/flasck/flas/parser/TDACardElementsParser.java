@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -65,9 +66,9 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
-			final ContractService contractService = new ContractService(kw.location, tn.location, tn.text, null, null);
+			final ContractService contractService = new ContractService(kw.location, tn.location, new TypeReference(tn.location, tn.text), null, null);
 			consumer.addProvidedService(contractService);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, contractService.getRealName(), text), contractService, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, contractService.name(), text), contractService, topLevel);
 		}
 		case "implements": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -91,9 +92,9 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
-			final ContractImplements ci = new ContractImplements(kw.location, tn.location, tn.text, varloc, varname);
+			final ContractImplements ci = new ContractImplements(kw.location, tn.location, new TypeReference(tn.location, tn.text), varloc, varname);
 			consumer.addContractImplementation(ci);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, ci.getRealName(), text), ci, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, ci.name(), text), ci, topLevel);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
