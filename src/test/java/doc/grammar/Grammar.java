@@ -13,6 +13,8 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;
 
+import doc.grammar.SentenceProducer.UseNameForScoping;
+
 public class Grammar {
 	public final String title;
 	private final LinkedHashMap<String, Section> sections;
@@ -221,20 +223,26 @@ public class Grammar {
 	private TokenDefinition handleToken(String ruleName, XMLElement rule) {
 		String type = rule.required("type");
 		String nameAppender = rule.optional("names");
+		String scope = rule.optional("scope", null);
+		UseNameForScoping unfs = UseNameForScoping.UNSCOPED;
+		if ("true".equals(scope))
+			unfs = UseNameForScoping.USE_THIS_NAME;
+		else if ("false".equals(scope))
+			unfs = UseNameForScoping.USE_CURRENT_NAME;
 		rule.attributesDone();
-		final TokenDefinition ret = new TokenDefinition(type, nameAppender);
+		final TokenDefinition ret = new TokenDefinition(type, nameAppender, unfs);
 		List<XMLElement> matchers = rule.elementChildren("named");
 		for (XMLElement xe : matchers) {
 			String amendedName = xe.required("amended");
 			String pattern = xe.required("pattern");
 			boolean scoper = xe.optionalBoolean("scope", false);
-			ret.addMatcher(amendedName, pattern, scoper);
+			ret.addMatcher(amendedName, pattern, scoper?UseNameForScoping.USE_THIS_NAME:UseNameForScoping.USE_CURRENT_NAME);
 			xe.attributesDone();
 		}
 		List<XMLElement> useMatchers = rule.elementChildren("use-name");
 		for (XMLElement xe : useMatchers) {
 			xe.attributesDone();
-			ret.addMatcher(null, null, false);
+			ret.addMatcher(null, null, UseNameForScoping.UNSCOPED);
 		}
 		return ret;
 	}

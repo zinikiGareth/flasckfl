@@ -2,6 +2,7 @@ package doc.grammar;
 
 import java.util.List;
 
+import doc.grammar.SentenceProducer.UseNameForScoping;
 import doc.grammar.TokenDefinition.Matcher;
 
 public interface ProductionVisitor {
@@ -19,5 +20,5 @@ public interface ProductionVisitor {
 	void referTo(String child);
 
 	void futurePattern(String pattern);
-	void token(String token, String patternMatcher, List<Matcher> matchers);
+	void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers);
 }

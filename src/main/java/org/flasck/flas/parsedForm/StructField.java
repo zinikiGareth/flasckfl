@@ -35,7 +35,10 @@ public class StructField implements Locatable, RepositoryEntry {
 
 	@Override
 	public String toString() {
-		return type + " " + name + " (" + type.location().off + "/" + loc.off + ")";
+		if (type == null)
+			return name + " (/" + loc.off + ")";
+		else
+			return type + " " + name + " (" + type.location().off + "/" + loc.off + ")";
 	}
 
 	@Override

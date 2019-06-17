@@ -22,6 +22,12 @@ import doc.grammar.TokenDefinition.Matcher;
 // In general, a valid sentence according to the grammar should at least parse
 // (there are many reasons it wouldn't get further, like undefined references, but I can't see why it wouldn't parse short of hitting limits of one kind or another)
 public class SentenceProducer {
+	public enum UseNameForScoping {
+		USE_THIS_NAME,
+		USE_CURRENT_NAME,
+		UNSCOPED
+	}
+
 	private boolean debug = false;
 	private final Grammar grammar;
 	private final File td;
@@ -44,7 +50,7 @@ public class SentenceProducer {
 	}
 
 	public class NamePart {
-		public NamePart(int indent, String token, boolean scoping) {
+		public NamePart(int indent, String token, UseNameForScoping scoping) {
 			indentLevel = indent;
 			name = token;
 			this.scoping = scoping;
@@ -52,11 +58,11 @@ public class SentenceProducer {
 		
 		private final int indentLevel;
 		private final String name;
-		private final boolean scoping;
+		private final UseNameForScoping scoping;
 		
 		@Override
 		public String toString() {
-			return indentLevel + ":" + name;
+			return indentLevel + ":" + name + "." + scoping;
 		}
 	}
 
@@ -74,7 +80,7 @@ public class SentenceProducer {
 		public SPProductionVisitor(Grammar g, String pkg, long l) {
 			this.grammar = g;
 			this.r = new Random(l);
-			nameParts.add(new NamePart(0, pkg, true));
+			nameParts.add(new NamePart(0, pkg, UseNameForScoping.UNSCOPED));
 		}
 
 		@Override
@@ -100,7 +106,7 @@ public class SentenceProducer {
 			for (int i=0;i<cnt;i++) {
 				visit(child);
 				if (withEOL)
-					token("EOL", null, new ArrayList<>());
+					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>());
 			}
 		}
 		
@@ -112,7 +118,7 @@ public class SentenceProducer {
 			for (int i=0;i<cnt;i++) {
 				visit(child);
 				if (withEOL)
-					token("EOL", null, new ArrayList<>());
+					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>());
 			}
 		}
 
@@ -150,7 +156,7 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void token(String token, String patternMatcher, List<Matcher> matchers) {
+		public void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers) {
 			final Lexer lexer = grammar.findToken(token);
 			String t = genToken(token, lexer.pattern);
 			if (debug)
@@ -170,7 +176,7 @@ public class SentenceProducer {
 			}
 			sentence.append(t);
 			if (patternMatcher != null) {
-				replace(t, false);
+				replace(t, scoping);
 				this.matchers.put(assembleName(t), patternMatcher);
 			}
 			for (Matcher m : matchers) {
@@ -189,14 +195,14 @@ public class SentenceProducer {
 			}
 		}
 
-		private void replace(String t, boolean scoping) {
+		private void replace(String t, UseNameForScoping scoping) {
 			NamePart np = null;
 			for (NamePart p : nameParts)
 				if (p.indentLevel == indent)
 					np = p;
-			if (np != null && !np.scoping)
+			if (np != null && (scoping != UseNameForScoping.USE_CURRENT_NAME))
 				removeAbove(indent-1);
-			if (np == null || !np.scoping)
+			if (np == null || scoping != UseNameForScoping.USE_CURRENT_NAME)
 				nameParts.add(new NamePart(indent, t, scoping));
 		}
 

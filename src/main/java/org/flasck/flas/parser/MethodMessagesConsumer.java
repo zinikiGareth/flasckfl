@@ -6,4 +6,5 @@ import org.flasck.flas.parsedForm.SendMessage;
 public interface MethodMessagesConsumer {
 	void sendMessage(SendMessage message);
 	void assignMessage(AssignMessage message);
+	void done();
 }

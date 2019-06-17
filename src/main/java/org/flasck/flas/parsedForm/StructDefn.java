@@ -40,8 +40,10 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 			for (StructField f : fields) {
 				sb.append(sep);
 				sep = ",";
-				sb.append(f.type.name());
-				sb.append(" ");
+				if (f.type != null) { // wraps items do not have types
+					sb.append(f.type.name());
+					sb.append(" ");
+				}
 				sb.append(f.name);
 			}
 			sb.append("}");

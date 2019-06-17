@@ -35,6 +35,7 @@ public class TDAMethodMessageParsingTests {
 	public void weCanInvokeSendOnAServiceWithoutAnyArguments() {
 		context.checking(new Expectations() {{
 			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
+			oneOf(builder).done();
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.fetchRoot"));

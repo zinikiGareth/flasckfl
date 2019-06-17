@@ -77,6 +77,6 @@ public class TDAMethodMessageParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		builder.done();
 	}
-
 }

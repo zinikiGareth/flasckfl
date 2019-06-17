@@ -7,13 +7,15 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import doc.grammar.SentenceProducer.UseNameForScoping;
+
 public class TokenDefinition extends Definition {
 	public class Matcher {
 		public final String amendedName;
 		public final String pattern;
-		public final boolean scoper;
+		public final UseNameForScoping scoper;
 
-		public Matcher(String amendedName, String pattern, boolean scoper) {
+		public Matcher(String amendedName, String pattern, UseNameForScoping scoper) {
 			this.amendedName = amendedName;
 			this.pattern = pattern;
 			this.scoper = scoper;
@@ -22,11 +24,13 @@ public class TokenDefinition extends Definition {
 
 	private final String token;
 	private final String patternMatcher;
+	private final UseNameForScoping scoping;
 	private final List<Matcher> matchers = new ArrayList<>();
 
-	public TokenDefinition(String token, String patternMatcher) {
+	public TokenDefinition(String token, String patternMatcher, UseNameForScoping scoping) {
 		this.token = token;
 		this.patternMatcher = patternMatcher;
+		this.scoping = scoping;
 	}
 
 	@Override
@@ -45,10 +49,10 @@ public class TokenDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.token(token, patternMatcher, matchers);
+		productionVisitor.token(token, patternMatcher, scoping, matchers);
 	}
 
-	public void addMatcher(String amendedName, String pattern, boolean scoper) {
+	public void addMatcher(String amendedName, String pattern, UseNameForScoping scoper) {
 		matchers.add(new Matcher(amendedName, pattern, scoper));
 	}
 }

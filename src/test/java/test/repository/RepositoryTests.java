@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -17,8 +18,10 @@ import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -155,6 +158,24 @@ public class RepositoryTests {
 	}
 
 	@Test
+	public void canAddAnObjectCtorToTheRepository() {
+		Repository r = new Repository();
+		final SolidName on = new SolidName(pkg, "Obj");
+		ObjectCtor ctor = new ObjectCtor(pos, FunctionName.objectCtor(pos, on, "simple"), new ArrayList<>());
+		r.newObjectMethod(ctor);
+		assertEquals(ctor, r.get("test.repo.Obj._ctor_simple"));
+	}
+
+	@Test
+	public void canAddAnObjectMethodToTheRepository() {
+		Repository r = new Repository();
+		final SolidName on = new SolidName(pkg, "Obj");
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, on, "doit"), new ArrayList<>());
+		r.newObjectMethod(meth);
+		assertEquals(meth, r.get("test.repo.Obj.doit"));
+	}
+
+	@Test
 	public void canAddAStructDefnToTheRepository() {
 		Repository r = new Repository();
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructName"), true, new ArrayList<>());
@@ -196,4 +217,13 @@ public class RepositoryTests {
 		r.newHandler(hi);
 		r.newHandler(hi);
 	}
+
+	@Test
+	public void canAddAServiceToTheRepository() {
+		Repository r = new Repository();
+		ServiceDefinition svc = new ServiceDefinition(pos, pos, new CardName(pkg, "Foo"));
+		r.newService(svc);
+		assertEquals(svc, r.get("test.repo.Foo"));
+	}
+
 }

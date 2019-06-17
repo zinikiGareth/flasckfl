@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parser.IgnoreNestedParser;
@@ -65,10 +66,13 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("simple")));
+			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor simple"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
+		nested.scopeComplete(pos);
+		parser.scopeComplete(pos);
 	}
 	
 	@Test
@@ -76,10 +80,13 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
+			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor args x"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
+		nested.scopeComplete(pos);
+		parser.scopeComplete(pos);
 	}
 	
 	@Test
@@ -131,6 +138,7 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
+			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update"));
@@ -142,6 +150,7 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
+			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update (String s)"));

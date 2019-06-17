@@ -74,7 +74,7 @@ public class TDAIntroParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			CardName qn = namer.cardName(tn.text);
-			ServiceDefinition svc = new ServiceDefinition(errors, kw.location, tn.location, qn);
+			ServiceDefinition svc = new ServiceDefinition(kw.location, tn.location, qn);
 			consumer.newService(svc);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);

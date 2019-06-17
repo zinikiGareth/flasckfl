@@ -8,9 +8,12 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -24,7 +27,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 	private final TemplateNamer namer;
 	private final ObjectElementsConsumer builder;
 	private final TopLevelDefinitionConsumer topLevel;
-	private TDAFunctionParser currParser;
+	private TDAParsing currParser;
 
 	public TDAObjectElementsParser(ErrorReporter errors, TemplateNamer namer, ObjectElementsConsumer od, TopLevelDefinitionConsumer topLevel) {
 		this.errors = errors;
@@ -68,7 +71,28 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}
 			ObjectCtor ctor = new ObjectCtor(var.location, fnName, args);
 			builder.addConstructor(ctor);
-			return new TDAMethodMessageParser(errors, ctor, new LastActionScopeParser(errors, namer, topLevel, "action"));
+			MethodMessagesConsumer collector = new MethodMessagesConsumer() {
+				@Override
+				public void sendMessage(SendMessage message) {
+					ctor.sendMessage(message);
+				}
+				
+				@Override
+				public void assignMessage(AssignMessage message) {
+					ctor.assignMessage(message);
+				}
+
+				@Override
+				public void done() {
+					ctor.done();
+					topLevel.newObjectMethod(ctor);
+				}
+			};
+			if (currParser != null) {
+				currParser.scopeComplete(location);
+				currParser = null;
+			}
+			return new TDAMethodMessageParser(errors, collector, new LastActionScopeParser(errors, namer, topLevel, "action"));
 		}
 		case "acor": {
 			if (currParser != null)
@@ -92,7 +116,14 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 		case "method": {
 			FunctionNameProvider methodNamer = (loc, text) -> namer.method(loc, text);
-			return new TDAMethodParser(errors, namer, builder, topLevel).parseMethod(methodNamer, toks);
+			MethodConsumer dispenser = new MethodConsumer() {
+				@Override
+				public void addMethod(ObjectMethod method) {
+					builder.addMethod(method);
+					topLevel.newObjectMethod(method);
+				}
+			};
+			return new TDAMethodParser(errors, namer, dispenser, topLevel).parseMethod(methodNamer, toks);
 		}
 		default: {
 			return null;

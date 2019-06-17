@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,8 +9,9 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parser.MethodMessagesConsumer;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class ObjectActionHandler implements Locatable, MethodMessagesConsumer {
+public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry {
 	private final InputPosition location;
 	private final FunctionName name;
 	private final List<Pattern> args;
@@ -44,7 +46,16 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer {
 		messages.add(message);
 	}
 
+	@Override
+	public void done() {
+	}
+
 	public List<ActionMessage> messages() {
 		return messages;
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println("ObjectCtor[" + toString() + "]");
 	}
 }

@@ -15,14 +15,9 @@ import org.zinutils.utils.FileUtils;
 // (there are many reasons it wouldn't get further, like undefined references, but I can't see why it wouldn't parse short of hitting limits of one kind or another)
 public class RandomSentenceTest {
 
-	// TODO: case 22106
-	// TODO: name from grammar is wrong (does not have Object in it, presumably because of a missing token) - presumably we need to handle addNewObject case first ...
-	// TODO: acor doesn't put the thing in the right place
-	// While we're here, deal needs doing in both places ...
-	
 	@Test
 	public void testRandomSentenceProduction() throws Throwable {
-		final int seed = 22106;
+		final int seed = 27475;
 		File td = Files.createTempDirectory("flas").toFile();
 		File fd = new File(td, "test.r" + seed);
 		FileUtils.assertDirectory(fd);

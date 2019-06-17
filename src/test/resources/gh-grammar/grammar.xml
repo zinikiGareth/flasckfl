@@ -252,7 +252,7 @@
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
       <token type='STRUCT'/>
-    	  <token type='type-name' names='StructDefinition\[\]' />
+    	  <token type='type-name' names='STRUCT\[${name}.*\]' />
       <many>
         <token type='poly-var'/>
       </many>
@@ -354,7 +354,7 @@
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
       <token type='ENVELOPE'/>
-      <token type='type-name'/>
+      <token type='type-name' names='ENVELOPE\[${name}.*\]'/>
       <many>
         <token type='poly-var'/>
       </many>
@@ -375,7 +375,7 @@
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
     <seq>
       <ref production='type-reference'/>
-      <token type='var-name'/>
+      <token type='var-name' names='Field\[.* ${final} .*\]'/>
       <token type='EOL'/>
     </seq>
   </production>
@@ -384,7 +384,7 @@
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
       <token type='WRAPS'/>
-      <token type='type-name'/>
+      <token type='type-name' names='WRAPS\[${name}.*\]'/>
       <token type='SEND' />
       <token type='type-name'/>
       <indent>
@@ -403,7 +403,7 @@
     <section title='Envelopes'/>
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
     <seq>
-      <token type='var-name'/>
+      <token type='var-name' names='Field\[${final}.*\]'/>
       <ref production='struct-initializer'/>
       <token type='EOL'/>
     </seq>
@@ -548,7 +548,7 @@
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
     	  <token type='ORB' />
-      <token type='var-name' names='TupleMember\[${name}.*\]'>
+      <token type='var-name' names='TupleMember\[${name}.*\]' >
       	<named amended='_tuple_${final}' pattern='TupleAssignment\{${final}=&gt;\[.*\]=.*\}' scope='true' />
       </token>
       <one-or-more>
@@ -567,7 +567,7 @@
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
       <token type='COMMA' />
-      <token type='var-name' names='TupleMember\[${name}.*\]' />
+      <token type='var-name' names='TupleMember\[${name}.*\]' scope='false'/>
     </seq>
   </production>
   <production name='argument-pattern'>
@@ -858,7 +858,7 @@
 	<tested by='test.parsing.TDAObjectElementParsingTests' />
 	<seq>
       <token type='METHOD'/>
-      <will-name pattern='ObjectMethod[${name}]' /> <!-- I'm not convinced this will turn up in the repo, but it might ... -->
+      <will-name pattern='ObjectMethod\[${name}/.*\]' />
       <ref production='method-definition'/>
     </seq>
   </production>
@@ -1024,7 +1024,7 @@
     <tested by='test.parsing.TDAServiceParsingTests' />
     <seq>
     	  <token type='SERVICE' />
-    	  <token type='type-name' names='Service\[\]' />
+    	  <token type='type-name' names='Service\[${name}\]' />
     	  <indent-one>
     	    <ref production='service-contents'/>
     	  </indent-one>
@@ -1072,7 +1072,7 @@
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
     	  <token type='CARD' />
-    	  <token type='type-name'/>
+    	  <token type='type-name' names='Card\[${name}\]'/>
     	  <indent-one>
     	    <ref production='card-contents'/>
     	  </indent-one>

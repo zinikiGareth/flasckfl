@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -67,12 +68,18 @@ public class Repository implements TopLevelDefinitionConsumer {
 	}
 
 	@Override
-	public void newService(ServiceDefinition card) {
+	public void newService(ServiceDefinition svc) {
+		addEntry(svc.cardName(), svc);
 	}
 
 	@Override
 	public void newStandaloneMethod(StandaloneMethod meth) {
 		addEntry(meth.name(), meth);
+	}
+
+	@Override
+	public void newObjectMethod(ObjectActionHandler om) {
+		addEntry(om.name(), om);
 	}
 
 	@Override
