@@ -4,9 +4,11 @@ import java.io.PrintWriter;
 import java.util.Set;
 
 public class WillNameDefinition extends Definition {
+	private final String amended;
 	private final String pattern;
 
-	public WillNameDefinition(String pattern) {
+	public WillNameDefinition(String amended, String pattern) {
+		this.amended = amended;
 		this.pattern = pattern;
 	}
 
@@ -27,7 +29,7 @@ public class WillNameDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.futurePattern(pattern);
+		productionVisitor.futurePattern(amended, pattern);
 	}
 
 }

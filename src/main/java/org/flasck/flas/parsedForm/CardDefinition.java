@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +11,10 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.TemplateName;
-import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.CardElementsConsumer;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class CardDefinition implements Locatable, CardElementsConsumer {
+public class CardDefinition implements Locatable, CardElementsConsumer, RepositoryEntry {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
@@ -28,7 +29,7 @@ public class CardDefinition implements Locatable, CardElementsConsumer {
 	public final CardName cardName;
 	public final List<ObjectMethod> eventHandlers = new ArrayList<>();
 
-	public CardDefinition(ErrorReporter errors, InputPosition kw, InputPosition location, CardName name) {
+	public CardDefinition(InputPosition kw, InputPosition location, CardName name) {
 		this.kw = kw;
 		this.location = location;
 		this.simpleName = name.cardName;
@@ -78,5 +79,15 @@ public class CardDefinition implements Locatable, CardElementsConsumer {
 
 	public void addHandlerImplementation(HandlerImplements o) {
 		handlers.add(o);
+	}
+
+	@Override
+	public String toString() {
+		return "Card[" + this.cardName().uniqueName() + "]";
+	}
+	
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println(toString());
 	}
 }

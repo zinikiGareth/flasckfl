@@ -1004,7 +1004,7 @@
     <tested by='test.parsing.TDAObjectElementParsingTests' />
     <seq>
       <token type='CTOR' />
-      <will-name pattern='ObjectCtor\[${name}/[0-9]+\]' /> <!-- this will bind to the use-name in the method-definition -->
+      <will-name amended='_ctor_${final}' pattern='ObjectCtor\[ctor ${name}\]' /> <!-- this will bind to the use-name in the method-definition -->
       <ref production='method-definition'/>
     </seq>
   </production>
@@ -1144,7 +1144,7 @@
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
       <token type='EVENT'/>
-      <will-name pattern='Event\[${name}/[0-9]+\]' /> <!-- this will bind to the use-name in the method-definition -->
+      <will-name pattern='ObjectMethod\[${name}/[0-9]+\]' />
       <ref production='method-definition'/>
     </seq>
   </production>

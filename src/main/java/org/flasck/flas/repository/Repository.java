@@ -64,7 +64,7 @@ public class Repository implements TopLevelDefinitionConsumer {
 
 	@Override
 	public void newCard(CardDefinition decl) {
-//		scope.define(errors, decl.simpleName, decl);
+		addEntry(decl.cardName(), decl);
 	}
 
 	@Override

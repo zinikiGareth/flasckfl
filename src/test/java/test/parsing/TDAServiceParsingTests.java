@@ -11,7 +11,6 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -94,7 +93,7 @@ public class TDAServiceParsingTests {
 	@Test
 	public void servicesCanHaveNestedHandlers() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+			oneOf(builder).newHandler(with(HandlerImplementsMatcher.named("test.pkg.ServiceA.Handler")));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
 	}

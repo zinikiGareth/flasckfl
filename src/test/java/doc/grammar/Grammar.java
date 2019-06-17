@@ -248,9 +248,10 @@ public class Grammar {
 	}
 
 	private Definition handleWillName(String ruleName, XMLElement rule) {
+		String amend = rule.optional("amended", null);
 		String pattern = rule.required("pattern");
 		rule.attributesDone();
-		return new WillNameDefinition(pattern);
+		return new WillNameDefinition(amend, pattern);
 	}
 
 	public Iterable<Section> sections() {

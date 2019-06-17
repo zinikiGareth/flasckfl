@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.ConsumeStructFields;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.repository.Repository;
 import org.junit.Test;
@@ -226,4 +227,11 @@ public class RepositoryTests {
 		assertEquals(svc, r.get("test.repo.Foo"));
 	}
 
+	@Test
+	public void canAddACardDefnToTheRepository() {
+		Repository r = new Repository();
+		CardDefinition card = new CardDefinition(pos, pos, new CardName(pkg, "Card"));
+		r.newCard(card);
+		assertEquals(card, r.get("test.repo.Card"));
+	}
 }

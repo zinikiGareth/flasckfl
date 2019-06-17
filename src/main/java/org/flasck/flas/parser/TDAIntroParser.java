@@ -55,7 +55,7 @@ public class TDAIntroParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			CardName qn = namer.cardName(tn.text);
-			CardDefinition card = new CardDefinition(errors, kw.location, tn.location, qn);
+			CardDefinition card = new CardDefinition(kw.location, tn.location, qn);
 			consumer.newCard(card);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
@@ -179,12 +179,14 @@ public class TDAIntroParser implements TDAParsing {
 			final SolidName on = namer.solidName(tn.text);
 			ObjectDefn od = new ObjectDefn(kw.location, tn.location, on, true, polys);
 			consumer.newObject(od);
+			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
+			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
 			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
 			return new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, new ObjectNestedNamer(on), od, consumer),
-				errors -> new TDAHandlerParser(errors, consumer, namer, consumer),
-				errors -> new TDAFunctionParser(errors, namer, assembler, consumer),
-				errors -> new TDATupleDeclarationParser(errors, namer, consumer)
+				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
+				errors -> new TDAFunctionParser(errors, functionNamer, assembler, consumer),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
 			);
 		}
 		case "contract": {

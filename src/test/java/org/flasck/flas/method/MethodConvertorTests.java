@@ -114,7 +114,7 @@ public class MethodConvertorTests {
 		
 		{
 			rewriter = new Rewriter(errors, null, biscope);
-			cd = new CardDefinition(errors, posn, posn, new CardName(new PackageName("org.foo"), "Card"));
+			cd = new CardDefinition(posn, posn, new CardName(new PackageName("org.foo"), "Card"));
 			cd.state = new StateDefinition(posn);
 			cd.state.addField(new StructField(posn, false, new TypeReference(posn, "String"), "str"));
 			{

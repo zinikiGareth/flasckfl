@@ -75,6 +75,7 @@ public class SentenceProducer {
 		private Set<String> used = new TreeSet<>();
 		private List<NamePart> nameParts = new ArrayList<>();
 		private Map<String, String> matchers = new TreeMap<>();
+		private String futureAmended;
 		private String futurePattern;
 		
 		public SPProductionVisitor(Grammar g, String pkg, long l) {
@@ -181,13 +182,15 @@ public class SentenceProducer {
 			}
 			for (Matcher m : matchers) {
 				String patt = m.pattern;
+				String doAmend = t;
 				if (patt == null) {
 					if (futurePattern == null)
 						throw new RuntimeException("Cannot use pattern because it has not been set");
 					patt = futurePattern;
 					futurePattern = null;
+					if (futureAmended != null)
+						doAmend = futureAmended.replace("${final}", t);
 				}
-				String doAmend = t;
 				if (m.amendedName != null)
 					doAmend = m.amendedName.replace("${final}", t);
 				replace(doAmend, m.scoper);
@@ -207,9 +210,10 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void futurePattern(String pattern) {
+		public void futurePattern(String amended, String pattern) {
 			if (futurePattern != null)
 				throw new RuntimeException("Cannot set next pattern without using previous pattern");
+			futureAmended = amended;
 			futurePattern = pattern;
 		}
 

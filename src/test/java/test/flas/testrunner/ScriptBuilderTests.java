@@ -195,7 +195,7 @@ public class ScriptBuilderTests {
 			@Override
 			public Object invoke(Invocation arg0) throws Throwable {
 				CardName card = new CardName(pn, cardName);
-				return new Scope.ScopeEntry(cardName, card.uniqueName(), new CardDefinition(reporter, posn, posn, card));
+				return new Scope.ScopeEntry(cardName, card.uniqueName(), new CardDefinition(posn, posn, card));
 			}
 			
 			@Override

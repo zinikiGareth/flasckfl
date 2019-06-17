@@ -98,7 +98,7 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
-			MethodConsumer evConsumer = em -> { consumer.addEventHandler(em); };
+			MethodConsumer evConsumer = em -> { consumer.addEventHandler(em); topLevel.newObjectMethod(em); };
 			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel).parseMethod(namer, toks);
 		}
 		case "method": {

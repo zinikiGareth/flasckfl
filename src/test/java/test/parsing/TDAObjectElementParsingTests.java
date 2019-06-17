@@ -180,4 +180,5 @@ public class TDAObjectElementParsingTests {
 		parser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
 //		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
+
 }

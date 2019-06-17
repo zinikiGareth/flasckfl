@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
+import org.flasck.flas.parser.TDAObjectElementsParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
@@ -46,6 +47,17 @@ public class TDAObjectIntroParsingTests {
 		assertTrue(nested instanceof TDAMultiParser);
 		nested.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
 		nested.scopeComplete(null);
+	}
+	
+	@Test
+	public void objectsCanHaveNestedHandlers() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store")));
+			oneOf(builder).newHandler(with(HandlerImplementsMatcher.named("test.pkg.Store.Handler")));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
 	}
 
 	@Test
