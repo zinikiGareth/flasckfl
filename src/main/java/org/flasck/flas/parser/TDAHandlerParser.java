@@ -70,7 +70,7 @@ public class TDAHandlerParser implements TDAParsing {
 		}
 		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, hn, new TypeReference(tn.location, tn.text), inCard, lambdas);
 		builder.newHandler(hi);
-		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hn, text), vn, hi, topLevel);
+		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hn, text), hi, topLevel);
 	}
 
 	public static TDAParserConstructor constructor(HandlerNameProvider namer, FunctionScopeUnitConsumer topLevel) {

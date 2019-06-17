@@ -440,6 +440,7 @@
       <many>
       	<ref production='argument-pattern-typed'/>
       </many>
+      <token type='EOL' />
     </seq>
   </production>
   <production name='function-case-definition'>
@@ -469,9 +470,11 @@
     <tested by='test.parsing.TDAFunctionParsingTests' />
     <seq>
       <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
+      <nested-name offset='1'/>
       <many>
       	<ref production='argument-pattern'/>
       </many>
+      <nested-name offset='0'/>
       <token type='EQ'/>
       <ref production='expression'/>
       <indent>
@@ -484,9 +487,11 @@
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
       <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
+      <nested-name offset='1'/>
       <many>
       	<ref production='argument-pattern'/>
       </many>
+      <nested-name offset='0'/>
       <indent-one>
       	<ref production='guarded-default-expression'/>
       </indent-one>
@@ -497,9 +502,11 @@
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
       <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
+      <nested-name offset='1'/>
       <many>
       	<ref production='argument-pattern'/>
       </many>
+      <nested-name offset='0'/>
       <indent-one>
       	<ref production='guarded-equations'/>
       </indent-one>
@@ -868,9 +875,11 @@
       <token type='var-name'>
       	<use-name/> <!--  this picks up the value from the 'enclosing' will-name -->
       </token>
+      <nested-name offset='1'/>
       <many>
         <ref production='argument-pattern'/>
       </many>
+      <nested-name offset='0'/>
       <indent>
       	<ref production='method-actions'/>
       </indent>
@@ -1058,6 +1067,7 @@
     <seq>
     	  <token type='PROVIDES' />
     	  <token type='type-name'/>
+    	  <push-part prefix='S' />
     	  <indent>
     	    <ref production='implementation-method'/>
     	  </indent>
@@ -1111,6 +1121,7 @@
     <seq>
     	  <token type='IMPLEMENTS' />
     	  <token type='type-name'/>
+    	  <push-part prefix='C' />
     	  <optional>
         <token type='var-name'/>
     	  </optional>
@@ -1123,10 +1134,12 @@
     <section title='Implements Contract'/>
     <tested by='test.parsing.ImplentationTestingParser' />
     <seq>
-      <token type='var-name'/>
+      <token type='var-name' names='ObjectMethod\[${name}/[0-9]+\]'/>
+      <nested-name offset='1'/>
       <many>
         <ref production='argument-pattern-variable'/>
       </many>
+      <nested-name offset='0'/>
       <indent>
       	<ref production='method-actions'/>
       </indent>

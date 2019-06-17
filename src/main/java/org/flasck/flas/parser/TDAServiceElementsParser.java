@@ -3,7 +3,6 @@ package org.flasck.flas.parser;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -64,7 +63,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 			final CSName csn = namer.csn(tn.location, "S");
 			final ContractService cs = new ContractService(kw.location, tn.location, ctr, csn, null, null);
 			consumer.addProvidedService(cs);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), (loc, t) -> new VarName(loc, csn, t), cs, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel);
 		}
 		default:
 			return null;

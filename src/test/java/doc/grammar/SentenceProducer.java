@@ -61,6 +61,7 @@ public class SentenceProducer {
 		private final int indentLevel;
 		private final String name;
 		private final UseNameForScoping scoping;
+		public int serviceNamer;
 		
 		@Override
 		public String toString() {
@@ -224,6 +225,16 @@ public class SentenceProducer {
 		@Override
 		public void nestName(int offset) {
 			this.nameNestOffset = offset;
+		}
+
+		@Override
+		public void pushPart(String prefix) {
+			NamePart np = null;
+			for (NamePart p : nameParts)
+				if (p.indentLevel == indent + nameNestOffset -1)
+					np = p;
+			removeAbove(indent + nameNestOffset -1);
+			nameParts.add(new NamePart(indent + nameNestOffset, "_" + prefix + (np.serviceNamer++), UseNameForScoping.UNSCOPED));
 		}
 
 		private String assembleName(String desiredName) {

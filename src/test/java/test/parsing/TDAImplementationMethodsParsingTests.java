@@ -14,7 +14,6 @@ import org.flasck.flas.parser.TDAImplementationMethodsParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
-import org.flasck.flas.parser.VarNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -29,14 +28,13 @@ public class TDAImplementationMethodsParsingTests {
 	private TopLevelDefnConsumer topLevel = context.mock(TopLevelDefnConsumer.class);
 	private TDAImplementationMethodsParser parser;
 	private FunctionNameProvider namer = context.mock(FunctionNameProvider.class);
-	private VarNamer vnamer = context.mock(VarNamer.class);
 
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 		}});
-		parser = new TDAImplementationMethodsParser(errors, namer, vnamer, consumer, topLevel);
+		parser = new TDAImplementationMethodsParser(errors, namer, consumer, topLevel);
 	}
 
 	@Test

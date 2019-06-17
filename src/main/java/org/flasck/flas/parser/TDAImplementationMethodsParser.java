@@ -19,12 +19,10 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 	private final ImplementationMethodConsumer consumer;
 	private final FunctionNameProvider namer;
 	private final FunctionScopeUnitConsumer topLevel;
-	private final VarNamer vnamer;
 
-	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, VarNamer vnamer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel) {
+	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.namer = namer;
-		this.vnamer = vnamer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 	}

@@ -4,7 +4,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
-import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
@@ -72,7 +71,7 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 			final CSName csn = namer.csn(tn.location, "S");
 			final ContractService contractService = new ContractService(kw.location, tn.location, ctr, csn, null, null);
 			consumer.addProvidedService(contractService);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), (loc, t) -> new VarName(loc, csn, t), contractService, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel);
 		}
 		case "implements": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -100,7 +99,7 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 			final CSName cin = namer.csn(tn.location, "C");
 			final ContractImplements ci = new ContractImplements(kw.location, tn.location, ctr, cin, varloc, varname);
 			consumer.addContractImplementation(ci);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), (loc, t) -> new VarName(loc, cin, t), ci, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
