@@ -28,6 +28,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.ConsumeStructFields;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -182,6 +183,14 @@ public class RepositoryTests {
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructName"), true, new ArrayList<>());
 		r.newStruct(sd);
 		assertEquals(sd, r.get("test.repo.StructName"));
+	}
+
+	@Test
+	public void canAddAUnionDefnToTheRepository() {
+		Repository r = new Repository();
+		UnionTypeDefn ud = new UnionTypeDefn(pos, true, new SolidName(pkg, "MyUnion"), new ArrayList<>());
+		r.newUnion(ud);
+		assertEquals(ud, r.get("test.repo.MyUnion"));
 	}
 
 	@Test

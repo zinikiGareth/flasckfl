@@ -93,7 +93,8 @@ public class Repository implements TopLevelDefinitionConsumer {
 	}
 
 	@Override
-	public void newUnion(UnionTypeDefn with) {
+	public void newUnion(UnionTypeDefn ud) {
+		addEntry(ud.myName(), ud);
 	}
 
 	@Override

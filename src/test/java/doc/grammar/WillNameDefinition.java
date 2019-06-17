@@ -14,17 +14,14 @@ public class WillNameDefinition extends Definition {
 
 	@Override
 	public void showGrammarFor(PrintWriter str) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
 	public void collectReferences(Set<String> ret) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
 	public void collectTokens(Set<String> ret) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 	@Override
