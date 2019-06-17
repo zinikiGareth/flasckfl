@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -18,10 +19,12 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 	private final ImplementationMethodConsumer consumer;
 	private final FunctionNameProvider namer;
 	private final FunctionScopeUnitConsumer topLevel;
+	private final VarNamer vnamer;
 
-	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel) {
+	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, VarNamer vnamer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.namer = namer;
+		this.vnamer = vnamer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 	}
@@ -36,17 +39,20 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		List<Pattern> args = new ArrayList<>();
+		final FunctionName methName = namer.functionName(name.location, name.text);
 		while (toks.hasMore()) {
 			ValidIdentifierToken arg = VarNameToken.from(toks);
 			if (arg == null) {
 				errors.message(toks, "invalid argument name");
 				return new IgnoreNestedParser();
 			}
-			args.add(new VarPattern(arg.location, arg.text));
+			final VarPattern vp = new VarPattern(arg.location, new VarName(arg.location, methName, arg.text));
+			args.add(vp);
+			topLevel.argument(vp);
 		}
-		final FunctionName methName = namer.functionName(name.location, name.text);
 		final ObjectMethod meth = new ObjectMethod(name.location, methName, args);
 		consumer.addImplementationMethod(meth);
+		topLevel.newObjectMethod(meth);
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);
 		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action");
 		return new TDAMethodMessageParser(errors, meth, nestedParser);

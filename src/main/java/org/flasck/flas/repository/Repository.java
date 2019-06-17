@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 
 public class Repository implements TopLevelDefinitionConsumer {
@@ -49,6 +50,11 @@ public class Repository implements TopLevelDefinitionConsumer {
 			FunctionName tn = FunctionName.function(x.location, pkg, x.text);
 			addEntry(tn, new TupleMember(x.location, ta, k++, tn));
 		}
+	}
+
+	@Override
+	public void argument(VarPattern parm) {
+		addEntry(parm.name(), parm);
 	}
 
 	@Override

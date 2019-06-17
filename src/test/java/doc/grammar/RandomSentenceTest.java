@@ -17,7 +17,7 @@ public class RandomSentenceTest {
 
 	@Test
 	public void testRandomSentenceProduction() throws Throwable {
-		final int seed = 22302;
+		final int seed = 25543;
 		File td = Files.createTempDirectory("flas").toFile();
 		File fd = new File(td, "test.r" + seed);
 		FileUtils.assertDirectory(fd);

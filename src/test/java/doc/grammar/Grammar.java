@@ -175,6 +175,8 @@ public class Grammar {
 			return handleToken(ruleName, rule);
 		case "will-name":
 			return handleWillName(ruleName, rule);
+		case "nested-name":
+			return handleNestedName(ruleName, rule);
 		default:
 			throw new RuntimeException("Production '" + ruleName + "' references unknown production rule " + rule.tag());
 		}
@@ -252,6 +254,12 @@ public class Grammar {
 		String pattern = rule.required("pattern");
 		rule.attributesDone();
 		return new WillNameDefinition(amend, pattern);
+	}
+
+	private Definition handleNestedName(String ruleName, XMLElement rule) {
+		int offset = rule.requiredInt("offset");
+		rule.attributesDone();
+		return new NestedNameDefinition(offset);
 	}
 
 	public Iterable<Section> sections() {

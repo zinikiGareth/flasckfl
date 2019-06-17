@@ -9,6 +9,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.parser.ObjectNestedNamer;
@@ -81,6 +82,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
 			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor args x"));
@@ -108,6 +110,7 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionCaseMatcher.called(null, "myname"))));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname x (Number y) = x + y"));

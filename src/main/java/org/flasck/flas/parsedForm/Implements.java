@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parser.ImplementationMethodConsumer;
 
 public class Implements implements Locatable, ImplementationMethodConsumer {
@@ -13,11 +14,13 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 	public final InputPosition kw;
 	private InputPosition location;
 	private TypeReference implementing;
+	private final NameOfThing myName;
 
-	public Implements(InputPosition kw, InputPosition location, TypeReference implementing) {
+	public Implements(InputPosition kw, InputPosition location, TypeReference implementing, NameOfThing myName) {
 		this.kw = kw;
 		this.location = location;
 		this.implementing = implementing;
+		this.myName = myName;
 	}
 
 	@Override
@@ -27,6 +30,10 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 	
 	public TypeReference name() {
 		return implementing;
+	}
+
+	public NameOfThing actualName() {
+		return myName;
 	}
 
 	@Override
@@ -40,6 +47,6 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 	
 	@Override
 	public String toString() {
-		return implementing.name();
+		return myName.uniqueName();
 	}
 }

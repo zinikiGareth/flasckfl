@@ -591,7 +591,7 @@
   <production name='argument-pattern-variable'>
     <section title='Patterns'/>
     <tested by='test.parsing.TDAPatternParsingTests' />
-    <token type='var-name'/>
+    <token type='var-name' names='VarPattern\[${name}\]' scope='false'/>
   </production>
   <production name='argument-pattern-list'>
     <section title='Patterns'/>
@@ -826,9 +826,11 @@
       <token type='HANDLER'/>
       <token type='type-name'/>
       <token type='type-name' names='HandlerImplements\[${name}\]'/>
+      <nested-name offset='1'/>
       <many>
       	<ref production='argument-pattern-maybe-typed' />
       </many>
+      <nested-name offset='0'/>
       <indent>
         <ref production='implementation-method'/>
       </indent>

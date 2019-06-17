@@ -1,8 +1,10 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
@@ -66,9 +68,11 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
-			final ContractService contractService = new ContractService(kw.location, tn.location, new TypeReference(tn.location, tn.text), null, null);
+			final TypeReference ctr = namer.contract(tn.location, tn.text);
+			final CSName csn = namer.csn(tn.location, "S");
+			final ContractService contractService = new ContractService(kw.location, tn.location, ctr, csn, null, null);
 			consumer.addProvidedService(contractService);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, contractService.name(), text), contractService, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), (loc, t) -> new VarName(loc, csn, t), contractService, topLevel);
 		}
 		case "implements": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -92,9 +96,11 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
-			final ContractImplements ci = new ContractImplements(kw.location, tn.location, new TypeReference(tn.location, tn.text), varloc, varname);
+			final TypeReference ctr = namer.contract(tn.location, tn.text);
+			final CSName cin = namer.csn(tn.location, "C");
+			final ContractImplements ci = new ContractImplements(kw.location, tn.location, ctr, cin, varloc, varname);
 			consumer.addContractImplementation(ci);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, ci.name(), text), ci, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), (loc, t) -> new VarName(loc, cin, t), ci, topLevel);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionNameProvider;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.ImplementationMethodConsumer;
@@ -12,6 +14,7 @@ import org.flasck.flas.parser.TDAImplementationMethodsParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.VarNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -26,13 +29,14 @@ public class TDAImplementationMethodsParsingTests {
 	private TopLevelDefnConsumer topLevel = context.mock(TopLevelDefnConsumer.class);
 	private TDAImplementationMethodsParser parser;
 	private FunctionNameProvider namer = context.mock(FunctionNameProvider.class);
+	private VarNamer vnamer = context.mock(VarNamer.class);
 
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 		}});
-		parser = new TDAImplementationMethodsParser(errors, namer, consumer, topLevel);
+		parser = new TDAImplementationMethodsParser(errors, namer, vnamer, consumer, topLevel);
 	}
 
 	@Test
@@ -40,6 +44,7 @@ public class TDAImplementationMethodsParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(namer).functionName(with(any(InputPosition.class)), with("foo")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, "foo"), null, "foo")));
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "foo").withArgs(0)));
+			oneOf(topLevel).newObjectMethod(with(any(ObjectMethod.class)));
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("foo"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
@@ -47,11 +52,13 @@ public class TDAImplementationMethodsParsingTests {
 
 	@Test
 	public void anImplementationMayHaveASimpleArgument() {
+		final Tokenizable line = TDABasicIntroParsingTests.line("bar x");
 		context.checking(new Expectations() {{
 			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, "bar x"), null, "bar")));
 			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "bar").withArgs(1)));
+			oneOf(topLevel).newObjectMethod(with(any(ObjectMethod.class)));
+			oneOf(topLevel).argument((VarPattern) with(VarPatternMatcher.var("bar.x")));
 		}});
-		final Tokenizable line = TDABasicIntroParsingTests.line("bar x");
 		TDAParsing nested = parser.tryParsing(line);
 		assertTrue(nested instanceof TDAMethodMessageParser);
 		nested.scopeComplete(line.realinfo());

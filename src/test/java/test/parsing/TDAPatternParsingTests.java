@@ -7,10 +7,16 @@ import static org.junit.Assert.assertNull;
 
 import java.util.function.Consumer;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAPatternParser;
+import org.flasck.flas.parser.VarNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -25,13 +31,16 @@ public class TDAPatternParsingTests {
 	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	@SuppressWarnings("unchecked")
 	private Consumer<Pattern> builder = context.mock(Consumer.class);
+	private VarNamer vnamer = context.mock(VarNamer.class);
+	private FunctionScopeUnitConsumer topLevel = context.mock(FunctionScopeUnitConsumer.class);
+	private PackageName pkg = new PackageName("test.pkg");
 
 	@Test
 	public void atTheEndOfTheLineReturnNull() {
 		final Tokenizable line = line("");
 		context.checking(new Expectations() {{
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -41,7 +50,7 @@ public class TDAPatternParsingTests {
 		final Tokenizable line = line("=");
 		context.checking(new Expectations() {{
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 		assertEquals(0, line.at());
@@ -53,7 +62,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(ConstPatternMatcher.number(42)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -65,7 +74,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(ConstPatternMatcher.number(42)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -77,7 +86,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(ConstPatternMatcher.truth(true)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -89,7 +98,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(ConstPatternMatcher.truth(false)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -99,9 +108,11 @@ public class TDAPatternParsingTests {
 	public void aVariableIsAPatternByItselfAndAllowsYouToContinue() {
 		final Tokenizable line = line("x");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
 			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -111,10 +122,14 @@ public class TDAPatternParsingTests {
 	public void twoVariablesCanBeFoundOnTheSameLine() {
 		final Tokenizable line = line("x y");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
 			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("y")); will(returnValue(new VarName(line.realinfo(), pkg, "y")));
 			oneOf(builder).accept(with(VarPatternMatcher.var("y")));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		TDAParsing canContinue2 = parser.tryParsing(line);
@@ -128,7 +143,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -139,7 +154,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -148,9 +163,11 @@ public class TDAPatternParsingTests {
 	public void aVarInParensIsJustAVar() {
 		final Tokenizable line = line("(x)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
 			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 	}
@@ -159,9 +176,11 @@ public class TDAPatternParsingTests {
 	public void anUnclosedVarIsStillASyntaxErrorEvenThoughWeReportThePresenceOfTheVar() {
 		final Tokenizable line = line("(x");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -172,7 +191,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -182,10 +201,12 @@ public class TDAPatternParsingTests {
 	public void anUnParenedConstructorDoesNotSwallowTheRemainingVars() {
 		final Tokenizable line = line("Nil x");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
 			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		canContinue = parser.tryParsing(line);
@@ -199,7 +220,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -211,7 +232,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("String", "x")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -223,7 +244,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("A", "x")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -235,7 +256,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -246,7 +267,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -258,7 +279,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -269,7 +290,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -280,7 +301,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -291,7 +312,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("tail", CtorPatternMatcher.ctor("Nil"))));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -303,7 +324,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -314,7 +335,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -325,7 +346,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -336,7 +357,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -347,7 +368,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("tail", CtorPatternMatcher.ctor("Nil"))));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -359,7 +380,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(0)).field("tail", CtorPatternMatcher.ctor("Nil"))));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -374,7 +395,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(0))));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -386,7 +407,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("basic.Nil"))); // TODO: should we break this up?
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -399,7 +420,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Cons", "nl").typevar("Number")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -412,7 +433,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map").typevar("A").typevar("List")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -425,7 +446,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "type parameters can only be used with type patterns");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -437,7 +458,7 @@ public class TDAPatternParsingTests {
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Type")));
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", TypedPatternMatcher.ctor("A")).field("tail", TypedPatternMatcher.ctor("Nil"))));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNotNull(parser.tryParsing(line));
@@ -449,7 +470,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Type", "var").typevar("A")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -461,7 +482,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "type parameters can only be used with type patterns");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -472,7 +493,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map").typevar("Number").typevar("String")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -484,7 +505,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -495,7 +516,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -506,7 +527,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -517,7 +538,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNull(canContinue);
 	}
@@ -528,7 +549,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -540,7 +561,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(42)).field("tail", CtorPatternMatcher.ctor("Nil"))));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -550,9 +571,11 @@ public class TDAPatternParsingTests {
 	public void aListCanNestAVarPatternForTheHead() {
 		final Tokenizable line = line("[a]");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("a")); will(returnValue(new VarName(line.realinfo(), pkg, "a")));
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", PatternMatcher.var("a")).field("tail", CtorPatternMatcher.ctor("Nil"))));
+			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -564,7 +587,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(42)).field("tail", CtorPatternMatcher.ctor("Cons").field("head", ConstPatternMatcher.number(86)).field("tail", CtorPatternMatcher.ctor("Nil")))));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));
@@ -576,7 +599,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).accept(with(TuplePatternMatcher.tuple().member(ConstPatternMatcher.number(42)).member(ConstPatternMatcher.number(86))));
 		}});
-		TDAPatternParser parser = new TDAPatternParser(errors, builder);
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
 		assertNotNull(canContinue);
 		assertNull(parser.tryParsing(line));

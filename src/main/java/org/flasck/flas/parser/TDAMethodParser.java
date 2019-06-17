@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -30,10 +31,11 @@ public class TDAMethodParser {
 	
 	public TDAParsing parseMethod(FunctionNameProvider methodNamer, Tokenizable toks) {
 		ValidIdentifierToken var = VarNameToken.from(toks);
+		FunctionName fnName = methodNamer.functionName(var.location, var.text);
 		List<Pattern> args = new ArrayList<>();
-		TDAPatternParser pp = new TDAPatternParser(errors, p -> {
+		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), p -> {
 			args.add(p);
-		});
+		}, topLevel);
 		while (pp.tryParsing(toks) != null)
 			;
 		if (errors.hasErrors()) 
@@ -43,7 +45,6 @@ public class TDAMethodParser {
 			errors.message(toks, "extra characters at end of line");
 			return new IgnoreNestedParser();
 		}
-		FunctionName fnName = methodNamer.functionName(var.location, var.text);
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args);
 		builder.addMethod(meth);
 		return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action"));

@@ -80,6 +80,7 @@ public class SentenceProducer {
 		private String futureAmended;
 		private String futurePattern;
 		private Set<String> tokens = new HashSet<>();
+		private int nameNestOffset;
 		
 		public SPProductionVisitor(Grammar g, String pkg, long l) {
 			this.grammar = g;
@@ -204,12 +205,12 @@ public class SentenceProducer {
 		private void replace(String t, UseNameForScoping scoping) {
 			NamePart np = null;
 			for (NamePart p : nameParts)
-				if (p.indentLevel == indent)
+				if (p.indentLevel == indent + nameNestOffset)
 					np = p;
 			if (np != null && (scoping != UseNameForScoping.USE_CURRENT_NAME))
-				removeAbove(indent-1);
+				removeAbove(indent + nameNestOffset -1);
 			if (np == null || scoping != UseNameForScoping.USE_CURRENT_NAME)
-				nameParts.add(new NamePart(indent, t, scoping));
+				nameParts.add(new NamePart(indent + nameNestOffset, t, scoping));
 		}
 
 		@Override
@@ -218,6 +219,11 @@ public class SentenceProducer {
 				throw new RuntimeException("Cannot set next pattern without using previous pattern");
 			futureAmended = amended;
 			futurePattern = pattern;
+		}
+
+		@Override
+		public void nestName(int offset) {
+			this.nameNestOffset = offset;
 		}
 
 		private String assembleName(String desiredName) {

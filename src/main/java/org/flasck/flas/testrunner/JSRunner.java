@@ -235,7 +235,7 @@ public class JSRunner extends CommonTestRunner {
 			String l4 = "_tmp_services = {};";
 			execute(l0+l1+l2+l3+l4);
 			for (ContractImplements ctr : cd.contracts) {
-				String fullName = fullName(ctr.name().jsName());
+				String fullName = fullName(ctr.actualName().jsName());
 				JSObject win = (JSObject)page.executeScript("window");
 				MockServiceWrapper ms = new MockServiceWrapper(fullName);
 				// TODO: need to wire ms up in some way to have expectations ...

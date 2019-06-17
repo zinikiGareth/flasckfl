@@ -515,7 +515,8 @@ public class MethodConvertorTests {
 	}
 
 	protected void defineEHMethod(IScope s, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("org.foo"), "Card"), name), Arrays.asList((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
+		final FunctionName func = FunctionName.eventMethod(posn, new CardName(new PackageName("org.foo"), "Card"), name);
+		FunctionIntro intro = new FunctionIntro(func, Arrays.asList((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, func, "ev")));
 		EventCaseDefn cs = new EventCaseDefn(posn, intro);
 		cs.provideCaseName(-1);
 		for (MethodMessage m : msgs)

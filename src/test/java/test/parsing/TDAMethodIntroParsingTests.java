@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
@@ -29,6 +30,18 @@ public class TDAMethodIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method foo"));
+		assertTrue(nested instanceof TDAMethodMessageParser);
+	}
+
+	@Test
+	public void aStandaloneMethodCanHaveAnArgument() {
+		context.checking(new Expectations() {{
+			allowing(errors).hasErrors(); will(returnValue(false));
+			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
+			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.foo.x")));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method foo x"));
 		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
 

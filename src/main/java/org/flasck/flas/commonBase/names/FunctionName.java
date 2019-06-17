@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
@@ -74,16 +73,16 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.DECL, contractName, name);
 	}
 
-	public static FunctionName contractMethod(InputPosition location, TypeReference tr, String name) {
-		return new FunctionName(location, CodeType.CONTRACT, tr, name);
+	public static FunctionName contractMethod(InputPosition location, NameOfThing ctr, String name) {
+		return new FunctionName(location, CodeType.CONTRACT, ctr, name);
 	}
 
 	public static FunctionName serviceMethod(InputPosition location, CSName csName, String name) {
 		return new FunctionName(location, CodeType.SERVICE, csName, name);
 	}
 	
-	public static FunctionName handlerMethod(InputPosition location, TypeReference csName, String name) {
-		return new FunctionName(location, CodeType.HANDLER, csName, name);
+	public static FunctionName handlerMethod(InputPosition location, HandlerName hn, String name) {
+		return new FunctionName(location, CodeType.HANDLER, hn, name);
 	}
 	
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {

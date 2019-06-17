@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -15,10 +16,12 @@ import org.flasck.flas.tokenizers.ValidIdentifierToken;
 public class ContractMethodParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final ContractMethodConsumer builder;
+	private final FunctionScopeUnitConsumer topLevel;
 
-	public ContractMethodParser(ErrorReporter errors, ContractMethodConsumer builder) {
+	public ContractMethodParser(ErrorReporter errors, ContractMethodConsumer builder, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.builder = builder;
+		this.topLevel = topLevel;
 	}
 
 	@Override
@@ -49,7 +52,7 @@ public class ContractMethodParser implements TDAParsing {
 		FunctionName fnName = FunctionName.contractDecl(name.location, null, name.text);
 
 		List<Object> args = new ArrayList<>();
-		TDAPatternParser pp = new TDAPatternParser(errors, x-> args.add(x));
+		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), x-> args.add(x), topLevel);
 		while (pp.tryParsing(toks) != null)
 			;
 		if (errors.hasErrors())

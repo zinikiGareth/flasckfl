@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -60,13 +62,15 @@ public class TDAHandlerParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		ArrayList<Object> lambdas = new ArrayList<Object>();
+		final HandlerName hn = namer.handlerName(named.text);
+		VarNamer vn = (loc, t) -> new VarName(loc, hn, t); 
 		while (line.hasMore() && !errors.hasErrors()) {
-			TDAPatternParser pp = new TDAPatternParser(errors, patt -> lambdas.add(patt));
+			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(patt), topLevel);
 			pp.tryParsing(line);
 		}
-		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, namer.handlerName(named.text), new TypeReference(tn.location, tn.text), inCard, lambdas);
+		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, hn, new TypeReference(tn.location, tn.text), inCard, lambdas);
 		builder.newHandler(hi);
-		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hi.name(), text), hi, topLevel);
+		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hn, text), vn, hi, topLevel);
 	}
 
 	public static TDAParserConstructor constructor(HandlerNameProvider namer, FunctionScopeUnitConsumer topLevel) {

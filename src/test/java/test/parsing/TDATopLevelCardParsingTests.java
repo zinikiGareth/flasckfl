@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -96,6 +97,7 @@ public class TDATopLevelCardParsingTests {
 	public void cardsCanHaveEventHandlers() {
 		context.checking(new Expectations() {{
 			oneOf(builder).newObjectMethod(with(any(ObjectActionHandler.class)));
+			oneOf(builder).argument(with(any(VarPattern.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("event foo ev"));
 		assertEquals(1, card.eventHandlers.size());

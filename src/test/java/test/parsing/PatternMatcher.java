@@ -5,7 +5,7 @@ import org.hamcrest.TypeSafeMatcher;
 
 public abstract class PatternMatcher extends TypeSafeMatcher<Pattern> {
 
-	public static PatternMatcher var(String var) {
+	public static VarPatternMatcher var(String var) {
 		return new VarPatternMatcher(var);
 	}
 

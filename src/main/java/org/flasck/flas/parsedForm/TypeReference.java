@@ -5,11 +5,9 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.xml.XMLElement;
 
-public class TypeReference implements Locatable, NameOfThing {
+public class TypeReference implements Locatable {
 	private InputPosition location;
 	private String name;
 	private List<TypeReference> polys;
@@ -45,50 +43,5 @@ public class TypeReference implements Locatable, NameOfThing {
 	@Override
 	public String toString() {
 		return name + (polys!= null && !polys.isEmpty()?polys:"");
-	}
-
-	@Override
-	public String uniqueName() {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	@Override
-	public String jsName() {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	@Override
-	public String jsUName() {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	@Override
-	public String javaName() {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	@Override
-	public String javaPackageName() {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	@Override
-	public String javaClassName() {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	@Override
-	public NameOfThing containingCard() {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	@Override
-	public <T extends NameOfThing> int compareTo(T other) {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	@Override
-	public String writeToXML(XMLElement xe) {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 }

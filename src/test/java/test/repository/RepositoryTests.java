@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ConsumeStructFields;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -55,6 +56,15 @@ public class RepositoryTests {
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
 		r.functionDefn(fn);
 		r.functionDefn(fn);
+	}
+
+	@Test
+	public void canAddAFunctionArgToTheRepository() {
+		Repository r = new Repository();
+		final FunctionName fred = FunctionName.function(pos, pkg, "fred");
+		VarPattern parm = new VarPattern(pos, fred, "a");
+		r.argument(parm);
+		assertEquals(parm, r.get("test.repo.fred.a"));
 	}
 
 	@Test

@@ -21,6 +21,8 @@ public class VarPatternMatcher extends PatternMatcher {
 	@Override
 	protected boolean matchesSafely(Pattern arg0) {
 		if (arg0 instanceof VarPattern) {
+			if (var.equals(((VarPattern)arg0).name().uniqueName()))
+				return true;
 			if (var.equals(((VarPattern)arg0).var))
 				return true;
 		}

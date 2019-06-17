@@ -19,11 +19,15 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class TDAPatternParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final VarNamer namer;
 	private final Consumer<Pattern> consumer;
+	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDAPatternParser(ErrorReporter errors, Consumer<Pattern> consumer) {
+	public TDAPatternParser(ErrorReporter errors, VarNamer namer, Consumer<Pattern> consumer, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
+		this.namer = namer;
 		this.consumer = consumer;
+		this.topLevel = topLevel;
 	}
 
 	@Override
@@ -65,9 +69,9 @@ public class TDAPatternParser implements TDAParsing {
 
 	public TDAParsing handleORBCases(PattToken orb, Tokenizable toks) {
 		List<Pattern> tuples = new ArrayList<>();
-		TDAPatternParser delegate = new TDAPatternParser(errors, patt -> {
+		TDAPatternParser delegate = new TDAPatternParser(errors, namer, patt -> {
 			tuples.add(patt);
-		});
+		}, topLevel);
 		PattToken crb;
 		while (true) {
 			TDAParsing success = delegate.handleOneORBMemberCase(toks);
@@ -139,7 +143,9 @@ public class TDAPatternParser implements TDAParsing {
 	}
 
 	public TDAParsing handleASimpleVar(PattToken initial) {
-		consumer.accept(new VarPattern(initial.location, initial.text));
+		final VarPattern vp = new VarPattern(initial.location, namer.nameVar(initial.location, initial.text));
+		consumer.accept(vp);
+		topLevel.argument(vp);
 		return this;
 	}
 
@@ -220,9 +226,9 @@ public class TDAPatternParser implements TDAParsing {
 			PattToken colon = PattToken.from(toks); // :
 			if (colon == null || colon.type != PattToken.COLON)
 				return invalidPattern(toks);
-			TDAParsing success = new TDAPatternParser(errors, patt -> {
+			TDAParsing success = new TDAPatternParser(errors, namer, patt -> {
 				m.args.add(m.new Field(fld.location, fld.text, patt));
-			}).tryParsing(toks);
+			}, topLevel).tryParsing(toks);
 			if (success == null)
 				return null;
 			PattToken ccb = PattToken.from(toks);
@@ -239,9 +245,9 @@ public class TDAPatternParser implements TDAParsing {
 
 	private TDAParsing handleListCases(PattToken osb, Tokenizable toks) {
 		List<Pattern> members = new ArrayList<>();
-		TDAPatternParser inner = new TDAPatternParser(errors, patt -> {
+		TDAPatternParser inner = new TDAPatternParser(errors, namer, patt -> {
 			members.add(0, patt); // store them in reverse order
-		});
+		}, topLevel);
 		while (true) {
 			int from = toks.at();
 			PattToken nx = PattToken.from(toks);

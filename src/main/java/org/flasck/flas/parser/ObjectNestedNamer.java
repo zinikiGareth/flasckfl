@@ -1,13 +1,20 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.parsedForm.TypeReference;
 
 public class ObjectNestedNamer extends InnerPackageNamer implements TemplateNamer {
+	private int nextId = 0;
+
 	public ObjectNestedNamer(NameOfThing pkgName) {
 		super(pkgName);
 	}
@@ -30,5 +37,15 @@ public class ObjectNestedNamer extends InnerPackageNamer implements TemplateName
 	@Override
 	public VarName nameVar(InputPosition loc, String name) {
 		return new VarName(loc, pkg, name);
+	}
+
+	@Override
+	public TypeReference contract(InputPosition location, String text) {
+		return new TypeReference(location, text, new ArrayList<>());
+	}
+
+	@Override
+	public CSName csn(InputPosition location, String type) {
+		return new CSName((CardName)pkg, "_" + type + nextId++);
 	}
 }

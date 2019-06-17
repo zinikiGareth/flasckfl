@@ -15,7 +15,7 @@ public class HandlerImplements extends Implements implements RepositoryEntry {
 	public final HandlerName handlerName;
 
 	public HandlerImplements(InputPosition kw, InputPosition location, InputPosition typeLocation, HandlerName handlerName, TypeReference implementing, boolean inCard, List<Object> lambdas) {
-		super(kw, location, implementing);
+		super(kw, location, implementing, handlerName);
 		this.typeLocation = typeLocation;
 		this.handlerName = handlerName;
 		this.baseName = handlerName.baseName;

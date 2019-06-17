@@ -4,6 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAImplementationMethodsParser;
@@ -46,6 +48,7 @@ public class TDAHandlerIntroParsingTests {
 	public void aHandlerCanHaveLambdaExpressions() {
 		context.checking(new Expectations() {{
 			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.x")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName x (String s)"));
@@ -71,6 +74,20 @@ public class TDAHandlerIntroParsingTests {
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName (String s) (List[List[Integer]] mrtho)"));
 		assertTrue(nested instanceof TDAImplementationMethodsParser);
 	}
+
+	@Test
+	public void aHandlerCanContainAMethod() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+			oneOf(builder).newObjectMethod(with(any(ObjectActionHandler.class)));
+			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.foo.x")));
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
+		assertTrue(nested instanceof TDAImplementationMethodsParser);
+		nested.tryParsing(TDABasicIntroParsingTests.line("foo x"));
+	}
+
 
 	// TODO: error cases
 }
