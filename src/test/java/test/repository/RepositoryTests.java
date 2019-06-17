@@ -31,6 +31,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.ConsumeStructFields;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.repository.Repository;
 import org.junit.Test;
@@ -191,6 +192,14 @@ public class RepositoryTests {
 		UnionTypeDefn ud = new UnionTypeDefn(pos, true, new SolidName(pkg, "MyUnion"), new ArrayList<>());
 		r.newUnion(ud);
 		assertEquals(ud, r.get("test.repo.MyUnion"));
+	}
+
+	@Test
+	public void canAddAContractDeclToTheRepository() {
+		Repository r = new Repository();
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		r.newContract(cd);
+		assertEquals(cd, r.get("test.repo.Ctr"));
 	}
 
 	@Test

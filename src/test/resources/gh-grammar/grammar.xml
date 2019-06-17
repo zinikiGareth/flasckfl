@@ -413,7 +413,7 @@
     <tested by='test.parsing.TDAContractIntroParsingTests' />
     <seq>
       <token type='CONTRACT'/>
-      <token type='type-name'/>
+      <token type='type-name' names='Contract\[${name}\]'/>
       <indent>
       	<ref production='contract-method-decls'/>
       </indent>

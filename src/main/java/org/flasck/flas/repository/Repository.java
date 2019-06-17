@@ -56,12 +56,6 @@ public class Repository implements TopLevelDefinitionConsumer {
 		addEntry(hi.handlerName, hi);
 	}
 
-	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {
-		if (dict.containsKey(name.uniqueName()))
-			throw new DuplicateNameException(name);
-		dict.put(name.uniqueName(), entry);
-	}
-
 	@Override
 	public void newCard(CardDefinition decl) {
 		addEntry(decl.cardName(), decl);
@@ -99,12 +93,18 @@ public class Repository implements TopLevelDefinitionConsumer {
 
 	@Override
 	public void newContract(ContractDecl decl) {
-//		scope.define(errors, decl.nameAsName().baseName(), decl);
+		addEntry(decl.nameAsName(), decl);
 	}
 
 	@Override
 	public void newObject(ObjectDefn od) {
 		addEntry(od.name(), od);
+	}
+
+	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {
+		if (dict.containsKey(name.uniqueName()))
+			throw new DuplicateNameException(name);
+		dict.put(name.uniqueName(), entry);
 	}
 
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {
