@@ -8,7 +8,6 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
-import org.flasck.flas.parser.TDAObjectElementsParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefnConsumer;
 import org.flasck.flas.parser.TopLevelNamer;

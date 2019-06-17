@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -11,6 +12,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.zinutils.utils.FileUtils;
@@ -77,6 +79,7 @@ public class SentenceProducer {
 		private Map<String, String> matchers = new TreeMap<>();
 		private String futureAmended;
 		private String futurePattern;
+		private Set<String> tokens = new HashSet<>();
 		
 		public SPProductionVisitor(Grammar g, String pkg, long l) {
 			this.grammar = g;
@@ -325,17 +328,28 @@ public class SentenceProducer {
 			case "UNOP":
 				return "-"; // are there more?  ~ maybe?  ! maybe?
 			case "poly-var":
-				return randomChars(1, 1, 'A', 26);
+				return unique(() -> randomChars(1, 1, 'A', 26));
 			case "type-name":
-				return randomChars(1, 1, 'A', 26) + randomChars(2, 8, 'a', 26);
+				return unique(() -> randomChars(1, 1, 'A', 26) + randomChars(2, 8, 'a', 26));
 			case "event-name":
 			case "template-name":
 			case "var-name":
-				return randomChars(1, 8, 'a', 26);
+				return unique(() -> randomChars(1, 8, 'a', 26));
 
 			default:
 				throw new RuntimeException("Cannot generate a token for " + token);
 			}
+		}
+
+		private String unique(Supplier<String> supplier) {
+			for (int j=0;j<100;j++) {
+				String tok = supplier.get();
+				if (!tokens.contains(tok)) {
+					tokens.add(tok);
+					return tok;
+				}
+			}
+			throw new RuntimeException("Could not find unique token among " + tokens);
 		}
 
 		private String oneOf(String... strings) {
