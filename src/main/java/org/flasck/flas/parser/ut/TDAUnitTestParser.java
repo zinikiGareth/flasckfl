@@ -11,10 +11,12 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAUnitTestParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final TopLevelNamer namer;
 	private final UnitTestDefinitionConsumer builder;
 
 	public TDAUnitTestParser(ErrorReporter errors, TopLevelNamer namer, UnitTestDefinitionConsumer builder) {
 		this.errors = errors;
+		this.namer = namer;
 		this.builder = builder;
 	}
 
@@ -30,8 +32,9 @@ public class TDAUnitTestParser implements TDAParsing {
 			errors.message(toks, "test case must have a description");
 			return new IgnoreNestedParser();
 		}
-		builder.testCase(new UnitTestCase(desc));
-		return new TestStepParser(errors);
+		final UnitTestCase utc = new UnitTestCase(desc);
+		builder.testCase(utc);
+		return new TestStepParser(errors, namer, utc);
 	}
 
 	@Override
