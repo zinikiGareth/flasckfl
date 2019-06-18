@@ -5,16 +5,15 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAUnitTestParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final TopLevelNamer namer;
+	private final UnitTestNamer namer;
 	private final UnitTestDefinitionConsumer builder;
 
-	public TDAUnitTestParser(ErrorReporter errors, TopLevelNamer namer, UnitTestDefinitionConsumer builder) {
+	public TDAUnitTestParser(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer builder) {
 		this.errors = errors;
 		this.namer = namer;
 		this.builder = builder;
@@ -32,7 +31,7 @@ public class TDAUnitTestParser implements TDAParsing {
 			errors.message(toks, "test case must have a description");
 			return new IgnoreNestedParser();
 		}
-		final UnitTestCase utc = new UnitTestCase(desc);
+		final UnitTestCase utc = new UnitTestCase(namer.unitTest(), desc);
 		builder.testCase(utc);
 		return new TestStepParser(errors, namer, utc);
 	}

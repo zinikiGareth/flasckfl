@@ -3,6 +3,7 @@ package test.repository;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -33,6 +35,7 @@ import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ConsumeStructFields;
 import org.flasck.flas.repository.Repository;
 import org.junit.Test;
@@ -262,4 +265,14 @@ public class RepositoryTests {
 		r.newCard(card);
 		assertEquals(card, r.get("test.repo.Card"));
 	}
+	
+	@Test
+	public void canAddAUTCDefnToTheRepository()  {
+		Repository r = new Repository();
+		UnitTestCase utc = new UnitTestCase(new UnitTestName(pkg, 0), "this is a test");
+		r.testCase(utc);
+		r.dumpTo(new PrintWriter(System.out));
+		assertEquals(utc, r.get("test.repo._ut0"));
+	}
+	
 }

@@ -1,4 +1,4 @@
-package test.parsing.ut;
+package org.flasck.flas.parser.ut;
 
 import java.util.function.Consumer;
 

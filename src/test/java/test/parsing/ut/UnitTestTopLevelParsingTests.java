@@ -5,13 +5,15 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.SingleLine;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.parser.ut.TDAUnitTestParser;
 import org.flasck.flas.parser.ut.TestStepParser;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
+import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -21,12 +23,13 @@ import org.junit.Test;
 public class UnitTestTopLevelParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
-	private TopLevelNamer namer = context.mock(TopLevelNamer.class);
+	private UnitTestNamer namer = context.mock(UnitTestNamer.class);
 	private UnitTestDefinitionConsumer builder = context.mock(UnitTestDefinitionConsumer.class);
 
 	@Test
 	public void testWeCanCreateADegenerateTestCase() {
 		context.checking(new Expectations() {{
+			oneOf(namer).unitTest(); will(returnValue(new UnitTestName(new PackageName("test.pkg"), 4)));
 			oneOf(builder).testCase(with(UnitTestCaseMatcher.number(1).description("we can write anything here")));
 		}});
 		TDAUnitTestParser utp = new TDAUnitTestParser(errors, namer, builder);

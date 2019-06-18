@@ -269,9 +269,9 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			errors.showFromMark(mark, errorWriter, 4);
 			mark = errors.mark();
 		}
-		ParsingPhase utp = new ParsingPhase(errors, inPkg, (UnitTestDefinitionConsumer)repository);
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
 			System.out.println(" > " + f.getName());
+			ParsingPhase utp = new ParsingPhase(errors, inPkg, FileUtils.dropExtension(f.getName()), (UnitTestDefinitionConsumer)repository);
 			utp.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
 			mark = errors.mark();

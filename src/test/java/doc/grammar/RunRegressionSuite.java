@@ -75,7 +75,7 @@ public class RunRegressionSuite {
 	@Ignore
 	public void testOne() throws Exception {
 		JSONObject jo = new JSONObject(FileUtils.readFile(new File(root, "META.json")));
-		final String name = "test.r21014";
+		final String name = "test.r27825";
 		runCase(new File(name), jo.getJSONObject(name));
 	}
 	
@@ -93,10 +93,14 @@ public class RunRegressionSuite {
 			result = false;
 		}
 		if (!result) {
-			for (File fl : FileUtils.findFilesMatching(dir, "*.fl"))
+			for (File fl : FileUtils.findFilesMatching(dir, "*.fl")) {
+				System.out.println(fl + ":");
 				FileUtils.cat(fl);
-			for (File ut : FileUtils.findFilesMatching(dir, "*.ut"))
+			}
+			for (File ut : FileUtils.findFilesMatching(dir, "*.ut")) {
+				System.out.println(ut + ":");
 				FileUtils.cat(ut);
+			}
 		}
 		return result;
 	}

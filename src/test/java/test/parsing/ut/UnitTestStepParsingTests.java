@@ -11,8 +11,9 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TopLevelNamer;
+import org.flasck.flas.parser.ut.SingleExpressionParser;
 import org.flasck.flas.parser.ut.TestStepParser;
+import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
@@ -28,7 +29,7 @@ public class UnitTestStepParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
-	private TopLevelNamer namer = context.mock(TopLevelNamer.class);
+	private UnitTestNamer namer = context.mock(UnitTestNamer.class);
 	private UnitTestStepConsumer builder = context.mock(UnitTestStepConsumer.class);
 	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
 
@@ -179,6 +180,18 @@ public class UnitTestStepParsingTests {
 		TestStepParser utp = new TestStepParser(tracker, namer, builder);
 		TDAParsing nested = utp.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeCanHandleATemplateStep() {
+		context.checking(new Expectations() {{
+			oneOf(builder).template();
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("template"));
+		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}

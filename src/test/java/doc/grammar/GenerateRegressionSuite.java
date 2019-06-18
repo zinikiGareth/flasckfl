@@ -47,6 +47,8 @@ public class GenerateRegressionSuite {
 
 	private static void store(Set<String> allUsed, JSONObject jo, String key, SentenceData used) {
 		try {
+			allUsed.addAll(used.productionsUsed);
+
 			TreeSet<String> now = new TreeSet<>();
 			TreeMap<String, String> nowms = new TreeMap<>();
 			if (jo.has(key)) {
@@ -54,13 +56,13 @@ public class GenerateRegressionSuite {
 				addAll(now, curr.getJSONArray("used"));
 				putAll(nowms, curr.getJSONObject("matchers"));
 			}
+
 			now.addAll(used.productionsUsed);
 			nowms.putAll(used.matchers);
 			JSONObject thisOne = new JSONObject();
-			thisOne.put("used", used.productionsUsed);
-			thisOne.put("matchers", used.matchers);
+			thisOne.put("used", now);
+			thisOne.put("matchers", nowms);
 			jo.put(key, thisOne);
-			allUsed.addAll(used.productionsUsed);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

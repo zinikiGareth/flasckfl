@@ -1373,7 +1373,7 @@
       <one-or-more>
       	<token type='DOCWORD' />
       </one-or-more>
-    	  <push-part prefix='ut' names='UnitTest\[\]' filename='true'/>
+    	  <push-part prefix='ut' names='UnitTestCase\[.*\]' filename='true'/>
       <indent>
       	<ref production='unit-test-step'/>
       </indent>

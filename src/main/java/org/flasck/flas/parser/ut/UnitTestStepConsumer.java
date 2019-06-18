@@ -9,4 +9,5 @@ public interface UnitTestStepConsumer {
 	void assertion(Expr expr, Expr value);
 	void event(UnresolvedVar card, StringLiteral name, Expr event);
 	void send(UnresolvedVar card, TypeReference contract, Expr invocation);
+	void template();
 }

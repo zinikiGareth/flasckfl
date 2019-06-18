@@ -110,7 +110,8 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 	}
 
 	@Override
-	public void testCase(UnitTestCase with) {
+	public void testCase(UnitTestCase utc) {
+		addEntry(utc.name, utc);
 	}
 
 	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {
@@ -121,11 +122,16 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(dumpRepo);
+		dumpTo(pw);
+		pw.close();
+	}
+
+	public void dumpTo(PrintWriter pw) {
 		for (Entry<String, RepositoryEntry> x : dict.entrySet()) {
 			pw.print(x.getKey() + " = ");
 			x.getValue().dumpTo(pw);
 		}
-		pw.close();
+		pw.flush();
 	}
 
 	@SuppressWarnings("unchecked")
