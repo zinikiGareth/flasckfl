@@ -14,6 +14,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class SingleExpressionParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final Consumer<Expr> builder;
+	private int exprCount = 0;
 
 	public SingleExpressionParser(ErrorReporter errors, Consumer<Expr> builder) {
 		this.errors = errors;
@@ -22,6 +23,8 @@ public class SingleExpressionParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		if (++exprCount > 1)
+			return new IgnoreNestedParser();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, builder);
 		expr.tryParsing(toks);
 		if (toks.hasMore()){
@@ -33,6 +36,8 @@ public class SingleExpressionParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		if (exprCount != 1)
+			errors.message(location, "assert requires exactly one match expression");
 	}
 
 }

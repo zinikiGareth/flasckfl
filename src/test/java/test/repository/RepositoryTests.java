@@ -62,7 +62,7 @@ public class RepositoryTests {
 	public void canAddAFunctionArgToTheRepository() {
 		Repository r = new Repository();
 		final FunctionName fred = FunctionName.function(pos, pkg, "fred");
-		VarPattern parm = new VarPattern(pos, fred, "a");
+		VarPattern parm = new VarPattern(pos, new VarName(pos, fred, "a"));
 		r.argument(parm);
 		assertEquals(parm, r.get("test.repo.fred.a"));
 	}

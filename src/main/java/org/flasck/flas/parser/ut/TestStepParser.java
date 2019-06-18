@@ -36,8 +36,11 @@ public class TestStepParser implements TDAParsing {
 			List<Expr> test = new ArrayList<>();
 			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> test.add(x));
 			expr.tryParsing(toks);
-			if (toks.hasMore()){
-				errors.message(toks, "syntax error");
+			if (errors.hasErrors()){
+				return new IgnoreNestedParser();
+			}
+			if (test.isEmpty()) {
+				errors.message(toks, "assert requires expression to evaluate");
 				return new IgnoreNestedParser();
 			}
 			return new SingleExpressionParser(errors, ex -> { builder.assertion(test.get(0), ex); });
