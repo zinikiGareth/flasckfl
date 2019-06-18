@@ -1,6 +1,8 @@
 package org.flasck.flas.parsedForm.ut;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
 
 public class UnitTestCase implements UnitTestStepConsumer {
@@ -12,5 +14,9 @@ public class UnitTestCase implements UnitTestStepConsumer {
 
 	@Override
 	public void assertion(Expr expr, Expr value) {
+	}
+
+	@Override
+	public void event(UnresolvedVar card, StringLiteral name, Expr event) {
 	}
 }

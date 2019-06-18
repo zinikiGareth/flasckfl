@@ -3,7 +3,10 @@ package test.parsing.ut;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -87,6 +90,82 @@ public class UnitTestStepParsingTests {
 		assertTrue(nested instanceof SingleExpressionParser);
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("86"));
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("32"));
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+
+	@Test
+	public void testWeCanHandleASimpleEventStep() {
+		context.checking(new Expectations() {{
+			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), (StringLiteral) with(ExprMatcher.string("click")), with(ExprMatcher.apply(ExprMatcher.unresolved("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class)))));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("event card click (ClickEvent { x: 42, y: 31 })"));
+		assertTrue(nested instanceof NoNestingParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testEventNamesCanHaveHyphens() {
+		context.checking(new Expectations() {{
+			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), (StringLiteral) with(ExprMatcher.string("double-click")), with(ExprMatcher.apply(ExprMatcher.unresolved("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class)))));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("event card double-click (ClickEvent { x: 42, y: 31 })"));
+		assertTrue(nested instanceof NoNestingParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testAnEventNeedsMoreThanJustAKeyword() {
+		final Tokenizable toks = UnitTestTopLevelParsingTests.line("event");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "missing arguments");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testAnEventNeedsEverything() {
+		final Tokenizable toks = UnitTestTopLevelParsingTests.line("event myCard click");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "missing arguments");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeObjectToUnknownSteps() {
+		final Tokenizable line = UnitTestTopLevelParsingTests.line("foo");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "unrecognized test step foo");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(line);
+		assertTrue(nested instanceof IgnoreNestedParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeObjectToGarbage() {
+		final Tokenizable line = UnitTestTopLevelParsingTests.line("++3");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "syntax error");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(line);
+		assertTrue(nested instanceof IgnoreNestedParser);
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}

@@ -1412,6 +1412,7 @@
   </production>
   <production name='unit-test-assert'>
     <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
       <token type='ASSERT' />
       <ref production='expression' />

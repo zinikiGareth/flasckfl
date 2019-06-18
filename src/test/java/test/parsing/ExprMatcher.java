@@ -204,7 +204,7 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 	}
 
 	@SafeVarargs
-	public static ExprMatcher apply(Matcher<Expr> fn, final ExprMatcher... args) {
+	public static ExprMatcher apply(Matcher<Expr> fn, final Matcher<Expr>... args) {
 		return new ExprMatcher() {
 			@Override
 			public void describeTo(Description desc) {
@@ -212,7 +212,7 @@ public abstract class ExprMatcher extends TypeSafeMatcher<Expr> {
 				fn.describeTo(desc);
 				desc.appendText(") to [");
 				String sep = "";
-				for (ExprMatcher m : args) {
+				for (Matcher<Expr> m : args) {
 					desc.appendText(sep);
 					m.describeTo(desc);
 					sep = ", ";
