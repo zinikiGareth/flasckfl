@@ -3,9 +3,12 @@ package doc.grammar;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.zinutils.utils.FileUtils;
@@ -28,8 +31,8 @@ public class GenerateRegressionSuite {
 		for (long i=21000;i<29000;i+=7) {
 			final long j = i;
 			SentenceProducer p = new SentenceProducer(top, grammar);
-			p.sentence(i, "source-file", used -> store(jo, allUsed, "test.r" + Long.toString(j), used));
-			p.sentence(i, "unit-test-file", used -> {});
+			p.sentence(i, "source-file", used -> store(allUsed, jo, "test.r" + Long.toString(j), used));
+			p.sentence(i, "unit-test-file", used -> store(allUsed, jo, "test.r" + Long.toString(j), used));
 		}
 		File meta = new File(top, "META.json");
 		FileUtils.writeFile(meta, jo.toString());
@@ -42,8 +45,17 @@ public class GenerateRegressionSuite {
 		return meta;
 	}
 
-	private static void store(JSONObject jo, Set<String> allUsed, String key, SentenceData used) {
+	private static void store(Set<String> allUsed, JSONObject jo, String key, SentenceData used) {
 		try {
+			TreeSet<String> now = new TreeSet<>();
+			TreeMap<String, String> nowms = new TreeMap<>();
+			if (jo.has(key)) {
+				JSONObject curr = jo.getJSONObject(key);
+				addAll(now, curr.getJSONArray("used"));
+				putAll(nowms, curr.getJSONObject("matchers"));
+			}
+			now.addAll(used.productionsUsed);
+			nowms.putAll(used.matchers);
 			JSONObject thisOne = new JSONObject();
 			thisOne.put("used", used.productionsUsed);
 			thisOne.put("matchers", used.matchers);
@@ -51,6 +63,20 @@ public class GenerateRegressionSuite {
 			allUsed.addAll(used.productionsUsed);
 		} catch (JSONException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private static void addAll(TreeSet<String> now, JSONArray ja) throws JSONException {
+		for (int i=0;i<ja.length();i++)
+			now.add(ja.getString(i));
+	}
+
+	private static void putAll(TreeMap<String, String> nowms, JSONObject jo) throws JSONException {
+		@SuppressWarnings("rawtypes")
+		Iterator it = jo.keys();
+		while (it.hasNext()) {
+			String s = (String) it.next();
+			nowms.put(s, jo.getString(s));
 		}
 	}
 }

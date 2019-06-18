@@ -93,8 +93,10 @@ public class RunRegressionSuite {
 			result = false;
 		}
 		if (!result) {
-			for (File q : FileUtils.findFilesMatching(dir, "*.fl"))
-				FileUtils.cat(q);
+			for (File fl : FileUtils.findFilesMatching(dir, "*.fl"))
+				FileUtils.cat(fl);
+			for (File ut : FileUtils.findFilesMatching(dir, "*.ut"))
+				FileUtils.cat(ut);
 		}
 		return result;
 	}
