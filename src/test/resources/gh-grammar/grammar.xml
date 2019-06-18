@@ -200,6 +200,7 @@
     <section title='Files' />
 	<tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <seq>
+    	  <push-part filename='true'/>
       <many>
         <ref production='unit-test-unit' />
       </many>
@@ -1349,6 +1350,7 @@
         <p>The test declaration defines a unit test which should be run while the data declaration defines a name for a shared element of test data which can be used in multiple tests.</p>
       </description>
     </section>
+    <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <or>
       <ref production='unit-test-declaration'/>
       <ref production='unit-data-declaration'/>
@@ -1368,12 +1370,13 @@
         <p>In order to make all these cases easy, the unit test language allows values and messages to be easily defined and has special syntax for isolating and testing message outputs and template orchestration, independent of the actual template HTML provided.</p>
       </description>
     </section>
+    <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <seq>
       <token type='TEST' />
       <one-or-more>
       	<token type='DOCWORD' />
       </one-or-more>
-    	  <push-part prefix='ut' names='UnitTestCase\[.*\]' filename='true'/>
+    	  <push-part prefix='ut' names='UnitTestCase\[.*\]'/>
       <indent>
       	<ref production='unit-test-step'/>
       </indent>
@@ -1381,6 +1384,7 @@
   </production>
   <production name='unit-test-step'>
     <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <or>
       <ref production='unit-data-declaration' />
       <ref production='unit-event-action' />
@@ -1401,6 +1405,7 @@
   </production>
   <production name='unit-send-action'>
     <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
       <token type='DOSEND' />
       <token type='var-name' /> <!--  the card, object or service to receive the action -->
@@ -1438,6 +1443,7 @@
         <i>I feel the expression case possibly needs to be expanded to allow for object constructors to be invoked.</i>
       </description>
     </section>
+    <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <or>
       <ref production='unit-expr-data-declaration' />
       <ref production='unit-fields-data-declaration' />
@@ -1445,31 +1451,31 @@
   </production>
   <production name='unit-expr-data-declaration'>
     <section title='Unit Test Data' />
+    <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <seq>
       <token type='DATA' />
       <ref production='type-reference' />
-      <token type='var-name'>
-      	<named amended='_ud_${final}' pattern='UnitData\[${final}\]' scope='true' />
-      </token>
+      <token type='var-name' names='UnitData\[${name}\]'/>
       <token type='SEND' />
       <ref production='expression' />
+      <token type='EOL' />
     </seq>
   </production>
   <production name='unit-fields-data-declaration'>
     <section title='Unit Test Data' />
+    <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <seq>
       <token type='DATA' />
       <ref production='type-reference' />
-      <token type='var-name'>
-      	<named amended='_ud_${final}' pattern='UnitData\[${final}\]' scope='true' />
-      </token>
-      <indent>
+      <token type='var-name' names='UnitData\[${name}\]' />
+      <indent-non-zero>
         <ref production='unit-fields-data-initializer' />
-      </indent>
+      </indent-non-zero>
     </seq>
   </production>
   <production name='unit-fields-data-initializer'>
     <section title='Unit Test Data' />
+    <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <seq>
       <token type='var-name' />
       <token type='SEND' />

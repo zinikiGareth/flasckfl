@@ -3,7 +3,6 @@ package test.repository;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -37,6 +35,9 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ConsumeStructFields;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.parser.ut.UnitTestNamer;
+import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
 import org.junit.Test;
 
@@ -44,6 +45,7 @@ public class RepositoryTests {
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
+	final UnitTestNamer namer = new UnitTestPackageNamer(pkg.uniqueName(), "file");
 
 	@Test
 	public void canAddAFunctionToTheRepository() {
@@ -269,10 +271,17 @@ public class RepositoryTests {
 	@Test
 	public void canAddAUTCDefnToTheRepository()  {
 		Repository r = new Repository();
-		UnitTestCase utc = new UnitTestCase(new UnitTestName(pkg, 0), "this is a test");
+		UnitTestCase utc = new UnitTestCase(namer.unitTest(), "this is a test");
 		r.testCase(utc);
-		r.dumpTo(new PrintWriter(System.out));
-		assertEquals(utc, r.get("test.repo._ut0"));
+		assertEquals(utc, r.get("test.repo._ut_file._ut0"));
+	}
+	
+	@Test
+	public void canAddADataDefnToTheRepository()  {
+		Repository r = new Repository();
+		UnitDataDeclaration data = new UnitDataDeclaration(new TypeReference(pos, "Number"), namer.dataName(pos, "x"), null);
+		r.data(data);
+		assertEquals(data, r.get("test.repo._ut_file.x"));
 	}
 	
 }

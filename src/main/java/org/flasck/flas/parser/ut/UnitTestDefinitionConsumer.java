@@ -4,6 +4,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 
 public interface UnitTestDefinitionConsumer {
 
-	void testCase(UnitTestCase with);
+	void testCase(UnitTestCase utc);
+	void data(UnitDataDeclaration data);
 
 }

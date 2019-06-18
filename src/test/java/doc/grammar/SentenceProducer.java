@@ -248,12 +248,14 @@ public class SentenceProducer {
 				int idx = fileName.lastIndexOf('.');
 				String ext = fileName.substring(idx+1);
 				String fn = fileName.substring(0, idx).replace('.', '_');
-				nameParts.add(new NamePart(indent + nameNestOffset, "_" + ext + "_" + fn, UseNameForScoping.UNSCOPED));
+				nameParts.add(new NamePart(indent + nameNestOffset-1, "_" + ext + "_" + fn, UseNameForScoping.UNSCOPED));
 			}
-			final NamePart finalPart = new NamePart(indent + nameNestOffset, "_" + prefix + (np.serviceNamer++), UseNameForScoping.UNSCOPED);
-			nameParts.add(finalPart);
-			if (names != null)
-				this.matchers.put(assembleName(finalPart.name), names);
+			if (prefix != null) {
+				final NamePart finalPart = new NamePart(indent + nameNestOffset, "_" + prefix + (np.serviceNamer++), UseNameForScoping.UNSCOPED);
+				nameParts.add(finalPart);
+				if (names != null)
+					this.matchers.put(assembleName(finalPart.name), names);
+			}
 		}
 
 		private String assembleName(String desiredName) {

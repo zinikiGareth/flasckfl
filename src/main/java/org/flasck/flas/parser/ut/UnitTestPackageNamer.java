@@ -1,5 +1,7 @@
 package org.flasck.flas.parser.ut;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 
@@ -14,6 +16,11 @@ public class UnitTestPackageNamer implements UnitTestNamer {
 	@Override
 	public UnitTestName unitTest() {
 		return new UnitTestName(pkg, which++);
+	}
+
+	@Override
+	public FunctionName dataName(InputPosition location, String text) {
+		return FunctionName.function(location, pkg, text);
 	}
 
 }

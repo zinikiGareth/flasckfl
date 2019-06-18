@@ -154,45 +154,13 @@ public class TDAPatternParser implements TDAParsing {
 		return this;
 	}
 
-	public TypeReference readTypeReference(Tokenizable toks) {
-		TypeNameToken qn = TypeNameToken.qualified(toks);
-		if (qn == null) {
-			throw new RuntimeException("I think we should know what we're getting at this point, but if not turn this into an error");
-		}
-		int mark = toks.at();
-		PattToken tok = PattToken.from(toks);
-		List<TypeReference> andTypeParameters = new ArrayList<>();
-		if (tok.type == PattToken.OSB) {
-			while (true) {
-				TypeReference typeArg = readTypeReference(toks);
-				if (typeArg == null) {
-					// it failed, we fail ...
-					return null;
-				}
-				andTypeParameters.add(typeArg);
-				tok = PattToken.from(toks);
-				if (tok.type == PattToken.COMMA)
-					continue;
-				else if (tok.type == PattToken.CSB)
-					break;
-				else {
-					errors.message(toks, "invalid pattern");
-					return null;
-				}
-			}
-		} else {
-			// whatever it was, we didn't want it, so put it back in the pool for somebody else
-			toks.reset(mark);
-		}
-		return new TypeReference(qn.location, qn.text, andTypeParameters);
-	}
-	
 	public TDAParsing handleCasesStartingWithAType(Tokenizable toks, TypeNameToken type) {
-		TypeReference tr = readTypeReference(toks);
-		if (tr == null) {
+		List<TypeReference> ref = new ArrayList<>();
+		if (new TDATypeReferenceParser(errors, x->ref.add(x)).tryParsing(toks) == null) {
 			// it didn't parse, so give up hope
 			return null;
 		}
+		TypeReference tr = ref.get(0);
 		int beforeChecking = toks.at();
 		
 		// Now, see aht else we've got ...

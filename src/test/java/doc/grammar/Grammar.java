@@ -265,7 +265,7 @@ public class Grammar {
 	}
 
 	private Definition handlePushPart(String ruleName, XMLElement rule) {
-		String prefix = rule.required("prefix");
+		String prefix = rule.optional("prefix");
 		String names = rule.optional("names");
 		boolean appendFileName = rule.optionalBoolean("filename", false);
 		rule.attributesDone();

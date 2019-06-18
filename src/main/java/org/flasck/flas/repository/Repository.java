@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 
 public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitionConsumer {
@@ -112,6 +113,11 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 	@Override
 	public void testCase(UnitTestCase utc) {
 		addEntry(utc.name, utc);
+	}
+
+	@Override
+	public void data(UnitDataDeclaration data) {
+		addEntry(data.name, data);
 	}
 
 	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {
