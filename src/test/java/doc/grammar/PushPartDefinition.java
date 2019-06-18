@@ -5,9 +5,13 @@ import java.util.Set;
 
 public class PushPartDefinition extends Definition {
 	private final String prefix;
+	private final String names;
+	private final boolean appendFileName;
 
-	public PushPartDefinition(String prefix) {
+	public PushPartDefinition(String prefix, String names, boolean appendFileName) {
 		this.prefix = prefix;
+		this.names = names;
+		this.appendFileName = appendFileName;
 	}
 
 	@Override
@@ -24,7 +28,7 @@ public class PushPartDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.pushPart(prefix);
+		productionVisitor.pushPart(prefix, names, appendFileName);
 	}
 
 }

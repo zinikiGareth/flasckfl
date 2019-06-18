@@ -19,6 +19,8 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATupleDeclarationParser;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
+import org.flasck.flas.parser.ut.TDAUnitTestParser;
+import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAMultiParser implements TDAParsing {
@@ -50,6 +52,12 @@ public class TDAMultiParser implements TDAParsing {
 	public static TDAParsing topLevelUnit(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer sb) {
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb);
 		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, assembler, sb), TDATupleDeclarationParser.constructor(namer, sb));
+	}
+	
+	public static TDAParsing unitTestUnit(ErrorReporter errors, TopLevelNamer namer, UnitTestDefinitionConsumer sb) {
+//		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb);
+//		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, assembler, sb), TDATupleDeclarationParser.constructor(namer, sb));
+		return new TDAUnitTestParser(errors, namer, sb);
 	}
 	
 	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {

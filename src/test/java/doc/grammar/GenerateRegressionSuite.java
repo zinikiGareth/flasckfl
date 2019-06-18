@@ -28,12 +28,12 @@ public class GenerateRegressionSuite {
 		for (long i=21000;i<29000;i+=7) {
 			final long j = i;
 			SentenceProducer p = new SentenceProducer(top, grammar);
-			p.sentence(i, used -> store(jo, allUsed, "test.r" + Long.toString(j), used));
+			p.sentence(i, "source-file", used -> store(jo, allUsed, "test.r" + Long.toString(j), used));
+			p.sentence(i, "unit-test-file", used -> {});
 		}
 		File meta = new File(top, "META.json");
 		FileUtils.writeFile(meta, jo.toString());
 
-FileUtils.cat(meta);
 		// Assert that all the productions in the grammar are used at least once in the regression suite
 		Set<String> allProds = Grammar.from(XML.fromResource(grammar)).allProductionCases();
 		allProds.removeAll(allUsed);
@@ -44,7 +44,6 @@ FileUtils.cat(meta);
 
 	private static void store(JSONObject jo, Set<String> allUsed, String key, SentenceData used) {
 		try {
-			// TODO: need to capture the matchers, too
 			JSONObject thisOne = new JSONObject();
 			thisOne.put("used", used.productionsUsed);
 			thisOne.put("matchers", used.matchers);

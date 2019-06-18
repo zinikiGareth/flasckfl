@@ -27,9 +27,11 @@ import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 
-public class Repository implements TopLevelDefinitionConsumer {
+public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitionConsumer {
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();
 	
 	public Repository() {
@@ -105,6 +107,10 @@ public class Repository implements TopLevelDefinitionConsumer {
 	@Override
 	public void newObject(ObjectDefn od) {
 		addEntry(od.name(), od);
+	}
+
+	@Override
+	public void testCase(UnitTestCase with) {
 	}
 
 	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {

@@ -12,6 +12,7 @@ import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
 
 public class ParsingPhase implements ParserScanner {
@@ -21,6 +22,12 @@ public class ParsingPhase implements ParserScanner {
 	public ParsingPhase(ErrorReporter errors, String inPkg, TopLevelDefinitionConsumer sb) {
 		this.errors = errors;
 		TDANester story = new TDANester(TDAMultiParser.topLevelUnit(errors, new PackageNamer(inPkg), sb));
+		this.blocker = new Blocker(errors, story);
+	}
+
+	public ParsingPhase(ErrorReporter errors, String inPkg, UnitTestDefinitionConsumer sb) {
+		this.errors = errors;
+		TDANester story = new TDANester(TDAMultiParser.unitTestUnit(errors, new PackageNamer(inPkg), sb));
 		this.blocker = new Blocker(errors, story);
 	}
 

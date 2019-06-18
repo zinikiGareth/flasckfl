@@ -12,6 +12,9 @@
   <lex token='APPLY' pattern='\.'>
   	<p>The apply operator.</p>
   </lex>
+  <lex token='ASSERT' pattern='assert'>
+  	<p>The <tt>assert</tt> keyword introduces an assert step in a unit test.</p>
+  </lex>
   <lex token='BINOP' pattern='[-+*/.]'>
   	<p>One of the standard binary operators.  They have precedence, but this is not apparent from the grammar.</p>
   	<p class='comment'>We should specify the precedence here.</p>
@@ -40,11 +43,20 @@
   <lex token='CTOR' pattern='ctor'>
   	<p>The <tt>ctor</tt> keyword introduces an object constructor declaration.</p>
   </lex>
+  <lex token='DATA' pattern='data'>
+  	<p>The <tt>data</tt> keyword introduces a data declaration in a unit test.</p>
+  </lex>
   <lex token='DEAL' pattern='deal'>
   	<p>The <tt>deal</tt> keyword introduces a deal declaration.</p>
   </lex>
   <lex token='DIR' pattern='up|down'>
   	<p>The <tt>up</tt> and <tt>down</tt> keywords indicate the sense in which a contract method is called.</p>
+  </lex>
+  <lex token='DOCWORD' pattern='[a-zA-Z_0-9]+'>
+    <p>Words that can appear in the documentation of a test case.</p>
+  </lex>
+  <lex token='DOSEND' pattern='send'>
+  	<p>The <tt>send</tt> keyword is used in tests to send a message to a contract.</p>
   </lex>
   <lex token='ENTITY' pattern='entity'>
   	<p>The <tt>entity</tt> keyword introduces an entity definition.</p>
@@ -124,6 +136,9 @@
   <lex token='TEMPLATE' pattern='template'>
   	<p>The <tt>template</tt> keyword introduces a template definition.</p>
   </lex>
+  <lex token='TEST' pattern='test'>
+  	<p>The <tt>test</tt> keyword introduces a unit test case.</p>
+  </lex>
   <lex token='TRUE' pattern='true'>
   	<p>The boolean literal <tt>true</tt>.</p>
   </lex>
@@ -183,15 +198,24 @@
   </production>
   <production name='unit-test-file'>
     <section title='Files' />
-    <ref production='unit-test-file'/>
+	<tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
+    <seq>
+      <many>
+        <ref production='unit-test-unit' />
+      </many>
+    </seq>
   </production>
   <production name='protocol-test-file'>
     <section title='Files' />
-    <ref production='protocol-test-file' />
+    <many>
+      <ref production='protocol-test-unit' />
+    </many>
   </production>
   <production name='system-test-file'>
     <section title='Files' />
-    <ref production='system-test-file' />
+    <many>
+      <ref production='system-test-unit' />
+    </many>
   </production>
   <production name='top-level-unit'>
     <section title='Files'/>
@@ -1316,5 +1340,162 @@
       	<ref production='expression' />
       </many>
     </seq>
+  </production>
+  <production name='unit-test-unit'>
+    <section title='Unit Test Files'>
+      <description>
+        <p>Unit Tests are built into the FLAS language with special syntax.</p>
+        <p>A unit test file in FLAS consists of a number of test and data declarations.</p>
+        <p>The test declaration defines a unit test which should be run while the data declaration defines a name for a shared element of test data which can be used in multiple tests.</p>
+      </description>
+    </section>
+    <or>
+      <ref production='unit-test-declaration'/>
+      <ref production='unit-data-declaration'/>
+    </or>
+  </production>
+  <production name='unit-test-declaration'>
+    <section title='Unit Tests'>
+      <description>
+        <p>Unit Tests are built into the FLAS language with special syntax.</p>
+        <p>A unit test in FLAS is defined as being a test either:</p>
+        <ul>
+        <li>on the behaviour of a function or a standalone method;</li>
+        <li>on the behaviour of a service, card or object method when receiving certain input;</li>
+        <li>on the display of a card or object template in a given state;</li>
+        <li>on the behaviour of a card event handler.</li>
+        </ul>
+        <p>In order to make all these cases easy, the unit test language allows values and messages to be easily defined and has special syntax for isolating and testing message outputs and template orchestration, independent of the actual template HTML provided.</p>
+      </description>
+    </section>
+    <seq>
+      <token type='TEST' />
+      <one-or-more>
+      	<token type='DOCWORD' />
+      </one-or-more>
+    	  <push-part prefix='ut' names='UnitTest\[\]' filename='true'/>
+      <indent>
+      	<ref production='unit-test-step'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='unit-test-step'>
+    <section title='Unit Tests' />
+    <or>
+      <ref production='unit-data-declaration' />
+      <ref production='unit-event-action' />
+      <ref production='unit-send-action' />
+      <ref production='unit-test-assert' />
+      <ref production='unit-test-template' />
+    </or>
+  </production>
+  <production name='unit-event-action'>
+    <section title='Unit Tests' />
+    <seq>
+      <token type='EVENT' />
+      <token type='var-name' /> <!--  the card to receive the event -->
+      <token type='event-name' /> <!-- the event name -->
+      <ref production='expression' /> <!-- the event object -->
+    </seq>
+  </production>
+  <production name='unit-send-action'>
+    <section title='Unit Tests' />
+    <seq>
+      <token type='DOSEND' />
+      <token type='var-name' /> <!--  the card, object or service to receive the action -->
+      <token type='type-name' /> <!-- the contract name -->
+      <token type='var-name' /> <!--  the contract method -->
+      <many>
+        <ref production='expression' /> <!-- the arguments -->
+      </many>
+    </seq>
+  </production>
+  <production name='unit-test-assert'>
+    <section title='Unit Tests' />
+    <seq>
+      <token type='ASSERT' />
+      <ref production='expression' />
+      <indent-one>
+    	    <ref production='expression' />
+      </indent-one>
+    </seq>
+  </production>
+  <production name='unit-test-template'>
+    <section title='Unit Tests' />
+    <seq>
+      <token type='TEMPLATE' />
+      <!--  as with the template definitions before, I'm not really sure what comes here ... -->
+      <!--  I do know I want it to be as independent of HTML as possible, and thus close to the syntax used for specifying them -->
+      <!--  but obviously I want something disconnected from the actual logic -->
+    </seq>
+  </production>
+  <production name='unit-data-declaration'>
+    <section title='Unit Test Data'>
+      <description>
+        <p>Declare a variable in test scope either as the result of a simple expression or by creating a compound object with field assignments.</p>
+        <i>I feel the expression case possibly needs to be expanded to allow for object constructors to be invoked.</i>
+      </description>
+    </section>
+    <or>
+      <ref production='unit-expr-data-declaration' />
+      <ref production='unit-fields-data-declaration' />
+    </or>
+  </production>
+  <production name='unit-expr-data-declaration'>
+    <section title='Unit Test Data' />
+    <seq>
+      <token type='DATA' />
+      <ref production='type-reference' />
+      <token type='var-name'>
+      	<named amended='_ud_${final}' pattern='UnitData\[${final}\]' scope='true' />
+      </token>
+      <token type='SEND' />
+      <ref production='expression' />
+    </seq>
+  </production>
+  <production name='unit-fields-data-declaration'>
+    <section title='Unit Test Data' />
+    <seq>
+      <token type='DATA' />
+      <ref production='type-reference' />
+      <token type='var-name'>
+      	<named amended='_ud_${final}' pattern='UnitData\[${final}\]' scope='true' />
+      </token>
+      <indent>
+        <ref production='unit-fields-data-initializer' />
+      </indent>
+    </seq>
+  </production>
+  <production name='unit-fields-data-initializer'>
+    <section title='Unit Test Data' />
+    <seq>
+      <token type='var-name' />
+      <token type='SEND' />
+      <ref production='expression' />
+      <token type='EOL' />
+    </seq>
+  </production>
+  <production name='protocol-test-unit'>
+    <section title='Protocol Tests'>
+      <description>
+      <p>Much of what defines FLAS is the concept of the contract.</p>
+      <p>There are many implementations of any given contract, but there should be certain characteristics common to all implementations of a contract.</p>
+      <p>The purpose of protocol tests is to verify that for any given contract, all the implementations of the contract obey those invariants.</p>
+      <p>Thus protocol tests are written in the context of a contract in a given direction, but then automatically applied to all implementations of that contract: objects, services and cards.</p>
+      <i>informally, basically, I just want to say that if you do this sequence of things to a contract, it will respond appropriately.  It's more complex than that, but hopefully when I have some real examples, it will become clear.</i>
+      </description>
+    </section>
+    <token type='GUARD' />
+  </production>
+  <production name='system-test-unit'>
+    <section title='System Tests'>
+      <description>
+      <p>System tests define end-to-end storyboard tests.</p>
+      <p>They can come in two varieties: with or without a backend.</p>
+      <p>In either case, the actions of both ends are actually defined in the test, it's just a question of where the service layer stops and is replaced by "mocks" implemented in the test.</p>
+      <i>I haven't really thought this through, but I'm sure it will again become apparent when I want to write one.</i>
+      </description>
+    </section>
+    <token type='GUARD' />
   </production>
 </grammar>

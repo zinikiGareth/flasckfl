@@ -5,7 +5,9 @@ import static org.junit.Assert.assertFalse;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.zinutils.utils.FileUtils;
@@ -17,7 +19,7 @@ public class RandomSentenceTest {
 
 	@Test
 	public void testRandomSentenceProduction() throws Throwable {
-		final int seed = 22106;
+		final int seed = 23393384;
 		File td = Files.createTempDirectory("flas").toFile();
 		File fd = new File(td, "test.r" + seed);
 		FileUtils.assertDirectory(fd);
@@ -25,25 +27,26 @@ public class RandomSentenceTest {
 		SentenceProducer p = new SentenceProducer(fd, "/gh-grammar/grammar.xml");
 		p.debugMode();
 		AtomicBoolean failed = new AtomicBoolean(false);
-		p.sentence(seed, used -> {
-			try {
-				Map<String, String> ms = used.matchers;
-				FileUtils.cat(used.file);
-				boolean f = org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), fd.toString() });
-				if (!f) {
-					if (!RepoChecker.checkRepo(repoFile, ms))
-						failed.set(true);
-				} else {
-					System.out.println("Compilation failed");
+		Map<String, String> matchers = new TreeMap<>();
+		final Consumer<SentenceData> collector = used -> { FileUtils.cat(used.file); matchers.putAll(used.matchers); };
+		p.sentence(seed, "source-file", collector);
+		p.sentence(seed, "unit-test-file", collector);
+		System.out.println("MSS = " + matchers);
+		try {
+			boolean f = org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), fd.toString() });
+			if (!f) {
+				if (!RepoChecker.checkRepo(repoFile, matchers))
 					failed.set(true);
-				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
+			} else {
+				System.out.println("Compilation failed");
 				failed.set(true);
 			}
-		});
-		assertFalse(failed.get());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			failed.set(true);
+		}
 		FileUtils.deleteDirectoryTree(td);
 		repoFile.delete();
+		assertFalse(failed.get());
 	}
 }

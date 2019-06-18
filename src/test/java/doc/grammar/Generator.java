@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.zinutils.utils.FileUtils;
 
 public class Generator {
 	private final File html;
@@ -24,7 +23,6 @@ public class Generator {
 		generateDefinitionSections(grammar, str);
 		generateTail(str);
 		str.close();
-		FileUtils.cat(html);
 	}
 
 	private void generateHead(Grammar grammar, PrintWriter str) {

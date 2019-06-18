@@ -22,5 +22,5 @@ public interface ProductionVisitor {
 	void futurePattern(String amended, String pattern);
 	void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers);
 	void nestName(int offset);
-	void pushPart(String prefix);
+	void pushPart(String prefix, String names, boolean appendFileName);
 }

@@ -266,8 +266,10 @@ public class Grammar {
 
 	private Definition handlePushPart(String ruleName, XMLElement rule) {
 		String prefix = rule.required("prefix");
+		String names = rule.optional("names");
+		boolean appendFileName = rule.optionalBoolean("filename", false);
 		rule.attributesDone();
-		return new PushPartDefinition(prefix);
+		return new PushPartDefinition(prefix, names, appendFileName);
 	}
 
 	public Iterable<Section> sections() {

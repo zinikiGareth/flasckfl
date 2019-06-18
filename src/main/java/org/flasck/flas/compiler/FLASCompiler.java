@@ -36,6 +36,8 @@ import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -72,7 +74,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private ErrorResult errors = new ErrorResult();
 	private PrintWriter errorWriter;
 	private File dumpRepo;
-//	private PhaseTo phaseTo;
+	private PhaseTo phaseTo;
 
 	public FLASCompiler(Configuration config) {
 		if (config != null)
@@ -204,7 +206,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 	@Override
 	public void phaseTo(PhaseTo upto) {
-//		this.phaseTo = upto;
+		this.phaseTo = upto;
 	}
 
 	@Deprecated
@@ -259,15 +261,23 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		checkPackageName(inPkg);
 		System.out.println("Package " + inPkg);
 		Repository repository = new Repository();
-		ParsingPhase p1 = new ParsingPhase(errors, inPkg, repository);
-		// UnitTestPhase ut = new UnitTestPhase(errors);
+		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
 		ErrorMark mark = errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			System.out.println(" > " + f.getName());
-			p1.process(f);
+			flp.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
 			mark = errors.mark();
 		}
+		ParsingPhase utp = new ParsingPhase(errors, inPkg, (UnitTestDefinitionConsumer)repository);
+		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
+			System.out.println(" > " + f.getName());
+			utp.process(f);
+			errors.showFromMark(mark, errorWriter, 4);
+			mark = errors.mark();
+		}
+		if (errors.hasErrors())
+			return mark;
 		if (dumpRepo != null) {
 			try {
 				repository.dumpTo(dumpRepo);
@@ -275,16 +285,24 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 				System.out.println("Could not dump repository to " + dumpRepo);
 			}
 		}
+		if (phaseTo == PhaseTo.PARSING)
+			return mark;
+
+		// TODO: when we reinstate this, it should go elsewhere, because this function is called "parse()" ...
+		
+//		p2 = new Phase2CompilationProcess();
+//		p2.process();
+//		if (errors.hasErrors()) {
+//			errors.showFromMark(mark, errorWriter, 4);
+//			return;
+//		}
+//		UnitTestPhase ut = new UnitTestPhase(repository);
+//		p2.bceTo(ut);
+//		if (errors.hasErrors()) {
+//			errors.showFromMark(mark, errorWriter, 4);
+//			return;
+//		}
 		return mark;
-		/*
-		 * for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
-		 * System.out.println(" > " + f.getName()); ut.process(f);
-		 * errors.showFromMark(mark, errorWriter, 4); mark = errors.mark(); } if
-		 * (errors.hasErrors()) return; if (phaseTo == PhaseTo.PARSING) return;
-		 * p2.process(); if (errors.hasErrors()) { errors.showFromMark(mark,
-		 * errorWriter, 4); return; } p2.bceTo(ut); if (errors.hasErrors()) {
-		 * errors.showFromMark(mark, errorWriter, 4); return; }
-		 */
 	}
 
 	private void checkPackageName(String inPkg) {

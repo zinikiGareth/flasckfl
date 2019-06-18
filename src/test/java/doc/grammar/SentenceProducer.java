@@ -39,14 +39,20 @@ public class SentenceProducer {
 		this.grammar = Grammar.from(XML.fromResource(grammar));
 	}
 	
-	public void sentence(long var, Consumer<SentenceData> sendUsed) throws Throwable {
-		String top = "source-file"; //grammar.top();
+	public void sentence(long var, String top, Consumer<SentenceData> sendUsed) throws Throwable {
 		final String pkg = "test.r" + var;
-		SPProductionVisitor visitor = new SPProductionVisitor(grammar, pkg, var*100L);
-		visitor.referTo(top);
 		final File root = new File(td, pkg);
 		FileUtils.assertDirectory(root);
-		final File tmp = new File(root, "r"+ Long.toString(var) + ".fl");
+		String ext;
+		if (top.equals("source-file"))
+			ext = ".fl";
+		else if (top.equals("unit-test-file"))
+			ext = ".ut";
+		else
+			throw new RuntimeException("Cannot generate " + top);
+		final File tmp = new File(root, "r"+ Long.toString(var) + ext);
+		SPProductionVisitor visitor = new SPProductionVisitor(grammar, pkg, tmp.getName(), var*100L);
+		visitor.referTo(top);
 		FileUtils.writeFile(tmp, visitor.sentence.toString());
 		sendUsed.accept(new SentenceData(visitor.used, visitor.matchers, tmp));
 	}
@@ -72,6 +78,7 @@ public class SentenceProducer {
 	public class SPProductionVisitor implements ProductionVisitor {
 		private StringBuilder sentence = new StringBuilder();
 		private final Grammar grammar;
+		private final String fileName;
 		private final Random r;
 		private int indent = 1;
 		private boolean haveSomething;
@@ -83,8 +90,9 @@ public class SentenceProducer {
 		private Set<String> tokens = new HashSet<>();
 		private int nameNestOffset;
 		
-		public SPProductionVisitor(Grammar g, String pkg, long l) {
+		public SPProductionVisitor(Grammar g, String pkg, String fileName, long l) {
 			this.grammar = g;
+			this.fileName = fileName;
 			this.r = new Random(l);
 			nameParts.add(new NamePart(0, pkg, UseNameForScoping.UNSCOPED));
 		}
@@ -228,13 +236,24 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void pushPart(String prefix) {
+		public void pushPart(String prefix, String names, boolean appendFileName) {
 			NamePart np = null;
 			for (NamePart p : nameParts)
 				if (p.indentLevel == indent + nameNestOffset -1)
 					np = p;
 			removeAbove(indent + nameNestOffset -1);
-			nameParts.add(new NamePart(indent + nameNestOffset, "_" + prefix + (np.serviceNamer++), UseNameForScoping.UNSCOPED));
+			if (appendFileName) {
+				if (nameParts.size() != 1)
+					throw new RuntimeException("Should only append file name at top level");
+				int idx = fileName.lastIndexOf('.');
+				String ext = fileName.substring(idx+1);
+				String fn = fileName.substring(0, idx).replace('.', '_');
+				nameParts.add(new NamePart(indent + nameNestOffset, "_" + ext + "_" + fn, UseNameForScoping.UNSCOPED));
+			}
+			final NamePart finalPart = new NamePart(indent + nameNestOffset, "_" + prefix + (np.serviceNamer++), UseNameForScoping.UNSCOPED);
+			nameParts.add(finalPart);
+			if (names != null)
+				this.matchers.put(assembleName(finalPart.name), names);
 		}
 
 		private String assembleName(String desiredName) {
@@ -310,9 +329,11 @@ public class SentenceProducer {
 				return pattern;
 
 			case "ACOR":
+			case "ASSERT":
 			case "CARD":
 			case "CONTRACT":
 			case "CTOR":
+			case "DATA":
 			case "DEAL":
 			case "ENTITY":
 			case "ENVELOPE":
@@ -329,6 +350,7 @@ public class SentenceProducer {
 			case "STATE":
 			case "STRUCT":
 			case "TEMPLATE":
+			case "TEST":
 			case "TRUE":
 			case "UNION":
 			case "WRAPS":
@@ -338,10 +360,14 @@ public class SentenceProducer {
 				return oneOf("+", "-", "*", "/"); // TODO: more operators
 			case "DIR":
 				return r.nextBoolean()?"up":"down";
+			case "DOSEND":
+				return "send";
 			case "NUMBER":
 				return randomChars(1, 1, '1', 9) + randomChars(0, 3, '0', 10);
 			case "STRING":
 				return "'" + randomChars(10, 20, '!', 90).replaceAll("'", "_") + "'";
+			case "DOCWORD":
+				return randomChars(5, 10, 'a', 26);
 			case "UNOP":
 				return "-"; // are there more?  ~ maybe?  ! maybe?
 			case "poly-var":
