@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
@@ -21,6 +22,7 @@ import org.junit.Test;
 
 import test.parsing.ExprMatcher;
 import test.parsing.LocalErrorTracker;
+import test.parsing.TypeReferenceMatcher;
 
 public class UnitTestStepParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -134,6 +136,43 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testAnEventNeedsEverything() {
 		final Tokenizable toks = UnitTestTopLevelParsingTests.line("event myCard click");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "missing arguments");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeCanHandleASendStep() {
+		context.checking(new Expectations() {{
+			oneOf(builder).send((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.apply(ExprMatcher.unresolved("method"), ExprMatcher.unresolved("true"), ExprMatcher.number(86), ExprMatcher.string("hello"))));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("send card SomeContract method true 86 'hello'"));
+		assertTrue(nested instanceof NoNestingParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeCanHandleASendStepWithNoArgumentsToTheMethod() {
+		context.checking(new Expectations() {{
+			oneOf(builder).send((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.unresolved("method")));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("send card SomeContract method"));
+		assertTrue(nested instanceof NoNestingParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testASendStepNeedsEverything() {
+		final Tokenizable toks = UnitTestTopLevelParsingTests.line("send card SomeContract");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "missing arguments");
 		}});

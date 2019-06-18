@@ -1391,6 +1391,7 @@
   </production>
   <production name='unit-event-action'>
     <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
       <token type='EVENT' />
       <token type='var-name' /> <!--  the card to receive the event -->

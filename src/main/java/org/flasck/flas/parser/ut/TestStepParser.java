@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
@@ -16,6 +17,7 @@ import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
@@ -32,6 +34,7 @@ public class TestStepParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		int mark = toks.at();
 		KeywordToken kw = KeywordToken.from(toks);
 		if (kw == null) {
 			errors.message(toks, "syntax error");
@@ -67,7 +70,24 @@ public class TestStepParser implements TDAParsing {
 			builder.event(new UnresolvedVar(tok.location, tok.text), new StringLiteral(evname.location, evname.text), eventObj.get(0));
 			return new NoNestingParser(errors);
 		}
+		case "send": {
+			ValidIdentifierToken tok = VarNameToken.from(toks);
+			TypeNameToken evname = TypeNameToken.qualified(toks);
+			List<Expr> eventObj = new ArrayList<>();
+			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
+			expr.tryParsing(toks);
+			if (errors.hasErrors()){
+				return new IgnoreNestedParser();
+			}
+			if (tok == null || evname == null || eventObj.isEmpty()) {
+				errors.message(toks, "missing arguments");
+				return new IgnoreNestedParser();
+			}
+			builder.send(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
+			return new NoNestingParser(errors);
+		}
 		default: {
+			toks.reset(mark);
 			errors.message(toks, "unrecognized test step " + kw.text);
 			return new IgnoreNestedParser();
 		}
