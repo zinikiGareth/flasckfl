@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -35,7 +36,8 @@ import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 
 public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
-		void visitUnresolved(UnresolvedVar var);
+		void visitUnresolvedVar(UnresolvedVar var);
+		void visitUnresolvedOperator(UnresolvedOperator operator);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();
