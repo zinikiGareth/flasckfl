@@ -23,10 +23,14 @@ import org.flasck.flas.tokenizers.VarNameToken;
 public class TestStepParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final UnitTestStepConsumer builder;
+	private final UnitDataNamer namer;
+	private final UnitTestDefinitionConsumer topLevel;
 
-	public TestStepParser(ErrorReporter errors, UnitTestNamer namer, UnitTestStepConsumer builder) {
+	public TestStepParser(ErrorReporter errors, UnitDataNamer namer, UnitTestStepConsumer builder, UnitTestDefinitionConsumer topLevel) {
 		this.errors = errors;
+		this.namer = namer;
 		this.builder = builder;
+		this.topLevel = topLevel;
 	}
 
 	@Override
@@ -50,6 +54,9 @@ public class TestStepParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			return new SingleExpressionParser(errors, ex -> { builder.assertion(test.get(0), ex); });
+		}
+		case "data": {
+			return new TDAUnitTestDataParser(errors, namer, dd -> { builder.data(dd); topLevel.data(dd); }).tryParsing(toks);
 		}
 		case "event": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);

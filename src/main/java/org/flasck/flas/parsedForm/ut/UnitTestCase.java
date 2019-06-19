@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 
@@ -21,6 +22,10 @@ public class UnitTestCase implements UnitTestStepConsumer, RepositoryEntry {
 
 	@Override
 	public void assertion(Expr expr, Expr value) {
+	}
+
+	@Override
+	public void data(UnitDataDeclaration dd) {
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package org.flasck.flas.parser.ut;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -9,9 +11,20 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.RepositoryEntry;
 
 public class UnitDataDeclaration implements RepositoryEntry, UnitDataFieldConsumer {
+	public static class Assignment {
+		public final UnresolvedVar field;
+		public final Expr value;
+
+		public Assignment(UnresolvedVar field, Expr value) {
+			this.field = field;
+			this.value = value;
+		}
+	}
+
 	public final FunctionName name;
 	public final TypeReference ofType;
 	public final Expr expr;
+	public final List<Assignment> fields = new ArrayList<>();
 
 	public UnitDataDeclaration(TypeReference ofType, FunctionName name, Expr expr) {
 		this.ofType = ofType;
@@ -21,7 +34,7 @@ public class UnitDataDeclaration implements RepositoryEntry, UnitDataFieldConsum
 	
 	@Override
 	public void field(UnresolvedVar field, Expr value) {
-		throw new org.zinutils.exceptions.NotImplementedException();
+		fields.add(new Assignment(field, value));
 	}
 
 	@Override
