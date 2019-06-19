@@ -2,10 +2,12 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.repository.RepositoryEntry;
 
 public class UnresolvedVar implements Expr {
 	public final InputPosition location;
 	public final String var;
+	private RepositoryEntry definition;
 
 	public UnresolvedVar(InputPosition location, String var) {
 		this.location = location;
@@ -28,5 +30,13 @@ public class UnresolvedVar implements Expr {
 
 	public boolean isType() {
 		return var.equals("type");
+	}
+	
+	public void bind(RepositoryEntry defn) {
+		this.definition = defn;
+	}
+	
+	public RepositoryEntry defn() {
+		return definition;
 	}
 }
