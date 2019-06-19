@@ -1,6 +1,8 @@
 package org.flasck.flas.parsedForm.ut;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -14,6 +16,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 public class UnitTestCase implements UnitTestStepConsumer, RepositoryEntry {
 	public final UnitTestName name;
 	public final String description;
+	public final List<UnitTestStep> steps = new ArrayList<>();
 
 	public UnitTestCase(UnitTestName name, String description) {
 		this.name = name;
@@ -22,18 +25,22 @@ public class UnitTestCase implements UnitTestStepConsumer, RepositoryEntry {
 
 	@Override
 	public void assertion(Expr expr, Expr value) {
+		this.steps.add(new UnitTestAssert(expr, value));
 	}
 
 	@Override
 	public void data(UnitDataDeclaration dd) {
+		this.steps.add(dd);
 	}
 
 	@Override
 	public void event(UnresolvedVar card, StringLiteral name, Expr event) {
+		this.steps.add(new UnitTestEvent(card, name, event));
 	}
 
 	@Override
 	public void send(UnresolvedVar card, TypeReference contract, Expr invocation) {
+		this.steps.add(new UnitTestSend(card, contract, invocation));
 	}
 
 	@Override
