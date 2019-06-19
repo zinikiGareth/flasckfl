@@ -12,6 +12,11 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 		this.simple = areaName;
 	}
 	
+	@Override
+	public NameOfThing container() {
+		return cardName;
+	}
+
 	public String getSimple() {
 		return simple;
 	}

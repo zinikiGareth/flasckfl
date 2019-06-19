@@ -17,6 +17,11 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 	}
 	
 	@Override
+	public NameOfThing container() {
+		return scope;
+	}
+	
+	@Override
 	public NameOfThing containingCard() {
 		return scope.containingCard();
 	}

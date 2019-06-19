@@ -11,6 +11,11 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 		this.name = n;
 		this.baseName = baseName;
 	}
+	
+	@Override
+	public NameOfThing container() {
+		return name;
+	}
 
 	@Override
 	public NameOfThing containingCard() {

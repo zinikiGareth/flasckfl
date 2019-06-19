@@ -23,13 +23,23 @@ public class RepositoryResolver implements Resolver {
 	
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var) {
-		final String prefix = scope != null ? scope.uniqueName() + "." : "";
-		final RepositoryEntry defn = repository.get(prefix + var.var);
+		RepositoryEntry defn = find(scope, var.var);
 		if (defn == null) {
 			errors.message(var.location, "cannot resolve '" + var.var + "'");
 			return;
 		}
 		var.bind(defn);
+	}
+
+	private RepositoryEntry find(NameOfThing s, String var) {
+		if (s == null) {
+			return repository.get(var);
+		}
+		final RepositoryEntry defn = repository.get(s.uniqueName() + "." + var);
+		if (defn != null)
+			return defn;
+		else
+			return find(s.container(), var);
 	}
 
 	@Override

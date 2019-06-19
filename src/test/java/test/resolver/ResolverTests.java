@@ -68,10 +68,24 @@ public class ResolverTests {
 	}
 
 	@Test
+	public void testWeCanResolveANameInANestedScope() {
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.Nested.f"); will(returnValue(fn));
+		}});
+		Resolver r = new RepositoryResolver(errors, ry);
+		r.currentScope(nested);
+		final UnresolvedVar var = new UnresolvedVar(pos, "f");
+		r.visitUnresolvedVar(var);
+		assertEquals(fn, var.defn());
+	}
+
+	@Test
 	public void testWeCannotResolveANameIfWeAreNotInTheRightScope() {
 		RepositoryReader ry = context.mock(RepositoryReader.class);
 		context.checking(new Expectations() {{
 			oneOf(ry).get("test.repo.f"); will(returnValue(null));
+			oneOf(ry).get("f"); will(returnValue(null));
 			oneOf(errors).message(pos, "cannot resolve 'f'");
 		}});
 		Resolver r = new RepositoryResolver(errors, ry);
@@ -79,4 +93,19 @@ public class ResolverTests {
 		final UnresolvedVar var = new UnresolvedVar(pos, "f");
 		r.visitUnresolvedVar(var);
 	}
+
+	@Test
+	public void parentScopesWillBeExaminedIfTheDefinitionIsNotInTheCurrentScope() {
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.Nested.f"); will(returnValue(null));
+			oneOf(ry).get("test.repo.f"); will(returnValue(fn));
+		}});
+		Resolver r = new RepositoryResolver(errors, ry);
+		r.currentScope(nested);
+		final UnresolvedVar var = new UnresolvedVar(pos, "f");
+		r.visitUnresolvedVar(var);
+		assertEquals(fn, var.defn());
+	}
+
 }

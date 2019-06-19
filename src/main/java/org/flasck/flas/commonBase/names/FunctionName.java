@@ -100,6 +100,11 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	public static FunctionName standaloneMethod(InputPosition location, NameOfThing pkg, String name) {
 		return new FunctionName(location, CodeType.STANDALONE, pkg, name);
 	}
+	
+	@Override
+	public NameOfThing container() {
+		return inContext;
+	}
 
 	public NameOfThing containingCard() {
 		if (inContext == null)

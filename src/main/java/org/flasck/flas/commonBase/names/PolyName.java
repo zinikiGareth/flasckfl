@@ -76,4 +76,9 @@ public class PolyName implements NameOfThing, Comparable<PolyName> {
 	public String javaPackageName() {
 		throw new org.zinutils.exceptions.NotImplementedException();
 	}
+
+	@Override
+	public NameOfThing container() {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
 }

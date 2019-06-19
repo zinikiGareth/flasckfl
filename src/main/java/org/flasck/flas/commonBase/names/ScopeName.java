@@ -10,6 +10,11 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 		this.inside = inside;
 		this.myname = myname;
 	}
+	
+	@Override
+	public NameOfThing container() {
+		return inside;
+	}
 
 	@Override
 	public NameOfThing containingCard() {

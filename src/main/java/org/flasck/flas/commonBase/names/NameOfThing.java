@@ -11,6 +11,7 @@ public interface NameOfThing {
 	String javaPackageName();
 	String javaClassName();
 
+	NameOfThing container();
 	NameOfThing containingCard();
 
 	<T extends NameOfThing> int compareTo(T other);

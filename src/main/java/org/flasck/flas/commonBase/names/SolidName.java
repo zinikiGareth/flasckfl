@@ -11,6 +11,11 @@ public class SolidName implements NameOfThing, Comparable<SolidName> {
 		this.container = container;
 		this.name = name;
 	}
+	
+	@Override
+	public NameOfThing container() {
+		return container;
+	}
 
 	public String baseName() {
 		return name;

@@ -16,6 +16,11 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 		this.cardName = cardName;
 		this.name = name;
 	}
+	
+	@Override
+	public NameOfThing container() {
+		return cardName;
+	}
 
 	public String baseName() {
 		return name;

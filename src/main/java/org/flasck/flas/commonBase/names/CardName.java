@@ -12,6 +12,11 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	}
 	
 	@Override
+	public NameOfThing container() {
+		return pkg;
+	}
+	
+	@Override
 	public NameOfThing containingCard() {
 		return this;
 	}
