@@ -1,6 +1,7 @@
 package doc.grammar;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Iterator;
@@ -68,7 +69,7 @@ public class RunRegressionSuite {
 
 		System.out.println("Ran " + dirs.size() + " - " + passed.size() + " passed; " + failed.size() + " failed");
 		
-//		assertTrue(failed.size() + " regression tests failed", failed.isEmpty());
+		assertTrue(failed.size() + " regression tests failed", failed.isEmpty());
 	}
 
 	@Test
