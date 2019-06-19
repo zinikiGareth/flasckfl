@@ -5,11 +5,13 @@ import static org.junit.Assert.assertEquals;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
 import org.jmock.Expectations;
@@ -23,15 +25,20 @@ public class ResolverTests {
 //	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
-	private final FunctionName nameF = FunctionName.function(pos, pkg, "f");
+	private final SolidName nested = new SolidName(pkg, "Nested");
+	private final FunctionName nameF = FunctionName.function(pos, nested, "f");
+	private final FunctionDefinition fn = new FunctionDefinition(nameF, 2);
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
+	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
 
 	@Test
 	public void testWeCanResolveASimpleName() {
-		Repository ry = new Repository();
-		final FunctionDefinition fn = new FunctionDefinition(nameF, 2);
-		ry.functionDefn(fn);
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.f"); will(returnValue(fn));
+		}});
 		Resolver r = new RepositoryResolver(errors, ry);
+		r.currentScope(pkg);
 		final UnresolvedVar var = new UnresolvedVar(pos, "f");
 		r.visitUnresolvedVar(var);
 		assertEquals(fn, var.defn());
@@ -39,13 +46,14 @@ public class ResolverTests {
 
 	@Test
 	public void testWeCanResolveASimpleOperator() {
-		Repository ry = new Repository();
-		final FunctionDefinition fn = new FunctionDefinition(namePlPl, 2);
-		ry.functionDefn(fn);
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("++"); will(returnValue(op));
+		}});
 		Resolver r = new RepositoryResolver(errors, ry);
 		final UnresolvedOperator var = new UnresolvedOperator(pos, "++");
 		r.visitUnresolvedOperator(var);
-		assertEquals(fn, var.defn());
+		assertEquals(op, var.defn());
 	}
 
 	@Test
@@ -59,4 +67,16 @@ public class ResolverTests {
 		r.visitUnresolvedVar(var);
 	}
 
+	@Test
+	public void testWeCannotResolveANameIfWeAreNotInTheRightScope() {
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.f"); will(returnValue(null));
+			oneOf(errors).message(pos, "cannot resolve 'f'");
+		}});
+		Resolver r = new RepositoryResolver(errors, ry);
+		r.currentScope(pkg);
+		final UnresolvedVar var = new UnresolvedVar(pos, "f");
+		r.visitUnresolvedVar(var);
+	}
 }
