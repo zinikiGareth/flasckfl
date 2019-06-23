@@ -14,7 +14,7 @@ import org.zinutils.exceptions.UtilException;
 public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 	public final FunctionIntro intro;
 	public final Expr guard;
-	public final Object expr;
+	public final Expr expr;
 	private FunctionName caseName;
 
 	@Deprecated
@@ -23,7 +23,7 @@ public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 		this.guard = null;
 		if (expr == null)
 			throw new UtilException("Cannot build function case with null expr");
-		this.expr = expr;
+		this.expr = (Expr)expr;
 	}
 
 	@Deprecated

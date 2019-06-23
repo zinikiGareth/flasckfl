@@ -5,12 +5,14 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeReference implements Locatable {
 	private InputPosition location;
 	private String name;
 	private List<TypeReference> polys;
+	private RepositoryEntry definition;
 
 	public TypeReference(InputPosition location, String name, TypeReference... polys) {
 		this(location, name, Arrays.asList(polys));
@@ -43,5 +45,13 @@ public class TypeReference implements Locatable {
 	@Override
 	public String toString() {
 		return name + (polys!= null && !polys.isEmpty()?polys:"");
+	}
+
+	public void bind(RepositoryEntry entry) {
+		definition = entry;
+	}
+
+	public RepositoryEntry defn() {
+		return definition;
 	}
 }

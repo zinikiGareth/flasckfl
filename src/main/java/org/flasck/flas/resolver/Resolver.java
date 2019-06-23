@@ -6,4 +6,6 @@ import org.flasck.flas.repository.Repository;
 public interface Resolver extends Repository.Visitor {
 
 	void currentScope(NameOfThing scope);
+
+	void resolveAll();
 }

@@ -14,7 +14,9 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
@@ -25,6 +27,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -38,6 +41,10 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 	public interface Visitor {
 		void visitUnresolvedVar(UnresolvedVar var);
 		void visitUnresolvedOperator(UnresolvedOperator operator);
+		void visitTypeReference(TypeReference var);
+		void visitFunction(FunctionDefinition fn);
+		void visitIntro(FunctionIntro fi);
+		void visitCase(FunctionCaseDefn c);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();
@@ -151,6 +158,14 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 	@SuppressWarnings("unchecked")
 	public <T extends RepositoryEntry> T get(String string) {
 		return (T)dict.get(string);
+	}
+
+	@Override
+	public void traverse(Visitor visitor) {
+		Traverser t = new Traverser(visitor);
+		for (RepositoryEntry e : dict.values()) {
+			t.process(e);
+		}
 	}
 
 //	@Override
