@@ -1,2 +1,0 @@
-PASSED: that id returns the value it is passed (jvm)
-PASSED: that id returns the value it is passed (js)

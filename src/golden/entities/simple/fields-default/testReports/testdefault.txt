@@ -1,2 +1,0 @@
-PASSED: that the name field should be set by default (jvm)
-PASSED: that the name field should be set by default (js)

@@ -1,2 +1,0 @@
-PASSED: that a field is initialized when the card is created (jvm)
-PASSED: that a field is initialized when the card is created (js)

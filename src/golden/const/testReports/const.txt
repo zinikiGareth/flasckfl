@@ -1,4 +1,0 @@
-PASSED: that x is 32 (jvm)
-PASSED: that dbl is 64 (jvm)
-PASSED: that x is 32 (js)
-PASSED: that dbl is 64 (js)

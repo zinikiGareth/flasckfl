@@ -1,2 +1,0 @@
-PASSED: that x has the right value (jvm)
-PASSED: that x has the right value (js)

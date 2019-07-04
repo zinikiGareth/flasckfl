@@ -1,2 +1,0 @@
-PASSED: that it is assigned (jvm)
-PASSED: that it is assigned (js)

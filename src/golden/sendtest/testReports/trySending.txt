@@ -1,6 +1,0 @@
-PASSED: that the card initially does not have a show tag (jvm)
-PASSED: that the card has a show tag after sending (jvm)
-PASSED: that the card can echo a simple string (jvm)
-PASSED: that the card initially does not have a show tag (js)
-PASSED: that the card has a show tag after sending (js)
-PASSED: that the card can echo a simple string (js)

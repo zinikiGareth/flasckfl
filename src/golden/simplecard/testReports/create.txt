@@ -1,2 +1,0 @@
-PASSED: that we can create a simple card (jvm)
-PASSED: that we can create a simple card (js)
