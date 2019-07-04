@@ -1,53 +1,104 @@
 package org.flasck.flas.repository;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.Repository.Visitor;
 
-public class Traverser {
+public class Traverser implements Visitor {
 	private final Visitor visitor;
 
 	public Traverser(Visitor visitor) {
 		this.visitor = visitor;
-		// TODO Auto-generated constructor stub
 	}
 
-	public void process(RepositoryEntry e) {
+	@Override
+	public void visitEntry(RepositoryEntry e) {
 		if (e == null)
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle null entries");
 		else if (e instanceof FunctionDefinition)
-			handleFunction((FunctionDefinition)e);
+			visitFunction((FunctionDefinition)e);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
 	}
 
-	private void handleFunction(FunctionDefinition e) {
-		for (FunctionIntro i : e.intros())
-			handleIntro(i);
+	@Override
+	public void visitFunction(FunctionDefinition fn) {
+		visitor.visitFunction(fn);
+		for (FunctionIntro i : fn.intros())
+			visitIntro(i);
+		this.leaveFunction(fn);
 	}
 
-	private void handleIntro(FunctionIntro i) {
-		// TODO: process args
+	@Override
+	public void leaveFunction(FunctionDefinition fn) {
+		visitor.leaveFunction(fn);
+	}
+
+	@Override
+	public void visitIntro(FunctionIntro i) {
+		for (Object p : i.args)
+			visitPattern(p);
 		for (FunctionCaseDefn c : i.cases())
-			handleFnCase(c);
+			visitCase(c);
 	}
 
-	private void handleFnCase(FunctionCaseDefn c) {
-		if (c.guard != null)
-			processExpr(c.guard);
-		processExpr(c.expr);
-	}
-
-	private void processExpr(Expr e) {
-		if (e == null)
-			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle null expr");
-		else if (e instanceof UnresolvedVar)
-			visitor.visitUnresolvedVar((UnresolvedVar) e);
+	@Override
+	public void visitPattern(Object p) {
+		if (p instanceof TypedPattern)
+			visitTypedPattern((TypedPattern)p);
 		else
-			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle expr " + e.getClass());
+			throw new org.zinutils.exceptions.NotImplementedException("Pattern not handled: " + p.getClass());
 	}
 
+	@Override
+	public void visitTypedPattern(TypedPattern p) {
+		visitTypeReference(p.type);
+		// TODO: visitPatternVar(p.var);
+	}
+
+	@Override
+	public void visitCase(FunctionCaseDefn c) {
+		if (c.guard != null)
+			visitExpr(c.guard);
+		visitExpr(c.expr);
+	}
+
+	@Override
+	public void visitExpr(Expr expr) {
+		if (expr == null)
+			return;
+		else if (expr instanceof StringLiteral)
+			visitStringLiteral((StringLiteral)expr);
+		else if (expr instanceof UnresolvedVar)
+			visitUnresolvedVar((UnresolvedVar) expr);
+		else
+			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
+	}
+
+	@Override
+	public void visitUnresolvedVar(UnresolvedVar var) {
+		visitor.visitUnresolvedVar(var);
+	}
+
+	@Override
+	public void visitUnresolvedOperator(UnresolvedOperator operator) {
+		visitor.visitUnresolvedOperator(operator);
+	}
+
+	@Override
+	public void visitTypeReference(TypeReference var) {
+		visitor.visitTypeReference(var);
+	}
+
+	@Override
+	public void visitStringLiteral(StringLiteral expr) {
+		visitor.visitStringLiteral(expr);
+	}
 }

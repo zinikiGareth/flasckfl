@@ -3,8 +3,10 @@ package test.resolver;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -15,10 +17,12 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
 import org.jmock.Expectations;
@@ -40,6 +44,7 @@ public class ResolverTests {
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
 	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
+	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
 
 	@Test
 	public void testWeCanResolveASimpleName() {
@@ -143,9 +148,52 @@ public class ResolverTests {
 		intro.functionCase(new FunctionCaseDefn(null, var));
 		fn.intro(intro);
 		Resolver r = new RepositoryResolver(errors, ry);
+		Traverser t = new Traverser(r);
 		r.currentScope(nested);
-		r.visitFunction(fn);
+		t.visitFunction(fn);
 		assertEquals(vx, var.defn());
+	}
+
+	@Test
+	public void weCanResolveAVarInAGuard() {
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.Nested.f.x"); will(returnValue(null));
+			oneOf(ry).get("test.repo.Nested.x"); will(returnValue(null));
+			oneOf(ry).get("test.repo.x"); will(returnValue(vx));
+		}});
+		final UnresolvedVar var = new UnresolvedVar(pos, "x");
+		final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
+		intro.functionCase(new FunctionCaseDefn(var, new StringLiteral(pos, "hello")));
+		fn.intro(intro);
+		Resolver r = new RepositoryResolver(errors, ry);
+		Traverser t = new Traverser(r);
+		r.currentScope(nested);
+		t.visitFunction(fn);
+		assertEquals(vx, var.defn());
+	}
+
+	@Test
+	public void weCanResolveATypeNameInAPattern() {
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			exactly(2).of(ry).get("++.Number"); will(returnValue(null));
+			exactly(2).of(ry).get("Number"); will(returnValue(number));
+		}});
+		List<Object> patts = new ArrayList<>();
+		TypeReference tl = new TypeReference(pos, "Number");
+		patts.add(new TypedPattern(pos, tl, pos, "l"));
+		TypeReference tr = new TypeReference(pos, "Number");
+		patts.add(new TypedPattern(pos, tr, pos, "r"));
+		FunctionIntro oi = new FunctionIntro(namePlPl, patts);
+		op.intro(oi);
+		Resolver r = new RepositoryResolver(errors, ry);
+		Traverser t = new Traverser(r);
+		r.currentScope(nested);
+		t.visitFunction(op);
+		// TODO: define number as a type ...
+		assertEquals(number, tl.defn());
+		assertEquals(number, tr.defn());
 	}
 
 	@Test

@@ -1,5 +1,8 @@
 package org.flasck.flas.resolver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -13,6 +16,7 @@ import org.flasck.flas.repository.RepositoryReader;
 public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
+	private final List<NameOfThing> scopeStack = new ArrayList<>();
 	private NameOfThing scope;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
@@ -31,10 +35,13 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		NameOfThing tmp = scope;
+		scopeStack.add(0, scope);
 		this.scope = fn.name();
-		super.visitFunction(fn);
-		this.scope = tmp;
+	}
+
+	@Override
+	public void leaveFunction(FunctionDefinition fn) {
+		this.scope = scopeStack.remove(0);
 	}
 
 	@Override

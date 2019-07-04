@@ -14,6 +14,7 @@ import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.repository.Repository;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -126,11 +127,12 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File dir = new File(s, "test.golden");
 
 		if (runAsTDA) {
+			Repository repository = new Repository();
 			final File actualErrors = new File(s, "errors-tmp");
 			final File expectedErrors = new File(s, "errors");
 			FileUtils.assertDirectory(actualErrors);
 			compiler.errorWriter(new PrintWriter(new File(s, "errors-tmp/errors")));
-			compiler.parse(dir);
+			compiler.parse(repository, dir);
 			checkExpectedErrors(te, expectedErrors, actualErrors);
 //			throw new UtilException("Didn't think about UTs did you?");
 		}

@@ -1,10 +1,12 @@
 package org.flasck.flas.repository;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.Repository.Visitor;
@@ -15,29 +17,39 @@ import org.flasck.flas.repository.Repository.Visitor;
  */
 public class LeafAdapter implements Visitor {
 	@Override
+	public void visitEntry(RepositoryEntry entry) {
+	}
+
+	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		for (FunctionIntro i : fn.intros())
-			visitIntro(i);
+	}
+
+	@Override
+	public void leaveFunction(FunctionDefinition fn) {
 	}
 
 	@Override
 	public void visitIntro(FunctionIntro i) {
-		for (FunctionCaseDefn c : i.cases())
-			visitCase(c);
+	}
+
+	@Override
+	public void visitPattern(Object patt) {
+	}
+
+	@Override
+	public void visitTypedPattern(TypedPattern p) {
 	}
 
 	@Override
 	public void visitCase(FunctionCaseDefn c) {
-		// TODO: visit args
-		// TODO: visit guard
-		visitExpr(c.expr);
 	}
 
+	@Override
 	public void visitExpr(Expr expr) {
-		if (expr instanceof UnresolvedVar)
-			visitUnresolvedVar((UnresolvedVar) expr);
-		else
-			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
+	}
+
+	@Override
+	public void visitStringLiteral(StringLiteral expr) {
 	}
 
 	@Override

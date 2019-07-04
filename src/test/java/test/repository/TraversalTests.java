@@ -45,7 +45,9 @@ public class TraversalTests {
 	@Test
 	public void handleTraversal() {
 		context.checking(new Expectations() {{
+			oneOf(v).visitFunction(with(any(FunctionDefinition.class)));
 			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")));
+			oneOf(v).leaveFunction(with(any(FunctionDefinition.class)));
 		}});
 		r.traverse(v);
 	}

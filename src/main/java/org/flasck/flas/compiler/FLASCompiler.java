@@ -73,8 +73,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	private File webzipdir;
 	private ErrorResult errors = new ErrorResult();
 	private PrintWriter errorWriter;
-	private File dumpRepo;
-	private PhaseTo phaseTo;
+	public File dumpRepo;
+	public PhaseTo phaseTo;
 
 	public FLASCompiler(Configuration config) {
 		if (config != null)
@@ -253,14 +253,13 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	// Now read and parse all the files, passing it on to the alleged phase2
-	public ErrorMark parse(File dir) {
+	public ErrorMark parse(Repository repository, File dir) {
 		if (!dir.isDirectory())
 			throw new RuntimeException("there is no input directory " + dir);
 
 		String inPkg = dir.getName();
 		checkPackageName(inPkg);
 		System.out.println("Package " + inPkg);
-		Repository repository = new Repository();
 		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
 		ErrorMark mark = errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
@@ -278,30 +277,6 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		}
 		if (errors.hasErrors())
 			return mark;
-		if (dumpRepo != null) {
-			try {
-				repository.dumpTo(dumpRepo);
-			} catch (IOException ex) {
-				System.out.println("Could not dump repository to " + dumpRepo);
-			}
-		}
-		if (phaseTo == PhaseTo.PARSING)
-			return mark;
-
-		// TODO: when we reinstate this, it should go elsewhere, because this function is called "parse()" ...
-		
-//		p2 = new Phase2CompilationProcess();
-//		p2.process();
-//		if (errors.hasErrors()) {
-//			errors.showFromMark(mark, errorWriter, 4);
-//			return;
-//		}
-//		UnitTestPhase ut = new UnitTestPhase(repository);
-//		p2.bceTo(ut);
-//		if (errors.hasErrors()) {
-//			errors.showFromMark(mark, errorWriter, 4);
-//			return;
-//		}
 		return mark;
 	}
 

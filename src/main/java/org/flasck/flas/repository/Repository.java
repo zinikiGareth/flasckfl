@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.DuplicateNameException;
@@ -28,6 +29,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -39,12 +41,18 @@ import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 
 public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
+		void visitEntry(RepositoryEntry entry);
 		void visitUnresolvedVar(UnresolvedVar var);
 		void visitUnresolvedOperator(UnresolvedOperator operator);
 		void visitTypeReference(TypeReference var);
 		void visitFunction(FunctionDefinition fn);
+		void leaveFunction(FunctionDefinition fn);
 		void visitIntro(FunctionIntro fi);
+		void visitPattern(Object patt);
+		void visitTypedPattern(TypedPattern p);
 		void visitCase(FunctionCaseDefn c);
+		void visitExpr(Expr expr);
+		void visitStringLiteral(StringLiteral expr);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();
@@ -164,7 +172,7 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 	public void traverse(Visitor visitor) {
 		Traverser t = new Traverser(visitor);
 		for (RepositoryEntry e : dict.values()) {
-			t.process(e);
+			t.visitEntry(e);
 		}
 	}
 

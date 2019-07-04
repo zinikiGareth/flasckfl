@@ -23,6 +23,7 @@ public class RunRegressionSuite {
 	final File root = new File("src/regression");
 
 	@Test
+	@Ignore
 	public void testAll() throws Throwable {
 		if (!root.exists()) {
 			GenerateRegressionSuite.generateInto(root);
@@ -86,7 +87,7 @@ public class RunRegressionSuite {
 		boolean result;
 		try {
 			File repoFile = File.createTempFile("repo", ".txt");
-			result = !org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), dir.toString() });
+			result = !org.flasck.flas.Main.noExit(new String[] { "--phase", "TEST_TRAVERSAL", "--dumprepo", repoFile.getPath(), dir.toString() });
 			if (result) {
 				result = RepoChecker.checkRepo(repoFile, asMap(ms));
 			}
