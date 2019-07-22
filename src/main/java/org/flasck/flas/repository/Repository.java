@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -42,6 +43,8 @@ import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
 		void visitEntry(RepositoryEntry entry);
+		void visitStructDefn(StructDefn s);
+		void visitStructField(StructField sf);
 		void visitUnresolvedVar(UnresolvedVar var);
 		void visitUnresolvedOperator(UnresolvedOperator operator);
 		void visitTypeReference(TypeReference var);
@@ -53,6 +56,8 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitCase(FunctionCaseDefn c);
 		void visitExpr(Expr expr);
 		void visitStringLiteral(StringLiteral expr);
+		void visitUnitTest(UnitTestCase e);
+		void visitApplyExpr(ApplyExpr expr);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();

@@ -283,5 +283,4 @@ public class RepositoryTests {
 		r.data(data);
 		assertEquals(data, r.get("test.repo._ut_file.x"));
 	}
-	
 }

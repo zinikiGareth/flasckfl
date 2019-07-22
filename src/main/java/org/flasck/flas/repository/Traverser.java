@@ -1,14 +1,18 @@
 package org.flasck.flas.repository;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository.Visitor;
 
 public class Traverser implements Visitor {
@@ -24,8 +28,23 @@ public class Traverser implements Visitor {
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle null entries");
 		else if (e instanceof FunctionDefinition)
 			visitFunction((FunctionDefinition)e);
+		else if (e instanceof StructDefn)
+			visitStructDefn((StructDefn)e);
+		else if (e instanceof StructField)
+			visitStructField((StructField)e);
+		else if (e instanceof UnitTestCase)
+			visitUnitTest((UnitTestCase)e);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
+	}
+
+	@Override
+	public void visitStructDefn(StructDefn s) {
+		visitor.visitStructDefn(s);
+	}
+
+	public void visitStructField(StructField sf) {
+		visitor.visitStructField(sf);
 	}
 
 	@Override
@@ -74,12 +93,18 @@ public class Traverser implements Visitor {
 	public void visitExpr(Expr expr) {
 		if (expr == null)
 			return;
+		else if (expr instanceof ApplyExpr)
+			visitApplyExpr((ApplyExpr)expr);
 		else if (expr instanceof StringLiteral)
 			visitStringLiteral((StringLiteral)expr);
 		else if (expr instanceof UnresolvedVar)
 			visitUnresolvedVar((UnresolvedVar) expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
+	}
+
+	public void visitApplyExpr(ApplyExpr expr) {
+		visitor.visitApplyExpr(expr);
 	}
 
 	@Override
@@ -101,4 +126,9 @@ public class Traverser implements Visitor {
 	public void visitStringLiteral(StringLiteral expr) {
 		visitor.visitStringLiteral(expr);
 	}
+
+	public void visitUnitTest(UnitTestCase e) {
+		visitor.visitUnitTest(e);
+	}
+
 }

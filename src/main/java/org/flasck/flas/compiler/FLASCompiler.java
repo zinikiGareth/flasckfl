@@ -562,4 +562,10 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	public Writer errorWriter() {
 		return errorWriter;
 	}
+
+	public void generate() {
+		if (writeJVM != null) {
+			FileUtils.assertDirectory(writeJVM);
+		}
+	}
 }

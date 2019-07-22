@@ -10,6 +10,7 @@ public class Configuration {
 	private boolean unitjvm = false, unitjs = false;
 	private boolean dumpTypes;
 	private List<File> searchFlim = new ArrayList<>();
+	private File root;
 	private File writeFlim;
 	private File writeHSIE;
 	private File writeJS;
@@ -34,34 +35,36 @@ public class Configuration {
 			if (arg.startsWith("-")) {
 				if (arg.equals("--dump"))
 					dumpTypes = true;
+				else if (arg.equals("--root"))
+					root = new File(args[++i]);
 				else if (arg.equals("--phase"))
 					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--dumprepo"))
-					dumprepo = new File(args[++i]);
+					dumprepo = new File(root, args[++i]);
 				else if (arg.equals("--flim")) {
 					if (hasMore == 0) {
 						System.out.println("--flim <dir>");
 						System.exit(1);
 					}
-					searchFlim.add(new File(args[++i]));
+					searchFlim.add(new File(root, args[++i]));
 				} else if (arg.equals("--wflim")) {
 					if (hasMore == 0) {
 						System.out.println("--wflim <dir>");
 						System.exit(1);
 					}
-					writeFlim = new File(args[++i]);
+					writeFlim = new File(root, args[++i]);
 				} else if (arg.equals("--hsie")) {
 					if (hasMore == 0) {
 						System.out.println("--hsie <dir>");
 						System.exit(1);
 					}
-					writeHSIE = new File(args[++i]);
+					writeHSIE = new File(root, args[++i]);
 				} else if (arg.equals("--jsout")) {
 					if (hasMore == 0) {
 						System.out.println("--jsout <dir>");
 						System.exit(1);
 					}
-					writeJS = new File(args[++i]);
+					writeJS = new File(root, args[++i]);
 				} else if (arg.equals("--unitjs")) {
 					unitjs = true;
 				} else if (arg.equals("--unitjvm")) {
@@ -71,19 +74,19 @@ public class Configuration {
 						System.out.println("--android <build-dir>");
 						System.exit(1);
 					}
-					writeDroid = new File(args[++i]);
+					writeDroid = new File(root, args[++i]);
 				} else if (arg.equals("--jvm")) {
 					if (hasMore == 0) {
 						System.out.println("--jvm <build-dir>");
 						System.exit(1);
 					}
-					writeJVM = new File(args[++i]);
+					writeJVM = new File(root, args[++i]);
 				} else if (arg.equals("--webzipdir")) {
 					if (hasMore == 0) {
 						System.out.println("--webzipdir <dir>");
 						System.exit(1);
 					}
-					webZipDir = new File(args[++i]);
+					webZipDir = new File(root, args[++i]);
 				} else if (arg.equals("--webzip")) {
 					if (hasMore == 0) {
 						System.out.println("--webzip <name>");
@@ -110,7 +113,7 @@ public class Configuration {
 					}
 				}
 			} else
-				inputs.add(new File(arg));
+				inputs.add(new File(root, arg));
 		}
 		return inputs;
 	}

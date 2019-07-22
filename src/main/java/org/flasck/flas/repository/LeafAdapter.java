@@ -1,14 +1,18 @@
 package org.flasck.flas.repository;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository.Visitor;
 
 /** The purpose of the leaf adapter is to visit all of the leaves in the system.
@@ -18,6 +22,14 @@ import org.flasck.flas.repository.Repository.Visitor;
 public class LeafAdapter implements Visitor {
 	@Override
 	public void visitEntry(RepositoryEntry entry) {
+	}
+
+	@Override
+	public void visitStructDefn(StructDefn s) {
+	}
+
+	@Override
+	public void visitStructField(StructField sf) {
 	}
 
 	@Override
@@ -49,6 +61,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitApplyExpr(ApplyExpr expr) {
+	}
+
+	@Override
 	public void visitStringLiteral(StringLiteral expr) {
 	}
 
@@ -62,5 +78,9 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitTypeReference(TypeReference var) {
+	}
+
+	@Override
+	public void visitUnitTest(UnitTestCase e) {
 	}
 }

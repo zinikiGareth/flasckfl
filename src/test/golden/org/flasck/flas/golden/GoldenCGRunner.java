@@ -119,9 +119,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	public static void runGolden(String s, boolean isLegacy, boolean runAsTDA, String phase) throws Exception {
 		System.out.println("Run golden test for " + s);
 		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, isLegacy, useJSRunner, useJVMRunner, checkNothing, checkEverything, stripNumbers);
-		
 		te.cleanUp();
 		
+		if (runAsTDA) {
+			Main.noExit("--root", s, "test.golden");
+			return;
+		}
+		
+		// This should just call Main.noExit
 		FLASCompiler compiler = te.configureCompiler();
 		compiler.phaseTo(PhaseTo.valueOf(phase));
 		File dir = new File(s, "test.golden");

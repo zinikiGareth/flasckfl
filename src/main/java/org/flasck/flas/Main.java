@@ -10,10 +10,13 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.Traverser;
 
 public class Main {
 	public static void main(String[] args) {
@@ -22,7 +25,7 @@ public class Main {
 		System.exit(failed?1:0);
 	}
 
-	public static boolean noExit(String[] args) {
+	public static boolean noExit(String... args) {
 		Configuration config = new Configuration();
 		try {
 			List<File> inputs = config.process(args);
@@ -30,6 +33,9 @@ public class Main {
 				System.err.println("No input directories specified");
 				return true;
 			}
+			// TODO: 2019-07-22 I'm going to suggest that we want separate things for parsing and generation and the like
+			// and that we can move between them ...
+			// So Compiler should just become "Parser" I think, and possibly move processInput there and move more context there.
 			FLASCompiler compiler = new FLASCompiler(config);
 			compiler.errorWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true));
 			compiler.scanWebZips();
@@ -59,6 +65,11 @@ public class Main {
 					return true;
 				}
 			}
+			
+			JVMGenerator jvmGenerator = new JVMGenerator();
+			repository.traverse(new Traverser(jvmGenerator));
+			
+			compiler.generate();
 //			p2 = new Phase2CompilationProcess();
 //			p2.process();
 //			if (errors.hasErrors()) {
