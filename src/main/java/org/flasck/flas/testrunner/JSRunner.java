@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
-import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -116,21 +115,21 @@ public class JSRunner extends CommonTestRunner {
 	}
 	
 	@Override
-	public void prepareScript(String scriptPkg, ScriptCompiler compiler, Scope scope) {
+	public void prepareScript(String scriptPkg, Scope scope) {
 		CompileResult tcr = null;
 		File scriptDir = null;
 		try {
 			scriptDir = Files.createTempDirectory("testScriptDir").toFile();
 			scriptDir.deleteOnExit();
-			try {
-				compiler.writeJSTo(scriptDir);
-				tcr = compiler.createJS(testPkg, compiledPkg, compiledScope, scope);
-				for (File f : tcr.jsFiles())
-					this.jsFiles.add(f);
-			} catch (ErrorResultException ex) {
-				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
-				fail("Errors compiling test script");
-			}
+//			try {
+//				compiler.writeJSTo(scriptDir);
+//				tcr = compiler.createJS(testPkg, compiledPkg, compiledScope, scope);
+//				for (File f : tcr.jsFiles())
+//					this.jsFiles.add(f);
+//			} catch (ErrorResultException ex) {
+//				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
+//				fail("Errors compiling test script");
+//			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new UtilException("Failed", ex);

@@ -123,9 +123,12 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		
 		if (runAsTDA) {
 			Main.noExit("--root", s, "test.golden");
+			te.checkTestResults();
+			te.checkGeneration();
 			return;
 		}
 		
+		/*
 		// This should just call Main.noExit
 		FLASCompiler compiler = te.configureCompiler();
 		compiler.phaseTo(PhaseTo.valueOf(phase));
@@ -142,13 +145,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 //			throw new UtilException("Didn't think about UTs did you?");
 		}
 		
-		te.checkTestResults();
-		te.checkGeneration();
-
-		/*
 		// This is to build an actual APK, not code geenrate
-		if (buildDroid)
-			compiler.getBuilder().build();
+//		if (buildDroid)
+//			compiler.getBuilder().build();
 			*/
 	}
 

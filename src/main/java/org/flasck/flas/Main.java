@@ -5,71 +5,69 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.PhaseTo;
-import org.flasck.flas.errors.ErrorMark;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.Traverser;
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		setLogLevels();
 		boolean failed = noExit(args);
 		System.exit(failed?1:0);
 	}
 
-	public static boolean noExit(String... args) {
-		Configuration config = new Configuration();
-		try {
-			List<File> inputs = config.process(args);
-			if (inputs.isEmpty()) {
-				System.err.println("No input directories specified");
-				return true;
-			}
-			// TODO: 2019-07-22 I'm going to suggest that we want separate things for parsing and generation and the like
-			// and that we can move between them ...
-			// So Compiler should just become "Parser" I think, and possibly move processInput there and move more context there.
-			FLASCompiler compiler = new FLASCompiler(config);
-			compiler.errorWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true));
-			compiler.scanWebZips();
-			Repository repository = new Repository();
-			for (File input : inputs)
-				processInput(config, compiler, repository, input);
+	public static boolean noExit(String... args) throws IOException {
+		ErrorResult errors = new ErrorResult();
+		PrintWriter ew = new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true);
+		Configuration config = new Configuration(errors, args);
+		if (errors.hasErrors()) {
+			errors.showTo(ew, 0);
+			return true;
+		}
+		// TODO: 2019-07-22 I'm going to suggest that we want separate things for parsing and generation and the like
+		// and that we can move between them ...
+		// So Compiler should just become "Parser" I think, and possibly move processInput there and move more context there.
+		FLASCompiler compiler = new FLASCompiler(config);
+		compiler.errorWriter(ew);
+//		compiler.scanWebZips();
+		Repository repository = new Repository();
+		for (File input : config.inputs)
+			compiler.processInput(config, repository, input);
 
-			if (compiler.dumpRepo != null) {
-				try {
-					repository.dumpTo(compiler.dumpRepo);
-				} catch (IOException ex) {
-					System.out.println("Could not dump repository to " + compiler.dumpRepo);
-				}
+		if (config.dumprepo != null) {
+			try {
+				repository.dumpTo(config.dumprepo);
+			} catch (IOException ex) {
+				System.out.println("Could not dump repository to " + config.dumprepo);
 			}
-			
-			if (compiler.hasErrors())
-				return true;
-			else if (compiler.phaseTo == PhaseTo.PARSING)
+		}
+		
+		if (compiler.hasErrors())
+			return true;
+		else if (config.upto == PhaseTo.PARSING)
+			return false;
+		
+		if (config.upto == PhaseTo.TEST_TRAVERSAL) {
+			try {
+				repository.traverse(new LeafAdapter());
 				return false;
-			
-			if (compiler.phaseTo == PhaseTo.TEST_TRAVERSAL) {
-				try {
-					repository.traverse(new LeafAdapter());
-					return false;
-				} catch (Throwable t) {
-					t.printStackTrace(System.out);
-					return true;
-				}
+			} catch (Throwable t) {
+				t.printStackTrace(System.out);
+				return true;
 			}
-			
-			JVMGenerator jvmGenerator = new JVMGenerator();
-			repository.traverse(new Traverser(jvmGenerator));
-			
-			compiler.generate();
+		}
+		
+		JVMGenerator jvmGenerator = new JVMGenerator();
+		repository.traverse(new Traverser(jvmGenerator));
+		
+		compiler.generate();
 //			p2 = new Phase2CompilationProcess();
 //			p2.process();
 //			if (errors.hasErrors()) {
@@ -83,26 +81,10 @@ public class Main {
 //				return;
 //			}
 
-			// This is to do with Android
-			if (compiler.getBuilder() != null)
-				compiler.getBuilder().build();
-			return compiler.hasErrors();
-		} catch (ArgumentException ex) {
-			System.err.println(ex.getMessage());
-			return true;
-		}
-	}
-
-	private static void processInput(Configuration config, FLASCompiler compiler, Repository repository, File input) {
-		ErrorMark mark = compiler.errors().mark();
-		try {
-			if (config.tda)
-				mark = compiler.parse(repository, input);
-		} catch (Throwable ex) {
-			compiler.reportException(ex);
-		} finally {
-			compiler.errors().showFromMark(mark, compiler.errorWriter(), 0);
-		}
+		// This is to do with Android
+		if (compiler.getBuilder() != null)
+			compiler.getBuilder().build();
+		return compiler.hasErrors();
 	}
 
 	public static void setLogLevels() {

@@ -1,5 +1,7 @@
 package org.flasck.flas.errors;
 
+import java.io.Writer;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.tokenizers.Tokenizable;
 
@@ -14,4 +16,5 @@ public interface ErrorReporter {
 
 	boolean hasErrors();
 	ErrorMark mark();
+	void showFromMark(ErrorMark mark, Writer pw, int ind);
 }

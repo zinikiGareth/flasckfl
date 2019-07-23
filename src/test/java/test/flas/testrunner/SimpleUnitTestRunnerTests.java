@@ -66,7 +66,7 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
-			oneOf(runner).prepareScript(with("test.golden.script"), with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).prepareScript(with("test.golden.script"), with(any(Scope.class)));
 			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(resultHandler).testPassed("a simple test", runner.name());
@@ -83,7 +83,7 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
-			oneOf(runner).prepareScript(with("test.golden.script"), with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).prepareScript(with("test.golden.script"), with(any(Scope.class)));
 			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(resultHandler).testPassed("a test of id", runner.name());
@@ -100,7 +100,7 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
-			oneOf(runner).prepareScript(with("test.golden.script"), with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).prepareScript(with("test.golden.script"), with(any(Scope.class)));
 			exactly(2).of(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(runner).assertCorrectValue(2);
@@ -121,7 +121,7 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
-			oneOf(runner).prepareScript(with("test.golden.script"), with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).prepareScript(with("test.golden.script"), with(any(Scope.class)));
 			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1); will(throwException(new AssertFailed(420, 32)));
 			oneOf(resultHandler).testFailed("a simple test", runner.name(), 420, 32);
@@ -138,7 +138,7 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
-			oneOf(runner).prepareScript(with("test.golden.script"), with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).prepareScript(with("test.golden.script"), with(any(Scope.class)));
 			exactly(2).of(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(runner).assertCorrectValue(2); will(throwException(new AssertFailed(420, 32)));
@@ -155,7 +155,7 @@ public class SimpleUnitTestRunnerTests {
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
 		UnitTestRunner r = new UnitTestRunner(errors);
-		TestScript script = r.prepare(sc, runner, prior.getPackage().uniqueName()+".script", prior.getScope(), f);
+		TestScript script = r.prepare(runner, prior.getPackage().uniqueName()+".script", prior.getScope(), f);
 		r.sendResultsTo(resultHandler);
 		r.run(runner, script);
 	}

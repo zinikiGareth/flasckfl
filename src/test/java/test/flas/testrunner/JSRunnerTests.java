@@ -18,7 +18,7 @@ public class JSRunnerTests extends BaseRunnerTests {
 		sc.writeJSTo(tmpdir);
 		sc.createJS("test.runner.script", prior.getPackage().uniqueName(), prior.getScope(), testScope);
 		JSRunner jr = new JSRunner(prior);
-		jr.prepareScript("foo.script", sc, testScope);
+		jr.prepareScript("foo.script", testScope);
 		jr.prepareCase();
 		runner = jr;
 	}

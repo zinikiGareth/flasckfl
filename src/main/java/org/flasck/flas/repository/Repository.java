@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -56,6 +57,7 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitCase(FunctionCaseDefn c);
 		void visitExpr(Expr expr);
 		void visitStringLiteral(StringLiteral expr);
+		void visitNumericLiteral(NumericLiteral number);
 		void visitUnitTest(UnitTestCase e);
 		void visitApplyExpr(ApplyExpr expr);
 	}

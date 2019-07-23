@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
@@ -25,12 +24,12 @@ public class UnitTestRunner {
 		handlers.add(resultHandler);
 	}
 
-	public TestScript prepare(ScriptCompiler compiler, TestRunner runner, String scriptPkg, Scope compiledScope, File f) throws ErrorResultException {
+	public TestScript prepare(TestRunner runner, String scriptPkg, Scope compiledScope, File f) throws ErrorResultException {
 //		String scriptPkg = prior.getPackage().uniqueName() + ".script";
 		TestScript script = convertScript(errors, compiledScope, scriptPkg, f);
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
-		runner.prepareScript(scriptPkg, compiler, script.scope());
+		runner.prepareScript(scriptPkg, script.scope());
 		return script;
 	}
 

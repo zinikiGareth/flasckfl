@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -28,6 +29,7 @@ public class FunctionTraversalTests {
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
+	final NumericLiteral number = new NumericLiteral(pos, 42);
 	final UnitTestNamer namer = new UnitTestPackageNamer(pkg.uniqueName(), "file");
 	final Repository r = new Repository();
 	final Visitor v = context.mock(Visitor.class);
@@ -44,7 +46,7 @@ public class FunctionTraversalTests {
 		}
 		{
 			final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
-			intro.functionCase(new FunctionCaseDefn(null, new ApplyExpr(pos, var)));
+			intro.functionCase(new FunctionCaseDefn(null, new ApplyExpr(pos, var, number)));
 			fn.intro(intro);
 		}
 		r.functionDefn(fn);
@@ -55,7 +57,9 @@ public class FunctionTraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(with(any(FunctionDefinition.class)));
 			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")));
-			oneOf(v).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("x"))));
+			oneOf(v).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("x"), ExprMatcher.number(42))));
+			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")));
+			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).leaveFunction(with(any(FunctionDefinition.class)));
 		}});
 		r.traverse(v);

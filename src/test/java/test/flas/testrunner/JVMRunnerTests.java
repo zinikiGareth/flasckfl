@@ -20,7 +20,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		cxt = cxt.attachRuntimeCache(new FLASTransactionContext(cxt));
 		JVMRunner jr = new JVMRunner(prior, cxt);
 		jr.considerResource(new File(jvmClasses(), "classes"));
-		jr.prepareScript("test.runner.script", sc, testScope);
+		jr.prepareScript("test.runner.script", testScope);
 		jr.prepareCase();
 		runner = jr;
 	}

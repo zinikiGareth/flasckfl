@@ -2,6 +2,7 @@ package org.flasck.flas.repository;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -97,6 +98,8 @@ public class Traverser implements Visitor {
 			visitApplyExpr((ApplyExpr)expr);
 		else if (expr instanceof StringLiteral)
 			visitStringLiteral((StringLiteral)expr);
+		else if (expr instanceof NumericLiteral)
+			visitNumericLiteral((NumericLiteral)expr);
 		else if (expr instanceof UnresolvedVar)
 			visitUnresolvedVar((UnresolvedVar) expr);
 		else
@@ -105,6 +108,9 @@ public class Traverser implements Visitor {
 
 	public void visitApplyExpr(ApplyExpr expr) {
 		visitor.visitApplyExpr(expr);
+		visitExpr((Expr) expr.fn);
+		for (Object x : expr.args)
+			visitExpr((Expr) x);
 	}
 
 	@Override
@@ -125,6 +131,11 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitStringLiteral(StringLiteral expr) {
 		visitor.visitStringLiteral(expr);
+	}
+
+	@Override
+	public void visitNumericLiteral(NumericLiteral expr) {
+		visitor.visitNumericLiteral(expr);
 	}
 
 	public void visitUnitTest(UnitTestCase e) {

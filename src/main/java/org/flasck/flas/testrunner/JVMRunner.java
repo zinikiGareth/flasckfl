@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
-import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -87,19 +86,19 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	// Compile this to JVM bytecodes using the regular compiler
 	// - should only have access to exported things
 	// - make the generated classes available to the loader
-	public void prepareScript(String scriptPkg, ScriptCompiler compiler, Scope scope) {
+	public void prepareScript(String scriptPkg, Scope scope) {
 		CompileResult tcr = null;
-		try {
-			try {
-				tcr = compiler.createJVM(testPkg, compiledPkg, compiledScope, scope);
-			} catch (ErrorResultException ex) {
-				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
-				fail("Errors compiling test script");
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			throw new UtilException("Failed", ex);
-		}
+//		try {
+//			try {
+//				tcr = compiler.createJVM(testPkg, compiledPkg, compiledScope, scope);
+//			} catch (ErrorResultException ex) {
+//				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
+//				fail("Errors compiling test script");
+//			}
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//			throw new UtilException("Failed", ex);
+//		}
 		// 3. Load the class(es) into memory
 		loader.add(tcr.bce);
 	}

@@ -2,6 +2,7 @@ package org.flasck.flas.repository;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -66,6 +67,10 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitStringLiteral(StringLiteral expr) {
+	}
+
+	@Override
+	public void visitNumericLiteral(NumericLiteral number) {
 	}
 
 	@Override

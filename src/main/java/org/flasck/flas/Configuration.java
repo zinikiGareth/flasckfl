@@ -4,31 +4,35 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.PhaseTo;
+import org.flasck.flas.errors.ErrorReporter;
 
 public class Configuration {
+	public final ErrorReporter errors;
 	private boolean unitjvm = false, unitjs = false;
-	private boolean dumpTypes;
+	public boolean dumpTypes;
 	private List<File> searchFlim = new ArrayList<>();
 	private File root;
-	private File writeFlim;
-	private File writeHSIE;
-	private File writeJS;
+	public File writeFlim;
+	public File writeHSIE;
+	public File writeJS;
 	private File writeDroid;
-	private File writeJVM;
+	public File writeJVM;
 	private File webZipDir;
 	private List<String> useWebZips = new ArrayList<>();
 	private boolean buildDroid = true;
-	boolean tda = true;
-	private PhaseTo upto = PhaseTo.COMPLETE;
-	private File dumprepo = null;
+	public boolean tda = true;
+	PhaseTo upto = PhaseTo.COMPLETE;
+	File dumprepo = null;
+	public final List<File> inputs = new ArrayList<File>();
 
-	public Configuration() {
-		// TODO Auto-generated constructor stub
+	public Configuration(ErrorReporter errors, String[] args) {
+		this.errors = errors;
+		process(args);
 	}
 
-	public List<File> process(String[] args) {
-		List<File> inputs = new ArrayList<File>();
+	private void process(String[] args) {
 		for (int i=0;i<args.length;i++) {
 			String arg = args[i];
 			int hasMore = args.length-i-1;
@@ -108,35 +112,11 @@ public class Configuration {
 					}
 					*/
 					if (!matched) {
-						System.out.println("unknown option: " + arg);
-						return null;
+						errors.message((InputPosition)null, "unknown option: " + arg);
 					}
 				}
 			} else
 				inputs.add(new File(root, arg));
 		}
-		return inputs;
 	}
-
-	public void visit(ConfigVisitor visitor) {
-		for (File f : searchFlim)
-			visitor.searchIn(f);
-		visitor.dumpTypes(dumpTypes);
-		visitor.writeFlimTo(writeFlim);
-		visitor.writeHSIETo(writeHSIE);
-		visitor.writeJSTo(writeJS);
-		visitor.writeJVMTo(writeJVM);
-		visitor.writeDroidTo(writeDroid, buildDroid );
-		visitor.webZipDir(webZipDir);
-		visitor.phaseTo(upto);
-		if (dumprepo != null)
-			visitor.dumpRepoTo(dumprepo);
-		for (String s : useWebZips)
-			visitor.useWebZip(s);
-		if (unitjs || !unitjvm)
-			visitor.unitjs(true);
-		if (unitjvm)
-			visitor.unitjvm(true);
-	}
-
 }

@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.builder.droid.DroidBuilder;
-import org.flasck.flas.ConfigVisitor;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
@@ -26,7 +25,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
-import org.flasck.flas.flim.PackageImporter;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSTarget;
@@ -51,206 +49,125 @@ import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.FileUtils;
 
-public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
+public class FLASCompiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	public static boolean backwardCompatibilityMode = true;
-	private boolean dumpTypes = false;
-//	private boolean unitjs;
-//	private boolean unitjvm;
 	private final List<File> pkgdirs = new ArrayList<File>();
 	private File writeRW;
 	private DroidBuilder builder = new DroidBuilder();
-	private File writeFlim;
-	private File writeDepends;
-	private File writeHSIE;
-	private File writeJVM;
-	private File trackTC;
-	private File writeJS;
 //	private File writeTestReports;
-	private final List<CompileResult> priors = new ArrayList<>();
-	private final List<File> utpaths = new ArrayList<File>();
-	private final List<String> webzips = new ArrayList<>();
-	private File webzipdir;
-	private ErrorResult errors = new ErrorResult();
 	private PrintWriter errorWriter;
-	public File dumpRepo;
-	public PhaseTo phaseTo;
+	private Configuration config;
 
 	public FLASCompiler(Configuration config) {
-		if (config != null)
-			config.visit(this);
+		this.config = config;
 	}
-
-	// configuration aspects - should we break this off into a subclass?
-	@Override
-	public void dumpTypes(boolean d) {
-		this.dumpTypes = d;
-	}
-
-	@Override
-	public void searchIn(File file) {
-		pkgdirs.add(file);
-	}
-
-	public void unitTestPath(File file) {
-		utpaths.add(file);
-	}
-
-	@Override
-	public void writeJVMTo(File file) {
-		writeJVM = file;
+	
+	public void processInput(Configuration config, Repository repository, File input) {
+		ErrorMark mark = errors().mark();
+		try {
+			if (config.tda)
+				mark = parse(repository, input);
+		} catch (Throwable ex) {
+			reportException(ex);
+		} finally {
+			errors().showFromMark(mark, errorWriter(), 0);
+		}
 	}
 
 	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put
 	// it
-	@Override
-	public void writeDroidTo(File file, boolean andBuild) {
-		if (file == null || file.getPath().equals("null"))
-			return;
-		builder = new DroidBuilder(file);
-		if (!andBuild)
-			builder.dontBuild();
-	}
+//	@Override
+//	public void writeDroidTo(File file, boolean andBuild) {
+//		if (file == null || file.getPath().equals("null"))
+//			return;
+//		builder = new DroidBuilder(file);
+//		if (!andBuild)
+//			builder.dontBuild();
+//	}
+//
+//	public void internalBuildJVM() {
+//		builder = new DroidBuilder();
+//		builder.dontBuild();
+//	}
+//
+//	@Override
+//	public void writeRWTo(File file) {
+//		if (file != null && !file.isDirectory()) {
+//			System.out.println("there is no directory " + file);
+//			return;
+//		}
+//		this.writeRW = file;
+//	}
+//
+//	@Override
+//	public void writeFlimTo(File file) {
+//		if (file != null && !file.isDirectory()) {
+//			System.out.println("there is no directory " + file);
+//			return;
+//		}
+//		this.writeFlim = file;
+//	}
+//
+//	@Override
+//	public void writeDependsTo(File file) {
+//		if (file != null && !file.isDirectory()) {
+//			System.out.println("there is no directory " + file);
+//			return;
+//		}
+//		this.writeDepends = file;
+//	}
 
-	public void internalBuildJVM() {
-		builder = new DroidBuilder();
-		builder.dontBuild();
-	}
+//	@Override
+//	public void writeHSIETo(File file) {
+//		if (file != null && !file.isDirectory()) {
+//			System.out.println("there is no directory " + file);
+//			return;
+//		}
+//		this.writeHSIE = file;
+//	}
 
-	@Override
-	public void writeRWTo(File file) {
-		if (file != null && !file.isDirectory()) {
-			System.out.println("there is no directory " + file);
-			return;
-		}
-		this.writeRW = file;
-	}
-
-	@Override
-	public void writeFlimTo(File file) {
-		if (file != null && !file.isDirectory()) {
-			System.out.println("there is no directory " + file);
-			return;
-		}
-		this.writeFlim = file;
-	}
-
-	@Override
-	public void writeDependsTo(File file) {
-		if (file != null && !file.isDirectory()) {
-			System.out.println("there is no directory " + file);
-			return;
-		}
-		this.writeDepends = file;
-	}
-
-	@Override
-	public void dumpRepoTo(File dumprepo) {
-		this.dumpRepo = dumprepo;
-	}
-
-	@Override
-	public void writeHSIETo(File file) {
-		if (file != null && !file.isDirectory()) {
-			System.out.println("there is no directory " + file);
-			return;
-		}
-		this.writeHSIE = file;
-	}
-
-	@Override
-	public void trackTC(File file) {
-		if (file != null)
-			this.trackTC = new File(file, "types");
-		else
-			this.trackTC = null;
-	}
-
-	@Override
-	public void writeJSTo(File file) {
-		if (file != null && !file.isDirectory()) {
-			System.out.println("there is no directory " + file);
-			return;
-		}
-		this.writeJS = file;
-	}
-
-	@Override
-	public void writeTestReportsTo(File file) {
-		if (file != null && !file.isDirectory()) {
-			System.out.println("there is no directory " + file);
-			return;
-		}
-//		this.writeTestReports = file;
-	}
-
-	@Override
-	public void unitjs(boolean b) {
-//		this.unitjs = b;
-	}
-
-	@Override
-	public void unitjvm(boolean b) {
-//		this.unitjvm = b;
-	}
-
-	@Override
-	public void webZipDir(File file) {
-		this.webzipdir = file;
-	}
-
-	@Override
-	public void useWebZip(String called) {
-		webzips.add(called);
-	}
-
-	@Override
-	public void phaseTo(PhaseTo upto) {
-		this.phaseTo = upto;
-	}
-
-	@Deprecated
-	public void includePrior(CompileResult cr) {
-		priors.add(cr);
-	}
+//	@Override
+//	public void trackTC(File file) {
+//		if (file != null)
+//			this.trackTC = new File(file, "types");
+//		else
+//			this.trackTC = null;
+//	}
+//
+//	@Override
+//	public void writeJSTo(File file) {
+//		if (file != null && !file.isDirectory()) {
+//			System.out.println("there is no directory " + file);
+//			return;
+//		}
+//		this.writeJS = file;
+//	}
+//
+//	@Override
+//	public void writeTestReportsTo(File file) {
+//		if (file != null && !file.isDirectory()) {
+//			System.out.println("there is no directory " + file);
+//			return;
+//		}
+////		this.writeTestReports = file;
+//	}
 
 	public void errorWriter(PrintWriter printWriter) {
 		this.errorWriter = printWriter;
 	}
 
 	// Complete initialization by preparing the compiler for use
-	public void scanWebZips() {
-		if (webzips.isEmpty())
-			return;
-		if (webzipdir == null) {
-			errors.message((InputPosition) null, "using webzips requires a webzipdir");
-			return;
-		}
-		for (String s : webzips)
-			scanWebZip(s);
-	}
-
-	private void scanWebZip(final String called) {
-		// File f = new File(webzipdir, called);
-		// if (webdownloaddir != null) {
-		// File dl = new File(webdownloaddir, called);
-		// if (dl.exists()) {
-		// System.out.println("Moving download file " + dl + " to " + f);
-		// FileUtils.copy(dl, f);
-		// FileUtils.deleteDirectoryTree(dl);
-		// }
-		// }
-		// if (!f.exists()) {
-		// System.err.println("There is no webzip " + f);
-		// }
-		// SplitZip sz = new SplitZip();
-		// try {
-		// sz.split(new MultiSink(sink, new ShowCardSink()), f);
-		// } catch (IOException ex) {
-		// System.err.println("Failed to read " + f);
-		// System.err.println(ex);
-		// }
-	}
+//	public void scanWebZips() {
+//		if (webzips.isEmpty())
+//			return;
+//		if (webzipdir == null) {
+//			errors.message((InputPosition) null, "using webzips requires a webzipdir");
+//			return;
+//		}
+//		for (String s : webzips)
+//			scanWebZip(s);
+//	}
 
 	// Now read and parse all the files, passing it on to the alleged phase2
 	public ErrorMark parse(Repository repository, File dir) {
@@ -260,22 +177,22 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		String inPkg = dir.getName();
 		checkPackageName(inPkg);
 		System.out.println("Package " + inPkg);
-		ParsingPhase flp = new ParsingPhase(errors, inPkg, (TopLevelDefinitionConsumer)repository);
-		ErrorMark mark = errors.mark();
+		ParsingPhase flp = new ParsingPhase(config.errors, inPkg, (TopLevelDefinitionConsumer)repository);
+		ErrorMark mark = config.errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			System.out.println(" > " + f.getName());
 			flp.process(f);
-			errors.showFromMark(mark, errorWriter, 4);
-			mark = errors.mark();
+			config.errors.showFromMark(mark, errorWriter, 4);
+			mark = config.errors.mark();
 		}
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
 			System.out.println(" > " + f.getName());
-			ParsingPhase utp = new ParsingPhase(errors, inPkg, FileUtils.dropExtension(f.getName()), (UnitTestDefinitionConsumer)repository);
+			ParsingPhase utp = new ParsingPhase(config.errors, inPkg, FileUtils.dropExtension(f.getName()), (UnitTestDefinitionConsumer)repository);
 			utp.process(f);
-			errors.showFromMark(mark, errorWriter, 4);
-			mark = errors.mark();
+			config.errors.showFromMark(mark, errorWriter, 4);
+			mark = config.errors.mark();
 		}
-		if (errors.hasErrors())
+		if (config.errors.hasErrors())
 			return mark;
 		return mark;
 	}
@@ -291,8 +208,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	CompileResult stage2(ErrorReporter er, String priorPackage, IScope priorScope, String inPkg, Scope scope)
 			throws ErrorResultException, IOException {
 		ErrorResult errors = (ErrorResult) er;
-		File writeTo = writeJS != null ? new File(writeJS, inPkg + ".js") : null;
-		File exportTo = writeFlim != null ? new File(writeFlim, inPkg + ".flim") : null;
+		File writeTo = config.writeJS != null ? new File(config.writeJS, inPkg + ".js") : null;
+		File exportTo = config.writeFlim != null ? new File(config.writeFlim, inPkg + ".flim") : null;
 
 		// 3. Rework any "syntatic sugar" forms into their proper forms
 		new SugarDetox(errors).detox(scope);
@@ -311,10 +228,10 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 			rewriter.importPackage1(rootPkg);
 
-			for (CompileResult cr : priors) {
-				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage().uniqueName(),
-						cr.exports());
-			}
+//			for (CompileResult cr : priors) {
+//				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage().uniqueName(),
+//						cr.exports());
+//			}
 
 			rewriter.rewritePackageScope(priorPackage, priorScope, inPkg, scope);
 			abortIfErrors(errors);
@@ -357,8 +274,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			DependencyAnalyzer da = new DependencyAnalyzer();
 			List<Set<RWFunctionDefinition>> defns = da.analyze(functions);
 			abortIfErrors(errors);
-			if (writeDepends != null)
-				writeDependencies(da, defns);
+//			if (config.writeDepends != null)
+//				writeDependencies(da, defns);
 
 			for (Set<RWFunctionDefinition> orch : defns) {
 				showDefns(orch);
@@ -369,10 +286,10 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			// b. typechecking
 
 			TypeChecker2 tc2 = new TypeChecker2(errors, rewriter);
-			if (trackTC != null) {
-				tcPW = new PrintWriter(trackTC);
-				tc2.trackTo(tcPW);
-			}
+//			if (trackTC != null) {
+//				tcPW = new PrintWriter(trackTC);
+//				tc2.trackTo(tcPW);
+//			}
 			tc2.populateTypes();
 			abortIfErrors(errors);
 
@@ -399,8 +316,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			handleCurrying(curry, tc2, hsie.allForms());
 			abortIfErrors(errors);
 
-			if (writeHSIE != null) {
-				PrintWriter hsiePW = new PrintWriter(new File(writeHSIE, inPkg));
+			if (config.writeHSIE != null) {
+				PrintWriter hsiePW = new PrintWriter(new File(config.writeHSIE, inPkg));
 				dumpForms(hsiePW, hsie.allForms());
 				hsiePW.close();
 			}
@@ -411,7 +328,7 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 
 			// 11. Save learned state for export
 			if (exportTo != null)
-				tc2.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
+				tc2.writeLearnedKnowledge(exportTo, inPkg, config.dumpTypes);
 
 			// 12. generation of JSForms
 			generateForms(Arrays.asList(gen, dg), hsie.allForms());
@@ -431,13 +348,13 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 			}
 
 			// 13b. Issue JVM bytecodes
-			if (writeJVM != null) {
+			if (config.writeJVM != null) {
 				try {
 					// Doing this makes things clean, but stops you putting multiple things in the
 					// same directory
 					// FileUtils.cleanDirectory(writeJVM);
 					for (ByteCodeCreator bcc : bce.all()) {
-						File wto = new File(writeJVM,
+						File wto = new File(config.writeJVM,
 								FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
 						bcc.writeTo(wto);
 					}
@@ -474,40 +391,18 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 		}
 	}
 
-	@Override
-	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, String flas)
-			throws IOException, ErrorResultException {
-		this.internalBuildJVM();
-		ErrorResult errors = new ErrorResult();
-		final Scope scope = Scope.topScope(pkg);
-		return stage2(errors, priorPackage, priorScope, pkg, scope);
-	}
-
-	@Override
-	public CompileResult createJVM(String pkg, String priorPackage, IScope priorScope, Scope scope)
-			throws IOException, ErrorResultException {
-		this.internalBuildJVM();
-		return stage2(new ErrorResult(), priorPackage, priorScope, pkg, scope);
-	}
-
-	@Override
-	public CompileResult createJS(String pkg, String priorPackage, IScope priorScope, Scope scope)
-			throws IOException, ErrorResultException {
-		return stage2(new ErrorResult(), priorPackage, priorScope, pkg, scope);
-	}
-
-	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {
-		PrintWriter pw = new PrintWriter(new File(writeDepends, "depends.txt"));
-		da.dump(pw);
-		for (Set<RWFunctionDefinition> s : defns) {
-			for (RWFunctionDefinition d : s) {
-				pw.println(d.uniqueName());
-			}
-			pw.println("-----");
-		}
-		pw.close();
-	}
-
+//	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {
+//		PrintWriter pw = new PrintWriter(new File(writeDepends, "depends.txt"));
+//		da.dump(pw);
+//		for (Set<RWFunctionDefinition> s : defns) {
+//			for (RWFunctionDefinition d : s) {
+//				pw.println(d.uniqueName());
+//			}
+//			pw.println("-----");
+//		}
+//		pw.close();
+//	}
+//
 	private void showDefns(Set<RWFunctionDefinition> defns) {
 		for (RWFunctionDefinition d : defns)
 			logger.info("  " + d.uniqueName());
@@ -548,15 +443,15 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	public boolean hasErrors() {
-		return errors.hasErrors();
+		return config.errors.hasErrors();
 	}
 
 	public void reportException(Throwable ex) {
-		errors.reportException(ex);
+		config.errors.reportException(ex);
 	}
 
-	public ErrorResult errors() {
-		return errors;
+	public ErrorReporter errors() {
+		return config.errors;
 	}
 
 	public Writer errorWriter() {
@@ -564,8 +459,8 @@ public class FLASCompiler implements ScriptCompiler, ConfigVisitor {
 	}
 
 	public void generate() {
-		if (writeJVM != null) {
-			FileUtils.assertDirectory(writeJVM);
+		if (config.writeJVM != null) {
+			FileUtils.assertDirectory(config.writeJVM);
 		}
 	}
 }
