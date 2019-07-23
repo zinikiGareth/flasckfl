@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
@@ -72,6 +73,14 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
 		store = new EntityHoldingStore();
 		controller = new JDKFlasckController(cxt, loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
+	}
+
+	public JVMRunner(Configuration config) {
+		super(config);
+		this.loader = null;
+		this.cxt = null;
+		this.store = null;
+		this.controller = null;
 	}
 
 	@Override

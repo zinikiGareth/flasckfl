@@ -10,7 +10,7 @@ import org.flasck.flas.errors.ErrorReporter;
 
 public class Configuration {
 	public final ErrorReporter errors;
-	private boolean unitjvm = false, unitjs = false;
+	public boolean unitjvm = true, unitjs = true;
 	public boolean dumpTypes;
 	private List<File> searchFlim = new ArrayList<>();
 	private File root;
@@ -19,13 +19,12 @@ public class Configuration {
 	public File writeJS;
 	private File writeDroid;
 	public File writeJVM;
-	private File webZipDir;
-	private List<String> useWebZips = new ArrayList<>();
 	private boolean buildDroid = true;
-	public boolean tda = true;
+	public final boolean tda = true;
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
 	public final List<File> inputs = new ArrayList<File>();
+	private File writeTestReportsTo;
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
@@ -45,7 +44,13 @@ public class Configuration {
 					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--dumprepo"))
 					dumprepo = new File(root, args[++i]);
-				else if (arg.equals("--flim")) {
+				else if (arg.equals("--testReports")) {
+					if (hasMore == 0) {
+						System.out.println("--testReports <dir>");
+						System.exit(1);
+					}
+					writeTestReportsTo = new File(root, args[++i]);
+				} else if (arg.equals("--flim")) {
 					if (hasMore == 0) {
 						System.out.println("--flim <dir>");
 						System.exit(1);
@@ -69,10 +74,10 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeJS = new File(root, args[++i]);
-				} else if (arg.equals("--unitjs")) {
-					unitjs = true;
-				} else if (arg.equals("--unitjvm")) {
-					unitjvm = true;
+				} else if (arg.equals("--no-unit-js")) {
+					unitjs = false;
+				} else if (arg.equals("--no-unit-jvm")) {
+					unitjvm = false;
 				} else if (arg.equals("--android")) {
 					if (hasMore == 0) {
 						System.out.println("--android <build-dir>");
@@ -85,20 +90,20 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeJVM = new File(root, args[++i]);
-				} else if (arg.equals("--webzipdir")) {
-					if (hasMore == 0) {
-						System.out.println("--webzipdir <dir>");
-						System.exit(1);
-					}
-					webZipDir = new File(root, args[++i]);
-				} else if (arg.equals("--webzip")) {
-					if (hasMore == 0) {
-						System.out.println("--webzip <name>");
-						System.exit(1);
-					}
-					useWebZips.add(args[++i]);
-				} else if (arg.equals("--legacy")) {
-					tda = false;
+//				} else if (arg.equals("--webzipdir")) {
+//					if (hasMore == 0) {
+//						System.out.println("--webzipdir <dir>");
+//						System.exit(1);
+//					}
+//					webZipDir = new File(root, args[++i]);
+//				} else if (arg.equals("--webzip")) {
+//					if (hasMore == 0) {
+//						System.out.println("--webzip <name>");
+//						System.exit(1);
+//					}
+//					useWebZips.add(args[++i]);
+//				} else if (arg.equals("--legacy")) {
+//					tda = false;
 				} else {
 					boolean matched = false;
 					/*
@@ -115,8 +120,25 @@ public class Configuration {
 						errors.message((InputPosition)null, "unknown option: " + arg);
 					}
 				}
-			} else
+			} else {
 				inputs.add(new File(root, arg));
+			}
 		}
+	}
+
+	public File jvmDir() {
+		if (writeJVM != null)
+			return writeJVM;
+		else if (root != null)
+			return root;
+		else
+			return new File(".");
+	}
+
+	public File writeTestReportsTo(File f) {
+		if (writeTestReportsTo != null)
+			return writeTestReportsTo;
+		else
+			return f.getParentFile();
 	}
 }

@@ -15,6 +15,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.testrunner.JVMRunner;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -64,10 +65,14 @@ public class Main {
 			}
 		}
 		
-		JVMGenerator jvmGenerator = new JVMGenerator();
+		JVMGenerator jvmGenerator = new JVMGenerator(config.jvmDir());
 		repository.traverse(new Traverser(jvmGenerator));
+
+		if (config.unitjvm) {
+			JVMRunner jvmRunner = new JVMRunner(config);
+			jvmRunner.runAll();
+		}
 		
-		compiler.generate();
 //			p2 = new Phase2CompilationProcess();
 //			p2.process();
 //			if (errors.hasErrors()) {

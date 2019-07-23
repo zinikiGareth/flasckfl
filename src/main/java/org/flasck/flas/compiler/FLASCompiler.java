@@ -348,13 +348,13 @@ public class FLASCompiler {
 			}
 
 			// 13b. Issue JVM bytecodes
-			if (config.writeJVM != null) {
+			if (config.jvmDir() != null) {
 				try {
 					// Doing this makes things clean, but stops you putting multiple things in the
 					// same directory
 					// FileUtils.cleanDirectory(writeJVM);
 					for (ByteCodeCreator bcc : bce.all()) {
-						File wto = new File(config.writeJVM,
+						File wto = new File(config.jvmDir(),
 								FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
 						bcc.writeTo(wto);
 					}
@@ -456,11 +456,5 @@ public class FLASCompiler {
 
 	public Writer errorWriter() {
 		return errorWriter;
-	}
-
-	public void generate() {
-		if (config.writeJVM != null) {
-			FileUtils.assertDirectory(config.writeJVM);
-		}
 	}
 }

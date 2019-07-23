@@ -39,7 +39,7 @@ public class TestEnvironment {
 	private File tc2;
 	private File droidTo;
 	private File droid;
-	private File testReportTo;
+	public final File testReportTo;
 	private File errors;
 	private boolean isLegacy;
 	private boolean useJSRunner;
@@ -95,38 +95,6 @@ public class TestEnvironment {
 		if (!jvmbin.exists())
 			throw new RuntimeException("No jvm bin directory could be found");
 
-	}
-
-	public FLASCompiler configureCompiler() {
-		FLASCompiler compiler = new FLASCompiler(null);
-		compiler.unitTestPath(new File(jvmbin, "classes"));
-		compiler.unitjs(useJSRunner);
-		compiler.unitjvm(useJVMRunner);
-		if (zip != null) {
-			compiler.webZipDir(zip.getParentFile());
-			compiler.useWebZip(zip.getName());
-		}
-		compiler.searchIn(new File("../FLASJvm/services/flim"));
-		if (importFrom.isDirectory())
-			compiler.searchIn(importFrom);
-		compiler.trackTC(tc2);
-		compiler.writeRWTo(rwform);
-		compiler.writeJSTo(jsto);
-		compiler.writeHSIETo(hsie);
-		compiler.writeFlimTo(flim);
-		compiler.writeJVMTo(droidTo);
-		if (haveTests()) {
-			clean(testReportTo);
-			compiler.writeTestReportsTo(testReportTo);
-		}
-		if (depend.isDirectory()) {
-			clean(dependTo);
-			compiler.writeDependsTo(dependTo);
-		}
-		compiler.unitjvm(true);
-		compiler.scanWebZips();
-
-		return compiler;
 	}
 
 	public boolean haveTests() {

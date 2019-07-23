@@ -1,10 +1,15 @@
 package org.flasck.flas.testrunner;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.Configuration;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -13,9 +18,11 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.FileUtils;
 
 public abstract class CommonTestRunner implements TestRunner {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
+	protected final Configuration config;
 	protected final String compiledPkg;
 	protected final IScope compiledScope;
 	protected final String testPkg;
@@ -29,12 +36,39 @@ public abstract class CommonTestRunner implements TestRunner {
         this.compiledScope = cr.getScope();
 		compiledPkg = cr.getPackage().uniqueName();
 		testPkg = compiledPkg + ".script";
+		this.config = null;
 	}
 
 	public CommonTestRunner(String compiledPkg, IScope scope, String testPkg) {
 		this.compiledPkg = compiledPkg;
 		this.compiledScope = scope;
 		this.testPkg = testPkg;
+		this.config = null;
+	}
+
+	public CommonTestRunner(Configuration config) {
+		this.config = config;
+		this.testPkg = null;
+		this.compiledPkg = null;
+		this.compiledScope = null;
+	}
+	
+	public void runAll() {
+		for (File f : config.inputs) {
+			for (File ut : f.listFiles())
+				if (ut.getName().endsWith(".ut"))
+					run(ut);
+		}
+	}
+
+	private void run(File f) {
+		File out = new File(config.writeTestReportsTo(f), FileUtils.ensureExtension(f.getName(), ".tr"));
+		try {
+			PrintWriter pw = new PrintWriter(out);
+			pw.close();
+		} catch (FileNotFoundException ex) {
+			config.errors.message(((InputPosition)null), "cannot create output file " + out);
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
