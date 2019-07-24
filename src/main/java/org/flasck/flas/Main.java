@@ -11,6 +11,7 @@ import org.apache.log4j.LogManager;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.PhaseTo;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
@@ -69,8 +70,10 @@ public class Main {
 		repository.traverse(new Traverser(jvmGenerator));
 
 		if (config.unitjvm) {
-			JVMRunner jvmRunner = new JVMRunner(config);
+			ErrorMark mark = errors.mark();
+			JVMRunner jvmRunner = new JVMRunner(config, repository);
 			jvmRunner.runAll();
+			errors.showFromMark(mark, ew, 0);
 		}
 		
 //			p2 = new Phase2CompilationProcess();

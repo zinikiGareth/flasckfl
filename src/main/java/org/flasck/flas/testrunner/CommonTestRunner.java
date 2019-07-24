@@ -4,17 +4,24 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
+import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
@@ -30,6 +37,7 @@ public abstract class CommonTestRunner implements TestRunner {
 	protected final List<Expectation> expectations = new ArrayList<>();
 	protected final List<Invocation> invocations = new ArrayList<>();
 	protected final List<String> errors = new ArrayList<>();
+	private final Repository repository;
 
 	@Deprecated // the old one for compile()
 	public CommonTestRunner(CompileResult cr) {
@@ -37,6 +45,7 @@ public abstract class CommonTestRunner implements TestRunner {
 		compiledPkg = cr.getPackage().uniqueName();
 		testPkg = compiledPkg + ".script";
 		this.config = null;
+		this.repository = null;
 	}
 
 	public CommonTestRunner(String compiledPkg, IScope scope, String testPkg) {
@@ -44,30 +53,47 @@ public abstract class CommonTestRunner implements TestRunner {
 		this.compiledScope = scope;
 		this.testPkg = testPkg;
 		this.config = null;
+		this.repository = null;
 	}
 
-	public CommonTestRunner(Configuration config) {
+	public CommonTestRunner(Configuration config, Repository repository) {
 		this.config = config;
+		this.repository = repository;
 		this.testPkg = null;
 		this.compiledPkg = null;
 		this.compiledScope = null;
 	}
 	
 	public void runAll() {
-		for (File f : config.inputs) {
-			for (File ut : f.listFiles())
-				if (ut.getName().endsWith(".ut"))
-					run(ut);
-		}
+		Map<File, PrintWriter> writers = new HashMap<>();
+		repository.traverse(new LeafAdapter() {
+			@Override
+			public void visitUnitTest(UnitTestCase e) {
+				UnitTestName n = e.name;
+				UnitTestFileName cont = (UnitTestFileName) n.container();
+				String nn = cont.baseName().replace("_ut_", "");
+				File f = new File(nn);
+				run(writers, f, e);
+			}
+		});
+		writers.values().forEach(w -> w.close());
 	}
 
-	private void run(File f) {
+	private void run(Map<File, PrintWriter> writers, File f, UnitTestCase utc) {
 		File out = new File(config.writeTestReportsTo(f), FileUtils.ensureExtension(f.getName(), ".tr"));
+		PrintWriter pw = writers.get(f);
 		try {
-			PrintWriter pw = new PrintWriter(out);
-			pw.close();
+			if (pw == null) {
+				pw = new PrintWriter(out);
+				writers.put(f, pw);
+			}
+			Class<?> tc = Class.forName(utc.name.javaName(), false, this.getClass().getClassLoader());
+			pw.println(utc.name.javaName());
+			pw.flush();
 		} catch (FileNotFoundException ex) {
 			config.errors.message(((InputPosition)null), "cannot create output file " + out);
+		} catch (ClassNotFoundException ex) {
+			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
 		}
 	}
 

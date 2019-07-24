@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.repository.Repository;
 import org.flasck.jdk.FlasckHandle;
 import org.flasck.jdk.JDKFlasckController;
 import org.flasck.jdk.ServiceProvider;
@@ -75,8 +76,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		controller = new JDKFlasckController(cxt, loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
 	}
 
-	public JVMRunner(Configuration config) {
-		super(config);
+	public JVMRunner(Configuration config, Repository repository) {
+		super(config, repository);
 		this.loader = null;
 		this.cxt = null;
 		this.store = null;
