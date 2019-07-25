@@ -1,32 +1,19 @@
 package test.flas.testrunner;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.testrunner.AssertFailed;
 import org.flasck.flas.testrunner.TestRunner;
-import org.flasck.flas.testrunner.TestScript;
 import org.flasck.flas.testrunner.UnitTestResultHandler;
-import org.flasck.flas.testrunner.UnitTestRunner;
-import org.flasck.flas.types.PolyVar;
-import org.flasck.flas.types.PrimitiveType;
-import org.flasck.flas.types.Type;
-import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
-import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 @Ignore
@@ -51,6 +38,7 @@ public class SimpleUnitTestRunnerTests {
 		Scope scope = Scope.topScope("test.golden");
 	}
 
+	/*
 	private void go(Setup setup) {
 		context.checking(new Expectations() {{
 			allowing(runner).name(); will(returnValue("runner"));
@@ -169,4 +157,5 @@ public class SimpleUnitTestRunnerTests {
 		ret.deleteOnExit();
 		return ret;
 	}
+	*/
 }
