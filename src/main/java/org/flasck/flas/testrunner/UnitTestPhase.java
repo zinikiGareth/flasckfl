@@ -3,9 +3,7 @@ package org.flasck.flas.testrunner;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.BCEReceiver;
@@ -14,7 +12,6 @@ import org.flasck.flas.compiler.JSReceiver;
 import org.flasck.flas.compiler.UnitTestTranslator;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResultException;
-import org.ziniki.cbstore.json.FLConstructorServer;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.MultiTextEmitter;
@@ -22,7 +19,7 @@ import org.zinutils.utils.MultiTextEmitter;
 public class UnitTestPhase implements UnitTestTranslator, BCEReceiver, JSReceiver {
 	private final ErrorReporter errors;
 	private final List<File> tests = new ArrayList<>();
-	private final Map<String, TestScript> scripts = new HashMap<>();
+//	private final Map<String, TestScript> scripts = new HashMap<>();
 	private BCEClassLoader bce;
 	private Iterable<File> jsFiles;
 
@@ -88,19 +85,19 @@ public class UnitTestPhase implements UnitTestTranslator, BCEReceiver, JSReceive
 		UnitTestRunner utr = new UnitTestRunner(errors);
 		utr.sendResultsTo(new FileUnitTestResultHandler(results));
 		
-		TestScript script = scripts.get(f.getName());
-		// We presumably needs some set of options to say which runners
-		// we want to execute - could be more than one
-		if (unitjvm) {
-			// cr, new FLConstructorServer(cr.bce.getClassLoader())
-			JVMRunner jvmRunner = new JVMRunner(bce, new FLConstructorServer(bce), script.scope().scopeName.uniqueName(), script.getPriorScope(), script.getTestPackage());
-			for (File p : utpaths)
-				jvmRunner.considerResource(p);
-			utr.run(jvmRunner, script);
-		}
-		if (unitjs) {
-			JSRunner jsRunner = new JSRunner(script.scope().scopeName.uniqueName(), script.getPriorScope(), script.getTestPackage(), jsFiles);
-			utr.run(jsRunner, script);
-		}
+//		TestScript script = scripts.get(f.getName());
+//		// We presumably needs some set of options to say which runners
+//		// we want to execute - could be more than one
+//		if (unitjvm) {
+//			// cr, new FLConstructorServer(cr.bce.getClassLoader())
+//			JVMRunner jvmRunner = new JVMRunner(bce, new FLConstructorServer(bce), script.scope().scopeName.uniqueName(), script.getPriorScope(), script.getTestPackage());
+//			for (File p : utpaths)
+//				jvmRunner.considerResource(p);
+//			utr.run(jvmRunner, script);
+//		}
+//		if (unitjs) {
+//			JSRunner jsRunner = new JSRunner(script.scope().scopeName.uniqueName(), script.getPriorScope(), script.getTestPackage(), jsFiles);
+//			utr.run(jsRunner, script);
+//		}
 	}
 }

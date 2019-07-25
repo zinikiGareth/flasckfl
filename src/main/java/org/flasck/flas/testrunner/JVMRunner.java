@@ -1,7 +1,6 @@
 package org.flasck.flas.testrunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -14,76 +13,38 @@ import java.util.stream.Collectors;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.compiler.CompileResult;
-import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.IScope;
-import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jdk.FlasckHandle;
-import org.flasck.jdk.JDKFlasckController;
 import org.flasck.jdk.ServiceProvider;
-import org.flasck.jsoup.JSoupDisplayFactory;
 import org.flasck.jsoup.JSoupWrapperElement;
-import org.flasck.jvm.EntityHoldingStore;
 import org.flasck.jvm.J;
-import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.container.FlasckService;
-import org.flasck.jvm.display.EventHandler;
 import org.flasck.jvm.fl.FLEval;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.json.FLEvalContext;
-import org.ziniki.ziwsh.model.DateClientIDProvider;
-import org.ziniki.ziwsh.model.EntityStore;
 import org.ziniki.ziwsh.model.InternalHandle;
-import org.ziniki.ziwsh.postbox.ErrorAdmin;
-import org.ziniki.ziwsh.postbox.SyserrErrorAdmin;
-import org.ziniki.ziwsh.wire.DefaultWireEncoder;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
 
 public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	private final FLEvalContext cxt;
+//	private final EntityStore store;
+//	private final JDKFlasckController controller;
+	// TODO: I don't think this needs to be a special thing in the modern world
 	private final BCEClassLoader loader;
 	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
-	private final EntityStore store;
-	private final JDKFlasckController controller;
 	private Document document;
-
-	@Deprecated // for compile
-	public JVMRunner(CompileResult prior, FLEvalContext cxt) {
-		super(prior);
-		this.cxt = cxt;
-		loader = new BCEClassLoader(prior.bce);
-		ErrorAdmin errorAdmin = new SyserrErrorAdmin();
-		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
-		store = new EntityHoldingStore();
-		controller = new JDKFlasckController(cxt, loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
-	}
-	
-	public JVMRunner(BCEClassLoader bce, FLEvalContext cxt, String compiledPkg, IScope scope, String testPkg) {
-		super(compiledPkg, scope, compiledPkg);
-		this.loader = bce;
-		this.cxt = cxt;
-		ErrorAdmin errorAdmin = new SyserrErrorAdmin();
-		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
-		store = new EntityHoldingStore();
-		controller = new JDKFlasckController(cxt, loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
-	}
 
 	public JVMRunner(Configuration config, Repository repository, BCEClassLoader bcl) {
 		super(config, repository);
 		this.loader = bcl;
 		this.cxt = null;
-		this.store = null;
-		this.controller = null;
+//		this.store = null;
+//		this.controller = null;
 	}
 
 	@Override
@@ -110,8 +71,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	// Compile this to JVM bytecodes using the regular compiler
 	// - should only have access to exported things
 	// - make the generated classes available to the loader
-	public void prepareScript(String scriptPkg, Scope scope) {
-		CompileResult tcr = null;
+//	public void prepareScript(String scriptPkg, Scope scope) {
+//		CompileResult tcr = null;
 //		try {
 //			try {
 //				tcr = compiler.createJVM(testPkg, compiledPkg, compiledScope, scope);
@@ -124,15 +85,15 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //			throw new UtilException("Failed", ex);
 //		}
 		// 3. Load the class(es) into memory
-		loader.add(tcr.bce);
-	}
+//		loader.add(tcr.bce);
+//	}
 
-	@Override
-	public void prepareCase() {
-		document = Jsoup.parse("<html><head></head><body></body></html>");
-		cards.clear();
-		errors.clear();
-	}
+//	@Override
+//	public void prepareCase() {
+//		document = Jsoup.parse("<html><head></head><body></body></html>");
+//		cards.clear();
+//		errors.clear();
+//	}
 
 	@Override
 	public void assertCorrectValue(int exprId) throws Exception {
@@ -169,20 +130,20 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 
-		ScopeEntry se = compiledScope.get(cardType.cardName);
-		if (se == null)
-			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
-		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
-			throw new UtilException(cardType.cardName + " is not a card");
-		CardDefinition cd = (CardDefinition) se.getValue();
+//		ScopeEntry se = compiledScope.get(cardType.cardName);
+//		if (se == null)
+//			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
+//		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
+//			throw new UtilException(cardType.cardName + " is not a card");
+//		CardDefinition cd = (CardDefinition) se.getValue();
 		try {
 			Element body = document.select("body").get(0);
 			Element div = document.createElement("div");
 			body.appendChild(div);
 			
-			@SuppressWarnings("unchecked")
-			Class<? extends FlasckCard> clz = (Class<? extends FlasckCard>) loader.loadClass(cardType.javaName());
-			FlasckHandle handle = controller.createCard(clz, new JSoupWrapperElement(div));
+//			@SuppressWarnings("unchecked")
+//			Class<? extends FlasckCard> clz = (Class<? extends FlasckCard>) loader.loadClass(cardType.javaName());
+//			FlasckHandle handle = controller.createCard(clz, new JSoupWrapperElement(div));
 //			List<Object> services = new ArrayList<>();
 //			
 //			for (ContractImplements ctr : cd.contracts) {
@@ -191,8 +152,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //					cacheSvc(fullName);
 //			}
 			
-			cdefns.put(bindVar, cd);
-			cards.put(bindVar, handle);
+//			cdefns.put(bindVar, cd);
+//			cards.put(bindVar, handle);
 		} catch (Exception ex) {
 			throw UtilException.wrap(ex);
 		}
@@ -203,8 +164,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
-		String ctrName = getFullContractNameForCard(cardVar, contractName, methodName);
-		FlasckHandle card = cards.get(cardVar);
+//		String ctrName = getFullContractNameForCard(cardVar, contractName, methodName);
+//		FlasckHandle card = cards.get(cardVar);
 		Object[] argVals;
 		if (args == null || args.isEmpty())
 			argVals = new Object[0];
@@ -219,8 +180,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 				argVals[cnt++] = o;
 			}
 		}
-		card.send(ih, ctrName, methodName, argVals);
-		controller.processPostboxes();
+//		card.send(ih, ctrName, methodName, argVals);
+//		controller.processPostboxes();
 		assertAllInvocationsCalled();
 	}
 
@@ -228,8 +189,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	public void event(String cardVar, String methodName) throws Exception {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
-		FlasckHandle card = cards.get(cardVar);
-		card.event(controller.createContext(), cardVar, methodName);
+//		FlasckHandle card = cards.get(cardVar);
+//		card.event(controller.createContext(), cardVar, methodName);
 	}
 
 	@Override
@@ -252,12 +213,12 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		Element e = elts.first();
 		if (!e.hasAttr("onclick"))
 			throw new UtilException("There is no 'onclick' attribute on " + e.outerHtml());
-		String[] ca = e.attr("onclick").split(":");
-		FlasckCard card = this.controller.getCard(ca[0]);
-		EventHandler handler = card.getAction(ca[1], "click");
-		// TODO: we really should create an event object here ...
-		Object ev = null;
-		this.controller.handleEventOn(card, handler, ev);
-		assertAllInvocationsCalled();
+//		String[] ca = e.attr("onclick").split(":");
+//		FlasckCard card = this.controller.getCard(ca[0]);
+//		EventHandler handler = card.getAction(ca[1], "click");
+//		// TODO: we really should create an event object here ...
+//		Object ev = null;
+//		this.controller.handleEventOn(card, handler, ev);
+//		assertAllInvocationsCalled();
 	}
 }

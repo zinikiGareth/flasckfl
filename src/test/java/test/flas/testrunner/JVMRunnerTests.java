@@ -1,30 +1,25 @@
 package test.flas.testrunner;
 
-import java.io.File;
 import java.io.IOException;
 
+import org.flasck.flas.Configuration;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.repository.Repository;
 import org.flasck.flas.testrunner.JVMRunner;
-import org.flasck.jvm.EntityHoldingStore;
-import org.flasck.jvm.cards.FLASTransactionContext;
 import org.junit.Ignore;
-import org.ziniki.cbstore.json.FLConstructorServer;
+import org.zinutils.bytecode.BCEClassLoader;
 
 @Ignore
 public class JVMRunnerTests extends BaseRunnerTests {
 	
 	protected void prepareRunner() throws IOException, ErrorResultException {
-		sc.includePrior(prior);
-		sc.createJVM("test.runner.script", prior.getPackage().uniqueName(), prior.getScope(), testScope);
-		FLConstructorServer cxt = new FLConstructorServer(this.getClass().getClassLoader(), new EntityHoldingStore());
-		cxt = cxt.attachRuntimeCache(new FLASTransactionContext(cxt));
-		JVMRunner jr = new JVMRunner(prior, cxt);
-		jr.considerResource(new File(jvmClasses(), "classes"));
-		jr.prepareScript("test.runner.script", testScope);
-		jr.prepareCase();
-		runner = jr;
+		Configuration config = null;
+		Repository repository = null;
+		BCEClassLoader loader = null;
+		this.runner = new JVMRunner(config, repository, loader);
 	}
-	
+
+	/*
 	private File jvmClasses() {
 		File jvmdir;
 		File jd = new File("/Users/gareth/Ziniki/Over/FLASJvm");
@@ -44,4 +39,5 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			throw new RuntimeException("No jvm bin directory could be found");
 		return jvmbin;
 	}
+	*/
 }
