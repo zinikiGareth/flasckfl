@@ -8,6 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -24,8 +25,9 @@ import test.parsing.TypeReferenceMatcher;
 
 public class UnitTestBuilding {
 	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
-	private PackageName pkg = new PackageName("test.pkg._ut_foo");
-	private UnitTestName name = new UnitTestName(pkg, 4);
+	private PackageName pkg = new PackageName("test.pkg");
+	private UnitTestFileName utfn = new UnitTestFileName(pkg, "unit");
+	private UnitTestName name = new UnitTestName(utfn, 4);
 
 	@Test
 	public void addingAFieldToADataDecl() {
@@ -40,7 +42,7 @@ public class UnitTestBuilding {
 	@Test
 	public void constructingATestCase() {
 		UnitTestCase utc = new UnitTestCase(name, "this is a test");
-		assertEquals("test.pkg._ut_foo._ut4", utc.name.uniqueName());
+		assertEquals("test.pkg.unit._ut4", utc.name.uniqueName());
 		assertEquals("this is a test", utc.description);
 	}
 	

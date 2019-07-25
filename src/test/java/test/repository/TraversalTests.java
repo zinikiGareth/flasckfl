@@ -3,6 +3,7 @@ package test.repository;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -37,7 +38,8 @@ public class TraversalTests {
 
 	@Test
 	public void traverseUnitTest() {
-		UnitTestName name = new UnitTestName(new PackageName("foo.bar"), 1);
+		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
+		UnitTestName name = new UnitTestName(utfn, 1);
 		UnitTestCase utc = new UnitTestCase(name, "do something");
 		r.addEntry(name, utc);
 		context.checking(new Expectations() {{

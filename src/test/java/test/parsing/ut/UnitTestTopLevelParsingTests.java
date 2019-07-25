@@ -11,6 +11,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -44,8 +45,9 @@ public class UnitTestTopLevelParsingTests {
 
 	@Test
 	public void testWeCanCreateATestCase() {
+		UnitTestFileName utfn = new UnitTestFileName(pkg, "foo");
 		context.checking(new Expectations() {{
-			oneOf(namer).unitTest(); will(returnValue(new UnitTestName(pkg, 4)));
+			oneOf(namer).unitTest(); will(returnValue(new UnitTestName(utfn, 4)));
 			oneOf(builder).testCase(with(UnitTestCaseMatcher.number(1).description("we can write anything here")));
 		}});
 		TDAUnitTestParser utp = new TDAUnitTestParser(errors, namer, builder);
