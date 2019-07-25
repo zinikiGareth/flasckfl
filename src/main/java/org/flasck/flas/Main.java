@@ -17,6 +17,8 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.testrunner.JVMRunner;
+import org.zinutils.bytecode.BCEClassLoader;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -65,13 +67,15 @@ public class Main {
 				return true;
 			}
 		}
-		
+
+		ByteCodeEnvironment bce = new ByteCodeEnvironment();
 		JVMGenerator jvmGenerator = new JVMGenerator(config.jvmDir());
 		repository.traverse(new Traverser(jvmGenerator));
 
 		if (config.unitjvm) {
+			BCEClassLoader bcl = new BCEClassLoader(bce);
 			ErrorMark mark = errors.mark();
-			JVMRunner jvmRunner = new JVMRunner(config, repository);
+			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
 			jvmRunner.runAll();
 			errors.showFromMark(mark, ew, 0);
 		}

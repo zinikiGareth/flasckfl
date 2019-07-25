@@ -87,15 +87,14 @@ public abstract class CommonTestRunner implements TestRunner {
 				pw = new PrintWriter(out);
 				writers.put(f, pw);
 			}
-			Class<?> tc = Class.forName(utc.name.javaName(), false, this.getClass().getClassLoader());
-			pw.println(utc.name.javaName());
+			runit(pw, utc);
 			pw.flush();
 		} catch (FileNotFoundException ex) {
 			config.errors.message(((InputPosition)null), "cannot create output file " + out);
-		} catch (ClassNotFoundException ex) {
-			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
 		}
 	}
+
+	protected abstract void runit(PrintWriter pw, UnitTestCase utc);
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override

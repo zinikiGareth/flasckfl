@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.flasck.flas.Configuration;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
@@ -20,6 +21,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jdk.FlasckHandle;
 import org.flasck.jdk.JDKFlasckController;
@@ -76,9 +78,9 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		controller = new JDKFlasckController(cxt, loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
 	}
 
-	public JVMRunner(Configuration config, Repository repository) {
+	public JVMRunner(Configuration config, Repository repository, BCEClassLoader bcl) {
 		super(config, repository);
-		this.loader = null;
+		this.loader = bcl;
 		this.cxt = null;
 		this.store = null;
 		this.controller = null;
@@ -87,6 +89,18 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	@Override
 	public String name() {
 		return "jvm";
+	}
+
+	
+	@Override
+	protected void runit(PrintWriter pw, UnitTestCase utc) {
+		try {
+			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
+			pw.println(tc);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace(pw);
+			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
+		}
 	}
 
 	public void considerResource(File file) {
