@@ -26,7 +26,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.InternalHandle;
-import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
 
@@ -35,11 +34,11 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //	private final EntityStore store;
 //	private final JDKFlasckController controller;
 	// TODO: I don't think this needs to be a special thing in the modern world
-	private final BCEClassLoader loader;
+	private final ClassLoader loader;
 	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
 	private Document document;
 
-	public JVMRunner(Configuration config, Repository repository, BCEClassLoader bcl) {
+	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl) {
 		super(config, repository);
 		this.loader = bcl;
 		this.cxt = null;
@@ -64,9 +63,9 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		}
 	}
 
-	public void considerResource(File file) {
-		loader.addClassesFrom(file);
-	}
+//	public void considerResource(File file) {
+//		loader.addClassesFrom(file);
+//	}
 
 	// Compile this to JVM bytecodes using the regular compiler
 	// - should only have access to exported things

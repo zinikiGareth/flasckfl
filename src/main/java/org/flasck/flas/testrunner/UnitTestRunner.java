@@ -29,7 +29,7 @@ public class UnitTestRunner {
 		TestScript script = convertScript(errors, compiledScope, scriptPkg, f);
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
-		runner.prepareScript(scriptPkg, script.scope());
+//		runner.prepareScript(scriptPkg, script.scope());
 		return script;
 	}
 
@@ -38,7 +38,7 @@ public class UnitTestRunner {
 			@Override
 			public void run(SingleTestCase tc) {
 				try {
-					runner.prepareCase();
+//					runner.prepareCase();
 					runCase(runner, tc);
 				} catch (FlasTestException ex) {
 					logger.error("AssertFailed: " + ex.toString());
