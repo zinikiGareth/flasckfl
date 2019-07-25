@@ -70,7 +70,7 @@ public abstract class CommonTestRunner implements TestRunner {
 		}
 	}
 
-	protected abstract void runit(PrintWriter pw, UnitTestCase utc);
+	public abstract void runit(PrintWriter pw, UnitTestCase utc);
 
 //	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override

@@ -5,18 +5,13 @@ import java.io.IOException;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.testrunner.CommonTestRunner;
 import org.flasck.flas.testrunner.JVMRunner;
-import org.junit.Ignore;
-import org.zinutils.bytecode.BCEClassLoader;
 
-@Ignore
 public class JVMRunnerTests extends BaseRunnerTests {
 	
-	protected void prepareRunner() throws IOException, ErrorResultException {
-		Configuration config = null;
-		Repository repository = null;
-		BCEClassLoader loader = null;
-		this.runner = new JVMRunner(config, repository, loader);
+	protected CommonTestRunner prepareRunner(Configuration config, Repository repository) throws IOException, ErrorResultException {
+		return new JVMRunner(config, repository, getClass().getClassLoader());
 	}
 
 	/*

@@ -9,7 +9,7 @@ import org.junit.Ignore;
 @Ignore
 public class JSRunnerTests extends BaseRunnerTests {
 	
-	protected void prepareRunner() throws IOException, ErrorResultException {
+	protected JSRunner prepareRunner() throws IOException, ErrorResultException {
 //		prior.addJS(new File("src/test/resources/jsrunner/test2/test2.js"));
 //		sc.includePrior(prior);
 //		File tmpdir = Files.createTempDirectory("testCode").toFile();
@@ -18,6 +18,6 @@ public class JSRunnerTests extends BaseRunnerTests {
 		JSRunner jr = new JSRunner(prior);
 //		jr.prepareScript("foo.script", testScope);
 //		jr.prepareCase();
-		runner = jr;
+		return jr;
 	}
 }

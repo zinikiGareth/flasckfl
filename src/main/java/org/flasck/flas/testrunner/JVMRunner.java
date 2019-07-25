@@ -19,6 +19,7 @@ import org.flasck.jdk.FlasckHandle;
 import org.flasck.jdk.ServiceProvider;
 import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
+import org.flasck.jvm.builtin.FLNumber;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.fl.FLEval;
 import org.jsoup.nodes.Document;
@@ -53,10 +54,12 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	
 	@Override
-	protected void runit(PrintWriter pw, UnitTestCase utc) {
+	public void runit(PrintWriter pw, UnitTestCase utc) {
 		try {
 			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
 			pw.println(tc);
+			Reflection.callStatic(tc, "dotest", this);
+			pw.flush();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace(pw);
 			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
@@ -94,34 +97,38 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //		errors.clear();
 //	}
 
-	@Override
-	public void assertCorrectValue(int exprId) throws Exception {
-		List<Class<?>> toRun = new ArrayList<>();
-		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
-		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
+	public void assertSameValue(Object expected, Object actual) {
+	}
 
-//		FLASRuntimeCache edc = new FLASTransactionContext(cxt, this.loader, this.store);
-		Map<String, Object> evals = new TreeMap<String, Object>();
-		for (Class<?> clz : toRun) {
-			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
-			try {
-				Object o = Reflection.callStatic(clz, "eval", new Object[] { cxt, new Object[] {} });
-				o = Reflection.callStatic(FLEval.class, "full", cxt, o);
-				evals.put(key, o);
-			} catch (Throwable ex) {
-				System.out.println("Error evaluating " + key);
-				ex.printStackTrace();
-				throw ex;
-			}
-		}
-		
-		Object expected = evals.get("value" + exprId);
-		Object actual = evals.get("expr" + exprId);
-		try {
-			assertEquals(expected, actual);
-		} catch (AssertionError ex) {
-			throw new AssertFailed(expected, actual);
-		}
+	@Override
+	@Deprecated
+	public void assertCorrectValue(int exprId) throws Exception {
+//		List<Class<?>> toRun = new ArrayList<>();
+//		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
+//		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
+//
+////		FLASRuntimeCache edc = new FLASTransactionContext(cxt, this.loader, this.store);
+//		Map<String, Object> evals = new TreeMap<String, Object>();
+//		for (Class<?> clz : toRun) {
+//			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
+//			try {
+//				Object o = Reflection.callStatic(clz, "eval", new Object[] { cxt, new Object[] {} });
+//				o = Reflection.callStatic(FLEval.class, "full", cxt, o);
+//				evals.put(key, o);
+//			} catch (Throwable ex) {
+//				System.out.println("Error evaluating " + key);
+//				ex.printStackTrace();
+//				throw ex;
+//			}
+//		}
+//		
+//		Object expected = evals.get("value" + exprId);
+//		Object actual = evals.get("expr" + exprId);
+//		try {
+//			assertEquals(expected, actual);
+//		} catch (AssertionError ex) {
+//			throw new AssertFailed(expected, actual);
+//		}
 	}
 
 	@Override
