@@ -68,9 +68,11 @@ public class Main {
 			}
 		}
 
+		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
 		ByteCodeEnvironment bce = new ByteCodeEnvironment();
-		JVMGenerator jvmGenerator = new JVMGenerator(config.jvmDir());
+		JVMGenerator jvmGenerator = new JVMGenerator(bce);
 		repository.traverse(new Traverser(jvmGenerator));
+		// Write BCE to config.jvmDir() - see 13b of FLASCompiler
 
 		if (config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
