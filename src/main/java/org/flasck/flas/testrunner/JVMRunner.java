@@ -57,13 +57,19 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	public void runit(PrintWriter pw, UnitTestCase utc) {
 		try {
 			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
-			pw.println(tc);
-			Reflection.callStatic(tc, "dotest", this);
-			pw.flush();
+			try {
+				Reflection.callStatic(tc, "dotest", this);
+				pw.println("PASS " + utc.description);
+				// TODO: should catch assertions
+			} catch (Throwable t) {
+				pw.println("ERROR " + utc.description);
+				t.printStackTrace(pw);
+			}
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace(pw);
+			pw.println("NOTFOUND " + utc.description);
 			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
 		}
+		pw.flush();
 	}
 
 //	public void considerResource(File file) {

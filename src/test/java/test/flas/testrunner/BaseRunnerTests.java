@@ -1,17 +1,15 @@
 package test.flas.testrunner;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.StringWriter;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NumericLiteral;
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -20,22 +18,15 @@ import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.newtypechecker.TypeChecker2;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.testrunner.AssertFailed;
 import org.flasck.flas.testrunner.CommonTestRunner;
-import org.flasck.flas.testrunner.HTMLMatcher;
-import org.flasck.flas.testrunner.NotMatched;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.ziniki.ziwsh.model.IdempotentHandler;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 
 // So this is just supposed to be a test of the runner, so we assume that everything already exists.
@@ -62,7 +53,8 @@ public abstract class BaseRunnerTests {
 	Scope testScope;
 	CardName cn = new CardName(new PackageName("test.runner"), "TestCard");
 	String spkg = pkg + ".script";
-	private PrintWriter pw = new PrintWriter(System.out);
+	StringWriter sw = new StringWriter();
+	private PrintWriter pw = new PrintWriter(sw);
 	
 	@Before
 	public void setup() {
@@ -96,6 +88,7 @@ public abstract class BaseRunnerTests {
 		UnitTestName utn = new UnitTestName(utfn, 12);
 		UnitTestCase utc = new UnitTestCase(utn, "hello");
 		runner.runit(pw, utc);
+		assertEquals("PASS hello\n", sw.toString());
 	}
 
 	/*
