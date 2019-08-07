@@ -42,6 +42,15 @@ public class NumericLiteral implements Expr, Pushable {
 			return new PushInt(location, Integer.parseInt(text));
 	}
 
+	public Object value() {
+		if (val != null)
+			return val;
+		else if (text.indexOf(".") != -1 || text.indexOf("e") != -1)
+			return Double.parseDouble(text);
+		else
+			return Integer.parseInt(text);
+	}
+
 	@Override
 	public String toString() {
 		if (text != null)

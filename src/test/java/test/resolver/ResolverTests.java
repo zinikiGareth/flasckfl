@@ -12,6 +12,8 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -39,8 +41,10 @@ public class ResolverTests {
 	private final SolidName nested = new SolidName(pkg, "Nested");
 	private final FunctionName nameF = FunctionName.function(pos, nested, "f");
 	private final FunctionName nameX = FunctionName.function(pos, pkg, "x");
+	private final FunctionName nameY = FunctionName.function(pos, pkg, "y");
 	private final FunctionDefinition fn = new FunctionDefinition(nameF, 0);
 	private final FunctionDefinition vx = new FunctionDefinition(nameX, 0);
+	private final FunctionDefinition vy = new FunctionDefinition(nameY, 0);
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
 	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
@@ -207,6 +211,23 @@ public class ResolverTests {
 		final TypeReference ty = new TypeReference(pos, "Hello");
 		r.visitTypeReference(ty);
 		assertEquals(type, ty.defn());
+	}
+
+	@Test
+	public void testWeCanResolveVarsInsideUnitTestSteps() {
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.x"); will(returnValue(vx));
+			oneOf(ry).get("test.repo.y"); will(returnValue(vy));
+		}});
+		Resolver r = new RepositoryResolver(errors, ry);
+		r.currentScope(pkg);
+		UnresolvedVar x = new UnresolvedVar(pos, "x");
+		UnresolvedVar y = new UnresolvedVar(pos, "y");
+		final UnitTestStep uts = new UnitTestAssert(x, y);
+		new Traverser(r).visitUnitTestStep(uts);
+		assertEquals(vx, x.defn());
+		assertEquals(vy, y.defn());
 	}
 
 }

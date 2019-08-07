@@ -8,17 +8,23 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorMark;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.resolver.RepositoryResolver;
+import org.flasck.flas.resolver.Resolver;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.zinutils.bytecode.BCEClassLoader;
+import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.utils.FileUtils;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -68,19 +74,29 @@ public class Main {
 			}
 		}
 
-		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
-		ByteCodeEnvironment bce = new ByteCodeEnvironment();
-		JVMGenerator jvmGenerator = new JVMGenerator(bce);
-		repository.traverse(new Traverser(jvmGenerator));
-		// Write BCE to config.jvmDir() - see 13b of FLASCompiler
-
-		if (config.unitjvm) {
-			BCEClassLoader bcl = new BCEClassLoader(bce);
-			ErrorMark mark = errors.mark();
-			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
-			jvmRunner.runAll();
-			errors.showFromMark(mark, ew, 0);
+		
+		// resolution
+		{
+			Resolver resolver = new RepositoryResolver(errors, repository);
+			repository.traverse(new Traverser(resolver));
 		}
+		
+		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
+		{
+			ByteCodeEnvironment bce = new ByteCodeEnvironment();
+			JVMGenerator jvmGenerator = new JVMGenerator(bce);
+			repository.traverse(new Traverser(jvmGenerator));
+			saveBCE(errors, config.jvmDir(), bce);
+
+			if (config.unitjvm) {
+				BCEClassLoader bcl = new BCEClassLoader(bce);
+				ErrorMark mark = errors.mark();
+				JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
+				jvmRunner.runAll();
+				errors.showFromMark(mark, ew, 0);
+			}
+		}
+
 		
 //			p2 = new Phase2CompilationProcess();
 //			p2.process();
@@ -95,12 +111,29 @@ public class Main {
 //				return;
 //			}
 
-		bce.dumpAll(true);
-		
 		// This is to do with Android
 		if (compiler.getBuilder() != null)
 			compiler.getBuilder().build();
 		return compiler.hasErrors();
+	}
+
+	private static void saveBCE(ErrorReporter errors, File jvmDir, ByteCodeEnvironment bce) {
+		bce.dumpAll(true);
+		if (jvmDir != null) {
+			try {
+				// Doing this makes things clean, but stops you putting multiple things in the
+				// same directory
+				// FileUtils.cleanDirectory(writeJVM);
+				for (ByteCodeCreator bcc : bce.all()) {
+					File wto = new File(jvmDir,
+							FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
+					bcc.writeTo(wto);
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				errors.message((InputPosition) null, ex.toString());
+			}
+		}
 	}
 
 	public static void setLogLevels() {

@@ -17,6 +17,7 @@ import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter {
 	private final ByteCodeStorage bce;
@@ -35,7 +36,11 @@ public class JVMGenerator extends LeafAdapter {
 
 	@Override
 	public void visitNumericLiteral(NumericLiteral expr) {
-		stack.add(meth.intConst(expr.val));
+		Object val = expr.value();
+		if (val instanceof Integer)
+			stack.add(meth.intConst((int) val));
+		else
+			throw new NotImplementedException();
 	}
 	
 	@Override
@@ -61,7 +66,7 @@ public class JVMGenerator extends LeafAdapter {
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
 		if (stack.size() != 2) {
-			throw new RuntimeException("I was expecting a stack depth of 2");
+			throw new RuntimeException("I was expecting a stack depth of 2, not " + stack.size());
 		}
 		meth.callVirtual("void", runner, "assertSameValue", stack.toArray(new IExpr[2]));
 		stack.clear();

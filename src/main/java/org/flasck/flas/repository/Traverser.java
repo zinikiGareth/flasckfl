@@ -56,12 +56,11 @@ public class Traverser implements Visitor {
 		visitor.visitFunction(fn);
 		for (FunctionIntro i : fn.intros())
 			visitIntro(i);
-		this.leaveFunction(fn);
+		visitor.leaveFunction(fn);
 	}
 
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
-		visitor.leaveFunction(fn);
 	}
 
 	@Override
@@ -153,7 +152,7 @@ public class Traverser implements Visitor {
 	public void visitUnitTestStep(UnitTestStep s) {
 		visitor.visitUnitTestStep(s);
 		if (s instanceof UnitTestAssert)
-			visitor.visitUnitTestAssert((UnitTestAssert) s);
+			visitUnitTestAssert((UnitTestAssert) s);
 		else
 			throw new NotImplementedException();
 	}

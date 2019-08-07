@@ -204,7 +204,8 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	}
 
 	public String toString() {
-		throw new UtilException("Do not call toString() on a FunctionName; call jsName(), javaName() or other appropriate method");
+		// Don't use this in code! It should only be used for debug
+		return "Fn[" + uniqueName() + "]";
 	}
 
 	@Override

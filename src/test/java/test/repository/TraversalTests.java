@@ -49,6 +49,7 @@ public class TraversalTests {
 			oneOf(v).visitUnitTest(utc);
 			oneOf(v).visitUnitTestStep(uta);
 			oneOf(v).visitUnitTestAssert(uta);
+			oneOf(v).postUnitTestAssert(uta);
 		}});
 		r.traverse(v);
 	}
