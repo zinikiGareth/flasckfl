@@ -7,7 +7,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,22 +16,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.compiler.CompileResult;
-import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.IScope;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.repository.Repository;
 import org.flasck.ui4j.UI4JWrapperElement;
 import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 
 import io.webfolder.ui4j.api.browser.BrowserEngine;
-import io.webfolder.ui4j.api.browser.BrowserFactory;
 import io.webfolder.ui4j.api.browser.Page;
 import io.webfolder.ui4j.api.dom.Element;
 import javafx.application.Platform;
@@ -93,48 +89,46 @@ public class JSRunner extends CommonTestRunner {
 	private Map<String, CardHandle> cards = new TreeMap<>();
 	private File html;
 	private final List<File> jsFiles = new ArrayList<File>();
+
 	
-	@Deprecated // the old one for compile()
-	public JSRunner(CompileResult cr) {
-		super(cr);
-		for (File f : cr.jsFiles())
-			this.jsFiles.add(f);
-		browser = BrowserFactory.getWebKit();
+	public JSRunner(Configuration config, Repository repository) {
+		super(config, repository);
+		this.browser = null;
 	}
 
-	public JSRunner(String compiledPkg, IScope scope, String testPkg, Iterable<File> jsFiles) {
-		super(compiledPkg, scope, compiledPkg);
-		for (File f : jsFiles)
-			this.jsFiles.add(f);
-		browser = BrowserFactory.getWebKit();
+	@Override
+	public void runit(PrintWriter pw, UnitTestCase utc) {
+		// TODO Auto-generated method stub
+		
 	}
+
 
 	@Override
 	public String name() {
 		return "js";
 	}
 	
-	@Override
-	public void prepareScript(String scriptPkg, Scope scope) {
-		CompileResult tcr = null;
-		File scriptDir = null;
-		try {
-			scriptDir = Files.createTempDirectory("testScriptDir").toFile();
-			scriptDir.deleteOnExit();
-//			try {
-//				compiler.writeJSTo(scriptDir);
-//				tcr = compiler.createJS(testPkg, compiledPkg, compiledScope, scope);
-//				for (File f : tcr.jsFiles())
-//					this.jsFiles.add(f);
-//			} catch (ErrorResultException ex) {
-//				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
-//				fail("Errors compiling test script");
-//			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			throw new UtilException("Failed", ex);
-		}
-	}
+//	@Override
+//	public void prepareScript(String scriptPkg, Scope scope) {
+//		CompileResult tcr = null;
+//		File scriptDir = null;
+//		try {
+//			scriptDir = Files.createTempDirectory("testScriptDir").toFile();
+//			scriptDir.deleteOnExit();
+////			try {
+////				compiler.writeJSTo(scriptDir);
+////				tcr = compiler.createJS(testPkg, compiledPkg, compiledScope, scope);
+////				for (File f : tcr.jsFiles())
+////					this.jsFiles.add(f);
+////			} catch (ErrorResultException ex) {
+////				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
+////				fail("Errors compiling test script");
+////			}
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//			throw new UtilException("Failed", ex);
+//		}
+//	}
 
 	protected void scriptIt(PrintWriter pw, File f) {
 		if (!f.isAbsolute())
@@ -142,25 +136,25 @@ public class JSRunner extends CommonTestRunner {
 		pw.println("<script src='file:" + f.getPath() + "?cachebuster=" + System.currentTimeMillis()  + "' type='text/javascript'></script>");
 	}
 
-	@Override
-	public void prepareCase() {
-		buildHTML();
-		page = browser.navigate("file:" + html.getPath());
-		page.executeScript("window.console = {};");
-		page.executeScript("window.console.log = function() { var ret = ''; var sep = ''; for (var i=0;i<arguments.length;i++) { ret += sep + arguments[i]; sep = ' '; } callJava.log(ret); };");
-		AtomicBoolean choke = new AtomicBoolean(false);
-		Platform.runLater(() -> {
-			JSObject win = (JSObject)page.executeScript("window");
-			win.setMember("callJava", st);
-			choke.set(true);
-		});
-		waitForChoke(choke);
-		
-		// Do I need to do more cleanup than this?
-		// Also, should there be an "endCase" to do cleanup?
-		cards.clear();
-		errors.clear();
-	}
+//	@Override
+//	public void prepareCase() {
+//		buildHTML();
+//		page = browser.navigate("file:" + html.getPath());
+//		page.executeScript("window.console = {};");
+//		page.executeScript("window.console.log = function() { var ret = ''; var sep = ''; for (var i=0;i<arguments.length;i++) { ret += sep + arguments[i]; sep = ' '; } callJava.log(ret); };");
+//		AtomicBoolean choke = new AtomicBoolean(false);
+//		Platform.runLater(() -> {
+//			JSObject win = (JSObject)page.executeScript("window");
+//			win.setMember("callJava", st);
+//			choke.set(true);
+//		});
+//		waitForChoke(choke);
+//		
+//		// Do I need to do more cleanup than this?
+//		// Also, should there be an "endCase" to do cleanup?
+//		cards.clear();
+//		errors.clear();
+//	}
 
 	private void buildHTML() {
 		try {
@@ -212,7 +206,7 @@ public class JSRunner extends CommonTestRunner {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 		
-		ScopeEntry se = compiledScope.get(cardType.cardName);
+		ScopeEntry se = null; // compiledScope.get(cardType.cardName);
 		if (se == null)
 			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
 		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
@@ -234,7 +228,7 @@ public class JSRunner extends CommonTestRunner {
 			String l4 = "_tmp_services = {};";
 			execute(l0+l1+l2+l3+l4);
 			for (ContractImplements ctr : cd.contracts) {
-				String fullName = fullName(ctr.actualName().jsName());
+				String fullName = ""; // fullName(ctr.actualName().jsName());
 				JSObject win = (JSObject)page.executeScript("window");
 				MockServiceWrapper ms = new MockServiceWrapper(fullName);
 				// TODO: need to wire ms up in some way to have expectations ...
@@ -259,7 +253,7 @@ public class JSRunner extends CommonTestRunner {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
-		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
+		String fullName = ""; // getFullContractNameForCard(cardVar, contractName, methodName);
 		CardHandle card = cards.get(cardVar);
 
 		logger.info("Sending " + methodName + " to " + cardVar + "." + fullName);

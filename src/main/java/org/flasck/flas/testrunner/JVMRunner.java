@@ -28,6 +28,7 @@ import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
 public class JVMRunner extends CommonTestRunner implements ServiceProvider {
@@ -60,7 +61,17 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			try {
 				Reflection.callStatic(tc, "dotest", this);
 				pw.println("PASS " + utc.description);
-				// TODO: should catch assertions
+			} catch (WrappedException ex) {
+				Throwable e2 = ex.unwrap();
+				if (e2 instanceof AssertFailed) {
+					AssertFailed af = (AssertFailed) e2;
+					pw.println("FAIL " + utc.description);
+					pw.println("  expected: " + af.expected);
+					pw.println("  actual:   " + af.actual);
+				} else {
+					pw.println("ERROR " + utc.description);
+					e2.printStackTrace(pw);
+				}
 			} catch (Throwable t) {
 				pw.println("ERROR " + utc.description);
 				t.printStackTrace(pw);
@@ -103,7 +114,18 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //		errors.clear();
 //	}
 
-	public void assertSameValue(Object expected, Object actual) {
+	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
+		if (expected instanceof FLNumber) {
+			assertSameNumber((FLNumber)expected, actual);
+		}
+	}
+
+	private void assertSameNumber(FLNumber expected, Object actual) throws FlasTestException {
+		if (!(actual instanceof FLNumber))
+			throw new AssertFailed(expected, actual);
+		FLNumber an = (FLNumber) actual;
+		if (!expected.equals(an))
+			throw new AssertFailed(expected, actual);
 	}
 
 	@Override

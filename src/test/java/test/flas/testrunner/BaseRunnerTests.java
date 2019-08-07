@@ -78,17 +78,27 @@ public abstract class BaseRunnerTests {
 	}
 	
 	@Test
-	public void testAssertDoesNotThrowIfXDoesIndeedEqualX() throws Exception {
+	public void testAssertIsOKIfXDoesIndeedEqualX() throws Exception {
 		Configuration config = null;
 		Repository repository = new Repository();
-		//		testScope.define(errors, "expr1", function("expr1", new UnresolvedVar(loc, "x")));
-//		testScope.define(errors, "value1", function("value1", new NumericLiteral(loc, Integer.toString(X_VALUE), -1)));
 		CommonTestRunner runner = prepareRunner(config, repository);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
 		UnitTestName utn = new UnitTestName(utfn, 12);
 		UnitTestCase utc = new UnitTestCase(utn, "hello");
 		runner.runit(pw, utc);
 		assertEquals("PASS hello\n", sw.toString());
+	}
+
+	@Test
+	public void testAssertFailsIfXDoesNotEqualAGivenValue() throws Exception {
+		Configuration config = null;
+		Repository repository = new Repository();
+		CommonTestRunner runner = prepareRunner(config, repository);
+		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
+		UnitTestName utn = new UnitTestName(utfn, 18);
+		UnitTestCase utc = new UnitTestCase(utn, "itfails");
+		runner.runit(pw, utc);
+		assertEquals("FAIL itfails\n  expected: 42\n  actual:   84\n", sw.toString());
 	}
 
 	/*

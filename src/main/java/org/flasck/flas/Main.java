@@ -95,6 +95,8 @@ public class Main {
 //				return;
 //			}
 
+		bce.dumpAll(true);
+		
 		// This is to do with Android
 		if (compiler.getBuilder() != null)
 			compiler.getBuilder().build();

@@ -1,3 +1,7 @@
 	test that x has the right value
 		assert x
 			42
+			
+	test that we can have failing tests
+		assert x
+			84

@@ -1,5 +1,6 @@
 package test.parsing;
 
+import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,6 +22,11 @@ public class LocalErrorTracker implements ErrorReporter {
 	
 	public LocalErrorTracker(ErrorReporter other) {
 		this.other = other;
+	}
+
+	@Override
+	public void showFromMark(ErrorMark mark, Writer pw, int ind) {
+		other.showFromMark(mark, pw, ind);
 	}
 
 	public ErrorReporter message(InputPosition pos, String msg) {
