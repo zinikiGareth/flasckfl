@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.GenericAnnotator;
@@ -17,30 +18,50 @@ import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter {
 	private final ByteCodeStorage bce;
 	private MethodDefiner meth;
 	private List<IExpr> stack = new ArrayList<IExpr>();
-	private Var runner;
+	private IExpr runner;
 	private ByteCodeSink clz;
 
 	public JVMGenerator(ByteCodeStorage bce) {
 		this.bce = bce;
 	}
 	
-	private JVMGenerator(MethodDefiner meth) {
+	private JVMGenerator(MethodDefiner meth, IExpr runner) {
 		this.bce = null;
 		this.meth = meth;
+		this.runner = runner;
 	}
 
+	@Override
+	public void visitFunction(FunctionDefinition fn) {
+		this.clz = bce.newClass(fn.name().javaClassName());
+		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
+		ann.returns(JavaType.object_);
+		meth = ann.done();
+	}
+	
+	// TODO: this should have been reduced to HSIE, which we should generate from
+	// But I am hacking for now to get a walking skeleton up and running so we can E2E TDD
+	// The actual traversal is done by the traverser ...
+
+	@Override
+	public void leaveFunction(FunctionDefinition fn) {
+		if (stack.size() != 1) {
+			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
+		}
+		meth.returnObject(stack.get(0)).flush();
+	}
+	
 	@Override
 	public void visitNumericLiteral(NumericLiteral expr) {
 		Object val = expr.value();
 		if (val instanceof Integer)
-			stack.add(meth.intConst((int) val));
+			stack.add(meth.makeNew(J.NUMBER, meth.box(meth.intConst((int) val)), meth.castTo(meth.aNull(), "java.lang.Double")));
 		else
 			throw new NotImplementedException();
 	}
@@ -80,11 +101,13 @@ public class JVMGenerator extends LeafAdapter {
 		if (stack.size() != 2) {
 			throw new RuntimeException("I was expecting a stack depth of 2, not " + stack.size());
 		}
-		meth.callVirtual("void", runner, "assertSameValue", stack.toArray(new IExpr[2])).flush();
+		IExpr lhs = meth.as(stack.get(0), J.OBJECT);
+		IExpr rhs = meth.as(stack.get(1), J.OBJECT);
+		meth.callVirtual("void", runner, "assertSameValue", lhs, rhs).flush();
 		stack.clear();
 	}
 	
-	public static JVMGenerator forTests(MethodDefiner meth) {
-		return new JVMGenerator(meth);
+	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner) {
+		return new JVMGenerator(meth, runner);
 	}
 }

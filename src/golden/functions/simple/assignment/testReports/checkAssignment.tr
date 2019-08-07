@@ -1,2 +1,4 @@
 PASS that x has the right value
 FAIL that we can have failing tests
+  expected: 42
+  actual:   84

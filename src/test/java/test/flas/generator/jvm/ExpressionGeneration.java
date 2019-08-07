@@ -25,10 +25,18 @@ public class ExpressionGeneration {
 	public void aSimpleInteger() {
 		MethodDefiner meth = context.mock(MethodDefiner.class);
 		NumericLiteral expr = new NumericLiteral(pos, 42);
+		IExpr dv = context.mock(IExpr.class, "dv");
+		IExpr iv = context.mock(IExpr.class, "iv");
+		IExpr biv = context.mock(IExpr.class, "biv");
+		IExpr cdv = context.mock(IExpr.class, "cdv");
 		context.checking(new Expectations() {{
-			oneOf(meth).intConst(42);
+			oneOf(meth).aNull(); will(returnValue(dv));
+			oneOf(meth).intConst(42); will(returnValue(iv));
+			oneOf(meth).box(iv); will(returnValue(biv));
+			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
+			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(expr);
 	}
 
@@ -39,7 +47,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("hello");
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(expr);
 	}
 
@@ -52,7 +60,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).callStatic("test.repo.PACKAGEFUNCTIONS$x", "java.lang.Object", "eval", new IExpr[0]);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(expr);
 	}
 }

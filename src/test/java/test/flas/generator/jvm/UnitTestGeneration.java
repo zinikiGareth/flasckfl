@@ -55,15 +55,27 @@ public class UnitTestGeneration {
 		MethodDefiner meth = context.mock(MethodDefiner.class);
 		NumericLiteral lhs = new NumericLiteral(pos, 42);
 		StringLiteral rhs = new StringLiteral(pos, "hello");
-		IExpr runner = null;
-		IExpr l1 = null;
-		IExpr r1 = null;
+		IExpr runner = context.mock(IExpr.class, "runner");
+		IExpr iv = context.mock(IExpr.class, "iv");
+		IExpr dv = context.mock(IExpr.class, "dv");
+		IExpr l1 = context.mock(IExpr.class, "lhs");
+		IExpr la = context.mock(IExpr.class, "la");
+		IExpr r1 = context.mock(IExpr.class, "rhs");
+		IExpr ra = context.mock(IExpr.class, "ra");
+		IExpr biv = context.mock(IExpr.class, "biv");
+		IExpr cdv = context.mock(IExpr.class, "cdv");
 		context.checking(new Expectations() {{
-			oneOf(meth).intConst(42); will(returnValue(l1));
+			oneOf(meth).aNull(); will(returnValue(dv));
+			oneOf(meth).intConst(42); will(returnValue(iv));
+			oneOf(meth).box(iv); will(returnValue(biv));
+			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
+			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv); will(returnValue(l1));
 			oneOf(meth).stringConst("hello"); will(returnValue(r1));
-			oneOf(meth).callVirtual("void", runner, "assertSameValue", l1, r1);
+			oneOf(meth).as(l1, "java.lang.Object"); will(returnValue(la));
+			oneOf(meth).as(r1, "java.lang.Object"); will(returnValue(ra));
+			oneOf(meth).callVirtual("void", runner, "assertSameValue", la, ra);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner));
 		UnitTestAssert a = new UnitTestAssert(lhs, rhs);
 		gen.visitUnitTestAssert(a);
 	}
