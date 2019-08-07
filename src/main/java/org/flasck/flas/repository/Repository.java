@@ -36,7 +36,9 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
@@ -60,6 +62,9 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitNumericLiteral(NumericLiteral number);
 		void visitUnitTest(UnitTestCase e);
 		void visitApplyExpr(ApplyExpr expr);
+		void visitUnitTestStep(UnitTestStep s);
+		void visitUnitTestAssert(UnitTestAssert a);
+		void postUnitTestAssert(UnitTestAssert a);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();

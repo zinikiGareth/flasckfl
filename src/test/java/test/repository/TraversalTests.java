@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
@@ -41,9 +42,13 @@ public class TraversalTests {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
 		UnitTestName name = new UnitTestName(utfn, 1);
 		UnitTestCase utc = new UnitTestCase(name, "do something");
+		UnitTestAssert uta = new UnitTestAssert(null, null);
+		utc.steps.add(uta);
 		r.addEntry(name, utc);
 		context.checking(new Expectations() {{
 			oneOf(v).visitUnitTest(utc);
+			oneOf(v).visitUnitTestStep(uta);
+			oneOf(v).visitUnitTestAssert(uta);
 		}});
 		r.traverse(v);
 	}

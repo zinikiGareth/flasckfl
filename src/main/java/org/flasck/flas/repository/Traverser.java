@@ -13,8 +13,11 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class Traverser implements Visitor {
 	private final Visitor visitor;
@@ -138,8 +141,32 @@ public class Traverser implements Visitor {
 		visitor.visitNumericLiteral(expr);
 	}
 
+	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		visitor.visitUnitTest(e);
+		for (UnitTestStep s : e.steps) {
+			visitUnitTestStep(s);
+		}
 	}
 
+	@Override
+	public void visitUnitTestStep(UnitTestStep s) {
+		visitor.visitUnitTestStep(s);
+		if (s instanceof UnitTestAssert)
+			visitor.visitUnitTestAssert((UnitTestAssert) s);
+		else
+			throw new NotImplementedException();
+	}
+
+	@Override
+	public void visitUnitTestAssert(UnitTestAssert a) {
+		visitor.visitUnitTestAssert(a);
+		visitExpr(a.expr);
+		visitExpr(a.value);
+		visitor.postUnitTestAssert(a);
+	}
+
+	@Override
+	public void postUnitTestAssert(UnitTestAssert a) {
+	}
 }
