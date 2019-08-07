@@ -61,6 +61,7 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitStringLiteral(StringLiteral expr);
 		void visitNumericLiteral(NumericLiteral number);
 		void visitUnitTest(UnitTestCase e);
+		void leaveUnitTest(UnitTestCase e);
 		void visitApplyExpr(ApplyExpr expr);
 		void visitUnitTestStep(UnitTestStep s);
 		void visitUnitTestAssert(UnitTestAssert a);

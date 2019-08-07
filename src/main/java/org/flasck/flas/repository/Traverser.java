@@ -146,6 +146,11 @@ public class Traverser implements Visitor {
 		for (UnitTestStep s : e.steps) {
 			visitUnitTestStep(s);
 		}
+		visitor.leaveUnitTest(e);
+	}
+
+	@Override
+	public void leaveUnitTest(UnitTestCase e) {
 	}
 
 	@Override

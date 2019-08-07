@@ -37,14 +37,17 @@ public class UnitTestGeneration {
 			oneOf(bce).newClass("test.something._ut_package._ut4"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "void", "dotest"); will(returnValue(meth));
 			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
-			oneOf(meth).returnVoid();
-			oneOf(bcc).generate();
 		}});
 		JVMGenerator gen = new JVMGenerator(bce);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.something"), "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitTestCase utc = new UnitTestCase(utn , "do something");
 		gen.visitUnitTest(utc);
+		context.checking(new Expectations() {{
+			oneOf(meth).returnVoid();
+			oneOf(bcc).generate();
+		}});
+		gen.leaveUnitTest(utc);
 	}
 	
 	@Test

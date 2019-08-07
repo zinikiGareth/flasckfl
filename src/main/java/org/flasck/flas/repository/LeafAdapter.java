@@ -92,6 +92,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void leaveUnitTest(UnitTestCase e) {
+	}
+
+	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
 	}
 

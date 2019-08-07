@@ -17,7 +17,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
 import org.flasck.flas.testrunner.JVMRunner;
@@ -59,9 +58,10 @@ public class Main {
 			}
 		}
 		
-		if (compiler.hasErrors())
+		if (compiler.hasErrors()) {
+			errors.showTo(ew, 0);
 			return true;
-		else if (config.upto == PhaseTo.PARSING)
+		} else if (config.upto == PhaseTo.PARSING)
 			return false;
 		
 		if (config.upto == PhaseTo.TEST_TRAVERSAL) {
@@ -78,15 +78,23 @@ public class Main {
 		// resolution
 		{
 			Resolver resolver = new RepositoryResolver(errors, repository);
-			repository.traverse(new Traverser(resolver));
+			repository.traverse(resolver);
+			if (compiler.hasErrors()) {
+				errors.showTo(ew, 0);
+				return true;
+			}
 		}
 		
 		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
 		{
 			ByteCodeEnvironment bce = new ByteCodeEnvironment();
 			JVMGenerator jvmGenerator = new JVMGenerator(bce);
-			repository.traverse(new Traverser(jvmGenerator));
+			repository.traverse(jvmGenerator);
 			saveBCE(errors, config.jvmDir(), bce);
+			if (compiler.hasErrors()) {
+				errors.showTo(ew, 0);
+				return true;
+			}
 
 			if (config.unitjvm) {
 				BCEClassLoader bcl = new BCEClassLoader(bce);
@@ -94,6 +102,10 @@ public class Main {
 				JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
 				jvmRunner.runAll();
 				errors.showFromMark(mark, ew, 0);
+				if (compiler.hasErrors()) {
+					errors.showTo(ew, 0);
+					return true;
+				}
 			}
 		}
 

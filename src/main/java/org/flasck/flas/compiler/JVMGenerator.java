@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
@@ -15,7 +17,6 @@ import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -24,6 +25,7 @@ public class JVMGenerator extends LeafAdapter {
 	private MethodDefiner meth;
 	private List<IExpr> stack = new ArrayList<IExpr>();
 	private Var runner;
+	private ByteCodeSink clz;
 
 	public JVMGenerator(ByteCodeStorage bce) {
 		this.bce = bce;
@@ -49,16 +51,26 @@ public class JVMGenerator extends LeafAdapter {
 	}
 	
 	@Override
+	public void visitUnresolvedVar(UnresolvedVar var) {
+		FunctionDefinition defn = (FunctionDefinition)var.defn();
+		if (defn == null)
+			throw new RuntimeException("var " + var + " was still not resolved");
+		stack.add(meth.callStatic(defn.name().javaClassName(), "java.lang.Object", "eval", new IExpr[0]));
+	}
+	
+	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		String clzName = e.name.javaName();
-		ByteCodeSink clz = bce.newClass(clzName);
+		clz = bce.newClass(clzName);
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "dotest");
 		PendingVar runner = ann.argument("org.flasck.flas.testrunner.JVMRunner", "runner");
 		ann.returns(JavaType.void_);
 		meth = ann.done();
 		this.runner = runner.getVar();
-		
-		// This needs to move to postUnitTest
+	}
+
+	@Override
+	public void leaveUnitTest(UnitTestCase e) {
 		meth.returnVoid().flush();
 		clz.generate();
 	}
@@ -68,7 +80,7 @@ public class JVMGenerator extends LeafAdapter {
 		if (stack.size() != 2) {
 			throw new RuntimeException("I was expecting a stack depth of 2, not " + stack.size());
 		}
-		meth.callVirtual("void", runner, "assertSameValue", stack.toArray(new IExpr[2]));
+		meth.callVirtual("void", runner, "assertSameValue", stack.toArray(new IExpr[2])).flush();
 		stack.clear();
 	}
 	

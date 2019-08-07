@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
@@ -72,6 +73,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		var.bind(defn);
+	}
+	
+	@Override
+	public void visitUnitTest(UnitTestCase e) {
+		this.scope = e.name;
+	}
+	
+	@Override
+	public void leaveUnitTest(UnitTestCase e) {
+		this.scope = null;
 	}
 
 	private RepositoryEntry find(NameOfThing s, String var) {
