@@ -16,6 +16,7 @@ import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
@@ -118,6 +119,12 @@ public class JVMGenerator extends LeafAdapter {
 		clz = bce.newClass(topName);
 		upClz = bce.newClass(upName);
 		downClz = bce.newClass(downName);
+
+		clz.addInnerClassReference(Access.PUBLICSTATICINTERFACE, clz.getCreatedName(), "Up");
+		upClz.generateAssociatedSourceFile();
+		upClz.makeInterface();
+		upClz.addInnerClassReference(Access.PUBLICSTATICINTERFACE, clz.getCreatedName(), "Up");
+		upClz.implementsInterface(J.UP_CONTRACT);
 	}
 
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner) {
