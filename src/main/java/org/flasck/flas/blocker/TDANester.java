@@ -16,14 +16,16 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDANester implements BlockConsumer {
 	private final List<TDAParsing> stack = new ArrayList<>();
 	private InputPosition lastloc;
+	private TDAParsing topLevel;
 
 	public TDANester(TDAParsing topLevel) {
-		stack.add(topLevel);
+		this.topLevel = topLevel;
 	}
 
 	@Override
 	public void newFile() {
-		// need to do a state reset
+		lastloc = null;
+		stack.add(topLevel);
 	}
 
 	@Override

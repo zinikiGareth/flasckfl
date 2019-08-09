@@ -21,11 +21,14 @@ public class TDAStoryTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 
 	@Test
-	public void nothingMeansNothing() { // but should there be some kind of "reset"?
+	public void nothingMeansNothing() {
 		TDAParsing topLevel = context.mock(TDAParsing.class);
 		context.checking(new Expectations() {{
+			oneOf(topLevel).scopeComplete(null);
 		}});
-		new TDANester(topLevel);
+		TDANester story = new TDANester(topLevel);
+		story.newFile();
+		story.flush();
 	}
 
 	@Test
@@ -33,9 +36,12 @@ public class TDAStoryTests {
 		TDAParsing topLevel = context.mock(TDAParsing.class);
 		context.checking(new Expectations() {{
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world")));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
 		TDANester story = new TDANester(topLevel);
+		story.newFile();
 		story.line(1, line("hello, world"));
+		story.flush();
 	}
 
 	@Test
@@ -44,10 +50,13 @@ public class TDAStoryTests {
 		context.checking(new Expectations() {{
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world")));
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("a second line")));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
 		TDANester story = new TDANester(topLevel);
+		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(1, line("a second line"));
+		story.flush();
 	}
 
 	@Test
@@ -57,10 +66,14 @@ public class TDAStoryTests {
 		context.checking(new Expectations() {{
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world"))); will(returnValue(nested));
 			oneOf(nested).tryParsing(with(TokenizableMatcher.match("a second line")));
+			oneOf(nested).scopeComplete(with(any(InputPosition.class)));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
 		TDANester story = new TDANester(topLevel);
+		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(2, line("a second line"));
+		story.flush();
 	}
 
 	@Test
@@ -68,10 +81,13 @@ public class TDAStoryTests {
 		TDAParsing topLevel = context.mock(TDAParsing.class);
 		context.checking(new Expectations() {{
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world"))); will(returnValue(null));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
 		TDANester story = new TDANester(topLevel);
+		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(2, line("a second line"));
+		story.flush();
 	}
 
 	@Test
@@ -83,12 +99,15 @@ public class TDAStoryTests {
 			oneOf(nested).tryParsing(with(TokenizableMatcher.match("a second line")));
 			oneOf(nested).scopeComplete(with(any(InputPosition.class)));
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("back at top"))); will(returnValue(null));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
 		TDANester story = new TDANester(topLevel);
+		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(2, line("a second line"));
 		story.line(1, line("back at top"));
 		story.line(2, line("will be ignored"));
+		story.flush();
 	}
 
 	@Test
@@ -102,12 +121,50 @@ public class TDAStoryTests {
 			oneOf(nested).scopeComplete(with(any(InputPosition.class)));
 			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("back at top"))); will(returnValue(nested2));
 			oneOf(nested2).tryParsing(with(TokenizableMatcher.match("second nesting")));
+			oneOf(nested2).scopeComplete(with(any(InputPosition.class)));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
 		}});
 		TDANester story = new TDANester(topLevel);
+		story.newFile();
 		story.line(1, line("hello, world"));
 		story.line(2, line("a second line"));
 		story.line(1, line("back at top"));
 		story.line(2, line("second nesting"));
+		story.flush();
+	}
+
+	@Test
+	public void multipleFilesCanBeProcessed() {
+		TDAParsing topLevel = context.mock(TDAParsing.class);
+		context.checking(new Expectations() {{
+			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world")));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
+			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world")));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
+		}});
+		TDANester story = new TDANester(topLevel);
+		story.newFile();
+		story.line(1, line("hello, world"));
+		story.flush();
+		story.newFile();
+		story.line(1, line("hello, world"));
+		story.flush();
+	}
+
+	@Test
+	public void aSubsequentFileCanBeEmpty() {
+		TDAParsing topLevel = context.mock(TDAParsing.class);
+		context.checking(new Expectations() {{
+			oneOf(topLevel).tryParsing(with(TokenizableMatcher.match("hello, world")));
+			oneOf(topLevel).scopeComplete(with(any(InputPosition.class)));
+			oneOf(topLevel).scopeComplete(null);
+		}});
+		TDANester story = new TDANester(topLevel);
+		story.newFile();
+		story.line(1, line("hello, world"));
+		story.flush();
+		story.newFile();
+		story.flush();
 	}
 
 	public static ContinuedLine line(String string) {
