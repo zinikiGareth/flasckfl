@@ -69,11 +69,10 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 				if (e.loc != null) {
 					pw.write(Justification.PADRIGHT.format(e.loc + ": ", 22) + (e.loc.text == null ? "" : e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off)));
 					pw.write('\n');
-				} else
-					pw.write("<unknown location>\n");
-				for (int i=0;i<ind;i++)
-					pw.append(' ');
-				pw.write(Justification.PADRIGHT.format("", 26));
+					for (int i=0;i<ind;i++)
+						pw.append(' ');
+					pw.write(Justification.PADRIGHT.format("", 26));
+				}
 				pw.write(e.msg);
 				pw.write('\n');
 			}
@@ -84,11 +83,11 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 	}
 	
 	public void showTo(Writer pw, int ind) throws IOException {
-		showFromMark(new Marker(), pw, ind);
+		showFromMark(new Marker(false), pw, ind);
 	}
 	
 	public ErrorMark mark() {
-		return new Marker();
+		return new Marker(true);
 	}
 
 	public String singleString() throws IOException {
@@ -122,9 +121,10 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 	private class Marker implements ErrorMark {
 		private Set<FLASError> have = new TreeSet<>();
 
-		public Marker() {
-			for (FLASError e : errors)
-				have.add(e);
+		public Marker(boolean includeCurrent) {
+			if (includeCurrent)
+				for (FLASError e : errors)
+					have.add(e);
 		}
 
 		@Override

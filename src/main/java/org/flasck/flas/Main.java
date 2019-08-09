@@ -132,6 +132,7 @@ public class Main {
 	private static void saveBCE(ErrorReporter errors, File jvmDir, ByteCodeEnvironment bce) {
 		bce.dumpAll(true);
 		if (jvmDir != null) {
+			FileUtils.assertDirectory(jvmDir);
 			try {
 				// Doing this makes things clean, but stops you putting multiple things in the
 				// same directory
