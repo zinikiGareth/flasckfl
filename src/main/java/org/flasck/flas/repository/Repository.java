@@ -66,6 +66,7 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitUnitTestStep(UnitTestStep s);
 		void visitUnitTestAssert(UnitTestAssert a);
 		void postUnitTestAssert(UnitTestAssert a);
+		void visitContractDecl(ContractDecl cd);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();

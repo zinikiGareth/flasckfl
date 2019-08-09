@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -26,6 +27,8 @@ public class JVMGenerator extends LeafAdapter {
 	private List<IExpr> stack = new ArrayList<IExpr>();
 	private IExpr runner;
 	private ByteCodeSink clz;
+	private ByteCodeSink upClz;
+	private ByteCodeSink downClz;
 
 	public JVMGenerator(ByteCodeStorage bce) {
 		this.bce = bce;
@@ -107,6 +110,16 @@ public class JVMGenerator extends LeafAdapter {
 		stack.clear();
 	}
 	
+	@Override
+	public void visitContractDecl(ContractDecl cd) {
+		String topName = cd.nameAsName().javaName();
+		String upName = topName + "$Up";
+		String downName = topName + "$Down";
+		clz = bce.newClass(topName);
+		upClz = bce.newClass(upName);
+		downClz = bce.newClass(downName);
+	}
+
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner) {
 		return new JVMGenerator(meth, runner);
 	}

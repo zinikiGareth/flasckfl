@@ -4,6 +4,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -172,5 +173,10 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
+	}
+
+	@Override
+	public void visitContractDecl(ContractDecl cd) {
+		visitor.visitContractDecl(cd);
 	}
 }

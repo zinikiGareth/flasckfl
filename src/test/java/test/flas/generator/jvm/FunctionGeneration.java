@@ -30,9 +30,6 @@ public class FunctionGeneration {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		MethodDefiner meth = context.mock(MethodDefiner.class);
-		context.checking(new Expectations() {{
-//			oneOf(meth).nextLocal(); will(returnValue(6));
-		}});
 		IExpr iret = context.mock(IExpr.class, "ret");
 		IExpr nret = context.mock(IExpr.class, "nret");
 		IExpr nullVal = context.mock(IExpr.class, "null");
