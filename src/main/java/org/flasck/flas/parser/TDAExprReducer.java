@@ -172,6 +172,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 			if (isUnary)
 				return 9;
 		case "+":
+		case "++":
 			return 5;
 		case ":":
 			return 3;
