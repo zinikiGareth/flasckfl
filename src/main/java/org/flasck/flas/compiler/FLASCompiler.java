@@ -63,16 +63,16 @@ public class FLASCompiler {
 		this.config = config;
 	}
 	
-	public void processInput(Configuration config, Repository repository, File input) {
-		ErrorMark mark = errors().mark();
+	public ErrorMark processInput(Configuration config, Repository repository, File input, ErrorMark mark) {
 		try {
 			if (config.tda)
-				mark = parse(repository, input);
+				mark = parse(repository, input, mark);
 		} catch (Throwable ex) {
 			reportException(ex);
 		} finally {
 			errors().showFromMark(mark, errorWriter(), 0);
 		}
+		return mark;
 	}
 
 	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put
@@ -170,7 +170,7 @@ public class FLASCompiler {
 //	}
 
 	// Now read and parse all the files, passing it on to the alleged phase2
-	public ErrorMark parse(Repository repository, File dir) {
+	public ErrorMark parse(Repository repository, File dir, ErrorMark mark) {
 		if (!dir.isDirectory())
 			throw new RuntimeException("there is no input directory " + dir);
 
@@ -178,7 +178,6 @@ public class FLASCompiler {
 		checkPackageName(inPkg);
 		System.out.println("Package " + inPkg);
 		ParsingPhase flp = new ParsingPhase(config.errors, inPkg, (TopLevelDefinitionConsumer)repository);
-		ErrorMark mark = config.errors.mark();
 		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			System.out.println(" > " + f.getName());
 			flp.process(f);

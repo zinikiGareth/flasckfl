@@ -34,10 +34,11 @@ public class Main {
 
 	public static boolean noExit(String... args) throws IOException {
 		ErrorResult errors = new ErrorResult();
+		ErrorMark mark = errors.mark();
 		PrintWriter ew = new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true);
 		Configuration config = new Configuration(errors, args);
 		if (errors.hasErrors()) {
-			errors.showTo(ew, 0);
+			errors.showFromMark(mark, ew, 0);
 			return true;
 		}
 		// TODO: 2019-07-22 I'm going to suggest that we want separate things for parsing and generation and the like
@@ -48,7 +49,7 @@ public class Main {
 //		compiler.scanWebZips();
 		Repository repository = new Repository();
 		for (File input : config.inputs)
-			compiler.processInput(config, repository, input);
+			mark = compiler.processInput(config, repository, input, mark);
 
 		if (config.dumprepo != null) {
 			try {
@@ -59,7 +60,7 @@ public class Main {
 		}
 		
 		if (compiler.hasErrors()) {
-			errors.showTo(ew, 0);
+			errors.showFromMark(mark, ew, 0);
 			return true;
 		} else if (config.upto == PhaseTo.PARSING)
 			return false;
@@ -80,7 +81,7 @@ public class Main {
 			Resolver resolver = new RepositoryResolver(errors, repository);
 			repository.traverse(resolver);
 			if (compiler.hasErrors()) {
-				errors.showTo(ew, 0);
+				errors.showFromMark(mark, ew, 0);
 				return true;
 			}
 		}
@@ -92,18 +93,16 @@ public class Main {
 			repository.traverse(jvmGenerator);
 			saveBCE(errors, config.jvmDir(), bce);
 			if (compiler.hasErrors()) {
-				errors.showTo(ew, 0);
+				errors.showFromMark(mark, ew, 0);
 				return true;
 			}
 
 			if (config.unitjvm) {
 				BCEClassLoader bcl = new BCEClassLoader(bce);
-				ErrorMark mark = errors.mark();
 				JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
 				jvmRunner.runAll();
-				errors.showFromMark(mark, ew, 0);
 				if (compiler.hasErrors()) {
-					errors.showTo(ew, 0);
+					errors.showFromMark(mark, ew, 0);
 					return true;
 				}
 			}
