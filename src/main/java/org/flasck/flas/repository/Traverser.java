@@ -8,6 +8,8 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -31,8 +33,14 @@ public class Traverser implements Visitor {
 	public void visitEntry(RepositoryEntry e) {
 		if (e == null)
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle null entries");
+		else if (e instanceof ContractDecl)
+			visitContractDecl((ContractDecl)e);
+		else if (e instanceof ObjectDefn)
+			visitObjectDefn((ObjectDefn)e);
 		else if (e instanceof FunctionDefinition)
 			visitFunction((FunctionDefinition)e);
+		else if (e instanceof ObjectMethod)
+			visitObjectMethod((ObjectMethod)e);
 		else if (e instanceof StructDefn)
 			visitStructDefn((StructDefn)e);
 		else if (e instanceof StructField)
@@ -48,8 +56,18 @@ public class Traverser implements Visitor {
 		visitor.visitStructDefn(s);
 	}
 
+	@Override
+	public void visitObjectDefn(ObjectDefn e) {
+		visitor.visitObjectDefn(e);
+	}
+
 	public void visitStructField(StructField sf) {
 		visitor.visitStructField(sf);
+	}
+
+	@Override
+	public void visitObjectMethod(ObjectMethod e) {
+		visitor.visitObjectMethod(e);
 	}
 
 	@Override

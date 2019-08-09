@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -67,6 +68,8 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitUnitTestAssert(UnitTestAssert a);
 		void postUnitTestAssert(UnitTestAssert a);
 		void visitContractDecl(ContractDecl cd);
+		void visitObjectDefn(ObjectDefn e);
+		void visitObjectMethod(ObjectMethod e);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();
