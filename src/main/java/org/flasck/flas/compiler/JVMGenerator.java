@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -39,6 +40,11 @@ public class JVMGenerator extends LeafAdapter {
 		this.bce = null;
 		this.meth = meth;
 		this.runner = runner;
+	}
+
+	private JVMGenerator(ByteCodeSink clz) {
+		this.bce = null;
+		this.clz = clz;
 	}
 
 	@Override
@@ -127,7 +133,16 @@ public class JVMGenerator extends LeafAdapter {
 		upClz.implementsInterface(J.UP_CONTRACT);
 	}
 
+	@Override
+	public void visitContractMethod(ContractMethodDecl cmd) {
+		meth = clz.createMethod(false, J.OBJECT, cmd.name.name);
+	}
+	
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner) {
 		return new JVMGenerator(meth, runner);
+	}
+
+	public static JVMGenerator forTests(ByteCodeSink bcc) {
+		return new JVMGenerator(bcc);
 	}
 }
