@@ -337,7 +337,7 @@
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
     <seq>
       <ref production='type-reference'/>
-      <token type='var-name' names='Field\[.* ${final} .*\]'/>
+      <token type='var-name'/>
       <optional>
       	<ref production='struct-initializer'/>
       </optional>

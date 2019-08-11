@@ -17,6 +17,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -49,6 +50,7 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitEntry(RepositoryEntry entry);
 		void visitStructDefn(StructDefn s);
 		void visitStructField(StructField sf);
+		void leaveStructDefn(StructDefn s);
 		void visitUnresolvedVar(UnresolvedVar var);
 		void visitUnresolvedOperator(UnresolvedOperator operator);
 		void visitTypeReference(TypeReference var);
@@ -68,6 +70,8 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitUnitTestAssert(UnitTestAssert a);
 		void postUnitTestAssert(UnitTestAssert a);
 		void visitContractDecl(ContractDecl cd);
+		void visitContractMethod(ContractMethodDecl cmd);
+		void leaveContractDecl(ContractDecl cd);
 		void visitObjectDefn(ObjectDefn e);
 		void visitObjectMethod(ObjectMethod e);
 	}
@@ -127,11 +131,6 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 	@Override
 	public void newStruct(StructDefn sd) {
 		addEntry(sd.name(), sd);
-	}
-
-	@Override
-	public void field(NameOfThing name, StructField sf) {
-		addEntry(name, sf);
 	}
 
 	@Override

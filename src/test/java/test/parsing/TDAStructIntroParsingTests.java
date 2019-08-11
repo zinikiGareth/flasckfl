@@ -129,7 +129,6 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
-			oneOf(builder).field(with(any(NameOfThing.class)), with(any(StructField.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		final Tokenizable line = TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred");

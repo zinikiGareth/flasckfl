@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -35,9 +36,7 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitObjectDefn(ObjectDefn e) {
-		// TODO Auto-generated method stub
-		
+	public void leaveStructDefn(StructDefn s) {
 	}
 
 	@Override
@@ -45,9 +44,11 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitObjectDefn(ObjectDefn e) {
+	}
+
+	@Override
 	public void visitObjectMethod(ObjectMethod e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -124,5 +125,13 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
+	}
+
+	@Override
+	public void visitContractMethod(ContractMethodDecl cmd) {
+	}
+
+	@Override
+	public void leaveContractDecl(ContractDecl cd) {
 	}
 }

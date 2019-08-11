@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -29,6 +30,11 @@ public class Traverser implements Visitor {
 		this.visitor = visitor;
 	}
 
+	/** It's starting to concern me that for some things (contracts, unit tests) we visit
+	 * the parent object and then all of its children, but for other things,
+	 * such as structs with fields, or objects and their methods, we view both as being in the repository and allow
+	 * the repository to do its work in any order.
+	 */
 	@Override
 	public void visitEntry(RepositoryEntry e) {
 		if (e == null)
@@ -43,8 +49,6 @@ public class Traverser implements Visitor {
 			visitObjectMethod((ObjectMethod)e);
 		else if (e instanceof StructDefn)
 			visitStructDefn((StructDefn)e);
-		else if (e instanceof StructField)
-			visitStructField((StructField)e);
 		else if (e instanceof UnitTestCase)
 			visitUnitTest((UnitTestCase)e);
 		else
@@ -54,15 +58,24 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitStructDefn(StructDefn s) {
 		visitor.visitStructDefn(s);
+		for (StructField f : s.fields)
+			visitStructField(f);
+		leaveStructDefn(s);
+	}
+	
+	@Override
+	public void visitStructField(StructField sf) {
+		visitor.visitStructField(sf);
+	}
+
+	@Override
+	public void leaveStructDefn(StructDefn s) {
+		visitor.leaveStructDefn(s);
 	}
 
 	@Override
 	public void visitObjectDefn(ObjectDefn e) {
 		visitor.visitObjectDefn(e);
-	}
-
-	public void visitStructField(StructField sf) {
-		visitor.visitStructField(sf);
 	}
 
 	@Override
@@ -196,5 +209,17 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
 		visitor.visitContractDecl(cd);
+		for (ContractMethodDecl m : cd.methods)
+			visitContractMethod(m);
+		visitor.leaveContractDecl(cd);
+	}
+
+	@Override
+	public void visitContractMethod(ContractMethodDecl cmd) {
+		visitor.visitContractMethod(cmd);
+	}
+
+	@Override
+	public void leaveContractDecl(ContractDecl cd) {
 	}
 }

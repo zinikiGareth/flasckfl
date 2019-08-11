@@ -226,14 +226,14 @@ public class RepositoryTests {
 	}
 
 	@Test
-	public void structFieldsAreAddedToTheRepository() {
+	public void structFieldsAreGivenNames() {
 		Repository r = new Repository();
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "TheStruct"), true, new ArrayList<>());
 		ConsumeStructFields csf = new ConsumeStructFields(r, (loc, t) -> new VarName(loc, sd.name(), t), sd);
 		r.newStruct(sd);
 		final StructField sf = new StructField(pos, true, new TypeReference(pos, "A"), "x");
 		csf.addField(sf);
-		assertEquals(sf, r.get("test.repo.TheStruct.x"));
+		assertEquals("test.repo.TheStruct.x", sf.name().uniqueName());
 	}
 
 	@Test
