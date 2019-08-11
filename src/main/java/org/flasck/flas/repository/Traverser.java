@@ -39,6 +39,8 @@ public class Traverser implements Visitor {
 	public void visitEntry(RepositoryEntry e) {
 		if (e == null)
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle null entries");
+		else if (e instanceof BuiltinRepositoryEntry)
+			; // do nothing for builtins
 		else if (e instanceof ContractDecl)
 			visitContractDecl((ContractDecl)e);
 		else if (e instanceof ObjectDefn)

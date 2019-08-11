@@ -16,6 +16,7 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
@@ -48,6 +49,7 @@ public class Main {
 		compiler.errorWriter(ew);
 //		compiler.scanWebZips();
 		Repository repository = new Repository();
+		LoadBuiltins.applyTo(repository);
 		for (File input : config.inputs)
 			mark = compiler.processInput(config, repository, input, mark);
 
