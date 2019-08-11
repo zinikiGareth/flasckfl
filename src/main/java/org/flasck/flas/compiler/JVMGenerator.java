@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -42,9 +43,11 @@ public class JVMGenerator extends LeafAdapter {
 		this.runner = runner;
 	}
 
-	private JVMGenerator(ByteCodeSink clz) {
+	private JVMGenerator(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {
 		this.bce = null;
 		this.clz = clz;
+		this.upClz = up;
+		this.downClz = down;
 	}
 
 	@Override
@@ -135,14 +138,22 @@ public class JVMGenerator extends LeafAdapter {
 
 	@Override
 	public void visitContractMethod(ContractMethodDecl cmd) {
-		meth = clz.createMethod(false, J.OBJECT, cmd.name.name);
+		ByteCodeSink in;
+		if (cmd.dir == ContractMethodDir.DOWN)
+			in = downClz;
+		else
+			in = upClz;
+		GenericAnnotator ann = GenericAnnotator.newMethod(in, false, cmd.name.name);
+		ann.returns(JavaType.object_);
+		meth = ann.done();
+		meth.argument(J.FLEVALCONTEXT, "cxt");
 	}
 	
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner) {
 		return new JVMGenerator(meth, runner);
 	}
 
-	public static JVMGenerator forTests(ByteCodeSink bcc) {
-		return new JVMGenerator(bcc);
+	public static JVMGenerator forTests(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {
+		return new JVMGenerator(clz, up, down);
 	}
 }

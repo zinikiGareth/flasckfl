@@ -61,8 +61,9 @@ public class ContractGeneration {
 		MethodDefiner meth = context.mock(MethodDefiner.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		}});
-		JVMGenerator gen = JVMGenerator.forTests(bcc);
+		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		new Traverser(gen).visitContractMethod(cmd);
