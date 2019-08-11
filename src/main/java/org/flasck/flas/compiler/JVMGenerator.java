@@ -9,7 +9,11 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
@@ -146,7 +150,25 @@ public class JVMGenerator extends LeafAdapter {
 		GenericAnnotator ann = GenericAnnotator.newMethod(in, false, cmd.name.name);
 		ann.returns(JavaType.object_);
 		meth = ann.done();
-		meth.argument(J.FLEVALCONTEXT, "cxt");
+		meth.argument(J.FLEVALCONTEXT, "_cxt");
+		int i=1;
+		TypeReference type = null;
+		for (Object a : cmd.args) {
+			type = null;
+			if (a instanceof VarPattern) {
+				VarPattern vp = (VarPattern) a;
+				meth.argument(J.OBJECT, vp.var);
+			} else if (a instanceof TypedPattern) {
+				TypedPattern vp = (TypedPattern) a;
+				meth.argument(J.OBJECT, vp.var);
+				type = vp.type;
+			} else {
+				meth.argument(J.OBJECT, "a" + i);
+			}
+			i++;
+		}
+		if (type == null || !(type.defn() instanceof ContractDecl))
+			meth.argument(J.OBJECT, "_ih");
 	}
 	
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner) {

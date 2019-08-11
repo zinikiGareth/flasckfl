@@ -4,12 +4,19 @@ import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.TuplePattern;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.jmock.Expectations;
@@ -18,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.MethodDefiner;
 
@@ -61,11 +67,65 @@ public class ContractGeneration {
 		MethodDefiner meth = context.mock(MethodDefiner.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+			oneOf(meth).argument("java.lang.Object", "_ih");
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		new Traverser(gen).visitContractMethod(cmd);
+	}
+
+	@Test
+	public void contractMethodMayHaveArguments() {
+		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		MethodDefiner meth = context.mock(MethodDefiner.class);
+		context.checking(new Expectations() {{
+			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+			oneOf(meth).argument("java.lang.Object", "hello");
+			oneOf(meth).argument("java.lang.Object", "_ih");
+		}});
+		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
+		SolidName cname = new SolidName(pkg, "MyContract");
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		cmd.args.add(new VarPattern(pos, new VarName(pos, cname, "hello")));
+		new Traverser(gen).visitContractMethod(cmd);
+	}
+
+	@Test
+	public void contractMethodMayHaveArgumentsButDeclaredHandlerImpliesNoIH() {
+		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		MethodDefiner meth = context.mock(MethodDefiner.class);
+		context.checking(new Expectations() {{
+			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+			oneOf(meth).argument("java.lang.Object", "handler");
+		}});
+		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
+		SolidName cname = new SolidName(pkg, "MyContract");
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		TypeReference tr = new TypeReference(pos, "MyHandler");
+		tr.bind(new ContractDecl(pos, pos, new SolidName(pkg, "AContract")));
+		cmd.args.add(new TypedPattern(pos, tr, pos, "handler"));
+		new Traverser(gen).visitContractMethod(cmd);
+	}
+	
+	// I'm not sure this is a real case, but I'm also not sure it's not
+	@Test
+	public void contractMethodWithComplexPatternArgumentsJustGetBoringNames() {
+		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		MethodDefiner meth = context.mock(MethodDefiner.class);
+		context.checking(new Expectations() {{
+			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+			oneOf(meth).argument("java.lang.Object", "a1");
+			oneOf(meth).argument("java.lang.Object", "_ih");
+		}});
+		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
+		SolidName cname = new SolidName(pkg, "MyContract");
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		cmd.args.add(new TuplePattern(pos, new ArrayList<>()));
 		new Traverser(gen).visitContractMethod(cmd);
 	}
 }
