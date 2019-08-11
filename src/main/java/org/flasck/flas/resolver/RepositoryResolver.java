@@ -5,8 +5,11 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -73,6 +76,27 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		var.bind(defn);
+	}
+	
+	@Override
+	public void visitContractDecl(ContractDecl cd) {
+		scope = cd.nameAsName();
+	}
+	
+	@Override
+	public void visitContractMethod(ContractMethodDecl cmd) {
+		for (Object a : cmd.args) {
+			if (a instanceof TypedPattern) {
+				TypedPattern p = (TypedPattern) a;
+				visitTypeReference(p.type);
+			}
+				
+		}
+	}
+	
+	@Override
+	public void leaveContractDecl(ContractDecl cd) {
+		this.scope = null;
 	}
 	
 	@Override

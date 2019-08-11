@@ -14,6 +14,9 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -49,6 +52,7 @@ public class ResolverTests {
 	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
+	private final ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "ContractName"));
 
 	@Test
 	public void testWeCanResolveASimpleName() {
@@ -228,6 +232,24 @@ public class ResolverTests {
 		new Traverser(r).visitUnitTestStep(uts);
 		assertEquals(vx, x.defn());
 		assertEquals(vy, y.defn());
+	}
+
+	@Test
+	public void testWeCanResolveArgumentTypesInAContractMethod() {
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.MyHandler"); will(returnValue(cd));
+		}});
+		Resolver r = new RepositoryResolver(errors, ry);
+		r.currentScope(pkg);
+		UnresolvedVar x = new UnresolvedVar(pos, "x");
+		UnresolvedVar y = new UnresolvedVar(pos, "y");
+		SolidName cname = new SolidName(pkg, "MyContract");
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		TypeReference tr = new TypeReference(pos, "MyHandler");
+		cmd.args.add(new TypedPattern(pos, tr, pos, "handler"));
+		new Traverser(r).visitContractMethod(cmd);
+		assertEquals(cd, tr.defn());
 	}
 
 }
