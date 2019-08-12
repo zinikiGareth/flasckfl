@@ -32,7 +32,7 @@ public class Traverser implements Visitor {
 
 	/** It's starting to concern me that for some things (contracts, unit tests) we visit
 	 * the parent object and then all of its children, but for other things,
-	 * such as structs with fields, or objects and their methods, we view both as being in the repository and allow
+	 * such as objects and their methods, we view both as being in the repository and allow
 	 * the repository to do its work in any order.
 	 */
 	@Override

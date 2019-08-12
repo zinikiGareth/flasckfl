@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
@@ -12,7 +11,6 @@ import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
-import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -46,6 +44,7 @@ public class ContractGeneration {
 
 			oneOf(bce).newClass("test.repo.MyContract$Up"); will(returnValue(up));
 			allowing(up).generateAssociatedSourceFile();
+			allowing(down).generateAssociatedSourceFile();
 
 			oneOf(bce).newClass("test.repo.MyContract$Down"); will(returnValue(down));
 			
@@ -53,6 +52,11 @@ public class ContractGeneration {
 			oneOf(up).makeInterface();
 			oneOf(up).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Up");
 			oneOf(up).implementsInterface("org.ziniki.ziwsh.UpContract");
+			
+			oneOf(parent).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Down");
+			oneOf(down).makeInterface();
+			oneOf(down).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Down");
+			oneOf(down).implementsInterface("org.ziniki.ziwsh.UpContract");
 			
 		}});
 		JVMGenerator gen = new JVMGenerator(bce);

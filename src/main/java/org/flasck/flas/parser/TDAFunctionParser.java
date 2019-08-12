@@ -40,7 +40,7 @@ public class TDAFunctionParser implements TDAParsing {
 		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fname, v), p -> {
 			args.add(p);
 		}, topLevel);
-		while (pp.tryParsing(line) != null)
+		while (pp.tryParsing(line, currErr) != null)
 			;
 		if (currErr.hasMoreNow())
 			return new IgnoreNestedParser();

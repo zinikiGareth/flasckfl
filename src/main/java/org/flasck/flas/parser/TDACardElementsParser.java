@@ -53,6 +53,10 @@ public class TDACardElementsParser implements TDAParsing, FunctionNameProvider, 
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
+			if (tn == null) {
+				errors.message(toks, "template must have a name");
+				return new IgnoreNestedParser();
+			}
 			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.text), null, null);
 			consumer.addTemplate(template);
 			return new TDATemplateBindingParser(errors, template);

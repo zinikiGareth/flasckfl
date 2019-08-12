@@ -30,6 +30,8 @@ public class RepoChecker {
 				int id2 = name.lastIndexOf(".");
 				String finalS = s.substring(id2+1, idx).trim();
 				String defn = s.substring(idx+1).trim();
+				if (defn.startsWith("Builtin["))
+					continue;
 				if (!ms.containsKey(name)) {
 					System.out.println("There is no matcher for: " + name);
 					ret = false;

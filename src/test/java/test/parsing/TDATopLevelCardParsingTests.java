@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -84,6 +85,17 @@ public class TDATopLevelCardParsingTests {
 		TDAParsing nested = cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 		assertEquals(1, card.templates.size());
 		assertTrue(nested instanceof TDATemplateBindingParser);
+	}
+
+	@Test
+	public void aTemplateDeclarationMustIncludeAName() {
+		Tokenizable line = TDABasicIntroParsingTests.line("template");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(line, "template must have a name");
+		}});
+		TDAParsing nested = cardParser.tryParsing(line);
+		assertEquals(0, card.templates.size());
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test

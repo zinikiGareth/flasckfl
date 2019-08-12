@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 
 public class FLASCompiler {
@@ -178,7 +179,9 @@ public class FLASCompiler {
 		checkPackageName(inPkg);
 		System.out.println("Package " + inPkg);
 		ParsingPhase flp = new ParsingPhase(config.errors, inPkg, (TopLevelDefinitionConsumer)repository);
-		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
+		List<File> files = FileUtils.findFilesMatching(dir, "*.fl");
+		files.sort(new FileNameComparator());
+		for (File f : files) {
 			System.out.println(" > " + f.getName());
 			flp.process(f);
 			config.errors.showFromMark(mark, errorWriter, 4);

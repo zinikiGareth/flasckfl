@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.TuplePattern;
@@ -30,9 +31,14 @@ public class TDAPatternParser implements TDAParsing {
 		this.topLevel = topLevel;
 	}
 
+	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (errors.hasErrors())
+		return tryParsing(toks, errors.mark());
+	}
+
+	public TDAParsing tryParsing(Tokenizable toks, ErrorMark currErr) {
+		if (currErr.hasMoreNow())
 			return null;
 		
 		// This case is for the simple case such as "Nil" where a no-arg constructor can match by itself
