@@ -2,6 +2,7 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -24,8 +25,11 @@ public class TDAMethodIntroParsingTests {
 
 	@Test
 	public void aStandaloneMethodCanBeDefined() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
@@ -35,8 +39,11 @@ public class TDAMethodIntroParsingTests {
 
 	@Test
 	public void aStandaloneMethodCanHaveAnArgument() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
 			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.foo.x")));
 		}});

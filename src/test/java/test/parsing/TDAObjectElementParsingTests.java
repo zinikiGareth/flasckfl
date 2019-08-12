@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -64,8 +65,11 @@ public class TDAObjectElementParsingTests {
 	
 	@Test
 	public void objectsCanHaveAConstructor() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("simple")));
 			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 		}});
@@ -78,8 +82,11 @@ public class TDAObjectElementParsingTests {
 	
 	@Test
 	public void objectsCanHaveAConstructorWithAnArgument() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
 			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
@@ -138,8 +145,11 @@ public class TDAObjectElementParsingTests {
 
 	@Test
 	public void objectsCanHaveUpdateMethods() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
 			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 		}});
@@ -150,8 +160,11 @@ public class TDAObjectElementParsingTests {
 
 	@Test
 	public void objectsCanHaveUpdateMethodsWithArguments() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
 			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 		}});

@@ -2,6 +2,7 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ContractMethodConsumer;
@@ -24,8 +25,11 @@ public class TDAContractMethodParsingTests {
 
 	@Test
 	public void aSimpleUpMethod() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred")));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
@@ -35,8 +39,11 @@ public class TDAContractMethodParsingTests {
 
 	@Test
 	public void aSimpleDownMethod() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.down("fred")));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
@@ -66,8 +73,11 @@ public class TDAContractMethodParsingTests {
 
 	@Test
 	public void methodsMayBeDeclaredOptional() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred").optional()));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
@@ -77,8 +87,11 @@ public class TDAContractMethodParsingTests {
 
 	@Test
 	public void methodMayHaveOneSimpleArgument() {
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred").arg(VarPatternMatcher.var("x"))));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});

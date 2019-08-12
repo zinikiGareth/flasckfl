@@ -3,6 +3,7 @@ package test.parsing;
 import static org.junit.Assert.assertEquals;
 
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parser.ObjectElementsConsumer;
@@ -35,8 +36,11 @@ public class TDAMethodNestingParsingTests {
 	@Test
 	public void anObjectCtorCanHaveActionsWithNoNesting() {
 		CaptureAction captureIt = new CaptureAction(null);
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class))); will(captureIt);
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(errors, namer, builder, topLevel);
@@ -100,8 +104,11 @@ public class TDAMethodNestingParsingTests {
 	public void cannotDirectlyNestScopeUnderMethodWithoutActions() {
 		// extract this here since we want to check it's the one that errors, but we only supply it later ...
 		final Tokenizable line = TDABasicIntroParsingTests.line("s = 'hello'");
+		ErrorMark mark = context.mock(ErrorMark.class);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
 			oneOf(errors).message(line, "expected <-");
 		}});
