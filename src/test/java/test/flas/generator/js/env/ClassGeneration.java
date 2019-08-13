@@ -44,21 +44,28 @@ public class ClassGeneration {
 
 	@Test
 	public void aClassCanCreateNewMethods() {
+		w = w.indent();
 		JSClass jsc = new JSClass(null);
 		JSMethodCreator meth = jsc.createMethod("test");
 		assertNotNull(meth);
+		meth.write(w);
+		assertEquals("  test() {\n  }\n", sw.toString());
 	}
 
 	@Test
 	public void methodsCanCreateLiterals() {
-		JSMethod jsc = new JSMethod();
-		JSExpr expr = jsc.literal("name");
+		JSMethod jsc = new JSMethod("fred");
+		JSExpr expr = jsc.literal("42");
 		assertNotNull(expr);
+		// I don't know if I want this or not ...
+//		expr.write(w);
+//		assertEquals("42", sw.toString());
+		assertEquals("42", expr.asVar());
 	}
 
 	@Test
 	public void methodsCanCreateArguments() {
-		JSMethod jsc = new JSMethod();
+		JSMethod jsc = new JSMethod("fred");
 		JSExpr expr = jsc.argument("v");
 		assertNotNull(expr);
 		expr.write(w);
@@ -69,10 +76,45 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanCreateApplyExprs() {
 		w = w.indent();
-		JSMethod jsc = new JSMethod();
+		JSMethod jsc = new JSMethod("fred");
 		JSExpr expr = jsc.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
 		assertNotNull(expr);
 		expr.write(w);
 		assertEquals("  const v1 = v.called(true);\n", sw.toString());
+	}
+
+	@Test
+	public void aMethodWithOneArgumentGeneratesCorrectly() {
+		w = w.indent();
+		JSClass jsc = new JSClass(null);
+		JSMethodCreator meth = jsc.createMethod("test");
+		assertNotNull(meth);
+		meth.argument("arg1");
+		meth.write(w);
+		assertEquals("  test(arg1) {\n  }\n", sw.toString());
+	}
+
+	@Test
+	public void aMethodWithArgumentsGeneratesCorrectly() {
+		w = w.indent();
+		JSClass jsc = new JSClass(null);
+		JSMethodCreator meth = jsc.createMethod("test");
+		assertNotNull(meth);
+		meth.argument("arg1");
+		meth.argument("arg2");
+		meth.write(w);
+		assertEquals("  test(arg1, arg2) {\n  }\n", sw.toString());
+	}
+
+	@Test
+	public void aMethodIncludesItsActions() {
+		w = w.indent();
+		JSClass jsc = new JSClass(null);
+		JSMethodCreator meth = jsc.createMethod("test");
+		assertNotNull(meth);
+		JSExpr obj = meth.argument("arg1");
+		meth.callMethod(obj, "mymethod", obj);
+		meth.write(w);
+		assertEquals("  test(arg1) {\n    const v1 = arg1.mymethod(arg1);\n  }\n", sw.toString());
 	}
 }

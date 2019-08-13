@@ -54,7 +54,7 @@ public class UnitTestGenerationJS {
 		JSExpr ra = context.mock(JSExpr.class, "ra");
 		context.checking(new Expectations() {{
 			oneOf(meth).literal("42"); will(returnValue(la));
-			oneOf(meth).literal("hello"); will(returnValue(ra));
+			oneOf(meth).string("hello"); will(returnValue(ra));
 			oneOf(meth).callMethod(runner, "assertSameValue", la, ra);
 		}});
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner));

@@ -7,7 +7,7 @@ public class JSClass implements JSClassCreator {
 
 	@Override
 	public JSMethodCreator createMethod(String name) {
-		JSMethod meth = new JSMethod();
+		JSMethod meth = new JSMethod(name);
 		return meth;
 	}
 

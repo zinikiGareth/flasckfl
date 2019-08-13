@@ -6,6 +6,8 @@ import java.util.List;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
@@ -34,10 +36,17 @@ public class JSGenerator extends LeafAdapter {
 
 	@Override
 	public void visitStringLiteral(StringLiteral expr) {
-		stack.add(meth.literal(expr.text));
+		stack.add(meth.string(expr.text));
 	}
 	
-
+	@Override
+	public void visitUnresolvedVar(UnresolvedVar var) {
+		FunctionDefinition defn = (FunctionDefinition)var.defn();
+		if (defn == null)
+			throw new RuntimeException("var " + var + " was still not resolved");
+		stack.add(meth.callStatic(defn.name().jsName(), "eval"));
+	}
+	
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		UnitTestName clzName = e.name;
