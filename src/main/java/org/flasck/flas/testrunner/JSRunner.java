@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.compiler.JSEnvironment;
+import org.flasck.flas.compiler.jsgen.JSEnvironment;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;

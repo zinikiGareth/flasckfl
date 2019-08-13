@@ -1,4 +1,4 @@
-package org.flasck.flas.compiler;
+package org.flasck.flas.compiler.jsgen;
 
 import java.io.File;
 

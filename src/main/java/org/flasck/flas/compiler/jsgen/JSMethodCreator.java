@@ -1,4 +1,4 @@
-package org.flasck.flas.compiler;
+package org.flasck.flas.compiler.jsgen;
 
 public interface JSMethodCreator {
 	JSExpr literal(String text);
