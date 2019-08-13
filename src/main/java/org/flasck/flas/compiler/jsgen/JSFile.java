@@ -3,12 +3,16 @@ package org.flasck.flas.compiler.jsgen;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSFile {
 	private final String pkg;
 	private final File file;
+	private final List<JSClass> classes = new ArrayList<>();
+	private final List<JSMethod> functions = new ArrayList<>();
 
 	public JSFile(String pkg, File file) {
 		this.pkg = pkg;
@@ -17,6 +21,14 @@ public class JSFile {
 
 	public File file() {
 		return file;
+	}
+	
+	public void addClass(JSClass ret) {
+		classes.add(ret);
+	}
+
+	public void addFunction(JSMethod jsMethod) {
+		functions.add(jsMethod);
 	}
 
 	// untested
@@ -29,6 +41,10 @@ public class JSFile {
 
 	public void writeTo(IndentWriter iw) {
 		declarePackages(iw);
+		for (JSClass c : classes)
+			c.writeTo(iw);
+		for (JSMethod f : functions)
+			f.write(iw);
 	}
 
 	private void declarePackages(IndentWriter iw) {

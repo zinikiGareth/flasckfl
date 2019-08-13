@@ -29,13 +29,15 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public JSClassCreator newClass(String pkg, String clz) {
 		JSFile inpkg = getPackage(pkg);
-		return new JSClass(inpkg);
+		JSClass ret = new JSClass(pkg, clz);
+		inpkg.addClass(ret);
+		return ret;
 	}
 	
 	@Override
 	public JSMethodCreator newFunction(String pkg, String name) {
 		JSFile inpkg = getPackage(pkg);
-		return new JSMethod(name);
+		return new JSMethod(pkg, name);
 	}
 
 	private JSFile getPackage(String pkg) {

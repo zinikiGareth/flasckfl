@@ -47,16 +47,16 @@ public class ClassGeneration {
 	@Test
 	public void aClassCanCreateNewMethods() {
 		w = w.indent();
-		JSClass jsc = new JSClass(null);
+		JSClass jsc = new JSClass("pkg.level", "Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
 		assertNotNull(meth);
 		meth.write(w);
-		assertEquals("  test() {\n  }\n", sw.toString());
+		assertEquals("\n  pkg.level.Clz.test = function() {\n  }\n", sw.toString());
 	}
 
 	@Test
 	public void methodsCanCreateLiterals() {
-		JSMethod meth = new JSMethod("fred");
+		JSMethod meth = new JSMethod(null, "fred");
 		JSExpr expr = meth.literal("42");
 		assertNotNull(expr);
 		// I don't know if I want this or not ...
@@ -67,7 +67,7 @@ public class ClassGeneration {
 
 	@Test
 	public void methodsCanCreateStrings() {
-		JSMethod meth = new JSMethod("fred");
+		JSMethod meth = new JSMethod(null, "fred");
 		JSExpr expr = meth.string("hello");
 		assertNotNull(expr);
 		// I don't know if I want this or not ...
@@ -78,7 +78,7 @@ public class ClassGeneration {
 
 	@Test
 	public void methodsCanCreateArguments() {
-		JSMethod meth = new JSMethod("fred");
+		JSMethod meth = new JSMethod(null, "fred");
 		JSExpr expr = meth.argument("v");
 		assertNotNull(expr);
 		expr.write(w);
@@ -89,7 +89,7 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanCreateApplyExprs() {
 		w = w.indent();
-		JSMethod meth = new JSMethod("fred");
+		JSMethod meth = new JSMethod(null, "fred");
 		JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
 		assertNotNull(expr);
 		expr.write(w);
@@ -99,7 +99,7 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanCallStaticFunctions() {
 		w = w.indent();
-		JSMethod meth = new JSMethod("fred");
+		JSMethod meth = new JSMethod(null, "fred");
 		JSExpr expr = meth.callStatic("test.repo", "f", new JSLiteral("true"));
 		assertNotNull(expr);
 		expr.write(w);
@@ -109,45 +109,45 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanReturnThings() {
 		w = w.indent();
-		JSMethod fn = new JSMethod("fred");
+		JSMethod fn = new JSMethod("pkg", "fred");
 		fn.returnObject(new JSString("hello"));
 		fn.write(w);
-		assertEquals("  fred() {\n    return 'hello';\n  }\n", sw.toString());
+		assertEquals("\n  pkg.fred = function() {\n    return 'hello';\n  }\n", sw.toString());
 	}
 
 	@Test
 	public void aMethodWithOneArgumentGeneratesCorrectly() {
 		w = w.indent();
-		JSClass jsc = new JSClass(null);
+		JSClass jsc = new JSClass("pkg", "Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
 		assertNotNull(meth);
 		meth.argument("arg1");
 		meth.write(w);
-		assertEquals("  test(arg1) {\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(arg1) {\n  }\n", sw.toString());
 	}
 
 	@Test
 	public void aMethodWithArgumentsGeneratesCorrectly() {
 		w = w.indent();
-		JSClass jsc = new JSClass(null);
+		JSClass jsc = new JSClass("pkg", "Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
 		assertNotNull(meth);
 		meth.argument("arg1");
 		meth.argument("arg2");
 		meth.write(w);
-		assertEquals("  test(arg1, arg2) {\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(arg1, arg2) {\n  }\n", sw.toString());
 	}
 
 	@Test
 	public void aMethodIncludesItsActions() {
 		w = w.indent();
-		JSClass jsc = new JSClass(null);
+		JSClass jsc = new JSClass("pkg", "Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
 		assertNotNull(meth);
 		JSExpr obj = meth.argument("arg1");
 		meth.callMethod(obj, "mymethod", obj);
 		meth.write(w);
-		assertEquals("  test(arg1) {\n    const v1 = arg1.mymethod(arg1);\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(arg1) {\n    const v1 = arg1.mymethod(arg1);\n  }\n", sw.toString());
 	}
 	
 	@Test
@@ -155,5 +155,21 @@ public class ClassGeneration {
 		JSFile f = new JSFile("test.repo.pkg", null);
 		f.writeTo(w);
 		assertEquals("if (!test) test = {};\nif (!test.repo) test.repo = {};\nif (!test.repo.pkg) test.repo.pkg = {};\n", sw.toString());
+	}
+	
+	@Test
+	public void aPackageIncludesItsClasses() {
+		JSFile f = new JSFile("test", null);
+		f.addClass(new JSClass("test", "Clazz"));
+		f.writeTo(w);
+		assertEquals("if (!test) test = {};\n\ntest.Clazz = function() {\n}\n", sw.toString());
+	}
+	
+	@Test
+	public void aPackageIncludesItsFunctions() {
+		JSFile f = new JSFile("test", null);
+		f.addFunction(new JSMethod("test", "f"));
+		f.writeTo(w);
+		assertEquals("if (!test) test = {};\n\ntest.f = function() {\n}\n", sw.toString());
 	}
 }

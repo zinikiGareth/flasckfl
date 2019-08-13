@@ -6,11 +6,13 @@ import java.util.List;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMethod implements JSMethodCreator {
+	private final String pkg;
 	private final String name;
 	private final List<JSVar> args = new ArrayList<>();
 	private final List<JSExpr> stmts = new ArrayList<>();
 
-	public JSMethod(String name) {
+	public JSMethod(String pkg, String name) {
+		this.pkg = pkg;
 		this.name = name;
 	}
 	
@@ -54,7 +56,11 @@ public class JSMethod implements JSMethodCreator {
 
 	@Override
 	public void write(IndentWriter w) {
+		w.println("");
+		w.print(pkg);
+		w.print(".");
 		w.print(name);
+		w.print(" = function");
 		w.print("(");
 		boolean isFirst = true;
 		for (JSVar v : args) {
