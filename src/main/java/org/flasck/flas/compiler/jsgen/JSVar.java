@@ -2,22 +2,20 @@ package org.flasck.flas.compiler.jsgen;
 
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSLiteral implements JSExpr {
-	private final String text;
+public class JSVar implements JSExpr {
+	private final String name;
 
-	public JSLiteral(String text) {
-		this.text = text;
+	public JSVar(String name) {
+		this.name = name;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		// TODO Auto-generated method stub
-		
+		w.print(name);
 	}
 
 	@Override
 	public String asVar() {
-		return text;
+		return name;
 	}
-
 }
