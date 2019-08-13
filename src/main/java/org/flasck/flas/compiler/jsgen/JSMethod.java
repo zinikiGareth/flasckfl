@@ -28,8 +28,8 @@ public class JSMethod implements JSMethodCreator {
 	}
 
 	@Override
-	public JSExpr callStatic(String clz, String meth, JSExpr... args) {
-		JSCallFunction stmt = new JSCallFunction(clz, meth, args);
+	public JSExpr callFunction(String meth, JSExpr... args) {
+		JSCallFunction stmt = new JSCallFunction(meth, args);
 		stmts.add(stmt);
 		return stmt;
 	}
@@ -46,6 +46,12 @@ public class JSMethod implements JSMethodCreator {
 		JSCallMethod stmt = new JSCallMethod(obj, meth, args);
 		stmts.add(stmt);
 		return stmt;
+	}
+
+	@Override
+	public void assertable(JSExpr obj, String assertion, JSExpr... args) {
+		JSAssertion stmt = new JSAssertion(obj, assertion, args);
+		stmts.add(stmt);
 	}
 
 	@Override

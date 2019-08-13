@@ -2,19 +2,25 @@ package org.flasck.flas.compiler.jsgen;
 
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSCallFunction implements JSExpr {
-	private final String fn;
+public class JSAssertion implements JSExpr {
+
+	private final JSExpr obj;
+	private final String meth;
 	private final JSExpr[] args;
 
-	public JSCallFunction(String fn, JSExpr... args) {
-		this.fn = fn;
+	public JSAssertion(JSExpr obj, String meth, JSExpr... args) {
+		this.obj = obj;
+		this.meth = meth;
 		this.args = args;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("const v1 = ");
-		w.print(fn);
+		if (obj != null) {
+			obj.write(w);
+			w.print(".");
+		}
+		w.print(meth);
 		w.print("(");
 		boolean isFirst = true;
 		for (JSExpr e : args) {

@@ -46,7 +46,7 @@ public class ExpressionGenerationJS {
 	public void aVar() {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		context.checking(new Expectations() {{
-			oneOf(meth).callStatic("test.repo.x", "eval");
+			oneOf(meth).callFunction("test.repo.x");
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");

@@ -17,8 +17,10 @@ public class JSCallMethod implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("const v1 = ");
-		obj.write(w);
-		w.print(".");
+		if (obj != null) {
+			obj.write(w);
+			w.print(".");
+		}
 		w.print(meth);
 		w.print("(");
 		boolean isFirst = true;

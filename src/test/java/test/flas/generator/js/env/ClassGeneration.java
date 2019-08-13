@@ -100,10 +100,20 @@ public class ClassGeneration {
 	public void methodsCanCallStaticFunctions() {
 		w = w.indent();
 		JSMethod meth = new JSMethod(null, "fred");
-		JSExpr expr = meth.callStatic("test.repo", "f", new JSLiteral("true"));
+		JSExpr expr = meth.callFunction("test.repo.f", new JSLiteral("true"));
 		assertNotNull(expr);
 		expr.write(w);
 		assertEquals("  const v1 = test.repo.f(true);\n", sw.toString());
+	}
+
+	@Test
+	public void methodsCanMakeAssertions() {
+		w = w.indent();
+		JSMethod meth = new JSMethod("pkg", "fred");
+		JSExpr obj = new JSVar("runner");
+		meth.assertable(obj, "isSame", obj, new JSLiteral("true"));
+		meth.write(w);
+		assertEquals("\n  pkg.fred = function() {\n    runner.isSame(runner, true);\n  }\n", sw.toString());
 	}
 
 	@Test
@@ -171,5 +181,13 @@ public class ClassGeneration {
 		f.addFunction(new JSMethod("test", "f"));
 		f.writeTo(w);
 		assertEquals("if (!test) test = {};\n\ntest.f = function() {\n}\n", sw.toString());
+	}
+	
+	@Test
+	public void aClassIncludesItsMethods() {
+		JSClass clz = new JSClass("test", "Clazz");
+		clz.createMethod("f");
+		clz.writeTo(w);
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function() {\n}\n", sw.toString());
 	}
 }

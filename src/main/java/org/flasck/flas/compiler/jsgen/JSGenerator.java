@@ -63,7 +63,7 @@ public class JSGenerator extends LeafAdapter {
 		FunctionDefinition defn = (FunctionDefinition)var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
-		stack.add(meth.callStatic(defn.name().jsName(), "eval"));
+		stack.add(meth.callFunction(defn.name().jsName()));
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public class JSGenerator extends LeafAdapter {
 		}
 		JSExpr lhs = stack.get(0);
 		JSExpr rhs = stack.get(1);
-		meth.callMethod(runner, "assertSameValue", lhs, rhs);
+		meth.assertable(runner, "assertSameValue", lhs, rhs);
 		stack.clear();
 	}
 
