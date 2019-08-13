@@ -2,13 +2,13 @@ package org.flasck.flas.compiler.jsgen;
 
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSCall implements JSExpr {
+public class JSCallMethod implements JSExpr {
 
 	private final JSExpr obj;
 	private final String meth;
 	private final JSExpr[] args;
 
-	public JSCall(JSExpr obj, String meth, JSExpr... args) {
+	public JSCallMethod(JSExpr obj, String meth, JSExpr... args) {
 		this.obj = obj;
 		this.meth = meth;
 		this.args = args;

@@ -22,12 +22,14 @@ public class JSMethod implements JSMethodCreator {
 
 	@Override
 	public JSExpr string(String string) {
-		return null;
+		return new JSString(string);
 	}
 
 	@Override
 	public JSExpr callStatic(String clz, String meth, JSExpr... args) {
-		return null;
+		JSCallFunction stmt = new JSCallFunction(clz, meth, args);
+		stmts.add(stmt);
+		return stmt;
 	}
 
 	@Override
@@ -39,9 +41,15 @@ public class JSMethod implements JSMethodCreator {
 
 	@Override
 	public JSExpr callMethod(JSExpr obj, String meth, JSExpr... args) {
-		JSCall stmt = new JSCall(obj, meth, args);
+		JSCallMethod stmt = new JSCallMethod(obj, meth, args);
 		stmts.add(stmt);
 		return stmt;
+	}
+
+	@Override
+	public void returnObject(JSExpr jsExpr) {
+		JSReturn stmt = new JSReturn(jsExpr);
+		stmts.add(stmt);
 	}
 
 	@Override

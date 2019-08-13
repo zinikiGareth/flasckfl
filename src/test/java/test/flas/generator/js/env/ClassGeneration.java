@@ -16,6 +16,7 @@ import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSLiteral;
 import org.flasck.flas.compiler.jsgen.JSMethod;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
+import org.flasck.flas.compiler.jsgen.JSString;
 import org.flasck.flas.compiler.jsgen.JSVar;
 import org.junit.Test;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -54,8 +55,8 @@ public class ClassGeneration {
 
 	@Test
 	public void methodsCanCreateLiterals() {
-		JSMethod jsc = new JSMethod("fred");
-		JSExpr expr = jsc.literal("42");
+		JSMethod meth = new JSMethod("fred");
+		JSExpr expr = meth.literal("42");
 		assertNotNull(expr);
 		// I don't know if I want this or not ...
 //		expr.write(w);
@@ -64,9 +65,20 @@ public class ClassGeneration {
 	}
 
 	@Test
+	public void methodsCanCreateStrings() {
+		JSMethod meth = new JSMethod("fred");
+		JSExpr expr = meth.string("hello");
+		assertNotNull(expr);
+		// I don't know if I want this or not ...
+//		expr.write(w);
+//		assertEquals("42", sw.toString());
+		assertEquals("'hello'", expr.asVar());
+	}
+
+	@Test
 	public void methodsCanCreateArguments() {
-		JSMethod jsc = new JSMethod("fred");
-		JSExpr expr = jsc.argument("v");
+		JSMethod meth = new JSMethod("fred");
+		JSExpr expr = meth.argument("v");
 		assertNotNull(expr);
 		expr.write(w);
 		assertEquals("v", sw.toString());
@@ -76,11 +88,30 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanCreateApplyExprs() {
 		w = w.indent();
-		JSMethod jsc = new JSMethod("fred");
-		JSExpr expr = jsc.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
+		JSMethod meth = new JSMethod("fred");
+		JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
 		assertNotNull(expr);
 		expr.write(w);
 		assertEquals("  const v1 = v.called(true);\n", sw.toString());
+	}
+
+	@Test
+	public void methodsCanCallStaticFunctions() {
+		w = w.indent();
+		JSMethod meth = new JSMethod("fred");
+		JSExpr expr = meth.callStatic("test.repo", "f", new JSLiteral("true"));
+		assertNotNull(expr);
+		expr.write(w);
+		assertEquals("  const v1 = test.repo.f(true);\n", sw.toString());
+	}
+
+	@Test
+	public void methodsCanReturnThings() {
+		w = w.indent();
+		JSMethod fn = new JSMethod("fred");
+		fn.returnObject(new JSString("hello"));
+		fn.write(w);
+		assertEquals("  fred() {\n    return 'hello';\n  }\n", sw.toString());
 	}
 
 	@Test

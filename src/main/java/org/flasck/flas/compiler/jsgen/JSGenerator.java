@@ -30,6 +30,25 @@ public class JSGenerator extends LeafAdapter {
 	}
 
 	@Override
+	public void visitFunction(FunctionDefinition fn) {
+		this.meth = jse.newFunction(fn.name().container().jsName(), fn.name().name);
+	}
+	
+	// TODO: this should have been reduced to HSIE, which we should generate from
+	// But I am hacking for now to get a walking skeleton up and running so we can E2E TDD
+	// The actual traversal is done by the traverser ...
+
+	@Override
+	public void leaveFunction(FunctionDefinition fn) {
+		if (stack.size() != 1) {
+			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
+		}
+		meth.returnObject(stack.get(0));
+		this.meth = null;
+	}
+	
+
+	@Override
 	public void visitNumericLiteral(NumericLiteral expr) {
 		stack.add(meth.literal(expr.text));
 	}
