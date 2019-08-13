@@ -38,6 +38,7 @@ public class Main {
 		System.exit(failed?1:0);
 	}
 
+	// tested only by golden files
 	public static boolean noExit(String... args) throws IOException {
 		ErrorResult errors = new ErrorResult();
 		ErrorMark mark = errors.mark();
@@ -96,16 +97,21 @@ public class Main {
 		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
 		{
 			ByteCodeEnvironment bce = new ByteCodeEnvironment();
-			JSEnvironment jse = new JSEnvironment();
+			JSEnvironment jse = new JSEnvironment(config.jsDir());
+			
 			JVMGenerator jvmGenerator = new JVMGenerator(bce);
-			repository.traverse(jvmGenerator);
 			JSGenerator jsGenerator = new JSGenerator(jse);
+
+			repository.traverse(jvmGenerator);
 			repository.traverse(jsGenerator);
-			saveBCE(errors, config.jvmDir(), bce);
+			
 			if (compiler.hasErrors()) {
 				errors.showFromMark(mark, ew, 0);
 				return true;
 			}
+			
+			saveBCE(errors, config.jvmDir(), bce);
+			saveJSE(errors, config.jsDir(), jse);
 
 			Map<File, PrintWriter> writers = new HashMap<>();
 			if (config.unitjvm) {
@@ -166,6 +172,18 @@ public class Main {
 				ex.printStackTrace();
 				errors.message((InputPosition) null, ex.toString());
 			}
+		}
+	}
+
+	private static void saveJSE(ErrorReporter errors, File jsDir, JSEnvironment jse) {
+		if (jsDir != null) {
+			try {
+				jse.writeAllTo(jsDir);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				errors.message((InputPosition) null, ex.toString());
+			}
+			jse.dumpAll(true);
 		}
 	}
 

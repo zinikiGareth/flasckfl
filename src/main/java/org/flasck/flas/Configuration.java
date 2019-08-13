@@ -135,6 +135,15 @@ public class Configuration {
 			return new File(".");
 	}
 
+	public File jsDir() {
+		if (writeJS != null)
+			return writeJS;
+		else if (root != null)
+			return root;
+		else
+			return new File(".");
+	}
+
 	public File writeTestReportsTo(File f) {
 		if (writeTestReportsTo != null)
 			return writeTestReportsTo;

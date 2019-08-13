@@ -180,10 +180,6 @@ public class JSRunner extends CommonTestRunner {
 			pw.close();
 //			System.out.println("Loading " + html);
 			FileUtils.cat(html);
-//			for (File f : jsFiles) {
-//				System.out.println("JSFile " + f);
-//				FileUtils.cat(f);
-//			}
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}

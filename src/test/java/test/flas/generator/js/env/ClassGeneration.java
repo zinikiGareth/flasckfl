@@ -13,6 +13,7 @@ import org.flasck.flas.compiler.jsgen.JSClass;
 import org.flasck.flas.compiler.jsgen.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.JSExpr;
+import org.flasck.flas.compiler.jsgen.JSFile;
 import org.flasck.flas.compiler.jsgen.JSLiteral;
 import org.flasck.flas.compiler.jsgen.JSMethod;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
@@ -28,17 +29,17 @@ public class ClassGeneration {
 	
 	@Test
 	public void creatingAClassEnsuresThereIsOnePackageFile() {
-		JSEnvironment jse = new JSEnvironment(); // TODO: surely root dir?
+		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
 		jse.newClass("test.repo", "Fred");
 		List<File> acc = new ArrayList<>();
 		jse.files().forEach(x -> acc.add(x));
 		assertEquals(1, acc.size());
-		assertEquals("test.repo", acc.get(0).getPath());
+		assertEquals("/tmp/test.repo.js", acc.get(0).getPath());
 	}
 
 	@Test
 	public void creatingAClassReturnsAClassObject() {
-		JSEnvironment jse = new JSEnvironment();
+		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
 		JSClassCreator jcc = jse.newClass("test.repo", "Fred");
 		assertNotNull(jcc);
 	}
@@ -147,5 +148,12 @@ public class ClassGeneration {
 		meth.callMethod(obj, "mymethod", obj);
 		meth.write(w);
 		assertEquals("  test(arg1) {\n    const v1 = arg1.mymethod(arg1);\n  }\n", sw.toString());
+	}
+	
+	@Test
+	public void aPackageDefinesItsNesting() {
+		JSFile f = new JSFile("test.repo.pkg", null);
+		f.writeTo(w);
+		assertEquals("if (!test) test = {};\nif (!test.repo) test.repo = {};\nif (!test.repo.pkg) test.repo.pkg = {};\n", sw.toString());
 	}
 }

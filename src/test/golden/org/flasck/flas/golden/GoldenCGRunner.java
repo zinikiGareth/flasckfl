@@ -122,7 +122,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		te.cleanUp();
 		
 		if (runAsTDA) {
-			boolean errs = Main.noExit("--root", s, "--testReports", "testReports-tmp", "test.golden");
+			boolean errs = Main.noExit("--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "test.golden");
 			if (errs) {
 				fail("compilation errors encountered");
 			}
