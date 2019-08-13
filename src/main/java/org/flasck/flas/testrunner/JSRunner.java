@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.compiler.JSEnvironment;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -27,8 +28,10 @@ import org.flasck.ui4j.UI4JWrapperElement;
 import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
+import org.zinutils.utils.FileUtils;
 
 import io.webfolder.ui4j.api.browser.BrowserEngine;
+import io.webfolder.ui4j.api.browser.BrowserFactory;
 import io.webfolder.ui4j.api.browser.Page;
 import io.webfolder.ui4j.api.dom.Element;
 import javafx.application.Platform;
@@ -83,25 +86,26 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 	
+	private final JSEnvironment jse;
 	private final JSJavaBridge st = new JSJavaBridge();
 	private final BrowserEngine browser;
 	private Page page;
 	private Map<String, CardHandle> cards = new TreeMap<>();
 	private File html;
-	private final List<File> jsFiles = new ArrayList<File>();
-
 	
-	public JSRunner(Configuration config, Repository repository) {
+	public JSRunner(Configuration config, Repository repository, JSEnvironment jse) {
 		super(config, repository);
-		this.browser = null;
+		this.jse = jse;
+		this.browser = BrowserFactory.getWebKit();
 	}
 
 	@Override
 	public void runit(PrintWriter pw, UnitTestCase utc) {
-		// TODO Auto-generated method stub
-		
+		buildHTML();
+		page = browser.navigate("file:" + html.getPath());
+		page.executeScript("window.console = {};");
+		page.executeScript("window.console.log = function() { var ret = ''; var sep = ''; for (var i=0;i<arguments.length;i++) { ret += sep + arguments[i]; sep = ' '; } callJava.log(ret); };");
 	}
-
 
 	@Override
 	public String name() {
@@ -167,7 +171,7 @@ public class JSRunner extends CommonTestRunner {
 			// probably wants to be config :-)
 			final String jsfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js";
 			pw.println("<script src='file:" + jsfile + "' type='text/javascript'></script>");
-			for (File f : jsFiles)
+			for (File f : jse.files())
 				scriptIt(pw, f);
 			pw.println("</head>");
 			pw.println("<body>");
@@ -175,7 +179,7 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("</html>");
 			pw.close();
 //			System.out.println("Loading " + html);
-//			FileUtils.cat(html);
+			FileUtils.cat(html);
 //			for (File f : jsFiles) {
 //				System.out.println("JSFile " + f);
 //				FileUtils.cat(f);

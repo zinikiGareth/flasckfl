@@ -13,7 +13,7 @@ import org.flasck.flas.parser.ImplementationMethodConsumer;
 import org.flasck.flas.parser.TDAImplementationMethodsParser;
 import org.flasck.flas.parser.TDAMethodMessageParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TopLevelDefnConsumer;
+import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -25,7 +25,7 @@ public class TDAImplementationMethodsParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ImplementationMethodConsumer consumer = context.mock(ImplementationMethodConsumer.class);
-	private TopLevelDefnConsumer topLevel = context.mock(TopLevelDefnConsumer.class);
+	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
 	private TDAImplementationMethodsParser parser;
 	private FunctionNameProvider namer = context.mock(FunctionNameProvider.class);
 

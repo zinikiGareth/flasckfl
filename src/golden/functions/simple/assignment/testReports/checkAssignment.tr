@@ -1,4 +1,9 @@
-PASS that x has the right value
-FAIL that we can have failing tests
+JVM PASS that x has the right value
+JVM FAIL that we can have failing tests
   expected: 42
   actual:   84
+JS PASS that x has the right value
+JS FAIL that we can have failing tests
+  expected: 42
+  actual:   84
+  

@@ -5,11 +5,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
+import org.flasck.flas.compiler.JSEnvironment;
+import org.flasck.flas.compiler.JSGenerator;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorMark;
@@ -20,6 +24,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
+import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -91,23 +96,37 @@ public class Main {
 		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
 		{
 			ByteCodeEnvironment bce = new ByteCodeEnvironment();
+			JSEnvironment jse = new JSEnvironment();
 			JVMGenerator jvmGenerator = new JVMGenerator(bce);
 			repository.traverse(jvmGenerator);
+			JSGenerator jsGenerator = new JSGenerator(jse);
+			repository.traverse(jsGenerator);
 			saveBCE(errors, config.jvmDir(), bce);
 			if (compiler.hasErrors()) {
 				errors.showFromMark(mark, ew, 0);
 				return true;
 			}
 
+			Map<File, PrintWriter> writers = new HashMap<>();
 			if (config.unitjvm) {
 				BCEClassLoader bcl = new BCEClassLoader(bce);
 				JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
-				jvmRunner.runAll();
+				jvmRunner.runAll(writers);
 				if (compiler.hasErrors()) {
 					errors.showFromMark(mark, ew, 0);
 					return true;
 				}
 			}
+
+			if (config.unitjs) {
+				JSRunner jsRunner = new JSRunner(config, repository, jse);
+				jsRunner.runAll(writers);
+				if (compiler.hasErrors()) {
+					errors.showFromMark(mark, ew, 0);
+					return true;
+				}
+			}
+			writers.values().forEach(w -> w.close());
 		}
 
 		
@@ -131,7 +150,7 @@ public class Main {
 	}
 
 	private static void saveBCE(ErrorReporter errors, File jvmDir, ByteCodeEnvironment bce) {
-		bce.dumpAll(true);
+//		bce.dumpAll(true);
 		if (jvmDir != null) {
 			FileUtils.assertDirectory(jvmDir);
 			try {

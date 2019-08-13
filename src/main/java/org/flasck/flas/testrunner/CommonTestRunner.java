@@ -40,8 +40,7 @@ public abstract class CommonTestRunner implements TestRunner {
 		this.compiledPkg = null;
 	}
 	
-	public void runAll() {
-		Map<File, PrintWriter> writers = new HashMap<>();
+	public void runAll(Map<File, PrintWriter> writers) {
 		repository.traverse(new LeafAdapter() {
 			@Override
 			public void visitUnitTest(UnitTestCase e) {
@@ -52,7 +51,6 @@ public abstract class CommonTestRunner implements TestRunner {
 				run(writers, f, e);
 			}
 		});
-		writers.values().forEach(w -> w.close());
 	}
 
 	private void run(Map<File, PrintWriter> writers, File f, UnitTestCase utc) {

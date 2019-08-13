@@ -60,16 +60,16 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
 			try {
 				Reflection.callStatic(tc, "dotest", this);
-				pw.println("PASS " + utc.description);
+				pw.println("JVM PASS " + utc.description);
 			} catch (WrappedException ex) {
 				Throwable e2 = ex.unwrap();
 				if (e2 instanceof AssertFailed) {
 					AssertFailed af = (AssertFailed) e2;
-					pw.println("FAIL " + utc.description);
+					pw.println("JVM FAIL " + utc.description);
 					pw.println("  expected: " + af.expected);
 					pw.println("  actual:   " + af.actual);
 				} else {
-					pw.println("ERROR " + utc.description);
+					pw.println("JVM ERROR " + utc.description);
 					e2.printStackTrace(pw);
 				}
 			} catch (Throwable t) {
