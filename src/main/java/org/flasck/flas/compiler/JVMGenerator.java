@@ -230,6 +230,7 @@ public class JVMGenerator extends LeafAdapter {
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
 		meth.returnVoid().flush();
+		meth = null;
 		clz.generate();
 	}
 

@@ -86,7 +86,7 @@ public abstract class BaseRunnerTests {
 		UnitTestName utn = new UnitTestName(utfn, 12);
 		UnitTestCase utc = new UnitTestCase(utn, "hello");
 		runner.runit(pw, utc);
-		assertEquals("PASS hello\n", sw.toString());
+		assertEquals("JVM PASS hello\n", sw.toString());
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public abstract class BaseRunnerTests {
 		UnitTestName utn = new UnitTestName(utfn, 18);
 		UnitTestCase utc = new UnitTestCase(utn, "itfails");
 		runner.runit(pw, utc);
-		assertEquals("FAIL itfails\n  expected: 42\n  actual:   84\n", sw.toString());
+		assertEquals("JVM FAIL itfails\n  expected: 42\n  actual:   84\n", sw.toString());
 	}
 
 	/*
