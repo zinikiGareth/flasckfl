@@ -37,10 +37,12 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public JSMethodCreator newFunction(String pkg, String name) {
 		JSFile inpkg = getPackage(pkg);
-		return new JSMethod(pkg, name);
+		JSMethod ret = new JSMethod(pkg, name);
+		inpkg.addFunction(ret);
+		return ret;
 	}
 
-	private JSFile getPackage(String pkg) {
+	public JSFile getPackage(String pkg) {
 		JSFile inpkg = files.get(pkg);
 		if (inpkg == null) {
 			File f = new File(root, pkg + ".js");

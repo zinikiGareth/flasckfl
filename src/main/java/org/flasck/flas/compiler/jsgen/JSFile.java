@@ -53,14 +53,22 @@ public class JSFile {
 		String[] pkgs = pkg.split("\\.");
 		String enclosing = "";
 		for (String s : pkgs) {
-			iw.print("if (!");
+			iw.print("if (typeof(");
 			iw.print(enclosing);
 			iw.print(s);
-			iw.print(") ");
+			iw.print(") === 'undefined') ");
 			iw.print(enclosing);
 			iw.print(s);
 			iw.println(" = {};");
 			enclosing = enclosing + s + ".";
 		}
+	}
+
+	public List<JSClass> classes() {
+		return classes;
+	}
+
+	public List<JSMethod> functions() {
+		return functions;
 	}
 }

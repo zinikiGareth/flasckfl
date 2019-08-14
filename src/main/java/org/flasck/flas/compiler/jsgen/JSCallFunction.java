@@ -29,7 +29,6 @@ public class JSCallFunction implements JSExpr {
 
 	@Override
 	public String asVar() {
-		// TODO Auto-generated method stub
-		return null;
+		return "v1";
 	}
 }

@@ -42,6 +42,19 @@ public class ClassGeneration {
 		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
 		JSClassCreator jcc = jse.newClass("test.repo", "Fred");
 		assertNotNull(jcc);
+		JSFile f = jse.getPackage("test.repo");
+		assertNotNull(f);
+		assertEquals(1, f.classes().size());
+	}
+
+	@Test
+	public void creatingAFunctionIsPossible() {
+		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
+		JSMethodCreator meth = jse.newFunction("test.repo", "f");
+		assertNotNull(meth);
+		JSFile f = jse.getPackage("test.repo");
+		assertNotNull(f);
+		assertEquals(1, f.functions().size());
 	}
 
 	@Test
@@ -149,6 +162,14 @@ public class ClassGeneration {
 	}
 
 	@Test
+	public void aFunctionCallDefinesAVar() {
+		w = w.indent();
+		JSMethodCreator meth = new JSMethod("pkg", "f");
+		JSExpr callG = meth.callFunction("g");
+		assertEquals("v1", callG.asVar());
+	}
+
+	@Test
 	public void aMethodIncludesItsActions() {
 		w = w.indent();
 		JSClass jsc = new JSClass("pkg", "Clz");
@@ -164,7 +185,7 @@ public class ClassGeneration {
 	public void aPackageDefinesItsNesting() {
 		JSFile f = new JSFile("test.repo.pkg", null);
 		f.writeTo(w);
-		assertEquals("if (!test) test = {};\nif (!test.repo) test.repo = {};\nif (!test.repo.pkg) test.repo.pkg = {};\n", sw.toString());
+		assertEquals("if (typeof(test) === 'undefined') test = {};\nif (typeof(test.repo) === 'undefined') test.repo = {};\nif (typeof(test.repo.pkg) === 'undefined') test.repo.pkg = {};\n", sw.toString());
 	}
 	
 	@Test
@@ -172,7 +193,7 @@ public class ClassGeneration {
 		JSFile f = new JSFile("test", null);
 		f.addClass(new JSClass("test", "Clazz"));
 		f.writeTo(w);
-		assertEquals("if (!test) test = {};\n\ntest.Clazz = function() {\n}\n", sw.toString());
+		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.Clazz = function() {\n}\n", sw.toString());
 	}
 	
 	@Test
@@ -180,7 +201,7 @@ public class ClassGeneration {
 		JSFile f = new JSFile("test", null);
 		f.addFunction(new JSMethod("test", "f"));
 		f.writeTo(w);
-		assertEquals("if (!test) test = {};\n\ntest.f = function() {\n}\n", sw.toString());
+		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.f = function() {\n}\n", sw.toString());
 	}
 	
 	@Test

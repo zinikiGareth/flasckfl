@@ -71,7 +71,7 @@ public class JSGenerator extends LeafAdapter {
 		UnitTestName clzName = e.name;
 		JSClassCreator jcc = jse.newClass(clzName.container().jsName(), clzName.baseName());
 		meth = jcc.createMethod("dotest");
-		meth.argument("runner");
+		runner = meth.argument("runner");
 	}
 
 	@Override
