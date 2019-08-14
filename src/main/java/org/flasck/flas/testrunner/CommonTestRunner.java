@@ -55,8 +55,8 @@ public abstract class CommonTestRunner implements TestRunner {
 
 	private void run(Map<File, PrintWriter> writers, File f, UnitTestCase utc) {
 		File out = new File(config.writeTestReportsTo(f), FileUtils.ensureExtension(f.getName(), ".tr"));
-		PrintWriter pw = writers.get(f);
 		try {
+			PrintWriter pw = writers.get(f);
 			if (pw == null) {
 				pw = new PrintWriter(out);
 				writers.put(f, pw);

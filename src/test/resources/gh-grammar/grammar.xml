@@ -1376,7 +1376,7 @@
       <one-or-more>
       	<token type='DOCWORD' />
       </one-or-more>
-    	  <push-part prefix='ut' names='UnitTestCase\[.*\]'/>
+    	  <push-part prefix='ut' />
       <indent>
       	<ref production='unit-test-step'/>
       </indent>
@@ -1455,7 +1455,7 @@
     <seq>
       <token type='DATA' />
       <ref production='type-reference' />
-      <token type='var-name' names='UnitData\[${name}\]'/>
+      <token type='var-name' />
       <token type='SEND' />
       <ref production='expression' />
       <token type='EOL' />
@@ -1467,7 +1467,7 @@
     <seq>
       <token type='DATA' />
       <ref production='type-reference' />
-      <token type='var-name' names='UnitData\[${name}\]' />
+      <token type='var-name' />
       <indent-non-zero>
         <ref production='unit-fields-data-initializer' />
       </indent-non-zero>

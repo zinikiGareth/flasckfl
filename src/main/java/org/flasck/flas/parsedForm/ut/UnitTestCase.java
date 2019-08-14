@@ -13,7 +13,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 
-public class UnitTestCase implements UnitTestStepConsumer, RepositoryEntry {
+public class UnitTestCase implements UnitTestStepConsumer {
 	public final UnitTestName name;
 	public final String description;
 	public final List<UnitTestStep> steps = new ArrayList<>();
@@ -47,11 +47,6 @@ public class UnitTestCase implements UnitTestStepConsumer, RepositoryEntry {
 	public void template() {
 	}
 
-	@Override
-	public void dumpTo(PrintWriter pw) {
-		pw.println(toString());
-	}
-	
 	@Override
 	public String toString() {
 		return "UnitTestCase[" + description + "]";

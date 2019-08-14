@@ -40,12 +40,11 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
-import org.flasck.flas.parser.ut.UnitDataDeclaration;
-import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 
-public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitionConsumer, RepositoryReader {
+public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
 		void visitEntry(RepositoryEntry entry);
 		void visitStructDefn(StructDefn s);
@@ -63,8 +62,10 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		void visitExpr(Expr expr);
 		void visitStringLiteral(StringLiteral expr);
 		void visitNumericLiteral(NumericLiteral number);
+		void visitUnitTestPackage(UnitTestPackage e);
 		void visitUnitTest(UnitTestCase e);
 		void leaveUnitTest(UnitTestCase e);
+		void leaveUnitTestPackage(UnitTestPackage e);
 		void visitApplyExpr(ApplyExpr expr);
 		void visitUnitTestStep(UnitTestStep s);
 		void visitUnitTestAssert(UnitTestAssert a);
@@ -148,14 +149,8 @@ public class Repository implements TopLevelDefinitionConsumer, UnitTestDefinitio
 		addEntry(od.name(), od);
 	}
 
-	@Override
-	public void testCase(UnitTestCase utc) {
-		addEntry(utc.name, utc);
-	}
-
-	@Override
-	public void data(UnitDataDeclaration data) {
-		addEntry(data.name, data);
+	public void unitTestPackage(UnitTestPackage pkg) {
+		addEntry(pkg.name(), pkg);
 	}
 
 	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {

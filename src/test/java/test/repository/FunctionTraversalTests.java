@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -30,7 +31,7 @@ public class FunctionTraversalTests {
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
 	final NumericLiteral number = new NumericLiteral(pos, 42);
-	final UnitTestNamer namer = new UnitTestPackageNamer(pkg.uniqueName(), "file");
+	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Repository r = new Repository();
 	final Visitor v = context.mock(Visitor.class);
 

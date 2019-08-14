@@ -17,6 +17,8 @@ import java.util.TreeMap;
 import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorMark;
@@ -34,8 +36,8 @@ import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
-import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -189,8 +191,12 @@ public class FLASCompiler {
 		}
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
 			System.out.println(" > " + f.getName());
-			ParsingPhase utp = new ParsingPhase(config.errors, inPkg, FileUtils.dropExtension(f.getName()), (UnitTestDefinitionConsumer)repository);
-			utp.process(f);
+			String file = FileUtils.dropExtension(f.getName());
+			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
+			UnitTestPackage utp = new UnitTestPackage(utfn);
+			repository.unitTestPackage(utp);
+			ParsingPhase parser = new ParsingPhase(config.errors, utfn, utp);
+			parser.process(f);
 			config.errors.showFromMark(mark, errorWriter, 4);
 			mark = config.errors.mark();
 		}

@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
@@ -34,7 +35,7 @@ public class TraversalTests {
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
-	final UnitTestNamer namer = new UnitTestPackageNamer(pkg.uniqueName(), "file");
+	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Repository r = new Repository();
 	final Visitor v = context.mock(Visitor.class);
 
@@ -126,21 +127,24 @@ public class TraversalTests {
 
 	// TODO: method with arguments
 	
-	// ALSO TODO: other things I commented out of Traverser
 	@Test
 	public void traverseUnitTest() {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
 		UnitTestName name = new UnitTestName(utfn, 1);
+		UnitTestPackage utp = new UnitTestPackage(utfn);
 		UnitTestCase utc = new UnitTestCase(name, "do something");
+		utp.testCase(utc);
 		UnitTestAssert uta = new UnitTestAssert(null, null);
 		utc.steps.add(uta);
-		r.addEntry(name, utc);
+		r.addEntry(name, utp);
 		context.checking(new Expectations() {{
+			oneOf(v).visitUnitTestPackage(utp);
 			oneOf(v).visitUnitTest(utc);
 			oneOf(v).visitUnitTestStep(uta);
 			oneOf(v).visitUnitTestAssert(uta);
 			oneOf(v).postUnitTestAssert(uta);
 			oneOf(v).leaveUnitTest(utc);
+			oneOf(v).leaveUnitTestPackage(utp);
 		}});
 		r.traverse(v);
 	}

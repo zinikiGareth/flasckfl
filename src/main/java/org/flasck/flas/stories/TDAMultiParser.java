@@ -55,10 +55,8 @@ public class TDAMultiParser implements TDAParsing {
 		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, assembler, sb), TDATupleDeclarationParser.constructor(namer, sb));
 	}
 	
-	public static TDAParsing unitTestUnit(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer sb) {
-//		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb);
-//		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, assembler, sb), TDATupleDeclarationParser.constructor(namer, sb));
-		return new TDAUnitTestParser(errors, namer, sb);
+	public static TDAParsing unitTestUnit(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer utdc) {
+		return new TDAUnitTestParser(errors, namer, utdc);
 	}
 	
 	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {

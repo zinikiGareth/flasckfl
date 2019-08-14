@@ -11,7 +11,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.RepositoryEntry;
 
-public class UnitDataDeclaration implements RepositoryEntry, UnitDataFieldConsumer, UnitTestStep {
+public class UnitDataDeclaration implements UnitDataFieldConsumer, UnitTestStep {
 	public static class Assignment {
 		public final UnresolvedVar field;
 		public final Expr value;
@@ -38,11 +38,6 @@ public class UnitDataDeclaration implements RepositoryEntry, UnitDataFieldConsum
 		fields.add(new Assignment(field, value));
 	}
 
-	@Override
-	public void dumpTo(PrintWriter pw) {
-		pw.println(toString());
-	}
-	
 	@Override
 	public String toString() {
 		return "UnitData[" + name.uniqueName() + "]";

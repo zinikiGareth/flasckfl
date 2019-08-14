@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository.Visitor;
 
@@ -104,6 +105,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitUnitTestPackage(UnitTestPackage e) {
+	}
+
+	@Override
 	public void visitUnitTest(UnitTestCase e) {
 	}
 
@@ -111,6 +116,10 @@ public class LeafAdapter implements Visitor {
 	public void leaveUnitTest(UnitTestCase e) {
 	}
 
+	@Override
+	public void leaveUnitTestPackage(UnitTestPackage e) {
+	}
+	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
 	}
