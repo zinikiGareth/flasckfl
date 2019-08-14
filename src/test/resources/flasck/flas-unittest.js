@@ -10,8 +10,8 @@ window.console.log = function() {
 };
 window.runner = {};
 window.runner.assertSameValue = function(e, a) {
-	console.log(e);
-	console.log(a);
+//	console.log(e);
+//	console.log(a);
 	if (a != e) { // should be deep equal
 		throw new Error("NSV" + "\n  expected: " + e + "\n  actual:   " + a);
 	}

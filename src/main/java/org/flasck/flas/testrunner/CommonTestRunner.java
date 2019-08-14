@@ -4,17 +4,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.UnitTestFileName;
-import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 import org.slf4j.Logger;
@@ -42,32 +40,34 @@ public abstract class CommonTestRunner implements TestRunner {
 	
 	public void runAll(Map<File, PrintWriter> writers) {
 		repository.traverse(new LeafAdapter() {
+			PrintWriter pw;
+			
+			@Override
+			public void visitUnitTestPackage(UnitTestPackage e) {
+				String nn = e.name().baseName().replace("_ut_", "");
+				File f = new File(nn);
+				File out = new File(config.writeTestReportsTo(f), FileUtils.ensureExtension(f.getName(), ".tr"));
+				this.pw = writers.get(f);
+				try {
+					if (pw == null) {
+						pw = new PrintWriter(out);
+						writers.put(f, pw);
+					}
+					preparePackage(pw, e);
+				} catch (FileNotFoundException ex) {
+					config.errors.message(((InputPosition)null), "cannot create output file " + out);
+				}
+			}
+
 			@Override
 			public void visitUnitTest(UnitTestCase e) {
-				UnitTestName n = e.name;
-				UnitTestFileName cont = (UnitTestFileName) n.container();
-				String nn = cont.baseName().replace("_ut_", "");
-				File f = new File(nn);
-				run(writers, f, e);
+				runit(pw, e);
 			}
 		});
 	}
 
-	private void run(Map<File, PrintWriter> writers, File f, UnitTestCase utc) {
-		File out = new File(config.writeTestReportsTo(f), FileUtils.ensureExtension(f.getName(), ".tr"));
-		try {
-			PrintWriter pw = writers.get(f);
-			if (pw == null) {
-				pw = new PrintWriter(out);
-				writers.put(f, pw);
-			}
-			runit(pw, utc);
-			pw.flush();
-		} catch (FileNotFoundException ex) {
-			config.errors.message(((InputPosition)null), "cannot create output file " + out);
-		}
-	}
 
+	public abstract void preparePackage(PrintWriter pw, UnitTestPackage e);
 	public abstract void runit(PrintWriter pw, UnitTestCase utc);
 
 //	@SuppressWarnings({ "rawtypes", "unchecked" })

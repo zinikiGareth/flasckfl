@@ -183,7 +183,7 @@ public class Main {
 				ex.printStackTrace();
 				errors.message((InputPosition) null, ex.toString());
 			}
-			jse.dumpAll(true);
+//			jse.dumpAll(true);
 		}
 	}
 

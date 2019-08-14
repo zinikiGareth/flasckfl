@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.ui4j.UI4JWrapperElement;
 import org.ziniki.ziwsh.model.InternalHandle;
@@ -101,9 +102,8 @@ public class JSRunner extends CommonTestRunner {
 		super(config, repository);
 		this.jse = jse;
 		this.browser = BrowserFactory.getWebKit();
-	}
 
-	public void prepareUnitTestPackage(PrintWriter pw) {
+		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
 		buildHTML();
 		page = browser.navigate("file:" + html.getPath());
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -118,14 +118,17 @@ public class JSRunner extends CommonTestRunner {
 		} catch (Throwable t) {
 		}
 		if (!await) {
-			pw.println("Whole test failed to initialize");
+			throw new RuntimeException("Whole test failed to initialize");
 		}
+	}
+
+	@Override
+	public void preparePackage(PrintWriter pw, UnitTestPackage e) {
 	}
 	
 	// currently untested due to browser issues
 	@Override
 	public void runit(PrintWriter pw, UnitTestCase utc) {
-		prepareUnitTestPackage(pw);
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
 			try {
@@ -139,7 +142,6 @@ public class JSRunner extends CommonTestRunner {
 					JSException ex = (JSException) t;
 					String jsex = ex.getMessage();
 					if (jsex.startsWith("Error: NSV\n")) {
-						System.out.println(jsex);
 						pw.println("JS FAIL " + utc.description);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
@@ -235,7 +237,7 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("</html>");
 			pw.close();
 //			System.out.println("Loading " + html);
-			FileUtils.cat(html);
+//			FileUtils.cat(html);
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}

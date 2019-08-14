@@ -14,6 +14,7 @@ import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jdk.FlasckHandle;
 import org.flasck.jdk.ServiceProvider;
@@ -54,6 +55,11 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	}
 
 	
+	@Override
+	public void preparePackage(PrintWriter pw, UnitTestPackage e) {
+		
+	}
+
 	@Override
 	public void runit(PrintWriter pw, UnitTestCase utc) {
 		try {
