@@ -24,13 +24,12 @@ public class UnitTestGenerationJS {
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 
 	@Test
-	public void weDoActuallyCreateATestCaseClass() {
+	public void weDoActuallyCreateATestCaseFunction() {
 		JSStorage jse = context.mock(JSStorage.class);
 		JSClassCreator jsc = context.mock(JSClassCreator.class);
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		context.checking(new Expectations() {{
-			oneOf(jse).newClass("test.something._ut_package", "_ut4"); will(returnValue(jsc));
-			oneOf(jsc).createMethod("dotest"); will(returnValue(meth));
+			oneOf(jse).newFunction("test.something._ut_package", "_ut4"); will(returnValue(meth));
 			oneOf(meth).argument("runner");
 		}});
 		JSGenerator gen = new JSGenerator(jse);

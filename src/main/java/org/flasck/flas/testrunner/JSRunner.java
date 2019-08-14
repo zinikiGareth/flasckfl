@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -34,7 +36,9 @@ import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
 import io.webfolder.ui4j.api.browser.Page;
 import io.webfolder.ui4j.api.dom.Element;
+import io.webfolder.ui4j.api.util.Ui4jException;
 import javafx.application.Platform;
+import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner {
@@ -99,12 +103,62 @@ public class JSRunner extends CommonTestRunner {
 		this.browser = BrowserFactory.getWebKit();
 	}
 
-	@Override
-	public void runit(PrintWriter pw, UnitTestCase utc) {
+	public void prepareUnitTestPackage(PrintWriter pw) {
 		buildHTML();
 		page = browser.navigate("file:" + html.getPath());
-		page.executeScript("window.console = {};");
-		page.executeScript("window.console.log = function() { var ret = ''; var sep = ''; for (var i=0;i<arguments.length;i++) { ret += sep + arguments[i]; sep = ' '; } callJava.log(ret); };");
+		CountDownLatch cdl = new CountDownLatch(1);
+		Platform.runLater(() -> {
+			JSObject win = (JSObject)page.executeScript("window");
+			win.setMember("callJava", st);
+			cdl.countDown();
+		});
+		boolean await = false;
+		try {
+			await = cdl.await(1, TimeUnit.SECONDS);
+		} catch (Throwable t) {
+		}
+		if (!await) {
+			pw.println("Whole test failed to initialize");
+		}
+	}
+	
+	// currently untested due to browser issues
+	@Override
+	public void runit(PrintWriter pw, UnitTestCase utc) {
+		prepareUnitTestPackage(pw);
+		CountDownLatch cdl = new CountDownLatch(1);
+		Platform.runLater(() -> {
+			try {
+				page.executeScript(utc.name.jsName() + "(window.runner)");
+				pw.println("JS PASS " + utc.description);
+				cdl.countDown();
+			} catch (Throwable t) {
+				if (t instanceof Ui4jException)
+					t = t.getCause();
+				if (t instanceof JSException) {
+					JSException ex = (JSException) t;
+					String jsex = ex.getMessage();
+					if (jsex.startsWith("Error: NSV\n")) {
+						System.out.println(jsex);
+						pw.println("JS FAIL " + utc.description);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						cdl.countDown();
+						return;
+					}
+				}
+				pw.println("JS ERROR " + utc.description);
+				t.printStackTrace(pw);
+				cdl.countDown();
+			}
+		});
+		boolean await = false;
+		try {
+			await = cdl.await(1, TimeUnit.SECONDS);
+		} catch (Exception ex) {
+		}
+		if (!await) {
+			pw.println("JS TIMEOUT " + utc.description);
+		}
 	}
 
 	@Override
@@ -170,7 +224,9 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<head>");
 			// probably wants to be config :-)
 			final String jsfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js";
+			final String utfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-unittest.js";
 			pw.println("<script src='file:" + jsfile + "' type='text/javascript'></script>");
+			pw.println("<script src='file:" + utfile + "' type='text/javascript'></script>");
 			for (File f : jse.files())
 				scriptIt(pw, f);
 			pw.println("</head>");
