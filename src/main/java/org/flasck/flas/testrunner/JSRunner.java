@@ -21,9 +21,6 @@ import java.util.stream.Collectors;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.jsgen.JSEnvironment;
-import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
@@ -31,7 +28,6 @@ import org.flasck.ui4j.UI4JWrapperElement;
 import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
-import org.zinutils.utils.FileUtils;
 
 import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
@@ -168,53 +164,11 @@ public class JSRunner extends CommonTestRunner {
 		return "js";
 	}
 	
-//	@Override
-//	public void prepareScript(String scriptPkg, Scope scope) {
-//		CompileResult tcr = null;
-//		File scriptDir = null;
-//		try {
-//			scriptDir = Files.createTempDirectory("testScriptDir").toFile();
-//			scriptDir.deleteOnExit();
-////			try {
-////				compiler.writeJSTo(scriptDir);
-////				tcr = compiler.createJS(testPkg, compiledPkg, compiledScope, scope);
-////				for (File f : tcr.jsFiles())
-////					this.jsFiles.add(f);
-////			} catch (ErrorResultException ex) {
-////				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
-////				fail("Errors compiling test script");
-////			}
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//			throw new UtilException("Failed", ex);
-//		}
-//	}
-
 	protected void scriptIt(PrintWriter pw, File f) {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
 		pw.println("<script src='file:" + f.getPath() + "?cachebuster=" + System.currentTimeMillis()  + "' type='text/javascript'></script>");
 	}
-
-//	@Override
-//	public void prepareCase() {
-//		buildHTML();
-//		page = browser.navigate("file:" + html.getPath());
-//		page.executeScript("window.console = {};");
-//		page.executeScript("window.console.log = function() { var ret = ''; var sep = ''; for (var i=0;i<arguments.length;i++) { ret += sep + arguments[i]; sep = ' '; } callJava.log(ret); };");
-//		AtomicBoolean choke = new AtomicBoolean(false);
-//		Platform.runLater(() -> {
-//			JSObject win = (JSObject)page.executeScript("window");
-//			win.setMember("callJava", st);
-//			choke.set(true);
-//		});
-//		waitForChoke(choke);
-//		
-//		// Do I need to do more cleanup than this?
-//		// Also, should there be an "endCase" to do cleanup?
-//		cards.clear();
-//		errors.clear();
-//	}
 
 	private void buildHTML() {
 		try {
@@ -260,50 +214,50 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void createCardAs(CardName cardType, String bindVar) {
-		logger.info("Creating card " + cardType.jsName() + " as " + bindVar);
-		if (cards.containsKey(bindVar))
-			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
-		
-		ScopeEntry se = null; // compiledScope.get(cardType.cardName);
-		if (se == null)
-			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
-		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
-			throw new UtilException(cardType.cardName + " is not a card");
-		
-		AtomicBoolean choke = new AtomicBoolean(false);
-		Platform.runLater(() -> {
-			CardDefinition cd = (CardDefinition) se.getValue();
-	
-			execute("Flasck.unitTest();");
-			
-			// this first line probably should be earlier
-			String l0 = "_tmp_postbox = new Postbox('main', window);";
-	
-			String l1 = "_tmp_body = document.getElementsByTagName('body')[0];";
-			String l2 = "_tmp_div = document.createElement('div');";
-			String l3 = "_tmp_body.appendChild(_tmp_div);";
-			// _tmp_services needs to be a map of service name to port to listen on
-			String l4 = "_tmp_services = {};";
-			execute(l0+l1+l2+l3+l4);
-			for (ContractImplements ctr : cd.contracts) {
-				String fullName = ""; // fullName(ctr.actualName().jsName());
-				JSObject win = (JSObject)page.executeScript("window");
-				MockServiceWrapper ms = new MockServiceWrapper(fullName);
-				// TODO: need to wire ms up in some way to have expectations ...
-				win.setMember("_tmp_svc", ms);
-				execute("Flasck.provideService(_tmp_postbox, _tmp_services, '" + fullName + "', _tmp_svc)");
-				System.out.println("Binding " + fullName + " to " + ms._myAddr);
-			}
-			String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
-			execute(l5);
-			
-			JSObject handle = (JSObject) page.executeScript("_tmp_handle");
-			cdefns.put(bindVar, cd);
-			cards.put(bindVar, new CardHandle(handle, (JSObject)handle.getMember("_mycard"), (JSObject) handle.getMember("_wrapper")));
-			assertNoErrors();
-			choke.set(true);
-		});
-		waitForChoke(choke);
+//		logger.info("Creating card " + cardType.jsName() + " as " + bindVar);
+//		if (cards.containsKey(bindVar))
+//			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
+//		
+//		ScopeEntry se = null; // compiledScope.get(cardType.cardName);
+//		if (se == null)
+//			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
+//		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
+//			throw new UtilException(cardType.cardName + " is not a card");
+//		
+//		AtomicBoolean choke = new AtomicBoolean(false);
+//		Platform.runLater(() -> {
+//			CardDefinition cd = (CardDefinition) se.getValue();
+//	
+//			execute("Flasck.unitTest();");
+//			
+//			// this first line probably should be earlier
+//			String l0 = "_tmp_postbox = new Postbox('main', window);";
+//	
+//			String l1 = "_tmp_body = document.getElementsByTagName('body')[0];";
+//			String l2 = "_tmp_div = document.createElement('div');";
+//			String l3 = "_tmp_body.appendChild(_tmp_div);";
+//			// _tmp_services needs to be a map of service name to port to listen on
+//			String l4 = "_tmp_services = {};";
+//			execute(l0+l1+l2+l3+l4);
+//			for (ContractImplements ctr : cd.contracts) {
+//				String fullName = ""; // fullName(ctr.actualName().jsName());
+//				JSObject win = (JSObject)page.executeScript("window");
+//				MockServiceWrapper ms = new MockServiceWrapper(fullName);
+//				// TODO: need to wire ms up in some way to have expectations ...
+//				win.setMember("_tmp_svc", ms);
+//				execute("Flasck.provideService(_tmp_postbox, _tmp_services, '" + fullName + "', _tmp_svc)");
+//				System.out.println("Binding " + fullName + " to " + ms._myAddr);
+//			}
+//			String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
+//			execute(l5);
+//			
+//			JSObject handle = (JSObject) page.executeScript("_tmp_handle");
+//			cdefns.put(bindVar, cd);
+//			cards.put(bindVar, new CardHandle(handle, (JSObject)handle.getMember("_mycard"), (JSObject) handle.getMember("_wrapper")));
+//			assertNoErrors();
+//			choke.set(true);
+//		});
+//		waitForChoke(choke);
 	}
 
 	@Override
