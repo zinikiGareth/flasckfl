@@ -3,17 +3,22 @@ package org.flasck.flas.compiler.jsgen;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSCallFunction implements JSExpr {
+	private final JSMethod meth;
 	private final String fn;
 	private final JSExpr[] args;
+	private String var;
 
-	public JSCallFunction(String fn, JSExpr... args) {
+	public JSCallFunction(JSMethod meth, String fn, JSExpr... args) {
+		this.meth = meth;
 		this.fn = fn;
 		this.args = args;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("const v1 = ");
+		if (var == null)
+			var = meth.obtainNextVar();
+		w.print("const " + var + " = ");
 		w.print(fn);
 		w.print("(");
 		boolean isFirst = true;
@@ -29,6 +34,8 @@ public class JSCallFunction implements JSExpr {
 
 	@Override
 	public String asVar() {
-		return "v1";
+		if (var == null)
+			var = meth.obtainNextVar();
+		return var;
 	}
 }

@@ -120,6 +120,23 @@ public class ClassGeneration {
 	}
 
 	@Test
+	public void methodsCanAssignMultipleVars() {
+		w = w.indent();
+		JSMethod meth = new JSMethod(null, "fred");
+		{
+			JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
+			assertNotNull(expr);
+			expr.write(w);
+		}
+		{
+			JSExpr expr = meth.callFunction("test.repo.f", new JSLiteral("true"));
+			assertNotNull(expr);
+			expr.write(w);
+		}
+		assertEquals("  const v1 = v.called(true);\n  const v2 = test.repo.f(true);\n", sw.toString());
+	}
+
+	@Test
 	public void methodsCanMakeAssertions() {
 		w = w.indent();
 		JSMethod meth = new JSMethod("pkg", "fred");

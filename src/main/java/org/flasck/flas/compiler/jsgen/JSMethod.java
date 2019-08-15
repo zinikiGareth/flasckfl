@@ -10,6 +10,7 @@ public class JSMethod implements JSMethodCreator {
 	private final String name;
 	private final List<JSVar> args = new ArrayList<>();
 	private final List<JSExpr> stmts = new ArrayList<>();
+	private int nextVar = 1;
 
 	public JSMethod(String pkg, String name) {
 		this.pkg = pkg;
@@ -29,7 +30,7 @@ public class JSMethod implements JSMethodCreator {
 
 	@Override
 	public JSExpr callFunction(String meth, JSExpr... args) {
-		JSCallFunction stmt = new JSCallFunction(meth, args);
+		JSCallFunction stmt = new JSCallFunction(this, meth, args);
 		stmts.add(stmt);
 		return stmt;
 	}
@@ -43,7 +44,7 @@ public class JSMethod implements JSMethodCreator {
 
 	@Override
 	public JSExpr callMethod(JSExpr obj, String meth, JSExpr... args) {
-		JSCallMethod stmt = new JSCallMethod(obj, meth, args);
+		JSCallMethod stmt = new JSCallMethod(this, obj, meth, args);
 		stmts.add(stmt);
 		return stmt;
 	}
@@ -82,5 +83,9 @@ public class JSMethod implements JSMethodCreator {
 			stmt.write(iw);
 		}
 		w.println("}");
+	}
+
+	public String obtainNextVar() {
+		return "v" + nextVar ++;
 	}
 }

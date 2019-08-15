@@ -5,23 +5,28 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class JSCallMethod implements JSExpr {
 
 	private final JSExpr obj;
-	private final String meth;
+	private final String toCall;
 	private final JSExpr[] args;
+	private final JSMethod meth;
+	private String var;
 
-	public JSCallMethod(JSExpr obj, String meth, JSExpr... args) {
-		this.obj = obj;
+	public JSCallMethod(JSMethod meth, JSExpr obj, String toCall, JSExpr... args) {
 		this.meth = meth;
+		this.obj = obj;
+		this.toCall = toCall;
 		this.args = args;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("const v1 = ");
+		if (var == null)
+			var = meth.obtainNextVar();
+		w.print("const " + var + " = ");
 		if (obj != null) {
 			obj.write(w);
 			w.print(".");
 		}
-		w.print(meth);
+		w.print(toCall);
 		w.print("(");
 		boolean isFirst = true;
 		for (JSExpr e : args) {
@@ -36,7 +41,8 @@ public class JSCallMethod implements JSExpr {
 
 	@Override
 	public String asVar() {
-		// TODO Auto-generated method stub
-		return null;
+		if (var == null)
+			var = meth.obtainNextVar();
+		return var;
 	}
 }
