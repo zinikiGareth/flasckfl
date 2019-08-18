@@ -50,7 +50,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitStructDefn(StructDefn s);
 		void visitStructField(StructField sf);
 		void leaveStructDefn(StructDefn s);
-		void visitUnresolvedVar(UnresolvedVar var);
+		void visitUnresolvedVar(UnresolvedVar var, int nargs);
 		void visitUnresolvedOperator(UnresolvedOperator operator);
 		void visitTypeReference(TypeReference var);
 		void visitFunction(FunctionDefinition fn);
@@ -59,7 +59,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitPattern(Object patt);
 		void visitTypedPattern(TypedPattern p);
 		void visitCase(FunctionCaseDefn c);
-		void visitExpr(Expr expr);
+		void visitExpr(Expr expr, int nArgs);
 		void visitStringLiteral(StringLiteral expr);
 		void visitNumericLiteral(NumericLiteral number);
 		void visitUnitTestPackage(UnitTestPackage e);
@@ -67,6 +67,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveUnitTest(UnitTestCase e);
 		void leaveUnitTestPackage(UnitTestPackage e);
 		void visitApplyExpr(ApplyExpr expr);
+		void leaveApplyExpr(ApplyExpr expr);
 		void visitUnitTestStep(UnitTestStep s);
 		void visitUnitTestAssert(UnitTestAssert a);
 		void postUnitTestAssert(UnitTestAssert a);

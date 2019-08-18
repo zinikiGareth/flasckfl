@@ -29,8 +29,8 @@ public class JSMethod implements JSMethodCreator {
 	}
 
 	@Override
-	public JSExpr callFunction(String meth, JSExpr... args) {
-		JSCallFunction stmt = new JSCallFunction(this, meth, args);
+	public JSExpr pushFunction(String meth) {
+		JSPushFunction stmt = new JSPushFunction(this, meth);
 		stmts.add(stmt);
 		return stmt;
 	}
@@ -45,6 +45,13 @@ public class JSMethod implements JSMethodCreator {
 	@Override
 	public JSExpr callMethod(JSExpr obj, String meth, JSExpr... args) {
 		JSCallMethod stmt = new JSCallMethod(this, obj, meth, args);
+		stmts.add(stmt);
+		return stmt;
+	}
+
+	@Override
+	public JSClosure closure(JSExpr... args) {
+		JSClosure stmt = new JSClosure(this, args);
 		stmts.add(stmt);
 		return stmt;
 	}

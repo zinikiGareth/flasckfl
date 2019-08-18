@@ -1,10 +1,6 @@
 package org.flasck.flas.testrunner;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,7 +18,6 @@ import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
 import org.flasck.jvm.builtin.FLNumber;
 import org.flasck.jvm.container.FlasckService;
-import org.flasck.jvm.fl.FLEval;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

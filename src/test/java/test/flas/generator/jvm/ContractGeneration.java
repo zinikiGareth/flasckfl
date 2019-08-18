@@ -19,6 +19,7 @@ import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -30,6 +31,14 @@ public class ContractGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
+	private final MethodDefiner meth = context.mock(MethodDefiner.class);
+
+	@Before
+	public void setup() {
+		context.checking(new Expectations() {{
+			allowing(meth).lenientMode(with(any(Boolean.class)));
+		}});
+	}
 
 	@Test
 	public void simpleContractDeclarationForcesThreeClassesToBeGenerated() {
@@ -68,7 +77,6 @@ public class ContractGeneration {
 	@Test
 	public void contractMethodGetsGenerated() {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
-		MethodDefiner meth = context.mock(MethodDefiner.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
@@ -83,7 +91,6 @@ public class ContractGeneration {
 	@Test
 	public void contractMethodMayHaveArguments() {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
-		MethodDefiner meth = context.mock(MethodDefiner.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
@@ -100,7 +107,6 @@ public class ContractGeneration {
 	@Test
 	public void contractMethodMayHaveArgumentsButDeclaredHandlerImpliesNoIH() {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
-		MethodDefiner meth = context.mock(MethodDefiner.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
@@ -119,7 +125,6 @@ public class ContractGeneration {
 	@Test
 	public void contractMethodWithComplexPatternArgumentsJustGetBoringNames() {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
-		MethodDefiner meth = context.mock(MethodDefiner.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");

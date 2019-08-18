@@ -11,12 +11,10 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.parsedForm.ut.UnitTestAssert;
-import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -25,6 +23,8 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.Traverser;
@@ -63,7 +63,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, ry);
 		r.currentScope(pkg);
 		final UnresolvedVar var = new UnresolvedVar(pos, "f");
-		r.visitUnresolvedVar(var);
+		r.visitUnresolvedVar(var, 2);
 		assertEquals(fn, var.defn());
 	}
 
@@ -99,7 +99,7 @@ public class ResolverTests {
 		Repository ry = new Repository();
 		Resolver r = new RepositoryResolver(errors, ry);
 		final UnresolvedVar var = new UnresolvedVar(pos, "f");
-		r.visitUnresolvedVar(var);
+		r.visitUnresolvedVar(var, 2);
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, ry);
 		r.currentScope(nested);
 		final UnresolvedVar var = new UnresolvedVar(pos, "f");
-		r.visitUnresolvedVar(var);
+		r.visitUnresolvedVar(var, 2);
 		assertEquals(fn, var.defn());
 	}
 
@@ -126,7 +126,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, ry);
 		r.currentScope(pkg);
 		final UnresolvedVar var = new UnresolvedVar(pos, "f");
-		r.visitUnresolvedVar(var);
+		r.visitUnresolvedVar(var, 4);
 	}
 
 	@Test
@@ -139,7 +139,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, ry);
 		r.currentScope(nested);
 		final UnresolvedVar var = new UnresolvedVar(pos, "f");
-		r.visitUnresolvedVar(var);
+		r.visitUnresolvedVar(var, 0);
 		assertEquals(fn, var.defn());
 	}
 
@@ -242,8 +242,6 @@ public class ResolverTests {
 		}});
 		Resolver r = new RepositoryResolver(errors, ry);
 		r.currentScope(pkg);
-		UnresolvedVar x = new UnresolvedVar(pos, "x");
-		UnresolvedVar y = new UnresolvedVar(pos, "y");
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "MyHandler");

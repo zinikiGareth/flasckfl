@@ -54,7 +54,7 @@ public class UnitTestGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(meth).literal("42"); will(returnValue(la));
 			oneOf(meth).string("hello"); will(returnValue(ra));
-			oneOf(meth).assertable(runner, "assertSameValue", la, ra);
+			oneOf(meth).assertable(runner, "assertSameValue", ra, la);
 		}});
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner));
 		UnitTestAssert a = new UnitTestAssert(lhs, rhs);

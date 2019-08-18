@@ -9,12 +9,10 @@ import java.io.PrintWriter;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Main;
-import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.repository.Repository;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -122,10 +120,16 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		te.cleanUp();
 		
 		if (runAsTDA) {
-			boolean errs = Main.noExit("--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "test.golden");
-			if (errs) {
-				fail("compilation errors encountered");
-			}
+			final File actualErrors = new File(s, "errors-tmp");
+			final File expectedErrors = new File(s, "errors");
+			final File tr = new File(s, "testReports-tmp");
+			FileUtils.assertDirectory(actualErrors);
+			FileUtils.assertDirectory(tr);
+			Main.noExit("--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "test.golden");
+			checkExpectedErrors(te, expectedErrors, actualErrors);
+//			if (errs) {
+//				fail("compilation errors encountered");
+//			}
 			te.checkTestResults();
 			te.checkGeneration();
 			return;

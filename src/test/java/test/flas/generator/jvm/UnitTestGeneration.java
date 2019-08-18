@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -23,12 +24,19 @@ import org.zinutils.bytecode.Var;
 public class UnitTestGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
+	private final MethodDefiner meth = context.mock(MethodDefiner.class);
 
+	@Before
+	public void setup() {
+		context.checking(new Expectations() {{
+			allowing(meth).lenientMode(with(any(Boolean.class)));
+		}});
+	}
+	
 	@Test
 	public void weDoActuallyCreateATestCaseClass() {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
-		MethodDefiner meth = context.mock(MethodDefiner.class);
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(6));
 		}});
@@ -52,7 +60,6 @@ public class UnitTestGeneration {
 	
 	@Test
 	public void weVisitAnAssertStep() {
-		MethodDefiner meth = context.mock(MethodDefiner.class);
 		NumericLiteral lhs = new NumericLiteral(pos, 42);
 		StringLiteral rhs = new StringLiteral(pos, "hello");
 		IExpr runner = context.mock(IExpr.class, "runner");
@@ -73,7 +80,7 @@ public class UnitTestGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(r1));
 			oneOf(meth).as(l1, "java.lang.Object"); will(returnValue(la));
 			oneOf(meth).as(r1, "java.lang.Object"); will(returnValue(ra));
-			oneOf(meth).callVirtual("void", runner, "assertSameValue", la, ra);
+			oneOf(meth).callVirtual("void", runner, "assertSameValue", ra, la);
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner));
 		UnitTestAssert a = new UnitTestAssert(lhs, rhs);

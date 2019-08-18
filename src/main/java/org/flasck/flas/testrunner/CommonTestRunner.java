@@ -61,7 +61,8 @@ public abstract class CommonTestRunner implements TestRunner {
 
 			@Override
 			public void visitUnitTest(UnitTestCase e) {
-				runit(pw, e);
+				if (pw != null)
+					runit(pw, e);
 			}
 		});
 	}

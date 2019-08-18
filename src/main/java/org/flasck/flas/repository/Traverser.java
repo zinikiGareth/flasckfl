@@ -123,12 +123,12 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitCase(FunctionCaseDefn c) {
 		if (c.guard != null)
-			visitExpr(c.guard);
-		visitExpr(c.expr);
+			visitExpr(c.guard, 0);
+		visitExpr(c.expr, 0);
 	}
 
 	@Override
-	public void visitExpr(Expr expr) {
+	public void visitExpr(Expr expr, int nargs) {
 		if (expr == null)
 			return;
 		else if (expr instanceof ApplyExpr)
@@ -138,21 +138,28 @@ public class Traverser implements Visitor {
 		else if (expr instanceof NumericLiteral)
 			visitNumericLiteral((NumericLiteral)expr);
 		else if (expr instanceof UnresolvedVar)
-			visitUnresolvedVar((UnresolvedVar) expr);
+			visitUnresolvedVar((UnresolvedVar) expr, nargs);
+		else if (expr instanceof UnresolvedOperator)
+			visitUnresolvedOperator((UnresolvedOperator) expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
 
 	public void visitApplyExpr(ApplyExpr expr) {
 		visitor.visitApplyExpr(expr);
-		visitExpr((Expr) expr.fn);
+		visitExpr((Expr) expr.fn, expr.args.size());
 		for (Object x : expr.args)
-			visitExpr((Expr) x);
+			visitExpr((Expr) x, 0);
+		visitor.leaveApplyExpr(expr);
 	}
 
 	@Override
-	public void visitUnresolvedVar(UnresolvedVar var) {
-		visitor.visitUnresolvedVar(var);
+	public void leaveApplyExpr(ApplyExpr expr) {
+	}
+
+	@Override
+	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
+		visitor.visitUnresolvedVar(var, nargs);
 	}
 
 	@Override
@@ -208,8 +215,8 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
 		visitor.visitUnitTestAssert(a);
-		visitExpr(a.expr);
-		visitExpr(a.value);
+		visitExpr(a.value, 0);
+		visitExpr(a.expr, 0);
 		visitor.postUnitTestAssert(a);
 	}
 

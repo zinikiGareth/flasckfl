@@ -2,16 +2,14 @@ package org.flasck.flas.compiler.jsgen;
 
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSCallFunction implements JSExpr {
+public class JSPushFunction implements JSExpr {
 	private final JSMethod meth;
 	private final String fn;
-	private final JSExpr[] args;
 	private String var;
 
-	public JSCallFunction(JSMethod meth, String fn, JSExpr... args) {
+	public JSPushFunction(JSMethod meth, String fn) {
 		this.meth = meth;
 		this.fn = fn;
-		this.args = args;
 	}
 
 	@Override
@@ -20,16 +18,7 @@ public class JSCallFunction implements JSExpr {
 			var = meth.obtainNextVar();
 		w.print("const " + var + " = ");
 		w.print(fn);
-		w.print("(");
-		boolean isFirst = true;
-		for (JSExpr e : args) {
-			if (isFirst)
-				isFirst = false;
-			else
-				w.print(", ");
-			w.print(e.asVar());
-		}
-		w.println(");");
+		w.println(";");
 	}
 
 	@Override

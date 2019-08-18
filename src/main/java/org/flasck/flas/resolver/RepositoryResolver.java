@@ -49,7 +49,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
-	public void visitUnresolvedVar(UnresolvedVar var) {
+	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = find(scope, var.var);
 		if (defn == null) {
 			errors.message(var.location, "cannot resolve '" + var.var + "'");

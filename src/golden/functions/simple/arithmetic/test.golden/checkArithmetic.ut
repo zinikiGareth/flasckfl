@@ -1,0 +1,3 @@
+	test that addition works
+		assert six
+			6

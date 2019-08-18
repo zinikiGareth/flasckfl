@@ -77,11 +77,15 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitExpr(Expr expr) {
+	public void visitExpr(Expr expr, int nArgs) {
 	}
 
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
+	}
+
+	@Override
+	public void leaveApplyExpr(ApplyExpr expr) {
 	}
 
 	@Override
@@ -93,7 +97,7 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitUnresolvedVar(UnresolvedVar var) {
+	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 	}
 
 	@Override

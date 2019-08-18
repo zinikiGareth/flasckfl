@@ -3,6 +3,7 @@ package org.flasck.flas.compiler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -13,6 +14,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -28,6 +30,7 @@ import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter {
@@ -38,6 +41,7 @@ public class JVMGenerator extends LeafAdapter {
 	private ByteCodeSink clz;
 	private ByteCodeSink upClz;
 	private ByteCodeSink downClz;
+	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce) {
 		this.bce = bce;
@@ -62,6 +66,7 @@ public class JVMGenerator extends LeafAdapter {
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
 		ann.returns(JavaType.object_);
 		meth = ann.done();
+		meth.lenientMode(leniency);
 	}
 	
 	// TODO: this should have been reduced to HSIE, which we should generate from
@@ -90,12 +95,44 @@ public class JVMGenerator extends LeafAdapter {
 		stack.add(meth.stringConst(expr.text));
 	}
 	
+	// I think at the moment I am mixing up three completely separate cases here
+	// Basically this is just "leaveApplyExpr" with no args.
+	// It is OK to call eval directly if we know if will complete quickly, i.e. it's a constructor
+	// But if it is a regular var - i.e. a function of 0 args, it could be arbitrarily complex and should be a closure
+	// And if it is the "first" token of an ApplyExpr, we need to just push "it" without eval or closure ...
 	@Override
-	public void visitUnresolvedVar(UnresolvedVar var) {
+	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		FunctionDefinition defn = (FunctionDefinition)var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
-		stack.add(meth.callStatic(defn.name().javaClassName(), "java.lang.Object", "eval", new IExpr[0]));
+		stack.add(meth.classConst(defn.name().javaClassName()));
+		if (nargs == 0) {
+			// TODO: if it's a constructor, just call Eval
+			// TODO: if it expects more than 0 args, make a curry
+			makeClosure();
+		}
+	}
+	
+	@Override
+	public void visitUnresolvedOperator(UnresolvedOperator operator) {
+		String opName = resolveOpName(operator.op);
+		stack.add(meth.classConst(opName));
+	}
+
+	@Override
+	public void leaveApplyExpr(ApplyExpr expr) {
+		makeClosure();
+	}
+
+	private void makeClosure() {
+		IExpr fn = stack.remove(0);
+		IExpr args = meth.arrayOf(J.OBJECT, stack);
+		stack.clear();
+		IExpr call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
+		Var v = meth.avar(J.FLCLOSURE, "v1");
+		IExpr assign = meth.assign(v, call);
+		assign.flush();
+		stack.add(v);
 	}
 	
 	@Override
@@ -224,6 +261,7 @@ public class JVMGenerator extends LeafAdapter {
 		PendingVar runner = ann.argument("org.flasck.flas.testrunner.JVMRunner", "runner");
 		ann.returns(JavaType.void_);
 		meth = ann.done();
+		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
 	}
 
@@ -277,6 +315,7 @@ public class JVMGenerator extends LeafAdapter {
 		GenericAnnotator ann = GenericAnnotator.newMethod(in, false, cmd.name.name);
 		ann.returns(JavaType.object_);
 		meth = ann.done();
+		meth.lenientMode(leniency);
 		meth.argument(J.FLEVALCONTEXT, "_cxt");
 		int i=1;
 		TypeReference type = null;
@@ -296,6 +335,18 @@ public class JVMGenerator extends LeafAdapter {
 		}
 		if (type == null || !(type.defn() instanceof ContractDecl))
 			meth.argument(J.OBJECT, "_ih");
+	}
+
+	private String resolveOpName(String op) {
+		String inner;
+		switch (op) {
+		case "+":
+			inner = "Plus";
+			break;
+		default:
+			throw new RuntimeException("There is no operator " + op);
+		}
+		return J.FLEVAL + "$" + inner;
 	}
 	
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner) {

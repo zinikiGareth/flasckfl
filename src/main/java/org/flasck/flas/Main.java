@@ -1,9 +1,11 @@
 package org.flasck.flas;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +44,14 @@ public class Main {
 	public static boolean noExit(String... args) throws IOException {
 		ErrorResult errors = new ErrorResult();
 		ErrorMark mark = errors.mark();
-		PrintWriter ew = new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true);
 		Configuration config = new Configuration(errors, args);
+		Writer osw;
+		File f = config.writeErrorsTo();
+		if (f != null)
+			osw = new FileWriter(f);
+		else
+			osw = new OutputStreamWriter(System.out, StandardCharsets.UTF_8);
+		PrintWriter ew = new PrintWriter(osw, true);
 		if (errors.hasErrors()) {
 			errors.showFromMark(mark, ew, 0);
 			return true;
@@ -118,21 +126,18 @@ public class Main {
 				BCEClassLoader bcl = new BCEClassLoader(bce);
 				JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
 				jvmRunner.runAll(writers);
-				if (compiler.hasErrors()) {
-					errors.showFromMark(mark, ew, 0);
-					return true;
-				}
 			}
 
 			if (config.unitjs) {
 				JSRunner jsRunner = new JSRunner(config, repository, jse);
 				jsRunner.runAll(writers);
-				if (compiler.hasErrors()) {
-					errors.showFromMark(mark, ew, 0);
-					return true;
-				}
 			}
 			writers.values().forEach(w -> w.close());
+
+			if (compiler.hasErrors()) {
+				errors.showFromMark(mark, ew, 0);
+				return true;
+			}
 		}
 
 		
@@ -156,7 +161,7 @@ public class Main {
 	}
 
 	private static void saveBCE(ErrorReporter errors, File jvmDir, ByteCodeEnvironment bce) {
-//		bce.dumpAll(true);
+		bce.dumpAll(true);
 		if (jvmDir != null) {
 			FileUtils.assertDirectory(jvmDir);
 			try {

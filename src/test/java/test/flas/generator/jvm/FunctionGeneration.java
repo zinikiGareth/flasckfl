@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -24,17 +25,25 @@ public class FunctionGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
+	private final MethodDefiner meth = context.mock(MethodDefiner.class);
+
+	@Before
+	public void setup() {
+		context.checking(new Expectations() {{
+			allowing(meth).lenientMode(with(any(Boolean.class)));
+		}});
+	}
 
 	@Test
 	public void aSimpleFunction() {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
-		MethodDefiner meth = context.mock(MethodDefiner.class);
 		IExpr iret = context.mock(IExpr.class, "ret");
 		IExpr nret = context.mock(IExpr.class, "nret");
 		IExpr nullVal = context.mock(IExpr.class, "null");
 		IExpr biv = context.mock(IExpr.class, "biv");
 		IExpr cdv = context.mock(IExpr.class, "cdv");
+		IExpr re = context.mock(IExpr.class, "re");
 //		Var arg = new Var.AVar(meth, "JVMRunner", "runner");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
@@ -47,7 +56,8 @@ public class FunctionGeneration {
 			oneOf(meth).box(iret); will(returnValue(biv));
 			oneOf(meth).castTo(nullVal, "java.lang.Double"); will(returnValue(cdv));
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv); will(returnValue(nret));
-			oneOf(meth).returnObject(nret);
+			oneOf(meth).returnObject(nret); will(returnValue(re));
+			oneOf(re).flush();
 		}});
 		JVMGenerator gen = new JVMGenerator(bce);
 		FunctionName name = FunctionName.function(pos, pkg, "x");

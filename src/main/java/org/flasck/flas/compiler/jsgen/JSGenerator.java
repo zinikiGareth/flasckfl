@@ -3,10 +3,12 @@ package org.flasck.flas.compiler.jsgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -59,13 +61,34 @@ public class JSGenerator extends LeafAdapter {
 	}
 	
 	@Override
-	public void visitUnresolvedVar(UnresolvedVar var) {
+	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		FunctionDefinition defn = (FunctionDefinition)var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
-		stack.add(meth.callFunction(defn.name().jsName()));
+		stack.add(meth.pushFunction(defn.name().jsName()));
+		if (nargs == 0)
+			makeClosure();
 	}
-	
+
+	@Override
+	public void visitUnresolvedOperator(UnresolvedOperator operator) {
+		String opName = resolveOpName(operator.op);
+		stack.add(meth.pushFunction(opName));
+	}
+
+	@Override
+	public void leaveApplyExpr(ApplyExpr expr) {
+		makeClosure();
+	}
+
+	private void makeClosure() {
+		// I think we may need to be more diligent about the exact number we pull off
+		JSExpr[] args = stack.toArray(new JSExpr[stack.size()]);
+		JSExpr call = meth.closure(args);
+		stack.clear();
+		stack.add(call);
+	}
+
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		UnitTestName clzName = e.name;
@@ -87,6 +110,15 @@ public class JSGenerator extends LeafAdapter {
 		JSExpr rhs = stack.get(1);
 		meth.assertable(runner, "assertSameValue", lhs, rhs);
 		stack.clear();
+	}
+	
+	private String resolveOpName(String op) {
+		switch (op) {
+		case "+":
+			return "FLEval.plus";
+		default:
+			throw new RuntimeException("There is no operator " + op);
+		}
 	}
 
 	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner) {

@@ -3,6 +3,8 @@ package test.repository;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -18,6 +20,8 @@ import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -25,6 +29,7 @@ import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -35,9 +40,13 @@ public class TraversalTests {
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
+	final NumericLiteral number = new NumericLiteral(pos, "42", 2);
+	final UnresolvedVar var = new UnresolvedVar(pos, "f");
+	final UnresolvedOperator op = new UnresolvedOperator(pos, "+");
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Repository r = new Repository();
 	final Visitor v = context.mock(Visitor.class);
+	final Traverser t = new Traverser(v);
 
 	@Test
 	public void traverseStructDefn() {
@@ -127,6 +136,56 @@ public class TraversalTests {
 
 	// TODO: method with arguments
 	
+	@Test
+	public void exprDoesntVisitNull() {
+		t.visitExpr(null, 0);
+	}
+
+	@Test
+	public void exprVisitsString() {
+		context.checking(new Expectations() {{
+			oneOf(v).visitStringLiteral(simpleExpr);
+		}});
+		t.visitExpr(simpleExpr, 0);
+	}
+
+	@Test
+	public void exprVisitsNumber() {
+		context.checking(new Expectations() {{
+			oneOf(v).visitNumericLiteral(number);
+		}});
+		t.visitExpr(number, 0);
+	}
+
+	@Test
+	public void exprVisitsUnresolvedVar() {
+		context.checking(new Expectations() {{
+			oneOf(v).visitUnresolvedVar(var, 2);
+		}});
+		t.visitExpr(var, 2);
+	}
+
+	@Test
+	public void exprVisitsUnresolvedOp() {
+		context.checking(new Expectations() {{
+			oneOf(v).visitUnresolvedOperator(op);
+		}});
+		t.visitExpr(op, 2);
+	}
+
+	@Test
+	public void exprVisitsFunctionApplication() {
+		ApplyExpr ex = new ApplyExpr(pos, var, simpleExpr, number);
+		context.checking(new Expectations() {{
+			oneOf(v).visitApplyExpr(ex);
+			oneOf(v).visitUnresolvedVar(var, 2);
+			oneOf(v).visitStringLiteral(simpleExpr);
+			oneOf(v).visitNumericLiteral(number);
+			oneOf(v).leaveApplyExpr(ex);
+		}});
+		t.visitExpr(ex, 2);
+	}
+
 	@Test
 	public void traverseUnitTest() {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");

@@ -25,6 +25,7 @@ public class Configuration {
 	File dumprepo = null;
 	public final List<File> inputs = new ArrayList<File>();
 	private File writeTestReportsTo;
+	private File writeErrorsTo;
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
@@ -44,7 +45,13 @@ public class Configuration {
 					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--dumprepo"))
 					dumprepo = new File(root, args[++i]);
-				else if (arg.equals("--testReports")) {
+				else if (arg.equals("--errors")) {
+					if (hasMore == 0) {
+						System.out.println("--errors <dir>");
+						System.exit(1);
+					}
+					writeErrorsTo = new File(root, args[++i]);
+				} else if (arg.equals("--testReports")) {
 					if (hasMore == 0) {
 						System.out.println("--testReports <dir>");
 						System.exit(1);
@@ -142,6 +149,10 @@ public class Configuration {
 			return root;
 		else
 			return new File(".");
+	}
+
+	public File writeErrorsTo() {
+		return writeErrorsTo;
 	}
 
 	public File writeTestReportsTo(File f) {
