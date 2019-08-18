@@ -19,6 +19,10 @@ public class TupleAssignment implements RepositoryEntry {
 		this.expr = expr;
 	}
 
+	public FunctionName name() {
+		return exprFnName;
+	}
+
 	public FunctionName exprFnName() {
 		return exprFnName;
 	}

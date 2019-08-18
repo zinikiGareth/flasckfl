@@ -31,6 +31,10 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 		return location;
 	}
 
+	public CardName name() {
+		return serviceName;
+	}
+	
 	public CardName cardName() {
 		return serviceName;
 	}

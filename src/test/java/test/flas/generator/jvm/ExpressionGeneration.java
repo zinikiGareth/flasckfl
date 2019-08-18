@@ -10,7 +10,9 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.JVMGenerator;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.Traverser;
@@ -104,6 +106,18 @@ public class ExpressionGeneration {
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(assign).flush();
 
+		}});
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		gen.visitExpr(expr, 0);
+	}
+
+	@Test
+	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
+		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
+		IExpr x = context.mock(IExpr.class, "Ctor");
+		context.checking(new Expectations() {{
+			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval"); will(returnValue(x));
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(expr, 0);

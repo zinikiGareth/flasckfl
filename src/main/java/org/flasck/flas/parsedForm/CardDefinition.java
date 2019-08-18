@@ -41,6 +41,10 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 		return location;
 	}
 
+	public CardName name() {
+		return cardName;
+	}
+
 	public CardName cardName() {
 		return cardName;
 	}

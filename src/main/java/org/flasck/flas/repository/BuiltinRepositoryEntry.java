@@ -11,6 +11,10 @@ public class BuiltinRepositoryEntry implements RepositoryEntry {
 		this.name = new SolidName(null, string);
 	}
 
+	public SolidName name() {
+		return name;
+	}
+
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println("Builtin[" + name + "]");

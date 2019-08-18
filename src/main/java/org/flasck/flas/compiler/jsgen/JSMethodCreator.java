@@ -8,6 +8,7 @@ public interface JSMethodCreator {
 	JSExpr argument(String name);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr pushFunction(String meth);
+	JSExpr callFunction(String string);
 	JSExpr closure(JSExpr... args);
 	void returnObject(JSExpr jsExpr);
 	void assertable(JSExpr runner, String assertion, JSExpr... args);

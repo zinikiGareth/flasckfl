@@ -10,8 +10,10 @@ import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -61,9 +63,6 @@ public class ExpressionGenerationJS {
 	@Test
 	public void aVarWithNoArgsExpectingNoArgsBecomesAClosureByItself() {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
-		UnresolvedVar fn = new UnresolvedVar(pos, "f");
-		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-		fn.bind(new FunctionDefinition(fnName, 2));
 		JSExpr x = context.mock(JSExpr.class, "f");
 		context.checking(new Expectations() {{
 			oneOf(meth).pushFunction("test.repo.x"); will(returnValue(x));
@@ -72,6 +71,19 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		expr.bind(new FunctionDefinition(nameX, 0));
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
+		gen.visitExpr(expr, 0);
+	}
+
+	@Test
+	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
+		JSMethodCreator meth = context.mock(JSMethodCreator.class);
+		JSExpr x = context.mock(JSExpr.class, "f");
+		context.checking(new Expectations() {{
+			oneOf(meth).callFunction("test.repo.Ctor"); will(returnValue(x));
+		}});
+		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
+		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
 		gen.visitExpr(expr, 0);
 	}

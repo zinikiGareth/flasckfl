@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -20,6 +21,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
@@ -102,15 +104,22 @@ public class JVMGenerator extends LeafAdapter {
 	// And if it is the "first" token of an ApplyExpr, we need to just push "it" without eval or closure ...
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
-		FunctionDefinition defn = (FunctionDefinition)var.defn();
+		RepositoryEntry defn = var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
-		stack.add(meth.classConst(defn.name().javaClassName()));
+		NameOfThing name = defn.name();
+//		FunctionDefinition fn = (FunctionDefinition)defn;
 		if (nargs == 0) {
-			// TODO: if it's a constructor, just call Eval
-			// TODO: if it expects more than 0 args, make a curry
-			makeClosure();
-		}
+			if (defn instanceof FunctionDefinition) {
+				stack.add(meth.classConst(name.javaClassName()));
+				// TODO: if it expects more than 0 args, make a curry
+				makeClosure();
+			} else {
+				// eg. struct ctor
+				stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval"));
+			}
+		} else
+			stack.add(meth.classConst(name.javaClassName()));
 	}
 	
 	@Override
@@ -285,7 +294,7 @@ public class JVMGenerator extends LeafAdapter {
 	
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
-		String topName = cd.nameAsName().javaName();
+		String topName = cd.name().javaName();
 		String upName = topName + "$Up";
 		String downName = topName + "$Down";
 		clz = bce.newClass(topName);

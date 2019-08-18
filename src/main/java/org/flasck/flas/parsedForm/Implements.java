@@ -28,11 +28,11 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 		return location;
 	}
 	
-	public TypeReference name() {
+	public TypeReference implementsType() {
 		return implementing;
 	}
 
-	public NameOfThing actualName() {
+	public NameOfThing name() {
 		return myName;
 	}
 

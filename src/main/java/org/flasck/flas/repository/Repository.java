@@ -137,12 +137,12 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public void newUnion(UnionTypeDefn ud) {
-		addEntry(ud.myName(), ud);
+		addEntry(ud.name(), ud);
 	}
 
 	@Override
 	public void newContract(ContractDecl decl) {
-		addEntry(decl.nameAsName(), decl);
+		addEntry(decl.name(), decl);
 	}
 
 	@Override

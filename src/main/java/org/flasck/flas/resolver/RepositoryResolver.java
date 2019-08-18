@@ -80,7 +80,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
-		scope = cd.nameAsName();
+		scope = cd.name();
 	}
 	
 	@Override

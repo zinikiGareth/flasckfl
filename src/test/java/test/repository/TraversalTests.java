@@ -112,7 +112,7 @@ public class TraversalTests {
 	@Test
 	public void traverseContract() {
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contr"));
-		r.addEntry(cd.nameAsName(), cd);
+		r.addEntry(cd.name(), cd);
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
 			oneOf(v).leaveContractDecl(cd);
@@ -123,9 +123,9 @@ public class TraversalTests {
 	@Test
 	public void traverseContractWithMethods() {
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contr"));
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.nameAsName(), "meth"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
 		cd.addMethod(cmd);
-		r.addEntry(cd.nameAsName(), cd);
+		r.addEntry(cd.name(), cd);
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
 			oneOf(v).visitContractMethod(cmd);

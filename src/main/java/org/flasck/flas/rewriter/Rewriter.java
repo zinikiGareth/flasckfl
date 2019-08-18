@@ -768,10 +768,10 @@ public class Rewriter implements CodeGenRegistry {
 				pass1(cx, ehd.innerScope());
 			} else if (val instanceof UnionTypeDefn) {
 				UnionTypeDefn ud = (UnionTypeDefn) val;
-				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.myName(), rewritePolys(ud.polys())));
+				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.name(), rewritePolys(ud.polys())));
 			} else if (val instanceof ContractDecl) {
 				ContractDecl ctr = (ContractDecl)val;
-				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.nameAsName(), true);
+				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name(), true);
 				contracts.put(name, ret);
 			} else if (val instanceof ObjectDefn) {
 				ObjectDefn od = (ObjectDefn)val;
@@ -1307,9 +1307,9 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private void rewrite(NamingContext cx, ContractDecl ctr) {
-		RWContractDecl ret = contracts.get(ctr.nameAsName().uniqueName());
+		RWContractDecl ret = contracts.get(ctr.name().uniqueName());
 		for (ContractMethodDecl cmd : ctr.methods) {
-			ret.addMethod(rewriteCMD(cx, ctr.nameAsName(), cmd));
+			ret.addMethod(rewriteCMD(cx, ctr.name(), cmd));
 		}
 	}
 

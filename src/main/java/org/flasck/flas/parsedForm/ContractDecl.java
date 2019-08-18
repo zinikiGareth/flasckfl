@@ -29,7 +29,7 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 		return loc;
 	}
 	
-	public SolidName nameAsName() {
+	public SolidName name() {
 		return contractName;
 	}
 

@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.RepositoryEntry;
 
 public class JSGenerator extends LeafAdapter {
 	private final JSStorage jse;
@@ -62,12 +63,18 @@ public class JSGenerator extends LeafAdapter {
 	
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
-		FunctionDefinition defn = (FunctionDefinition)var.defn();
+		RepositoryEntry defn = var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
-		stack.add(meth.pushFunction(defn.name().jsName()));
-		if (nargs == 0)
-			makeClosure();
+		if (nargs == 0) {
+			if (defn instanceof FunctionDefinition) {
+				stack.add(meth.pushFunction(defn.name().jsName()));
+				makeClosure();
+			} else {
+				stack.add(meth.callFunction(defn.name().jsName()));
+			}
+		} else
+			stack.add(meth.pushFunction(defn.name().jsName()));
 	}
 
 	@Override

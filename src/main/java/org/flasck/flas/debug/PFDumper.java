@@ -70,7 +70,7 @@ public class PFDumper {
 			pw.println("String: " + (String) obj);
 		} else if (obj instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) obj;
-			pw.print("cdecl " + cd.nameAsName().uniqueName());
+			pw.print("cdecl " + cd.name().uniqueName());
 			dumpPosition(pw, cd.kw, false);
 			dumpLocation(pw, cd);
 			dumpList(pw, cd.methods);

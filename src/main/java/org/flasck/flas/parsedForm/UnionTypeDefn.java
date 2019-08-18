@@ -29,12 +29,8 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		this.polyvars = polyvars;
 	}
 	
-	public SolidName myName() {
+	public SolidName name() {
 		return name;
-	}
-	
-	public String name() {
-		return name.uniqueName();
 	}
 	
 	public UnionTypeDefn addCase(TypeReference tr) {
@@ -44,7 +40,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 	
 	@Override
 	public String toString() {
-		return name();
+		return name.uniqueName();
 	}
 
 	@Override

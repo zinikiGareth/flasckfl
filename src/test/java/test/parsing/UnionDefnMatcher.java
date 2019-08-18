@@ -28,7 +28,7 @@ public class UnionDefnMatcher extends TypeSafeMatcher<UnionTypeDefn> {
 
 	@Override
 	protected boolean matchesSafely(UnionTypeDefn arg0) {
-		if (!arg0.myName().uniqueName().equals(name))
+		if (!arg0.name().uniqueName().equals(name))
 			return false;
 		if (arg0.polys().size() != polys.size())
 			return false;
