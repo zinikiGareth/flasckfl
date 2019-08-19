@@ -20,6 +20,7 @@ import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public class FunctionGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -44,13 +45,18 @@ public class FunctionGeneration {
 		IExpr biv = context.mock(IExpr.class, "biv");
 		IExpr cdv = context.mock(IExpr.class, "cdv");
 		IExpr re = context.mock(IExpr.class, "re");
-//		Var arg = new Var.AVar(meth, "JVMRunner", "runner");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+			oneOf(meth).nextLocal(); will(returnValue(23));
+		}});
+		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var args = new Var.AVar(meth, "JVMRunner", "runner");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			
-			// TODO: should this have a "FLContext" argument (or whatever?)
-//			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
+
 			oneOf(meth).intConst(42); will(returnValue(iret));
 			oneOf(meth).aNull(); will(returnValue(nullVal));
 			oneOf(meth).box(iret); will(returnValue(biv));

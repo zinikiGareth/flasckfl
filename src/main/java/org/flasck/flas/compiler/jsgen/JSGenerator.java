@@ -70,8 +70,9 @@ public class JSGenerator extends LeafAdapter {
 			if (defn instanceof FunctionDefinition) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				stack.add(meth.pushFunction(defn.name().jsName()));
-				makeClosure(fn.argCount());
+				makeClosure(0, fn.argCount());
 			} else {
+				// True at least for Struct ctor with no args (eg Nil)
 				stack.add(meth.callFunction(defn.name().jsName()));
 			}
 		} else
@@ -90,19 +91,19 @@ public class JSGenerator extends LeafAdapter {
 		int expArgs = 0;
 		if (fn instanceof UnresolvedVar)
 			expArgs = ((FunctionDefinition)((UnresolvedVar)fn).defn()).argCount();
-		makeClosure(expArgs);
+		makeClosure(expr.args.size(), expArgs);
 	}
 
-	private void makeClosure(int expArgs) {
-		// I think we may need to be more diligent about the exact number we pull off
-		int size = stack.size();
-		JSExpr[] args = stack.toArray(new JSExpr[size]);
+	private void makeClosure(int depth, int expArgs) {
+		JSExpr[] args = new JSExpr[depth+1];
+		int k = stack.size()-depth-1;
+		for (int i=0;i<=depth;i++)
+			args[i] = stack.remove(k);
 		JSExpr call;
-		if (size <= expArgs) // size includes the function
+		if (depth < expArgs)
 			call = meth.curry(expArgs, args);
 		else
 			call = meth.closure(args);
-		stack.clear();
 		stack.add(call);
 	}
 

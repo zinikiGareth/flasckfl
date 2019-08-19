@@ -10,6 +10,8 @@ window.console.log = function() {
 };
 window.runner = {};
 window.runner.assertSameValue = function(e, a) {
+	e = FLEval.full(e);
+	a = FLEval.full(a);
 	if (a != e) { // should be deep equal
 		throw new Error("NSV" + "\n  expected: " + e + "\n  actual:   " + a);
 	}

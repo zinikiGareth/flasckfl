@@ -133,4 +133,27 @@ public class ExpressionGenerationJS {
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
 		gen.visitExpr(ae, 0);
 	}
+
+	@Test
+	public void aNestedFunctionApplication() {
+		JSMethodCreator meth = context.mock(JSMethodCreator.class);
+		UnresolvedVar fn = new UnresolvedVar(pos, "f");
+		FunctionName fnName = FunctionName.function(pos, pkg, "f");
+		fn.bind(new FunctionDefinition(fnName, 1));
+		UnresolvedVar var = new UnresolvedVar(pos, "x");
+		FunctionName varName = FunctionName.function(pos, pkg, "x");
+		var.bind(new FunctionDefinition(varName, 0));
+		ApplyExpr ae = new ApplyExpr(pos, fn, var);
+		JSExpr f = context.mock(JSExpr.class, "f");
+		JSExpr x = context.mock(JSExpr.class, "x");
+		JSExpr v1 = context.mock(JSExpr.class, "v1");
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("test.repo.x"); will(returnValue(x));
+			oneOf(meth).closure(x); will(returnValue(v1));
+			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
+			oneOf(meth).closure(f, v1);
+		}});
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
+		gen.visitExpr(ae, 0);
+	}
 }

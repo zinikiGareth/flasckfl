@@ -86,7 +86,7 @@ public abstract class BaseRunnerTests {
 		UnitTestName utn = new UnitTestName(utfn, 12);
 		UnitTestCase utc = new UnitTestCase(utn, "hello");
 		runner.runit(pw, utc);
-		assertEquals("JVM PASS hello\n", sw.toString());
+		assertEquals(prefix() + " PASS hello\n", sw.toString());
 	}
 
 	@Test
@@ -98,7 +98,19 @@ public abstract class BaseRunnerTests {
 		UnitTestName utn = new UnitTestName(utfn, 18);
 		UnitTestCase utc = new UnitTestCase(utn, "itfails");
 		runner.runit(pw, utc);
-		assertEquals("JVM FAIL itfails\n  expected: 42\n  actual:   84\n", sw.toString());
+		assertEquals(prefix() + " FAIL itfails\n  expected: 42\n  actual:   84\n", sw.toString());
+	}
+
+	@Test
+	public void testAClosureIsFullyEvaluatedBeforeTheComparisonIsDone() throws Exception {
+		Configuration config = null;
+		Repository repository = new Repository();
+		CommonTestRunner runner = prepareRunner(config, repository);
+		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
+		UnitTestName utn = new UnitTestName(utfn, 25);
+		UnitTestCase utc = new UnitTestCase(utn, "closures are expanded");
+		runner.runit(pw, utc);
+		assertEquals(prefix() + " PASS closures are expanded\n", sw.toString());
 	}
 
 	/*
@@ -210,6 +222,7 @@ public abstract class BaseRunnerTests {
 	}
 	*/
 
+	protected abstract String prefix();
 	protected abstract CommonTestRunner prepareRunner(Configuration config, Repository repository) throws IOException, ErrorResultException;
 	
 //	protected FunctionCaseDefn function(String name, Object expr) {

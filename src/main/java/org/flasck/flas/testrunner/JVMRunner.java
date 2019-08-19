@@ -18,11 +18,13 @@ import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
 import org.flasck.jvm.builtin.FLNumber;
 import org.flasck.jvm.container.FlasckService;
+import org.flasck.jvm.fl.FLEval;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.InternalHandle;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
@@ -116,9 +118,12 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //	}
 
 	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
+		expected = FLEval.full(null, expected);
+		actual = FLEval.full(null, actual);
 		if (expected instanceof FLNumber) {
 			assertSameNumber((FLNumber)expected, actual);
-		}
+		} else
+			throw new NotImplementedException();
 	}
 
 	private void assertSameNumber(FLNumber expected, Object actual) throws FlasTestException {

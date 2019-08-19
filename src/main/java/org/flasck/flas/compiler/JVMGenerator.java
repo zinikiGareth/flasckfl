@@ -43,6 +43,7 @@ public class JVMGenerator extends LeafAdapter {
 	private ByteCodeSink clz;
 	private ByteCodeSink upClz;
 	private ByteCodeSink downClz;
+	private int nextVar = 1;
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce) {
@@ -66,9 +67,12 @@ public class JVMGenerator extends LeafAdapter {
 	public void visitFunction(FunctionDefinition fn) {
 		this.clz = bce.newClass(fn.name().javaClassName());
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
+		ann.argument(J.FLEVALCONTEXT, "cxt");
+		/* PendingVar argsArg = */ ann.argument("[" + J.OBJECT, "args");
 		ann.returns(JavaType.object_);
 		meth = ann.done();
 		meth.lenientMode(leniency);
+		nextVar = 1;
 	}
 	
 	// TODO: this should have been reduced to HSIE, which we should generate from
@@ -113,7 +117,7 @@ public class JVMGenerator extends LeafAdapter {
 			if (defn instanceof FunctionDefinition) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				stack.add(meth.classConst(name.javaClassName()));
-				makeClosure(fn.argCount());
+				makeClosure(0, fn.argCount());
 			} else {
 				// eg. struct ctor
 				stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval"));
@@ -134,20 +138,22 @@ public class JVMGenerator extends LeafAdapter {
 		int expArgs = 0;
 		if (fn instanceof UnresolvedVar)
 			expArgs = ((FunctionDefinition)((UnresolvedVar)fn).defn()).argCount();
-		makeClosure(expArgs);
+		makeClosure(expr.args.size(), expArgs);
 	}
 
-	private void makeClosure(int expArgs) {
-		IExpr fn = stack.remove(0);
-		int nargs = stack.size();
-		IExpr args = meth.arrayOf(J.OBJECT, stack);
-		stack.clear();
+	private void makeClosure(int depth, int expArgs) {
+		List<IExpr> provided = new ArrayList<IExpr>();
+		int k = stack.size()-depth;
+		for (int i=0;i<depth;i++)
+			provided.add(stack.remove(k));
+		IExpr args = meth.arrayOf(J.OBJECT, provided);
+		IExpr fn = stack.remove(stack.size()-1);
 		IExpr call;
-		if (nargs < expArgs)
+		if (depth < expArgs)
 			call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
 		else
 			call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
-		Var v = meth.avar(J.FLCLOSURE, "v1");
+		Var v = meth.avar(J.FLCLOSURE, "v" + nextVar++);
 		IExpr assign = meth.assign(v, call);
 		assign.flush();
 		stack.add(v);

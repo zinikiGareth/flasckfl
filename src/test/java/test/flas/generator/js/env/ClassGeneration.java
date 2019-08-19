@@ -19,6 +19,7 @@ import org.flasck.flas.compiler.jsgen.JSMethod;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSString;
 import org.flasck.flas.compiler.jsgen.JSVar;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -178,8 +179,37 @@ public class ClassGeneration {
 		assertEquals("\n  pkg.Clz.test = function(arg1, arg2) {\n  }\n", sw.toString());
 	}
 
+	
+	// TODO: I think I've started to lose the plot here, and I think in part it's
+	// because I don't have golden tests keeping me honest.
+	
+	// Among the cases are (I believe):
+	//  "just" pushing a symbol, e.g. "f", in which case it writes nothing and returns "f" asVar()
+	//  evaluating a function with no args - writes closure(f) and returns v1
+	//  evaluating a function with args - writes v3 = closure(f, v1, v2) and returns v3
+	//  evaluating a Constructor with no args - writes nothing and returns Nil()
+	//  evaluating a Constructor with args - writes v1 = Cons(v2, v3) and returns v1
 	@Test
+	@Ignore
 	public void aFunctionCallDefinesAVar() {
+		w = w.indent();
+		JSMethodCreator meth = new JSMethod("pkg", "f");
+		JSExpr callG = meth.pushFunction("g");
+		callG.write(w);
+		assertEquals("const v1 = FLEval.closure(g);", sw.toString());
+		assertEquals("v1", callG.asVar());
+	}
+
+	@Test
+	public void aConstructorWithNoArgsGeneratesAConstant() {
+		w = w.indent();
+		JSMethodCreator meth = new JSMethod("pkg", "f");
+		JSExpr callG = meth.pushFunction("g");
+		assertEquals("v1", callG.asVar());
+	}
+
+	@Test
+	public void aConstructorWithArgsGeneratesACreationExpression() {
 		w = w.indent();
 		JSMethodCreator meth = new JSMethod("pkg", "f");
 		JSExpr callG = meth.pushFunction("g");

@@ -14,6 +14,9 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		return new JVMRunner(config, repository, getClass().getClassLoader());
 	}
 
+	protected String prefix() {
+		return "JVM";
+	}
 	/*
 	private File jvmClasses() {
 		File jvmdir;

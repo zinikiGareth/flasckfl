@@ -205,4 +205,53 @@ public class ExpressionGeneration {
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(ae, 0);
 	}
+
+	@Test
+	public void aNestedFunctionApplication() {
+		UnresolvedVar fn = new UnresolvedVar(pos, "f");
+		FunctionName fnName = FunctionName.function(pos, pkg, "f");
+		fn.bind(new FunctionDefinition(fnName, 1));
+		UnresolvedVar var = new UnresolvedVar(pos, "x");
+		FunctionName varName = FunctionName.function(pos, pkg, "x");
+		var.bind(new FunctionDefinition(varName, 0));
+		ApplyExpr ae = new ApplyExpr(pos, fn, var);
+		IExpr f = context.mock(IExpr.class, "f");
+		IExpr fAsObj = context.mock(IExpr.class, "fAsObj");
+		IExpr x = context.mock(IExpr.class, "x");
+		IExpr xAsObj = context.mock(IExpr.class, "xAsObj");
+		List<IExpr> xArgsList  = new ArrayList<>();
+		IExpr xargs = context.mock(IExpr.class, "xargs");
+		IExpr xae = context.mock(IExpr.class, "xae");
+		IExpr aev = context.mock(IExpr.class, "aev");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+			oneOf(meth).nextLocal(); will(returnValue(23));
+		}});
+		Var v1 = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v1");
+		Var v2 = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v2");
+		IExpr args = context.mock(IExpr.class, "args");
+		List<IExpr> argsList = new ArrayList<>();
+		argsList.add(v1);
+		IExpr assignx = context.mock(IExpr.class, "assignx");
+		IExpr assignae = context.mock(IExpr.class, "assignae");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
+			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(x));
+			oneOf(meth).as(x, "java.lang.Object"); will(returnValue(xAsObj));
+			oneOf(meth).arrayOf("java.lang.Object", xArgsList); will(returnValue(xargs));
+			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", xAsObj, xargs); will(returnValue(xae));
+			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(v1));
+			oneOf(meth).assign(with(any(Var.class)), with(xae)); will(returnValue(assignx));
+			oneOf(assignx).flush();
+
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
+			oneOf(meth).as(f, "java.lang.Object"); will(returnValue(fAsObj));
+			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", fAsObj, args); will(returnValue(aev));
+			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v2"); will(returnValue(v2));
+			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assignae));
+			oneOf(assignae).flush();
+		}});
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		gen.visitExpr(ae, 0);
+	}
 }

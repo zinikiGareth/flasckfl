@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.jsgen.JSEnvironment;
+import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
@@ -28,6 +29,7 @@ import org.flasck.ui4j.UI4JWrapperElement;
 import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
+import org.zinutils.utils.FileUtils;
 
 import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
@@ -87,20 +89,21 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 	
-	private final JSEnvironment jse;
+	private final JSStorage jse;
 	private final JSJavaBridge st = new JSJavaBridge();
 	private final BrowserEngine browser;
 	private Page page;
 	private Map<String, CardHandle> cards = new TreeMap<>();
 	private File html;
 	
-	public JSRunner(Configuration config, Repository repository, JSEnvironment jse) {
+	public JSRunner(Configuration config, Repository repository, JSStorage jse) {
 		super(config, repository);
 		this.jse = jse;
 		this.browser = BrowserFactory.getWebKit();
 
 		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
 		buildHTML();
+		FileUtils.cat(html);
 		page = browser.navigate("file:" + html.getPath());
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
@@ -164,7 +167,7 @@ public class JSRunner extends CommonTestRunner {
 		return "js";
 	}
 	
-	protected void scriptIt(PrintWriter pw, File f) {
+	protected void includeFileAsScript(PrintWriter pw, File f) {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
 		pw.println("<script src='file:" + f.getPath() + "?cachebuster=" + System.currentTimeMillis()  + "' type='text/javascript'></script>");
@@ -184,7 +187,7 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<script src='file:" + jsfile + "' type='text/javascript'></script>");
 			pw.println("<script src='file:" + utfile + "' type='text/javascript'></script>");
 			for (File f : jse.files())
-				scriptIt(pw, f);
+				includeFileAsScript(pw, f);
 			pw.println("</head>");
 			pw.println("<body>");
 			pw.println("</body>");
