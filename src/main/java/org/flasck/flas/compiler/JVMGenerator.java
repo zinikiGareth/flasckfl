@@ -111,9 +111,9 @@ public class JVMGenerator extends LeafAdapter {
 //		FunctionDefinition fn = (FunctionDefinition)defn;
 		if (nargs == 0) {
 			if (defn instanceof FunctionDefinition) {
+				FunctionDefinition fn = (FunctionDefinition) defn;
 				stack.add(meth.classConst(name.javaClassName()));
-				// TODO: if it expects more than 0 args, make a curry
-				makeClosure();
+				makeClosure(fn.argCount());
 			} else {
 				// eg. struct ctor
 				stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval"));
@@ -130,14 +130,23 @@ public class JVMGenerator extends LeafAdapter {
 
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
-		makeClosure();
+		Object fn = expr.fn;
+		int expArgs = 0;
+		if (fn instanceof UnresolvedVar)
+			expArgs = ((FunctionDefinition)((UnresolvedVar)fn).defn()).argCount();
+		makeClosure(expArgs);
 	}
 
-	private void makeClosure() {
+	private void makeClosure(int expArgs) {
 		IExpr fn = stack.remove(0);
+		int nargs = stack.size();
 		IExpr args = meth.arrayOf(J.OBJECT, stack);
 		stack.clear();
-		IExpr call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
+		IExpr call;
+		if (nargs < expArgs)
+			call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
+		else
+			call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
 		Var v = meth.avar(J.FLCLOSURE, "v1");
 		IExpr assign = meth.assign(v, call);
 		assign.flush();

@@ -112,6 +112,36 @@ public class ExpressionGeneration {
 	}
 
 	@Test
+	public void aVarWithNoArgsExpectingTwoArgsBecomesACurriedFunction() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "x");
+		FunctionName nameX = FunctionName.function(pos, pkg, "x");
+		expr.bind(new FunctionDefinition(nameX, 2));
+		IExpr x = context.mock(IExpr.class, "x");
+		IExpr xAsObj = context.mock(IExpr.class, "xAsObj");
+		IExpr expArgs = context.mock(IExpr.class, "expArgs");
+		IExpr aev = context.mock(IExpr.class, "aev");
+		IExpr args = context.mock(IExpr.class, "args");
+		List<IExpr> argsList = new ArrayList<>();
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		Var var = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v1");
+		IExpr assign = context.mock(IExpr.class, "assign");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(x));
+			oneOf(meth).intConst(2); will(returnValue(expArgs));
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
+			oneOf(meth).as(x, "java.lang.Object"); will(returnValue(xAsObj));
+			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "curry", xAsObj, expArgs, args); will(returnValue(aev));
+			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
+			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
+			oneOf(assign).flush();
+		}});
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		gen.visitExpr(expr, 0);
+	}
+
+	@Test
 	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));

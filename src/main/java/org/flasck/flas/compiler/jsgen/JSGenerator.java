@@ -68,8 +68,9 @@ public class JSGenerator extends LeafAdapter {
 			throw new RuntimeException("var " + var + " was still not resolved");
 		if (nargs == 0) {
 			if (defn instanceof FunctionDefinition) {
+				FunctionDefinition fn = (FunctionDefinition) defn;
 				stack.add(meth.pushFunction(defn.name().jsName()));
-				makeClosure();
+				makeClosure(fn.argCount());
 			} else {
 				stack.add(meth.callFunction(defn.name().jsName()));
 			}
@@ -85,13 +86,22 @@ public class JSGenerator extends LeafAdapter {
 
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
-		makeClosure();
+		Object fn = expr.fn;
+		int expArgs = 0;
+		if (fn instanceof UnresolvedVar)
+			expArgs = ((FunctionDefinition)((UnresolvedVar)fn).defn()).argCount();
+		makeClosure(expArgs);
 	}
 
-	private void makeClosure() {
+	private void makeClosure(int expArgs) {
 		// I think we may need to be more diligent about the exact number we pull off
-		JSExpr[] args = stack.toArray(new JSExpr[stack.size()]);
-		JSExpr call = meth.closure(args);
+		int size = stack.size();
+		JSExpr[] args = stack.toArray(new JSExpr[size]);
+		JSExpr call;
+		if (size <= expArgs) // size includes the function
+			call = meth.curry(expArgs, args);
+		else
+			call = meth.closure(args);
 		stack.clear();
 		stack.add(call);
 	}

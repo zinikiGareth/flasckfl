@@ -57,6 +57,13 @@ public class JSMethod implements JSMethodCreator {
 	}
 
 	@Override
+	public JSClosure curry(int expArgs, JSExpr... args) {
+//		JSClosure stmt = new JSClosure(this, args);
+//		stmts.add(stmt);
+//		return stmt;
+	}
+
+	@Override
 	public void assertable(JSExpr obj, String assertion, JSExpr... args) {
 		JSAssertion stmt = new JSAssertion(obj, assertion, args);
 		stmts.add(stmt);

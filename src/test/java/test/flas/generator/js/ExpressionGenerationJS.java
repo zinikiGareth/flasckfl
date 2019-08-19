@@ -76,6 +76,21 @@ public class ExpressionGenerationJS {
 	}
 
 	@Test
+	public void aVarWithNoArgsExpectingTwoArgsBecomesACurriedFunction() {
+		JSMethodCreator meth = context.mock(JSMethodCreator.class);
+		JSExpr x = context.mock(JSExpr.class, "f");
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("test.repo.x"); will(returnValue(x));
+			oneOf(meth).curry(2, x);
+		}});
+		UnresolvedVar expr = new UnresolvedVar(pos, "x");
+		FunctionName nameX = FunctionName.function(pos, pkg, "x");
+		expr.bind(new FunctionDefinition(nameX, 2));
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
+		gen.visitExpr(expr, 0);
+	}
+
+	@Test
 	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		JSExpr x = context.mock(JSExpr.class, "f");
