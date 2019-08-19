@@ -1,5 +1,0 @@
-package test.golden
-  entity test.golden.Entity @{1:0|entity} @{1:7|Entity}
-    id @{1:7|Entity}
-      Id @{1:7|Entity}
-  object test.golden.WithState @{3:0|object} @{3:7|WithState}

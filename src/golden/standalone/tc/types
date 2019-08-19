@@ -1,3 +1,0 @@
-test.golden.Foo.request :: Crokey->Send
-test.golden.Foo.request2 :: Crokey->Send
-test.golden.Foo._C1.go :: A->Cons[List[Send]]

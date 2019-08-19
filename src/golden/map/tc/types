@@ -1,1 +1,0 @@
-test.golden.map1 :: (A->B)->List[A]->List[B]

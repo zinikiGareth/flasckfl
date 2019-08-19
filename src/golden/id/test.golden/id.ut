@@ -1,3 +1,0 @@
-	test that id returns the value it is passed
-		assert (id "hello")
-			"hello"

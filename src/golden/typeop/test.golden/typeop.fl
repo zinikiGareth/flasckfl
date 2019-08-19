@@ -1,5 +1,0 @@
-
-	card MyCard
-	
-	x = type Number
-	y = type MyCard

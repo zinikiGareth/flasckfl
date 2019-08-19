@@ -1,5 +1,0 @@
-package test.golden
-  cdecl test.golden.HandlerCtr @{1:0|contract} @{1:9|HandlerCtr}
-    required down handle @{2:0|down} @{2:5|handle}
-      [type] x @{2:20|x}
-        Number @{2:13|Number}

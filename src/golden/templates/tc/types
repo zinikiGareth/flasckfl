@@ -1,4 +1,0 @@
-test.golden.Templates.B2.lvs_0 :: Croset[test.golden.Item]
-test.golden.Templates.B5.contents_3 :: String
-test.golden.Templates.B4.contents_1 :: String
-test.golden.Templates.B4.formats_2 :: Cons[String]

@@ -1,1 +1,0 @@
-test.golden.take :: Number->List[A]->List[A]

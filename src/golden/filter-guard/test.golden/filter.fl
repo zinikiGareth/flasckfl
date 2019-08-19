@@ -1,5 +1,0 @@
-
-	filter f [] = []
-	filter f (a:l) 
-		if (f a) = a:(filter f l)
-		else	 = (filter f l)

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<FLIM package="test.golden">
-    <Card file="d3.fl" line="1" name="TestCard" off="5"/>
-</FLIM>

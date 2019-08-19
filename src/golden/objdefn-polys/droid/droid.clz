@@ -1,7 +1,0 @@
-src/golden/objdefn-polys/droid-to/test/golden/WithPoly.java
-class WithPoly.java extends org.flasck.jvm.objects.FlasckObject {
-  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx, java.lang.Object state) {
-    super.<init>(cx, state)
-    return
-  }
-}

@@ -1,8 +1,0 @@
-	test that we can create the card
-		create s NestFunction
-		matchElement div>span
-			<span id="card_1_1" class="">hello</span>
-		matchContents div>span
-			hello
-		matchCount div.show
-			0

@@ -1,6 +1,0 @@
-	entity Entity
-	
-	object WithState
-		Number n
-		String s
-		Entity e

@@ -1,4 +1,0 @@
-test.golden.scoped_0.requestObj :: ->Nil
-test.golden.scoped :: test.golden.UpC->MessageWrapper[Number]
-test.golden.scoped_0.request :: Cons[Send]
-test.golden.scoped_0.MyHc.reply :: A->Cons[Nil]

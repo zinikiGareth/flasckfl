@@ -1,7 +1,0 @@
-
-	fred x = 32
-	
-	t1 = map fred []
-	t2 = map fred [3]
-	
-	bert = (2, "hello")

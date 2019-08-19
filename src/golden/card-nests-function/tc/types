@@ -1,2 +1,0 @@
-test.golden.NestFunction.styleIf :: String->A->String
-test.golden.NestFunction.B1.formats_0 :: Cons[String]

@@ -1,5 +1,0 @@
-	test that it is assigned
-		create tester Card
-		event tester doit "42"
-		matchContents div>span
-			"hello"

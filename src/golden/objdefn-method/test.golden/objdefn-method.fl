@@ -1,5 +1,0 @@
-	object WithMethod
-		Number x
-		
-		method highTime
-			x <- 420

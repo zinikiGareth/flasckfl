@@ -1,4 +1,0 @@
-	struct Role
-		String r
-	
-	f (Any x) = (downcast Role x).r

@@ -1,7 +1,0 @@
-test.golden.ControlledCard._C0.setOff :: A->Cons[Assign]
-test.golden.ControlledCard._C0.setOn :: A->Cons[Assign]
-test.golden.ControlledCard._C1.saySomething :: String->A->Cons[Send]
-test.golden.ControlledCard.echoHello :: A->Cons[Send]
-test.golden.ControlledCard.styleIf :: String->A->String
-test.golden.ControlledCard.handlers_1.getHandler :: A->Cons[Send]
-test.golden.ControlledCard.B1.formats_0 :: Cons[String]

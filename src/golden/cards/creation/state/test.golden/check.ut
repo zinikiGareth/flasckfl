@@ -1,4 +1,0 @@
-	test that a field is initialized when the card is created
-		create tester StateCard
-		matchContents div>span
-			"hello"

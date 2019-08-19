@@ -1,1 +1,0 @@
-test.golden.fold :: (A->B->A)->A->List[B]->A

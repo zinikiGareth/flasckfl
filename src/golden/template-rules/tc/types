@@ -1,5 +1,0 @@
-test.golden.MyCard.B2.contents_0 :: String
-test.golden.MyCard.B2.editcontainer_1 :: test.golden.Container
-test.golden.MyCard.B3.lvs_2 :: Croset[test.golden.Container]
-test.golden.MyCard.B5.contents_3 :: String
-test.golden.MyCard.B5.editcontainer_4 :: test.golden.Container

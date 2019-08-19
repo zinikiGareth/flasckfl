@@ -1,8 +1,0 @@
-	contract HandlerCtr
-		down handle (Number x)
-
-This doesn't work because we don't (yet) parse function types
-It's not clear to me whether this _would_ need parens if we did parse them
-/	handler HandlerCtr MyHandler ((Number->Number) f)
-/		handle x
-/			<- f x
