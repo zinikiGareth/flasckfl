@@ -68,8 +68,7 @@ public class FLASCompiler {
 	
 	public ErrorMark processInput(Configuration config, Repository repository, File input, ErrorMark mark) {
 		try {
-			if (config.tda)
-				mark = parse(repository, input, mark);
+			mark = parse(repository, input, mark);
 		} catch (Throwable ex) {
 			reportException(ex);
 		} finally {

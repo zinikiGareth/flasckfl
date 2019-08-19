@@ -1,4 +1,0 @@
-test.golden.Events.okThen :: A->Cons[Debug]
-test.golden.Events.setTo :: A->B->Cons[Debug]
-test.golden.Events.handlers_0.getHandler :: A->Cons[Debug]
-test.golden.Events.handlers_1.getHandler :: A->Cons[Debug]

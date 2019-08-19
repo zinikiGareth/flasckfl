@@ -17,15 +17,16 @@ public class Configuration {
 	public File writeFlim;
 	public File writeHSIE;
 	public File writeJS;
-	private File writeDroid;
+//	private File writeDroid;
 	public File writeJVM;
-	private boolean buildDroid = true;
-	public final boolean tda = true;
+//	private boolean buildDroid = true;
+//	public final boolean tda = true;
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
 	public final List<File> inputs = new ArrayList<File>();
 	private File writeTestReportsTo;
 	private File writeErrorsTo;
+	public File writeTypesTo;
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
@@ -37,9 +38,7 @@ public class Configuration {
 			String arg = args[i];
 			int hasMore = args.length-i-1;
 			if (arg.startsWith("-")) {
-				if (arg.equals("--dump"))
-					dumpTypes = true;
-				else if (arg.equals("--root"))
+				if (arg.equals("--root"))
 					root = new File(args[++i]);
 				else if (arg.equals("--phase"))
 					upto = PhaseTo.valueOf(args[++i]);
@@ -51,6 +50,12 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeErrorsTo = new File(root, args[++i]);
+				} else if (arg.equals("--types")) {
+					if (hasMore == 0) {
+						System.out.println("--types <dir>");
+						System.exit(1);
+					}
+					writeTypesTo = new File(root, args[++i]);
 				} else if (arg.equals("--testReports")) {
 					if (hasMore == 0) {
 						System.out.println("--testReports <dir>");
@@ -85,12 +90,12 @@ public class Configuration {
 					unitjs = false;
 				} else if (arg.equals("--no-unit-jvm")) {
 					unitjvm = false;
-				} else if (arg.equals("--android")) {
-					if (hasMore == 0) {
-						System.out.println("--android <build-dir>");
-						System.exit(1);
-					}
-					writeDroid = new File(root, args[++i]);
+//				} else if (arg.equals("--android")) {
+//					if (hasMore == 0) {
+//						System.out.println("--android <build-dir>");
+//						System.exit(1);
+//					}
+//					writeDroid = new File(root, args[++i]);
 				} else if (arg.equals("--jvm")) {
 					if (hasMore == 0) {
 						System.out.println("--jvm <build-dir>");

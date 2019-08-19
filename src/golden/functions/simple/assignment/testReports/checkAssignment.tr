@@ -1,8 +1,8 @@
 JVM PASS that x has the right value
 JVM FAIL that we can have failing tests
-  expected: 42
-  actual:   84
+  expected: 84
+  actual:   42
 JS PASS that x has the right value
 JS FAIL that we can have failing tests
-  expected: 42
-  actual:   84
+  expected: 84
+  actual:   42

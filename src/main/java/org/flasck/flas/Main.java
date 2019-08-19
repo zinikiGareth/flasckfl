@@ -1,6 +1,7 @@
 package org.flasck.flas;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -99,6 +100,15 @@ public class Main {
 			if (compiler.hasErrors()) {
 				errors.showFromMark(mark, ew, 0);
 				return true;
+			}
+		}
+		
+		// typechecking
+		{
+			File ty = config.writeTypesTo;
+			if (ty != null) {
+				FileOutputStream fos = new FileOutputStream(ty);
+				fos.close();
 			}
 		}
 		

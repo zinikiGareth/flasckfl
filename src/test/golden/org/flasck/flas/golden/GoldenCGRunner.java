@@ -28,10 +28,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	static boolean checkEverything = checkOption == null || !checkOption.equalsIgnoreCase("false");
 	static boolean checkNothing = checkOption != null && checkOption.equalsIgnoreCase("nothing");
 	static String tdaOption = System.getProperty("org.flasck.golden.tda");
-	static boolean useTDA = tdaOption != null && ("true".equalsIgnoreCase(tdaOption) || "both".equalsIgnoreCase(tdaOption));
-	static boolean useOLD = tdaOption == null || "both".equalsIgnoreCase(tdaOption) || "false".equalsIgnoreCase(tdaOption);
-	static String stripNumbersS = System.getProperty("org.flasck.golden.strip"); 
-	static boolean stripNumbers = stripNumbersS != null && stripNumbersS.equalsIgnoreCase("true");
 	static String useRunner = System.getProperty("org.flasck.golden.runner");
 	// Note that not specifying defaults to "JS"; but "neither" or "none" (or almost anything else, in fact) does not run either
 	static boolean useJSRunner = useRunner == null || useRunner.equals("js") || useRunner.equals("both");
@@ -85,10 +81,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 
 	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
 		boolean ignoreTest = new File(f, "ignore").exists();
-		boolean legacyTest = new File(f, "legacy").exists();
 		String phase = new File(f, "phase").exists() ? FileUtils.readFile(new File(f, "phase")) : PhaseTo.COMPLETE.toString();
-		boolean approvedForTDA = new File(f, "tda").exists() || new File(f, "tdaonly").exists();
-		boolean tdaOnly = new File(f, "tdaonly").exists();
 
 		File f1 = FileUtils.makeRelativeTo(f, new File("src/golden"));
 		StringBuilder name = new StringBuilder();
@@ -97,65 +90,33 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			f1 = f1.getParentFile();
 		}
 		name.insert(0, "test");
-		if (useOLD && !tdaOnly)
-			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, phase, false);
-		if (useTDA && approvedForTDA) {
-			name.append("_tda");
-			addTests(bcc, f, name.toString(), ignoreTest, legacyTest, phase, true);
-		}
+		addTests(bcc, f, name.toString(), ignoreTest, phase);
 	}
 
-	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, boolean legacyTest, String phase, boolean tdaTest) {
+	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, String phase) {
 		addMethod(bcc, name, ignoreTest, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
-				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.boolConst(legacyTest), done.boolConst(tdaTest), done.stringConst(phase)).flush();
+				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.stringConst(phase)).flush();
 			}
 		});
 	}
 	
-	public static void runGolden(String s, boolean isLegacy, boolean runAsTDA, String phase) throws Exception {
+	public static void runGolden(String s, String phase) throws Exception {
 		System.out.println("Run golden test for " + s);
-		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, isLegacy, useJSRunner, useJVMRunner, checkNothing, checkEverything, stripNumbers);
+		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, useJSRunner, useJVMRunner, checkNothing, checkEverything);
 		te.cleanUp();
 		
-		if (runAsTDA) {
-			final File actualErrors = new File(s, "errors-tmp");
-			final File expectedErrors = new File(s, "errors");
-			final File tr = new File(s, "testReports-tmp");
-			FileUtils.assertDirectory(actualErrors);
-			FileUtils.assertDirectory(tr);
-			Main.noExit("--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "test.golden");
-			checkExpectedErrors(te, expectedErrors, actualErrors);
-//			if (errs) {
-//				fail("compilation errors encountered");
-//			}
+		final File actualErrors = new File(s, "errors-tmp");
+		final File expectedErrors = new File(s, "errors");
+		final File tr = new File(s, "testReports-tmp");
+		FileUtils.assertDirectory(actualErrors);
+		FileUtils.assertDirectory(tr);
+		Main.noExit("--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types", "test.golden");
+		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {
 			te.checkTestResults();
-			te.checkGeneration();
-			return;
+			te.checkTypes();
 		}
-		
-		/*
-		// This should just call Main.noExit
-		FLASCompiler compiler = te.configureCompiler();
-		compiler.phaseTo(PhaseTo.valueOf(phase));
-		File dir = new File(s, "test.golden");
-
-		if (runAsTDA) {
-			Repository repository = new Repository();
-			final File actualErrors = new File(s, "errors-tmp");
-			final File expectedErrors = new File(s, "errors");
-			FileUtils.assertDirectory(actualErrors);
-			compiler.errorWriter(new PrintWriter(new File(s, "errors-tmp/errors")));
-			compiler.parse(repository, dir);
-			checkExpectedErrors(te, expectedErrors, actualErrors);
-//			throw new UtilException("Didn't think about UTs did you?");
-		}
-		
-		// This is to build an actual APK, not code geenrate
-//		if (buildDroid)
-//			compiler.getBuilder().build();
-			*/
 	}
 
 	@Deprecated
@@ -185,14 +146,17 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 	}
 
-	private static void checkExpectedErrors(TestEnvironment te, File expectedErrors, File actualErrors) {
+	private static boolean checkExpectedErrors(TestEnvironment te, File expectedErrors, File actualErrors) {
 		final File aef = new File(actualErrors, "errors");
-		if (expectedErrors.isDirectory())
+		if (expectedErrors.isDirectory()) {
 			te.assertGolden(expectedErrors, actualErrors);
-		else if (aef.length() > 0) {
+			return false;
+		} else if (aef.length() > 0) {
 			FileUtils.cat(aef);
 			fail("unexpected compilation errors");
-		}
+			return false; // won't actually happen
+		} else
+			return true;
 	}
 
 	@Override
