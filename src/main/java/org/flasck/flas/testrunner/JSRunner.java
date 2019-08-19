@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.compiler.jsgen.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -103,7 +102,6 @@ public class JSRunner extends CommonTestRunner {
 
 		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
 		buildHTML();
-		FileUtils.cat(html);
 		page = browser.navigate("file:" + html.getPath());
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {

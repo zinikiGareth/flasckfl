@@ -46,7 +46,7 @@ public class JSGenerator extends LeafAdapter {
 		if (stack.size() != 1) {
 			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
 		}
-		meth.returnObject(stack.get(0));
+		meth.returnObject(stack.remove(0));
 		this.meth = null;
 	}
 	
@@ -134,6 +134,8 @@ public class JSGenerator extends LeafAdapter {
 		switch (op) {
 		case "+":
 			return "FLEval.plus";
+		case "*":
+			return "FLEval.mul";
 		default:
 			throw new RuntimeException("There is no operator " + op);
 		}

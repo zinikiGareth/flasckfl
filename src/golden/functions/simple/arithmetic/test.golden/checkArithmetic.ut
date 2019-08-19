@@ -1,3 +1,11 @@
 	test that addition works
 		assert six
 			6
+
+	test associativity
+		assert twelve
+			12
+
+	test parens override BIDMAS
+		assert twentyfour
+			24

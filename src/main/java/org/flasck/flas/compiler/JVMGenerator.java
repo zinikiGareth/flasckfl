@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.repository.BuiltinRepositoryEntry;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.jvm.J;
@@ -84,7 +85,9 @@ public class JVMGenerator extends LeafAdapter {
 		if (stack.size() != 1) {
 			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
 		}
-		meth.returnObject(stack.get(0)).flush();
+		meth.returnObject(stack.remove(0)).flush();
+		this.meth = null;
+		this.clz = null;
 	}
 	
 	@Override
@@ -138,6 +141,8 @@ public class JVMGenerator extends LeafAdapter {
 		int expArgs = 0;
 		if (fn instanceof UnresolvedVar)
 			expArgs = ((FunctionDefinition)((UnresolvedVar)fn).defn()).argCount();
+		else if (fn instanceof UnresolvedOperator)
+			expArgs = ((BuiltinRepositoryEntry)((UnresolvedOperator)fn).defn()).argCount();
 		makeClosure(expr.args.size(), expArgs);
 	}
 
@@ -366,6 +371,9 @@ public class JVMGenerator extends LeafAdapter {
 		switch (op) {
 		case "+":
 			inner = "Plus";
+			break;
+		case "*":
+			inner = "Mul";
 			break;
 		default:
 			throw new RuntimeException("There is no operator " + op);

@@ -1,1 +1,3 @@
 	six = 2 + 4
+	twelve = 6 + 2*3
+	twentyfour = (6+2)*3

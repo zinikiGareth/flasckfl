@@ -6,8 +6,15 @@ import org.flasck.flas.commonBase.names.SolidName;
 
 public class BuiltinRepositoryEntry implements RepositoryEntry {
 	private final SolidName name;
+	private final int argCount;
 
 	public BuiltinRepositoryEntry(String string) {
+		this.name = new SolidName(null, string);
+		this.argCount = 0;
+	}
+
+	public BuiltinRepositoryEntry(String string, int argCount) {
+		this.argCount = argCount;
 		this.name = new SolidName(null, string);
 	}
 
@@ -22,6 +29,10 @@ public class BuiltinRepositoryEntry implements RepositoryEntry {
 
 	public void loadInto(Repository repository) {
 		repository.addEntry(name, this);
+	}
+
+	public int argCount() {
+		return argCount;
 	}
 
 }
