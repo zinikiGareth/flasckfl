@@ -28,6 +28,7 @@ import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
+import org.flasck.flas.tc3.TypeChecker;
 import org.flasck.flas.tc3.TypeDumper;
 import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
@@ -107,6 +108,10 @@ public class Main {
 		
 		// typechecking
 		{
+			TypeChecker tc = new TypeChecker(errors, repository);
+			repository.traverse(tc);
+			
+			// dump types if specified
 			File ty = config.writeTypesTo;
 			if (ty != null) {
 				FileOutputStream fos = new FileOutputStream(ty);

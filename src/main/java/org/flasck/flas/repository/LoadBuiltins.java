@@ -10,7 +10,7 @@ public class LoadBuiltins {
 		new BuiltinRepositoryEntry("Croset").loadInto(repository);
 		new BuiltinRepositoryEntry("List").loadInto(repository);
 		new BuiltinRepositoryEntry("Map").loadInto(repository);
-		new BuiltinRepositoryEntry("Number").loadInto(repository);
+		new BuiltinRepositoryEntry.Type("Number").loadInto(repository);
 		new BuiltinRepositoryEntry("String").loadInto(repository);
 		new BuiltinRepositoryEntry("Type").loadInto(repository);
 		

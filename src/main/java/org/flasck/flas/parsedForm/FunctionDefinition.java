@@ -11,6 +11,7 @@ public class FunctionDefinition implements RepositoryEntry {
 	private final FunctionName name;
 	private final int nargs;
 	private final List<FunctionIntro> intros = new ArrayList<>();
+	private WithTypeSignature type;
 
 	public FunctionDefinition(FunctionName name, int nargs) {
 		this.name = name;
@@ -41,5 +42,13 @@ public class FunctionDefinition implements RepositoryEntry {
 	@Override
 	public String toString() {
 		return "FunctionDefinition[" + name.uniqueName() + "/" + nargs + "{" + intros.size() + "}]";
+	}
+
+	public void bindType(WithTypeSignature ty) {
+		this.type = ty;
+	}
+	
+	public WithTypeSignature type() {
+		return type;
 	}
 }
