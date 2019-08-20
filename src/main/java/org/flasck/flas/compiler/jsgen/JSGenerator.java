@@ -8,8 +8,10 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.WithTypeSignature;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
@@ -66,17 +68,20 @@ public class JSGenerator extends LeafAdapter {
 		RepositoryEntry defn = var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
-		if (nargs == 0) {
-			if (defn instanceof FunctionDefinition) {
+		if (defn instanceof FunctionDefinition) {
+			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				stack.add(meth.pushFunction(defn.name().jsName()));
-				makeClosure(0, fn.argCount());
-			} else {
-				// True at least for Struct ctor with no args (eg Nil)
+				makeClosure(fn, 0, fn.argCount());
+			} else
+				stack.add(meth.pushFunction(defn.name().jsName()));
+		} else if (defn instanceof StructDefn) {
+			// if the constructor has no args, eval it here
+			// otherwise leave it until "leaveExpr" or "leaveFunction"
+			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
 				stack.add(meth.callFunction(defn.name().jsName()));
 			}
-		} else
-			stack.add(meth.pushFunction(defn.name().jsName()));
+		}
 	}
 
 	@Override
@@ -88,23 +93,38 @@ public class JSGenerator extends LeafAdapter {
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
 		Object fn = expr.fn;
-		int expArgs = 0;
+		WithTypeSignature defn = null;
 		if (fn instanceof UnresolvedVar)
-			expArgs = ((FunctionDefinition)((UnresolvedVar)fn).defn()).argCount();
-		makeClosure(expr.args.size(), expArgs);
+			defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
+		else if (fn instanceof UnresolvedOperator)
+			defn = (WithTypeSignature) ((UnresolvedOperator)fn).defn();
+		if (expr.args.isEmpty()) // then it's a spurious apply
+			return;
+		makeClosure(defn, expr.args.size(), defn.argCount());
 	}
 
-	private void makeClosure(int depth, int expArgs) {
-		JSExpr[] args = new JSExpr[depth+1];
-		int k = stack.size()-depth-1;
-		for (int i=0;i<=depth;i++)
-			args[i] = stack.remove(k);
-		JSExpr call;
-		if (depth < expArgs)
-			call = meth.curry(expArgs, args);
-		else
-			call = meth.closure(args);
-		stack.add(call);
+	private void makeClosure(WithTypeSignature defn, int depth, int expArgs) {
+		if (defn instanceof StructDefn && depth > 0) {
+			// do the creation immediately
+			// Note that we didn't push anything onto the stack earlier ...
+			// TODO: I think we need to cover the currying case separately ...
+			JSExpr[] args = new JSExpr[depth];
+			int k = stack.size()-depth;
+			for (int i=0;i<depth;i++)
+				args[i] = stack.remove(k);
+			stack.add(meth.callFunction(defn.name().jsName(), args));
+		} else {
+			JSExpr[] args = new JSExpr[depth+1];
+			int k = stack.size()-depth-1;
+			for (int i=0;i<=depth;i++)
+				args[i] = stack.remove(k);
+			JSExpr call;
+			if (depth < expArgs)
+				call = meth.curry(expArgs, args);
+			else
+				call = meth.closure(args);
+			stack.add(call);
+		}
 	}
 
 	@Override

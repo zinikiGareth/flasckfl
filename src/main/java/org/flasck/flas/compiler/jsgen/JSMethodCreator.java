@@ -6,9 +6,9 @@ public interface JSMethodCreator {
 	JSExpr literal(String text);
 	JSExpr string(String string);
 	JSExpr argument(String name);
+	JSExpr callFunction(String string, JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr pushFunction(String meth);
-	JSExpr callFunction(String string);
 	JSExpr closure(JSExpr... args);
 	JSExpr curry(int expArgs, JSExpr... args);
 	void returnObject(JSExpr jsExpr);

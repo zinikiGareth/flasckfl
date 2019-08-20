@@ -36,8 +36,8 @@ public class JSMethod implements JSMethodCreator {
 	}
 
 	@Override
-	public JSExpr callFunction(String meth) {
-		JSPushFunction stmt = new JSPushFunction(this, meth);
+	public JSExpr callFunction(String meth, JSExpr... args) {
+		JSCallMethod stmt = new JSCallMethod(this, null, meth, args);
 		stmts.add(stmt);
 		return stmt;
 	}

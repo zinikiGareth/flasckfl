@@ -165,7 +165,7 @@ public class JVMGenerator extends LeafAdapter {
 			defn = ((UnresolvedOperator)fn).defn();
 			expArgs = ((BuiltinRepositoryEntry)defn).argCount();
 		}
-		if (expr.args.isEmpty()) // then its a spurious apply
+		if (expr.args.isEmpty()) // then it's a spurious apply
 			return;
 		makeClosure(defn, expr.args.size(), expArgs);
 	}

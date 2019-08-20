@@ -147,7 +147,7 @@ public class ExpressionGeneration {
 	}
 
 	@Test
-	public void aStructConstructorWithNoArgsExpectingNoGeneratesAStaticCall() {
+	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
 		context.checking(new Expectations() {{
