@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -85,6 +84,7 @@ public class JVMGenerator extends LeafAdapter {
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		if (stack.size() != 1) {
+			/* I don't think this is actually true ...
 			// There is a complex case where we have a Struct Constructor with no args and we didn't generate code for it earlier because we don't put that in a closure
 			// Do that now ...
 			if (stack.size() == 0) {
@@ -97,7 +97,8 @@ public class JVMGenerator extends LeafAdapter {
 			}
 			// retest ...
 			if (stack.size() != 1)
-				throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
+			*/
+			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
 		}
 		meth.returnObject(stack.remove(0)).flush();
 		this.meth = null;
@@ -129,7 +130,6 @@ public class JVMGenerator extends LeafAdapter {
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
 		NameOfThing name = defn.name();
-//		FunctionDefinition fn = (FunctionDefinition)defn;
 		if (defn instanceof FunctionDefinition) {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
@@ -137,11 +137,14 @@ public class JVMGenerator extends LeafAdapter {
 				makeClosure(defn, 0, fn.argCount());
 			} else
 				stack.add(meth.classConst(name.javaClassName()));
-		} else {
-			// eg. struct ctor
-			// don't do anything here, but leave it to "leaveExpr"
-			// stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval"));
-		}
+		} else if (defn instanceof StructDefn){
+			// if the constructor has no args, eval it here
+			// otherwise leave it until "leaveExpr" or "leaveFunction"
+			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
+				 stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval"));
+			}
+		} else
+			throw new NotImplementedException();
 	}
 	
 	@Override
@@ -162,6 +165,8 @@ public class JVMGenerator extends LeafAdapter {
 			defn = ((UnresolvedOperator)fn).defn();
 			expArgs = ((BuiltinRepositoryEntry)defn).argCount();
 		}
+		if (expr.args.isEmpty()) // then its a spurious apply
+			return;
 		makeClosure(defn, expr.args.size(), expArgs);
 	}
 
@@ -171,7 +176,7 @@ public class JVMGenerator extends LeafAdapter {
 		for (int i=0;i<depth;i++)
 			provided.add(stack.remove(k));
 		IExpr args = meth.arrayOf(J.OBJECT, provided);
-		if (defn instanceof StructDefn) {
+		if (defn instanceof StructDefn && !provided.isEmpty()) {
 			// do the creation immediately
 			// Note that we didn't push anything onto the stack earlier ...
 			// TODO: I think we need to cover the currying case separately ...

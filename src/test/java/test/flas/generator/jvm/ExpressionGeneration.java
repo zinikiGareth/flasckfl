@@ -15,9 +15,10 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.repository.BuiltinRepositoryEntry;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -29,7 +30,6 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
-
 
 public class ExpressionGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -146,12 +146,12 @@ public class ExpressionGeneration {
 		gen.visitExpr(expr, 0);
 	}
 
-	// This is almost a "nothing" test; you have to see the logic on leaveApplyExpr or leaveFunction
 	@Test
-	public void aStructConstructorWithNoArgsExpectingNoArgsDoesNotImmediatelyGenerateAnything() {
+	public void aStructConstructorWithNoArgsExpectingNoGeneratesAStaticCall() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
 		context.checking(new Expectations() {{
+			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval");
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(expr, 0);
@@ -170,8 +170,6 @@ public class ExpressionGeneration {
 		fi.functionCase(fcd);
 		fn.intro(fi);
 		IExpr x = context.mock(IExpr.class, "Ctor");
-		List<IExpr> argsList = new ArrayList<>();
-		IExpr wargs = context.mock(IExpr.class, "wargs");
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
@@ -183,8 +181,7 @@ public class ExpressionGeneration {
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
-			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(wargs));
-			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", wargs); will(returnValue(x));
+			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval"); will(returnValue(x));
 			oneOf(meth).returnObject(x);
 		}});
 		Traverser gen = new Traverser(new JVMGenerator(bce));
@@ -294,19 +291,49 @@ public class ExpressionGeneration {
 	}
 
 	@Test
-	public void aConstructorApplicationWithNoArgs() {
-		UnresolvedVar fn = new UnresolvedVar(pos, "Nil");
-		fn.bind(new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false));
-		ApplyExpr ae = new ApplyExpr(pos, fn);
+	public void aConstructorApplicationWithArgs() {
+		UnresolvedVar nilOp = new UnresolvedVar(pos, "Nil");
+		UnresolvedVar fn = new UnresolvedVar(pos, "Cons");
+		StructDefn nilT = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
+		StructDefn consT = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false);
+		consT.addField(new StructField(pos, false, new TypeReference(pos, "A"), "head"));
+		consT.addField(new StructField(pos, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
+		fn.bind(consT);
+		nilOp.bind(nilT);
+		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"), nilOp);
+		IExpr shello = context.mock(IExpr.class, "shello");
 		IExpr nil = context.mock(IExpr.class, "nil");
 		List<IExpr> argsList = new ArrayList<>();
+		argsList.add(shello);
+		argsList.add(nil);
 		IExpr args = context.mock(IExpr.class, "args");
 		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("hello"); will(returnValue(shello));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval"); will(returnValue(nil));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", args); will(returnValue(nil));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.Cons", "java.lang.Object", "eval", args); will(returnValue(nil));
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(ae, 0);
+	}
+
+	@Test
+	public void aSpuriousApplyExprIsIgnored() {
+		NumericLiteral nl = new NumericLiteral(pos, 42);
+		ApplyExpr expr = new ApplyExpr(pos, nl);
+		IExpr dv = context.mock(IExpr.class, "dv");
+		IExpr iv = context.mock(IExpr.class, "iv");
+		IExpr biv = context.mock(IExpr.class, "biv");
+		IExpr cdv = context.mock(IExpr.class, "cdv");
+		context.checking(new Expectations() {{
+			oneOf(meth).aNull(); will(returnValue(dv));
+			oneOf(meth).intConst(42); will(returnValue(iv));
+			oneOf(meth).box(iv); will(returnValue(biv));
+			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
+			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv);
+		}});
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		gen.visitExpr(expr, 0);
 	}
 
 }
