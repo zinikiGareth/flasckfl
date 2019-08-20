@@ -5,3 +5,20 @@
 	test that we can have failing tests
 		assert x
 			84
+			
+	test that li0 is Nil
+		assert li0
+			Nil
+			
+.	test that li0 is the empty list
+.		assert li0
+.			[]
+			
+	test that li1 is Nil
+		assert li1
+			Nil
+			
+.	test that li1 is the empty list
+.		assert li1
+.			[]
+			

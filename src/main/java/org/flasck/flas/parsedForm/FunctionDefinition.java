@@ -7,7 +7,8 @@ import java.util.List;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.repository.RepositoryEntry;
 
-public class FunctionDefinition implements RepositoryEntry {
+// TODO: having both nargs & type feels like duplication, but we know about nargs SOOOO much earlier
+public class FunctionDefinition implements RepositoryEntry, WithTypeSignature {
 	private final FunctionName name;
 	private final int nargs;
 	private final List<FunctionIntro> intros = new ArrayList<>();
@@ -29,7 +30,12 @@ public class FunctionDefinition implements RepositoryEntry {
 	public int argCount() {
 		return nargs;
 	}
-	
+
+	@Override
+	public String signature() {
+		return type.signature();
+	}
+
 	public List<FunctionIntro> intros() {
 		return intros;
 	}

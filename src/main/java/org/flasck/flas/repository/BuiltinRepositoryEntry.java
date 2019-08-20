@@ -8,8 +8,8 @@ import org.flasck.flas.parsedForm.WithTypeSignature;
 public class BuiltinRepositoryEntry implements RepositoryEntry {
 	public static class Type extends BuiltinRepositoryEntry implements WithTypeSignature {
 
-		public Type(String name) {
-			super(name);
+		public Type(String name, int argCount) {
+			super(name, argCount);
 		}
 
 		@Override

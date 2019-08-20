@@ -1,2 +1,5 @@
 
 	x = 42
+	
+	li0 = Nil
+	li1 = Nil

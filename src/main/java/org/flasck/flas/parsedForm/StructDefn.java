@@ -11,10 +11,10 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.repository.RepositoryEntry;
 
-public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry {
+public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature {
 	// for tests
 	public StructDefn(InputPosition location, FieldsDefn.FieldsType type, String pkg, String tn, boolean generate, PolyType... polys) {
-		this(null, location, type, new SolidName(new PackageName(pkg), tn), generate, Arrays.asList(polys));
+		this(null, location, type, new SolidName(pkg == null ? null : new PackageName(pkg), tn), generate, Arrays.asList(polys));
 	}
 	
 	// The real constructor
@@ -26,6 +26,16 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 
 	public SolidName name() {
 		return name;
+	}
+
+	@Override
+	public int argCount() {
+		return 0;
+	}
+
+	@Override
+	public String signature() {
+		return name.uniqueName();
 	}
 
 	public String toString() {

@@ -28,9 +28,11 @@ public class RepoChecker {
 				}
 				String name = s.substring(0, idx).trim();
 				int id2 = name.lastIndexOf(".");
+				if (id2 == -1)
+					continue; // assume that it's a builtin
 				String finalS = s.substring(id2+1, idx).trim();
 				String defn = s.substring(idx+1).trim();
-				if (defn.startsWith("Builtin[") || finalS.startsWith("_ut_"))
+				if (finalS.startsWith("_ut_"))
 					continue;
 				if (!ms.containsKey(name)) {
 					System.out.println("There is no matcher for: " + name);

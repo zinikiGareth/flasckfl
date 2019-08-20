@@ -11,16 +11,21 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.repository.BuiltinRepositoryEntry;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
@@ -141,16 +146,49 @@ public class ExpressionGeneration {
 		gen.visitExpr(expr, 0);
 	}
 
+	// This is almost a "nothing" test; you have to see the logic on leaveApplyExpr or leaveFunction
 	@Test
-	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
+	public void aStructConstructorWithNoArgsExpectingNoArgsDoesNotImmediatelyGenerateAnything() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
-		IExpr x = context.mock(IExpr.class, "Ctor");
 		context.checking(new Expectations() {{
-			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval"); will(returnValue(x));
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(expr, 0);
+	}
+
+	@Test
+	public void aFunctionRecognizesAStructConstructorWithNoArgsAndGeneratesTheStaticCall() {
+		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
+		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
+		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		fi.functionCase(fcd);
+		fn.intro(fi);
+		IExpr x = context.mock(IExpr.class, "Ctor");
+		List<IExpr> argsList = new ArrayList<>();
+		IExpr wargs = context.mock(IExpr.class, "wargs");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+			oneOf(meth).nextLocal(); will(returnValue(23));
+		}});
+		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var args = new Var.AVar(meth, "JVMRunner", "runner");
+		context.checking(new Expectations() {{
+			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(wargs));
+			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", wargs); will(returnValue(x));
+			oneOf(meth).returnObject(x);
+		}});
+		Traverser gen = new Traverser(new JVMGenerator(bce));
+		gen.visitFunction(fn);
 	}
 
 	@Test
@@ -254,4 +292,21 @@ public class ExpressionGeneration {
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(ae, 0);
 	}
+
+	@Test
+	public void aConstructorApplicationWithNoArgs() {
+		UnresolvedVar fn = new UnresolvedVar(pos, "Nil");
+		fn.bind(new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false));
+		ApplyExpr ae = new ApplyExpr(pos, fn);
+		IExpr nil = context.mock(IExpr.class, "nil");
+		List<IExpr> argsList = new ArrayList<>();
+		IExpr args = context.mock(IExpr.class, "args");
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", args); will(returnValue(nil));
+		}});
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		gen.visitExpr(ae, 0);
+	}
+
 }

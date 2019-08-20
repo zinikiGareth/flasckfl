@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -18,6 +19,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.WithTypeSignature;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.BuiltinRepositoryEntry;
@@ -83,7 +85,19 @@ public class JVMGenerator extends LeafAdapter {
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		if (stack.size() != 1) {
-			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
+			// There is a complex case where we have a Struct Constructor with no args and we didn't generate code for it earlier because we don't put that in a closure
+			// Do that now ...
+			if (stack.size() == 0) {
+				// I think this is actually part of the code around HSIE, but we don't have that yet, hence the complex chain here ...
+				Expr expr = fn.intros().get(0).cases().get(0).expr;
+				if (expr instanceof UnresolvedVar && ((UnresolvedVar)expr).defn() instanceof StructDefn) {
+					StructDefn defn = (StructDefn) ((UnresolvedVar)expr).defn();
+					makeClosure(defn, 0, defn.argCount());
+				}
+			}
+			// retest ...
+			if (stack.size() != 1)
+				throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
 		}
 		meth.returnObject(stack.remove(0)).flush();
 		this.meth = null;
@@ -116,17 +130,18 @@ public class JVMGenerator extends LeafAdapter {
 			throw new RuntimeException("var " + var + " was still not resolved");
 		NameOfThing name = defn.name();
 //		FunctionDefinition fn = (FunctionDefinition)defn;
-		if (nargs == 0) {
-			if (defn instanceof FunctionDefinition) {
+		if (defn instanceof FunctionDefinition) {
+			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				stack.add(meth.classConst(name.javaClassName()));
-				makeClosure(0, fn.argCount());
-			} else {
-				// eg. struct ctor
-				stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval"));
-			}
-		} else
-			stack.add(meth.classConst(name.javaClassName()));
+				makeClosure(defn, 0, fn.argCount());
+			} else
+				stack.add(meth.classConst(name.javaClassName()));
+		} else {
+			// eg. struct ctor
+			// don't do anything here, but leave it to "leaveExpr"
+			// stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval"));
+		}
 	}
 	
 	@Override
@@ -139,29 +154,41 @@ public class JVMGenerator extends LeafAdapter {
 	public void leaveApplyExpr(ApplyExpr expr) {
 		Object fn = expr.fn;
 		int expArgs = 0;
-		if (fn instanceof UnresolvedVar)
-			expArgs = ((FunctionDefinition)((UnresolvedVar)fn).defn()).argCount();
-		else if (fn instanceof UnresolvedOperator)
-			expArgs = ((BuiltinRepositoryEntry)((UnresolvedOperator)fn).defn()).argCount();
-		makeClosure(expr.args.size(), expArgs);
+		RepositoryEntry defn = null;
+		if (fn instanceof UnresolvedVar) {
+			defn = ((UnresolvedVar)fn).defn();
+			expArgs = ((WithTypeSignature)defn).argCount();
+		} else if (fn instanceof UnresolvedOperator) {
+			defn = ((UnresolvedOperator)fn).defn();
+			expArgs = ((BuiltinRepositoryEntry)defn).argCount();
+		}
+		makeClosure(defn, expr.args.size(), expArgs);
 	}
 
-	private void makeClosure(int depth, int expArgs) {
+	private void makeClosure(RepositoryEntry defn, int depth, int expArgs) {
 		List<IExpr> provided = new ArrayList<IExpr>();
 		int k = stack.size()-depth;
 		for (int i=0;i<depth;i++)
 			provided.add(stack.remove(k));
 		IExpr args = meth.arrayOf(J.OBJECT, provided);
-		IExpr fn = stack.remove(stack.size()-1);
-		IExpr call;
-		if (depth < expArgs)
-			call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
-		else
-			call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
-		Var v = meth.avar(J.FLCLOSURE, "v" + nextVar++);
-		IExpr assign = meth.assign(v, call);
-		assign.flush();
-		stack.add(v);
+		if (defn instanceof StructDefn) {
+			// do the creation immediately
+			// Note that we didn't push anything onto the stack earlier ...
+			// TODO: I think we need to cover the currying case separately ...
+			IExpr ctor = meth.callStatic(defn.name().javaClassName(), J.OBJECT, "eval", args);
+			stack.add(ctor);
+		} else {
+			IExpr fn = stack.remove(stack.size()-1);
+			IExpr call;
+			if (depth < expArgs)
+				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
+			else
+				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
+			Var v = meth.avar(J.FLCLOSURE, "v" + nextVar++);
+			IExpr assign = meth.assign(v, call);
+			assign.flush();
+			stack.add(v);
+		}
 	}
 	
 	@Override
