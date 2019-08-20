@@ -6,6 +6,7 @@ public interface JSMethodCreator {
 	JSExpr literal(String text);
 	JSExpr string(String string);
 	JSExpr argument(String name);
+	JSExpr structConst(String name);
 	JSExpr callFunction(String string, JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr pushFunction(String meth);

@@ -36,6 +36,13 @@ public class JSMethod implements JSMethodCreator {
 	}
 
 	@Override
+	public JSExpr structConst(String name) {
+		JSConstant stmt = new JSConstant(this, name);
+		stmts.add(stmt);
+		return stmt;
+	}
+
+	@Override
 	public JSExpr callFunction(String meth, JSExpr... args) {
 		JSCallMethod stmt = new JSCallMethod(this, null, meth, args);
 		stmts.add(stmt);

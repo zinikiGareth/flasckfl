@@ -122,8 +122,10 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		actual = FLEval.full(null, actual);
 		if (expected instanceof FLNumber) {
 			assertSameNumber((FLNumber)expected, actual);
+		} else if (expected.getClass().equals(actual.getClass())) {
+			; // need to recurse inside ...
 		} else
-			throw new NotImplementedException();
+			throw new AssertFailed(expected, actual);
 	}
 
 	private void assertSameNumber(FLNumber expected, Object actual) throws FlasTestException {

@@ -46,6 +46,7 @@ public class JVMGenerator extends LeafAdapter {
 	private ByteCodeSink upClz;
 	private ByteCodeSink downClz;
 	private int nextVar = 1;
+	private IExpr fcx;
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce) {
@@ -56,6 +57,7 @@ public class JVMGenerator extends LeafAdapter {
 		this.bce = null;
 		this.meth = meth;
 		this.runner = runner;
+		this.fcx = runner;
 	}
 
 	private JVMGenerator(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {
@@ -69,12 +71,13 @@ public class JVMGenerator extends LeafAdapter {
 	public void visitFunction(FunctionDefinition fn) {
 		this.clz = bce.newClass(fn.name().javaClassName());
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
-		ann.argument(J.FLEVALCONTEXT, "cxt");
+		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
 		/* PendingVar argsArg = */ ann.argument("[" + J.OBJECT, "args");
 		ann.returns(JavaType.object_);
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		nextVar = 1;
+		fcx = cxArg.getVar();
 	}
 	
 	// TODO: this should have been reduced to HSIE, which we should generate from
@@ -103,6 +106,7 @@ public class JVMGenerator extends LeafAdapter {
 		meth.returnObject(stack.remove(0)).flush();
 		this.meth = null;
 		this.clz = null;
+		this.fcx = null;
 	}
 	
 	@Override
@@ -141,7 +145,9 @@ public class JVMGenerator extends LeafAdapter {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
 			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
-				 stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval"));
+				List<IExpr> provided = new ArrayList<>();
+				IExpr args = meth.arrayOf(J.OBJECT, provided);
+				stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval", fcx, args));
 			}
 		} else
 			throw new NotImplementedException();
@@ -324,6 +330,7 @@ public class JVMGenerator extends LeafAdapter {
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
+		this.fcx = meth.as(this.runner, J.FLEVALCONTEXT); // I'm not sure about this
 	}
 
 	@Override

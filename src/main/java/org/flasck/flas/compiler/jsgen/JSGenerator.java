@@ -79,7 +79,7 @@ public class JSGenerator extends LeafAdapter {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
 			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
-				stack.add(meth.callFunction(defn.name().jsName()));
+				stack.add(meth.structConst(defn.name().jsName()));
 			}
 		}
 	}

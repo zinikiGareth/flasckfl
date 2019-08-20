@@ -97,7 +97,7 @@ public class ExpressionGenerationJS {
 	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
 		JSExpr x = context.mock(JSExpr.class, "f");
 		context.checking(new Expectations() {{
-			oneOf(meth).callFunction("test.repo.Ctor"); will(returnValue(x));
+			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(x));
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
@@ -111,7 +111,7 @@ public class ExpressionGenerationJS {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		context.checking(new Expectations() {{
 			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
-			oneOf(meth).callFunction("test.repo.Ctor"); will(returnValue(nret));
+			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
 		JSGenerator gen = new JSGenerator(jss);
@@ -193,7 +193,7 @@ public class ExpressionGenerationJS {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		context.checking(new Expectations() {{
 			oneOf(meth).string("hello"); will(returnValue(s));
-			oneOf(meth).callFunction("Nil"); will(returnValue(nil));
+			oneOf(meth).structConst("Nil"); will(returnValue(nil));
 			oneOf(meth).callFunction("Cons", s, nil); will(returnValue(cons));
 		}});
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));

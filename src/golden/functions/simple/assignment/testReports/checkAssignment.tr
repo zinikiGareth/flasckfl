@@ -2,7 +2,11 @@ JVM PASS that x has the right value
 JVM FAIL that we can have failing tests
   expected: 84
   actual:   42
+JVM PASS that li0 is Nil
+JVM PASS that li1 is Nil
 JS PASS that x has the right value
 JS FAIL that we can have failing tests
   expected: 84
   actual:   42
+JS PASS that li0 is Nil
+JS PASS that li1 is Nil

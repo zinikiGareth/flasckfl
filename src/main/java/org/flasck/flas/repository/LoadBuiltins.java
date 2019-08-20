@@ -21,8 +21,8 @@ public class LoadBuiltins {
 		new BuiltinRepositoryEntry("Type").loadInto(repository);
 		
 		// Operators
-		new BuiltinRepositoryEntry("+", 2).loadInto(repository);
-		new BuiltinRepositoryEntry("*", 2).loadInto(repository);
+		new BuiltinRepositoryEntry.Op("+", 2).loadInto(repository);
+		new BuiltinRepositoryEntry.Op("*", 2).loadInto(repository);
 		
 		// dubious backward compatibility
 		

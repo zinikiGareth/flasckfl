@@ -150,10 +150,14 @@ public class ExpressionGeneration {
 	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
+		IExpr fcx = context.mock(IExpr.class, "fcx");
+		List<IExpr> argsList = new ArrayList<>();
+		IExpr arr = context.mock(IExpr.class, "arr");
 		context.checking(new Expectations() {{
-			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval");
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
+			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", fcx, arr);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -169,6 +173,8 @@ public class ExpressionGeneration {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
+		List<IExpr> argsList = new ArrayList<>();
+		IExpr arr = context.mock(IExpr.class, "arr");
 		IExpr x = context.mock(IExpr.class, "Ctor");
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));
@@ -181,7 +187,8 @@ public class ExpressionGeneration {
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
-			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval"); will(returnValue(x));
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
+			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", cxt, arr); will(returnValue(x));
 			oneOf(meth).returnObject(x);
 		}});
 		Traverser gen = new Traverser(new JVMGenerator(bce));
@@ -300,8 +307,11 @@ public class ExpressionGeneration {
 		consT.addField(new StructField(pos, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
 		fn.bind(consT);
 		nilOp.bind(nilT);
+		IExpr fcx = context.mock(IExpr.class, "fcx");
 		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"), nilOp);
 		IExpr shello = context.mock(IExpr.class, "shello");
+		List<IExpr> emptyList = new ArrayList<>();
+		IExpr nilArgs = context.mock(IExpr.class, "nilArgs");
 		IExpr nil = context.mock(IExpr.class, "nil");
 		List<IExpr> argsList = new ArrayList<>();
 		argsList.add(shello);
@@ -309,11 +319,12 @@ public class ExpressionGeneration {
 		IExpr args = context.mock(IExpr.class, "args");
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("hello"); will(returnValue(shello));
-			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval"); will(returnValue(nil));
+			oneOf(meth).arrayOf("java.lang.Object", emptyList); will(returnValue(nilArgs));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", fcx, nilArgs); will(returnValue(nil));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Cons", "java.lang.Object", "eval", args); will(returnValue(nil));
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx));
 		gen.visitExpr(ae, 0);
 	}
 

@@ -6,8 +6,18 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.WithTypeSignature;
 
 public class BuiltinRepositoryEntry implements RepositoryEntry {
-	public static class Type extends BuiltinRepositoryEntry implements WithTypeSignature {
+	public static class Op extends BuiltinRepositoryEntry implements WithTypeSignature {
+		public Op(String name, int argCount) {
+			super(name, argCount);
+		}
 
+		@Override
+		public String signature() {
+			return "Number";
+		}
+	}
+
+	public static class Type extends BuiltinRepositoryEntry implements WithTypeSignature {
 		public Type(String name, int argCount) {
 			super(name, argCount);
 		}

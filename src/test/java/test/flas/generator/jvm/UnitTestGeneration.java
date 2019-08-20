@@ -45,6 +45,7 @@ public class UnitTestGeneration {
 			oneOf(bce).newClass("test.something._ut_package._ut4"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "void", "dotest"); will(returnValue(meth));
 			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
+			oneOf(meth).as(arg, "org.ziniki.ziwsh.json.FLEvalContext");
 		}});
 		JVMGenerator gen = new JVMGenerator(bce);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.something"), "_ut_package");
