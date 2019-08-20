@@ -25,8 +25,10 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
+import org.flasck.flas.tc3.TypeDumper;
 import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.zinutils.bytecode.BCEClassLoader;
@@ -108,7 +110,10 @@ public class Main {
 			File ty = config.writeTypesTo;
 			if (ty != null) {
 				FileOutputStream fos = new FileOutputStream(ty);
-				fos.close();
+				PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos));
+				Visitor dumper = new TypeDumper(pw);
+				repository.traverse(dumper);
+				pw.close();
 			}
 		}
 		
