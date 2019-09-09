@@ -2,6 +2,7 @@ package org.flasck.flas.tc3;
 
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
@@ -31,6 +32,9 @@ public class ExpressionChecker extends LeafAdapter {
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		if (var.defn() instanceof StructDefn) {
 			nv.result(var.defn());
+		} else if (var.defn() instanceof FunctionDefinition) {
+			FunctionDefinition fn = (FunctionDefinition) var.defn();
+			nv.result(fn.type());
 		} else
 			throw new RuntimeException("Cannot handle " + var);
 	}

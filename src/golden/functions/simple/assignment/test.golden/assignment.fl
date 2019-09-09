@@ -2,6 +2,7 @@
 	b = True
 	s = "hello"
 	x = 42
+	z = x
 	
 	li0 = Nil
 	li1 = Nil

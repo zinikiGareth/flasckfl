@@ -3,3 +3,4 @@ test.golden.li0 :: Nil
 test.golden.li1 :: Nil
 test.golden.s :: String
 test.golden.x :: Number
+test.golden.z :: Number

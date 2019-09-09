@@ -3,9 +3,12 @@ package test.tc3;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.WithTypeSignature;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
@@ -55,6 +58,22 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "Nil");
 		uv.bind(tyNil);
+		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		tc.visitUnresolvedVar(uv, 0);
+	}
+
+	@Test
+	public void aPreviouslyDefinedVarWithNoArgsReturnsItsType() {
+		RepositoryReader repository = context.mock(RepositoryReader.class);
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		WithTypeSignature tyX = context.mock(WithTypeSignature.class);
+		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0);
+		x.bindType(tyX);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(tyX);
+		}});
+		UnresolvedVar uv = new UnresolvedVar(pos, "x");
+		uv.bind(x);
 		ExpressionChecker tc = new ExpressionChecker(repository, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
