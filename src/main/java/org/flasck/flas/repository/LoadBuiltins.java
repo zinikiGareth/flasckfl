@@ -15,11 +15,15 @@ public class LoadBuiltins {
 		new BuiltinRepositoryEntry("Croset").loadInto(repository);
 		new BuiltinRepositoryEntry("List").loadInto(repository);
 		new BuiltinRepositoryEntry("Map").loadInto(repository);
-		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "Nil", false));
+//		new BuiltinRepositoryEntry.Type("Boolean", 0).loadInto(repository);
 		new BuiltinRepositoryEntry.Type("Number", 0).loadInto(repository);
 		new BuiltinRepositoryEntry.Type("String", 0).loadInto(repository);
 		new BuiltinRepositoryEntry("Type").loadInto(repository);
 		
+		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "Nil", false));
+		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "True", false));
+		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "False", false));
+
 		// Operators
 		new BuiltinRepositoryEntry.Op("+", 2).loadInto(repository);
 		new BuiltinRepositoryEntry.Op("*", 2).loadInto(repository);

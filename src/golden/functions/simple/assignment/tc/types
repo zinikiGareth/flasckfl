@@ -1,3 +1,4 @@
+test.golden.b :: True
 test.golden.li0 :: Nil
 test.golden.li1 :: Nil
 test.golden.s :: String
