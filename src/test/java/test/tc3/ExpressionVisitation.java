@@ -2,6 +2,7 @@ package test.tc3;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -29,6 +30,19 @@ public class ExpressionVisitation {
 		}});
 		ExpressionChecker tc = new ExpressionChecker(repository, nv);
 		tc.visitNumericLiteral(new NumericLiteral(pos, "42", 2));
+	}
+
+	@Test
+	public void stringConstantsReturnString() {
+		RepositoryReader repository = context.mock(RepositoryReader.class);
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		RepositoryEntry tyNumber = context.mock(RepositoryEntry.class);
+		context.checking(new Expectations() {{
+			oneOf(repository).get("String"); will(returnValue(tyNumber));
+			oneOf(nv).result(tyNumber);
+		}});
+		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		tc.visitStringLiteral(new StringLiteral(pos, "yoyo"));
 	}
 
 	@Test

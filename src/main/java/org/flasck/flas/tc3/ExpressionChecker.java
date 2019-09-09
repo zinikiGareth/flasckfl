@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
@@ -19,6 +20,11 @@ public class ExpressionChecker extends LeafAdapter {
 	@Override
 	public void visitNumericLiteral(NumericLiteral number) {
 		nv.result(r.get("Number"));
+	}
+
+	@Override
+	public void visitStringLiteral(StringLiteral s) {
+		nv.result(r.get("String"));
 	}
 
 	@Override

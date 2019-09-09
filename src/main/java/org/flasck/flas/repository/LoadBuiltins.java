@@ -17,7 +17,7 @@ public class LoadBuiltins {
 		new BuiltinRepositoryEntry("Map").loadInto(repository);
 		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "Nil", false));
 		new BuiltinRepositoryEntry.Type("Number", 0).loadInto(repository);
-		new BuiltinRepositoryEntry("String").loadInto(repository);
+		new BuiltinRepositoryEntry.Type("String", 0).loadInto(repository);
 		new BuiltinRepositoryEntry("Type").loadInto(repository);
 		
 		// Operators

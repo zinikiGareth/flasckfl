@@ -1,4 +1,5 @@
 
+	s = "hello"
 	x = 42
 	
 	li0 = Nil

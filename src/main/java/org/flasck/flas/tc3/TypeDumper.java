@@ -16,7 +16,10 @@ public class TypeDumper extends LeafAdapter {
 	public void visitFunction(FunctionDefinition fn) {
 		pw.print(fn.name().uniqueName());
 		pw.print(" :: ");
-		pw.print(fn.type().signature());
+		if (fn.type() == null)
+			pw.print("<<UNDEFINED>>");
+		else
+			pw.print(fn.type().signature());
 		pw.println();
 	}
 }
