@@ -30,6 +30,7 @@ import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.tc3.Primitive;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -47,6 +48,16 @@ public class TraversalTests {
 	final Repository r = new Repository();
 	final Visitor v = context.mock(Visitor.class);
 	final Traverser t = new Traverser(v);
+
+	@Test
+	public void traversePrimitive() {
+		Primitive p = new Primitive("Foo");
+		r.addEntry(p.name(), p);
+		context.checking(new Expectations() {{
+			oneOf(v).visitPrimitive(p);
+		}});
+		r.traverse(v);
+	}
 
 	@Test
 	public void traverseStructDefn() {
@@ -138,12 +149,16 @@ public class TraversalTests {
 	
 	@Test
 	public void exprDoesntVisitNull() {
+		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(null, 0);
+		}});
 		t.visitExpr(null, 0);
 	}
 
 	@Test
 	public void exprVisitsString() {
 		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(simpleExpr, 0);
 			oneOf(v).visitStringLiteral(simpleExpr);
 		}});
 		t.visitExpr(simpleExpr, 0);
@@ -152,6 +167,7 @@ public class TraversalTests {
 	@Test
 	public void exprVisitsNumber() {
 		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
 		}});
 		t.visitExpr(number, 0);
@@ -160,6 +176,7 @@ public class TraversalTests {
 	@Test
 	public void exprVisitsUnresolvedVar() {
 		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(var, 2);
 			oneOf(v).visitUnresolvedVar(var, 2);
 		}});
 		t.visitExpr(var, 2);
@@ -168,6 +185,7 @@ public class TraversalTests {
 	@Test
 	public void exprVisitsUnresolvedOp() {
 		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(op, 2);
 			oneOf(v).visitUnresolvedOperator(op);
 		}});
 		t.visitExpr(op, 2);
@@ -177,9 +195,13 @@ public class TraversalTests {
 	public void exprVisitsFunctionApplication() {
 		ApplyExpr ex = new ApplyExpr(pos, var, simpleExpr, number);
 		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(ex, 2);
 			oneOf(v).visitApplyExpr(ex);
+			oneOf(v).visitExpr(var, 2);
 			oneOf(v).visitUnresolvedVar(var, 2);
+			oneOf(v).visitExpr(simpleExpr, 0);
 			oneOf(v).visitStringLiteral(simpleExpr);
+			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).leaveApplyExpr(ex);
 		}});
@@ -201,6 +223,8 @@ public class TraversalTests {
 			oneOf(v).visitUnitTest(utc);
 			oneOf(v).visitUnitTestStep(uta);
 			oneOf(v).visitUnitTestAssert(uta);
+			oneOf(v).visitExpr(null, 0);
+			oneOf(v).visitExpr(null, 0);
 			oneOf(v).postUnitTestAssert(uta);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);

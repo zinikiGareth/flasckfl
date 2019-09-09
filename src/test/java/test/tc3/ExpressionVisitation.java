@@ -7,12 +7,14 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.WithTypeSignature;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.ExpressionChecker;
+import org.flasck.flas.tc3.Type;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -66,7 +68,7 @@ public class ExpressionVisitation {
 	public void aPreviouslyDefinedVarWithNoArgsReturnsItsType() {
 		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
-		WithTypeSignature tyX = context.mock(WithTypeSignature.class);
+		Type tyX = context.mock(Type.class);
 		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0);
 		x.bindType(tyX);
 		context.checking(new Expectations() {{
@@ -76,5 +78,35 @@ public class ExpressionVisitation {
 		uv.bind(x);
 		ExpressionChecker tc = new ExpressionChecker(repository, nv);
 		tc.visitUnresolvedVar(uv, 0);
+	}
+
+	@Test
+	public void aBuiltinOperatorReturnsItsType() {
+		RepositoryReader repository = context.mock(RepositoryReader.class);
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		Type tyPlus = context.mock(Type.class);
+		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
+		plus.bindType(tyPlus);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(tyPlus);
+		}});
+		UnresolvedOperator uv = new UnresolvedOperator(pos, "+");
+		uv.bind(plus);
+		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		tc.visitUnresolvedOperator(uv);
+	}
+
+	@Test
+	public void anExpressionCheckerTrampolinesResult() {
+		RepositoryReader repository = context.mock(RepositoryReader.class);
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		Type tyPlus = context.mock(Type.class);
+		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
+		plus.bindType(tyPlus);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(tyPlus);
+		}});
+		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		tc.result(tyPlus);
 	}
 }

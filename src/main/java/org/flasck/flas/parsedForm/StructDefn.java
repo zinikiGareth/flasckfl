@@ -10,6 +10,8 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature {
 	// for tests
@@ -33,6 +35,11 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 		return 0;
 	}
 
+	@Override
+	public Type type() {
+		throw new NotImplementedException();
+	}
+	
 	@Override
 	public String signature() {
 		return name.uniqueName();

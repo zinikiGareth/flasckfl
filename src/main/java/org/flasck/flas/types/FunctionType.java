@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
+@Deprecated
 public class FunctionType extends ArgsType {
 
 	public FunctionType(InputPosition loc, List<Type> args) {

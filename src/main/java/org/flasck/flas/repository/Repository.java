@@ -43,10 +43,12 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.tc3.Primitive;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
 		void visitEntry(RepositoryEntry entry);
+		void visitPrimitive(Primitive p);
 		void visitStructDefn(StructDefn s);
 		void visitStructField(StructField sf);
 		void leaveStructDefn(StructDefn s);

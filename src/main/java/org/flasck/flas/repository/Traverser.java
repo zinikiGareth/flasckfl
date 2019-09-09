@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.tc3.Primitive;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class Traverser implements Visitor {
@@ -40,6 +41,8 @@ public class Traverser implements Visitor {
 	public void visitEntry(RepositoryEntry e) {
 		if (e == null)
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle null entries");
+		else if (e instanceof Primitive)
+			visitPrimitive((Primitive)e);
 		else if (e instanceof BuiltinRepositoryEntry)
 			; // do nothing for builtins
 		else if (e instanceof ContractDecl)
@@ -56,6 +59,11 @@ public class Traverser implements Visitor {
 			visitUnitTestPackage((UnitTestPackage)e);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
+	}
+
+	@Override
+	public void visitPrimitive(Primitive p) {
+		visitor.visitPrimitive(p);
 	}
 
 	@Override
@@ -129,6 +137,7 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitExpr(Expr expr, int nargs) {
+		visitor.visitExpr(expr, nargs);
 		if (expr == null)
 			return;
 		else if (expr instanceof ApplyExpr)

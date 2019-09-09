@@ -1,8 +1,12 @@
 package org.flasck.flas.repository;
 
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.tc3.Apply;
+import org.flasck.flas.tc3.Primitive;
 
 public class LoadBuiltins {
 	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
@@ -15,18 +19,21 @@ public class LoadBuiltins {
 		new BuiltinRepositoryEntry("Croset").loadInto(repository);
 		new BuiltinRepositoryEntry("List").loadInto(repository);
 		new BuiltinRepositoryEntry("Map").loadInto(repository);
-//		new BuiltinRepositoryEntry.Type("Boolean", 0).loadInto(repository);
-		new BuiltinRepositoryEntry.Type("Number", 0).loadInto(repository);
-		new BuiltinRepositoryEntry.Type("String", 0).loadInto(repository);
 		new BuiltinRepositoryEntry("Type").loadInto(repository);
 		
+		Primitive number = new Primitive("Number");
+		repository.addEntry(number.name(), number);
 		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "Nil", false));
 		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "True", false));
 		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "False", false));
 
 		// Operators
-		new BuiltinRepositoryEntry.Op("+", 2).loadInto(repository);
-		new BuiltinRepositoryEntry.Op("*", 2).loadInto(repository);
+		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
+		plus.bindType(new Apply(number, number, number));
+		repository.functionDefn(plus);
+		FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2);
+		mul.bindType(new Apply(number, number, number));
+		repository.functionDefn(mul);
 		
 		// dubious backward compatibility
 		

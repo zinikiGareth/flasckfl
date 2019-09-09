@@ -110,7 +110,7 @@ public class Main {
 		// typechecking
 		{
 			StackVisitor sv = new StackVisitor();
-			TypeChecker tc = new TypeChecker(errors, repository, sv);
+			new TypeChecker(errors, repository, sv);
 			repository.traverse(sv);
 			
 			// dump types if specified

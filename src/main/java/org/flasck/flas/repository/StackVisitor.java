@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.tc3.Primitive;
 
 public class StackVisitor implements NestedVisitor {
 	private List<Visitor> stack = new LinkedList<>();
@@ -46,6 +47,10 @@ public class StackVisitor implements NestedVisitor {
 
 	public void visitEntry(RepositoryEntry entry) {
 		top.visitEntry(entry);
+	}
+
+	public void visitPrimitive(Primitive p) {
+		top.visitPrimitive(p);
 	}
 
 	public void visitStructDefn(StructDefn s) {

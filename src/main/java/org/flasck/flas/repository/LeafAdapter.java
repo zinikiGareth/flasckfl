@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.tc3.Primitive;
 
 /** The purpose of the leaf adapter is to visit all of the leaves in the system.
  *
@@ -30,6 +31,10 @@ import org.flasck.flas.repository.Repository.Visitor;
 public class LeafAdapter implements Visitor {
 	@Override
 	public void visitEntry(RepositoryEntry entry) {
+	}
+
+	@Override
+	public void visitPrimitive(Primitive p) {
 	}
 
 	@Override

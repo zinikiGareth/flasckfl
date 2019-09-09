@@ -6,13 +6,14 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.Type;
 
 // TODO: having both nargs & type feels like duplication, but we know about nargs SOOOO much earlier
 public class FunctionDefinition implements RepositoryEntry, WithTypeSignature {
 	private final FunctionName name;
 	private final int nargs;
 	private final List<FunctionIntro> intros = new ArrayList<>();
-	private WithTypeSignature type;
+	private Type type;
 
 	public FunctionDefinition(FunctionName name, int nargs) {
 		this.name = name;
@@ -50,11 +51,11 @@ public class FunctionDefinition implements RepositoryEntry, WithTypeSignature {
 		return "FunctionDefinition[" + name.uniqueName() + "/" + nargs + "{" + intros.size() + "}]";
 	}
 
-	public void bindType(WithTypeSignature ty) {
+	public void bindType(Type ty) {
 		this.type = ty;
 	}
 	
-	public WithTypeSignature type() {
+	public Type type() {
 		return type;
 	}
 }
