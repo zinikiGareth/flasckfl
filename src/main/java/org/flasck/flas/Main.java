@@ -25,6 +25,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
@@ -108,8 +109,9 @@ public class Main {
 		
 		// typechecking
 		{
-			TypeChecker tc = new TypeChecker(errors, repository);
-			repository.traverse(tc);
+			StackVisitor sv = new StackVisitor();
+			TypeChecker tc = new TypeChecker(errors, repository, sv);
+			repository.traverse(sv);
 			
 			// dump types if specified
 			File ty = config.writeTypesTo;
