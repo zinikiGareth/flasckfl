@@ -12,7 +12,9 @@ import org.flasck.flas.testrunner.CommonTestRunner;
 import org.flasck.flas.testrunner.JSRunner;
 import org.jmock.Expectations;
 import org.junit.Before;
+import org.junit.Ignore;
 
+@Ignore
 public class JSRunnerTests extends BaseRunnerTests {
 	
 //	protected JSRunner prepareRunner() throws IOException, ErrorResultException {

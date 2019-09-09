@@ -30,9 +30,18 @@ public class StackVisitor implements NestedVisitor {
 	private List<Visitor> stack = new LinkedList<>();
 	private Visitor top;
 	
+	@Override
 	public void push(Visitor v) {
-		stack.add(v);
+		stack.add(0, v);
 		this.top = v;
+	}
+
+	@Override
+	public void result(Object r) {
+		stack.remove(0);
+		this.top = stack.get(0);
+		if (this.top instanceof ResultAware)
+			((ResultAware)this.top).result(r);
 	}
 
 	public void visitEntry(RepositoryEntry entry) {

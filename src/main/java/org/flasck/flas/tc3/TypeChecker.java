@@ -20,7 +20,7 @@ public class TypeChecker extends LeafAdapter {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		sv.push(new ExpressionChecker());
+		sv.push(new ExpressionChecker(repository, sv));
 	}
 	
 	@Override
