@@ -1,6 +1,8 @@
 package org.flasck.flas.tc3;
 
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
@@ -19,4 +21,11 @@ public class ExpressionChecker extends LeafAdapter {
 		nv.result(r.get("Number"));
 	}
 
+	@Override
+	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
+		if (var.defn() instanceof StructDefn) {
+			nv.result(var.defn());
+		} else
+			throw new RuntimeException("Cannot handle " + var);
+	}
 }
