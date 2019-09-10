@@ -1,6 +1,5 @@
 package org.flasck.flas.parser.ut;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
-import org.flasck.flas.repository.RepositoryEntry;
 
 public class UnitDataDeclaration implements UnitDataFieldConsumer, UnitTestStep {
 	public static class Assignment {

@@ -1,6 +1,5 @@
 package org.flasck.flas.parsedForm.ut;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
-import org.flasck.flas.repository.RepositoryEntry;
 
 public class UnitTestCase implements UnitTestStepConsumer {
 	public final UnitTestName name;

@@ -3,8 +3,6 @@ package org.flasck.flas.tc3;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zinutils.exceptions.NotImplementedException;
-
 public class Apply implements Type {
 	private List<Type> tys = new ArrayList<>();
 
