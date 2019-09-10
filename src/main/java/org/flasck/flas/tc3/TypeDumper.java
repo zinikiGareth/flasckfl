@@ -14,6 +14,8 @@ public class TypeDumper extends LeafAdapter {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		if (fn.intros().isEmpty())
+			return;
 		pw.print(fn.name().uniqueName());
 		pw.print(" :: ");
 		if (fn.type() == null)

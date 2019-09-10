@@ -9,6 +9,8 @@ import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Primitive;
 
 public class LoadBuiltins {
+	public static final Primitive number = new Primitive("Number");
+	public static final Primitive string = new Primitive("String");
 	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
 
 	public static void applyTo(Repository repository) {
@@ -21,8 +23,8 @@ public class LoadBuiltins {
 		new BuiltinRepositoryEntry("Map").loadInto(repository);
 		new BuiltinRepositoryEntry("Type").loadInto(repository);
 		
-		Primitive number = new Primitive("Number");
 		repository.addEntry(number.name(), number);
+		repository.addEntry(string.name(), string);
 		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "Nil", false));
 		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "True", false));
 		repository.newStruct(new StructDefn(pos , FieldsType.STRUCT, null, "False", false));

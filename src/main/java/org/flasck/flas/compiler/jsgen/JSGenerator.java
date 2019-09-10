@@ -36,6 +36,10 @@ public class JSGenerator extends LeafAdapter {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		if (fn.intros().isEmpty()) {
+			this.meth = null;
+			return;
+		}
 		this.meth = jse.newFunction(fn.name().container().jsName(), fn.name().name);
 	}
 	
@@ -45,6 +49,9 @@ public class JSGenerator extends LeafAdapter {
 
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
+		if (meth == null) {
+			return;
+		}
 		if (stack.size() != 1) {
 			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
 		}

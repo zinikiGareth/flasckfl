@@ -69,6 +69,11 @@ public class JVMGenerator extends LeafAdapter {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		if (fn.intros().isEmpty()) {
+			this.clz = null;
+			this.meth = null;
+			return;
+		}
 		this.clz = bce.newClass(fn.name().javaClassName());
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
 		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
@@ -86,6 +91,10 @@ public class JVMGenerator extends LeafAdapter {
 
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
+		if (clz == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
 		if (stack.size() != 1) {
 			/* I don't think this is actually true ...
 			// There is a complex case where we have a Struct Constructor with no args and we didn't generate code for it earlier because we don't put that in a closure
@@ -169,7 +178,7 @@ public class JVMGenerator extends LeafAdapter {
 			expArgs = ((WithTypeSignature)defn).argCount();
 		} else if (fn instanceof UnresolvedOperator) {
 			defn = ((UnresolvedOperator)fn).defn();
-			expArgs = ((BuiltinRepositoryEntry)defn).argCount();
+			expArgs = ((FunctionDefinition)defn).argCount();
 		}
 		if (expr.args.isEmpty()) // then it's a spurious apply
 			return;

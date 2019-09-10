@@ -13,7 +13,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature {
+public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, Type {
 	// for tests
 	public StructDefn(InputPosition location, FieldsDefn.FieldsType type, String pkg, String tn, boolean generate, PolyType... polys) {
 		this(null, location, type, new SolidName(pkg == null ? null : new PackageName(pkg), tn), generate, Arrays.asList(polys));
@@ -36,8 +36,13 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 	}
 
 	@Override
+	public Type get(int pos) {
+		return this;
+	}
+
+	@Override
 	public Type type() {
-		throw new NotImplementedException();
+		return this;
 	}
 	
 	@Override
