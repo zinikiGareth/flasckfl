@@ -1,5 +1,6 @@
 package org.flasck.flas.repository;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -17,6 +18,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -116,16 +118,30 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitPattern(Object p) {
-		if (p instanceof TypedPattern)
+		visitor.visitPattern(p);
+		if (p instanceof VarPattern)
+			visitVarPattern((VarPattern) p);
+		else if (p instanceof TypedPattern)
 			visitTypedPattern((TypedPattern)p);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Pattern not handled: " + p.getClass());
 	}
 
 	@Override
+	public void visitVarPattern(VarPattern p) {
+		visitor.visitVarPattern(p);
+		visitPatternVar(p.varLoc, p.var);
+	}
+
+	@Override
 	public void visitTypedPattern(TypedPattern p) {
+		visitor.visitTypedPattern(p);
 		visitTypeReference(p.type);
-		// TODO: visitPatternVar(p.var);
+		visitPatternVar(p.varLocation, p.var);
+	}
+
+	public void visitPatternVar(InputPosition varLoc, String var) {
+		visitor.visitPatternVar(varLoc, var);
 	}
 
 	@Override

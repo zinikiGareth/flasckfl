@@ -3,6 +3,7 @@ package org.flasck.flas.repository;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -20,6 +21,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -93,8 +95,16 @@ public class StackVisitor implements NestedVisitor {
 		top.visitPattern(patt);
 	}
 
+	public void visitVarPattern(VarPattern p) {
+		top.visitVarPattern(p);
+	}
+
 	public void visitTypedPattern(TypedPattern p) {
 		top.visitTypedPattern(p);
+	}
+
+	public void visitPatternVar(InputPosition varLoc, String var) {
+		top.visitPatternVar(varLoc, var);
 	}
 
 	public void visitCase(FunctionCaseDefn c) {

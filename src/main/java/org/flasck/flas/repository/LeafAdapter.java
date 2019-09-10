@@ -1,5 +1,6 @@
 package org.flasck.flas.repository;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -17,6 +18,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -74,7 +76,15 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitVarPattern(VarPattern p) {
+	}
+
+	@Override
 	public void visitTypedPattern(TypedPattern p) {
+	}
+
+	@Override
+	public void visitPatternVar(InputPosition varLoc, String var) {
 	}
 
 	@Override

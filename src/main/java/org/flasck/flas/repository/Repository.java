@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -59,7 +60,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveFunction(FunctionDefinition fn);
 		void visitIntro(FunctionIntro fi);
 		void visitPattern(Object patt);
+		void visitVarPattern(VarPattern p);
 		void visitTypedPattern(TypedPattern p);
+		void visitPatternVar(InputPosition varLoc, String var);
 		void visitCase(FunctionCaseDefn c);
 		void visitExpr(Expr expr, int nArgs);
 		void visitStringLiteral(StringLiteral expr);
