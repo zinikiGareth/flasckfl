@@ -5,4 +5,4 @@
 	z = x
 	
 	li0 = Nil
-	li1 = Nil
+	li1 = []

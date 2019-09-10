@@ -59,7 +59,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator operator) {
+	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
 		final RepositoryEntry defn = find(scope, operator.op);
 		if (defn == null) {
 			errors.message(operator.location, "cannot resolve '" + operator.op + "'");

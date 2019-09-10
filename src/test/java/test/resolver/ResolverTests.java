@@ -75,7 +75,7 @@ public class ResolverTests {
 		}});
 		Resolver r = new RepositoryResolver(errors, ry);
 		final UnresolvedOperator var = new UnresolvedOperator(pos, "++");
-		r.visitUnresolvedOperator(var);
+		r.visitUnresolvedOperator(var, 2);
 		assertEquals(op, var.defn());
 	}
 
@@ -88,7 +88,7 @@ public class ResolverTests {
 		}});
 		Resolver r = new RepositoryResolver(errors, ry);
 		final UnresolvedOperator var = new UnresolvedOperator(pos, "+>>");
-		r.visitUnresolvedOperator(var);
+		r.visitUnresolvedOperator(var, 2);
 	}
 
 	@Test

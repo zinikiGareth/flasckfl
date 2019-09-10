@@ -201,8 +201,43 @@ public class ExpressionGeneration {
 			oneOf(meth).classConst("org.flasck.jvm.fl.FLEval$Plus");
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
+		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
 		gen.visitExpr(expr, 2);
+	}
+
+	@Test
+	public void anOpCanBeAStructDefn() {
+		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
+		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+		UnresolvedOperator expr = new UnresolvedOperator(pos, "[]");
+		expr.bind(new StructDefn(pos, FieldsType.STRUCT, null, "Nil", true));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		fi.functionCase(fcd);
+		fn.intro(fi);
+		List<IExpr> argsList = new ArrayList<>();
+		IExpr arr = context.mock(IExpr.class, "arr");
+		IExpr x = context.mock(IExpr.class, "Ctor");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+			oneOf(meth).nextLocal(); will(returnValue(23));
+		}});
+		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var args = new Var.AVar(meth, "JVMRunner", "runner");
+		context.checking(new Expectations() {{
+			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", cxt, arr); will(returnValue(x));
+			oneOf(meth).returnObject(x);
+		}});
+		Traverser gen = new Traverser(new JVMGenerator(bce));
+		gen.visitFunction(fn);
 	}
 
 	@Test

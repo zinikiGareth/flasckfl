@@ -142,30 +142,35 @@ public class JVMGenerator extends LeafAdapter {
 		RepositoryEntry defn = var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
-		NameOfThing name = defn.name();
+		generateFnOrCtor(defn, defn.name().javaClassName(), nargs);
+	}
+	
+	@Override
+	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
+		RepositoryEntry defn = operator.defn();
+		if (defn == null)
+			throw new RuntimeException("var " + operator + " was still not resolved");
+		generateFnOrCtor(defn, resolveOpName(operator.op), nargs);
+	}
+
+	private void generateFnOrCtor(RepositoryEntry defn, String myName, int nargs) {
 		if (defn instanceof FunctionDefinition) {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
-				stack.add(meth.classConst(name.javaClassName()));
+				stack.add(meth.classConst(myName));
 				makeClosure(defn, 0, fn.argCount());
 			} else
-				stack.add(meth.classConst(name.javaClassName()));
-		} else if (defn instanceof StructDefn){
+				stack.add(meth.classConst(myName));
+		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
 			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
 				List<IExpr> provided = new ArrayList<>();
 				IExpr args = meth.arrayOf(J.OBJECT, provided);
-				stack.add(meth.callStatic(name.javaClassName(), J.OBJECT, "eval", fcx, args));
+				stack.add(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
 			}
 		} else
 			throw new NotImplementedException();
-	}
-	
-	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator operator) {
-		String opName = resolveOpName(operator.op);
-		stack.add(meth.classConst(opName));
 	}
 
 	@Override
@@ -177,8 +182,9 @@ public class JVMGenerator extends LeafAdapter {
 			defn = ((UnresolvedVar)fn).defn();
 			expArgs = ((WithTypeSignature)defn).argCount();
 		} else if (fn instanceof UnresolvedOperator) {
-			defn = ((UnresolvedOperator)fn).defn();
-			expArgs = ((FunctionDefinition)defn).argCount();
+			UnresolvedOperator op = (UnresolvedOperator) fn;
+			defn = op.defn();
+			expArgs = op.argCount();
 		}
 		if (expr.args.isEmpty()) // then it's a spurious apply
 			return;
@@ -423,6 +429,8 @@ public class JVMGenerator extends LeafAdapter {
 		case "*":
 			inner = "Mul";
 			break;
+		case "[]":
+			return J.NIL;
 		default:
 			throw new RuntimeException("There is no operator " + op);
 		}

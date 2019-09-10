@@ -93,7 +93,7 @@ public class ExpressionVisitation {
 		UnresolvedOperator uv = new UnresolvedOperator(pos, "+");
 		uv.bind(plus);
 		ExpressionChecker tc = new ExpressionChecker(repository, nv);
-		tc.visitUnresolvedOperator(uv);
+		tc.visitUnresolvedOperator(uv, 2);
 	}
 
 	@Test

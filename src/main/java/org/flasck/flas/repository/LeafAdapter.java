@@ -106,7 +106,7 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator operator) {
+	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
 	}
 
 	@Override

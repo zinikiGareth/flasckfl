@@ -69,8 +69,8 @@ public class StackVisitor implements NestedVisitor {
 		top.visitUnresolvedVar(var, nargs);
 	}
 
-	public void visitUnresolvedOperator(UnresolvedOperator operator) {
-		top.visitUnresolvedOperator(operator);
+	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
+		top.visitUnresolvedOperator(operator, nargs);
 	}
 
 	public void visitTypeReference(TypeReference var) {

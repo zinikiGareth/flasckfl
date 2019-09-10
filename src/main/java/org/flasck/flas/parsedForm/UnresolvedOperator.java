@@ -11,7 +11,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class UnresolvedOperator implements Expr, WithTypeSignature {
 	public final InputPosition location;
 	public final String op;
-	private FunctionDefinition definition;
+	private RepositoryEntry definition;
 
 	public UnresolvedOperator(InputPosition location, String op) {
 		this.location = location;
@@ -29,12 +29,17 @@ public class UnresolvedOperator implements Expr, WithTypeSignature {
 	}
 
 	public void bind(RepositoryEntry entry) {
-		this.definition = (FunctionDefinition) entry;
+		this.definition = entry;
 	}
 	
 	@Override
 	public Type type() {
-		return definition.type();
+		if (definition instanceof Type)
+			return (Type) definition;
+		else if (definition instanceof FunctionDefinition)
+			return ((FunctionDefinition) definition).type();
+		else
+			throw new NotImplementedException();
 	}
 
 	public RepositoryEntry defn() {
@@ -48,11 +53,11 @@ public class UnresolvedOperator implements Expr, WithTypeSignature {
 
 	@Override
 	public String signature() {
-		return definition.signature();
+		return type().signature();
 	}
 
 	@Override
 	public int argCount() {
-		return definition.argCount();
+		return type().argCount();
 	}
 }

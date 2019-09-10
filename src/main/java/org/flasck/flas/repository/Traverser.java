@@ -149,7 +149,7 @@ public class Traverser implements Visitor {
 		else if (expr instanceof UnresolvedVar)
 			visitUnresolvedVar((UnresolvedVar) expr, nargs);
 		else if (expr instanceof UnresolvedOperator)
-			visitUnresolvedOperator((UnresolvedOperator) expr);
+			visitUnresolvedOperator((UnresolvedOperator) expr, nargs);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
@@ -172,8 +172,8 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator operator) {
-		visitor.visitUnresolvedOperator(operator);
+	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
+		visitor.visitUnresolvedOperator(operator, nargs);
 	}
 
 	@Override

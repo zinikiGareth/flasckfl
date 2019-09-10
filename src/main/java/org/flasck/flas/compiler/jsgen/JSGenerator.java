@@ -92,7 +92,7 @@ public class JSGenerator extends LeafAdapter {
 	}
 
 	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator operator) {
+	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
 		String opName = resolveOpName(operator.op);
 		stack.add(meth.pushFunction(opName));
 	}
@@ -163,6 +163,8 @@ public class JSGenerator extends LeafAdapter {
 			return "FLEval.plus";
 		case "*":
 			return "FLEval.mul";
+		case "[]":
+			return "Nil";
 		default:
 			throw new RuntimeException("There is no operator " + op);
 		}

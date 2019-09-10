@@ -43,11 +43,10 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator var) {
-//		if (var.defn() instanceof StructDefn) {
-//			nv.result(var.defn());
-//		} else 
-		if (var.defn() instanceof FunctionDefinition) {
+	public void visitUnresolvedOperator(UnresolvedOperator var, int nargs) {
+		if (var.defn() instanceof StructDefn) {
+			nv.result(var.defn());
+		} else if (var.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) var.defn();
 			nv.result(fn.type());
 		} else

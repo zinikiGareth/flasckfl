@@ -53,7 +53,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitStructField(StructField sf);
 		void leaveStructDefn(StructDefn s);
 		void visitUnresolvedVar(UnresolvedVar var, int nargs);
-		void visitUnresolvedOperator(UnresolvedOperator operator);
+		void visitUnresolvedOperator(UnresolvedOperator operator, int nargs);
 		void visitTypeReference(TypeReference var);
 		void visitFunction(FunctionDefinition fn);
 		void leaveFunction(FunctionDefinition fn);

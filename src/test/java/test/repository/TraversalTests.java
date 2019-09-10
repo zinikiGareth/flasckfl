@@ -186,7 +186,7 @@ public class TraversalTests {
 	public void exprVisitsUnresolvedOp() {
 		context.checking(new Expectations() {{
 			oneOf(v).visitExpr(op, 2);
-			oneOf(v).visitUnresolvedOperator(op);
+			oneOf(v).visitUnresolvedOperator(op, 2);
 		}});
 		t.visitExpr(op, 2);
 	}
