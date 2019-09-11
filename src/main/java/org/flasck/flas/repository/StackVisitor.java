@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -103,8 +104,20 @@ public class StackVisitor implements NestedVisitor {
 		top.visitTypedPattern(p);
 	}
 
+	public void visitConstructorMatch(ConstructorMatch p) {
+		top.visitConstructorMatch(p);
+	}
+
+	public void leaveConstructorMatch(ConstructorMatch p) {
+		top.leaveConstructorMatch(p);
+	}
+
 	public void visitPatternVar(InputPosition varLoc, String var) {
 		top.visitPatternVar(varLoc, var);
+	}
+
+	public void leavePattern(Object patt) {
+		top.leavePattern(patt);
 	}
 
 	public void visitCase(FunctionCaseDefn c) {

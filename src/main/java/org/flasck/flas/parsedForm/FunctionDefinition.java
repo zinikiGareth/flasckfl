@@ -14,6 +14,7 @@ public class FunctionDefinition implements RepositoryEntry, WithTypeSignature {
 	private final int nargs;
 	private final List<FunctionIntro> intros = new ArrayList<>();
 	private Type type;
+	private HSITree hsiTree;
 
 	public FunctionDefinition(FunctionName name, int nargs) {
 		this.name = name;
@@ -57,5 +58,13 @@ public class FunctionDefinition implements RepositoryEntry, WithTypeSignature {
 	
 	public Type type() {
 		return type;
+	}
+	
+	public void bindHsi(HSITree hsiTree) {
+		this.hsiTree = hsiTree;
+	}
+
+	public HSITree hsiTree() {
+		return hsiTree;
 	}
 }

@@ -1,1 +1,29 @@
+// Nil->Number
 	a Nil = 0
+
+// List->Number
+b Nil = 0
+b (Cons a b) = 1
+
+// Number->Number
+c 0 = 0
+c n = n - 1
+
+// Any->Number
+d Nil = 0
+d x = 1
+
+// Cons[Any,Any]->Number
+e (Cons Nil Nil) = 0
+e (Cons x y) = 1
+
+// Number->Number
+f 3 = 0
+
+// String->Number
+g "hello" = 1
+
+// Number->Number
+h (Number x) = 5
+
+... polymorphic ones need to go elsewhere (polypatterns.fl?)

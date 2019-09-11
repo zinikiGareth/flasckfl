@@ -22,6 +22,7 @@ import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
@@ -105,6 +106,16 @@ public class Main {
 				errors.showFromMark(mark, ew, 0);
 				return true;
 			}
+		}
+		
+		// TODO: dependency ordering
+		// TODO: variable scope lifting
+		
+		// pattern analysis
+		{
+			StackVisitor sv = new StackVisitor();
+			new PatternAnalyzer(errors, repository, sv);
+			repository.traverse(sv);
 		}
 		
 		// typechecking

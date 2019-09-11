@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -123,8 +124,11 @@ public class Traverser implements Visitor {
 			visitVarPattern((VarPattern) p);
 		else if (p instanceof TypedPattern)
 			visitTypedPattern((TypedPattern)p);
+		else if (p instanceof ConstructorMatch)
+			visitConstructorMatch((ConstructorMatch)p);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Pattern not handled: " + p.getClass());
+		leavePattern(p);
 	}
 
 	@Override
@@ -140,8 +144,22 @@ public class Traverser implements Visitor {
 		visitPatternVar(p.varLocation, p.var);
 	}
 
+	public void visitConstructorMatch(ConstructorMatch p) {
+		visitor.visitConstructorMatch(p);
+		leaveConstructorMatch(p);
+	}
+
+	public void leaveConstructorMatch(ConstructorMatch p) {
+		visitor.leaveConstructorMatch(p);
+	}
+
 	public void visitPatternVar(InputPosition varLoc, String var) {
 		visitor.visitPatternVar(varLoc, var);
+	}
+
+	@Override
+	public void leavePattern(Object patt) {
+		visitor.leavePattern(patt);
 	}
 
 	@Override

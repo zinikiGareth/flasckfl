@@ -17,6 +17,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -62,7 +63,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitPattern(Object patt);
 		void visitVarPattern(VarPattern p);
 		void visitTypedPattern(TypedPattern p);
+		void visitConstructorMatch(ConstructorMatch p);
+		void leaveConstructorMatch(ConstructorMatch p);
 		void visitPatternVar(InputPosition varLoc, String var);
+		void leavePattern(Object patt);
 		void visitCase(FunctionCaseDefn c);
 		void visitExpr(Expr expr, int nArgs);
 		void visitStringLiteral(StringLiteral expr);

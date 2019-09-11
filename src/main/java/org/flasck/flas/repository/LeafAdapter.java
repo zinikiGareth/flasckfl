@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -84,7 +85,19 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitConstructorMatch(ConstructorMatch p) {
+	}
+
+	@Override
+	public void leaveConstructorMatch(ConstructorMatch p) {
+	}
+
+	@Override
 	public void visitPatternVar(InputPosition varLoc, String var) {
+	}
+
+	@Override
+	public void leavePattern(Object patt) {
 	}
 
 	@Override

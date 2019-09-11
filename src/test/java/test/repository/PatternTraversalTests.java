@@ -4,10 +4,10 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -32,6 +32,7 @@ public class PatternTraversalTests {
 	private FunctionName fnName = FunctionName.function(pos, new PackageName("test.golden"), "f");
 	final VarPattern vp = new VarPattern(pos, new VarName(pos, fnName, "v"));
 	final TypedPattern tp = new TypedPattern(pos, list, pos, "x");
+	final ConstructorMatch cm = new ConstructorMatch(pos, "Nil");
 
 	@Test
 	public void simpleVarPattern() {
@@ -39,6 +40,7 @@ public class PatternTraversalTests {
 			oneOf(v).visitPattern(vp);
 			oneOf(v).visitVarPattern(vp);
 			oneOf(v).visitPatternVar(pos, "v");
+			oneOf(v).leavePattern(vp);
 		}});
 		new Traverser(v).visitPattern(vp);
 	}
@@ -50,7 +52,19 @@ public class PatternTraversalTests {
 			oneOf(v).visitTypedPattern(tp);
 			oneOf(v).visitTypeReference(list);
 			oneOf(v).visitPatternVar(pos, "x");
+			oneOf(v).leavePattern(tp);
 		}});
 		new Traverser(v).visitPattern(tp);
+	}
+
+	@Test
+	public void simpleConstructorMatch() {
+		context.checking(new Expectations() {{
+			oneOf(v).visitPattern(cm);
+			oneOf(v).visitConstructorMatch(cm);
+			oneOf(v).leaveConstructorMatch(cm);
+			oneOf(v).leavePattern(cm);
+		}});
+		new Traverser(v).visitPattern(cm);
 	}
 }
