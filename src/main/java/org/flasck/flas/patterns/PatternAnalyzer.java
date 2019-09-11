@@ -2,7 +2,6 @@ package org.flasck.flas.patterns;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.HSITree;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Repository;
@@ -16,8 +15,9 @@ public class PatternAnalyzer extends LeafAdapter{
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		hsiTree = new HSIPatternTree();
+		hsiTree = new HSIPatternTree(fn.argCount());
 	}
+	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		fn.bindHsi(hsiTree);

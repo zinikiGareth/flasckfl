@@ -1,5 +1,6 @@
 package test.patterns;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
+import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -70,5 +72,21 @@ public class PatternAnalysis {
 		}
 		new Traverser(sv).visitFunction(fn);
 		assertNotNull(fn.hsiTree());
+		assertEquals(0, fn.hsiTree().width());
+	}
+	
+	@Test
+	public void analyzeFunctionWithASimpleNoArgConstructor() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			args.add(new ConstructorMatch(pos, "Nil"));
+			final FunctionIntro intro = new FunctionIntro(nameF, args);
+			intro.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro);
+		}
+		new Traverser(sv).visitFunction(fn);
+		assertNotNull(fn.hsiTree());
+		assertEquals(1, fn.hsiTree().width());
 	}
 }
