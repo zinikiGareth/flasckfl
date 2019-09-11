@@ -6,6 +6,8 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
+import org.flasck.flas.patterns.HSIPatternTree;
+import org.flasck.flas.patterns.HSITree;
 import org.zinutils.exceptions.UtilException;
 
 public class FunctionIntro implements FunctionGuardedEquationConsumer {
@@ -13,6 +15,7 @@ public class FunctionIntro implements FunctionGuardedEquationConsumer {
 	public final List<Object> args;
 	private FunctionName fname;
 	private final List<FunctionCaseDefn> cases = new ArrayList<>();
+	private HSITree hsiTree;
 
 	public FunctionIntro(FunctionName fname, List<Object> args) {
 		this.location = fname.location;
@@ -33,6 +36,14 @@ public class FunctionIntro implements FunctionGuardedEquationConsumer {
 	
 	public List<FunctionCaseDefn> cases() {
 		return cases;
+	}
+	
+	public void bindTree(HSITree hsiTree) {
+		this.hsiTree = hsiTree;
+	}
+	
+	public HSITree hsiTree() {
+		return hsiTree;
 	}
 
 	@Override

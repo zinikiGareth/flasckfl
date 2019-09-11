@@ -84,12 +84,16 @@ public class StackVisitor implements NestedVisitor {
 		top.visitFunction(fn);
 	}
 
-	public void leaveFunction(FunctionDefinition fn) {
-		top.leaveFunction(fn);
+	public void visitFunctionIntro(FunctionIntro fi) {
+		top.visitFunctionIntro(fi);
 	}
 
-	public void visitIntro(FunctionIntro fi) {
-		top.visitIntro(fi);
+	public void leaveFunctionIntro(FunctionIntro fi) {
+		top.leaveFunctionIntro(fi);
+	}
+
+	public void leaveFunction(FunctionDefinition fn) {
+		top.leaveFunction(fn);
 	}
 
 	public void visitPattern(Object patt) {

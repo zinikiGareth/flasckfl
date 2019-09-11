@@ -101,20 +101,28 @@ public class Traverser implements Visitor {
 	public void visitFunction(FunctionDefinition fn) {
 		visitor.visitFunction(fn);
 		for (FunctionIntro i : fn.intros())
-			visitIntro(i);
+			visitFunctionIntro(i);
 		visitor.leaveFunction(fn);
 	}
 
 	@Override
-	public void leaveFunction(FunctionDefinition fn) {
-	}
-
-	@Override
-	public void visitIntro(FunctionIntro i) {
+	public void visitFunctionIntro(FunctionIntro i) {
+		visitor.visitFunctionIntro(i);
 		for (Object p : i.args)
 			visitPattern(p);
 		for (FunctionCaseDefn c : i.cases())
 			visitCase(c);
+		leaveFunctionIntro(i);
+	}
+
+	
+	@Override
+	public void leaveFunctionIntro(FunctionIntro fi) {
+		visitor.leaveFunctionIntro(fi);
+	}
+
+	@Override
+	public void leaveFunction(FunctionDefinition fn) {
 	}
 
 	@Override

@@ -71,10 +71,11 @@ public class PatternAnalysis {
 	@Test
 	public void analyzeFunctionWithASimpleNoArgConstructor() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		final FunctionIntro intro;
 		{
 			ArrayList<Object> args = new ArrayList<>();
 			args.add(new ConstructorMatch(pos, "Nil"));
-			final FunctionIntro intro = new FunctionIntro(nameF, args);
+			intro = new FunctionIntro(nameF, args);
 			intro.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro);
 		}
@@ -83,5 +84,6 @@ public class PatternAnalysis {
 		assertEquals(1, fn.hsiTree().width());
 		HSIOptions ha = fn.hsiTree().get(0);
 		assertNotNull(ha.getCM("Nil"));
+		assertNotNull(intro.hsiTree());
 	}
 }

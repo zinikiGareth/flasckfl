@@ -58,8 +58,11 @@ public class FunctionTraversalTests {
 		context.checking(new Expectations() {{
 			ExprMatcher ae = ExprMatcher.apply(ExprMatcher.unresolved("x"), ExprMatcher.number(42));
 			oneOf(v).visitFunction(with(any(FunctionDefinition.class)));
+			oneOf(v).visitFunctionIntro(with(any(FunctionIntro.class)));
 			oneOf(v).visitExpr((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
 			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
+			oneOf(v).leaveFunctionIntro(with(any(FunctionIntro.class)));
+			oneOf(v).visitFunctionIntro(with(any(FunctionIntro.class)));
 			oneOf(v).visitExpr((ApplyExpr) with(ae), with(0));
 			oneOf(v).visitApplyExpr((ApplyExpr) with(ae));
 			oneOf(v).visitExpr((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(1));
@@ -67,6 +70,7 @@ public class FunctionTraversalTests {
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).leaveApplyExpr((ApplyExpr) with(ae));
+			oneOf(v).leaveFunctionIntro(with(any(FunctionIntro.class)));
 			oneOf(v).leaveFunction(with(any(FunctionDefinition.class)));
 		}});
 		r.traverse(v);

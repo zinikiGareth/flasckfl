@@ -2,13 +2,17 @@ package test.tc3;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
@@ -28,27 +32,33 @@ public class StackVisitation {
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 
 	@Test
-	public void whenWeVisitAFunctionWePushAnExpressionMatcher() {
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 0);
+	public void whenWeVisitAFunctionIntroWePushAnExpressionMatcher() {
+		FunctionName name = FunctionName.function(pos, null, "f");
+		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(TypeChecker.class)));
 			oneOf(nv).push(with(any(ExpressionChecker.class)));
 		}});
 		TypeChecker tc = new TypeChecker(errors, repository, nv);
-		tc.visitFunction(fn);
+		tc.visitFunctionIntro(fi);
 	}
 
 	@Test
 	public void theResultIsWhatWeEndUpSpittingOut() {
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 0);
+		FunctionName name = FunctionName.function(pos, null, "f");
+		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+		fi.bindTree(new HSIPatternTree(0));
+		fn.intro(fi);
 		Type ty = context.mock(Type.class);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(TypeChecker.class)));
 			oneOf(nv).push(with(any(ExpressionChecker.class)));
 		}});
 		TypeChecker tc = new TypeChecker(errors, repository, nv);
-		tc.visitFunction(fn);
+		tc.visitFunctionIntro(fi);
 		tc.result(ty);
+		tc.leaveFunctionIntro(fi);
 		tc.leaveFunction(fn);
 		assertEquals(ty, fn.type());
 	}

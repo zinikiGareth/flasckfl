@@ -58,8 +58,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitUnresolvedOperator(UnresolvedOperator operator, int nargs);
 		void visitTypeReference(TypeReference var);
 		void visitFunction(FunctionDefinition fn);
+		void visitFunctionIntro(FunctionIntro fi);
+		void leaveFunctionIntro(FunctionIntro fi);
 		void leaveFunction(FunctionDefinition fn);
-		void visitIntro(FunctionIntro fi);
 		void visitPattern(Object patt);
 		void visitVarPattern(VarPattern p);
 		void visitTypedPattern(TypedPattern p);

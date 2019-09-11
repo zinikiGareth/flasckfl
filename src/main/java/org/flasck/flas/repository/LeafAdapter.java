@@ -65,11 +65,15 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void leaveFunction(FunctionDefinition fn) {
+	public void visitFunctionIntro(FunctionIntro fi) {
 	}
 
 	@Override
-	public void visitIntro(FunctionIntro i) {
+	public void leaveFunctionIntro(FunctionIntro fi) {
+	}
+
+	@Override
+	public void leaveFunction(FunctionDefinition fn) {
 	}
 
 	@Override

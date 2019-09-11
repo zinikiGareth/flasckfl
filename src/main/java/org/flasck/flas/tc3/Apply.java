@@ -20,7 +20,10 @@ public class Apply implements Type {
 		for (Type t : tys) {
 			sb.append(sep);
 			sep = "->";
-			sb.append(t.signature());
+			if (t == null)
+				sb.append("<<UNDEFINED>>");
+			else
+				sb.append(t.signature());
 		}
 		return sb.toString();
 	}
