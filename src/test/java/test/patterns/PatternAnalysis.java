@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -16,22 +15,16 @@ import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
+import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.PatternAnalyzer;
-import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
-import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import test.parsing.ExprMatcher;
 
 public class PatternAnalysis {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -88,5 +81,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		assertNotNull(fn.hsiTree());
 		assertEquals(1, fn.hsiTree().width());
+		HSIOptions ha = fn.hsiTree().get(0);
+		assertNotNull(ha.getCM("Nil"));
 	}
 }

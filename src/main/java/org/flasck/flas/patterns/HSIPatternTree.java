@@ -16,4 +16,10 @@ public class HSIPatternTree implements HSITree {
 	public int width() {
 		return slots.size();
 	}
+
+	@Override
+	public HSIOptions get(int i) {
+		return slots.get(i);
+	}
+	
 }
