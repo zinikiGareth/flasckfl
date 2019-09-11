@@ -1,1 +1,2 @@
 test.golden.a :: Nil->Number
+test.golden.k :: Any->Number

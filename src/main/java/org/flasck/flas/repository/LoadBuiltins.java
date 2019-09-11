@@ -11,6 +11,7 @@ import org.flasck.flas.tc3.Primitive;
 
 public class LoadBuiltins {
 	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
+	public static final Primitive any = new Primitive("Any");
 	public static final Primitive number = new Primitive("Number");
 	public static final Primitive string = new Primitive("String");
 	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
@@ -18,13 +19,13 @@ public class LoadBuiltins {
 	public static void applyTo(Repository repository) {
 		
 		// Types
-		new BuiltinRepositoryEntry("Any").loadInto(repository);
 		new BuiltinRepositoryEntry("Card").loadInto(repository);
 		new BuiltinRepositoryEntry("Croset").loadInto(repository);
 		new BuiltinRepositoryEntry("List").loadInto(repository);
 		new BuiltinRepositoryEntry("Map").loadInto(repository);
 		new BuiltinRepositoryEntry("Type").loadInto(repository);
 		
+		repository.addEntry(any.name(), any);
 		repository.addEntry(number.name(), number);
 		repository.addEntry(string.name(), string);
 		repository.addEntry(new SolidName(null, "[]"), nil);

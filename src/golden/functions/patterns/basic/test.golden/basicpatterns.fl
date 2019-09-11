@@ -3,7 +3,7 @@
 
 // List->Number
 b Nil = 0
-b (Cons a b) = 1
+b (Cons {head: a, tail: b}) = 1
 
 // Number->Number
 c 0 = 0
@@ -26,4 +26,10 @@ g "hello" = 1
 // Number->Number
 h (Number x) = 5
 
+// Any->Number
+	k x = 0
+	
+// Number->Number
+l (Number x) = x
+	
 ... polymorphic ones need to go elsewhere (polypatterns.fl?)

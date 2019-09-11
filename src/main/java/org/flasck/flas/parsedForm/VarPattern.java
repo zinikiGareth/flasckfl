@@ -36,7 +36,7 @@ public class VarPattern implements Pattern, RepositoryEntry {
 		return varLoc;
 	}
 
-	public NameOfThing name() {
+	public VarName name() {
 		return myName;
 	}
 

@@ -4,6 +4,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Repository;
@@ -11,7 +12,7 @@ import org.flasck.flas.repository.Repository;
 public class PatternAnalyzer extends LeafAdapter{
 	private HSITree hsiTree;
 	private final NestedVisitor sv;
-	private int nslot = 0;
+	private int nslot;
 	private HSIOptions slot;
 	
 	public PatternAnalyzer(ErrorResult errors, Repository repository, NestedVisitor sv) {
@@ -25,8 +26,18 @@ public class PatternAnalyzer extends LeafAdapter{
 	}
 	
 	@Override
+	public void visitFunctionIntro(FunctionIntro fi) {
+		nslot = 0;
+	}
+	
+	@Override
 	public void visitPattern(Object patt) {
 		this.slot = hsiTree.get(nslot++);
+	}
+	
+	@Override
+	public void visitVarPattern(VarPattern p) {
+		slot.addVar(p.name());
 	}
 	
 	@Override

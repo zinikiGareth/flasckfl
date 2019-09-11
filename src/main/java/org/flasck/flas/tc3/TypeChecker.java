@@ -48,17 +48,13 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 		else {
 			Type[] atypes = new Type[tree.width() + 1];
 			for (int i=0;i<tree.width();i++) {
-				atypes[i] = unify(tree.get(i));
+				atypes[i] = tree.get(i).minimalType(repository);
 			}
 			atypes[atypes.length-1] = exprType;
 			types.add(new Apply(atypes));
 		}
 	}
 	
-	private Type unify(HSIOptions hsiOptions) {
-		return repository.get("Nil");
-	}
-
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		if (types.isEmpty())

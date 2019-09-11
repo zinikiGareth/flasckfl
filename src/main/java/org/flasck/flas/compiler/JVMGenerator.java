@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -87,6 +88,12 @@ public class JVMGenerator extends LeafAdapter {
 	// But I am hacking for now to get a walking skeleton up and running so we can E2E TDD
 	// The actual traversal is done by the traverser ...
 
+	@Override
+	public void visitFunctionIntro(FunctionIntro fi) {
+		// TODO: this is just a hack to clear off the stack to avoid dealing with HSI
+		stack.clear();
+	}
+	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		if (clz == null) {

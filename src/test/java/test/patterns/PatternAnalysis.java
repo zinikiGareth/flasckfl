@@ -11,10 +11,12 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.patterns.HSIOptions;
@@ -66,6 +68,25 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		assertNotNull(fn.hsiTree());
 		assertEquals(0, fn.hsiTree().width());
+	}
+	
+	@Test
+	public void analyzeFunctionWithASingleVar() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		final FunctionIntro intro;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			args.add(new VarPattern(pos, new VarName(pos, nameF, "x")));
+			intro = new FunctionIntro(nameF, args);
+			intro.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro);
+		}
+		new Traverser(sv).visitFunction(fn);
+		assertNotNull(fn.hsiTree());
+		assertEquals(1, fn.hsiTree().width());
+		HSIOptions ha = fn.hsiTree().get(0);
+		assertEquals(1, ha.vars().size());
+		assertNotNull(intro.hsiTree());
 	}
 	
 	@Test

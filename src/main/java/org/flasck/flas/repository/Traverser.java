@@ -60,6 +60,8 @@ public class Traverser implements Visitor {
 			visitStructDefn((StructDefn)e);
 		else if (e instanceof UnitTestPackage)
 			visitUnitTestPackage((UnitTestPackage)e);
+		else if (e instanceof VarPattern)
+			; // do nothing: it is just in the repo for lookup purposes
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
 	}
