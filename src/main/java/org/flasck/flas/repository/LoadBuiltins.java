@@ -6,6 +6,8 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Primitive;
 
@@ -15,6 +17,7 @@ public class LoadBuiltins {
 	public static final Primitive number = new Primitive("Number");
 	public static final Primitive string = new Primitive("String");
 	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
+	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 
 	public static void applyTo(Repository repository) {
 		
@@ -30,6 +33,8 @@ public class LoadBuiltins {
 		repository.addEntry(string.name(), string);
 		repository.addEntry(new SolidName(null, "[]"), nil);
 		repository.newStruct(nil);
+		repository.newStruct(error);
+		error.addField(new StructField(pos, false, new TypeReference(pos, "String"), "message"));
 		repository.newStruct(new StructDefn(pos, FieldsType.STRUCT, null, "True", false));
 		repository.newStruct(new StructDefn(pos, FieldsType.STRUCT, null, "False", false));
 

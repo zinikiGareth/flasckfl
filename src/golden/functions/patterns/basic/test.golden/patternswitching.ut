@@ -2,9 +2,9 @@
 		assert (a Nil)
 			0
 			
-.	test anything else is an error because of typing
-.		assert (a 3)
-.			Error
+	test anything else is an error because of typing
+		assert (a 3)
+			Error "no matching case"
 
 	test if a variable is ignored, it's value is irrelevant
 		assert (k 22)

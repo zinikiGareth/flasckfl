@@ -206,7 +206,7 @@ public class JVMGenerator extends LeafAdapter {
 			// do the creation immediately
 			// Note that we didn't push anything onto the stack earlier ...
 			// TODO: I think we need to cover the currying case separately ...
-			IExpr ctor = meth.callStatic(defn.name().javaClassName(), J.OBJECT, "eval", args);
+			IExpr ctor = meth.callStatic(defn.name().javaClassName(), J.OBJECT, "eval", fcx, args);
 			stack.add(ctor);
 		} else {
 			IExpr fn = stack.remove(stack.size()-1);

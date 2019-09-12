@@ -357,7 +357,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf("java.lang.Object", emptyList); will(returnValue(nilArgs));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", fcx, nilArgs); will(returnValue(nil));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).callStatic("org.flasck.jvm.builtin.Cons", "java.lang.Object", "eval", args); will(returnValue(nil));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.Cons", "java.lang.Object", "eval", fcx, args); will(returnValue(nil));
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx));
 		gen.visitExpr(ae, 0);
