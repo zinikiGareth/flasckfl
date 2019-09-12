@@ -114,7 +114,7 @@ public class Traverser implements Visitor {
 			for (int i=0;i<fn.argCount();i++) {
 				slots.add(new ArgSlot(i));
 			}
-			hsi.hsiArgs(new Slot() {});
+			hsi.hsiArgs(slots);
 			// TODO: this is a hack !!!
 			for (FunctionIntro i : fn.intros()) {
 				hsi.startInline(i);

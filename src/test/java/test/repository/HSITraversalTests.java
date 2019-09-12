@@ -1,6 +1,9 @@
 package test.repository;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -18,6 +21,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.CaptureAction;
 
 public class HSITraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -40,9 +44,10 @@ public class HSITraversalTests {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
 		VarName vx = new VarName(pos, fname, "x");
+		CaptureAction slots = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
-			oneOf(v).hsiArgs(with(any(Slot.class)));
+			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).startInline(fi);
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
@@ -57,5 +62,8 @@ public class HSITraversalTests {
 		fn.intro(fi);
 		
 		t.visitFunction(fn);
+		
+		Object allSlots = slots.get(0);
+		assertTrue(allSlots instanceof List);
 	}
 }

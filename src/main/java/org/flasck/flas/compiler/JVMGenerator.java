@@ -453,7 +453,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	}
 
 	@Override
-	public void hsiArgs(Slot with) {
+	public void hsiArgs(List<Slot> slots) {
 //		throw new NotImplementedException();
 	}
 
