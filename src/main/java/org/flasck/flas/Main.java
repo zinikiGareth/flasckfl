@@ -27,6 +27,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;

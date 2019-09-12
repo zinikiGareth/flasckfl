@@ -1,10 +1,16 @@
 package org.flasck.flas.repository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.HSIVisitor;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -102,8 +108,24 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		visitor.visitFunction(fn);
-		for (FunctionIntro i : fn.intros())
-			visitFunctionIntro(i);
+		if (visitor instanceof HSIVisitor) {
+			HSIVisitor hsi = (HSIVisitor) visitor;
+			List<Slot> slots = new ArrayList<>();
+			for (int i=0;i<fn.argCount();i++) {
+				slots.add(new ArgSlot(i));
+			}
+			hsi.hsiArgs(new Slot() {});
+			// TODO: this is a hack !!!
+			for (FunctionIntro i : fn.intros()) {
+				hsi.startInline(i);
+				for (FunctionCaseDefn c : i.cases())
+					visitCase(c);
+				hsi.endInline(i);
+			}
+		} else {
+			for (FunctionIntro i : fn.intros())
+				visitFunctionIntro(i);
+		}
 		visitor.leaveFunction(fn);
 	}
 

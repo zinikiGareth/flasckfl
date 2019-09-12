@@ -6,6 +6,8 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.hsi.HSIVisitor;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -36,7 +38,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class JVMGenerator extends LeafAdapter {
+public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	private final ByteCodeStorage bce;
 	private MethodDefiner meth;
 	private List<IExpr> stack = new ArrayList<IExpr>();
@@ -448,5 +450,20 @@ public class JVMGenerator extends LeafAdapter {
 
 	public static JVMGenerator forTests(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {
 		return new JVMGenerator(clz, up, down);
+	}
+
+	@Override
+	public void hsiArgs(Slot with) {
+//		throw new NotImplementedException();
+	}
+
+	@Override
+	public void startInline(FunctionIntro fi) {
+//		throw new NotImplementedException();
+	}
+
+	@Override
+	public void endInline(FunctionIntro fi) {
+//		throw new NotImplementedException();
 	}
 }
