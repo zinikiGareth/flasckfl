@@ -1,0 +1,8 @@
+JVM PASS that we can have a simple constructor match
+JVM PASS if a variable is ignored, it's value is irrelevant
+JVM PASS if a variable is ignored, it's value is irrelevant part 2
+JVM PASS that we can pass any number to a function expecting numbers
+JS PASS that we can have a simple constructor match
+JS PASS if a variable is ignored, it's value is irrelevant
+JS PASS if a variable is ignored, it's value is irrelevant part 2
+JS PASS that we can pass any number to a function expecting numbers
