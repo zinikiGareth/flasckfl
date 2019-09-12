@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 
 public interface FunctionScopeUnitConsumer {
@@ -18,4 +19,5 @@ public interface FunctionScopeUnitConsumer {
 	void newStandaloneMethod(StandaloneMethod meth);
 	void newObjectMethod(ObjectActionHandler om);
 	void argument(VarPattern parm);
+	void argument(TypedPattern with);
 }

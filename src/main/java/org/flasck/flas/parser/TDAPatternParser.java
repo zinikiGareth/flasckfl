@@ -30,7 +30,6 @@ public class TDAPatternParser implements TDAParsing {
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 	}
-
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
@@ -169,11 +168,12 @@ public class TDAPatternParser implements TDAParsing {
 		TypeReference tr = ref.get(0);
 		int beforeChecking = toks.at();
 		
-		// Now, see aht else we've got ...
+		// Now, see what else we've got ...
 		PattToken tok = PattToken.from(toks);
 		if (tok.type == PattToken.VAR) {
-			TypedPattern m = new TypedPattern(type.location, tr, tok.location, tok.text);
+			TypedPattern m = new TypedPattern(type.location, tr, namer.nameVar(tok.location, tok.text));
 			consumer.accept(m);
+			topLevel.argument(m);
 			return this;
 		} else if (tr.hasPolys()) {
 			errors.message(toks, "type parameters can only be used with type patterns");

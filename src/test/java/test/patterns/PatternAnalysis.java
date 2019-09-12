@@ -16,11 +16,14 @@ import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.PatternAnalyzer;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
@@ -86,6 +89,27 @@ public class PatternAnalysis {
 		assertEquals(1, fn.hsiTree().width());
 		HSIOptions ha = fn.hsiTree().get(0);
 		assertEquals(1, ha.vars().size());
+		assertNotNull(intro.hsiTree());
+	}
+	
+	@Test
+	public void analyzeFunctionWithATypedVar() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		final FunctionIntro intro;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			TypeReference tr = new TypeReference(pos, "Number");
+			tr.bind(LoadBuiltins.number);
+			args.add(new TypedPattern(pos, tr, new VarName(pos, nameF, "x")));
+			intro = new FunctionIntro(nameF, args);
+			intro.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro);
+		}
+		new Traverser(sv).visitFunction(fn);
+		assertNotNull(fn.hsiTree());
+		assertEquals(1, fn.hsiTree().width());
+		HSIOptions ha = fn.hsiTree().get(0);
+		assertEquals(1, ha.types().size());
 		assertNotNull(intro.hsiTree());
 	}
 	

@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
@@ -116,7 +117,6 @@ public class TDAFunctionParsingTests {
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("x")));
-//			oneOf(guards).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern(PatternMatcher.var("x"))));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f x = 3"));
@@ -129,7 +129,7 @@ public class TDAFunctionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
-//			oneOf(guards).functionCase(with(FunctionCaseMatcher.called(null, "f").pattern(PatternMatcher.typed("Number", "n"))));
+			oneOf(builder).argument((TypedPattern) with(TypedPatternMatcher.typed("Number", "n")));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f (Number n) = n"));

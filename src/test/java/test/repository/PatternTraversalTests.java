@@ -31,7 +31,7 @@ public class PatternTraversalTests {
 	final TypeReference list = new TypeReference(pos, "List");
 	private FunctionName fnName = FunctionName.function(pos, new PackageName("test.golden"), "f");
 	final VarPattern vp = new VarPattern(pos, new VarName(pos, fnName, "v"));
-	final TypedPattern tp = new TypedPattern(pos, list, pos, "x");
+	final TypedPattern tp = new TypedPattern(pos, list, new VarName(pos, null, "x"));
 	final ConstructorMatch cm = new ConstructorMatch(pos, "Nil");
 
 	@Test

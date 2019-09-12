@@ -7,8 +7,10 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.patterns.HSIPatternTree;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.Type;
@@ -28,7 +30,7 @@ public class PatternExtraction {
 	private final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 
 	@Test
-	public void anUntypedUnboundVariable() {
+	public void anUntypedVariable() {
 		RepositoryEntry any = context.mock(REType.class, "Any");
 		context.checking(new Expectations() {{
 			oneOf(r).get("Any"); will(returnValue(any));
@@ -38,6 +40,21 @@ public class PatternExtraction {
 		Type ty = po.minimalType(r);
 		assertNotNull(ty);
 		assertEquals(any, ty);
+	}
+
+	@Test
+	public void aTypedVariable() {
+//		RepositoryEntry any = context.mock(REType.class, "Any");
+//		context.checking(new Expectations() {{
+//			oneOf(r).get("Any"); will(returnValue(any));
+//		}});
+		HSIPatternOptions po = new HSIPatternOptions();
+		TypeReference tr = new TypeReference(pos, "Number");
+		tr.bind(LoadBuiltins.number);
+		po.addTyped(tr, new VarName(pos, nameF, "v"));
+		Type ty = po.minimalType(r);
+		assertNotNull(ty);
+		assertEquals(LoadBuiltins.number, ty);
 	}
 
 	@Test

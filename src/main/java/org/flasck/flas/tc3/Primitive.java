@@ -38,4 +38,9 @@ public class Primitive implements RepositoryEntry, Type {
 	public void dumpTo(PrintWriter pw) {
 		pw.print(name.baseName());
 	}
+	
+	@Override
+	public String toString() {
+		return "Primitive[" + name.uniqueName() + "]";
+	}
 }

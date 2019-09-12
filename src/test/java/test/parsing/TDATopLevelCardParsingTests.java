@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
@@ -125,6 +126,9 @@ public class TDATopLevelCardParsingTests {
 
 	@Test
 	public void cardsWithStandaloneMethodsDontCascadeErrorsBecausePatternParsingIsIgnored() {
+		context.checking(new Expectations() {{
+			oneOf(builder).argument(with(any(TypedPattern.class)));
+		}});
 		// throw an error to simulate cascade
 		tracker.fakeErrorWithoutNeedingAssertion();
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("method m (String s)"));

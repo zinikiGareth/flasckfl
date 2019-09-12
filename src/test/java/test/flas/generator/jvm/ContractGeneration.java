@@ -117,7 +117,7 @@ public class ContractGeneration {
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "MyHandler");
 		tr.bind(new ContractDecl(pos, pos, new SolidName(pkg, "AContract")));
-		cmd.args.add(new TypedPattern(pos, tr, pos, "handler"));
+		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cname, "handler")));
 		new Traverser(gen).visitContractMethod(cmd);
 	}
 	

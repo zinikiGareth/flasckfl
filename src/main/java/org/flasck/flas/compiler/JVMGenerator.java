@@ -414,7 +414,7 @@ public class JVMGenerator extends LeafAdapter {
 				meth.argument(J.OBJECT, vp.var);
 			} else if (a instanceof TypedPattern) {
 				TypedPattern vp = (TypedPattern) a;
-				meth.argument(J.OBJECT, vp.var);
+				meth.argument(J.OBJECT, vp.var.var);
 				type = vp.type;
 			} else {
 				meth.argument(J.OBJECT, "a" + i);

@@ -116,6 +116,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
+	public void argument(TypedPattern parm) {
+		addEntry(parm.name(), parm);
+	}
+
+	@Override
 	public void newHandler(HandlerImplements hi) {
 		addEntry(hi.handlerName, hi);
 	}
@@ -198,6 +203,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		}
 	}
 
+	@Override
+	public void dump() {
+		for (RepositoryEntry e : dict.values())
+			System.out.println(e.name().uniqueName() + " => " + e);
+	}
 //	@Override
 //	public void process() {
 //		new PFDumper().dumpScope(new Indenter(new PrintWriter(System.out)), scope);

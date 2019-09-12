@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -190,9 +191,9 @@ public class ResolverTests {
 		}});
 		List<Object> patts = new ArrayList<>();
 		TypeReference tl = new TypeReference(pos, "Number");
-		patts.add(new TypedPattern(pos, tl, pos, "l"));
+		patts.add(new TypedPattern(pos, tl, new VarName(pos, op.name(), "l")));
 		TypeReference tr = new TypeReference(pos, "Number");
-		patts.add(new TypedPattern(pos, tr, pos, "r"));
+		patts.add(new TypedPattern(pos, tr, new VarName(pos, op.name(), "r")));
 		FunctionIntro oi = new FunctionIntro(namePlPl, patts);
 		op.intro(oi);
 		Resolver r = new RepositoryResolver(errors, ry);
@@ -245,7 +246,7 @@ public class ResolverTests {
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "MyHandler");
-		cmd.args.add(new TypedPattern(pos, tr, pos, "handler"));
+		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, op.name(), "handler")));
 		new Traverser(r).visitContractMethod(cmd);
 		assertEquals(cd, tr.defn());
 	}

@@ -88,7 +88,7 @@ public class PFDumper {
 		} else if (obj instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) obj;
 			pw.print("[type] " + tp.var);
-			dumpPosition(pw, tp.varLocation, true);
+			dumpPosition(pw, tp.var.loc, true);
 			dumpRecursive(pw.indent(), tp.type);
 		} else if (obj instanceof VarPattern) {
 			VarPattern tp = (VarPattern) obj;

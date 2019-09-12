@@ -1417,7 +1417,7 @@ public class Rewriter implements CodeGenRegistry {
 				hl = new HandlerLambda(vp.varLoc, hi.handlerName, any, vp.var);
 			} else if (o instanceof TypedPattern) {
 				TypedPattern vp = (TypedPattern) o;
-				hl = new HandlerLambda(vp.varLocation, hi.handlerName, (TypeWithName) rewrite(cx, vp.type, false), vp.var);
+				hl = new HandlerLambda(vp.var.loc, hi.handlerName, (TypeWithName) rewrite(cx, vp.type, false), vp.var.var);
 			} else
 				throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 			bvs.add(hl);
@@ -1700,10 +1700,9 @@ public class Rewriter implements CodeGenRegistry {
 		try {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
-				VarName vn = new VarName(tp.varLocation, name, tp.var);
 				TypeWithName rt = (TypeWithName) rewrite(cx, tp.type, false);
-				fnArgs.put(vn.uniqueName(), rt);
-				return new RWTypedPattern(tp.typeLocation, rt, tp.varLocation, vn);
+				fnArgs.put(tp.var.uniqueName(), rt);
+				return new RWTypedPattern(tp.typeLocation, rt, tp.var.loc, tp.var);
 			} else if (o instanceof VarPattern) {
 				VarPattern vp = (VarPattern) o;
 				return new RWVarPattern(vp.location(), new VarName(vp.varLoc, name, vp.var));
@@ -1940,7 +1939,7 @@ public class Rewriter implements CodeGenRegistry {
 						throw new UtilException("Need to consider if " + tp.type + " might be a polymorphic var");
 					}
 				}
-				into.put(tp.var, new LocalVar(fnName, caseName, tp.varLocation, tp.var, tp.typeLocation, t));
+				into.put(tp.var.var, new LocalVar(fnName, caseName, tp.var.loc, tp.var.var, tp.typeLocation, t));
 			} else
 				throw new UtilException("Not gathering vars from " + arg.getClass());
 		}

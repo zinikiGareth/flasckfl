@@ -17,6 +17,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -84,7 +85,7 @@ public class MethodConvertorTests {
 			contract1.methods.add(m1);
 			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "start"), new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), new VarName(posn, null, "s"))));
 			contract1.methods.add(m3);
 			orgFooScope.define(errors, "Contract1", contract1);
 		}
@@ -93,9 +94,9 @@ public class MethodConvertorTests {
 			ContractDecl service1 = new ContractDecl(posn, posn, cn);
 			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "go"), new ArrayList<>());
 			service1.methods.add(m0);
-			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.UP, FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), new VarName(posn, null, "s"))));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.DOWN, FunctionName.contractDecl(posn, cn, "respond"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, ContractMethodDir.DOWN, FunctionName.contractDecl(posn, cn, "respond"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), new VarName(posn, null, "s"))));
 			service1.methods.add(m2);
 			orgFooScope.define(errors, "Service1", service1);
 		}
@@ -516,7 +517,7 @@ public class MethodConvertorTests {
 
 	protected void defineEHMethod(IScope s, String name, MethodMessage... msgs) {
 		final FunctionName func = FunctionName.eventMethod(posn, new CardName(new PackageName("org.foo"), "Card"), name);
-		FunctionIntro intro = new FunctionIntro(func, Arrays.asList((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, func, "ev")));
+		FunctionIntro intro = new FunctionIntro(func, Arrays.asList((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), new VarName(posn, null, "t")), (Object)new VarPattern(posn, new VarName(posn, func, "ev"))));
 		EventCaseDefn cs = new EventCaseDefn(posn, intro);
 		cs.provideCaseName(-1);
 		for (MethodMessage m : msgs)

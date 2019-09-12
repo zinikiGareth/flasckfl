@@ -30,6 +30,6 @@ h (Number x) = 5
 	k x = 0
 	
 // Number->Number
-l (Number x) = x
+	l (Number x) = 0
 	
 ... polymorphic ones need to go elsewhere (polypatterns.fl?)

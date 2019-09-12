@@ -4,6 +4,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -38,6 +39,11 @@ public class PatternAnalyzer extends LeafAdapter{
 	@Override
 	public void visitVarPattern(VarPattern p) {
 		slot.addVar(p.name());
+	}
+	
+	@Override
+	public void visitTypedPattern(TypedPattern p) {
+		slot.addTyped(p.type, p.var);
 	}
 	
 	@Override

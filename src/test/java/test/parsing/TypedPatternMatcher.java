@@ -30,7 +30,7 @@ public class TypedPatternMatcher extends PatternMatcher {
 	protected boolean matchesSafely(Pattern arg0) {
 		if (arg0 instanceof TypedPattern) {
 			final TypedPattern patt = (TypedPattern)arg0;
-			if (!var.equals(patt.var) || !type.equals(patt.type.name()))
+			if (!var.equals(patt.var.var) || !type.equals(patt.type.name()))
 				return false;
 			if (typevars.size() != patt.type.polys().size())
 				return false;

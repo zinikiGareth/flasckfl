@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.TDAParsing;
@@ -27,6 +28,7 @@ import test.flas.stories.TDAStoryTests;
 
 public class TDAPatternParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
 	private ErrorReporter errors = new LocalErrorTracker(errorsMock);
 	@SuppressWarnings("unchecked")
@@ -230,7 +232,9 @@ public class TDAPatternParsingTests {
 	public void parensCanContainTypedThings() {
 		final Tokenizable line = line("(String x)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(pos, null, "x")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("String", "x")));
+			oneOf(topLevel).argument(with(any(TypedPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -242,7 +246,9 @@ public class TDAPatternParsingTests {
 	public void parensCanContainPolyTypedThings() {
 		final Tokenizable line = line("(A x)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(pos, null, "x")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("A", "x")));
+			oneOf(topLevel).argument(with(any(TypedPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -254,6 +260,8 @@ public class TDAPatternParsingTests {
 	public void itIsStillAnErrorNotToCloseYourParens() {
 		final Tokenizable line = line("(String x");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(pos, null, "x")));
+			oneOf(topLevel).argument(with(any(TypedPattern.class)));
 			oneOf(errorsMock).message(line, "invalid pattern");
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
@@ -418,7 +426,9 @@ public class TDAPatternParsingTests {
 	public void aTypeCanHaveParameters() {
 		final Tokenizable line = line("(Cons[Number] nl)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("nl")); will(returnValue(new VarName(pos, null, "nl")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Cons", "nl").typevar("Number")));
+			oneOf(topLevel).argument(with(any(TypedPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -431,7 +441,9 @@ public class TDAPatternParsingTests {
 	public void aTypeCanHaveParametersWithParameters() {
 		final Tokenizable line = line("(Map[A,List[A]] map)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("map")); will(returnValue(new VarName(pos, null, "map")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map").typevar("A").typevar("List")));
+			oneOf(topLevel).argument(with(any(TypedPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -468,7 +480,9 @@ public class TDAPatternParsingTests {
 	public void aTypeWithParametersMustBeInParensAndHaveAVarToGetTheRightResult() {
 		final Tokenizable line = line("(Type[A] var)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("var")); will(returnValue(new VarName(pos, null, "var")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Type", "var").typevar("A")));
+			oneOf(topLevel).argument(with(any(TypedPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
@@ -491,7 +505,9 @@ public class TDAPatternParsingTests {
 	public void aTypeCanHaveMultipleParameters() {
 		final Tokenizable line = line("(Map[Number,String] map)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("map")); will(returnValue(new VarName(pos, null, "map")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map").typevar("Number").typevar("String")));
+			oneOf(topLevel).argument(with(any(TypedPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
 		TDAParsing canContinue = parser.tryParsing(line);
