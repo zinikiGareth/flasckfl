@@ -115,13 +115,7 @@ public class Traverser implements Visitor {
 				slots.add(new ArgSlot(i));
 			}
 			hsi.hsiArgs(slots);
-			// TODO: this is a hack !!!
-			for (FunctionIntro i : fn.intros()) {
-				hsi.startInline(i);
-				for (FunctionCaseDefn c : i.cases())
-					visitCase(c);
-				hsi.endInline(i);
-			}
+			fn.hsiTree().visit(this, hsi);
 		} else {
 			for (FunctionIntro i : fn.intros())
 				visitFunctionIntro(i);

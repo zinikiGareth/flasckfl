@@ -117,7 +117,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 			// retest ...
 			if (stack.size() != 1)
 			*/
-			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
+			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size() + " when processing " + fn.name().uniqueName());
 		}
 		meth.returnObject(stack.remove(0)).flush();
 		this.meth = null;
@@ -465,5 +465,25 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	@Override
 	public void endInline(FunctionIntro fi) {
 //		throw new NotImplementedException();
+	}
+
+	@Override
+	public void switchOn(Slot slot) {
+		
+	}
+
+	@Override
+	public void withConstructor(String string) {
+		
+	}
+
+	@Override
+	public void errorNoCase() {
+		
+	}
+
+	@Override
+	public void endSwitch() {
+		
 	}
 }

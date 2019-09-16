@@ -29,6 +29,7 @@ public class PatternAnalyzer extends LeafAdapter{
 	@Override
 	public void visitFunctionIntro(FunctionIntro fi) {
 		nslot = 0;
+		hsiTree.consider(fi);
 	}
 	
 	@Override

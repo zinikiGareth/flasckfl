@@ -39,6 +39,7 @@ public class HSITraversalTests {
 	final FunctionName fname = FunctionName.function(pos, pkg, "f");
 	final Traverser t = new Traverser(v);
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void aSimpleVarBindsItAndThenJustEvalsTheExpression() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1);
@@ -48,6 +49,7 @@ public class HSITraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
+			// bind first slot to vx ...
 			oneOf(v).startInline(fi);
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
@@ -55,7 +57,41 @@ public class HSITraversalTests {
 			oneOf(v).leaveFunction(fn);
 		}});
 		HSIPatternTree tree = new HSIPatternTree(1);
+		tree.consider(fi);
 		tree.get(0).addVar(vx);
+		fn.bindHsi(tree);
+		
+		fi.functionCase(new FunctionCaseDefn(null, number));
+		fn.intro(fi);
+		
+		t.visitFunction(fn);
+		
+		Object allSlots = slots.get(0);
+		assertTrue(allSlots instanceof List);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void aConstantConstructorForcesATypeErrorCase() {
+		FunctionDefinition fn = new FunctionDefinition(fname, 1);
+		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
+		CaptureAction slots = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(v).visitFunction(fn);
+			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
+			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
+			oneOf(v).withConstructor("Nil");
+			oneOf(v).startInline(fi);
+			oneOf(v).visitExpr(number, 0);
+			oneOf(v).visitNumericLiteral(number);
+			oneOf(v).endInline(fi);
+			oneOf(v).errorNoCase();
+			oneOf(v).endSwitch();
+			oneOf(v).leaveFunction(fn);
+		}});
+		HSIPatternTree tree = new HSIPatternTree(1);
+		tree.consider(fi);
+		tree.get(0).addCM("Nil", new HSIPatternTree(0));
 		fn.bindHsi(tree);
 		
 		fi.functionCase(new FunctionCaseDefn(null, number));

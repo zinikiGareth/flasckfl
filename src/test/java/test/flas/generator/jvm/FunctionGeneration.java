@@ -10,6 +10,7 @@ import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -72,6 +73,9 @@ public class FunctionGeneration {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new NumericLiteral(pos, 42));
 		fi.functionCase(fcd);
 		fn.intro(fi);
+		HSIPatternTree hsi = new HSIPatternTree(0);
+		hsi.consider(fi);
+		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
 }
