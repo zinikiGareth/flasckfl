@@ -115,7 +115,7 @@ public class Traverser implements Visitor {
 				slots.add(new ArgSlot(i));
 			}
 			hsi.hsiArgs(slots);
-			fn.hsiTree().visit(this, hsi);
+			fn.hsiTree().visit(this, hsi, slots);
 		} else {
 			for (FunctionIntro i : fn.intros())
 				visitFunctionIntro(i);

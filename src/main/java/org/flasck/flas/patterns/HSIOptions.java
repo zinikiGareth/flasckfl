@@ -1,6 +1,7 @@
 package org.flasck.flas.patterns;
 
 import java.util.List;
+import java.util.Set;
 
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -13,6 +14,8 @@ public interface HSIOptions {
 	void addCM(String ctor, HSITree nested);
 	HSITree getCM(String constructor);
 	Type minimalType(RepositoryReader repository);
+	Set<String> ctors();
 	List<String> vars();
 	List<Type> types();
+	boolean hasSwitches();
 }

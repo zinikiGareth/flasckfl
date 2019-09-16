@@ -3,6 +3,7 @@ package org.flasck.flas.patterns;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.VarName;
@@ -46,6 +47,11 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
+	public Set<String> ctors() {
+		return ctors.keySet();
+	}
+
+	@Override
 	public List<String> vars() {
 		return vars;
 	}
@@ -66,5 +72,10 @@ public class HSIPatternOptions implements HSIOptions {
 			return types.values().iterator().next().type;
 		else
 			return repository.get("Nil");
+	}
+
+	@Override
+	public boolean hasSwitches() {
+		return !this.ctors.isEmpty();
 	}
 }
