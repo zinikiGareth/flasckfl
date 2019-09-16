@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.compiler.JVMGenerator.SwitchItem;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -28,6 +29,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
+import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
@@ -36,9 +38,21 @@ import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter implements HSIVisitor {
+	public class SwitchItem {
+		private AVar switchOn;
+		private String ctor;
+		public IExpr expr;
+
+		public SwitchItem(AVar switchOn, String ctor) {
+			this.switchOn = switchOn;
+			this.ctor = ctor;
+		}
+	}
+
 	private final ByteCodeStorage bce;
 	private MethodDefiner meth;
 	private List<IExpr> stack = new ArrayList<IExpr>();
@@ -48,6 +62,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	private ByteCodeSink downClz;
 	private int nextVar = 1;
 	private IExpr fcx;
+	private Var fargs;
+	private AVar currentSwitch;
+	private List<SwitchItem> switches = new ArrayList<>();
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce) {
@@ -78,22 +95,65 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 		this.clz = bce.newClass(fn.name().javaClassName());
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
 		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
-		/* PendingVar argsArg = */ ann.argument("[" + J.OBJECT, "args");
+		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
 		ann.returns(JavaType.object_);
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		nextVar = 1;
 		fcx = cxArg.getVar();
+		fargs = argsArg.getVar();
 	}
 	
-	// TODO: this should have been reduced to HSIE, which we should generate from
-	// But I am hacking for now to get a walking skeleton up and running so we can E2E TDD
-	// The actual traversal is done by the traverser ...
+	@Override
+	public void hsiArgs(List<Slot> slots) {
+//		throw new NotImplementedException();
+	}
 
 	@Override
-	public void visitFunctionIntro(FunctionIntro fi) {
-		// TODO: this is just a hack to clear off the stack to avoid dealing with HSI
-		stack.clear();
+	public void switchOn(Slot slot) {
+		Expr in = meth.arrayItem(J.OBJECT, fargs, 0);
+		AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
+		meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
+		currentSwitch = var;
+	}
+
+	@Override
+	public void withConstructor(String ctor) {
+		if (!stack.isEmpty())
+			switches.get(switches.size()-1).expr = meth.returnObject(stack.remove(0));
+		switches.add(new SwitchItem(currentSwitch, ctor));
+	}
+
+	@Override
+	public void errorNoCase() {
+		if (!stack.isEmpty())
+			switches.get(switches.size()-1).expr = meth.returnObject(stack.remove(0));
+		SwitchItem si = new SwitchItem(currentSwitch, null);
+		si.expr = meth.callStatic(J.FLERROR, J.FLERROR, "eval", fcx, meth.stringConst("no such case"));
+		switches.add(si);
+	}
+
+	@Override
+	public void endSwitch() {
+		IExpr ret = null;
+		for (int i=switches.size()-1;i>=0;i--) {
+			SwitchItem si = switches.get(i);
+			if (ret == null)
+				ret = si.expr;
+			else
+				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, J.BOOLEAN, "isA", fcx, si.switchOn, meth.stringConst(si.ctor)), si.expr, ret);
+		}
+		ret.flush();
+	}
+
+	@Override
+	public void startInline(FunctionIntro fi) {
+//		throw new NotImplementedException();
+	}
+
+	@Override
+	public void endInline(FunctionIntro fi) {
+//		throw new NotImplementedException();
 	}
 	
 	@Override
@@ -102,24 +162,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-		if (stack.size() != 1) {
-			/* I don't think this is actually true ...
-			// There is a complex case where we have a Struct Constructor with no args and we didn't generate code for it earlier because we don't put that in a closure
-			// Do that now ...
-			if (stack.size() == 0) {
-				// I think this is actually part of the code around HSIE, but we don't have that yet, hence the complex chain here ...
-				Expr expr = fn.intros().get(0).cases().get(0).expr;
-				if (expr instanceof UnresolvedVar && ((UnresolvedVar)expr).defn() instanceof StructDefn) {
-					StructDefn defn = (StructDefn) ((UnresolvedVar)expr).defn();
-					makeClosure(defn, 0, defn.argCount());
-				}
-			}
-			// retest ...
-			if (stack.size() != 1)
-			*/
+		if (stack.size() == 1) {
+			meth.returnObject(stack.remove(0)).flush();
+		} else if (!stack.isEmpty()) {
 			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size() + " when processing " + fn.name().uniqueName());
 		}
-		meth.returnObject(stack.remove(0)).flush();
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
@@ -450,40 +497,5 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 
 	public static JVMGenerator forTests(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {
 		return new JVMGenerator(clz, up, down);
-	}
-
-	@Override
-	public void hsiArgs(List<Slot> slots) {
-//		throw new NotImplementedException();
-	}
-
-	@Override
-	public void startInline(FunctionIntro fi) {
-//		throw new NotImplementedException();
-	}
-
-	@Override
-	public void endInline(FunctionIntro fi) {
-//		throw new NotImplementedException();
-	}
-
-	@Override
-	public void switchOn(Slot slot) {
-		
-	}
-
-	@Override
-	public void withConstructor(String string) {
-		
-	}
-
-	@Override
-	public void errorNoCase() {
-		
-	}
-
-	@Override
-	public void endSwitch() {
-		
 	}
 }
