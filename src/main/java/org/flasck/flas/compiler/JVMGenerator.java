@@ -129,7 +129,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 		if (!stack.isEmpty())
 			switches.get(switches.size()-1).expr = meth.returnObject(stack.remove(0));
 		SwitchItem si = new SwitchItem(currentSwitch, null);
-		si.expr = meth.callStatic(J.FLERROR, J.FLERROR, "eval", fcx, meth.stringConst("no such case"));
+		si.expr = meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no such case"))));
 		switches.add(si);
 	}
 
@@ -141,7 +141,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 			if (ret == null)
 				ret = si.expr;
 			else
-				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, J.BOOLEAN, "isA", fcx, si.switchOn, meth.stringConst(si.ctor)), si.expr, ret);
+				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isA", fcx, si.switchOn, meth.stringConst(si.ctor)), si.expr, ret);
 		}
 		ret.flush();
 	}

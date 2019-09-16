@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
@@ -91,7 +92,9 @@ public class FunctionGeneration {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		IExpr head = context.mock(IExpr.class, "head");
 		IExpr nsc = context.mock(IExpr.class, "nsc");
+		IExpr ansc = context.mock(IExpr.class, "ansc");
 		IExpr eNSC = context.mock(IExpr.class, "ensc");
+		IExpr rerr = context.mock(IExpr.class, "rerr");
 		IExpr doif = context.mock(IExpr.class, "doif");
 		IExpr nil = context.mock(IExpr.class, "nil");
 		IExpr isA = context.mock(IExpr.class, "isA");
@@ -119,11 +122,15 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(sret); will(returnValue(re));
 			
 			oneOf(meth).stringConst("no such case"); will(returnValue(nsc));
-			oneOf(meth).callStatic(J.FLERROR, J.FLERROR, "eval", cxt, nsc); will(returnValue(eNSC));
-			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
-			oneOf(meth).callStatic(with(J.FLEVAL), with(J.BOOLEAN), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
+			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
+			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
+			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
-			oneOf(meth).ifBoolean(isA, re, eNSC); will(returnValue(doif));
+			
+			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
+			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
+			
+			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
 			oneOf(doif).flush();
 		}});
 		JVMGenerator gen = new JVMGenerator(bce);
