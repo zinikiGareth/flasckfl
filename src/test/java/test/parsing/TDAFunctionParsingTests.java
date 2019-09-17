@@ -116,7 +116,7 @@ public class TDAFunctionParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
-			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("x")));
+			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.f.x")));
 		}});
 		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f x = 3"));

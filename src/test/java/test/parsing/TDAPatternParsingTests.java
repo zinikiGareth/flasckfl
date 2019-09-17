@@ -111,7 +111,7 @@ public class TDAPatternParsingTests {
 		final Tokenizable line = line("x");
 		context.checking(new Expectations() {{
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
-			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+			oneOf(builder).accept(with(VarPatternMatcher.var("test.pkg.x")));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
@@ -125,10 +125,10 @@ public class TDAPatternParsingTests {
 		final Tokenizable line = line("x y");
 		context.checking(new Expectations() {{
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
-			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+			oneOf(builder).accept(with(VarPatternMatcher.var("test.pkg.x")));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("y")); will(returnValue(new VarName(line.realinfo(), pkg, "y")));
-			oneOf(builder).accept(with(VarPatternMatcher.var("y")));
+			oneOf(builder).accept(with(VarPatternMatcher.var("test.pkg.y")));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
@@ -166,7 +166,7 @@ public class TDAPatternParsingTests {
 		final Tokenizable line = line("(x)");
 		context.checking(new Expectations() {{
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
-			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+			oneOf(builder).accept(with(VarPatternMatcher.var("test.pkg.x")));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
@@ -205,7 +205,7 @@ public class TDAPatternParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(line.realinfo(), pkg, "x")));
 			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Nil")));
-			oneOf(builder).accept(with(VarPatternMatcher.var("x")));
+			oneOf(builder).accept(with(VarPatternMatcher.var("test.pkg.x")));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
@@ -588,7 +588,7 @@ public class TDAPatternParsingTests {
 		final Tokenizable line = line("[a]");
 		context.checking(new Expectations() {{
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("a")); will(returnValue(new VarName(line.realinfo(), pkg, "a")));
-			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", PatternMatcher.var("a")).field("tail", CtorPatternMatcher.ctor("Nil"))));
+			oneOf(builder).accept(with(CtorPatternMatcher.ctor("Cons").field("head", PatternMatcher.var("test.pkg.a")).field("tail", CtorPatternMatcher.ctor("Nil"))));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
 		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);

@@ -201,7 +201,7 @@ public class TDAIntroParser implements TDAParsing {
 			}
 			ContractDecl decl = new ContractDecl(kw.location, tn.location, namer.solidName(tn.text));
 			consumer.newContract(decl);
-			return new ContractMethodParser(errors, decl, consumer);
+			return new ContractMethodParser(errors, decl, consumer, decl.name());
 		}
 		case "handler": {
 //			HandlerNameProvider provider = text -> consumer.handlerName(text);

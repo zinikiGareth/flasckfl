@@ -83,4 +83,9 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 	public String javaPackageName() {
 		throw new org.zinutils.exceptions.NotImplementedException();
 	}
+	
+	@Override
+	public String toString() {
+		return "VarName[" + uniqueName() + "]";
+	}
 }

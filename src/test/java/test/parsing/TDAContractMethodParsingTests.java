@@ -2,6 +2,8 @@ package test.parsing;
 
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -22,6 +24,7 @@ public class TDAContractMethodParsingTests {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ContractMethodConsumer builder = context.mock(ContractMethodConsumer.class);
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
+	private SolidName cname = new SolidName(new PackageName("test.repo"), "Contract");
 
 	@Test
 	public void aSimpleUpMethod() {
@@ -32,7 +35,7 @@ public class TDAContractMethodParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred")));
 		}});
-		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
+		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("up fred"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
@@ -46,7 +49,7 @@ public class TDAContractMethodParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.down("fred")));
 		}});
-		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
+		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("down fred"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
@@ -56,7 +59,7 @@ public class TDAContractMethodParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(any(Tokenizable.class)), with("missing or invalid direction"));
 		}});
-		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
+		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("sideways fred"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -66,7 +69,7 @@ public class TDAContractMethodParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(with(any(Tokenizable.class)), with("missing or invalid direction"));
 		}});
-		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
+		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("fred"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -80,7 +83,7 @@ public class TDAContractMethodParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred").optional()));
 		}});
-		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
+		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("optional up fred"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
@@ -92,10 +95,10 @@ public class TDAContractMethodParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
-			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred").arg(VarPatternMatcher.var("x"))));
+			oneOf(builder).addMethod(with(ContractMethodMatcher.up("fred").arg(VarPatternMatcher.var("test.repo.Contract.fred.x"))));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 		}});
-		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel);
+		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("up fred x"));
 		assertTrue(nested instanceof NoNestingParser);
 	}
