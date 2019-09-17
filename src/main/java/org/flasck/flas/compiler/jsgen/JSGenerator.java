@@ -7,6 +7,8 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.hsi.HSIVisitor;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -18,12 +20,13 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 
-public class JSGenerator extends LeafAdapter {
+public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	private final JSStorage jse;
 	private JSMethodCreator meth;
+	private JSBlockCreator block;
 	private JSExpr runner;
 	private List<JSExpr> stack = new ArrayList<>();
-
+	private JSBlockCreator elseBlock;
 
 	public JSGenerator(JSStorage jse) {
 		this.jse = jse;
@@ -32,6 +35,7 @@ public class JSGenerator extends LeafAdapter {
 	public JSGenerator(JSMethodCreator meth, JSExpr runner) {
 		this.jse = null;
 		this.meth = meth;
+		this.block = meth;
 		this.runner = runner;
 	}
 
@@ -42,39 +46,80 @@ public class JSGenerator extends LeafAdapter {
 			return;
 		}
 		this.meth = jse.newFunction(fn.name().container().jsName(), fn.name().name);
+		this.meth.argument("_cxt");
+		for (int i=0;i<fn.argCount();i++)
+			this.meth.argument("_" + i);
+		this.block = meth;
 	}
 	
-	// TODO: this should have been reduced to HSIE, which we should generate from
-	// But I am hacking for now to get a walking skeleton up and running so we can E2E TDD
-	// The actual traversal is done by the traverser ...
+	@Override
+	public void hsiArgs(List<Slot> slots) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
-	public void visitFunctionIntro(FunctionIntro fi) {
-		// TODO: this is just a hack to clear off the stack to avoid dealing with HSI
-		stack.clear();
+	public void switchOn(Slot slot) {
+		this.meth.head("_0");
 	}
-	
+
+	@Override
+	public void withConstructor(String ctor) {
+		JSIfExpr ifCtor = this.block.ifCtor("_0", ctor);
+		this.block = ifCtor.trueCase();
+		// TODO: ultimately this will be a stack ...
+		this.elseBlock = ifCtor.falseCase();
+	}
+
+	@Override
+	public void errorNoCase() {
+		if (!stack.isEmpty())
+			this.block.returnObject(this.stack.remove(0));
+		this.elseBlock.errorNoCase();
+//		this.block = null;
+	}
+
+	@Override
+	public void startInline(FunctionIntro fi) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void endInline(FunctionIntro fi) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void endSwitch() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		if (meth == null) {
+			// we elected not to generate, so just forget it ...
 			return;
 		}
-		if (stack.size() != 1) {
+		if (stack.size() == 1) {
+			block.returnObject(stack.remove(0));
+		} else if (!stack.isEmpty()) {
 			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
 		}
-		meth.returnObject(stack.remove(0));
 		this.meth = null;
 	}
 	
 
 	@Override
 	public void visitNumericLiteral(NumericLiteral expr) {
-		stack.add(meth.literal(expr.text));
+		stack.add(block.literal(expr.text));
 	}
 
 	@Override
 	public void visitStringLiteral(StringLiteral expr) {
-		stack.add(meth.string(expr.text));
+		stack.add(block.string(expr.text));
 	}
 	
 	@Override
@@ -85,15 +130,15 @@ public class JSGenerator extends LeafAdapter {
 		if (defn instanceof FunctionDefinition) {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
-				stack.add(meth.pushFunction(defn.name().jsName()));
+				stack.add(block.pushFunction(defn.name().jsName()));
 				makeClosure(fn, 0, fn.argCount());
 			} else
-				stack.add(meth.pushFunction(defn.name().jsName()));
+				stack.add(block.pushFunction(defn.name().jsName()));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
 			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
-				stack.add(meth.structConst(defn.name().jsName()));
+				stack.add(block.structConst(defn.name().jsName()));
 			}
 		}
 	}
@@ -101,7 +146,7 @@ public class JSGenerator extends LeafAdapter {
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
 		String opName = resolveOpName(operator.op);
-		stack.add(meth.pushFunction(opName));
+		stack.add(block.pushFunction(opName));
 	}
 
 	@Override
@@ -126,7 +171,10 @@ public class JSGenerator extends LeafAdapter {
 			int k = stack.size()-depth;
 			for (int i=0;i<depth;i++)
 				args[i] = stack.remove(k);
-			stack.add(meth.callFunction(defn.name().jsName(), args));
+			String fn = defn.name().jsName();
+			if (fn.equals("Error"))
+				fn = "FLError";
+			stack.add(block.callFunction(fn, args));
 		} else {
 			JSExpr[] args = new JSExpr[depth+1];
 			int k = stack.size()-depth-1;
@@ -134,9 +182,9 @@ public class JSGenerator extends LeafAdapter {
 				args[i] = stack.remove(k);
 			JSExpr call;
 			if (depth < expArgs)
-				call = meth.curry(expArgs, args);
+				call = block.curry(expArgs, args);
 			else
-				call = meth.closure(args);
+				call = block.closure(args);
 			stack.add(call);
 		}
 	}
@@ -145,6 +193,8 @@ public class JSGenerator extends LeafAdapter {
 	public void visitUnitTest(UnitTestCase e) {
 		UnitTestName clzName = e.name;
 		meth = jse.newFunction(clzName.container().jsName(), clzName.baseName());
+		this.block = meth;
+		JSExpr cxt = meth.argument("_cxt");
 		runner = meth.argument("runner");
 	}
 

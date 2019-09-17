@@ -26,7 +26,6 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
-import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.bytecode.mock.VarMatcher;
 
 public class FunctionGeneration {

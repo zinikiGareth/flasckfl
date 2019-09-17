@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.compiler.JVMGenerator.SwitchItem;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractDecl;

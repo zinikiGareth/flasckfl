@@ -127,7 +127,7 @@ public class JSRunner extends CommonTestRunner {
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
 			try {
-				page.executeScript(utc.name.jsName() + "(window.runner)");
+				page.executeScript(utc.name.jsName() + "(new FLContext(window.runner), window.runner)");
 				pw.println("JS PASS " + utc.description);
 				cdl.countDown();
 			} catch (Throwable t) {

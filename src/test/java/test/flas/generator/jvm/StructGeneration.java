@@ -1,7 +1,6 @@
 package test.flas.generator.jvm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -19,7 +18,6 @@ import org.zinutils.bytecode.Var;
 public class StructGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
-	private final PackageName pkg = new PackageName("test.repo");
 
 	@Test
 	public void simpleEntityDeclarationCreatesAClass() {

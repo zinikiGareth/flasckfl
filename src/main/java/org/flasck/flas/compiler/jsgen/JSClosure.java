@@ -17,7 +17,7 @@ public class JSClosure implements JSExpr {
 		if (var == null)
 			var = meth.obtainNextVar();
 		w.print("const " + var + " = ");
-		w.print("FLEval.closure(");
+		w.print("_cxt.closure(");
 		boolean isFirst = true;
 		for (JSExpr e : args) {
 			if (isFirst)

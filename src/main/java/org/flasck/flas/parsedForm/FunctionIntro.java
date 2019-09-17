@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parser.FunctionGuardedEquationConsumer;
-import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.patterns.HSITree;
 import org.zinutils.exceptions.UtilException;
 

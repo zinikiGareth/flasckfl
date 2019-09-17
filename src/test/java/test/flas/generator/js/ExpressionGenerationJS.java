@@ -13,6 +13,7 @@ import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -22,6 +23,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.tc3.Primitive;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -111,6 +113,7 @@ public class ExpressionGenerationJS {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		context.checking(new Expectations() {{
 			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt");
 			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
@@ -123,6 +126,9 @@ public class ExpressionGenerationJS {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
+		HSIPatternTree hsi = new HSIPatternTree(0);
+		hsi.consider(fi);
+		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
 
@@ -195,6 +201,26 @@ public class ExpressionGenerationJS {
 			oneOf(meth).string("hello"); will(returnValue(s));
 			oneOf(meth).structConst("Nil"); will(returnValue(nil));
 			oneOf(meth).callFunction("Cons", s, nil); will(returnValue(cons));
+		}});
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
+		gen.visitExpr(ae, 0);
+	}
+	
+	@Test
+	public void errorsWantToBeCreatedThroughTheContext() {
+		StringLiteral lit = new StringLiteral(pos, "error message");
+		UnresolvedVar err = new UnresolvedVar(pos, "Error");
+		StructDefn errT = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
+//		StructDefn consT = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false);
+//		consT.addField(new StructField(pos, false, new TypeReference(pos, "A"), "head"));
+//		consT.addField(new StructField(pos, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
+		err.bind(errT);
+		ApplyExpr ae = new ApplyExpr(pos, err, lit);
+		JSExpr s = context.mock(JSExpr.class, "s");
+		JSExpr errjs = context.mock(JSExpr.class, "cons");
+		context.checking(new Expectations() {{
+			oneOf(meth).string("error message"); will(returnValue(s));
+			oneOf(meth).callFunction("FLError", s); will(returnValue(errjs));
 		}});
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
 		gen.visitExpr(ae, 0);

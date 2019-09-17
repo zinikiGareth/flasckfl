@@ -9,10 +9,14 @@ window.console.log = function() {
 	callJava.log(ret);
 };
 window.runner = {};
-window.runner.assertSameValue = function(e, a) {
-	e = FLEval.full(e);
-	a = FLEval.full(a);
+window.runner.assertSameValue = function(_cxt, e, a) {
+	e = _cxt.full(e);
+	a = _cxt.full(a);
 	if (a != e) { // should be deep equal
 		throw new Error("NSV" + "\n  expected: " + e + "\n  actual:   " + a);
 	}
 }
+window.runner.newContext = function() {
+	return new FLContext(this);
+}
+

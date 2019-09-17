@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
