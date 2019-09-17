@@ -19,7 +19,7 @@ public class IsAExpr implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("FLEval.isA(" + var + ", '" + ctor + "')");
+		w.print("_cxt.isA(" + var + ", '" + ctor + "')");
 	}
 
 }

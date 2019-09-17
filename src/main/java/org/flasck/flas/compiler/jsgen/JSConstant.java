@@ -11,6 +11,8 @@ public class JSConstant implements JSExpr {
 
 	@Override
 	public String asVar() {
+		if ("Nil".equals(name))
+			return "[]";
 		return name;
 	}
 

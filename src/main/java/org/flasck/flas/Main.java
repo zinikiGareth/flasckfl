@@ -194,7 +194,7 @@ public class Main {
 	}
 
 	private static void saveBCE(ErrorReporter errors, File jvmDir, ByteCodeEnvironment bce) {
-		bce.dumpAll(true);
+//		bce.dumpAll(true);
 		if (jvmDir != null) {
 			FileUtils.assertDirectory(jvmDir);
 			try {

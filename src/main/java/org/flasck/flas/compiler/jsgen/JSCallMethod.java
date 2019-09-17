@@ -27,13 +27,9 @@ public class JSCallMethod implements JSExpr {
 			w.print(".");
 		}
 		w.print(toCall);
-		w.print("(");
-		boolean isFirst = true;
+		w.print("(_cxt");
 		for (JSExpr e : args) {
-			if (isFirst)
-				isFirst = false;
-			else
-				w.print(", ");
+			w.print(", ");
 			w.print(e.asVar());
 		}
 		w.println(");");

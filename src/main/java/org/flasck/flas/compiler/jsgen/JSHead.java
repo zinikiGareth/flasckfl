@@ -16,7 +16,7 @@ public class JSHead implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.println(var + " = FLEval.head(" + var + ");");
+		w.println(var + " = _cxt.head(" + var + ");");
 	}
 
 }

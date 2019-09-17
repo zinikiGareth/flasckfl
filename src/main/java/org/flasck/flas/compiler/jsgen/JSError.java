@@ -18,6 +18,6 @@ public class JSError implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.println("return new Error('" + msg + "');");
+		w.println("return new FLError(_cxt, '" + msg + "');");
 	}
 }

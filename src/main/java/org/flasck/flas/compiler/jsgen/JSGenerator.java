@@ -217,9 +217,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	private String resolveOpName(String op) {
 		switch (op) {
 		case "+":
-			return "FLEval.plus";
+			return "FLBuiltin.plus";
 		case "*":
-			return "FLEval.mul";
+			return "FLBuiltin.mul";
 		case "[]":
 			return "Nil";
 		default:
