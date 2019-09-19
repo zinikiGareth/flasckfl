@@ -194,7 +194,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		UnitTestName clzName = e.name;
 		meth = jse.newFunction(clzName.container().jsName(), clzName.baseName());
 		this.block = meth;
-		JSExpr cxt = meth.argument("_cxt");
+		/*JSExpr cxt = */meth.argument("_cxt");
 		runner = meth.argument("runner");
 	}
 

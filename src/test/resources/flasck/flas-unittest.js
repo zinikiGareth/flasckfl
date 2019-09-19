@@ -12,7 +12,7 @@ window.runner = {};
 window.runner.assertSameValue = function(_cxt, e, a) {
 	e = _cxt.full(e);
 	a = _cxt.full(a);
-	if ((a != e) && (!a._compareTo || !a._compareTo(e))) {
+	if (!_cxt.compare(e, a)) {
 		throw new Error("NSV" + "\n  expected: " + e + "\n  actual:   " + a);
 	}
 }

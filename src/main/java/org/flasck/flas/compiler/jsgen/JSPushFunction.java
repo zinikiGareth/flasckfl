@@ -17,7 +17,10 @@ public class JSPushFunction implements JSExpr {
 		if (var == null)
 			var = meth.obtainNextVar();
 		w.print("const " + var + " = ");
-		w.print(fn);
+		if (fn.equals("Nil"))
+			w.print("[]");
+		else
+			w.print(fn);
 		w.println(";");
 	}
 

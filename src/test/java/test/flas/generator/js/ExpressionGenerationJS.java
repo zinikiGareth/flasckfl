@@ -135,7 +135,7 @@ public class ExpressionGenerationJS {
 	@Test
 	public void anOp() {
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("FLEval.plus");
+			oneOf(meth).pushFunction("FLBuiltin.plus");
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));

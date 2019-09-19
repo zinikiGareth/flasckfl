@@ -63,9 +63,10 @@ public class ClassGeneration {
 		w = w.indent();
 		JSClass jsc = new JSClass("pkg.level", "Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
+		meth.argument("_cxt");
 		assertNotNull(meth);
 		meth.write(w);
-		assertEquals("\n  pkg.level.Clz.test = function() {\n  }\n", sw.toString());
+		assertEquals("\n  pkg.level.Clz.test = function(_cxt) {\n  }\n", sw.toString());
 	}
 
 	@Test
@@ -107,7 +108,7 @@ public class ClassGeneration {
 		JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
 		assertNotNull(expr);
 		expr.write(w);
-		assertEquals("  const v1 = v.called(true);\n", sw.toString());
+		assertEquals("  const v1 = v.called(_cxt, true);\n", sw.toString());
 	}
 
 	@Test
@@ -134,26 +135,28 @@ public class ClassGeneration {
 			assertNotNull(expr);
 			expr.write(w);
 		}
-		assertEquals("  const v1 = v.called(true);\n  const v2 = test.repo.f;\n", sw.toString());
+		assertEquals("  const v1 = v.called(_cxt, true);\n  const v2 = test.repo.f;\n", sw.toString());
 	}
 
 	@Test
 	public void methodsCanMakeAssertions() {
 		w = w.indent();
 		JSMethod meth = new JSMethod("pkg", "fred");
+		meth.argument("_cxt");
 		JSExpr obj = new JSVar("runner");
 		meth.assertable(obj, "isSame", obj, new JSLiteral("true"));
 		meth.write(w);
-		assertEquals("\n  pkg.fred = function() {\n    runner.isSame(runner, true);\n  }\n", sw.toString());
+		assertEquals("\n  pkg.fred = function(_cxt) {\n    runner.isSame(_cxt, runner, true);\n  }\n", sw.toString());
 	}
 
 	@Test
 	public void methodsCanReturnThings() {
 		w = w.indent();
 		JSMethod fn = new JSMethod("pkg", "fred");
+		fn.argument("_cxt");
 		fn.returnObject(new JSString("hello"));
 		fn.write(w);
-		assertEquals("\n  pkg.fred = function() {\n    return 'hello';\n  }\n", sw.toString());
+		assertEquals("\n  pkg.fred = function(_cxt) {\n    return 'hello';\n  }\n", sw.toString());
 	}
 
 	@Test
@@ -161,10 +164,11 @@ public class ClassGeneration {
 		w = w.indent();
 		JSClass jsc = new JSClass("pkg", "Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
+		meth.argument("_cxt");
 		assertNotNull(meth);
 		meth.argument("arg1");
 		meth.write(w);
-		assertEquals("\n  pkg.Clz.test = function(arg1) {\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n  }\n", sw.toString());
 	}
 
 	@Test
@@ -172,11 +176,12 @@ public class ClassGeneration {
 		w = w.indent();
 		JSClass jsc = new JSClass("pkg", "Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
+		meth.argument("_cxt");
 		assertNotNull(meth);
 		meth.argument("arg1");
 		meth.argument("arg2");
 		meth.write(w);
-		assertEquals("\n  pkg.Clz.test = function(arg1, arg2) {\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1, arg2) {\n  }\n", sw.toString());
 	}
 
 	
@@ -221,11 +226,12 @@ public class ClassGeneration {
 		w = w.indent();
 		JSClass jsc = new JSClass("pkg", "Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
+		meth.argument("_cxt");
 		assertNotNull(meth);
 		JSExpr obj = meth.argument("arg1");
 		meth.callMethod(obj, "mymethod", obj);
 		meth.write(w);
-		assertEquals("\n  pkg.Clz.test = function(arg1) {\n    const v1 = arg1.mymethod(arg1);\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n    const v1 = arg1.mymethod(_cxt, arg1);\n  }\n", sw.toString());
 	}
 	
 	@Test
@@ -246,16 +252,19 @@ public class ClassGeneration {
 	@Test
 	public void aPackageIncludesItsFunctions() {
 		JSFile f = new JSFile("test", null);
-		f.addFunction(new JSMethod("test", "f"));
+		JSMethod meth = new JSMethod("test", "f");
+		meth.argument("_cxt");
+		f.addFunction(meth);
 		f.writeTo(w);
-		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.f = function() {\n}\n", sw.toString());
+		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.f = function(_cxt) {\n}\n", sw.toString());
 	}
 	
 	@Test
 	public void aClassIncludesItsMethods() {
 		JSClass clz = new JSClass("test", "Clazz");
-		clz.createMethod("f");
+		JSMethodCreator meth = clz.createMethod("f");
+		meth.argument("_cxt");
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function() {\n}\n", sw.toString());
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n}\n", sw.toString());
 	}
 }

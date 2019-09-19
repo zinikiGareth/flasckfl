@@ -22,17 +22,18 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.head("_0");
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  _0 = FLEval.head(_0);\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n", sw.toString());
 	}
 
 	@Test
 	public void ifCtorProducesAnIfWithTwoBlocks() {
 		JSMethod meth = new JSMethod(null, "fred");
+		meth.argument("_cxt");
 		JSIfExpr ifCtor = meth.ifCtor("_0", "Nil");
 		ifCtor.trueCase().returnObject(ifCtor.trueCase().string("hello"));
 		ifCtor.falseCase().returnObject(ifCtor.falseCase().string("other"));
 		ifCtor.write(w);
-		assertEquals("if (FLEval.isA(_0, 'Nil')) {\n  return 'hello';\n} else {\n  return 'other';\n}\n", sw.toString());
+		assertEquals("if (_cxt.isA(_0, 'Nil')) {\n  return 'hello';\n} else {\n  return 'other';\n}\n", sw.toString());
 	}
 
 	@Test
@@ -42,7 +43,7 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.errorNoCase();
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return new FLError('no matching case');\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError(_cxt, 'no matching case');\n}\n", sw.toString());
 	}
 	
 }

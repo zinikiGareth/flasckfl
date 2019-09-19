@@ -32,7 +32,7 @@ FLContext.prototype.head = function(obj) {
 }
 
 FLContext.prototype.full = function(obj) {
-	if (obj instanceof FLClosure)
+	while (obj instanceof FLClosure)
 		obj = obj.eval(this);
 	return obj;
 }
@@ -50,6 +50,18 @@ FLContext.prototype.isA = function(val, ty) {
 	default:
 		return false;
 	}
+}
+
+FLContext.prototype.compare = function(left, right) {
+	if (typeof(left) === 'number' || typeof(left) === 'string') {
+		return left === right;
+	} else if (Array.isArray(left) && Array.isArray(right)) {
+		// not good enough
+		return left.length === right.length;
+	} else if (left instanceof _FLError && right instanceof _FLError) {
+		return left.message === right.message;
+	} else
+		return false;
 }
 
 if (typeof(module) !== 'undefined')
@@ -84,10 +96,14 @@ FLBuiltin = function() {
 }
 
 FLBuiltin.plus = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
 	return a+b;
 }
 
 FLBuiltin.mul = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
 	return a*b;
 }
 
