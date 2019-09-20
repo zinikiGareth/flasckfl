@@ -3,6 +3,8 @@ package test.patterns;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Set;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -14,6 +16,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.Type;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -68,6 +71,22 @@ public class PatternExtraction {
 		Type ty = po.minimalType(r);
 		assertNotNull(ty);
 		assertEquals(nil, ty);
+	}
+
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void caseWithTwoConstructorsThatArePartOfASingleUnion() {
+		RepositoryEntry bool = context.mock(REType.class, "Boolean");
+		context.checking(new Expectations() {{
+			oneOf(r).findUnionWith((Set<String>) with(Matchers.contains("False", "True"))); will(returnValue(bool));
+		}});
+		HSIPatternOptions po = new HSIPatternOptions();
+		po.addCM("True", new HSIPatternTree(0));
+		po.addCM("False", new HSIPatternTree(0));
+		Type ty = po.minimalType(r);
+		assertNotNull(ty);
+		assertEquals(bool, ty);
 	}
 
 }

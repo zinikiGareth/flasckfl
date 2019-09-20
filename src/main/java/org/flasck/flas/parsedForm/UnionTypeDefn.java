@@ -4,14 +4,17 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.UnionFieldConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
-public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry {
+public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, Type {
 	public final transient boolean generate;
 	private final InputPosition location;
 	private final SolidName name;
@@ -50,6 +53,31 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 
 	public List<PolyType> polys() {
 		return polyvars;
+	}
+	
+	public boolean matches(Set<String> ms) {
+		if (cases.size() != ms.size())
+			return false;
+		for (TypeReference s : cases) {
+			if (!ms.contains(s.name()))
+				return false;
+		}
+		return true;
+	}
+
+	@Override
+	public String signature() {
+		return name.uniqueName();
+	}
+
+	@Override
+	public int argCount() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public Type get(int pos) {
+		throw new NotImplementedException();
 	}
 
 	@Override

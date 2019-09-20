@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -70,6 +71,14 @@ public class StackVisitor implements NestedVisitor {
 
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		top.visitUnresolvedVar(var, nargs);
+	}
+
+	public void visitUnionTypeDefn(UnionTypeDefn ud) {
+		top.visitUnionTypeDefn(ud);
+	}
+
+	public void leaveUnionTypeDefn(UnionTypeDefn ud) {
+		top.leaveUnionTypeDefn(ud);
 	}
 
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {

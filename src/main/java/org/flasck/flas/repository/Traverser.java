@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -64,6 +65,8 @@ public class Traverser implements Visitor {
 			visitObjectMethod((ObjectMethod)e);
 		else if (e instanceof StructDefn)
 			visitStructDefn((StructDefn)e);
+		else if (e instanceof UnionTypeDefn)
+			visitUnionTypeDefn((UnionTypeDefn)e);
 		else if (e instanceof UnitTestPackage)
 			visitUnitTestPackage((UnitTestPackage)e);
 		else if (e instanceof VarPattern || e instanceof TypedPattern)
@@ -93,6 +96,19 @@ public class Traverser implements Visitor {
 	@Override
 	public void leaveStructDefn(StructDefn s) {
 		visitor.leaveStructDefn(s);
+	}
+
+	@Override
+	public void visitUnionTypeDefn(UnionTypeDefn ud) {
+		visitor.visitUnionTypeDefn(ud);
+//		for (StructField f : s.fields)
+//			visitStructField(f);
+		leaveUnionTypeDefn(ud);
+	}
+	
+	@Override
+	public void leaveUnionTypeDefn(UnionTypeDefn ud) {
+		visitor.leaveUnionTypeDefn(ud);
 	}
 
 	@Override

@@ -2,9 +2,12 @@ package test.repository;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -38,6 +41,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.ConsumeStructFields;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.junit.Test;
 
@@ -276,4 +280,46 @@ public class RepositoryTests {
 		r.unitTestPackage(utp);
 		assertEquals(utp, r.get("test.repo._ut_file"));
 	}
+	
+	@Test
+	public void canFindAUnionInTheRepository() {
+		Repository r = new Repository();
+		LoadBuiltins.applyTo(r);
+		Set<String> ms = new TreeSet<>();
+		ms.add("True");
+		ms.add("False");
+		UnionTypeDefn b = (UnionTypeDefn) r.findUnionWith(ms);
+		assertEquals(LoadBuiltins.bool, b);
+	}
+	
+	@Test
+	public void inOrderToMatchAUnionMustContainAllTheThings() {
+		Repository r = new Repository();
+		LoadBuiltins.applyTo(r);
+		Set<String> ms = new TreeSet<>();
+		ms.add("True");
+		ms.add("False");
+		ms.add("Butno");
+		assertNull(r.findUnionWith(ms));
+	}
+	
+	@Test
+	public void inOrderToMatchAUnionMustNotContainMoreThings() {
+		Repository r = new Repository();
+		LoadBuiltins.applyTo(r);
+		Set<String> ms = new TreeSet<>();
+		ms.add("True");
+		assertNull(r.findUnionWith(ms));
+	}
+
+	@Test
+	public void allTheThingsMustBeTheRightThings() {
+		Repository r = new Repository();
+		LoadBuiltins.applyTo(r);
+		Set<String> ms = new TreeSet<>();
+		ms.add("True");
+		ms.add("Butno");
+		assertNull(r.findUnionWith(ms));
+	}
+	
 }

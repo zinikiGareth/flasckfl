@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -50,6 +51,18 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitStructField(StructField sf) {
+	}
+
+	@Override
+	public void visitUnionTypeDefn(UnionTypeDefn ud) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void leaveUnionTypeDefn(UnionTypeDefn ud) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -46,6 +47,8 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.tc3.Primitive;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
@@ -54,6 +57,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitStructDefn(StructDefn s);
 		void visitStructField(StructField sf);
 		void leaveStructDefn(StructDefn s);
+		void visitUnionTypeDefn(UnionTypeDefn ud);
+		void leaveUnionTypeDefn(UnionTypeDefn ud);
 		void visitUnresolvedVar(UnresolvedVar var, int nargs);
 		void visitUnresolvedOperator(UnresolvedOperator operator, int nargs);
 		void visitTypeReference(TypeReference var);
@@ -193,6 +198,18 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@SuppressWarnings("unchecked")
 	public <T extends RepositoryEntry> T get(String string) {
 		return (T)dict.get(string);
+	}
+
+	@Override
+	public Type findUnionWith(Set<String> ms) {
+		for (RepositoryEntry k : dict.values()) {
+			if (k instanceof UnionTypeDefn) {
+				UnionTypeDefn utd = (UnionTypeDefn) k;
+				if (utd.matches(ms))
+					return utd;
+			}
+		}
+		return null;
 	}
 
 	@Override

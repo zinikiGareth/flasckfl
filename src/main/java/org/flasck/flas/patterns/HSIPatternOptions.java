@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class HSIPatternOptions implements HSIOptions {
 	class TV {
@@ -66,12 +67,19 @@ public class HSIPatternOptions implements HSIOptions {
 
 	@Override
 	public Type minimalType(RepositoryReader repository) {
-		if (ctors.isEmpty() && types.isEmpty() && !vars.isEmpty())
-			return repository.get("Any");
-		else if (!types.isEmpty())
+		if (ctors.size() == 1 && types.isEmpty() && vars.isEmpty())
+			return repository.get(ctors.keySet().iterator().next());
+		else if (ctors.isEmpty() && types.size() == 1 && vars.isEmpty())
 			return types.values().iterator().next().type;
-		else
-			return repository.get("Nil");
+		else if (ctors.isEmpty() && types.isEmpty() && !vars.isEmpty())
+			return repository.get("Any");
+		else {
+			Set<String> ms = ctors.keySet();
+			Type ut = repository.findUnionWith(ms);
+			if (ut == null)
+				throw new NotImplementedException("Could not find union for " + ms);
+			return ut;
+		}
 	}
 
 	@Override

@@ -47,8 +47,9 @@ public class TypeReference implements Locatable {
 		return name + (polys!= null && !polys.isEmpty()?polys:"");
 	}
 
-	public void bind(RepositoryEntry entry) {
+	public TypeReference bind(RepositoryEntry entry) {
 		definition = entry;
+		return this;
 	}
 
 	public RepositoryEntry defn() {
