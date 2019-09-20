@@ -7,9 +7,9 @@
 // Cons->Number
 a3 (Cons {head: a}) = a
 
-// List->Number
-	b Nil = 0
-	b (Cons l) = 1
+// Boolean->Number
+	b True = 0
+	b False = 1
 
 // Number->Number
 c 0 = 0

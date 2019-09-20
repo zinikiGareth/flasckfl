@@ -10,13 +10,13 @@
 		assert (a2 Cons)
 			1
 			
-	test that we can match Nil if present
-		assert (b Nil)
+	test that we can match True if present
+		assert (b True)
 			0
 			
-.	test that we can match Cons if present
-.		assert (b Cons)
-.			1
+	test that we can match False if present
+		assert (b False)
+			1
 			
 	test if a variable is ignored, it's value is irrelevant
 		assert (k 22)

@@ -7,7 +7,6 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.compiler.jsgen.JSBlock;
 import org.flasck.flas.compiler.jsgen.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
@@ -53,7 +52,6 @@ public class FunctionGenerationJS {
 		new Traverser(gen).visitFunction(fn);
 	}
 	
-
 	@Test
 	public void aMinimalHSIFunction() {
 		JSExpr sret = context.mock(JSExpr.class, "sret");
@@ -62,19 +60,6 @@ public class FunctionGenerationJS {
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
-//		IExpr head = context.mock(IExpr.class, "head");
-//		IExpr nsc = context.mock(IExpr.class, "nsc");
-//		IExpr ansc = context.mock(IExpr.class, "ansc");
-//		IExpr eNSC = context.mock(IExpr.class, "ensc");
-//		IExpr rerr = context.mock(IExpr.class, "rerr");
-//		IExpr doif = context.mock(IExpr.class, "doif");
-//		IExpr nil = context.mock(IExpr.class, "nil");
-//		IExpr isA = context.mock(IExpr.class, "isA");
-//		IExpr sret = context.mock(IExpr.class, "sret");
-//		IExpr re = context.mock(IExpr.class, "re");
-//		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
-//		Var args = new Var.AVar(meth, "[Object", "args");
-//		Var arg0 = new Var.AVar(meth, "Object", "arg");
 		context.checking(new Expectations() {{
 			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
@@ -86,18 +71,6 @@ public class FunctionGenerationJS {
 			oneOf(isNil).returnObject(sret);
 			
 			oneOf(notNil).errorNoCase();
-//			
-//			oneOf(meth).stringConst("no such case"); will(returnValue(nsc));
-//			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
-//			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
-//			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
-//			
-//			
-//			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
-//			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
-//			
-//			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
-//			oneOf(doif).flush();
 		}});
 		JSGenerator gen = new JSGenerator(jss);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
@@ -113,4 +86,114 @@ public class FunctionGenerationJS {
 		new Traverser(gen).visitFunction(fn);
 	}
 
+	@Test
+	public void aTwoConstructorHSIFunction() {
+		JSExpr sret = context.mock(JSExpr.class, "sret");
+		JSExpr gret = context.mock(JSExpr.class, "gret");
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
+		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
+		JSBlockCreator isCons = context.mock(JSBlockCreator.class, "isCons");
+		JSBlockCreator notCons = context.mock(JSBlockCreator.class, "notCons");
+		JSIfExpr consSwitch = new JSIfExpr(null, isCons, notCons);
+		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
+		context.checking(new Expectations() {{
+			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("_0"); will(returnValue(slot0));
+
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "Cons"); will(returnValue(consSwitch));
+			oneOf(isCons).string("goodbye"); will(returnValue(gret));
+			oneOf(isCons).returnObject(gret);
+			oneOf(notCons).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+			oneOf(isNil).string("hello"); will(returnValue(sret));
+			oneOf(isNil).returnObject(sret);
+			
+			oneOf(notNil).errorNoCase();
+		}});
+		JSGenerator gen = new JSGenerator(jss);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
+		{
+			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
+			f1.functionCase(fcd);
+			fn.intro(f1);
+		}
+		FunctionIntro f2 = new FunctionIntro(name, new ArrayList<>());
+		{
+			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "goodbye"));
+			f2.functionCase(fcd);
+			fn.intro(f2);
+		}
+		HSIPatternTree hsi = new HSIPatternTree(1);
+		hsi.consider(f1);
+		hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(f1));
+		hsi.consider(f2);
+		hsi.get(0).addCM("Cons", new HSIPatternTree(0).consider(f2));
+		fn.bindHsi(hsi);
+		new Traverser(gen).visitFunction(fn);
+	}
+	
+	@Test
+	public void stateIsCleanedUpBetweenFunctions() {
+		JSExpr sret = context.mock(JSExpr.class, "sret");
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
+		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
+		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
+		context.checking(new Expectations() {{
+			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("_0"); will(returnValue(slot0));
+
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+			oneOf(isNil).string("hello"); will(returnValue(sret));
+			oneOf(isNil).returnObject(sret);
+			
+			oneOf(notNil).errorNoCase();
+
+			oneOf(jss).newFunction("test.repo", "y"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("_0"); will(returnValue(slot0));
+
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+			oneOf(isNil).string("hello"); will(returnValue(sret));
+			oneOf(isNil).returnObject(sret);
+			
+			oneOf(notNil).errorNoCase();
+		}});
+		JSGenerator gen = new JSGenerator(jss);
+		{
+			FunctionName name = FunctionName.function(pos, pkg, "x");
+			FunctionDefinition fn = new FunctionDefinition(name, 1);
+			FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
+			fi.functionCase(fcd);
+			fn.intro(fi);
+			HSIPatternTree hsi = new HSIPatternTree(1);
+			hsi.consider(fi);
+			hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+			fn.bindHsi(hsi);
+			new Traverser(gen).visitFunction(fn);
+		}
+		{
+			FunctionName name = FunctionName.function(pos, pkg, "y");
+			FunctionDefinition fn = new FunctionDefinition(name, 1);
+			FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
+			fi.functionCase(fcd);
+			fn.intro(fi);
+			HSIPatternTree hsi = new HSIPatternTree(1);
+			hsi.consider(fi);
+			hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+			fn.bindHsi(hsi);
+			new Traverser(gen).visitFunction(fn);
+		}
+	}
 }

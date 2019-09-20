@@ -50,6 +50,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
+		this.elseBlock = null;
 	}
 	
 	@Override
@@ -65,6 +66,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void withConstructor(String ctor) {
+		if (elseBlock != null) {
+			this.block.returnObject(stack.remove(0));
+			this.block = elseBlock;
+		}
 		JSIfExpr ifCtor = this.block.ifCtor("_0", ctor);
 		this.block = ifCtor.trueCase();
 		// TODO: ultimately this will be a stack ...

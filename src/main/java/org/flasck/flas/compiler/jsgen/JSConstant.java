@@ -13,7 +13,12 @@ public class JSConstant implements JSExpr {
 	public String asVar() {
 		if ("Nil".equals(name))
 			return "[]";
-		return name;
+		else if ("True".equals(name))
+			return "true";
+		else if ("False".equals(name))
+			return "false";
+		else
+			return name;
 	}
 
 	@Override
