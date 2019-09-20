@@ -1,3 +1,5 @@
 test.golden.a :: Nil->Number
+test.golden.a2 :: Cons->Number
+test.golden.b :: List[Any]->Number
 test.golden.k :: Any->Number
 test.golden.l :: Number->Number

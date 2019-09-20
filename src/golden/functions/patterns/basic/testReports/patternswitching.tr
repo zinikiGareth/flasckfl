@@ -1,10 +1,14 @@
 JVM PASS that we can have a simple constructor match
 JVM PASS anything else is an error because of typing
+JVM PASS that we can match Cons as a type
+JVM PASS that we can match Nil if present
 JVM PASS if a variable is ignored, it's value is irrelevant
 JVM PASS if a variable is ignored, it's value is irrelevant part 2
 JVM PASS that we can pass any number to a function expecting numbers
 JS PASS that we can have a simple constructor match
 JS PASS anything else is an error because of typing
+JS PASS that we can match Cons as a type
+JS PASS that we can match Nil if present
 JS PASS if a variable is ignored, it's value is irrelevant
 JS PASS if a variable is ignored, it's value is irrelevant part 2
 JS PASS that we can pass any number to a function expecting numbers

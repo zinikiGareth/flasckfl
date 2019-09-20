@@ -108,7 +108,7 @@ public class FunctionGenerationJS {
 		fn.intro(fi);
 		HSIPatternTree hsi = new HSIPatternTree(1);
 		hsi.consider(fi);
-		hsi.get(0).addCM("Nil", new HSIPatternTree(0));
+		hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}

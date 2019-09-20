@@ -98,6 +98,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 		ann.returns(JavaType.object_);
 		meth = ann.done();
 		meth.lenientMode(leniency);
+		this.switches.clear();
 		nextVar = 1;
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
@@ -139,6 +140,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 			SwitchItem si = switches.get(i);
 			if (ret == null)
 				ret = si.expr;
+			else if (si.ctor == null)
+				throw new RuntimeException("ctor should not be null");
 			else
 				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isA", fcx, si.switchOn, meth.stringConst(si.ctor)), si.expr, ret);
 		}

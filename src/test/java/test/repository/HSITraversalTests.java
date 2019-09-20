@@ -74,6 +74,9 @@ public class HSITraversalTests {
 	public void aConstantConstructorForcesATypeErrorCase() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
+		fi.functionCase(new FunctionCaseDefn(null, number));
+		fn.intro(fi);
+		
 		CaptureAction slots = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
@@ -90,11 +93,8 @@ public class HSITraversalTests {
 		}});
 		HSIPatternTree tree = new HSIPatternTree(1);
 		tree.consider(fi);
-		tree.get(0).addCM("Nil", new HSIPatternTree(0));
+		tree.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
 		fn.bindHsi(tree);
-		
-		fi.functionCase(new FunctionCaseDefn(null, number));
-		fn.intro(fi);
 		
 		t.visitFunction(fn);
 		

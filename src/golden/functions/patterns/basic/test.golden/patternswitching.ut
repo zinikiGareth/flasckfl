@@ -6,6 +6,18 @@
 		assert (a 3)
 			Error "no matching case"
 
+	test that we can match Cons as a type
+		assert (a2 Cons)
+			1
+			
+	test that we can match Nil if present
+		assert (b Nil)
+			0
+			
+.	test that we can match Cons if present
+.		assert (b Cons)
+.			1
+			
 	test if a variable is ignored, it's value is irrelevant
 		assert (k 22)
 			0

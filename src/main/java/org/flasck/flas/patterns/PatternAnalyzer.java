@@ -15,6 +15,7 @@ public class PatternAnalyzer extends LeafAdapter{
 	private final NestedVisitor sv;
 	private int nslot;
 	private HSIOptions slot;
+	private FunctionIntro current;
 	
 	public PatternAnalyzer(ErrorResult errors, Repository repository, NestedVisitor sv) {
 		this.sv = sv;
@@ -29,6 +30,7 @@ public class PatternAnalyzer extends LeafAdapter{
 	@Override
 	public void visitFunctionIntro(FunctionIntro fi) {
 		nslot = 0;
+		current = fi;
 		hsiTree.consider(fi);
 	}
 	
@@ -50,6 +52,7 @@ public class PatternAnalyzer extends LeafAdapter{
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p) {
 		HSITree nested = new HSIPatternTree(p.args.size());
+		nested.consider(current);
 		slot.addCM(p.ctor, nested);
 		sv.push(new ConstructorMatchAnalyzer(sv, nested));
 	}

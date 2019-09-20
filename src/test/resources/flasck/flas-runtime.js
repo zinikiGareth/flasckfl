@@ -92,6 +92,10 @@ else
 Nil = function(_cxt) {
 	return [];
 }
+
+Cons = function(_cxt) {
+	return [];
+}
 FLBuiltin = function() {
 }
 

@@ -22,8 +22,9 @@ public class HSIPatternTree implements HSITree {
 	}
 	
 	@Override
-	public void consider(FunctionIntro fi) {
+	public HSITree consider(FunctionIntro fi) {
 		intros.add(fi);
+		return this;
 	}
 
 	@Override
@@ -37,13 +38,18 @@ public class HSIPatternTree implements HSITree {
 	}
 
 	@Override
+	public List<FunctionIntro> intros() {
+		return intros;
+	}
+
+	@Override
 	public void visit(Traverser traverser, HSIVisitor hsi, List<Slot> slots) {
 		if (intros.isEmpty())
 			return; // not for generation
 		else if (slots.isEmpty() && intros.size() == 1)
 			handleInline(traverser, hsi, intros.get(0));
 		else {
-			if (slots.size() != 1 || intros.size() != 1)
+			if (slots.size() != 1)
 				throw new NotImplementedException();
 			HSIOptions slot = this.slots.get(0); // should select using some kind of "which-is-best" algorithm
 			Slot s = slots.get(0);
@@ -52,7 +58,10 @@ public class HSIPatternTree implements HSITree {
 				Set<String> ctors = slot.ctors();
 				for (String c : ctors) {
 					hsi.withConstructor(c);
-					handleInline(traverser, hsi, intros.get(0));
+					HSITree cm = slot.getCM(c);
+					if (cm.intros().size() != 1)
+						throw new NotImplementedException();
+					handleInline(traverser, hsi, cm.intros().get(0));
 				}
 			} else
 				handleInline(traverser, hsi, intros.get(0));
@@ -69,6 +78,4 @@ public class HSIPatternTree implements HSITree {
 			traverser.visitCase(c);
 		hsi.endInline(i);
 	}
-	
-	
 }

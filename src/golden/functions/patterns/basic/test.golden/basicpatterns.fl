@@ -1,9 +1,15 @@
 // Nil->Number
 	a Nil = 0
 
+// Cons->Number
+	a2 (Cons x) = 1
+
+// Cons->Number
+a3 (Cons {head: a}) = a
+
 // List->Number
-b Nil = 0
-b (Cons {head: a, tail: b}) = 1
+	b Nil = 0
+	b (Cons l) = 1
 
 // Number->Number
 c 0 = 0
