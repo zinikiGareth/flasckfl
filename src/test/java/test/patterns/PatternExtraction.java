@@ -9,13 +9,16 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -31,31 +34,44 @@ public class PatternExtraction {
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
+	private final CurrentTCState state = context.mock(CurrentTCState.class);
 
 	@Test
 	public void anUntypedVariable() {
 		RepositoryEntry any = context.mock(REType.class, "Any");
 		context.checking(new Expectations() {{
+			oneOf(state).hasVar("test.repo.fred.x"); will(returnValue(null));
 			oneOf(r).get("Any"); will(returnValue(any));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.addVar(new VarName(pos, nameF, "x"));
-		Type ty = po.minimalType(r);
+		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(any, ty);
 	}
 
 	@Test
+	public void aPolymorphicVariable() {
+		UnifiableType xv = context.mock(UnifiableType.class);
+		PolyType pa = new PolyType(pos, "A");
+		context.checking(new Expectations() {{
+			oneOf(state).hasVar("test.repo.fred.x"); will(returnValue(xv));
+			oneOf(xv).resolve(); will(returnValue(pa));
+		}});
+		HSIPatternOptions po = new HSIPatternOptions();
+		po.addVar(new VarName(pos, nameF, "x"));
+		Type ty = po.minimalType(state, r);
+		assertNotNull(ty);
+		assertEquals(pa, ty);
+	}
+
+	@Test
 	public void aTypedVariable() {
-//		RepositoryEntry any = context.mock(REType.class, "Any");
-//		context.checking(new Expectations() {{
-//			oneOf(r).get("Any"); will(returnValue(any));
-//		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		TypeReference tr = new TypeReference(pos, "Number");
 		tr.bind(LoadBuiltins.number);
 		po.addTyped(tr, new VarName(pos, nameF, "v"));
-		Type ty = po.minimalType(r);
+		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.number, ty);
 	}
@@ -68,7 +84,7 @@ public class PatternExtraction {
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.addCM("Nil", new HSIPatternTree(0));
-		Type ty = po.minimalType(r);
+		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(nil, ty);
 	}
@@ -84,7 +100,7 @@ public class PatternExtraction {
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.addCM("True", new HSIPatternTree(0));
 		po.addCM("False", new HSIPatternTree(0));
-		Type ty = po.minimalType(r);
+		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(bool, ty);
 	}

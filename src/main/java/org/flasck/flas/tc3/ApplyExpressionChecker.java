@@ -14,15 +14,17 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final RepositoryReader r;
 	private final NestedVisitor nv;
 	private final List<Type> results = new ArrayList<>();
+	private final CurrentTCState state;
 
-	public ApplyExpressionChecker(RepositoryReader repository, NestedVisitor nv) {
+	public ApplyExpressionChecker(RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
 		this.r = repository;
+		this.state = state;
 		this.nv = nv;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(r, nv));
+		nv.push(new ExpressionChecker(r, state, nv));
 	}
 	
 	@Override

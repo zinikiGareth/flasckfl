@@ -119,6 +119,8 @@ public class TestEnvironment {
 	}
 
 	public void checkTypes() throws IOException {
+		FileUtils.assertDirectory(goldtc);
+		FileUtils.assertFile(new File(goldtc, "types"));
 		assertGolden(goldtc, tc2);
 	}
 }

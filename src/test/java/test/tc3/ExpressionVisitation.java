@@ -4,24 +4,31 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.UnifiableType;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.bytecode.IExpr;
 
 public class ExpressionVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private CurrentTCState state = context.mock(CurrentTCState.class);
 
 	@Test
 	public void numericConstantsReturnNumber() {
@@ -32,7 +39,7 @@ public class ExpressionVisitation {
 			oneOf(repository).get("Number"); will(returnValue(tyNumber));
 			oneOf(nv).result(tyNumber);
 		}});
-		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
 		tc.visitNumericLiteral(new NumericLiteral(pos, "42", 2));
 	}
 
@@ -45,7 +52,7 @@ public class ExpressionVisitation {
 			oneOf(repository).get("String"); will(returnValue(tyNumber));
 			oneOf(nv).result(tyNumber);
 		}});
-		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
 		tc.visitStringLiteral(new StringLiteral(pos, "yoyo"));
 	}
 
@@ -59,7 +66,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "Nil");
 		uv.bind(tyNil);
-		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -75,7 +82,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(x);
-		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -91,7 +98,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedOperator uv = new UnresolvedOperator(pos, "+");
 		uv.bind(plus);
-		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
 		tc.visitUnresolvedOperator(uv, 2);
 	}
 
@@ -105,7 +112,24 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(tyPlus);
 		}});
-		ExpressionChecker tc = new ExpressionChecker(repository, nv);
+		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
 		tc.result(tyPlus);
+	}
+
+	@Test
+	public void aFunctionVariableReturnsAPolyHolder() {
+		RepositoryReader repository = context.mock(RepositoryReader.class);
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		FunctionName func = FunctionName.function(pos, null, "f");
+		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
+		UnifiableType ut = context.mock(UnifiableType.class);
+		context.checking(new Expectations() {{
+			oneOf(state).functionParameter("f.x"); will(returnValue(ut));
+			oneOf(nv).result(ut);
+		}});
+		UnresolvedVar uv = new UnresolvedVar(pos, "x");
+		uv.bind(funcVar);
+		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
+		tc.visitUnresolvedVar(uv, 0);
 	}
 }

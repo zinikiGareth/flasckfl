@@ -139,7 +139,7 @@ public class GenTestsForHandlers {
 			oneOf(eval).classConst(container + "$MyHandler"); will(returnValue(new ClassConstExpr(eval, container + "$MyHandler")));
 			oneOf(eval).makeNew(with(J.FLCURRY), with(any(IExpr[].class)));
 			oneOf(eval).returnObject(with(any(IExpr.class)));
-			oneOf(eval).ifOp(with(162), with(aNull(IExpr.class)), with(any(Expr.class)), with(any(IExpr.class)), with(any(IExpr.class))); will(returnValue(expr));
+			oneOf(eval).ifOp(with(162), with(any(IExpr.class)), with(any(IExpr.class)), with(any(IExpr.class)), with(any(IExpr.class))); will(returnValue(expr));
 		}});
 	}
 

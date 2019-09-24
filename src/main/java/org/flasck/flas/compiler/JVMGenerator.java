@@ -111,7 +111,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void switchOn(Slot slot) {
-		Expr in = meth.arrayItem(J.OBJECT, fargs, 0);
+		IExpr in = meth.arrayItem(J.OBJECT, fargs, 0);
 		AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
 		meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
 		currentSwitch = var;
@@ -225,6 +225,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 				IExpr args = meth.arrayOf(J.OBJECT, provided);
 				stack.add(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
 			}
+		} else if (defn instanceof VarPattern) {
+			IExpr in = meth.arrayItem(J.OBJECT, fargs, 0);
+			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
+			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
 		} else
 			throw new NotImplementedException();
 	}

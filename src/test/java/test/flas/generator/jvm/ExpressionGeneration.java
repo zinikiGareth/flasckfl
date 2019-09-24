@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -19,8 +20,10 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -31,6 +34,7 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.mock.VarMatcher;
 
 public class ExpressionGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -85,9 +89,25 @@ public class ExpressionGeneration {
 		gen.visitExpr(expr, 2);
 	}
 
-	// TODO: A struct constructor of no args becomes an actual eval ... (eg Nil)
-	// TODO: A var with no args expecting 2 becomes a curried function ...
-	
+	@Test
+	public void aFunctionArgument() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "x");
+		FunctionName nameX = FunctionName.function(pos, pkg, "x");
+		expr.bind(new VarPattern(pos, new VarName(pos, nameX, "p")));
+		Var ax = null;
+		IExpr cx = context.mock(IExpr.class, "cx");
+		IExpr args = context.mock(IExpr.class, "args");
+		IExpr head0 = context.mock(IExpr.class, "head0");
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, ax, 0); will(returnValue(args));
+			oneOf(meth).nextLocal(); will(returnValue(18));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
+			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0));
+		}});
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, cx));
+		gen.visitExpr(expr, 2);
+	}
+
 	@Test
 	public void aVarWithNoArgsExpectingNoArgsBecomesAClosureByItself() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");

@@ -7,6 +7,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
@@ -15,9 +16,11 @@ import org.flasck.flas.repository.ResultAware;
 public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	private final RepositoryReader r;
 	private final NestedVisitor nv;
+	private final CurrentTCState state;
 
-	public ExpressionChecker(RepositoryReader repository, NestedVisitor nv) {
+	public ExpressionChecker(RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
 		this.r = repository;
+		this.state = state;
 		this.nv = nv;
 	}
 	
@@ -33,13 +36,18 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
+		if (var == null || var.defn() == null)
+			throw new NullPointerException("undefined var: " + var);
 		if (var.defn() instanceof StructDefn) {
 			nv.result(var.defn());
 		} else if (var.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) var.defn();
 			nv.result(fn.type());
+		} else if (var.defn() instanceof VarPattern) {
+			VarPattern vp = (VarPattern) var.defn();
+			nv.result(state.functionParameter(vp.name().uniqueName()));
 		} else
-			throw new RuntimeException("Cannot handle " + var);
+			throw new RuntimeException("Cannot handle " + var.defn() + " of type " + var.defn().getClass());
 	}
 	
 	@Override
@@ -55,7 +63,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
-		nv.push(new ApplyExpressionChecker(r, nv));
+		nv.push(new ApplyExpressionChecker(r, state, nv));
 	}
 	
 	@Override

@@ -16,6 +16,7 @@ import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
+import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeChecker;
@@ -30,6 +31,7 @@ public class StackVisitation {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
+	private CurrentTCState state = context.mock(CurrentTCState.class);
 
 	@Test
 	public void whenWeVisitAFunctionIntroWePushAnExpressionMatcher() {
@@ -65,7 +67,7 @@ public class StackVisitation {
 
 	@Test
 	public void applyExpressionsPushAnotherMatcher() {
-		ExpressionChecker ec = new ExpressionChecker(repository, nv);
+		ExpressionChecker ec = new ExpressionChecker(repository, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ApplyExpressionChecker.class)));
 		}});
@@ -78,7 +80,7 @@ public class StackVisitation {
 
 	@Test
 	public void applyExpressionCheckerAutoPushesOnExpr() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(repository, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(repository, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ExpressionChecker.class)));
 		}});
@@ -88,7 +90,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionWithValidTypesReturnsResult() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(repository, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(repository, state, nv);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		context.checking(new Expectations() {{

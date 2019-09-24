@@ -2,8 +2,10 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
-public class PolyType implements Locatable {
+public class PolyType implements Locatable, Type {
 	private InputPosition location;
 	private String name;
 
@@ -23,5 +25,20 @@ public class PolyType implements Locatable {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public String signature() {
+		return name;
+	}
+
+	@Override
+	public int argCount() {
+		return 0;
+	}
+
+	@Override
+	public Type get(int pos) {
+		throw new NotImplementedException();
 	}
 }

@@ -17,6 +17,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final List<Type> types = new ArrayList<>();
 	private Type exprType;
+	private CurrentTCState state;
 
 	public TypeChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
 		this.repository = repository;
@@ -26,12 +27,14 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		// TODO: this should happen on "function dependency group", but we don't have that yet
+		this.state = new FunctionGroupTCState();
 		types.clear();
 	}
 	
 	@Override
 	public void visitFunctionIntro(FunctionIntro fi) {
-		sv.push(new ExpressionChecker(repository, sv));
+		sv.push(new ExpressionChecker(repository, state, sv));
 	}
 	
 	@Override
@@ -47,7 +50,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 		else {
 			Type[] atypes = new Type[tree.width() + 1];
 			for (int i=0;i<tree.width();i++) {
-				atypes[i] = tree.get(i).minimalType(repository);
+				atypes[i] = tree.get(i).minimalType(state, repository);
 			}
 			atypes[atypes.length-1] = exprType;
 			types.add(new Apply(atypes));
