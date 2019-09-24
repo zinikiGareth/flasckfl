@@ -19,4 +19,5 @@ public interface HSIOptions {
 	List<VarName> vars();
 	List<Type> types();
 	boolean hasSwitches();
+	int score();
 }

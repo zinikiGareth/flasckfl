@@ -92,4 +92,14 @@ public class HSIPatternOptions implements HSIOptions {
 	public boolean hasSwitches() {
 		return !this.ctors.isEmpty();
 	}
+	
+	@Override
+	public int score() {
+		int score = types.size() + ctors.size()*3;
+		// Any is not really a restriction and we shouldn't really switch on it
+		// But it makes the typechecker "happy".
+		if (types.containsKey("Any"))
+			score--;
+		return score;
+	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -49,10 +50,9 @@ public class HSIPatternTree implements HSITree {
 		else if (slots.isEmpty() && intros.size() == 1)
 			handleInline(traverser, hsi, intros.get(0));
 		else {
-			if (slots.size() != 1)
-				throw new NotImplementedException();
-			HSIOptions slot = this.slots.get(0); // should select using some kind of "which-is-best" algorithm
-			Slot s = slots.get(0);
+			int which = selectSlot();
+			HSIOptions slot = this.slots.get(which); // should select using some kind of "which-is-best" algorithm
+			Slot s = slots.get(which);
 			if (slot.hasSwitches()) {
 				hsi.switchOn(s);
 				Set<String> ctors = slot.ctors();
@@ -64,8 +64,8 @@ public class HSIPatternTree implements HSITree {
 					handleInline(traverser, hsi, cm.intros().get(0));
 				}
 			} else {
-				if (!slot.vars().isEmpty())
-					hsi.bind(s, slot.vars().get(0).var);
+				for (VarName v : slot.vars())
+					hsi.bind(s, v.var);
 				handleInline(traverser, hsi, intros.get(0));
 			}
 			if (slot.hasSwitches()) {
@@ -73,6 +73,23 @@ public class HSIPatternTree implements HSITree {
 				hsi.endSwitch();
 			}
 		}
+	}
+
+	public int selectSlot() {
+		if (slots.size() == 1)
+			return 0;
+		int which = 0;
+		double score = -1;
+		int i = 0;
+		for (HSIOptions s : slots) {
+			double ms = s.score();
+			if (ms > score) {
+				which = i;
+				score = ms;
+			}
+			i++;
+		}
+		return which;
 	}
 
 	private void handleInline(Traverser traverser, HSIVisitor hsi, FunctionIntro i) {
