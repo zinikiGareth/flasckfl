@@ -1,1 +1,2 @@
+test.golden.const :: A->Any->A
 test.golden.id :: A->A

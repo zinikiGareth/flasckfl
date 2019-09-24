@@ -9,3 +9,9 @@
 	test id of list
 		assert (id Nil)
 			Nil
+			
+	test const of number
+		assert (const 3 "hello")
+			3
+			
+	
