@@ -81,8 +81,10 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
-		slots.add(new ArgSlot(0));
+		ArgSlot s0 = new ArgSlot(0);
+		slots.add(s0);
 		context.checking(new Expectations() {{
+			oneOf(hsi).bind(s0, "x");
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);

@@ -28,6 +28,11 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr boundVar(String var) {
+		return new JSBoundVar(var);
+	}
+	
+	@Override
 	public JSExpr pushFunction(String meth) {
 		JSPushFunction stmt = new JSPushFunction(creating, meth);
 		stmts.add(stmt);
@@ -64,9 +69,6 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSClosure curry(int expArgs, JSExpr... args) {
-//		JSClosure stmt = new JSClosure(this, args);
-//		stmts.add(stmt);
-//		return stmt;
 		return null;
 	}
 
@@ -80,6 +82,11 @@ public class JSBlock implements JSBlockCreator {
 	public void returnObject(JSExpr jsExpr) {
 		JSReturn stmt = new JSReturn(jsExpr);
 		stmts.add(stmt);
+	}
+
+	@Override
+	public void bindVar(String slot, String var) {
+		stmts.add(new JSBind(slot, var));
 	}
 
 	@Override

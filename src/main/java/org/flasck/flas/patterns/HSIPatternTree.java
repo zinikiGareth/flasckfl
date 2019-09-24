@@ -63,8 +63,11 @@ public class HSIPatternTree implements HSITree {
 						throw new NotImplementedException();
 					handleInline(traverser, hsi, cm.intros().get(0));
 				}
-			} else
+			} else {
+				if (!slot.vars().isEmpty())
+					hsi.bind(s, slot.vars().get(0).var);
 				handleInline(traverser, hsi, intros.get(0));
+			}
 			if (slot.hasSwitches()) {
 				hsi.errorNoCase();
 				hsi.endSwitch();

@@ -91,8 +91,8 @@ public class ExpressionGeneration {
 
 	@Test
 	public void aFunctionArgument() {
-		UnresolvedVar expr = new UnresolvedVar(pos, "x");
-		FunctionName nameX = FunctionName.function(pos, pkg, "x");
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		FunctionName nameX = FunctionName.function(pos, pkg, "p");
 		expr.bind(new VarPattern(pos, new VarName(pos, nameX, "p")));
 		Var ax = null;
 		IExpr cx = context.mock(IExpr.class, "cx");

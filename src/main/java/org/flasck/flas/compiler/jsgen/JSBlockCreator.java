@@ -6,6 +6,7 @@ public interface JSBlockCreator {
 	JSExpr literal(String text);
 	JSExpr string(String string);
 	JSExpr structConst(String name);
+	void bindVar(String slot, String var);
 	void head(String var);
 	JSIfExpr ifCtor(String var, String ctor);
 	void errorNoCase();
@@ -16,6 +17,7 @@ public interface JSBlockCreator {
 	JSExpr curry(int expArgs, JSExpr... args);
 	void returnObject(JSExpr jsExpr);
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
+	JSExpr boundVar(String var);
 
 	void write(IndentWriter w);
 }

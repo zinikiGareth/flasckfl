@@ -24,7 +24,7 @@ public class HSIPatternOptions implements HSIOptions {
 			this.var = var;
 		}
 	}
-	private List<String> vars = new ArrayList<>();
+	private List<VarName> vars = new ArrayList<>();
 	private Map<String, TV> types = new TreeMap<>(); 
 	private Map<String, HSITree> ctors = new TreeMap<>();
 
@@ -40,8 +40,7 @@ public class HSIPatternOptions implements HSIOptions {
 	
 	@Override
 	public void addVar(VarName varName) {
-		String key = varName.uniqueName();
-		vars.add(key);
+		vars.add(varName);
 	}
 
 	@Override
@@ -55,7 +54,7 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public List<String> vars() {
+	public List<VarName> vars() {
 		return vars;
 	}
 
@@ -75,7 +74,7 @@ public class HSIPatternOptions implements HSIOptions {
 			return types.values().iterator().next().type;
 		else if (ctors.isEmpty() && types.isEmpty() && !vars.isEmpty()) {
 			// TODO: need to consolidate all the vars in this slot
-			UnifiableType ut = state.hasVar(vars.get(0));
+			UnifiableType ut = state.hasVar(vars.get(0).uniqueName());
 			if (ut == null)
 				return repository.get("Any");
 			else

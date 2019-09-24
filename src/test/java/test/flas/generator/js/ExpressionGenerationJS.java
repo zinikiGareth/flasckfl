@@ -8,6 +8,8 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
@@ -22,12 +24,15 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.tc3.Primitive;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.Var;
 
 public class ExpressionGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -66,7 +71,20 @@ public class ExpressionGenerationJS {
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
 		gen.visitExpr(expr, 2);
 	}
-
+	
+	@Test
+	public void aFunctionArgument() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		FunctionName nameX = FunctionName.function(pos, pkg, "p");
+		expr.bind(new VarPattern(pos, new VarName(pos, nameX, "p")));
+		JSExpr cx = context.mock(JSExpr.class, "cx");
+		context.checking(new Expectations() {{
+			oneOf(meth).boundVar("p");
+		}});
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, cx));
+		gen.visitExpr(expr, 2);
+	}
+	
 	@Test
 	public void aVarWithNoArgsExpectingNoArgsBecomesAClosureByItself() {
 		JSExpr x = context.mock(JSExpr.class, "f");

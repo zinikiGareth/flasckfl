@@ -71,6 +71,9 @@ public class TestEnvironment {
 	public void checkTestResults() {
 		if (haveTests() && (useJSRunner || useJVMRunner)) {
 			FileUtils.assertDirectory(testReports);
+			for (String f : testReportTo.list()) {
+				FileUtils.assertFile(new File(testReports, f));
+			}
 			assertGolden(testReports, testReportTo);
 		}
 	}

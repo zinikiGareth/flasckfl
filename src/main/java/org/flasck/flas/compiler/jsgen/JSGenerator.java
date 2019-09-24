@@ -14,11 +14,13 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.WithTypeSignature;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	private final JSStorage jse;
@@ -85,6 +87,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	}
 
 	@Override
+	public void bind(Slot slot, String var) {
+		this.meth.bindVar("_0", var);
+	}
+
+	@Override
 	public void startInline(FunctionIntro fi) {
 		// TODO Auto-generated method stub
 		
@@ -145,7 +152,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
 				stack.add(block.structConst(defn.name().jsName()));
 			}
-		}
+		} else if (defn instanceof VarPattern) {
+			stack.add(block.boundVar(((VarPattern)defn).var));
+		} else
+			throw new NotImplementedException();
 	}
 
 	@Override

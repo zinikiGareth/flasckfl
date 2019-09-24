@@ -1,0 +1,11 @@
+	test id of number
+		assert (id 3)
+			3
+			
+	test id of string
+		assert (id "hello")
+			"hello"
+			
+	test id of list
+		assert (id Nil)
+			Nil

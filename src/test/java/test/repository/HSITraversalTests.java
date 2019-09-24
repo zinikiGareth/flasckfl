@@ -1,5 +1,6 @@
 package test.repository;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -38,17 +40,18 @@ public class HSITraversalTests {
 	final FunctionName fname = FunctionName.function(pos, pkg, "f");
 	final Traverser t = new Traverser(v);
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aSimpleVarBindsItAndThenJustEvalsTheExpression() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
 		VarName vx = new VarName(pos, fname, "x");
 		CaptureAction slots = new CaptureAction(null);
+		CaptureAction boundSlot = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
-			// bind first slot to vx ...
+			oneOf(v).bind(with(any(Slot.class)), with("x")); will(boundSlot);
 			oneOf(v).startInline(fi);
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
@@ -64,9 +67,11 @@ public class HSITraversalTests {
 		fn.intro(fi);
 		
 		t.visitFunction(fn);
+		context.assertIsSatisfied();
 		
 		Object allSlots = slots.get(0);
 		assertTrue(allSlots instanceof List);
+		assertEquals(boundSlot.get(0), ((List)allSlots).get(0));
 	}
 
 	@SuppressWarnings("unchecked")

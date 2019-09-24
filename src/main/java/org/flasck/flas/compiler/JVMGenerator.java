@@ -134,6 +134,22 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	}
 
 	@Override
+	public void bind(Slot slot, String var) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startInline(FunctionIntro fi) {
+//		throw new NotImplementedException();
+	}
+
+	@Override
+	public void endInline(FunctionIntro fi) {
+//		throw new NotImplementedException();
+	}
+
+	@Override
 	public void endSwitch() {
 		IExpr ret = null;
 		for (int i=switches.size()-1;i>=0;i--) {
@@ -146,16 +162,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isA", fcx, si.switchOn, meth.stringConst(si.ctor)), si.expr, ret);
 		}
 		ret.flush();
-	}
-
-	@Override
-	public void startInline(FunctionIntro fi) {
-//		throw new NotImplementedException();
-	}
-
-	@Override
-	public void endInline(FunctionIntro fi) {
-//		throw new NotImplementedException();
 	}
 	
 	@Override
@@ -229,6 +235,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 			IExpr in = meth.arrayItem(J.OBJECT, fargs, 0);
 			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
 			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
+			stack.add(var);
 		} else
 			throw new NotImplementedException();
 	}

@@ -16,7 +16,7 @@ public interface HSIOptions {
 	HSITree getCM(String constructor);
 	Type minimalType(CurrentTCState state, RepositoryReader repository);
 	Set<String> ctors();
-	List<String> vars();
+	List<VarName> vars();
 	List<Type> types();
 	boolean hasSwitches();
 }

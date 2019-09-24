@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jsgen.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
@@ -16,6 +17,8 @@ import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
@@ -82,6 +85,36 @@ public class FunctionGenerationJS {
 		HSIPatternTree hsi = new HSIPatternTree(1);
 		hsi.consider(fi);
 		hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+		fn.bindHsi(hsi);
+		new Traverser(gen).visitFunction(fn);
+	}
+
+	@Test
+	public void functionArgsAreBoundToRealVars() {
+		JSExpr ret = context.mock(JSExpr.class, "ret");
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		context.checking(new Expectations() {{
+			oneOf(jss).newFunction("test.repo", "f"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("_0"); will(returnValue(slot0));
+			oneOf(meth).bindVar("_0", "x");
+			oneOf(meth).boundVar("x"); will(returnValue(ret));
+			oneOf(meth).returnObject(ret);
+		}});
+		FunctionName name = FunctionName.function(pos, pkg, "f");
+		VarName vnx = new VarName(pos, name, "x");
+		JSGenerator gen = new JSGenerator(jss);
+		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+		UnresolvedVar ex = new UnresolvedVar(pos, "x");
+		ex.bind(new VarPattern(pos, vnx));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, ex);
+		fi.functionCase(fcd);
+		fn.intro(fi);
+		HSIPatternTree hsi = new HSIPatternTree(1);
+		hsi.consider(fi);
+		hsi.get(0).addVar(vnx);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
