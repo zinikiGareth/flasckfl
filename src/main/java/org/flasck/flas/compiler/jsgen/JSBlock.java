@@ -73,6 +73,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr makeArray(JSExpr... args) {
+		JSMakeArray ma = new JSMakeArray(creating, args);
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
 	public void assertable(JSExpr obj, String assertion, JSExpr... args) {
 		JSAssertion stmt = new JSAssertion(obj, assertion, args);
 		stmts.add(stmt);

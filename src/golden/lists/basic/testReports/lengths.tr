@@ -1,2 +1,8 @@
 JVM PASS length of l0 is 0
+JVM PASS length of l1 is 1
+JVM PASS length of l2 is 2
+JVM PASS length of l3 is 3
 JS PASS length of l0 is 0
+JS PASS length of l1 is 1
+JS PASS length of l2 is 2
+JS PASS length of l3 is 3

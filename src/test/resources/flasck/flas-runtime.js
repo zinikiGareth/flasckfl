@@ -25,6 +25,10 @@ FLContext.prototype.closure = function(fn, ...args) {
 	return new FLClosure(fn, args);
 }
 
+FLContext.prototype.array = function(...args) {
+	return args;
+}
+
 FLContext.prototype.head = function(obj) {
 	if (obj instanceof FLClosure)
 		obj = obj.eval(this);

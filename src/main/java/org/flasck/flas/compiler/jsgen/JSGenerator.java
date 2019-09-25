@@ -166,6 +166,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
 				stack.add(block.structConst(myName));
 			}
+			// TODO: I think we should do something here ...
 		} else if (defn instanceof VarPattern) {
 			stack.add(block.boundVar(((VarPattern)defn).var));
 		} else
@@ -186,7 +187,15 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	}
 
 	private void makeClosure(WithTypeSignature defn, int depth, int expArgs) {
-		if (defn instanceof StructDefn && depth > 0) {
+		if (defn.name().uniqueName().equals("Nil")) {
+			JSExpr[] args = new JSExpr[depth];
+			int k = stack.size()-depth;
+			for (int i=0;i<depth;i++)
+				args[i] = stack.remove(k);
+			if (depth == 0) // This is a hack because we don't actually push MakeArray above for some reason ...
+				stack.remove(k-1); // the "Nil" or "MakeArray" that was pushed
+			stack.add(block.makeArray(args));
+		} else if (defn instanceof StructDefn && depth > 0) {
 			// do the creation immediately
 			// Note that we didn't push anything onto the stack earlier ...
 			// TODO: I think we need to cover the currying case separately ...
@@ -268,5 +277,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner) {
 		return new JSGenerator(meth, runner);
+	}
+
+	public boolean stackIsSize(int size) {
+		return stack.size() == size;
 	}
 }

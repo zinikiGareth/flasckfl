@@ -1,5 +1,7 @@
 package test.flas.generator.js;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -254,5 +256,42 @@ public class ExpressionGenerationJS {
 		}});
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
 		gen.visitExpr(expr, 0);
+	}
+	
+	@Test
+	public void anEmptyListIsNil() {
+		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
+		op.bind(new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0));
+		ApplyExpr expr = new ApplyExpr(pos, op);
+		JSExpr nil = context.mock(JSExpr.class, "nil");
+		JSExpr ex = context.mock(JSExpr.class, "expr");
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("Nil"); will(returnValue(nil));
+			oneOf(meth).closure(nil); will(returnValue(ex));
+		}});
+		JSGenerator jsg = JSGenerator.forTests(meth, null);
+		Traverser gen = new Traverser(jsg);
+		gen.visitExpr(expr, 0);
+		assertTrue(jsg.stackIsSize(1));
+	}
+	
+	@Test
+	public void aSingletonListUsesMakeArray() {
+		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
+		op.bind(new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0));
+		NumericLiteral nl = new NumericLiteral(pos, "42", 2);
+		ApplyExpr expr = new ApplyExpr(pos, op, nl);
+		JSExpr maop = context.mock(JSExpr.class, "maop");
+		JSExpr lit = context.mock(JSExpr.class, "lit");
+		JSExpr ma = context.mock(JSExpr.class, "ma");
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("MakeArray"); will(returnValue(maop));
+			oneOf(meth).literal("42"); will(returnValue(lit));
+			oneOf(meth).closure(maop, lit); will(returnValue(ma));
+		}});
+		JSGenerator jsg = JSGenerator.forTests(meth, null);
+		Traverser gen = new Traverser(jsg);
+		gen.visitExpr(expr, 0);
+		assertTrue(jsg.stackIsSize(1));
 	}
 }

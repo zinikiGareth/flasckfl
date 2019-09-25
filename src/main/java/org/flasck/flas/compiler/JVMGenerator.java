@@ -264,7 +264,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 		for (int i=0;i<depth;i++)
 			provided.add(stack.remove(k));
 		IExpr args = meth.arrayOf(J.OBJECT, provided);
-		if (defn instanceof StructDefn && !provided.isEmpty()) {
+		if (defn.name().uniqueName().equals("Nil")) {
+			stack.add(meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args));
+		} else if (defn instanceof StructDefn && !provided.isEmpty()) {
 			// do the creation immediately
 			// Note that we didn't push anything onto the stack earlier ...
 			// TODO: I think we need to cover the currying case separately ...

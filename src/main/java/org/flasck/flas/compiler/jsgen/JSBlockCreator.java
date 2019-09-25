@@ -5,6 +5,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public interface JSBlockCreator {
 	JSExpr literal(String text);
 	JSExpr string(String string);
+	JSExpr makeArray(JSExpr... args);
 	JSExpr structConst(String name);
 	void bindVar(String slot, String var);
 	void head(String var);

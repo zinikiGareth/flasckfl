@@ -1,3 +1,16 @@
 	test length of l0 is 0
 		assert (length l0)
 			0
+			
+	test length of l1 is 1
+		assert (length l1)
+			1
+	
+	test length of l2 is 2
+		assert (length l2)
+			2
+	
+	test length of l3 is 3
+		assert (length l3)
+			3
+			
