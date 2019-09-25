@@ -93,22 +93,41 @@ if (typeof(module) !== 'undefined')
 	module.exports = FLError;
 else
 	window.FLError = FLError;
-Nil = function(_cxt) {
+const Nil = function() {
+}
+
+Nil.eval = function(_cxt) {
 	return [];
 }
 
-Cons = function(_cxt) {
-	return [];
+const Cons = function() {
 }
-True = function(_cxt) {
+
+Cons.eval = function(_cxt, hd, tl) {
+	return ["NotImplemented"];
+}
+
+if (typeof(module) !== 'undefined') {
+	module.exports = { Nil, Cons }
+} else {
+	window.Nil = Nil;
+	window.Cons = Cons;
+}
+const True = function() {
+}
+
+True.eval = function(_cxt) {
 	return true;
 }
 
-False = function(_cxt) {
+const False = function() {
+}
+
+False.eval = function(_cxt) {
 	return false;
 }
 
-FLBuiltin = function() {
+const FLBuiltin = function() {
 }
 
 FLBuiltin.plus = function(_cxt, a, b) {
@@ -124,7 +143,7 @@ FLBuiltin.mul = function(_cxt, a, b) {
 }
 
 if (typeof(module) !== 'undefined') {
-	module.exports = FLBuiltin;
+	module.exports = { False, True, FLBuiltin };
 } else {
 	window.FLBuiltin = FLBuiltin;
 }

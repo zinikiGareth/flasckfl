@@ -139,29 +139,35 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		RepositoryEntry defn = var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
+		generateFnOrCtor(defn, defn.name().jsName(), nargs);
+	}
+
+	@Override
+	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
+		RepositoryEntry defn = operator.defn();
+		if (defn == null)
+			throw new RuntimeException("operator " + operator + " was still not resolved");
+		generateFnOrCtor(defn, resolveOpName(operator.op), nargs);
+	}
+
+	private void generateFnOrCtor(RepositoryEntry defn, String myName, int nargs) {
 		if (defn instanceof FunctionDefinition) {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
-				stack.add(block.pushFunction(defn.name().jsName()));
+				stack.add(block.pushFunction(myName));
 				makeClosure(fn, 0, fn.argCount());
 			} else
-				stack.add(block.pushFunction(defn.name().jsName()));
+				stack.add(block.pushFunction(myName));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
 			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
-				stack.add(block.structConst(defn.name().jsName()));
+				stack.add(block.structConst(myName));
 			}
 		} else if (defn instanceof VarPattern) {
 			stack.add(block.boundVar(((VarPattern)defn).var));
 		} else
 			throw new NotImplementedException();
-	}
-
-	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
-		String opName = resolveOpName(operator.op);
-		stack.add(block.pushFunction(opName));
 	}
 
 	@Override

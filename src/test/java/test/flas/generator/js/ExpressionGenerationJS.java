@@ -156,6 +156,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).pushFunction("FLBuiltin.plus");
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
+		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
 		gen.visitExpr(expr, 2);
 	}

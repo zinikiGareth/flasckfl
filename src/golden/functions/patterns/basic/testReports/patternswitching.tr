@@ -1,6 +1,7 @@
 JVM PASS that we can have a simple constructor match
 JVM PASS anything else is an error because of typing
 JVM PASS that we can match Cons as a type
+JVM PASS that we can match Cons as a constructor
 JVM PASS that we can match True if present
 JVM PASS that we can match False if present
 JVM PASS that we can match two arguments correctly
@@ -11,6 +12,7 @@ JVM PASS that we can pass any number to a function expecting numbers
 JS PASS that we can have a simple constructor match
 JS PASS anything else is an error because of typing
 JS PASS that we can match Cons as a type
+JS PASS that we can match Cons as a constructor
 JS PASS that we can match True if present
 JS PASS that we can match False if present
 JS PASS that we can match two arguments correctly

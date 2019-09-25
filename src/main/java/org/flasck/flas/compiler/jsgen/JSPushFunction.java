@@ -16,15 +16,10 @@ public class JSPushFunction implements JSExpr {
 	public void write(IndentWriter w) {
 		if (var == null)
 			var = meth.obtainNextVar();
-		w.print("const " + var + " = ");
-		if ("Nil".equals(fn))
-			w.print("[]");
-		else if ("True".equals(fn))
-			w.print("true");
-		else if ("False".equals(fn))
-			w.print("false");
-		else
-			w.print(fn);
+		w.print("const ");
+		w.print(var);
+		w.print(" = ");
+		w.print(fn);
 		w.println(";");
 	}
 
