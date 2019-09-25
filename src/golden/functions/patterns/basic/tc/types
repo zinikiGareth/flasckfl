@@ -1,5 +1,8 @@
 test.golden.a :: Nil->Number
 test.golden.a2 :: Cons->Number
 test.golden.b :: Boolean->Number
+test.golden.d1 :: Nil->Number
+test.golden.d2 :: Any->Number
+test.golden.h :: Number->Number
 test.golden.k :: Any->Number
 test.golden.l :: Number->Number

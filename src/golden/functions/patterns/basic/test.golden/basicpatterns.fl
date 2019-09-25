@@ -11,13 +11,13 @@ a3 (Cons {head: a}) = a
 	b True = 0
 	b False = 1
 
-// Number->Number
-c 0 = 0
-c n = n - 1
+// Nil->Number
+	d1 Nil = 0
+	d1 x = 1
 
 // Any->Number
-d Nil = 0
-d x = 1
+	d2 Nil = 0
+	d2 (Any x) = 1
 
 // Cons[Any,Any]->Number
 e (Cons Nil Nil) = 0
@@ -30,12 +30,10 @@ f 3 = 0
 g "hello" = 1
 
 // Number->Number
-h (Number x) = 5
+	h (Number x) = 5
 
 // Any->Number
 	k x = 0
 	
 // Number->Number
 	l (Number x) = 0
-	
-... polymorphic ones need to go elsewhere (polypatterns.fl?)

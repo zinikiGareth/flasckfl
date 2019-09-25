@@ -68,10 +68,12 @@ public class HSIPatternOptions implements HSIOptions {
 
 	@Override
 	public Type minimalType(CurrentTCState state, RepositoryReader repository) {
-		if (ctors.size() == 1 && types.isEmpty() && vars.isEmpty())
+		if (ctors.size() == 1 && types.isEmpty())
 			return repository.get(ctors.keySet().iterator().next());
-		else if (ctors.isEmpty() && types.size() == 1 && vars.isEmpty())
+		else if (ctors.isEmpty() && types.size() == 1)
 			return types.values().iterator().next().type;
+		else if (types.containsKey("Any"))
+			return types.get("Any").type;
 		else if (ctors.isEmpty() && types.isEmpty() && !vars.isEmpty()) {
 			// TODO: need to consolidate all the vars in this slot
 			UnifiableType ut = state.hasVar(vars.get(0).uniqueName());
