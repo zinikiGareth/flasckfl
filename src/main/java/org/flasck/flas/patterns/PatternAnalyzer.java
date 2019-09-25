@@ -46,7 +46,7 @@ public class PatternAnalyzer extends LeafAdapter{
 	
 	@Override
 	public void visitTypedPattern(TypedPattern p) {
-		slot.addTyped(p.type, p.var);
+		slot.addTyped(p.type, p.var, current);
 	}
 	
 	@Override

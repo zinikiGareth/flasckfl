@@ -5,7 +5,7 @@
 	a2 (Cons x) = 1
 
 // Cons->Number
-a3 (Cons {head: a}) = a
+	a3 (Cons {}) = 6 
 
 // Boolean->Number
 	b True = 0

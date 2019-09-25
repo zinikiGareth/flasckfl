@@ -70,7 +70,7 @@ public class PatternExtraction {
 		HSIPatternOptions po = new HSIPatternOptions();
 		TypeReference tr = new TypeReference(pos, "Number");
 		tr.bind(LoadBuiltins.number);
-		po.addTyped(tr, new VarName(pos, nameF, "v"));
+		po.addTyped(tr, new VarName(pos, nameF, "v"), null);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.number, ty);
@@ -81,10 +81,10 @@ public class PatternExtraction {
 		HSIPatternOptions po = new HSIPatternOptions();
 		TypeReference tr = new TypeReference(pos, "Number");
 		tr.bind(LoadBuiltins.number);
-		po.addTyped(tr, new VarName(pos, nameF, "t"));
+		po.addTyped(tr, new VarName(pos, nameF, "t"), null);
 		TypeReference a = new TypeReference(pos, "Any");
 		a.bind(LoadBuiltins.any);
-		po.addTyped(a, new VarName(pos, nameF, "a"));
+		po.addTyped(a, new VarName(pos, nameF, "a"), null);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.any, ty);

@@ -10,6 +10,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class HSIPatternTree implements HSITree {
@@ -51,17 +52,23 @@ public class HSIPatternTree implements HSITree {
 			handleInline(traverser, hsi, intros.get(0));
 		else {
 			int which = selectSlot();
-			HSIOptions slot = this.slots.get(which); // should select using some kind of "which-is-best" algorithm
+			HSIOptions slot = this.slots.get(which);
 			Slot s = slots.get(which);
 			if (slot.hasSwitches()) {
 				hsi.switchOn(s);
-				Set<String> ctors = slot.ctors();
-				for (String c : ctors) {
+				for (String c : slot.ctors()) {
 					hsi.withConstructor(c);
 					HSITree cm = slot.getCM(c);
 					if (cm.intros().size() != 1)
 						throw new NotImplementedException();
 					handleInline(traverser, hsi, cm.intros().get(0));
+				}
+				for (String ty : slot.types()) {
+					hsi.withConstructor(ty);
+					Set<FunctionIntro> remaining = slot.getIntrosForType(ty);
+					if (remaining.size() != 1)
+						throw new NotImplementedException();
+					handleInline(traverser, hsi, remaining.iterator().next());
 				}
 			} else {
 				for (VarName v : slot.vars())

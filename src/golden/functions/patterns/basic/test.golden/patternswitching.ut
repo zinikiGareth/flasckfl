@@ -10,6 +10,10 @@
 		assert (a2 Cons)
 			1
 			
+	test that we can match Cons as a constructor
+		assert (a3 Cons)
+			6
+			
 	test that we can match True if present
 		assert (b True)
 			0

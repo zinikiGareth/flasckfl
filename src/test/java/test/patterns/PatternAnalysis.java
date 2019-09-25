@@ -109,12 +109,17 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
-		slots.add(new ArgSlot(0));
+		ArgSlot s = new ArgSlot(0);
+		slots.add(s);
 		context.checking(new Expectations() {{
+			oneOf(hsi).switchOn(s);
+			oneOf(hsi).withConstructor("Number");
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
 		}});
 		fn.hsiTree().visit(new Traverser(hsi), hsi, slots);
 	}

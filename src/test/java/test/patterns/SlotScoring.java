@@ -26,15 +26,15 @@ public class SlotScoring {
 	@Test
 	public void oneTypeScores1() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"));
+		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"), null);
 		assertEquals(1, tree.score());
 	}
 
 	@Test
 	public void twoTypesScores2() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"));
-		tree.addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "n"));
+		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"), null);
+		tree.addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "n"), null);
 		assertEquals(2, tree.score());
 	}
 
@@ -56,8 +56,8 @@ public class SlotScoring {
 	@Test
 	public void letsFaceItAnyIsNotATypeRestriction() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"));
-		tree.addTyped(new TypeReference(pos, "Any"), new VarName(pos, nameF, "v"));
+		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"), null);
+		tree.addTyped(new TypeReference(pos, "Any"), new VarName(pos, nameF, "v"), null);
 		assertEquals(1, tree.score());
 	}
 
@@ -65,10 +65,10 @@ public class SlotScoring {
 	public void checkThingsAddUpTheWayYouWouldExpect() {
 		HSIPatternOptions tree = new HSIPatternOptions();
 		tree.addCM("Nil", new HSIPatternTree(0));
-		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"));
+		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"), null);
 		tree.addCM("Cons", new HSIPatternTree(2));
-		tree.addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "n"));
-		tree.addTyped(new TypeReference(pos, "Any"), new VarName(pos, nameF, "v"));
+		tree.addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "n"), null);
+		tree.addTyped(new TypeReference(pos, "Any"), new VarName(pos, nameF, "v"), null);
 		tree.addVar(new VarName(pos, nameF, "v"));
 		assertEquals(8, tree.score());
 	}

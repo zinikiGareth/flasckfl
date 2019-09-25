@@ -1,12 +1,14 @@
 package org.flasck.flas.patterns;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -18,6 +20,7 @@ public class HSIPatternOptions implements HSIOptions {
 	class TV {
 		Type type;
 		VarName var;
+		Set<FunctionIntro> intros = new HashSet<>();
 
 		public TV(Type type, VarName var) {
 			this.type = type;
@@ -34,8 +37,9 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public void addTyped(TypeReference tr, VarName varName) {
+	public void addTyped(TypeReference tr, VarName varName, FunctionIntro fi) {
 		types.put(tr.name(), new TV((Type)tr.defn(), varName));
+		types.get(tr.name()).intros.add(fi);
 	}
 	
 	@Override
@@ -49,6 +53,11 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
+	public Set<FunctionIntro> getIntrosForType(String ty) {
+		return types.get(ty).intros;
+	}
+
+	@Override
 	public Set<String> ctors() {
 		return ctors.keySet();
 	}
@@ -59,11 +68,8 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public List<Type> types() {
-		List<Type> ret = new ArrayList<>();
-		for (TV t : types.values())
-			ret.add(t.type);
-		return ret;
+	public Set<String> types() {
+		return types.keySet();
 	}
 
 	@Override
@@ -92,7 +98,7 @@ public class HSIPatternOptions implements HSIOptions {
 
 	@Override
 	public boolean hasSwitches() {
-		return !this.ctors.isEmpty();
+		return !this.ctors.isEmpty() || !this.types.isEmpty();
 	}
 	
 	@Override
