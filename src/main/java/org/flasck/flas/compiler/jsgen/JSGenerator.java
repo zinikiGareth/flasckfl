@@ -6,6 +6,8 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -139,7 +141,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		RepositoryEntry defn = var.defn();
 		if (defn == null)
 			throw new RuntimeException("var " + var + " was still not resolved");
-		generateFnOrCtor(defn, defn.name().jsName(), nargs);
+		generateFnOrCtor(defn, handleBuiltinName(defn), nargs);
 	}
 
 	@Override
@@ -147,7 +149,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		RepositoryEntry defn = operator.defn();
 		if (defn == null)
 			throw new RuntimeException("operator " + operator + " was still not resolved");
-		generateFnOrCtor(defn, resolveOpName(operator.op), nargs);
+		generateFnOrCtor(defn, resolveOpName(operator.op, nargs), nargs);
 	}
 
 	private void generateFnOrCtor(RepositoryEntry defn, String myName, int nargs) {
@@ -235,14 +237,30 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		stack.clear();
 	}
 	
-	private String resolveOpName(String op) {
+	private String handleBuiltinName(RepositoryEntry defn) {
+		NameOfThing name = defn.name();
+		if (name instanceof FunctionName && ((FunctionName)name).inContext == null) {
+			String un = name.uniqueName();
+			if (un.equals("length"))
+				un = "arr_length";
+			return "FLBuiltin." + un;
+		} else
+			return name.jsName();
+	}
+
+	private String resolveOpName(String op, int nargs) {
 		switch (op) {
 		case "+":
 			return "FLBuiltin.plus";
 		case "*":
 			return "FLBuiltin.mul";
 		case "[]":
-			return "Nil";
+		{
+			if (nargs == 0)
+				return "Nil";
+			else
+				return "MakeArray";
+		}
 		default:
 			throw new RuntimeException("There is no operator " + op);
 		}

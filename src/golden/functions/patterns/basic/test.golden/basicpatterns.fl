@@ -23,10 +23,6 @@
 	d2 Nil = 0
 	d2 (Any x) = 1
 
-// Cons[Any,Any]->Number
-e (Cons Nil Nil) = 0
-e (Cons x y) = 1
-
 // Number->Number
 f 3 = 0
 

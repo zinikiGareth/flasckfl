@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
@@ -41,6 +42,10 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
+		if (expr.fn instanceof UnresolvedOperator && ((UnresolvedOperator)expr.fn).op.equals("[]")) {
+			handleListBuilder(expr);
+			return;
+		}
 		Type fn = results.remove(0);
 		if (fn.argCount() != results.size())
 			throw new RuntimeException("should be an error or a curry case");
@@ -67,5 +72,16 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		if (results.size() > 1)
 			throw new RuntimeException("need to build up a function type");
 		nv.result(fn.get(pos));
+	}
+
+	private void handleListBuilder(ApplyExpr expr) {
+		if (expr.args.isEmpty()) {
+			nv.result(r.get("Nil"));
+		} else {
+			// TODO: I think we need to check all the arguments TCed OK
+			// I think we need to make sure that they are all of the same type, but can we allow a "mixed" list?
+			// Specifically, surely we can allow a list of Union types?  Even if only some of them are included?
+			nv.result(r.get("Cons"));
+		}
 	}
 }

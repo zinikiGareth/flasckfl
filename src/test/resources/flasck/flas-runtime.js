@@ -130,6 +130,13 @@ False.eval = function(_cxt) {
 const FLBuiltin = function() {
 }
 
+FLBuiltin.arr_length = function(_cxt, arr) {
+	arr = _cxt.head(arr);
+	if (!Array.isArray(arr))
+		throw new FLError("not an array");
+	return arr.length;
+}
+
 FLBuiltin.plus = function(_cxt, a, b) {
 	a = _cxt.full(a);
 	b = _cxt.full(b);
@@ -146,4 +153,6 @@ if (typeof(module) !== 'undefined') {
 	module.exports = { False, True, FLBuiltin };
 } else {
 	window.FLBuiltin = FLBuiltin;
+	window.True = True;
+	window.False = False;
 }

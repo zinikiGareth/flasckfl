@@ -1,0 +1,3 @@
+	test that a matching cons will return 1
+		assert (e [True])
+			1

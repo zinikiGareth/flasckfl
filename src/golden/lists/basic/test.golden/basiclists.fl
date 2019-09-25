@@ -1,0 +1,4 @@
+	l0 = []
+	l1 = [True]
+	l2 = [3,4]
+	l3 = ["hello", "there", "world"]

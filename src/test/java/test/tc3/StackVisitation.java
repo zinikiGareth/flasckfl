@@ -31,6 +31,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import test.patterns.PatternExtraction.REType;
+
 public class StackVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -199,6 +201,26 @@ public class StackVisitation {
 		ApplyExpr ae = new ApplyExpr(pos, op, uv, e2);
 		aec.result(fnt);
 		aec.result(ut);
+		aec.result(nbr);
+		aec.leaveApplyExpr(ae);
+	}
+
+	@Test
+	public void leaveApplyExpressionHandlesListsAsASpecialCase() {
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		REType cons = context.mock(REType.class, "cons");
+		Type fnt = context.mock(Type.class, "fn/2");
+		Type nbr = context.mock(Type.class, "nbr");
+		context.checking(new Expectations() {{
+			oneOf(repository).get("Cons"); will(returnValue(cons));
+			oneOf(nv).result(cons);
+		}});
+		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0);
+		op.bind(fn);
+		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
+		ApplyExpr ae = new ApplyExpr(pos, op, e1);
+		aec.result(fnt);
 		aec.result(nbr);
 		aec.leaveApplyExpr(ae);
 	}

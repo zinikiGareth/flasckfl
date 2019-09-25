@@ -1,0 +1,4 @@
+test.golden.l0 :: Nil
+test.golden.l1 :: Cons
+test.golden.l2 :: Cons
+test.golden.l3 :: Cons

@@ -1,0 +1,4 @@
+// Cons[True]->Number
+	e (Cons {head: True}) = 1
+	e x = 0
+

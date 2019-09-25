@@ -1,0 +1,3 @@
+	test length of l0 is 0
+		assert (length l0)
+			0
