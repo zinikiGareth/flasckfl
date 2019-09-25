@@ -11,6 +11,10 @@ a3 (Cons {head: a}) = a
 	b True = 0
 	b False = 1
 
+// Boolean->Nil->Number
+	c True Nil = 0
+	c False Nil = 1
+
 // Nil->Number
 	d1 Nil = 0
 	d1 x = 1

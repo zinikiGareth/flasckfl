@@ -18,6 +18,14 @@
 		assert (b False)
 			1
 			
+	test that we can match two arguments correctly
+		assert (c True Nil)
+			0
+			
+	test that we can go the other way
+		assert (c False Nil)
+			1
+			
 	test if a variable is ignored, it's value is irrelevant
 		assert (k 22)
 			0
