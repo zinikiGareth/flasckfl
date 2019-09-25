@@ -13,6 +13,10 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 	
 	@Override
+	public void incorporatedBy(Type incorporator) {
+	}
+
+	@Override
 	public String signature() {
 		if (t == null)
 			throw new NotImplementedException("Has not been resolved");
@@ -27,6 +31,11 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public Type get(int pos) {
 		throw new NotImplementedException();
+	}
+
+	@Override
+	public boolean incorporates(Type other) {
+		throw new NotImplementedException("The type algorithm should recognize us and call incorporatedBy instead");
 	}
 
 }

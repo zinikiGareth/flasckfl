@@ -1,0 +1,7 @@
+	test that we can add2 to 2
+		assert (add2 2)
+			4
+			
+	test that we can add2 to add2 to 2
+		assert (add2 (add2 2))
+			6

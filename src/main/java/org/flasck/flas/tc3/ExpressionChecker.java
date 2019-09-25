@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -17,8 +18,10 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	private final RepositoryReader r;
 	private final NestedVisitor nv;
 	private final CurrentTCState state;
+	private final ErrorReporter errors;
 
-	public ExpressionChecker(RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+		this.errors = errors;
 		this.r = repository;
 		this.state = state;
 		this.nv = nv;
@@ -63,7 +66,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
-		nv.push(new ApplyExpressionChecker(r, state, nv));
+		nv.push(new ApplyExpressionChecker(errors, r, state, nv));
 	}
 	
 	@Override

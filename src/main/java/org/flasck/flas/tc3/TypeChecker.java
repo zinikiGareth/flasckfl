@@ -13,6 +13,7 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 
 public class TypeChecker extends LeafAdapter implements ResultAware {
+	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
 	private final List<Type> types = new ArrayList<>();
@@ -20,6 +21,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	private CurrentTCState state;
 
 	public TypeChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
+		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
 		sv.push(this);
@@ -34,7 +36,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitFunctionIntro(FunctionIntro fi) {
-		sv.push(new ExpressionChecker(repository, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv));
 	}
 	
 	@Override

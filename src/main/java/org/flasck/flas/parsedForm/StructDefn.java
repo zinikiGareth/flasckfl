@@ -93,4 +93,10 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 	public InputPosition location() {
 		return location;
 	}
+
+	@Override
+	public boolean incorporates(Type other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

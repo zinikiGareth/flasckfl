@@ -1,0 +1,2 @@
+typeerrors.f  1.6:    f x =  _ "hello" + 3
+                          typing: Primitive[Number] Primitive[String]

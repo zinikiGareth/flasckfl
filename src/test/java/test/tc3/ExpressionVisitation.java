@@ -4,8 +4,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -23,10 +23,10 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.bytecode.IExpr;
 
 public class ExpressionVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 
@@ -39,7 +39,7 @@ public class ExpressionVisitation {
 			oneOf(repository).get("Number"); will(returnValue(tyNumber));
 			oneOf(nv).result(tyNumber);
 		}});
-		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitNumericLiteral(new NumericLiteral(pos, "42", 2));
 	}
 
@@ -52,7 +52,7 @@ public class ExpressionVisitation {
 			oneOf(repository).get("String"); will(returnValue(tyNumber));
 			oneOf(nv).result(tyNumber);
 		}});
-		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitStringLiteral(new StringLiteral(pos, "yoyo"));
 	}
 
@@ -66,7 +66,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "Nil");
 		uv.bind(tyNil);
-		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -82,7 +82,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(x);
-		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -98,7 +98,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedOperator uv = new UnresolvedOperator(pos, "+");
 		uv.bind(plus);
-		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitUnresolvedOperator(uv, 2);
 	}
 
@@ -112,7 +112,7 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(tyPlus);
 		}});
-		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.result(tyPlus);
 	}
 
@@ -129,7 +129,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);
-		ExpressionChecker tc = new ExpressionChecker(repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 }

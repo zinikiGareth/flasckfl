@@ -38,4 +38,10 @@ public class Apply implements Type {
 		return tys.get(pos);
 	}
 
+	@Override
+	public boolean incorporates(Type other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

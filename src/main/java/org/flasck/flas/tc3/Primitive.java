@@ -43,4 +43,9 @@ public class Primitive implements RepositoryEntry, Type {
 	public String toString() {
 		return "Primitive[" + name.uniqueName() + "]";
 	}
+
+	@Override
+	public boolean incorporates(Type other) {
+		return other instanceof Primitive && ((Primitive)other).name.uniqueName().equals(name.uniqueName());
+	}
 }

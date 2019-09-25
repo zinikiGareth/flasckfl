@@ -5,18 +5,22 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
+	private final ErrorReporter errors;
 	private final RepositoryReader r;
 	private final NestedVisitor nv;
 	private final List<Type> results = new ArrayList<>();
 	private final CurrentTCState state;
 
-	public ApplyExpressionChecker(RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+	public ApplyExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+		this.errors = errors;
 		this.r = repository;
 		this.state = state;
 		this.nv = nv;
@@ -24,7 +28,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(r, state, nv));
+		nv.push(new ExpressionChecker(errors, r, state, nv));
 	}
 	
 	@Override
@@ -41,8 +45,20 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			throw new RuntimeException("should be an error or a curry case");
 		int pos = 0;
 		while (!results.isEmpty()) {
-			/* ai = */ results.remove(0);
-			// TODO: should check type of ai
+			Type ai = results.remove(0);
+			if (ai instanceof ErrorType) {
+				nv.result(ai);
+				return;
+			}
+			Type fi = fn.get(pos);
+			if (ai instanceof UnifiableType) {
+				UnifiableType ut = (UnifiableType) ai;
+				ut.incorporatedBy(fi);
+			} else if (!fi.incorporates(ai)) {
+				errors.message(((Locatable)expr.args.get(pos)).location(), "typing: " + fi + " " + ai);
+				nv.result(new ErrorType());
+				return;
+			}
 			pos++;
 		}
 		// whatever is left is the type

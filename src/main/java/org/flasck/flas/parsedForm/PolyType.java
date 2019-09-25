@@ -41,4 +41,10 @@ public class PolyType implements Locatable, Type {
 	public Type get(int pos) {
 		throw new NotImplementedException();
 	}
+
+	@Override
+	public boolean incorporates(Type other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

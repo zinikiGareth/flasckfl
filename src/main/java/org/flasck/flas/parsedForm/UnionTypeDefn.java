@@ -84,4 +84,10 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 	public void dumpTo(PrintWriter pw) {
 		pw.println("Union[" + toString() + "]");
 	}
+
+	@Override
+	public boolean incorporates(Type other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
