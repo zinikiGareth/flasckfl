@@ -28,7 +28,6 @@ import org.flasck.flas.tc3.TypeChecker;
 import org.flasck.flas.tc3.UnifiableType;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -184,7 +183,7 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			oneOf(fnt).argCount(); will(returnValue(2));
 			oneOf(fnt).get(0); will(returnValue(nbr));
-			oneOf(ut).incorporatedBy(nbr);
+			oneOf(ut).incorporatedBy(pos, nbr);
 			oneOf(fnt).get(1); will(returnValue(nbr));
 			oneOf(nbr).incorporates(nbr); will(returnValue(true));
 			oneOf(fnt).get(2); will(returnValue(nbr));

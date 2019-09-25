@@ -124,7 +124,7 @@ public class ExpressionVisitation {
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).functionParameter("f.x"); will(returnValue(ut));
+			oneOf(state).functionParameter(pos, "f.x"); will(returnValue(ut));
 			oneOf(nv).result(ut);
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");

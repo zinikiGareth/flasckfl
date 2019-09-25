@@ -48,7 +48,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(fn.type());
 		} else if (var.defn() instanceof VarPattern) {
 			VarPattern vp = (VarPattern) var.defn();
-			nv.result(state.functionParameter(vp.name().uniqueName()));
+			nv.result(state.functionParameter(vp.location(), vp.name().uniqueName()));
 		} else
 			throw new RuntimeException("Cannot handle " + var.defn() + " of type " + var.defn().getClass());
 	}

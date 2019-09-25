@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
@@ -50,12 +51,13 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 				nv.result(ai);
 				return;
 			}
+			InputPosition loc = ((Locatable)expr.args.get(pos)).location();
 			Type fi = fn.get(pos);
 			if (ai instanceof UnifiableType) {
 				UnifiableType ut = (UnifiableType) ai;
-				ut.incorporatedBy(fi);
+				ut.incorporatedBy(loc, fi);
 			} else if (!fi.incorporates(ai)) {
-				errors.message(((Locatable)expr.args.get(pos)).location(), "typing: " + fi + " " + ai);
+				errors.message(loc, "typing: " + fi + " " + ai);
 				nv.result(new ErrorType());
 				return;
 			}
