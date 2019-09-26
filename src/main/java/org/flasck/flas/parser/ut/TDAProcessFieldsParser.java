@@ -34,7 +34,7 @@ public class TDAProcessFieldsParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
-		ExprToken send = ExprToken.from(toks);
+		ExprToken send = ExprToken.from(errors, toks);
 		if (send == null || !send.text.equals("<-")) {
 			errors.message(toks, "expected <-");
 			return new IgnoreNestedParser();

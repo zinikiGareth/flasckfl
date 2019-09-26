@@ -120,7 +120,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing envelope name");
 				return new IgnoreNestedParser();
 			}
-			ExprToken send = ExprToken.from(toks);
+			ExprToken send = ExprToken.from(errors, toks);
 			if (toks == null || !"<-".equals(send.text)) {
 				errors.message(toks, "wraps must have <-");
 				return new IgnoreNestedParser();

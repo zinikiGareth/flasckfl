@@ -72,7 +72,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			errors.message(line, "syntax error");
 			return null;
 		}
-		ExprToken tok = ExprToken.from(line);
+		ExprToken tok = ExprToken.from(errors, line);
 		if (!tok.text.equals("=")) {
 			errors.message(line, "syntax error");
 			return null;

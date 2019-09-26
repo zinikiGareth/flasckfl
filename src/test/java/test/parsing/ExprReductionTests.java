@@ -17,9 +17,10 @@ import org.junit.Test;
 public class ExprReductionTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private ExprTermConsumer builder = context.mock(ExprTermConsumer.class);
 	private final InputPosition pos = new InputPosition("-", 1, 0, "");
-	private final TDAStackReducer reducer = new TDAStackReducer(errors, builder);
+	private final TDAStackReducer reducer = new TDAStackReducer(tracker, builder);
 
 	@Test // 42
 	public void aLiteralByItselfIsNotFurtherReduced() {
@@ -737,7 +738,6 @@ public class ExprReductionTests {
 	public void itIsNotPossibleToHaveAnEmptyTuple() {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "empty tuples are not permitted");
-			oneOf(errors).message(pos, "syntax error");
 		}});
 		reducer.term(new Punctuator(pos, "("));
 		reducer.term(new Punctuator(pos.copySetEnd(12), ")"));

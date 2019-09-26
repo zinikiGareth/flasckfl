@@ -48,7 +48,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	public interface Visitor {

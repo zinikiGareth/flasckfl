@@ -30,7 +30,7 @@ public class TDAFunctionParser implements TDAParsing {
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable line) {
-		ExprToken t = ExprToken.from(line);
+		ExprToken t = ExprToken.from(errors, line);
 		if (t == null || t.type != ExprToken.IDENTIFIER)
 			return null;
 		final FunctionName fname = functionNamer.functionName(t.location, t.text);
@@ -52,7 +52,7 @@ public class TDAFunctionParser implements TDAParsing {
 		if (!line.hasMore()) {
 			return new TDAFunctionGuardedEquationParser(errors, intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case"));
 		}
-		ExprToken tok = ExprToken.from(line);
+		ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null || !tok.text.equals("=")) {
 			errors.message(line, "syntax error");
 			return null;

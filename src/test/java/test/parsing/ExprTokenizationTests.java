@@ -2,6 +2,8 @@ package test.parsing;
 
 import static org.junit.Assert.assertNull;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ExprTermConsumer;
 import org.flasck.flas.parser.TDAExprParser;
@@ -130,5 +132,15 @@ public class ExprTokenizationTests {
 			oneOf(builder).done(); inSequence(order);
 		}});
 		assertNull(parser.tryParsing(new Tokenizable("42+f'hello'")));
+	}
+	
+	@Test
+	public void anErrorInStringParsingIsAtACrediblePlace() {
+		context.checking(new Expectations() {{
+			allowing(builder).term(with(any(Expr.class)));
+			oneOf(errors).message(new InputPosition("test", 1, 15, ""), "unterminated string");
+			oneOf(builder).done();
+		}});
+		assertNull(parser.tryParsing(new Tokenizable("['hello', world']")));
 	}
 }

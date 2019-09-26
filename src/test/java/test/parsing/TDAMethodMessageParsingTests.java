@@ -19,6 +19,7 @@ import org.junit.Test;
 public class TDAMethodMessageParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errorsMock);
 	private MethodMessagesConsumer builder = context.mock(MethodMessagesConsumer.class);
 	private LastOneOnlyNestedParser nestedFunctionScope = context.mock(LastOneOnlyNestedParser.class);
 	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
@@ -37,7 +38,7 @@ public class TDAMethodMessageParsingTests {
 			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("fetchRoot"))).location("fred", 1, 0, 2)));
 			oneOf(builder).done();
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.fetchRoot"));
 		// I'm not sure if this is quite right, because of the weird thing about the final method being able to have an indented block for everybody
 		// That needs separate testing elsewhere
@@ -50,7 +51,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("get")), ExprMatcher.string("hello"))).location("fred", 1, 0, 2)));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.get 'hello'"));
 		// I'm not sure if this is quite right, because of the weird thing about the final method being able to have an indented block for everybody
 		// That needs separate testing elsewhere
@@ -63,7 +64,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x").with(ExprMatcher.number(42)).location("fred", 1, 2, 4)));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("x <- 42"));
 		assertTrue(nested instanceof LastOneOnlyNestedParser);
 	}
@@ -73,7 +74,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).assignMessage(with(AssignMessageMatcher.to("x", "y").with(ExprMatcher.number(42)).location("fred", 1, 4, 6)));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("x.y <- 42"));
 		assertTrue(nested instanceof LastOneOnlyNestedParser);
 	}
@@ -88,7 +89,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("no expression to send"));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<-"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -98,7 +99,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("no expression to send"));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("x <-"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -108,7 +109,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected <-"));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a.x 42"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -118,7 +119,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected <-"));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a x <- 42"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -128,7 +129,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected identifier"));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a .. x <- 42"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -138,7 +139,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected identifier"));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("'hello' <- 42"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -148,7 +149,7 @@ public class TDAMethodMessageParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected identifier"));
 		}});
-		TDAMethodMessageParser parser = new TDAMethodMessageParser(errorsMock, builder, nestedFunctionScope);
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a . 15 <- 42"));
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}

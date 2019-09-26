@@ -241,4 +241,19 @@ public class UnitTestStepParsingTests {
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}
+	
+	
+	@Test
+	public void testErrorsTurnUpInTheRightPlace() {
+		final Tokenizable line = UnitTestTopLevelParsingTests.line("assert (f ['hello', world'])");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(new InputPosition("fred", 1, 25, ""), "unterminated string");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(line);
+		assertTrue(nested instanceof IgnoreNestedParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+
 }

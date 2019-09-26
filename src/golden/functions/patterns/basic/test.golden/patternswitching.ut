@@ -29,7 +29,19 @@
 	test that we can go the other way
 		assert (c False Nil)
 			1
-			
+	
+	test the simple case of e
+		assert (e True [])
+			0
+	
+	test False and Nil will be 3
+		assert (e False [])
+			3
+	
+	test any False case will always be 3
+		assert (e False ['hello', world'])
+			3
+
 	test if a variable is ignored, it's value is irrelevant
 		assert (k 22)
 			0

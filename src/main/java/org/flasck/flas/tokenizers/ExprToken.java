@@ -1,6 +1,7 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 
 public class ExprToken {
 	public static final int IDENTIFIER = 1;
@@ -31,7 +32,7 @@ public class ExprToken {
 		this.text = from.text;
 	}
 
-	public static ExprToken from(Tokenizable line) {
+	public static ExprToken from(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -41,7 +42,7 @@ public class ExprToken {
 		if (Character.isJavaIdentifierStart(c))
 			return new ExprToken(IDENTIFIER, ValidIdentifierToken.from(line));
 		else if (c == '"' || c == '\'') {
-			String tok = StringToken.from(line);
+			String tok = StringToken.from(errors, line);
 			if (tok == null)
 				return null;
 			return new ExprToken(loc.copySetEnd(line.at()), STRING, tok);

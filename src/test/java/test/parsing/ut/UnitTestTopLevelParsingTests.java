@@ -33,10 +33,12 @@ import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
 import test.parsing.ExprMatcher;
+import test.parsing.LocalErrorTracker;
 
 public class UnitTestTopLevelParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private UnitTestNamer namer = context.mock(UnitTestNamer.class);
 	private UnitTestDefinitionConsumer builder = context.mock(UnitTestDefinitionConsumer.class);
 	private UnitDataFieldConsumer udc = context.mock(UnitDataFieldConsumer.class);
@@ -50,7 +52,7 @@ public class UnitTestTopLevelParsingTests {
 			oneOf(namer).unitTest(); will(returnValue(new UnitTestName(utfn, 4)));
 			oneOf(builder).testCase(with(UnitTestCaseMatcher.number(1).description("we can write anything here")));
 		}});
-		TDAUnitTestParser utp = new TDAUnitTestParser(errors, namer, builder);
+		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder);
 		TDAParsing nested = utp.tryParsing(line("test we can write anything here"));
 		assertTrue(nested instanceof TestStepParser);
 	}
@@ -62,7 +64,7 @@ public class UnitTestTopLevelParsingTests {
 			oneOf(namer).dataName(with(any(InputPosition.class)), with("x")); will(returnValue(FunctionName.function(pos, pkg, "x")));
 			oneOf(builder).data(with(any(UnitDataDeclaration.class))); will(captureIt);
 		}});
-		TDAUnitTestParser utp = new TDAUnitTestParser(errors, namer, builder);
+		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder);
 		TDAParsing nested = utp.tryParsing(line("data Number x <- 86"));
 		assertTrue(nested instanceof NoNestingParser);
 		
@@ -79,7 +81,7 @@ public class UnitTestTopLevelParsingTests {
 			oneOf(namer).dataName(with(any(InputPosition.class)), with("card")); will(returnValue(FunctionName.function(pos, pkg, "card")));
 			oneOf(builder).data(with(any(UnitDataDeclaration.class))); will(captureIt);
 		}});
-		TDAUnitTestParser utp = new TDAUnitTestParser(errors, namer, builder);
+		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder);
 		TDAParsing nested = utp.tryParsing(line("data SomeCard card"));
 		assertTrue(nested instanceof TDAProcessFieldsParser);
 		
@@ -94,7 +96,7 @@ public class UnitTestTopLevelParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(udc).field((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(ExprMatcher.number(86)));
 		}});
-		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(errors, udc);
+		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(tracker, udc);
 		TDAParsing nested = utp.tryParsing(line("x <- 86"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
@@ -107,7 +109,7 @@ public class UnitTestTopLevelParsingTests {
 			oneOf(udc).field((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(ExprMatcher.number(86)));
 			oneOf(udc).field((UnresolvedVar) with(ExprMatcher.unresolved("y")), with(ExprMatcher.string("hello")));
 		}});
-		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(errors, udc);
+		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(tracker, udc);
 		TDAParsing nested = utp.tryParsing(line("x <- 86"));
 		assertTrue(nested instanceof NoNestingParser);
 		utp.tryParsing(line("y <- 'hello'"));
@@ -120,7 +122,7 @@ public class UnitTestTopLevelParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "at least one field assignment must be specified");
 		}});
-		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(errors, udc);
+		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(tracker, udc);
 		utp.scopeComplete(pos);
 	}
 
@@ -130,7 +132,7 @@ public class UnitTestTopLevelParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDAUnitTestParser utp = new TDAUnitTestParser(errors, namer, builder);
+		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -141,7 +143,7 @@ public class UnitTestTopLevelParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDAUnitTestParser utp = new TDAUnitTestParser(errors, namer, builder);
+		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -152,7 +154,7 @@ public class UnitTestTopLevelParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "test case must have a description");
 		}});
-		TDAUnitTestParser utp = new TDAUnitTestParser(errors, namer, builder);
+		TDAUnitTestParser utp = new TDAUnitTestParser(tracker, namer, builder);
 		TDAParsing nested = utp.tryParsing(line);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}

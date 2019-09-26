@@ -26,7 +26,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		nestedParser.anotherParent();
-		ExprToken tok = ExprToken.from(toks);
+		ExprToken tok = ExprToken.from(errors, toks);
 		List<Expr> seen = new ArrayList<>();
 		if ("<-".equals(tok.text)) {
 			InputPosition pos = tok.location;
@@ -46,9 +46,9 @@ public class TDAMethodMessageParser implements TDAParsing {
 				haveDot = false;
 				UnresolvedVar v = new UnresolvedVar(tok.location, tok.text);
 				slots.add(v);
-				tok = ExprToken.from(toks);
+				tok = ExprToken.from(errors, toks);
 				if (tok.type == ExprToken.PUNC && ".".equals(tok.text)) {
-					tok = ExprToken.from(toks);
+					tok = ExprToken.from(errors, toks);
 					haveDot = true;
 				} else
 					break;

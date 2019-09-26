@@ -21,6 +21,7 @@ import org.junit.Test;
 public class TDAStructIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.names");
 
@@ -29,7 +30,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Nil")));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Nil"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
@@ -40,7 +41,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -52,7 +53,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid or missing type name");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertNotNull(nested);
 		assertTrue(nested instanceof IgnoreNestedParser);
@@ -63,7 +64,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Cons").poly("A").locs(0,7)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Cons A"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
@@ -73,7 +74,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Map").poly("A").poly("B").locs(0,7)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Map A B"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
@@ -84,7 +85,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "invalid type argument");
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof IgnoreNestedParser);
 	}
@@ -94,7 +95,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,7).as(FieldsDefn.FieldsType.ENTITY)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("entity Fred"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
@@ -104,7 +105,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,9).as(FieldsDefn.FieldsType.ENVELOPE)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("envelope Fred"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}
@@ -114,7 +115,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		final Tokenizable line = TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred");
 		TDAParsing nested = parser.tryParsing(line);
 		assertTrue(nested instanceof TDAStructFieldParser);
@@ -128,7 +129,7 @@ public class TDAStructIntroParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		final Tokenizable line = TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred");
 		TDAParsing nested = parser.tryParsing(line);
 		assertTrue(nested instanceof TDAStructFieldParser);
@@ -142,7 +143,7 @@ public class TDAStructIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.InPackage")));
 		}});
-		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct InPackage"));
 		assertTrue(nested instanceof TDAStructFieldParser);
 	}

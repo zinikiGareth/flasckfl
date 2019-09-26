@@ -40,7 +40,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		seenContent = true;
-		ExprToken tok = ExprToken.from(toks);
+		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
@@ -62,7 +62,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(toks, "no conditional expression");
 				return new IgnoreNestedParser();
 			}
-			tok = ExprToken.from(toks);
+			tok = ExprToken.from(errors, toks);
 			if (tok == null) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
@@ -123,7 +123,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		}
 		String sendTo = null;
 		if (toks.hasMore()) {
-			ExprToken sendToTok = ExprToken.from(toks);
+			ExprToken sendToTok = ExprToken.from(errors, toks);
 			if (sendToTok != null) {
 				if ("=>".equals(sendToTok.text)) {
 					TemplateNameToken tnt = TemplateNameToken.from(toks);
@@ -145,7 +145,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		List<StringLiteral> styles = new ArrayList<>();
 		while (toks.hasMore()) {
 			InputPosition pos = toks.realinfo();
-			String s = StringToken.from(toks);
+			String s = StringToken.from(errors, toks);
 			if (s == null) {
 				errors.message(toks, "invalid style");
 				return null;
@@ -156,7 +156,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 	}
 
 	private TemplateEvent readEvent(ExprToken eventName, Tokenizable toks) {
-		ExprToken tok = ExprToken.from(toks);
+		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null || !"=>".equals(tok.text)) {
 			errors.message(toks, "syntax error");
 			return null;
@@ -184,7 +184,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		int mark = toks.at();
 		boolean ret = false;
 		while (toks.hasMore()) {
-			ExprToken tok = ExprToken.from(toks);
+			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok == null)
 				break;
 			else if (tok.text.equals("<-")) {

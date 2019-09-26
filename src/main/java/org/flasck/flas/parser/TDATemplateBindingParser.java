@@ -30,7 +30,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 		}
 		TemplateBindingOption simple = null;
 		if (toks.hasMore()) {
-			ExprToken send = ExprToken.from(toks);
+			ExprToken send = ExprToken.from(errors, toks);
 			if (send == null || !"<-".equals(send.text)) {
 				if ("=>".equals(send.text))
 					errors.message(toks, "missing expression");
@@ -49,7 +49,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 			Expr expr = seen.get(0);
 			String sendsTo = null;
 			if (toks.hasMore()) {
-				ExprToken format = ExprToken.from(toks);
+				ExprToken format = ExprToken.from(errors, toks);
 				if (format == null || !"=>".equals(format.text)) {
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser();

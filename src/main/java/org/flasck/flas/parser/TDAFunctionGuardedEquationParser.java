@@ -28,7 +28,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable line) {
 		nestedParser.anotherParent();
 		InputPosition start = line.realinfo();
-		ExprToken tok = ExprToken.from(line);
+		ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null || (!tok.text.equals("=") && !tok.text.equals("|"))) {
 			errors.message(line, "syntax error");
 			return null;
@@ -54,7 +54,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 			if (errors.hasErrors())
 				return null;
 	
-			tok = ExprToken.from(line);
+			tok = ExprToken.from(errors, line);
 			if (tok == null || !tok.text.equals("=")) {
 				errors.message(line, "syntax error");
 				return null;

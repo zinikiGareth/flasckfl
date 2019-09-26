@@ -22,19 +22,24 @@ public class LoadBuiltins {
 	public static final StructDefn trueT = new StructDefn(pos, FieldsType.STRUCT, null, "True", false);
 	public static final UnionTypeDefn bool = new UnionTypeDefn(pos, false, new SolidName(null, "Boolean"));
 	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
-	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false);
+	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, new PolyType(pos, "A"));
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new PolyType(pos, "A"));
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 
 	static {
+		// add fields to structs
+		cons.addField(new StructField(pos, false, new TypeReference(pos, "A"), "head"));
+		cons.addField(new StructField(pos, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
+		error.addField(new StructField(pos, false, new TypeReference(pos, "String"), "message"));
+
+		// add cases to unions
 		bool.addCase(new TypeReference(pos, "False").bind(falseT));
 		bool.addCase(new TypeReference(pos, "True").bind(trueT));
-		// TODO: add Cons fields 
-		error.addField(new StructField(pos, false, new TypeReference(pos, "String"), "message"));
-	}
+		list.addCase(new TypeReference(pos, "Nil"));
+		list.addCase(new TypeReference(pos, "Cons", new TypeReference(pos, "A")));
+}
 	
 	public static void applyTo(Repository repository) {
-		
 		// Types
 		new BuiltinRepositoryEntry("Card").loadInto(repository);
 		new BuiltinRepositoryEntry("Croset").loadInto(repository);

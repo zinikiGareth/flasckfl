@@ -49,7 +49,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 			builder.accept(data);
 			return new TDAProcessFieldsParser(errors, data);
 		}
-		ExprToken send = ExprToken.from(toks);
+		ExprToken send = ExprToken.from(errors, toks);
 		if (send == null || !send.text.equals("<-")) {
 			errors.message(toks, "expected <-");
 			return new IgnoreNestedParser();

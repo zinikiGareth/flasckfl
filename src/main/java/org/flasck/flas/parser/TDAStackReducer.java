@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 
 // TODO: introduce a "just one" error reporter that we can use to make sure we don't overly complain about missing parens, etc.
@@ -31,11 +32,13 @@ public class TDAStackReducer implements ExprTermConsumer {
 
 	private final ErrorReporter errors;
 	private final List<ExprTermConsumer> stack = new ArrayList<>();
+	private final ErrorMark mark;
 	private InputPosition lineStart;
 
 	public TDAStackReducer(ErrorReporter errors, ExprTermConsumer builder) {
 		this.errors = errors;
 		this.stack.add(new TDAExprReducer(errors, builder));
+		mark = errors.mark();
 	}
 
 	@Override
@@ -61,7 +64,8 @@ public class TDAStackReducer implements ExprTermConsumer {
 	@Override
 	public void done() {
 		if (this.stack.size() != 1) {
-			errors.message(lineStart, "syntax error");
+			if (!mark.hasMoreNow())
+				errors.message(lineStart, "syntax error");
 			return;
 		}
 		this.stack.get(0).done();

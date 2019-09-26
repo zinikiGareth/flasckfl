@@ -23,6 +23,11 @@
 	d2 Nil = 0
 	d2 (Any x) = 1
 
+	e True Nil = 0
+	e True (Cons {head: True}) = 1
+	e True (Cons {}) = 2
+	e False x = 3
+
 // Number->Number
 f 3 = 0
 

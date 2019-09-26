@@ -28,7 +28,6 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;

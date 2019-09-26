@@ -11,17 +11,18 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAExprParser implements TDAParsing {
-
 	private final ExprTermConsumer builder;
+	private final ErrorReporter errors;
 
 	public TDAExprParser(ErrorReporter errors, ExprTermConsumer builder) {
+		this.errors = errors;
 		this.builder = builder;
 	}
 
 	public TDAParsing tryParsing(Tokenizable line) {
 		while (true) {
 			int mark = line.at();
-			ExprToken tok = ExprToken.from(line);
+			ExprToken tok = ExprToken.from(errors, line);
 			if (tok == null) {
 				builder.done();
 				return null;

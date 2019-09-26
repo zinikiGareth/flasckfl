@@ -10,7 +10,6 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.repository.Traverser;
-import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class HSIPatternTree implements HSITree {

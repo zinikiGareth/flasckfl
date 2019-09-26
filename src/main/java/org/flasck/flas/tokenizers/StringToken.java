@@ -1,12 +1,15 @@
 package org.flasck.flas.tokenizers;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
+
 public class StringToken {
 
 	/* Parse a string literal using either single or double quotes (must be paired)
 	 * until the matching quote is found.  Allow the containing quotes to be included
 	 * in the string if doubled, e.g. 'Fred''s world' is the same as "Fred's world"
 	 */
-	public static String from(Tokenizable line) {
+	public static String from(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -16,13 +19,16 @@ public class StringToken {
 		
 		StringBuilder ret = new StringBuilder();
 		while (true) {
+			InputPosition position = line.realinfo();
 			line.advance();
 			int mark = line.at();
 			while (line.hasMore() && line.nextChar() != oq) {
 				line.advance();
 			}
-			if (!line.hasMore())
+			if (!line.hasMore()) {
+				errors.message(position, "unterminated string");
 				return null;
+			}
 			if (line.at() > mark)
 				ret.append(line.fromMark(mark));
 			line.advance();
