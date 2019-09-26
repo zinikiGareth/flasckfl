@@ -2,7 +2,6 @@ package org.flasck.flas.repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -135,6 +134,7 @@ public class Traverser implements Visitor {
 			for (int i=0;i<fn.argCount();i++) {
 				slots.add(new ArgSlot(i, fn.hsiTree().get(i)));
 			}
+			((HSIVisitor)visitor).hsiArgs(slots);
 			visitHSI(fn, slots, fn.intros());
 		} else {
 			for (FunctionIntro i : fn.intros())
@@ -145,11 +145,15 @@ public class Traverser implements Visitor {
 
 	public void visitHSI(FunctionDefinition fn, List<Slot> slots, List<FunctionIntro> intros) {
 		HSIVisitor hsi = (HSIVisitor) visitor;
-		hsi.hsiArgs(slots);
-		if (slots.isEmpty() && intros.size() == 1)
-			handleInline(hsi, intros.get(0));
-		else {
+		if (slots.isEmpty()) {
+			if (intros.size() == 1)
+				handleInline(hsi, intros.get(0));
+			else
+				throw new NotImplementedException("I think this is an error");
+		} else {
 			Slot s = selectSlot(slots);
+			List<Slot> remaining = new ArrayList<>(slots);
+			remaining.remove(s);
 			HSIOptions opts = s.getOptions();
 			if (opts.hasSwitches()) {
 				hsi.switchOn(s);
@@ -158,19 +162,16 @@ public class Traverser implements Visitor {
 					HSITree cm = opts.getCM(c);
 					if (cm.intros().size() != 1)
 						throw new NotImplementedException();
-					handleInline(hsi, cm.intros().get(0));
+					visitHSI(fn, remaining, cm.intros());
 				}
 				for (String ty : opts.types()) {
 					hsi.withConstructor(ty);
-					Set<FunctionIntro> remaining = opts.getIntrosForType(ty);
-					if (remaining.size() != 1)
-						throw new NotImplementedException();
-					handleInline(hsi, remaining.iterator().next());
+					visitHSI(fn, remaining, opts.getIntrosForType(ty));
 				}
 			} else {
 				for (VarName v : opts.vars())
 					hsi.bind(s, v.var);
-				handleInline(hsi, intros.get(0));
+				visitHSI(fn, remaining, intros);
 			}
 			if (opts.hasSwitches()) {
 				hsi.errorNoCase();

@@ -1,25 +1,37 @@
 package test.repository;
 
+import java.util.List;
+
 import org.flasck.flas.hsi.Slot;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.zinutils.support.jmock.CaptureAction;
 
 public class SlotMatcher extends TypeSafeMatcher<Slot> {
+	private CaptureAction slots;
+	private int slotNum;
 
-	public static SlotMatcher from(CaptureAction slots, int i) {
-		return new SlotMatcher();
+	public SlotMatcher(CaptureAction slots, int slotNum) {
+		this.slots = slots;
+		this.slotNum = slotNum;
 	}
 
+	public static SlotMatcher from(CaptureAction slots, int slot) {
+		return new SlotMatcher(slots, slot);
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public void describeTo(Description arg0) {
-		// TODO Auto-generated method stub
-		
+		arg0.appendText("Slot[");
+		arg0.appendValue(((List<Slot>)slots.get(0)).get(slotNum));
+		arg0.appendText("]");
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean matchesSafely(Slot arg0) {
-		return true;
+		return ((List<Slot>)slots.get(0)).get(slotNum) == arg0;
 	}
 
 }

@@ -15,7 +15,7 @@ public interface HSIOptions {
 	void addTyped(TypeReference tr, VarName varName, FunctionIntro fi);
 	void addCM(String ctor, HSITree nested);
 	HSITree getCM(String constructor);
-	Set<FunctionIntro> getIntrosForType(String ty);
+	List<FunctionIntro> getIntrosForType(String ty);
 	Type minimalType(CurrentTCState state, RepositoryReader repository);
 	Set<String> ctors();
 	List<VarName> vars();

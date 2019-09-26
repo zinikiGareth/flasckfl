@@ -1,7 +1,6 @@
 package org.flasck.flas.patterns;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +19,7 @@ public class HSIPatternOptions implements HSIOptions {
 	class TV {
 		Type type;
 		VarName var;
-		Set<FunctionIntro> intros = new HashSet<>();
+		List<FunctionIntro> intros = new ArrayList<>();
 
 		public TV(Type type, VarName var) {
 			this.type = type;
@@ -53,7 +52,7 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public Set<FunctionIntro> getIntrosForType(String ty) {
+	public List<FunctionIntro> getIntrosForType(String ty) {
 		return types.get(ty).intros;
 	}
 
