@@ -2,12 +2,14 @@ package org.flasck.flas.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -31,6 +33,8 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
+import org.flasck.flas.patterns.HSIOptions;
+import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.Primitive;
 import org.zinutils.exceptions.NotImplementedException;
@@ -123,20 +127,80 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		if (fn.intros().isEmpty())
+			return; // not for generation
 		visitor.visitFunction(fn);
 		if (visitor instanceof HSIVisitor) {
-			HSIVisitor hsi = (HSIVisitor) visitor;
 			List<Slot> slots = new ArrayList<>();
 			for (int i=0;i<fn.argCount();i++) {
-				slots.add(new ArgSlot(i));
+				slots.add(new ArgSlot(i, fn.hsiTree().get(i)));
 			}
-			hsi.hsiArgs(slots);
-			fn.hsiTree().visit(this, hsi, slots);
+			visitHSI(fn, slots, fn.intros());
 		} else {
 			for (FunctionIntro i : fn.intros())
 				visitFunctionIntro(i);
 		}
 		visitor.leaveFunction(fn);
+	}
+
+	public void visitHSI(FunctionDefinition fn, List<Slot> slots, List<FunctionIntro> intros) {
+		HSIVisitor hsi = (HSIVisitor) visitor;
+		hsi.hsiArgs(slots);
+		if (slots.isEmpty() && intros.size() == 1)
+			handleInline(hsi, intros.get(0));
+		else {
+			Slot s = selectSlot(slots);
+			HSIOptions opts = s.getOptions();
+			if (opts.hasSwitches()) {
+				hsi.switchOn(s);
+				for (String c : opts.ctors()) {
+					hsi.withConstructor(c);
+					HSITree cm = opts.getCM(c);
+					if (cm.intros().size() != 1)
+						throw new NotImplementedException();
+					handleInline(hsi, cm.intros().get(0));
+				}
+				for (String ty : opts.types()) {
+					hsi.withConstructor(ty);
+					Set<FunctionIntro> remaining = opts.getIntrosForType(ty);
+					if (remaining.size() != 1)
+						throw new NotImplementedException();
+					handleInline(hsi, remaining.iterator().next());
+				}
+			} else {
+				for (VarName v : opts.vars())
+					hsi.bind(s, v.var);
+				handleInline(hsi, intros.get(0));
+			}
+			if (opts.hasSwitches()) {
+				hsi.errorNoCase();
+				hsi.endSwitch();
+			}
+		}
+	}
+	
+	public static Slot selectSlot(List<Slot> slots) {
+		if (slots.size() == 1)
+			return slots.get(0);
+		int which = 0;
+		int score = -1;
+		int i = 0;
+		for (Slot s : slots) {
+			int ms = s.score();
+			if (ms > score) {
+				which = i;
+				score = ms;
+			}
+			i++;
+		}
+		return slots.get(which);
+	}
+
+	private void handleInline(HSIVisitor hsi, FunctionIntro i) {
+		hsi.startInline(i);
+		for (FunctionCaseDefn c : i.cases())
+			visitCase(c);
+		hsi.endInline(i);
 	}
 
 	@Override

@@ -59,12 +59,13 @@ public class PatternAnalysis {
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		context.checking(new Expectations() {{
+			oneOf(hsi).hsiArgs(slots);
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		fn.hsiTree().visit(new Traverser(hsi), hsi, slots);
+		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
 	}
 	
 	@Test
@@ -81,16 +82,17 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
-		ArgSlot s0 = new ArgSlot(0);
+		ArgSlot s0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(s0);
 		context.checking(new Expectations() {{
+			oneOf(hsi).hsiArgs(slots);
 			oneOf(hsi).bind(s0, "x");
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		fn.hsiTree().visit(new Traverser(hsi), hsi, slots);
+		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
 	}
 	
 	@Test
@@ -109,9 +111,10 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
-		ArgSlot s = new ArgSlot(0);
+		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(s);
 		context.checking(new Expectations() {{
+			oneOf(hsi).hsiArgs(slots);
 			oneOf(hsi).switchOn(s);
 			oneOf(hsi).withConstructor("Number");
 			oneOf(hsi).startInline(intro);
@@ -121,7 +124,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		fn.hsiTree().visit(new Traverser(hsi), hsi, slots);
+		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
 	}
 	
 	@Test
@@ -138,9 +141,10 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
-		ArgSlot a0 = new ArgSlot(0);
+		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
 		context.checking(new Expectations() {{
+			oneOf(hsi).hsiArgs(slots);
 			oneOf(hsi).switchOn(a0);
 			oneOf(hsi).withConstructor("Nil");
 			oneOf(hsi).startInline(intro);
@@ -150,7 +154,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		fn.hsiTree().visit(new Traverser(hsi), hsi, slots);
+		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
 	}
 	
 	@Test
@@ -175,9 +179,10 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
-		ArgSlot a0 = new ArgSlot(0);
+		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
 		context.checking(new Expectations() {{
+			oneOf(hsi).hsiArgs(slots);
 			oneOf(hsi).switchOn(a0);
 			oneOf(hsi).withConstructor("Nil");
 			oneOf(hsi).startInline(intro1);
@@ -192,7 +197,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		fn.hsiTree().visit(new Traverser(hsi), hsi, slots);
+		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
 	}
 }
