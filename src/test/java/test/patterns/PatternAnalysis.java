@@ -195,4 +195,71 @@ public class PatternAnalysis {
 		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
 	}
+
+	@Test
+	public void analyzeFunctionTwoVars() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		final FunctionIntro intro;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			args.add(new VarPattern(pos, new VarName(pos, nameF, "x")));
+			args.add(new VarPattern(pos, new VarName(pos, nameF, "y")));
+			intro = new FunctionIntro(nameF, args);
+			intro.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro);
+		}
+		new Traverser(sv).visitFunction(fn);
+		HSIVisitor hsi = context.mock(HSIVisitor.class);
+		ArrayList<Slot> slots = new ArrayList<>();
+		ArgSlot s0 = new ArgSlot(0, fn.hsiTree().get(0));
+		slots.add(s0);
+		ArgSlot s1 = new ArgSlot(1, fn.hsiTree().get(1));
+		slots.add(s1);
+		context.checking(new Expectations() {{
+			oneOf(hsi).bind(s0, "x");
+			oneOf(hsi).bind(s1, "y");
+			oneOf(hsi).startInline(intro);
+			oneOf(hsi).visitExpr(number, 0);
+			oneOf(hsi).visitNumericLiteral(number);
+			oneOf(hsi).endInline(intro);
+		}});
+		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+	}
+	
+	@Test
+	public void analyzeFunctionWithTwoNoArgConstructors() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		final FunctionIntro intro;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			args.add(new ConstructorMatch(pos, "Nil"));
+			args.add(new ConstructorMatch(pos, "Nil"));
+			intro = new FunctionIntro(nameF, args);
+			intro.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro);
+		}
+		new Traverser(sv).visitFunction(fn);
+		HSIVisitor hsi = context.mock(HSIVisitor.class);
+		ArrayList<Slot> slots = new ArrayList<>();
+		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
+		slots.add(a0);
+		ArgSlot a1 = new ArgSlot(1, fn.hsiTree().get(1));
+		slots.add(a1);
+		context.checking(new Expectations() {{
+			oneOf(hsi).switchOn(a0);
+			oneOf(hsi).withConstructor("Nil");
+			oneOf(hsi).switchOn(a1);
+			oneOf(hsi).withConstructor("Nil");
+			oneOf(hsi).startInline(intro);
+			oneOf(hsi).visitExpr(number, 0);
+			oneOf(hsi).visitNumericLiteral(number);
+			oneOf(hsi).endInline(intro);
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
+		}});
+		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+	}
+	
 }
