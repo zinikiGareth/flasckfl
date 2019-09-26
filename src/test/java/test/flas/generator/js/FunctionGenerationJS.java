@@ -8,23 +8,32 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.jsgen.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.mock.VarMatcher;
+import org.zinutils.support.jmock.CaptureAction;
 
 public class FunctionGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -169,7 +178,63 @@ public class FunctionGenerationJS {
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
-	
+
+	@Test
+	public void nestedSwitching() {
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		
+		JSBlockCreator isNil0 = context.mock(JSBlockCreator.class, "isNil0");
+		JSBlockCreator notNil0 = context.mock(JSBlockCreator.class, "notNil0");
+		JSIfExpr outer = new JSIfExpr(null, isNil0, notNil0);
+		context.checking(new Expectations() {{
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(outer));
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		gen.switchOn(a0);
+		gen.withConstructor("Nil");
+
+		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
+		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
+		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
+		context.checking(new Expectations() {{
+			oneOf(isNil0).head("_1");
+			oneOf(isNil0).ifCtor("_1", "Nil"); will(returnValue(inner));
+		}});
+		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
+		gen.switchOn(a1);
+		gen.withConstructor("Nil");
+		
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
+		StringLiteral expr = new StringLiteral(pos, "hello");
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		intro.functionCase(fcd);
+
+		context.checking(new Expectations() {{
+			oneOf(isNil1).string("hello"); will(returnValue(dummy));
+		}});
+		gen.startInline(intro);
+		gen.visitExpr(expr, 0);
+		gen.visitStringLiteral(expr);
+		gen.endInline(intro);
+		
+		context.checking(new Expectations() {{
+			oneOf(isNil1).returnObject(dummy);
+			oneOf(notNil1).errorNoCase();
+		}});
+		gen.errorNoCase();
+		gen.endSwitch();
+		
+		context.checking(new Expectations() {{
+			oneOf(notNil0).errorNoCase();
+		}});
+		gen.errorNoCase();
+		gen.endSwitch();
+	}
+
 	@Test
 	public void stateIsCleanedUpBetweenFunctions() {
 		JSExpr sret = context.mock(JSExpr.class, "sret");

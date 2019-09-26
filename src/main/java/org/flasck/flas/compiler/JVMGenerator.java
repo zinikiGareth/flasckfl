@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -40,17 +41,22 @@ import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter implements HSIVisitor {
-	public class SwitchItem {
+	public class SwitchMatch {
 		private AVar switchOn;
 		private String ctor;
 		public IExpr expr;
 
-		public SwitchItem(AVar switchOn, String ctor) {
+		public SwitchMatch(AVar switchOn, String ctor) {
 			this.switchOn = switchOn;
 			this.ctor = ctor;
 		}
 	}
 
+	private static class SwitchLevel {
+		private AVar currentSwitch;
+		private List<SwitchMatch> switches = new ArrayList<>();
+	}
+	
 	private final ByteCodeStorage bce;
 	private MethodDefiner meth;
 	private List<IExpr> stack = new ArrayList<IExpr>();
@@ -61,19 +67,20 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	private int nextVar = 1;
 	private IExpr fcx;
 	private Var fargs;
-	private AVar currentSwitch;
-	private List<SwitchItem> switches = new ArrayList<>();
+	private SwitchLevel currentLevel;
+	private final List<SwitchLevel> switchStack = new ArrayList<>();
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce) {
 		this.bce = bce;
 	}
 	
-	private JVMGenerator(MethodDefiner meth, IExpr runner) {
+	private JVMGenerator(MethodDefiner meth, IExpr runner, Var args) {
 		this.bce = null;
 		this.meth = meth;
 		this.runner = runner;
 		this.fcx = runner;
+		this.fargs = args;
 	}
 
 	private JVMGenerator(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {
@@ -97,7 +104,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 		ann.returns(JavaType.object_);
 		meth = ann.done();
 		meth.lenientMode(leniency);
-		this.switches.clear();
 		nextVar = 1;
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
@@ -110,26 +116,29 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void switchOn(Slot slot) {
-		IExpr in = meth.arrayItem(J.OBJECT, fargs, 0);
-		AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
+		ArgSlot s = (ArgSlot) slot;
+		IExpr in = meth.arrayItem(J.OBJECT, fargs, s.argpos());
+		AVar var = new Var.AVar(meth, J.OBJECT, "head_" + s.argpos());
 		meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
-		currentSwitch = var;
+		currentLevel = new SwitchLevel();
+		currentLevel.currentSwitch = var;
+		switchStack.add(0, currentLevel);
 	}
 
 	@Override
 	public void withConstructor(String ctor) {
 		if (!stack.isEmpty())
-			switches.get(switches.size()-1).expr = meth.returnObject(stack.remove(0));
-		switches.add(new SwitchItem(currentSwitch, ctor));
+			currentLevel.switches.get(currentLevel.switches.size()-1).expr = meth.returnObject(stack.remove(0));
+		currentLevel.switches.add(new SwitchMatch(currentLevel.currentSwitch, ctor));
 	}
 
 	@Override
 	public void errorNoCase() {
 		if (!stack.isEmpty())
-			switches.get(switches.size()-1).expr = meth.returnObject(stack.remove(0));
-		SwitchItem si = new SwitchItem(currentSwitch, null);
+			currentLevel.switches.get(currentLevel.switches.size()-1).expr = meth.returnObject(stack.remove(0));
+		SwitchMatch si = new SwitchMatch(currentLevel.currentSwitch, null);
 		si.expr = meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no such case"))));
-		switches.add(si);
+		currentLevel.switches.add(si);
 	}
 
 	@Override
@@ -151,8 +160,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	@Override
 	public void endSwitch() {
 		IExpr ret = null;
-		for (int i=switches.size()-1;i>=0;i--) {
-			SwitchItem si = switches.get(i);
+		for (int i=currentLevel.switches.size()-1;i>=0;i--) {
+			SwitchMatch si = currentLevel.switches.get(i);
 			if (ret == null)
 				ret = si.expr;
 			else if (si.ctor == null)
@@ -160,7 +169,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 			else
 				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isA", fcx, si.switchOn, meth.stringConst(si.ctor)), si.expr, ret);
 		}
-		ret.flush();
+		switchStack.remove(0);
+		if (switchStack.isEmpty())
+			ret.flush();
+		else {
+			currentLevel = switchStack.get(0);
+			currentLevel.switches.get(currentLevel.switches.size()-1).expr = ret;
+		}
 	}
 	
 	@Override
@@ -505,8 +520,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 		return J.FLEVAL + "$" + inner;
 	}
 	
-	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner) {
-		return new JVMGenerator(meth, runner);
+	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner, Var args) {
+		return new JVMGenerator(meth, runner, args);
 	}
 
 	public static JVMGenerator forTests(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {

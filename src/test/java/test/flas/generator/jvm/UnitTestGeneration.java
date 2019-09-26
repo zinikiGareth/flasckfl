@@ -83,7 +83,7 @@ public class UnitTestGeneration {
 			oneOf(meth).as(r1, "java.lang.Object"); will(returnValue(ra));
 			oneOf(meth).callVirtual("void", runner, "assertSameValue", ra, la);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner, null));
 		UnitTestAssert a = new UnitTestAssert(lhs, rhs);
 		gen.visitUnitTestAssert(a);
 	}

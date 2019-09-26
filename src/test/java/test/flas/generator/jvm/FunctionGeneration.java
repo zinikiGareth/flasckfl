@@ -8,9 +8,11 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.JVMGenerator;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
@@ -27,11 +29,14 @@ import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.VarMatcher;
+import org.zinutils.support.jmock.CaptureAction;
 
 public class FunctionGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
+	private final ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
+	private final ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 	private final MethodDefiner meth = context.mock(MethodDefiner.class);
 
 	@Before
@@ -43,8 +48,6 @@ public class FunctionGeneration {
 
 	@Test
 	public void aSimpleFunction() {
-		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		IExpr iret = context.mock(IExpr.class, "ret");
 		IExpr nret = context.mock(IExpr.class, "nret");
 		IExpr nullVal = context.mock(IExpr.class, "null");
@@ -87,8 +90,6 @@ public class FunctionGeneration {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aMinimalHSIFunction() {
-		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		IExpr head = context.mock(IExpr.class, "head");
 		IExpr nsc = context.mock(IExpr.class, "nsc");
 		IExpr ansc = context.mock(IExpr.class, "ansc");
@@ -148,8 +149,6 @@ public class FunctionGeneration {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aTwoConstructorHSIFunction() {
-		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		IExpr head = context.mock(IExpr.class, "head");
 		IExpr nsc = context.mock(IExpr.class, "nsc");
 		IExpr ansc = context.mock(IExpr.class, "ansc");
@@ -229,11 +228,99 @@ public class FunctionGeneration {
 		new Traverser(gen).visitFunction(fn);
 	}
 
+	@Test
+	public void nestedSwitching() {
+		IExpr cxt = context.mock(IExpr.class, "cxt");
+		IExpr dummy = context.mock(IExpr.class, "dummy");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		Var args = new Var.AVar(meth, "[Object", "args");
+
+		JVMGenerator gen = JVMGenerator.forTests(meth, cxt, args);
+		
+		IExpr ass1 = context.mock(IExpr.class, "ass1");
+		CaptureAction captureHead0 = new CaptureAction(ass1);
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
+			oneOf(meth).nextLocal(); will(returnValue(25));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
+			oneOf(ass1).flush();
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		gen.switchOn(a0);
+		gen.withConstructor("Nil");
+
+		
+		IExpr ass2 = context.mock(IExpr.class, "ass2");
+		CaptureAction captureHead1 = new CaptureAction(ass2);
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, args, 1); will(returnValue(dummy));
+			oneOf(meth).nextLocal(); will(returnValue(26));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).assign(with(VarMatcher.local(26)), with(dummy)); will(captureHead1);
+			oneOf(ass2).flush();
+		}});
+		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
+		gen.switchOn(a1);
+		gen.withConstructor("Nil");
+		
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
+		StringLiteral expr = new StringLiteral(pos, "hello");
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		intro.functionCase(fcd);
+
+		IExpr jvmExpr = context.mock(IExpr.class, "jvmExpr");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("hello"); will(returnValue(dummy));
+			oneOf(meth).returnObject(dummy); will(returnValue(jvmExpr));
+		}});
+		gen.startInline(intro);
+		gen.visitExpr(expr, 0);
+		gen.visitStringLiteral(expr);
+		gen.endInline(intro);
+		
+		IExpr nscInner = context.mock(IExpr.class, "nscInner");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).returnObject(dummy); will(returnValue(nscInner));
+		}});
+		gen.errorNoCase();
+
+		Var head1 = (Var) captureHead1.get(0);
+		IExpr innerIf = context.mock(IExpr.class, "innerIf");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("Nil"); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head1, dummy); will(returnValue(dummy));
+			oneOf(meth).ifBoolean(dummy, jvmExpr, nscInner); will(returnValue(innerIf));
+		}});
+		gen.endSwitch();
+		
+		IExpr nscOuter = context.mock(IExpr.class, "nscOuter");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).returnObject(dummy); will(returnValue(nscOuter));
+		}});
+		gen.errorNoCase();
+
+		Var head0 = (Var) captureHead0.get(0);
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("Nil"); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
+			oneOf(meth).ifBoolean(dummy, innerIf, nscOuter);
+		}});
+		gen.endSwitch();
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void stateIsCleanedUpBetweenFunctions() {
-		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		IExpr head = context.mock(IExpr.class, "head");
 		IExpr nsc = context.mock(IExpr.class, "nsc");
 		IExpr ansc = context.mock(IExpr.class, "ansc");

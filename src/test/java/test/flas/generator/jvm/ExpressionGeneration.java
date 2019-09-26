@@ -63,7 +63,7 @@ public class ExpressionGeneration {
 			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -73,7 +73,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("hello");
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -85,7 +85,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x");
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(expr, 2);
 	}
 
@@ -104,7 +104,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0));
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, cx));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, cx, null));
 		gen.visitExpr(expr, 2);
 	}
 
@@ -133,7 +133,7 @@ public class ExpressionGeneration {
 			oneOf(assign).flush();
 
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -163,7 +163,7 @@ public class ExpressionGeneration {
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(assign).flush();
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -178,7 +178,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
 			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", fcx, arr);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx, null));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -226,7 +226,7 @@ public class ExpressionGeneration {
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
 		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(expr, 2);
 	}
 
@@ -306,7 +306,7 @@ public class ExpressionGeneration {
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(assign).flush();
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -355,7 +355,7 @@ public class ExpressionGeneration {
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assignae));
 			oneOf(assignae).flush();
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -386,7 +386,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Cons", "java.lang.Object", "eval", fcx, args); will(returnValue(nil));
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx, null));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -405,7 +405,7 @@ public class ExpressionGeneration {
 			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
 		gen.visitExpr(expr, 0);
 	}
 
