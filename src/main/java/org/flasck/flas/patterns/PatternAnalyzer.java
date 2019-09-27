@@ -41,7 +41,7 @@ public class PatternAnalyzer extends LeafAdapter{
 	
 	@Override
 	public void visitVarPattern(VarPattern p) {
-		slot.addVar(p.name());
+		slot.addVar(p.name(), current);
 	}
 	
 	@Override

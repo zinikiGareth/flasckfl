@@ -39,7 +39,7 @@
 			3
 	
 	test any False case will always be 3
-		assert (e False ['hello', world'])
+		assert (e False ['hello', 'world'])
 			3
 
 	test if a variable is ignored, it's value is irrelevant

@@ -25,8 +25,15 @@ public class HSIPatternOptions implements HSIOptions {
 			this.type = type;
 			this.var = var;
 		}
+
+		public boolean containsAny(List<FunctionIntro> curr) {
+			for (FunctionIntro fi : intros)
+				if (curr.contains(fi))
+					return true;
+			return false;
+		}
 	}
-	private List<VarName> vars = new ArrayList<>();
+	private List<TV> vars = new ArrayList<>();
 	private Map<String, TV> types = new TreeMap<>(); 
 	private Map<String, HSITree> ctors = new TreeMap<>();
 
@@ -44,8 +51,10 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 	
 	@Override
-	public void addVar(VarName varName) {
-		vars.add(varName);
+	public void addVar(VarName varName, FunctionIntro fi) {
+		TV tv = new TV(null, varName);
+		tv.intros.add(fi);
+		vars.add(tv);
 	}
 
 	@Override
@@ -64,12 +73,19 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public List<VarName> vars() {
-		return vars;
+	public List<VarName> vars(List<FunctionIntro> intros) {
+		if (intros.size() != 1)
+			throw new RuntimeException("This is an error: either we have started binding before switching, or there are multiple overlapping cases");
+		FunctionIntro i = intros.get(0);
+		List<VarName> ret = new ArrayList<VarName>();
+		for (TV v : vars)
+			if (v.intros.contains(i))
+				ret.add(v.var);
+		return ret;
 	}
 
 	@Override
-	public Set<String> types() {
+	public Set<String> types(List<FunctionIntro> intros) {
 		return types.keySet();
 	}
 
@@ -83,7 +99,7 @@ public class HSIPatternOptions implements HSIOptions {
 			return types.get("Any").type;
 		else if (ctors.isEmpty() && types.isEmpty() && !vars.isEmpty()) {
 			// TODO: need to consolidate all the vars in this slot
-			UnifiableType ut = state.hasVar(vars.get(0).uniqueName());
+			UnifiableType ut = state.hasVar(vars.get(0).var.uniqueName());
 			if (ut == null)
 				return repository.get("Any");
 			else
@@ -98,8 +114,14 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public boolean hasSwitches() {
-		return !this.ctors.isEmpty() || !this.types.isEmpty();
+	public boolean hasSwitches(List<FunctionIntro> intros) {
+		for (HSITree c : this.ctors.values())
+			if (c.containsAny(intros))
+				return true;
+		for (TV c : this.types.values())
+			if (c.containsAny(intros))
+				return true;
+		return false;
 	}
 	
 	@Override

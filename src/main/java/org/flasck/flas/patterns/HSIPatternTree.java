@@ -35,4 +35,11 @@ public class HSIPatternTree implements HSITree {
 	public List<FunctionIntro> intros() {
 		return intros;
 	}
+
+	public boolean containsAny(List<FunctionIntro> curr) {
+		for (FunctionIntro fi : intros)
+			if (curr.contains(fi))
+				return true;
+		return false;
+	}
 }

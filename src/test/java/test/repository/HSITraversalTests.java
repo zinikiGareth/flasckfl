@@ -54,7 +54,7 @@ public class HSITraversalTests {
 		}});
 		HSIPatternTree tree = new HSIPatternTree(1);
 		tree.consider(fi);
-		tree.get(0).addVar(vx);
+		tree.get(0).addVar(vx, fi);
 		fn.bindHsi(tree);
 		
 		fi.functionCase(new FunctionCaseDefn(null, number));

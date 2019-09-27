@@ -123,7 +123,7 @@ public class FunctionGenerationJS {
 		fn.intro(fi);
 		HSIPatternTree hsi = new HSIPatternTree(1);
 		hsi.consider(fi);
-		hsi.get(0).addVar(vnx);
+		hsi.get(0).addVar(vnx, fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}

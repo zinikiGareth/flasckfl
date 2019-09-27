@@ -24,8 +24,8 @@
 	d2 (Any x) = 1
 
 	e True Nil = 0
-	e True (Cons {head: True}) = 1
-	e True (Cons {}) = 2
+.	e True (Cons {head: True}) = 1
+.	e True (Cons {}) = 2
 	e False x = 3
 
 // Number->Number

@@ -144,9 +144,12 @@ public class Traverser implements Visitor {
 	}
 
 	public void visitHSI(FunctionDefinition fn, List<Slot> slots, List<FunctionIntro> intros) {
+		System.out.println(fn.name().uniqueName() + " " + slots.size() + " " + intros);
 		HSIVisitor hsi = (HSIVisitor) visitor;
 		if (slots.isEmpty()) {
-			if (intros.size() == 1)
+			if (intros.size() == 0)
+				hsi.errorNoCase();
+			else if (intros.size() == 1)
 				handleInline(hsi, intros.get(0));
 			else
 				throw new NotImplementedException("I think this is an error");
@@ -155,7 +158,7 @@ public class Traverser implements Visitor {
 			List<Slot> remaining = new ArrayList<>(slots);
 			remaining.remove(s);
 			HSIOptions opts = s.getOptions();
-			if (opts.hasSwitches()) {
+			if (opts.hasSwitches(intros)) {
 				hsi.switchOn(s);
 				for (String c : opts.ctors()) {
 					hsi.withConstructor(c);
@@ -164,18 +167,18 @@ public class Traverser implements Visitor {
 					intersect.retainAll(cm.intros());
 					visitHSI(fn, remaining, intersect);
 				}
-				for (String ty : opts.types()) {
+				for (String ty : opts.types(intros)) {
 					hsi.withConstructor(ty);
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(opts.getIntrosForType(ty));
 					visitHSI(fn, remaining, intersect);
 				}
 			} else {
-				for (VarName v : opts.vars())
+				for (VarName v : opts.vars(intros))
 					hsi.bind(s, v.var);
 				visitHSI(fn, remaining, intros);
 			}
-			if (opts.hasSwitches()) {
+			if (opts.hasSwitches(intros)) {
 				hsi.errorNoCase();
 				hsi.endSwitch();
 			}

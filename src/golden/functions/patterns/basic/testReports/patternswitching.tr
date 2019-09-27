@@ -6,6 +6,9 @@ JVM PASS that we can match True if present
 JVM PASS that we can match False if present
 JVM PASS that we can match two arguments correctly
 JVM PASS that we can go the other way
+JVM PASS the simple case of e
+JVM PASS False and Nil will be 3
+JVM PASS any False case will always be 3
 JVM PASS if a variable is ignored, it's value is irrelevant
 JVM PASS if a variable is ignored, it's value is irrelevant part 2
 JVM PASS that we can pass any number to a function expecting numbers
@@ -17,6 +20,9 @@ JS PASS that we can match True if present
 JS PASS that we can match False if present
 JS PASS that we can match two arguments correctly
 JS PASS that we can go the other way
+JS PASS the simple case of e
+JS PASS False and Nil will be 3
+JS PASS any False case will always be 3
 JS PASS if a variable is ignored, it's value is irrelevant
 JS PASS if a variable is ignored, it's value is irrelevant part 2
 JS PASS that we can pass any number to a function expecting numbers

@@ -9,4 +9,5 @@ public interface HSITree {
 	int width();
 	HSIOptions get(int i);
 	List<FunctionIntro> intros();
+	boolean containsAny(List<FunctionIntro> intros);
 }

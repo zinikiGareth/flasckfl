@@ -43,7 +43,7 @@ public class PatternExtraction {
 			oneOf(r).get("Any"); will(returnValue(any));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
-		po.addVar(new VarName(pos, nameF, "x"));
+		po.addVar(new VarName(pos, nameF, "x"), null);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(any, ty);
@@ -58,7 +58,7 @@ public class PatternExtraction {
 			oneOf(xv).resolve(); will(returnValue(pa));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
-		po.addVar(new VarName(pos, nameF, "x"));
+		po.addVar(new VarName(pos, nameF, "x"), null);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(pa, ty);
