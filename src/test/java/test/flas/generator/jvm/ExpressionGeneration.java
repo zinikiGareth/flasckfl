@@ -201,6 +201,7 @@ public class ExpressionGeneration {
 		IExpr arr = context.mock(IExpr.class, "arr");
 		IExpr x = context.mock(IExpr.class, "Ctor");
 		context.checking(new Expectations() {{
+			allowing(bcc).generateAssociatedSourceFile();
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
 		}});
@@ -249,6 +250,7 @@ public class ExpressionGeneration {
 		IExpr arr = context.mock(IExpr.class, "arr");
 		IExpr x = context.mock(IExpr.class, "Ctor");
 		context.checking(new Expectations() {{
+			allowing(bcc).generateAssociatedSourceFile();
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
 		}});

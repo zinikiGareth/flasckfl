@@ -42,6 +42,7 @@ public class FunctionGeneration {
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
+			allowing(bcc).generateAssociatedSourceFile();
 			allowing(meth).lenientMode(with(any(Boolean.class)));
 		}});
 	}

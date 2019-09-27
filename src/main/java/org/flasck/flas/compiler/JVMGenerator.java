@@ -98,6 +98,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 			return;
 		}
 		this.clz = bce.newClass(fn.name().javaClassName());
+		this.clz.generateAssociatedSourceFile();
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
 		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
 		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
