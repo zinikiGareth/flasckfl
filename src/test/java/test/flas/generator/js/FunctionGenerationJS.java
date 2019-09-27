@@ -93,7 +93,7 @@ public class FunctionGenerationJS {
 		fn.intro(fi);
 		HSIPatternTree hsi = new HSIPatternTree(1);
 		hsi.consider(fi);
-		hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+		hsi.get(0).requireCM("Nil", 0).consider(fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
@@ -172,9 +172,9 @@ public class FunctionGenerationJS {
 		}
 		HSIPatternTree hsi = new HSIPatternTree(1);
 		hsi.consider(f1);
-		hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(f1));
+		hsi.get(0).requireCM("Nil", 0).consider(f1);
 		hsi.consider(f2);
-		hsi.get(0).addCM("Cons", new HSIPatternTree(0).consider(f2));
+		hsi.get(0).requireCM("Cons", 2).consider(f2);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
@@ -236,6 +236,106 @@ public class FunctionGenerationJS {
 	}
 
 	@Test
+	public void nestedSwitchingWithTwoCases() {
+		FunctionName name = FunctionName.function(pos, pkg, "c");
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		
+		JSBlockCreator isTrue0 = context.mock(JSBlockCreator.class, "isTrue0");
+		JSBlockCreator notTrue0 = context.mock(JSBlockCreator.class, "notTrue0");
+		JSIfExpr outer = new JSIfExpr(null, isTrue0, notTrue0);
+		context.checking(new Expectations() {{
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "True"); will(returnValue(outer));
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		gen.switchOn(a0);
+		gen.withConstructor("True");
+
+		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
+		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
+		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
+		context.checking(new Expectations() {{
+			oneOf(isTrue0).head("_1");
+			oneOf(isTrue0).ifCtor("_1", "Nil"); will(returnValue(inner));
+		}});
+		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
+		gen.switchOn(a1);
+		gen.withConstructor("Nil");
+		
+		{
+			FunctionIntro intro1 = new FunctionIntro(name, new ArrayList<>());
+			StringLiteral expr1 = new StringLiteral(pos, "hello");
+			FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, expr1);
+			intro1.functionCase(fcd1);
+
+			context.checking(new Expectations() {{
+				oneOf(isNil1).string("hello"); will(returnValue(dummy));
+			}});
+
+			gen.startInline(intro1);
+			gen.visitExpr(expr1, 0);
+			gen.visitStringLiteral(expr1);
+			gen.endInline(intro1);
+		}
+		
+		context.checking(new Expectations() {{
+			oneOf(isNil1).returnObject(dummy);
+			oneOf(notNil1).errorNoCase();
+		}});
+		gen.errorNoCase();
+		gen.endSwitch();
+
+		JSBlockCreator isFalse0 = context.mock(JSBlockCreator.class, "isFalse0");
+		JSBlockCreator notFalse0 = context.mock(JSBlockCreator.class, "notFalse0");
+		JSIfExpr outer2 = new JSIfExpr(null, isFalse0, notFalse0);
+		context.checking(new Expectations() {{
+			oneOf(notTrue0).ifCtor("_0", "False"); will(returnValue(outer2));
+		}});
+		gen.withConstructor("False");
+
+		JSBlockCreator isNil1b = context.mock(JSBlockCreator.class, "isNil1b");
+		JSBlockCreator notNil1b = context.mock(JSBlockCreator.class, "notNil1b");
+		JSIfExpr innerB = new JSIfExpr(null, isNil1b, notNil1b);
+		context.checking(new Expectations() {{
+			oneOf(isFalse0).head("_1");
+			oneOf(isFalse0).ifCtor("_1", "Nil"); will(returnValue(innerB));
+		}});
+		gen.switchOn(a1);
+		gen.withConstructor("Nil");
+
+		{
+			FunctionIntro intro2 = new FunctionIntro(name, new ArrayList<>());
+			StringLiteral expr2 = new StringLiteral(pos, "goodbye");
+			FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, expr2);
+			intro2.functionCase(fcd2);
+
+			context.checking(new Expectations() {{
+				oneOf(isNil1b).string("goodbye"); will(returnValue(dummy));
+			}});
+
+			gen.startInline(intro2);
+			gen.visitExpr(expr2, 0);
+			gen.visitStringLiteral(expr2);
+			gen.endInline(intro2);
+		}
+
+		context.checking(new Expectations() {{
+			oneOf(notNil1b).errorNoCase();
+			oneOf(isNil1b).returnObject(dummy);
+		}});
+		gen.errorNoCase();
+		gen.endSwitch();
+
+		context.checking(new Expectations() {{
+			oneOf(notFalse0).errorNoCase();
+		}});
+		gen.errorNoCase();
+		gen.endSwitch();
+	}
+
+	@Test
 	public void stateIsCleanedUpBetweenFunctions() {
 		JSExpr sret = context.mock(JSExpr.class, "sret");
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
@@ -276,7 +376,7 @@ public class FunctionGenerationJS {
 			fn.intro(fi);
 			HSIPatternTree hsi = new HSIPatternTree(1);
 			hsi.consider(fi);
-			hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+			hsi.get(0).requireCM("Nil", 0).consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(gen).visitFunction(fn);
 		}
@@ -289,7 +389,7 @@ public class FunctionGenerationJS {
 			fn.intro(fi);
 			HSIPatternTree hsi = new HSIPatternTree(1);
 			hsi.consider(fi);
-			hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+			hsi.get(0).requireCM("Nil", 0).consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(gen).visitFunction(fn);
 		}

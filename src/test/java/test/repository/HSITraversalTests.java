@@ -92,7 +92,7 @@ public class HSITraversalTests {
 		}});
 		HSIPatternTree tree = new HSIPatternTree(1);
 		tree.consider(fi);
-		tree.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+		tree.get(0).requireCM("Nil", 0).consider(fi);
 		fn.bindHsi(tree);
 		
 		t.visitFunction(fn);

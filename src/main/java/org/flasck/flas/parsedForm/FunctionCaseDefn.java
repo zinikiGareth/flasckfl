@@ -84,7 +84,7 @@ public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 	
 	@Override
 	public String toString() {
-		return "FCD[" + intro.name().uniqueName() + "/" + intro.args.size() + (guard != null ? " guard": " default") + "]";
+		return "FCD[" + (guard != null ? " guard" + guard : " default") + " = " + expr + "]";
 	}
 
 	@Override

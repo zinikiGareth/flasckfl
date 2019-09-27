@@ -51,9 +51,8 @@ public class PatternAnalyzer extends LeafAdapter{
 	
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p) {
-		HSITree nested = new HSIPatternTree(p.args.size());
+		HSITree nested = slot.requireCM(p.ctor, p.args.size());
 		nested.consider(current);
-		slot.addCM(p.ctor, nested);
 		sv.push(new ConstructorMatchAnalyzer(sv, nested));
 	}
 	

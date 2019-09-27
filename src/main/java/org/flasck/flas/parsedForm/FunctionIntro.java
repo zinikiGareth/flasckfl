@@ -47,6 +47,6 @@ public class FunctionIntro implements FunctionGuardedEquationConsumer {
 
 	@Override
 	public String toString() {
-		return "FI[" + name().uniqueName() + "/" + args.size() + "]";
+		return "FI[" + name().uniqueName() + "/" + args.size() + " " + cases + "]";
 	}
 }

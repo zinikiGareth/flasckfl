@@ -81,7 +81,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	@Override
 	public void withConstructor(String ctor) {
 		if (currentLevel.elseBlock != null) {
-			this.block.returnObject(stack.remove(0));
+			if (!stack.isEmpty())
+				this.block.returnObject(stack.remove(0));
 			this.block = currentLevel.elseBlock;
 		}
 		JSIfExpr ifCtor = this.block.ifCtor(currentLevel.currentVar, ctor);

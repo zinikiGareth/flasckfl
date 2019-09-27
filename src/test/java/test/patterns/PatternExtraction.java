@@ -12,7 +12,6 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.patterns.HSIPatternOptions;
-import org.flasck.flas.patterns.HSIPatternTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
@@ -97,7 +96,7 @@ public class PatternExtraction {
 			oneOf(r).get("Nil"); will(returnValue(nil));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
-		po.addCM("Nil", new HSIPatternTree(0));
+		po.requireCM("Nil", 0);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(nil, ty);
@@ -112,8 +111,8 @@ public class PatternExtraction {
 			oneOf(r).findUnionWith((Set<String>) with(Matchers.contains("False", "True"))); will(returnValue(bool));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
-		po.addCM("True", new HSIPatternTree(0));
-		po.addCM("False", new HSIPatternTree(0));
+		po.requireCM("True", 0);
+		po.requireCM("False", 0);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(bool, ty);

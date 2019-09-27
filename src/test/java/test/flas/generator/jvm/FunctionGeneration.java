@@ -141,7 +141,7 @@ public class FunctionGeneration {
 		fn.intro(fi);
 		HSIPatternTree hsi = new HSIPatternTree(1);
 		hsi.consider(fi);
-		hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+		hsi.get(0).requireCM("Nil", 0).consider(fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
@@ -221,9 +221,9 @@ public class FunctionGeneration {
 		}
 		HSIPatternTree hsi = new HSIPatternTree(1);
 		hsi.consider(f1);
-		hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(f1));
+		hsi.get(0).requireCM("Nil", 0).consider(f1);
 		hsi.consider(f2);
-		hsi.get(0).addCM("Cons", new HSIPatternTree(0).consider(f2));
+		hsi.get(0).requireCM("Cons", 2).consider(f2);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
@@ -396,7 +396,7 @@ public class FunctionGeneration {
 			fn.intro(fi);
 			HSIPatternTree hsi = new HSIPatternTree(1);
 			hsi.consider(fi);
-			hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+			hsi.get(0).requireCM("Nil", 0).consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(gen).visitFunction(fn);
 		}
@@ -409,7 +409,7 @@ public class FunctionGeneration {
 			fn.intro(fi);
 			HSIPatternTree hsi = new HSIPatternTree(1);
 			hsi.consider(fi);
-			hsi.get(0).addCM("Nil", new HSIPatternTree(0).consider(fi));
+			hsi.get(0).requireCM("Nil", 0).consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(gen).visitFunction(fn);
 		}

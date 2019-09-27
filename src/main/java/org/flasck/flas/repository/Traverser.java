@@ -160,13 +160,15 @@ public class Traverser implements Visitor {
 				for (String c : opts.ctors()) {
 					hsi.withConstructor(c);
 					HSITree cm = opts.getCM(c);
-					if (cm.intros().size() != 1)
-						throw new NotImplementedException();
-					visitHSI(fn, remaining, cm.intros());
+					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
+					intersect.retainAll(cm.intros());
+					visitHSI(fn, remaining, intersect);
 				}
 				for (String ty : opts.types()) {
 					hsi.withConstructor(ty);
-					visitHSI(fn, remaining, opts.getIntrosForType(ty));
+					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
+					intersect.retainAll(opts.getIntrosForType(ty));
+					visitHSI(fn, remaining, intersect);
 				}
 			} else {
 				for (VarName v : opts.vars())

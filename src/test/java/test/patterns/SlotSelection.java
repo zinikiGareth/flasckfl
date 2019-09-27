@@ -28,7 +28,7 @@ public class SlotSelection {
 	@Test
 	public void aConstructorIsPreferredToAVar() {
 		HSIPatternTree tree = new HSIPatternTree(2);
-		tree.get(0).addCM("Nil", new HSIPatternTree(0));
+		tree.get(0).requireCM("Nil", 0);
 		tree.get(1).addVar(new VarName(pos, nameF, "x"));
 		ArgSlot s0 = new ArgSlot(0, tree.get(0));
 		ArgSlot s1 = new ArgSlot(1, tree.get(1));
@@ -39,7 +39,7 @@ public class SlotSelection {
 	public void aConstructorIsPreferredToAVarEvenIfLater() {
 		HSIPatternTree tree = new HSIPatternTree(2);
 		tree.get(0).addVar(new VarName(pos, nameF, "x"));
-		tree.get(1).addCM("Nil", new HSIPatternTree(0));
+		tree.get(1).requireCM("Nil", 0);
 		ArgSlot s0 = new ArgSlot(0, tree.get(0));
 		ArgSlot s1 = new ArgSlot(1, tree.get(1));
 		assertEquals(s1, Traverser.selectSlot(Arrays.asList(s0, s1)));

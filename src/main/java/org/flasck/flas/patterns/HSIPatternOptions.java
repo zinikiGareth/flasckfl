@@ -31,8 +31,10 @@ public class HSIPatternOptions implements HSIOptions {
 	private Map<String, HSITree> ctors = new TreeMap<>();
 
 	@Override
-	public void addCM(String ctor, HSITree nested) {
-		ctors.put(ctor, nested);
+	public HSITree requireCM(String ctor, int nargs) {
+		if (!ctors.containsKey(ctor))
+			ctors.put(ctor, new HSIPatternTree(nargs));
+		return ctors.get(ctor);
 	}
 
 	@Override
