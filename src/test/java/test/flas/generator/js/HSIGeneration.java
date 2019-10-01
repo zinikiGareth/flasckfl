@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.flasck.flas.compiler.jsgen.ExtractField;
 import org.flasck.flas.compiler.jsgen.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.JSMethod;
 import org.junit.Test;
@@ -46,4 +47,11 @@ public class HSIGeneration {
 		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError(_cxt, 'no matching case');\n}\n", sw.toString());
 	}
 	
+	@Test
+	public void fieldsCanBeExtracted() {
+		ExtractField ef = new ExtractField("_1", "_0", "head");
+		assertEquals("_1", ef.asVar());
+		ef.write(new IndentWriter(new PrintWriter(sw)));
+		assertEquals("_1 = _cxt.field(_0, 'head');\n", sw.toString());
+	}
 }

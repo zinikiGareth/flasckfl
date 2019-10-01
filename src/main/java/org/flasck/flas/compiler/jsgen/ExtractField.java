@@ -3,21 +3,29 @@ package org.flasck.flas.compiler.jsgen;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ExtractField implements JSExpr {
+	private final String asVar;
+	private final String fromVar;
+	private final String field;
 
 	public ExtractField(String asVar, String fromVar, String field) {
-		// TODO Auto-generated constructor stub
+		this.asVar = asVar;
+		this.fromVar = fromVar;
+		this.field = field;
 	}
 
 	@Override
 	public String asVar() {
-		// TODO Auto-generated method stub
-		return null;
+		return asVar;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		// TODO Auto-generated method stub
-
+		w.print(asVar);
+		w.print(" = _cxt.field(");
+		w.print(fromVar);
+		w.print(", '");
+		w.print(field);
+		w.println("');");
 	}
 
 }

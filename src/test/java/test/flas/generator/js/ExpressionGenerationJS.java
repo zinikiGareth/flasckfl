@@ -1,7 +1,11 @@
 package test.flas.generator.js;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -11,6 +15,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.jsgen.ExtractField;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
@@ -31,6 +36,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ExpressionGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
