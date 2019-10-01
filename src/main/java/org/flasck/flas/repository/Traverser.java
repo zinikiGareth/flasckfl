@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
+import org.flasck.flas.patterns.HSICtorTree;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.patterns.HSIOptions.IntroVarName;
@@ -201,11 +202,14 @@ public class Traverser implements Visitor {
 				hsi.switchOn(s);
 				for (String c : opts.ctors()) {
 					hsi.withConstructor(c);
-					HSITree cm = opts.getCM(c);
+					HSICtorTree cm = (HSICtorTree) opts.getCM(c);
 					List<Slot> extended = new ArrayList<>(remaining);
 					for (int i=0;i<cm.width();i++) {
+						String fld = cm.getField(i);
 						HSIOptions oi = cm.get(i);
-						extended.add(new CMSlot(oi));
+						CMSlot fieldSlot = new CMSlot(oi);
+						hsi.constructorField(s, fld, fieldSlot);
+						extended.add(fieldSlot);
 					}
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(cm.intros());

@@ -35,6 +35,15 @@ public class HSICtorTree extends HSIPatternTree {
 		return slots.get(field);
 	}
 
+	public String getField(int i) {
+		Iterator<String> it = slots.keySet().iterator();
+		while (true) {
+			String ret = it.next();
+			if (i-- == 0)
+				return ret;
+		}
+	}
+	
 	@Override
 	public HSIOptions get(int i) {
 		Iterator<HSIOptions> it = slots.values().iterator();

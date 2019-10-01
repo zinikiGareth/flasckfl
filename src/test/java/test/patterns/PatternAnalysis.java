@@ -1,5 +1,6 @@
 package test.patterns;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.CaptureAction;
 
 public class PatternAnalysis {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -405,10 +407,13 @@ public class PatternAnalysis {
 		ArrayList<Slot> slots = new ArrayList<>();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
+		CaptureAction cfSlot = new CaptureAction(null);
+		CaptureAction switchSlot = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
 			oneOf(hsi).withConstructor("Cons");
-			oneOf(hsi).switchOn(with(any(CMSlot.class)));
+			oneOf(hsi).constructorField(with(a0), with("head"), with(any(CMSlot.class))); will(cfSlot);
+			oneOf(hsi).switchOn(with(any(CMSlot.class))); will(switchSlot);
 			oneOf(hsi).withConstructor("True");
 			oneOf(hsi).startInline(intro2);
 			oneOf(hsi).visitExpr(simpleExpr, 0);
@@ -425,6 +430,7 @@ public class PatternAnalysis {
 		}});
 		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
+		assertEquals(cfSlot.get(2), switchSlot.get(0));
 	}
 	
 	@Test
@@ -457,6 +463,7 @@ public class PatternAnalysis {
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(a0);
 			oneOf(hsi).withConstructor("Cons");
+			oneOf(hsi).constructorField(with(a0), with("head"), with(any(CMSlot.class)));
 			oneOf(hsi).switchOn(with(any(CMSlot.class)));
 			oneOf(hsi).withConstructor("True");
 			oneOf(hsi).startInline(intro1);
