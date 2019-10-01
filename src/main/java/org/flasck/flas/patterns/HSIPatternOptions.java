@@ -33,10 +33,16 @@ public class HSIPatternOptions implements HSIOptions {
 			return false;
 		}
 	}
+	private List<FunctionIntro> all = new ArrayList<>();
 	private List<TV> vars = new ArrayList<>();
 	private Map<String, TV> types = new TreeMap<>(); 
 	private Map<String, HSICtorTree> ctors = new TreeMap<>();
 
+	@Override
+	public void includes(FunctionIntro fi) {
+		all.add(fi);
+	}
+	
 	@Override
 	public HSICtorTree requireCM(String ctor) {
 		if (!ctors.containsKey(ctor))
@@ -68,13 +74,12 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public List<FunctionIntro> getDefaultIntros() {
-		// I think the stored structure is back to front, and we should first be figuring out which intro, and then saying "ah, in that case the vars are" ...
-		// but I don't have unit tests to back that up
-		// When I do, I think this becomes easier, but there may be other logic
-		ArrayList<FunctionIntro> ret = new ArrayList<>();
-		for (TV tv : vars)
-			ret.addAll(tv.intros);
+	public List<FunctionIntro> getDefaultIntros(List<FunctionIntro> intros) {
+		ArrayList<FunctionIntro> ret = new ArrayList<>(all);
+		for (HSICtorTree ct : ctors.values())
+			ret.removeAll(ct.intros());
+		for (TV tv : types.values())
+			ret.removeAll(tv.intros);
 		return ret;
 	}
 
@@ -84,14 +89,14 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public List<VarName> vars(List<FunctionIntro> intros) {
-		if (intros.size() != 1)
-			throw new RuntimeException("This is an error: either we have started binding before switching, or there are multiple overlapping cases");
-		FunctionIntro i = intros.get(0);
-		List<VarName> ret = new ArrayList<VarName>();
-		for (TV v : vars)
-			if (v.intros.contains(i))
-				ret.add(v.var);
+	public List<IntroVarName> vars(List<FunctionIntro> intros) {
+		List<IntroVarName> ret = new ArrayList<>();
+		for (TV v : vars) {
+			for (FunctionIntro i : intros) {
+				if (v.intros.contains(i))
+					ret.add(new IntroVarName(i, v.var));
+			}
+		}
 		return ret;
 	}
 

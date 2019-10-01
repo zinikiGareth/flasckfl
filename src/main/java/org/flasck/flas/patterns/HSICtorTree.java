@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.parsedForm.FunctionIntro;
+
 public class HSICtorTree extends HSIPatternTree {
 	protected Map<String, HSIOptions> slots = new TreeMap<>();
 
@@ -16,8 +18,12 @@ public class HSICtorTree extends HSIPatternTree {
 	}
 	
 	public HSIOptions field(String field) {
-		if (!slots.containsKey(field))
-			slots.put(field, new HSIPatternOptions());
+		if (!slots.containsKey(field)) {
+			HSIPatternOptions hpo = new HSIPatternOptions();
+			for (FunctionIntro fi : intros)
+				hpo.includes(fi);
+			slots.put(field, hpo);
+		}
 		return slots.get(field);
 	}
 

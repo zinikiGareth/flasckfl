@@ -54,12 +54,14 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void visitVarPattern(VarPattern p) {
-		slot.addVar(p.name(), current);
+		this.slot.addVar(p.name(), current);
+		this.slot.includes(this.current);
 	}
 	
 	@Override
 	public void visitTypedPattern(TypedPattern p) {
-		slot.addTyped(p.type, p.var, current);
+		this.slot.addTyped(p.type, p.var, current);
+		this.slot.includes(this.current);
 	}
 	
 	@Override
@@ -72,6 +74,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	@Override
 	public void visitConstructorField(String field, Object patt) {
 		this.slot = ((HSICtorTree)hsiTree).field(field);
+		this.slot.includes(this.current);
 	}
 
 	@Override

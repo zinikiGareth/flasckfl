@@ -29,10 +29,12 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.repository.Traverser.VarMapping;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.bytecode.mock.VarMatcher;
 
 public class PatternAnalysis {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -59,13 +61,14 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		context.checking(new Expectations() {{
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -82,6 +85,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		ArgSlot s0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(s0);
 		context.checking(new Expectations() {{
@@ -91,7 +95,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -110,6 +114,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(s);
 		context.checking(new Expectations() {{
@@ -122,7 +127,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -139,6 +144,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
 		context.checking(new Expectations() {{
@@ -151,7 +157,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -176,6 +182,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
 		context.checking(new Expectations() {{
@@ -193,7 +200,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
 	}
 
@@ -212,6 +219,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		ArgSlot s0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(s0);
 		ArgSlot s1 = new ArgSlot(1, fn.hsiTree().get(1));
@@ -224,7 +232,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -242,6 +250,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
 		ArgSlot a1 = new ArgSlot(1, fn.hsiTree().get(1));
@@ -260,7 +269,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -287,6 +296,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
 		ArgSlot a1 = new ArgSlot(1, fn.hsiTree().get(1));
@@ -314,7 +324,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
 
 	@Test
@@ -341,6 +351,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
 		ArgSlot a1 = new ArgSlot(1, fn.hsiTree().get(1));
@@ -365,7 +376,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -391,6 +402,7 @@ public class PatternAnalysis {
 		}
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
+		VarMapping vars = new VarMapping();
 		ArrayList<Slot> slots = new ArrayList<>();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(a0);
@@ -417,7 +429,7 @@ public class PatternAnalysis {
 			oneOf(hsi).endSwitch();
 			 */
 		}});
-		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
 	}
 	

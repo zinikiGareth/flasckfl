@@ -6,7 +6,7 @@ import java.util.List;
 import org.flasck.flas.parsedForm.FunctionIntro;
 
 public abstract class HSIPatternTree implements HSITree {
-	private List<FunctionIntro> intros = new ArrayList<>();
+	protected List<FunctionIntro> intros = new ArrayList<>();
 
 	protected HSIPatternTree() {
 	}

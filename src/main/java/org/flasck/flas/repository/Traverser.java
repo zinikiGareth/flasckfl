@@ -1,7 +1,9 @@
 package org.flasck.flas.repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -36,6 +38,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSITree;
+import org.flasck.flas.patterns.HSIOptions.IntroVarName;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.Primitive;
 import org.zinutils.exceptions.NotImplementedException;
@@ -137,23 +140,58 @@ public class Traverser implements Visitor {
 				slots.add(new ArgSlot(i, fn.hsiTree().get(i)));
 			}
 			((HSIVisitor)visitor).hsiArgs(slots);
-			visitHSI(fn, slots, fn.intros());
+			visitHSI(fn, new VarMapping(), slots, fn.intros());
 		} else {
 			for (FunctionIntro i : fn.intros())
 				visitFunctionIntro(i);
 		}
 		visitor.leaveFunction(fn);
 	}
+	
+	private static class SlotVar {
+		private final Slot s;
+		private final VarName var;
 
-	public void visitHSI(FunctionDefinition fn, List<Slot> slots, List<FunctionIntro> intros) {
+		public SlotVar(Slot s, VarName var) {
+			this.s = s;
+			this.var = var;
+		}
+	}
+	
+	public static class VarMapping {
+		private Map<FunctionIntro, List<SlotVar>> map = new HashMap<>();
+		
+		public VarMapping remember(Slot s, HSIOptions opts, List<FunctionIntro> intros) {
+			VarMapping ret = new VarMapping();
+			ret.map.putAll(map);
+			for (IntroVarName v : opts.vars(intros)) {
+				if (!ret.map.containsKey(v.intro))
+					ret.map.put(v.intro, new ArrayList<>());
+				ret.map.get(v.intro).add(new SlotVar(s, v.var));
+			}
+			return ret;
+		}
+
+		public void bindFor(HSIVisitor hsi, FunctionIntro intro) {
+			List<SlotVar> vars = map.get(intro);
+			if (vars != null) {
+				for (SlotVar sv : vars)
+					hsi.bind(sv.s, sv.var.var);
+			}
+		}
+	}
+
+	public void visitHSI(FunctionDefinition fn, VarMapping vars, List<Slot> slots, List<FunctionIntro> intros) {
 		System.out.println(fn.name().uniqueName() + " " + slots.size() + " " + intros);
 		HSIVisitor hsi = (HSIVisitor) visitor;
 		if (slots.isEmpty()) {
 			if (intros.size() == 0)
 				hsi.errorNoCase();
-			else if (intros.size() == 1)
-				handleInline(hsi, intros.get(0));
-			else
+			else if (intros.size() == 1) {
+				FunctionIntro intro = intros.get(0);
+				vars.bindFor(hsi, intro);
+				handleInline(hsi, intro);
+			} else
 				throw new NotImplementedException("I think this is an error");
 		} else {
 			Slot s = selectSlot(slots);
@@ -172,20 +210,19 @@ public class Traverser implements Visitor {
 					}
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(cm.intros());
-					visitHSI(fn, extended, intersect);
+					visitHSI(fn, vars, extended, intersect);
 				}
 				for (String ty : opts.types(intros)) {
 					hsi.withConstructor(ty);
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(opts.getIntrosForType(ty));
-					visitHSI(fn, remaining, intersect);
+					visitHSI(fn, vars, remaining, intersect);
 				}
 			}
-			for (VarName v : opts.vars(intros))
-				hsi.bind(s, v.var);
+			vars = vars.remember(s, opts, intros);
 			ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
-			intersect.retainAll(opts.getDefaultIntros());
-			visitHSI(fn, remaining, intersect);
+			intersect.retainAll(opts.getDefaultIntros(intros));
+			visitHSI(fn, vars, remaining, intersect);
 			if (opts.hasSwitches(intros)) {
 				hsi.endSwitch();
 			}
