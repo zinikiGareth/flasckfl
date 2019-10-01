@@ -40,15 +40,15 @@ public class SlotScoring {
 	@Test
 	public void aConstructorScores3() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.requireCM("Nil", 0);
+		tree.requireCM("Nil");
 		assertEquals(3, tree.score());
 	}
 
 	@Test
 	public void eachConstructorScores3() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.requireCM("Nil", 0);
-		tree.requireCM("Cons", 2);
+		tree.requireCM("Nil");
+		tree.requireCM("Cons");
 		assertEquals(6, tree.score());
 	}
 
@@ -63,9 +63,9 @@ public class SlotScoring {
 	@Test
 	public void checkThingsAddUpTheWayYouWouldExpect() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.requireCM("Nil", 0);
+		tree.requireCM("Nil");
 		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"), null);
-		tree.requireCM("Cons", 2);
+		tree.requireCM("Cons");
 		tree.addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "n"), null);
 		tree.addTyped(new TypeReference(pos, "Any"), new VarName(pos, nameF, "v"), null);
 		tree.addVar(new VarName(pos, nameF, "v"), null);

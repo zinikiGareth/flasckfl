@@ -55,14 +55,10 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void leaveUnionTypeDefn(UnionTypeDefn ud) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -103,6 +99,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p) {
+	}
+
+	@Override
+	public void visitConstructorField(String field, Object patt) {
+	}
+
+	@Override
+	public void leaveConstructorField(String field, Object patt) {
 	}
 
 	@Override

@@ -35,12 +35,12 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 	private List<TV> vars = new ArrayList<>();
 	private Map<String, TV> types = new TreeMap<>(); 
-	private Map<String, HSITree> ctors = new TreeMap<>();
+	private Map<String, HSICtorTree> ctors = new TreeMap<>();
 
 	@Override
-	public HSITree requireCM(String ctor, int nargs) {
+	public HSICtorTree requireCM(String ctor) {
 		if (!ctors.containsKey(ctor))
-			ctors.put(ctor, new HSIPatternTree(nargs));
+			ctors.put(ctor, new HSICtorTree());
 		return ctors.get(ctor);
 	}
 
@@ -65,6 +65,17 @@ public class HSIPatternOptions implements HSIOptions {
 	@Override
 	public List<FunctionIntro> getIntrosForType(String ty) {
 		return types.get(ty).intros;
+	}
+
+	@Override
+	public List<FunctionIntro> getDefaultIntros() {
+		// I think the stored structure is back to front, and we should first be figuring out which intro, and then saying "ah, in that case the vars are" ...
+		// but I don't have unit tests to back that up
+		// When I do, I think this becomes easier, but there may be other logic
+		ArrayList<FunctionIntro> ret = new ArrayList<>();
+		for (TV tv : vars)
+			ret.addAll(tv.intros);
+		return ret;
 	}
 
 	@Override

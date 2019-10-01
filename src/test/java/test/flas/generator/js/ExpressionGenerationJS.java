@@ -16,7 +16,7 @@ import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.patterns.HSIPatternTree;
+import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -142,7 +142,7 @@ public class ExpressionGenerationJS {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
-		HSIPatternTree hsi = new HSIPatternTree(0);
+		HSIArgsTree hsi = new HSIArgsTree(0);
 		hsi.consider(fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);

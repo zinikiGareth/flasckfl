@@ -17,7 +17,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.patterns.HSIPatternTree;
+import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -52,7 +52,7 @@ public class HSITraversalTests {
 			oneOf(v).endInline(fi);
 			oneOf(v).leaveFunction(fn);
 		}});
-		HSIPatternTree tree = new HSIPatternTree(1);
+		HSIArgsTree tree = new HSIArgsTree(1);
 		tree.consider(fi);
 		tree.get(0).addVar(vx, fi);
 		fn.bindHsi(tree);
@@ -90,9 +90,9 @@ public class HSITraversalTests {
 			oneOf(v).endSwitch();
 			oneOf(v).leaveFunction(fn);
 		}});
-		HSIPatternTree tree = new HSIPatternTree(1);
+		HSIArgsTree tree = new HSIArgsTree(1);
 		tree.consider(fi);
-		tree.get(0).requireCM("Nil", 0).consider(fi);
+		tree.get(0).requireCM("Nil").consider(fi);
 		fn.bindHsi(tree);
 		
 		t.visitFunction(fn);
@@ -123,7 +123,7 @@ public class HSITraversalTests {
 			oneOf(v).endSwitch();
 			oneOf(v).leaveFunction(fn);
 		}});
-		HSIPatternTree tree = new HSIPatternTree(1);
+		HSIArgsTree tree = new HSIArgsTree(1);
 		tree.consider(fi);
 		tree.get(0).addTyped(new TypeReference(pos, "Number"), new VarName(pos, fname, "x"), fi);
 		fn.bindHsi(tree);

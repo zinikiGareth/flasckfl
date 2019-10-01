@@ -5,30 +5,19 @@ import java.util.List;
 
 import org.flasck.flas.parsedForm.FunctionIntro;
 
-public class HSIPatternTree implements HSITree {
-	private List<HSIOptions> slots = new ArrayList<>();
+public abstract class HSIPatternTree implements HSITree {
 	private List<FunctionIntro> intros = new ArrayList<>();
 
-	public HSIPatternTree(int nargs) {
-		for (int i=0;i<nargs;i++) {
-			slots.add(new HSIPatternOptions());
-		}
+	protected HSIPatternTree() {
 	}
-	
+
 	@Override
 	public HSITree consider(FunctionIntro fi) {
+		if (fi == null) {
+			throw new NullPointerException("Cannot consider a null intro");
+		}
 		intros.add(fi);
 		return this;
-	}
-
-	@Override
-	public int width() {
-		return slots.size();
-	}
-
-	@Override
-	public HSIOptions get(int i) {
-		return slots.get(i);
 	}
 
 	@Override

@@ -13,9 +13,10 @@ import org.flasck.flas.tc3.Type;
 public interface HSIOptions {
 	void addVar(VarName varName, FunctionIntro fi);
 	void addTyped(TypeReference tr, VarName varName, FunctionIntro fi);
-	HSITree requireCM(String ctor, int nargs);
+	HSICtorTree requireCM(String ctor);
 	HSITree getCM(String constructor);
 	List<FunctionIntro> getIntrosForType(String ty);
+	List<FunctionIntro> getDefaultIntros();
 	Type minimalType(CurrentTCState state, RepositoryReader repository);
 	Set<String> ctors();
 	List<VarName> vars(List<FunctionIntro> intros);

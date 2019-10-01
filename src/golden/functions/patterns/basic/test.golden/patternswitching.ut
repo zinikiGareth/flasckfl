@@ -30,6 +30,14 @@
 		assert (c False Nil)
 			1
 	
+	test that head is matched
+		assert (d3 [False])
+			1
+			 
+	test that head is matched
+		assert (d3 [True])
+			2
+			 
 	test the simple case of e
 		assert (e True [])
 			0

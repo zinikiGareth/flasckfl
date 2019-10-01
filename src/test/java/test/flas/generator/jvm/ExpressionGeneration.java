@@ -21,7 +21,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.patterns.HSIPatternTree;
+import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.jmock.Expectations;
@@ -194,7 +194,7 @@ public class ExpressionGeneration {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
-		HSIPatternTree hsi = new HSIPatternTree(0);
+		HSIArgsTree hsi = new HSIArgsTree(0);
 		hsi.consider(fi);
 		fn.bindHsi(hsi);
 		List<IExpr> argsList = new ArrayList<>();
@@ -243,7 +243,7 @@ public class ExpressionGeneration {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
 		fi.functionCase(fcd);
 		fn.intro(fi);
-		HSIPatternTree hsi = new HSIPatternTree(0);
+		HSIArgsTree hsi = new HSIArgsTree(0);
 		hsi.consider(fi);
 		fn.bindHsi(hsi);
 		List<IExpr> argsList = new ArrayList<>();

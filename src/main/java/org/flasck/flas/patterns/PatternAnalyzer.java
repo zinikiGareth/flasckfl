@@ -10,21 +10,34 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Repository;
 
-public class PatternAnalyzer extends LeafAdapter{
+public class PatternAnalyzer extends LeafAdapter {
 	private HSITree hsiTree;
 	private final NestedVisitor sv;
 	private int nslot;
 	private HSIOptions slot;
 	private FunctionIntro current;
+	private ErrorResult errors;
+	private Repository repository;
 	
 	public PatternAnalyzer(ErrorResult errors, Repository repository, NestedVisitor sv) {
+		this.errors = errors;
+		this.repository = repository;
 		this.sv = sv;
+		sv.push(this);
+	}
+
+	public PatternAnalyzer(ErrorResult errors, Repository repository, NestedVisitor sv, HSITree tree, FunctionIntro current) {
+		this.errors = errors;
+		this.repository = repository;
+		this.sv = sv;
+		this.hsiTree = tree;
+		this.current = current;
 		sv.push(this);
 	}
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		hsiTree = new HSIPatternTree(fn.argCount());
+		hsiTree = new HSIArgsTree(fn.argCount());
 	}
 	
 	@Override
@@ -51,11 +64,21 @@ public class PatternAnalyzer extends LeafAdapter{
 	
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p) {
-		HSITree nested = slot.requireCM(p.ctor, p.args.size());
+		HSITree nested = slot.requireCM(p.ctor);
 		nested.consider(current);
-		sv.push(new ConstructorMatchAnalyzer(sv, nested));
+		new PatternAnalyzer(errors, repository, sv, nested, current);
 	}
 	
+	@Override
+	public void visitConstructorField(String field, Object patt) {
+		this.slot = ((HSICtorTree)hsiTree).field(field);
+	}
+
+	@Override
+	public void leaveConstructorMatch(ConstructorMatch p) {
+		sv.result(hsiTree);
+	}
+
 	@Override
 	public void leaveFunctionIntro(FunctionIntro fi) {
 		// TODO: this should actually bind a projection of the tree

@@ -69,6 +69,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitVarPattern(VarPattern p);
 		void visitTypedPattern(TypedPattern p);
 		void visitConstructorMatch(ConstructorMatch p);
+		void visitConstructorField(String field, Object patt);
+		void leaveConstructorField(String field, Object patt);
 		void leaveConstructorMatch(ConstructorMatch p);
 		void visitPatternVar(InputPosition varLoc, String var);
 		void leavePattern(Object patt);

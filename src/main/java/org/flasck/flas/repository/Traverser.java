@@ -10,9 +10,11 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ConstructorMatch;
+import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -163,9 +165,14 @@ public class Traverser implements Visitor {
 				for (String c : opts.ctors()) {
 					hsi.withConstructor(c);
 					HSITree cm = opts.getCM(c);
+					List<Slot> extended = new ArrayList<>(remaining);
+					for (int i=0;i<cm.width();i++) {
+						HSIOptions oi = cm.get(i);
+						extended.add(new CMSlot(oi));
+					}
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(cm.intros());
-					visitHSI(fn, remaining, intersect);
+					visitHSI(fn, extended, intersect);
 				}
 				for (String ty : opts.types(intros)) {
 					hsi.withConstructor(ty);
@@ -173,13 +180,13 @@ public class Traverser implements Visitor {
 					intersect.retainAll(opts.getIntrosForType(ty));
 					visitHSI(fn, remaining, intersect);
 				}
-			} else {
-				for (VarName v : opts.vars(intros))
-					hsi.bind(s, v.var);
-				visitHSI(fn, remaining, intros);
 			}
+			for (VarName v : opts.vars(intros))
+				hsi.bind(s, v.var);
+			ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
+			intersect.retainAll(opts.getDefaultIntros());
+			visitHSI(fn, remaining, intersect);
 			if (opts.hasSwitches(intros)) {
-				hsi.errorNoCase();
 				hsi.endSwitch();
 			}
 		}
@@ -256,11 +263,28 @@ public class Traverser implements Visitor {
 		visitPatternVar(p.var.loc, p.var.var);
 	}
 
+	@Override
 	public void visitConstructorMatch(ConstructorMatch p) {
 		visitor.visitConstructorMatch(p);
+		for (Field f : p.args) {
+			visitConstructorField(f.field, f.patt);
+		}
 		leaveConstructorMatch(p);
 	}
 
+	@Override
+	public void visitConstructorField(String field, Object patt) {
+		visitor.visitConstructorField(field, patt);
+		visitPattern(patt);
+		leaveConstructorField(field, patt);
+	}
+
+	@Override
+	public void leaveConstructorField(String field, Object patt) {
+		visitor.leaveConstructorField(field, patt);
+	}
+
+	@Override
 	public void leaveConstructorMatch(ConstructorMatch p) {
 		visitor.leaveConstructorMatch(p);
 	}

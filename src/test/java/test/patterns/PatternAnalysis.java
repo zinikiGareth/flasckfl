@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -366,4 +367,60 @@ public class PatternAnalysis {
 		}});
 		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
 	}
+	
+	@Test
+	public void aNestedCons() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		final FunctionIntro intro1;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			args.add(new ConstructorMatch(pos, "Cons"));
+			intro1 = new FunctionIntro(nameF, args);
+			intro1.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro1);
+		}
+		final FunctionIntro intro2;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			ConstructorMatch cm = new ConstructorMatch(pos, "Cons");
+			cm.args.add(cm.new Field(pos, "head", new ConstructorMatch(pos, "True")));
+			args.add(cm);
+			intro2 = new FunctionIntro(nameF, args);
+			intro2.functionCase(new FunctionCaseDefn(null, simpleExpr));
+			fn.intro(intro2);
+		}
+		new Traverser(sv).visitFunction(fn);
+		HSIVisitor hsi = context.mock(HSIVisitor.class);
+		ArrayList<Slot> slots = new ArrayList<>();
+		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
+		slots.add(a0);
+		context.checking(new Expectations() {{
+			oneOf(hsi).switchOn(a0);
+			oneOf(hsi).withConstructor("Cons");
+			oneOf(hsi).switchOn(with(any(CMSlot.class)));
+			oneOf(hsi).withConstructor("True");
+			oneOf(hsi).startInline(intro2);
+			oneOf(hsi).visitExpr(simpleExpr, 0);
+			oneOf(hsi).visitStringLiteral(simpleExpr);
+			oneOf(hsi).endInline(intro2);
+			// default case?
+			oneOf(hsi).startInline(intro1);
+			oneOf(hsi).visitExpr(number, 0);
+			oneOf(hsi).visitNumericLiteral(number);
+			oneOf(hsi).endInline(intro1);
+			oneOf(hsi).endSwitch();
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
+			/*
+			oneOf(hsi).withConstructor("Cons");
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
+			 */
+		}});
+		new Traverser(hsi).visitHSI(fn, slots, fn.intros());
+		assertNotNull(fn.hsiTree());
+	}
+	
+	// TODO: we should actually hit the error ...
+	// and there should be a golden case functions/patterns/errors
 }

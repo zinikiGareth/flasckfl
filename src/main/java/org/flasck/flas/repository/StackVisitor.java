@@ -121,6 +121,14 @@ public class StackVisitor implements NestedVisitor {
 		top.visitConstructorMatch(p);
 	}
 
+	public void visitConstructorField(String field, Object patt) {
+		top.visitConstructorField(field, patt);
+	}
+
+	public void leaveConstructorField(String field, Object patt) {
+		top.leaveConstructorField(field, patt);
+	}
+
 	public void leaveConstructorMatch(ConstructorMatch p) {
 		top.leaveConstructorMatch(p);
 	}

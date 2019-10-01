@@ -13,7 +13,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.patterns.HSIPatternOptions;
-import org.flasck.flas.patterns.HSIPatternTree;
+import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.hamcrest.Matchers;
@@ -82,7 +82,7 @@ public class FunctionGeneration {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new NumericLiteral(pos, 42));
 		fi.functionCase(fcd);
 		fn.intro(fi);
-		HSIPatternTree hsi = new HSIPatternTree(0);
+		HSIArgsTree hsi = new HSIArgsTree(0);
 		hsi.consider(fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
@@ -140,9 +140,9 @@ public class FunctionGeneration {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 		fi.functionCase(fcd);
 		fn.intro(fi);
-		HSIPatternTree hsi = new HSIPatternTree(1);
+		HSIArgsTree hsi = new HSIArgsTree(1);
 		hsi.consider(fi);
-		hsi.get(0).requireCM("Nil", 0).consider(fi);
+		hsi.get(0).requireCM("Nil").consider(fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
@@ -220,11 +220,11 @@ public class FunctionGeneration {
 			f2.functionCase(fcd);
 			fn.intro(f2);
 		}
-		HSIPatternTree hsi = new HSIPatternTree(1);
+		HSIArgsTree hsi = new HSIArgsTree(1);
 		hsi.consider(f1);
-		hsi.get(0).requireCM("Nil", 0).consider(f1);
+		hsi.get(0).requireCM("Nil").consider(f1);
 		hsi.consider(f2);
-		hsi.get(0).requireCM("Cons", 2).consider(f2);
+		hsi.get(0).requireCM("Cons").consider(f2);
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
@@ -395,9 +395,9 @@ public class FunctionGeneration {
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
 			fn.intro(fi);
-			HSIPatternTree hsi = new HSIPatternTree(1);
+			HSIArgsTree hsi = new HSIArgsTree(1);
 			hsi.consider(fi);
-			hsi.get(0).requireCM("Nil", 0).consider(fi);
+			hsi.get(0).requireCM("Nil").consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(gen).visitFunction(fn);
 		}
@@ -408,9 +408,9 @@ public class FunctionGeneration {
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
 			fn.intro(fi);
-			HSIPatternTree hsi = new HSIPatternTree(1);
+			HSIArgsTree hsi = new HSIArgsTree(1);
 			hsi.consider(fi);
-			hsi.get(0).requireCM("Nil", 0).consider(fi);
+			hsi.get(0).requireCM("Nil").consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(gen).visitFunction(fn);
 		}

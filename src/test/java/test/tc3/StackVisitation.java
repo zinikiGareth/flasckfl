@@ -16,7 +16,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.patterns.HSIPatternTree;
+import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
@@ -58,7 +58,7 @@ public class StackVisitation {
 		FunctionName name = FunctionName.function(pos, null, "f");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
-		fi.bindTree(new HSIPatternTree(0));
+		fi.bindTree(new HSIArgsTree(0));
 		fn.intro(fi);
 		Type ty = context.mock(Type.class);
 		context.checking(new Expectations() {{
