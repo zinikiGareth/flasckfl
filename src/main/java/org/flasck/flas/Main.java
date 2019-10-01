@@ -137,22 +137,22 @@ public class Main {
 		
 		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
 		{
-			ByteCodeEnvironment bce = new ByteCodeEnvironment();
 			JSEnvironment jse = new JSEnvironment(config.jsDir());
+			ByteCodeEnvironment bce = new ByteCodeEnvironment();
 			
-			JVMGenerator jvmGenerator = new JVMGenerator(bce);
 			JSGenerator jsGenerator = new JSGenerator(jse);
+			JVMGenerator jvmGenerator = new JVMGenerator(bce);
 
-			repository.traverse(jvmGenerator);
 			repository.traverse(jsGenerator);
+//			repository.traverse(jvmGenerator);
 			
 			if (compiler.hasErrors()) {
 				errors.showFromMark(mark, ew, 0);
 				return true;
 			}
 			
-			saveBCE(errors, config.jvmDir(), bce);
 			saveJSE(errors, config.jsDir(), jse);
+//			saveBCE(errors, config.jvmDir(), bce);
 
 			Map<File, PrintWriter> writers = new HashMap<>();
 			if (config.unitjvm) {

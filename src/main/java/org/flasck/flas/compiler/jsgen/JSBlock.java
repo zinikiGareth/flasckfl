@@ -102,6 +102,11 @@ public class JSBlock implements JSBlockCreator {
 	}
 	
 	@Override
+	public void field(String asVar, String fromVar, String field) {
+		stmts.add(new ExtractField(asVar, fromVar, field));
+	}
+
+	@Override
 	public JSIfExpr ifCtor(String var, String ctor) {
 		JSIfExpr ret = new JSIfExpr(new IsAExpr(var, ctor), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);

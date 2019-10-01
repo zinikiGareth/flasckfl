@@ -1,6 +1,7 @@
 package test.flas.generator.jvm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -12,8 +13,8 @@ import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.hamcrest.Matchers;
@@ -104,11 +105,10 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).nextLocal(); will(returnValue(24));
 		}});
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
-		Var arg0 = new Var.AVar(meth, "Object", "arg");
+		IExpr arg0 = context.mock(IExpr.class, "arg0");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
@@ -168,11 +168,10 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).nextLocal(); will(returnValue(24));
 		}});
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
-		Var arg0 = new Var.AVar(meth, "Object", "arg");
+		IExpr arg0 = context.mock(IExpr.class, "arg0");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
@@ -230,6 +229,71 @@ public class FunctionGeneration {
 	}
 
 	@Test
+	public void constructorOrVar() {
+		IExpr cxt = context.mock(IExpr.class, "cxt");
+		IExpr dummy = context.mock(IExpr.class, "dummy");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		Var args = new Var.AVar(meth, "[Object", "args");
+
+		JVMGenerator gen = JVMGenerator.forTests(meth, cxt, args);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		
+		IExpr ass1 = context.mock(IExpr.class, "ass1");
+		CaptureAction captureHead0 = new CaptureAction(ass1);
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
+			oneOf(meth).nextLocal(); will(returnValue(25));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
+			oneOf(ass1).flush();
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		gen.hsiArgs(Arrays.asList(a0));
+		gen.switchOn(a0);
+		gen.withConstructor("Nil");
+
+		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
+		StringLiteral expr = new StringLiteral(pos, "hello");
+		intro.functionCase(new FunctionCaseDefn(null, expr));
+
+		IExpr jvmExpr = context.mock(IExpr.class, "jvmExpr");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("hello"); will(returnValue(dummy));
+			oneOf(meth).returnObject(dummy); will(returnValue(jvmExpr));
+		}});
+		gen.startInline(intro);
+		gen.visitExpr(expr, 0);
+		gen.visitStringLiteral(expr);
+		gen.endInline(intro);
+		
+		final FunctionIntro intro2;
+		intro2 = new FunctionIntro(name, new ArrayList<>());
+		NumericLiteral number = new NumericLiteral(pos, "42", 2);
+		intro2.functionCase(new FunctionCaseDefn(null, number));
+
+		context.checking(new Expectations() {{
+			oneOf(meth).intConst(42); will(returnValue(dummy));
+			oneOf(meth).box(dummy); will(returnValue(dummy));
+			oneOf(meth).aNull(); will(returnValue(dummy));
+			oneOf(meth).castTo(dummy, "java.lang.Double"); will(returnValue(dummy));
+			oneOf(meth).makeNew(J.NUMBER, dummy, dummy); will(returnValue(dummy));
+			oneOf(meth).returnObject(dummy); will(returnValue(jvmExpr));
+		}});
+		gen.defaultCase();
+		gen.startInline(intro2);
+		gen.visitExpr(number, 0);
+		gen.visitNumericLiteral(number);
+		gen.endInline(intro2);
+
+		context.checking(new Expectations() {{
+			oneOf(jvmExpr).flush();
+		}});
+		gen.endSwitch();
+	}
+
+	@Test
 	public void nestedSwitching() {
 		IExpr cxt = context.mock(IExpr.class, "cxt");
 		IExpr dummy = context.mock(IExpr.class, "dummy");
@@ -248,22 +312,24 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
 			oneOf(ass1).flush();
+			oneOf(meth).arrayItem(J.OBJECT, args, 1); will(returnValue(dummy));
 		}});
+
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
+		gen.hsiArgs(Arrays.asList(a0, a1));
+		
 		gen.switchOn(a0);
 		gen.withConstructor("Nil");
-
 		
 		IExpr ass2 = context.mock(IExpr.class, "ass2");
 		CaptureAction captureHead1 = new CaptureAction(ass2);
 		context.checking(new Expectations() {{
-			oneOf(meth).arrayItem(J.OBJECT, args, 1); will(returnValue(dummy));
 			oneOf(meth).nextLocal(); will(returnValue(26));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(26)), with(dummy)); will(captureHead1);
 			oneOf(ass2).flush();
 		}});
-		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.switchOn(a1);
 		gen.withConstructor("Nil");
 		
@@ -335,11 +401,10 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).nextLocal(); will(returnValue(24));
 		}});
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
-		Var arg0 = new Var.AVar(meth, "Object", "arg");
+		IExpr arg0 = context.mock(IExpr.class, "arg0");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));

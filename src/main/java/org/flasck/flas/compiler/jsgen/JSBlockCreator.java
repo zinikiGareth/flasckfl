@@ -9,6 +9,7 @@ public interface JSBlockCreator {
 	JSExpr structConst(String name);
 	void bindVar(String slot, String var);
 	void head(String var);
+	void field(String asVar, String fromVar, String field);
 	JSIfExpr ifCtor(String var, String ctor);
 	void errorNoCase();
 	JSExpr callFunction(String string, JSExpr... args);

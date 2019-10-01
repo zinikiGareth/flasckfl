@@ -27,7 +27,7 @@
 	d3 (Cons {head: True}) = 2
 
 	e True Nil = 0
-.	e True (Cons {head: True}) = 1
+	e True (Cons {head: True}) = 1
 	e True (Cons {}) = 2
 	e False x = 3
 

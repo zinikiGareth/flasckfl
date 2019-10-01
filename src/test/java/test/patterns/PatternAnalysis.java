@@ -34,7 +34,6 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.bytecode.mock.VarMatcher;
 
 public class PatternAnalysis {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -415,7 +414,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(simpleExpr, 0);
 			oneOf(hsi).visitStringLiteral(simpleExpr);
 			oneOf(hsi).endInline(intro2);
-			// default case?
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).startInline(intro1);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
@@ -423,11 +422,6 @@ public class PatternAnalysis {
 			oneOf(hsi).endSwitch();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
-			/*
-			oneOf(hsi).withConstructor("Cons");
-			oneOf(hsi).errorNoCase();
-			oneOf(hsi).endSwitch();
-			 */
 		}});
 		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
@@ -469,7 +463,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(simpleExpr, 0);
 			oneOf(hsi).visitStringLiteral(simpleExpr);
 			oneOf(hsi).endInline(intro1);
-			// default case?
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).startInline(intro2);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
@@ -477,16 +471,11 @@ public class PatternAnalysis {
 			oneOf(hsi).endSwitch();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
-			/*
-			oneOf(hsi).withConstructor("Cons");
-			oneOf(hsi).errorNoCase();
-			oneOf(hsi).endSwitch();
-			 */
 		}});
 		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
 	}
 	
-	// TODO: we should actually hit the error ...
+	// TODO: the errors cases where the patterns overlap
 	// and there should be a golden case functions/patterns/errors
 }

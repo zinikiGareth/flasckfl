@@ -1,6 +1,7 @@
 package test.flas.generator.js;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -8,7 +9,6 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.jsgen.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
@@ -16,24 +16,20 @@ import org.flasck.flas.compiler.jsgen.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.CMSlot;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.Traverser;
-import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.bytecode.IExpr;
-import org.zinutils.bytecode.JavaType;
-import org.zinutils.bytecode.Var;
-import org.zinutils.bytecode.mock.VarMatcher;
-import org.zinutils.support.jmock.CaptureAction;
 
 public class FunctionGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -180,6 +176,95 @@ public class FunctionGenerationJS {
 	}
 
 	@Test
+	public void handleAField() {
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+
+		JSBlockCreator isCons = context.mock(JSBlockCreator.class, "isCons");
+		JSBlockCreator notCons = context.mock(JSBlockCreator.class, "notCons");
+		JSIfExpr outer = new JSIfExpr(null, isCons, notCons);
+
+		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
+		StringLiteral expr = new StringLiteral(pos, "hello");
+		intro.functionCase(new FunctionCaseDefn(null, expr));
+		
+		context.checking(new Expectations() {{
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "Cons"); will(returnValue(outer));
+			oneOf(isCons).field("_1", "_0", "head");
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		gen.hsiArgs(Arrays.asList(a0));
+		gen.switchOn(a0);
+		gen.withConstructor("Cons");
+		HSIPatternOptions headOpts = new HSIPatternOptions();
+		headOpts.includes(intro);
+		Slot cm1 = new CMSlot(headOpts);
+		gen.constructorField(a0, "head", cm1);
+
+		JSIfExpr inner = new JSIfExpr(null, context.mock(JSBlockCreator.class, "innerT"), context.mock(JSBlockCreator.class, "innerF"));
+		context.checking(new Expectations() {{
+			oneOf(isCons).head("_1");
+			oneOf(isCons).ifCtor("_1", "True"); will(returnValue(inner));
+		}});
+		gen.switchOn(cm1);
+		gen.withConstructor("True");
+	}
+
+	@Test
+	public void constructorOrVar() {
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		
+		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
+		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil0");
+		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
+		context.checking(new Expectations() {{
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(outer));
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		gen.hsiArgs(Arrays.asList(a0));
+		gen.switchOn(a0);
+		gen.withConstructor("Nil");
+
+		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
+		StringLiteral expr = new StringLiteral(pos, "hello");
+		intro.functionCase(new FunctionCaseDefn(null, expr));
+
+		context.checking(new Expectations() {{
+			oneOf(isNil).string("hello"); will(returnValue(dummy));
+		}});
+		gen.startInline(intro);
+		gen.visitExpr(expr, 0);
+		gen.visitStringLiteral(expr);
+		gen.endInline(intro);
+		
+		final FunctionIntro intro2;
+		intro2 = new FunctionIntro(name, new ArrayList<>());
+		NumericLiteral number = new NumericLiteral(pos, "42", 2);
+		intro2.functionCase(new FunctionCaseDefn(null, number));
+
+		context.checking(new Expectations() {{
+			oneOf(isNil).returnObject(dummy);
+			oneOf(notNil).literal("42"); will(returnValue(dummy));
+		}});
+		gen.defaultCase();
+		gen.startInline(intro2);
+		gen.visitExpr(number, 0);
+		gen.visitNumericLiteral(number);
+		gen.endInline(intro2);
+
+		context.checking(new Expectations() {{
+			oneOf(notNil).returnObject(dummy);
+		}});
+		gen.endSwitch();
+	}
+
+	@Test
 	public void nestedSwitching() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr dummy = context.mock(JSExpr.class, "dummy");
@@ -193,6 +278,8 @@ public class FunctionGenerationJS {
 			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(outer));
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
+		gen.hsiArgs(Arrays.asList(a0, a1));
 		gen.switchOn(a0);
 		gen.withConstructor("Nil");
 
@@ -203,7 +290,6 @@ public class FunctionGenerationJS {
 			oneOf(isNil0).head("_1");
 			oneOf(isNil0).ifCtor("_1", "Nil"); will(returnValue(inner));
 		}});
-		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.switchOn(a1);
 		gen.withConstructor("Nil");
 		
@@ -250,6 +336,8 @@ public class FunctionGenerationJS {
 			oneOf(meth).ifCtor("_0", "True"); will(returnValue(outer));
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
+		gen.hsiArgs(Arrays.asList(a0, a1));
 		gen.switchOn(a0);
 		gen.withConstructor("True");
 
@@ -260,7 +348,6 @@ public class FunctionGenerationJS {
 			oneOf(isTrue0).head("_1");
 			oneOf(isTrue0).ifCtor("_1", "Nil"); will(returnValue(inner));
 		}});
-		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.switchOn(a1);
 		gen.withConstructor("Nil");
 		

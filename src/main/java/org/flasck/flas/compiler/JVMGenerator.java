@@ -1,7 +1,9 @@
 package org.flasck.flas.compiler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -69,6 +71,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	private Var fargs;
 	private SwitchLevel currentLevel;
 	private final List<SwitchLevel> switchStack = new ArrayList<>();
+	private final Map<Slot, IExpr> switchVars = new HashMap<>();
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce) {
@@ -112,31 +115,45 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	
 	@Override
 	public void hsiArgs(List<Slot> slots) {
-//		throw new NotImplementedException();
+		for (Slot slot : slots) {
+			ArgSlot s = (ArgSlot) slot;
+			IExpr in = meth.arrayItem(J.OBJECT, fargs, s.argpos());
+			switchVars.put(s, in);
+		}
 	}
 
 	@Override
 	public void switchOn(Slot slot) {
-		ArgSlot s = (ArgSlot) slot;
-		IExpr in = meth.arrayItem(J.OBJECT, fargs, s.argpos());
-		AVar var = new Var.AVar(meth, J.OBJECT, "head_" + s.argpos());
-		meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
+		IExpr e = switchVars.get(slot);
+		if (e == null)
+			throw new NullPointerException("No expr for slot " + slot);
+		if (!(e instanceof AVar)) {
+			AVar var = new Var.AVar(meth, J.OBJECT, "s" + nextVar++);
+			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, e)).flush();
+			e = var;
+			switchVars.put(slot, e);
+		}
 		currentLevel = new SwitchLevel();
-		currentLevel.currentSwitch = var;
+		currentLevel.currentSwitch = (AVar) e;
 		switchStack.add(0, currentLevel);
 	}
 
 	@Override
 	public void withConstructor(String ctor) {
-		if (!stack.isEmpty())
-			currentLevel.switches.get(currentLevel.switches.size()-1).expr = meth.returnObject(stack.remove(0));
 		currentLevel.switches.add(new SwitchMatch(currentLevel.currentSwitch, ctor));
+	}
+	
+	@Override
+	public void constructorField(Slot parent, String field, Slot slot) {
+		
+	}
+
+	@Override
+	public void defaultCase() {
 	}
 
 	@Override
 	public void errorNoCase() {
-		if (!stack.isEmpty())
-			currentLevel.switches.get(currentLevel.switches.size()-1).expr = meth.returnObject(stack.remove(0));
 		SwitchMatch si = new SwitchMatch(currentLevel.currentSwitch, null);
 		si.expr = meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no such case"))));
 		currentLevel.switches.add(si);
@@ -155,7 +172,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void endInline(FunctionIntro fi) {
-//		throw new NotImplementedException();
+		if (!stack.isEmpty() && currentLevel != null)
+			currentLevel.switches.get(currentLevel.switches.size()-1).expr = meth.returnObject(stack.remove(0));
 	}
 
 	@Override

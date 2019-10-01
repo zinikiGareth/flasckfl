@@ -1,7 +1,9 @@
 package org.flasck.flas.compiler.jsgen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -38,6 +40,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	private List<JSExpr> stack = new ArrayList<>();
 	private SwitchLevel currentLevel;
 	private final List<SwitchLevel> switchStack = new ArrayList<>();
+	private final Map<Slot, String> switchVars = new HashMap<>();
 
 	public JSGenerator(JSStorage jse) {
 		this.jse = jse;
@@ -52,6 +55,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		switchVars.clear();
 		if (fn.intros().isEmpty()) {
 			this.meth = null;
 			return;
@@ -65,15 +69,15 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	
 	@Override
 	public void hsiArgs(List<Slot> slots) {
-		// TODO Auto-generated method stub
-		
+		for (Slot s : slots) {
+			switchVars.put(s, "_" + switchVars.size());
+		}
 	}
 
 	@Override
 	public void switchOn(Slot slot) {
-		ArgSlot as = (ArgSlot) slot;
 		currentLevel = new SwitchLevel();
-		currentLevel.currentVar = "_" + as.argpos();
+		currentLevel.currentVar = switchVars.get(slot);
 		this.block.head(currentLevel.currentVar);
 		switchStack.add(0, currentLevel);
 	}
@@ -88,6 +92,20 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		JSIfExpr ifCtor = this.block.ifCtor(currentLevel.currentVar, ctor);
 		this.block = ifCtor.trueCase();
 		this.currentLevel.elseBlock = ifCtor.falseCase();
+	}
+
+	@Override
+	public void constructorField(Slot parent, String field, Slot slot) {
+		String var = "_" + switchVars.size();
+		this.block.field(var, switchVars.get(parent), field);
+		switchVars.put(slot, var);
+	}
+
+	@Override
+	public void defaultCase() {
+		if (!stack.isEmpty())
+			this.block.returnObject(this.stack.remove(0));
+		this.block = this.currentLevel.elseBlock;
 	}
 
 	@Override
@@ -116,6 +134,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void endSwitch() {
+		if (!stack.isEmpty())
+			this.block.returnObject(this.stack.remove(0));
 		switchStack.remove(0);
 		if (!switchStack.isEmpty())
 			currentLevel = switchStack.get(0);
