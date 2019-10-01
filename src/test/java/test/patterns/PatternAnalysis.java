@@ -433,6 +433,60 @@ public class PatternAnalysis {
 		assertNotNull(fn.hsiTree());
 	}
 	
+	@Test
+	public void aNestedConsOtherOrder() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		final FunctionIntro intro1;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			ConstructorMatch cm = new ConstructorMatch(pos, "Cons");
+			cm.args.add(cm.new Field(pos, "head", new ConstructorMatch(pos, "True")));
+			args.add(cm);
+			intro1 = new FunctionIntro(nameF, args);
+			intro1.functionCase(new FunctionCaseDefn(null, simpleExpr));
+			fn.intro(intro1);
+		}
+		final FunctionIntro intro2;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			args.add(new ConstructorMatch(pos, "Cons"));
+			intro2 = new FunctionIntro(nameF, args);
+			intro2.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro2);
+		}
+		new Traverser(sv).visitFunction(fn);
+		HSIVisitor hsi = context.mock(HSIVisitor.class);
+		VarMapping vars = new VarMapping();
+		ArrayList<Slot> slots = new ArrayList<>();
+		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
+		slots.add(a0);
+		context.checking(new Expectations() {{
+			oneOf(hsi).switchOn(a0);
+			oneOf(hsi).withConstructor("Cons");
+			oneOf(hsi).switchOn(with(any(CMSlot.class)));
+			oneOf(hsi).withConstructor("True");
+			oneOf(hsi).startInline(intro1);
+			oneOf(hsi).visitExpr(simpleExpr, 0);
+			oneOf(hsi).visitStringLiteral(simpleExpr);
+			oneOf(hsi).endInline(intro1);
+			// default case?
+			oneOf(hsi).startInline(intro2);
+			oneOf(hsi).visitExpr(number, 0);
+			oneOf(hsi).visitNumericLiteral(number);
+			oneOf(hsi).endInline(intro2);
+			oneOf(hsi).endSwitch();
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
+			/*
+			oneOf(hsi).withConstructor("Cons");
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
+			 */
+		}});
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
+		assertNotNull(fn.hsiTree());
+	}
+	
 	// TODO: we should actually hit the error ...
 	// and there should be a golden case functions/patterns/errors
 }

@@ -17,6 +17,14 @@ public class HSICtorTree extends HSIPatternTree {
 		return slots.size();
 	}
 	
+	@Override
+	public HSITree consider(FunctionIntro fi) {
+		super.consider(fi);
+		for (HSIOptions o : slots.values())
+			o.includes(fi);
+		return this;
+	}
+	
 	public HSIOptions field(String field) {
 		if (!slots.containsKey(field)) {
 			HSIPatternOptions hpo = new HSIPatternOptions();
