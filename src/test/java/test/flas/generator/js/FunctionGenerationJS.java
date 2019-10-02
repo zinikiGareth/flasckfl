@@ -125,6 +125,45 @@ public class FunctionGenerationJS {
 	}
 
 	@Test
+	public void argsAreBoundInsideBlocks() {
+		JSExpr ret = context.mock(JSExpr.class, "ret");
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		JSExpr slot1 = context.mock(JSExpr.class, "slot1");
+		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
+		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
+		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
+		context.checking(new Expectations() {{
+			oneOf(jss).newFunction("test.repo", "f"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("_0"); will(returnValue(slot0));
+			oneOf(meth).argument("_1"); will(returnValue(slot1));
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+			oneOf(isNil).bindVar("_0", "x");
+			oneOf(isNil).boundVar("x"); will(returnValue(ret));
+			oneOf(isNil).returnObject(ret);
+			oneOf(notNil).errorNoCase();
+		}});
+		FunctionName name = FunctionName.function(pos, pkg, "f");
+		VarName vnx = new VarName(pos, name, "x");
+		JSGenerator gen = new JSGenerator(jss);
+		FunctionDefinition fn = new FunctionDefinition(name, 2);
+		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+		UnresolvedVar ex = new UnresolvedVar(pos, "x");
+		ex.bind(new VarPattern(pos, vnx));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, ex);
+		fi.functionCase(fcd);
+		fn.intro(fi);
+		HSIArgsTree hsi = new HSIArgsTree(2);
+		hsi.consider(fi);
+		hsi.get(0).requireCM("Nil").consider(fi);
+		hsi.get(1).addVar(vnx, fi);
+		fn.bindHsi(hsi);
+		new Traverser(gen).visitFunction(fn);
+	}
+
+	@Test
 	public void aTwoConstructorHSIFunction() {
 		JSExpr sret = context.mock(JSExpr.class, "sret");
 		JSExpr gret = context.mock(JSExpr.class, "gret");

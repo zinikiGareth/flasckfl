@@ -117,7 +117,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void bind(Slot slot, String var) {
-		this.meth.bindVar("_0", var);
+		this.block.bindVar("_0", var);
 	}
 
 	@Override
