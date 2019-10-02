@@ -144,7 +144,7 @@ public class Main {
 			JVMGenerator jvmGenerator = new JVMGenerator(bce);
 
 			repository.traverse(jsGenerator);
-//			repository.traverse(jvmGenerator);
+			repository.traverse(jvmGenerator);
 			
 			if (compiler.hasErrors()) {
 				errors.showFromMark(mark, ew, 0);
@@ -152,7 +152,7 @@ public class Main {
 			}
 			
 			saveJSE(errors, config.jsDir(), jse);
-//			saveBCE(errors, config.jvmDir(), bce);
+			saveBCE(errors, config.jvmDir(), bce);
 
 			Map<File, PrintWriter> writers = new HashMap<>();
 			if (config.unitjvm) {

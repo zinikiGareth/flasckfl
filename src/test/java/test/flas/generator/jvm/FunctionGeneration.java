@@ -10,6 +10,8 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.CMSlot;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -227,6 +229,58 @@ public class FunctionGeneration {
 		fn.bindHsi(hsi);
 		new Traverser(gen).visitFunction(fn);
 	}
+	@Test
+	public void handleAField() {
+		IExpr cxt = context.mock(IExpr.class, "cxt");
+		IExpr dummy = context.mock(IExpr.class, "dummy");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		Var args = new Var.AVar(meth, "[Object", "args");
+
+		JVMGenerator gen = JVMGenerator.forTests(meth, cxt, args);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		
+		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
+		StringLiteral expr = new StringLiteral(pos, "hello");
+		intro.functionCase(new FunctionCaseDefn(null, expr));
+		
+		IExpr ass1 = context.mock(IExpr.class, "ass1");
+		CaptureAction captureHead0 = new CaptureAction(ass1);
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
+			oneOf(meth).nextLocal(); will(returnValue(25));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
+			oneOf(ass1).flush();
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		gen.hsiArgs(Arrays.asList(a0));
+		gen.switchOn(a0);
+		gen.withConstructor("Cons");
+		context.assertIsSatisfied();
+		IExpr var25 = (IExpr) captureHead0.get(0);
+		
+		HSIPatternOptions headOpts = new HSIPatternOptions();
+		headOpts.includes(intro);
+		Slot cm1 = new CMSlot(headOpts);
+		context.checking(new Expectations() {{
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "field", cxt, var25); will(returnValue(dummy));
+		}});
+		gen.constructorField(a0, "head", cm1);
+
+		IExpr ass2 = context.mock(IExpr.class, "ass2");
+		CaptureAction captureHead1 = new CaptureAction(ass2);
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(27));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).assign(with(VarMatcher.local(27)), with(dummy)); will(captureHead1);
+			oneOf(ass2).flush();
+		}});
+		gen.switchOn(cm1);
+		gen.withConstructor("True");
+	}
+
 
 	@Test
 	public void constructorOrVar() {

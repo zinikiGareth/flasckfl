@@ -124,17 +124,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void switchOn(Slot slot) {
-		IExpr e = switchVars.get(slot);
-		if (e == null)
-			throw new NullPointerException("No expr for slot " + slot);
-		if (!(e instanceof AVar)) {
-			AVar var = new Var.AVar(meth, J.OBJECT, "s" + nextVar++);
-			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, e)).flush();
-			e = var;
-			switchVars.put(slot, e);
-		}
+		AVar sv = getSwitchVar(slot);
 		currentLevel = new SwitchLevel();
-		currentLevel.currentSwitch = (AVar) e;
+		currentLevel.currentSwitch = sv;
 		switchStack.add(0, currentLevel);
 	}
 
@@ -145,7 +137,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 	
 	@Override
 	public void constructorField(Slot parent, String field, Slot slot) {
-		
+		AVar var = getSwitchVar(parent);
+		switchVars.put(slot, meth.callStatic(J.FLEVAL, J.OBJECT, "field", fcx, var));
 	}
 
 	@Override
@@ -539,6 +532,20 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor {
 		return J.FLEVAL + "$" + inner;
 	}
 	
+	private AVar getSwitchVar(Slot slot) {
+		IExpr e = switchVars.get(slot);
+		if (e == null)
+			throw new NullPointerException("No expr for slot " + slot);
+		if (!(e instanceof AVar)) {
+			AVar var = new Var.AVar(meth, J.OBJECT, "s" + nextVar++);
+			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, e)).flush();
+			e = var;
+			switchVars.put(slot, e);
+		}
+		AVar sv = (AVar) e;
+		return sv;
+	}
+
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner, Var args) {
 		return new JVMGenerator(meth, runner, args);
 	}
