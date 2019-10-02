@@ -38,7 +38,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.patterns.HSICtorTree;
 import org.flasck.flas.patterns.HSIOptions;
-import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.patterns.HSIOptions.IntroVarName;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.Primitive;
@@ -49,6 +48,11 @@ public class Traverser implements Visitor {
 
 	public Traverser(Visitor visitor) {
 		this.visitor = visitor;
+	}
+
+	@Override
+	public boolean isHsi() {
+		return visitor.isHsi();
 	}
 
 	/** It's starting to concern me that for some things (contracts, unit tests) we visit
@@ -135,7 +139,7 @@ public class Traverser implements Visitor {
 		if (fn.intros().isEmpty())
 			return; // not for generation
 		visitor.visitFunction(fn);
-		if (visitor instanceof HSIVisitor) {
+		if (visitor.isHsi()) {
 			List<Slot> slots = new ArrayList<>();
 			for (int i=0;i<fn.argCount();i++) {
 				slots.add(new ArgSlot(i, fn.hsiTree().get(i)));
@@ -183,13 +187,12 @@ public class Traverser implements Visitor {
 	}
 
 	public void visitHSI(FunctionDefinition fn, VarMapping vars, List<Slot> slots, List<FunctionIntro> intros) {
-		System.out.println(fn.name().uniqueName() + " " + slots.size() + " " + intros);
 		HSIVisitor hsi = (HSIVisitor) visitor;
 		if (slots.isEmpty()) {
 			if (intros.size() == 1) {
 				FunctionIntro intro = intros.get(0);
 				vars.bindFor(hsi, intro);
-				handleInline(hsi, intro);
+				handleInline(intro);
 			} else
 				throw new NotImplementedException("I think this is an error");
 		} else {
@@ -255,11 +258,11 @@ public class Traverser implements Visitor {
 		return slots.get(which);
 	}
 
-	private void handleInline(HSIVisitor hsi, FunctionIntro i) {
-		hsi.startInline(i);
+	private void handleInline(FunctionIntro i) {
+		startInline(i);
 		for (FunctionCaseDefn c : i.cases())
 			visitCase(c);
-		hsi.endInline(i);
+		endInline(i);
 	}
 
 	@Override
@@ -352,6 +355,16 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
+	public void startInline(FunctionIntro fi) {
+		visitor.startInline(fi);
+	}
+
+	@Override
+	public void endInline(FunctionIntro fi) {
+		visitor.endInline(fi);
+	}
+
+	@Override
 	public void visitExpr(Expr expr, int nargs) {
 		visitor.visitExpr(expr, nargs);
 		if (expr == null)
@@ -440,13 +453,28 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
 		visitor.visitUnitTestAssert(a);
+		visitAssertExpr(true, a.value);
 		visitExpr(a.value, 0);
+		leaveAssertExpr(true, a.value);
+		visitAssertExpr(false, a.expr);
 		visitExpr(a.expr, 0);
-		visitor.postUnitTestAssert(a);
+		leaveAssertExpr(false, a.expr);
+		postUnitTestAssert(a);
+	}
+
+	@Override
+	public void visitAssertExpr(boolean isValue, Expr e) {
+		visitor.visitAssertExpr(isValue, e);
+	}
+
+	@Override
+	public void leaveAssertExpr(boolean isValue, Expr e) {
+		visitor.leaveAssertExpr(isValue, e);
 	}
 
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
+		visitor.postUnitTestAssert(a);
 	}
 
 	@Override

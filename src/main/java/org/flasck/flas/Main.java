@@ -15,10 +15,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
-import org.flasck.flas.compiler.JVMGenerator;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.compiler.jsgen.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
+import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
@@ -141,10 +141,11 @@ public class Main {
 			ByteCodeEnvironment bce = new ByteCodeEnvironment();
 			
 			JSGenerator jsGenerator = new JSGenerator(jse);
-			JVMGenerator jvmGenerator = new JVMGenerator(bce);
+			StackVisitor jvmstack = new StackVisitor();
+			new JVMGenerator(bce, jvmstack);
 
 			repository.traverse(jsGenerator);
-			repository.traverse(jvmGenerator);
+			repository.traverse(jvmstack);
 			
 			if (compiler.hasErrors()) {
 				errors.showFromMark(mark, ew, 0);

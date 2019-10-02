@@ -58,6 +58,7 @@ public class FunctionTraversalTests {
 		context.checking(new Expectations() {{
 			ExprMatcher ae = ExprMatcher.apply(ExprMatcher.unresolved("x"), ExprMatcher.number(42));
 			oneOf(v).visitFunction(with(any(FunctionDefinition.class)));
+			oneOf(v).isHsi(); will(returnValue(false));
 			oneOf(v).visitFunctionIntro(with(any(FunctionIntro.class)));
 			oneOf(v).visitExpr((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
 			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));

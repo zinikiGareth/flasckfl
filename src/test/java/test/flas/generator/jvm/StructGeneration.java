@@ -1,9 +1,10 @@
 package test.flas.generator.jvm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.compiler.JVMGenerator;
+import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -52,9 +53,10 @@ public class StructGeneration {
 			oneOf(ctor).callSuper("void", "org.flasck.jvm.fl.FLASEntity", "<init>", cxt, doc);
 			oneOf(ctor).returnVoid();
 		}});
-		JVMGenerator gen = new JVMGenerator(bce);
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
 		StructDefn sd = new StructDefn(pos, FieldsType.ENTITY, "test.repo", "MyThing", true);
-		new Traverser(gen).visitStructDefn(sd);
+		new Traverser(sv).visitStructDefn(sd);
 	}
 
 	@Test
@@ -62,8 +64,9 @@ public class StructGeneration {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		context.checking(new Expectations() {{
 		}});
-		JVMGenerator gen = new JVMGenerator(bce);
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
 		StructDefn sd = new StructDefn(pos, FieldsType.ENTITY, "test.repo", "MyThing", false);
-		new Traverser(gen).visitStructDefn(sd);
+		new Traverser(sv).visitStructDefn(sd);
 	}
 }

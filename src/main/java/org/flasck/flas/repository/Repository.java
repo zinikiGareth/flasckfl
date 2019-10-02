@@ -51,6 +51,7 @@ import org.flasck.flas.tc3.Type;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
+		boolean isHsi();
 		void visitEntry(RepositoryEntry entry);
 		void visitPrimitive(Primitive p);
 		void visitStructDefn(StructDefn s);
@@ -75,6 +76,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitPatternVar(InputPosition varLoc, String var);
 		void leavePattern(Object patt);
 		void visitCase(FunctionCaseDefn c);
+		void startInline(FunctionIntro fi);
+		void endInline(FunctionIntro fi);
 		void visitExpr(Expr expr, int nArgs);
 		void visitStringLiteral(StringLiteral expr);
 		void visitNumericLiteral(NumericLiteral number);
@@ -92,6 +95,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveContractDecl(ContractDecl cd);
 		void visitObjectDefn(ObjectDefn e);
 		void visitObjectMethod(ObjectMethod e);
+		void visitAssertExpr(boolean isValue, Expr e);
+		void leaveAssertExpr(boolean isValue, Expr e);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();

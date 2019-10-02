@@ -7,7 +7,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.compiler.JVMGenerator;
+import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.jmock.Expectations;
@@ -68,10 +69,12 @@ public class ContractGeneration {
 			oneOf(down).implementsInterface("org.ziniki.ziwsh.UpContract");
 			
 		}});
-		JVMGenerator gen = new JVMGenerator(bce);
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
+		new JVMGenerator(bce, new StackVisitor());
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractDecl cd = new ContractDecl(pos, pos, cname);
-		new Traverser(gen).visitContractDecl(cd);
+		new Traverser(sv).visitContractDecl(cd);
 	}
 
 	@Test

@@ -223,8 +223,12 @@ public class TraversalTests {
 			oneOf(v).visitUnitTest(utc);
 			oneOf(v).visitUnitTestStep(uta);
 			oneOf(v).visitUnitTestAssert(uta);
+			oneOf(v).visitAssertExpr(true, null);
 			oneOf(v).visitExpr(null, 0);
+			oneOf(v).leaveAssertExpr(true, null);
+			oneOf(v).visitAssertExpr(false, null);
 			oneOf(v).visitExpr(null, 0);
+			oneOf(v).leaveAssertExpr(false, null);
 			oneOf(v).postUnitTestAssert(uta);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);

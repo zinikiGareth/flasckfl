@@ -10,7 +10,9 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.compiler.JVMGenerator;
+import org.flasck.flas.compiler.jvmgen.ExprGenerator;
+import org.flasck.flas.compiler.jvmgen.FunctionState;
+import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -22,6 +24,8 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.jmock.Expectations;
@@ -41,6 +45,7 @@ public class ExpressionGeneration {
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final MethodDefiner meth = context.mock(MethodDefiner.class);
+	private final NestedVisitor sv = context.mock(NestedVisitor.class);
 
 	@Before
 	public void setup() {
@@ -56,15 +61,20 @@ public class ExpressionGeneration {
 		IExpr iv = context.mock(IExpr.class, "iv");
 		IExpr biv = context.mock(IExpr.class, "biv");
 		IExpr cdv = context.mock(IExpr.class, "cdv");
+		IExpr exprValue = context.mock(IExpr.class, "expr");
+		IExpr result = context.mock(IExpr.class, "result");
 		context.checking(new Expectations() {{
 			oneOf(meth).aNull(); will(returnValue(dv));
 			oneOf(meth).intConst(42); will(returnValue(iv));
 			oneOf(meth).box(iv); will(returnValue(biv));
 			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
-			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv);
+			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv); will(returnValue(exprValue));
+			oneOf(meth).returnObject(exprValue); will(returnValue(result));
+			oneOf(sv).result(result);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(expr, 0);
+		gen.endInline(null);
 	}
 
 	@Test
@@ -73,7 +83,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("hello");
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -85,7 +95,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x");
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(expr, 2);
 	}
 
@@ -104,7 +114,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0));
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, cx, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv));
 		gen.visitExpr(expr, 2);
 	}
 
@@ -133,7 +143,7 @@ public class ExpressionGeneration {
 			oneOf(assign).flush();
 
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -163,7 +173,7 @@ public class ExpressionGeneration {
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(assign).flush();
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -178,7 +188,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
 			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", fcx, arr);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -200,6 +210,7 @@ public class ExpressionGeneration {
 		List<IExpr> argsList = new ArrayList<>();
 		IExpr arr = context.mock(IExpr.class, "arr");
 		IExpr x = context.mock(IExpr.class, "Ctor");
+		IExpr rv = context.mock(IExpr.class, "rv");
 		context.checking(new Expectations() {{
 			allowing(bcc).generateAssociatedSourceFile();
 			oneOf(meth).nextLocal(); will(returnValue(22));
@@ -214,9 +225,12 @@ public class ExpressionGeneration {
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
 			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", cxt, arr); will(returnValue(x));
-			oneOf(meth).returnObject(x);
+			oneOf(meth).returnObject(x); will(returnValue(rv));
+			oneOf(rv).flush();
 		}});
-		Traverser gen = new Traverser(new JVMGenerator(bce));
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
+		Traverser gen = new Traverser(sv);
 		gen.visitFunction(fn);
 	}
 
@@ -227,7 +241,7 @@ public class ExpressionGeneration {
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
 		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(expr, 2);
 	}
 
@@ -249,6 +263,7 @@ public class ExpressionGeneration {
 		List<IExpr> argsList = new ArrayList<>();
 		IExpr arr = context.mock(IExpr.class, "arr");
 		IExpr x = context.mock(IExpr.class, "Ctor");
+		IExpr rx = context.mock(IExpr.class, "returnIt");
 		context.checking(new Expectations() {{
 			allowing(bcc).generateAssociatedSourceFile();
 			oneOf(meth).nextLocal(); will(returnValue(22));
@@ -263,9 +278,12 @@ public class ExpressionGeneration {
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", cxt, arr); will(returnValue(x));
-			oneOf(meth).returnObject(x);
+			oneOf(meth).returnObject(x); will(returnValue(rx));
+			oneOf(rx).flush();
 		}});
-		Traverser gen = new Traverser(new JVMGenerator(bce));
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
+		Traverser gen = new Traverser(sv);
 		gen.visitFunction(fn);
 	}
 
@@ -282,12 +300,12 @@ public class ExpressionGeneration {
 		IExpr biv = context.mock(IExpr.class, "biv");
 		IExpr cdv = context.mock(IExpr.class, "cdv");
 		IExpr nv = context.mock(IExpr.class, "nv");
-		IExpr sv = context.mock(IExpr.class, "sv");
+		IExpr strv = context.mock(IExpr.class, "strv");
 		IExpr aev = context.mock(IExpr.class, "aev");
 		IExpr args = context.mock(IExpr.class, "args");
 		List<IExpr> argsList = new ArrayList<>();
 		argsList.add(nv);
-		argsList.add(sv);
+		argsList.add(strv);
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));
 		}});
@@ -300,7 +318,7 @@ public class ExpressionGeneration {
 			oneOf(meth).box(iv); will(returnValue(biv));
 			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv); will(returnValue(nv));
-			oneOf(meth).stringConst("hello"); will(returnValue(sv));
+			oneOf(meth).stringConst("hello"); will(returnValue(strv));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).as(f, "java.lang.Object"); will(returnValue(fAsObj));
 			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", fAsObj, args); will(returnValue(aev));
@@ -308,7 +326,7 @@ public class ExpressionGeneration {
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(assign).flush();
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -357,7 +375,7 @@ public class ExpressionGeneration {
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assignae));
 			oneOf(assignae).flush();
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -388,7 +406,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Cons", "java.lang.Object", "eval", fcx, args); will(returnValue(nil));
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, fcx, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -407,7 +425,7 @@ public class ExpressionGeneration {
 			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, null, null));
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv));
 		gen.visitExpr(expr, 0);
 	}
 

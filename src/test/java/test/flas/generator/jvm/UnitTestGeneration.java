@@ -6,9 +6,10 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
-import org.flasck.flas.compiler.JVMGenerator;
+import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -47,7 +48,8 @@ public class UnitTestGeneration {
 			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
 			oneOf(meth).as(arg, "org.ziniki.ziwsh.json.FLEvalContext");
 		}});
-		JVMGenerator gen = new JVMGenerator(bce);
+		StackVisitor sv = new StackVisitor();
+		JVMGenerator gen = new JVMGenerator(bce, sv);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.something"), "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitTestCase utc = new UnitTestCase(utn , "do something");
@@ -72,6 +74,7 @@ public class UnitTestGeneration {
 		IExpr ra = context.mock(IExpr.class, "ra");
 		IExpr biv = context.mock(IExpr.class, "biv");
 		IExpr cdv = context.mock(IExpr.class, "cdv");
+		IExpr asv = context.mock(IExpr.class, "asv");
 		context.checking(new Expectations() {{
 			oneOf(meth).aNull(); will(returnValue(dv));
 			oneOf(meth).intConst(42); will(returnValue(iv));
@@ -81,9 +84,10 @@ public class UnitTestGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(r1));
 			oneOf(meth).as(l1, "java.lang.Object"); will(returnValue(la));
 			oneOf(meth).as(r1, "java.lang.Object"); will(returnValue(ra));
-			oneOf(meth).callVirtual("void", runner, "assertSameValue", ra, la);
+			oneOf(meth).callVirtual("void", runner, "assertSameValue", ra, la); will(returnValue(asv));
+			oneOf(asv).flush();
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner, null));
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner, null).stackVisitor());
 		UnitTestAssert a = new UnitTestAssert(lhs, rhs);
 		gen.visitUnitTestAssert(a);
 	}

@@ -34,6 +34,11 @@ import org.flasck.flas.tc3.Primitive;
  */
 public class LeafAdapter implements Visitor {
 	@Override
+	public boolean isHsi() {
+		return false;
+	}
+
+	@Override
 	public void visitEntry(RepositoryEntry entry) {
 	}
 
@@ -126,6 +131,14 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void startInline(FunctionIntro fi) {
+	}
+
+	@Override
+	public void endInline(FunctionIntro fi) {
+	}
+
+	@Override
 	public void visitExpr(Expr expr, int nArgs) {
 	}
 
@@ -179,6 +192,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitUnitTestStep(UnitTestStep s) {
+	}
+
+	@Override
+	public void visitAssertExpr(boolean isValue, Expr e) {
+	}
+
+	@Override
+	public void leaveAssertExpr(boolean isValue, Expr e) {
 	}
 
 	@Override

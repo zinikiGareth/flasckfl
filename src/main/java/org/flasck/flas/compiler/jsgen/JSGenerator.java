@@ -11,7 +11,6 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
-import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -51,6 +50,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		this.meth = meth;
 		this.block = meth;
 		this.runner = runner;
+	}
+
+	@Override
+	public boolean isHsi() {
+		return true;
 	}
 
 	@Override

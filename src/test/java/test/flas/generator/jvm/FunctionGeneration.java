@@ -8,7 +8,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.compiler.JVMGenerator;
+import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.Slot;
@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.patterns.HSIPatternOptions;
+import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.hamcrest.Matchers;
@@ -78,7 +79,6 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(nret); will(returnValue(re));
 			oneOf(re).flush();
 		}});
-		JVMGenerator gen = new JVMGenerator(bce);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -88,7 +88,9 @@ public class FunctionGeneration {
 		HSIArgsTree hsi = new HSIArgsTree(0);
 		hsi.consider(fi);
 		fn.bindHsi(hsi);
-		new Traverser(gen).visitFunction(fn);
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
+		new Traverser(sv).visitFunction(fn);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -135,7 +137,6 @@ public class FunctionGeneration {
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
 			oneOf(doif).flush();
 		}});
-		JVMGenerator gen = new JVMGenerator(bce);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -146,7 +147,9 @@ public class FunctionGeneration {
 		hsi.consider(fi);
 		hsi.get(0).requireCM("Nil").consider(fi);
 		fn.bindHsi(hsi);
-		new Traverser(gen).visitFunction(fn);
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
+		new Traverser(sv).visitFunction(fn);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -206,7 +209,6 @@ public class FunctionGeneration {
 			oneOf(meth).ifBoolean(isACons, gr, doif); will(returnValue(doif2));
 			oneOf(doif2).flush();
 		}});
-		JVMGenerator gen = new JVMGenerator(bce);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1);
 		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
@@ -227,7 +229,9 @@ public class FunctionGeneration {
 		hsi.consider(f2);
 		hsi.get(0).requireCM("Cons").consider(f2);
 		fn.bindHsi(hsi);
-		new Traverser(gen).visitFunction(fn);
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
+		new Traverser(sv).visitFunction(fn);
 	}
 	@Test
 	public void handleAField() {
@@ -252,7 +256,6 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
-			oneOf(ass1).flush();
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0));
@@ -265,7 +268,8 @@ public class FunctionGeneration {
 		headOpts.includes(intro);
 		Slot cm1 = new CMSlot(headOpts);
 		context.checking(new Expectations() {{
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "field", cxt, var25); will(returnValue(dummy));
+			oneOf(meth).stringConst("head"); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "field", cxt, var25, dummy); will(returnValue(dummy));
 		}});
 		gen.constructorField(a0, "head", cm1);
 
@@ -275,7 +279,6 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(27));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(27)), with(dummy)); will(captureHead1);
-			oneOf(ass2).flush();
 		}});
 		gen.switchOn(cm1);
 		gen.withConstructor("True");
@@ -506,7 +509,8 @@ public class FunctionGeneration {
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
 			oneOf(doif).flush();
 		}});
-		JVMGenerator gen = new JVMGenerator(bce);
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "x");
 			FunctionDefinition fn = new FunctionDefinition(name, 1);
@@ -518,7 +522,7 @@ public class FunctionGeneration {
 			hsi.consider(fi);
 			hsi.get(0).requireCM("Nil").consider(fi);
 			fn.bindHsi(hsi);
-			new Traverser(gen).visitFunction(fn);
+			new Traverser(sv).visitFunction(fn);
 		}
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "y");
@@ -531,7 +535,7 @@ public class FunctionGeneration {
 			hsi.consider(fi);
 			hsi.get(0).requireCM("Nil").consider(fi);
 			fn.bindHsi(hsi);
-			new Traverser(gen).visitFunction(fn);
+			new Traverser(sv).visitFunction(fn);
 		}
 	}
 

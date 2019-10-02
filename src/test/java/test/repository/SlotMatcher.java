@@ -24,7 +24,17 @@ public class SlotMatcher extends TypeSafeMatcher<Slot> {
 	@Override
 	public void describeTo(Description arg0) {
 		arg0.appendText("Slot[");
-		arg0.appendValue(((List<Slot>)slots.get(0)).get(slotNum));
+		if (slots == null)
+			arg0.appendValue(slotNum);
+		else if (!slots.hasCaptured())
+			arg0.appendValue(slotNum + " not captured");
+		else {
+			List<Slot> s = (List<Slot>)slots.get(0);
+			if (s == null)
+				arg0.appendValue(slotNum + " null");
+			else
+				arg0.appendValue(s.get(slotNum));
+		}
 		arg0.appendText("]");
 	}
 

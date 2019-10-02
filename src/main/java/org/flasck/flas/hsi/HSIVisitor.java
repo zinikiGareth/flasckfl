@@ -13,7 +13,5 @@ public interface HSIVisitor extends Visitor {
 	void defaultCase();
 	void errorNoCase();
 	void bind(Slot slot, String var);
-	void startInline(FunctionIntro fi);
-	void endInline(FunctionIntro fi);
 	void endSwitch();
 }

@@ -8,6 +8,8 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.hsi.HSIVisitor;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -31,14 +33,19 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.Primitive;
 
-public class StackVisitor implements NestedVisitor {
+public class StackVisitor implements NestedVisitor, HSIVisitor {
 	private List<Visitor> stack = new LinkedList<>();
 	private Visitor top;
+	private HSIVisitor hsi;
 	
 	@Override
 	public void push(Visitor v) {
 		stack.add(0, v);
 		this.top = v;
+		if (v instanceof HSIVisitor)
+			this.hsi = (HSIVisitor) v;
+		else
+			this.hsi = null;
 	}
 
 	@Override
@@ -47,6 +54,10 @@ public class StackVisitor implements NestedVisitor {
 		this.top = stack.get(0);
 		if (this.top instanceof ResultAware)
 			((ResultAware)this.top).result(r);
+	}
+
+	public boolean isHsi() {
+		return top.isHsi();
 	}
 
 	public void visitEntry(RepositoryEntry entry) {
@@ -145,6 +156,14 @@ public class StackVisitor implements NestedVisitor {
 		top.visitCase(c);
 	}
 
+	public void startInline(FunctionIntro fi) {
+		top.startInline(fi);
+	}
+
+	public void endInline(FunctionIntro fi) {
+		top.endInline(fi);
+	}
+
 	public void visitExpr(Expr expr, int nArgs) {
 		top.visitExpr(expr, nArgs);
 	}
@@ -189,6 +208,14 @@ public class StackVisitor implements NestedVisitor {
 		top.visitUnitTestAssert(a);
 	}
 
+	public void visitAssertExpr(boolean isValue, Expr e) {
+		top.visitAssertExpr(isValue, e);
+	}
+
+	public void leaveAssertExpr(boolean isValue, Expr e) {
+		top.leaveAssertExpr(isValue, e);
+	}
+
 	public void postUnitTestAssert(UnitTestAssert a) {
 		top.postUnitTestAssert(a);
 	}
@@ -211,5 +238,37 @@ public class StackVisitor implements NestedVisitor {
 
 	public void visitObjectMethod(ObjectMethod e) {
 		top.visitObjectMethod(e);
+	}
+
+	public void hsiArgs(List<Slot> slots) {
+		hsi.hsiArgs(slots);
+	}
+
+	public void switchOn(Slot slot) {
+		hsi.switchOn(slot);
+	}
+
+	public void withConstructor(String string) {
+		hsi.withConstructor(string);
+	}
+
+	public void constructorField(Slot parent, String field, Slot slot) {
+		hsi.constructorField(parent, field, slot);
+	}
+
+	public void defaultCase() {
+		hsi.defaultCase();
+	}
+
+	public void errorNoCase() {
+		hsi.errorNoCase();
+	}
+
+	public void bind(Slot slot, String var) {
+		hsi.bind(slot, var);
+	}
+
+	public void endSwitch() {
+		hsi.endSwitch();
 	}
 }
