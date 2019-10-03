@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jvmgen;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
@@ -48,6 +50,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private final Map<Slot, IExpr> switchVars = new HashMap<>();
 	private FunctionState fs;
 	private IExpr resultExpr;
+	private List<IExpr> currentBlock;
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
@@ -106,6 +109,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fargs = argsArg.getVar();
 		switchVars.clear();
 		fs = new FunctionState(meth, (Var)fcx, fargs);
+		currentBlock = new ArrayList<IExpr>();
 	}
 	
 	@Override
@@ -119,7 +123,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void switchOn(Slot slot) {
-		sv.push(new HSIGenerator(fs, sv, switchVars, slot));
+		sv.push(new HSIGenerator(fs, sv, switchVars, slot, currentBlock));
 	}
 
 	@Override
@@ -158,7 +162,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-		resultExpr.flush();
+		currentBlock.add(resultExpr);
+		makeBlock(meth, currentBlock).flush();
 		resultExpr = null;
 		this.meth = null;
 		this.clz = null;
@@ -293,7 +298,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
-		this.fcx = meth.as(this.runner, J.FLEVALCONTEXT); // I'm not sure about this
+		this.fcx = meth.getField(this.runner, "cxt");
+//		this.fcx = meth.as(this.runner, J.FLEVALCONTEXT); // I'm not sure about this
 	}
 
 	@Override
@@ -305,7 +311,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-		new CaptureAssertionClauseVisitor(sv, this.meth, this.fcx);
+		new CaptureAssertionClauseVisitor(sv, this.meth, this.runner, this.fcx);
 	}
 	
 	@Override
@@ -368,6 +374,15 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			meth.argument(J.OBJECT, "_ih");
 	}
 
+	public static IExpr makeBlock(MethodDefiner meth, List<IExpr> block) {
+		if (block.isEmpty())
+			throw new NotImplementedException("there must be at least one statement in a block");
+		else if (block.size() == 1)
+			return block.get(0);
+		else
+			return meth.block(block.toArray(new IExpr[block.size()]));
+	}
+	
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner, Var args) {
 		JVMGenerator ret = new JVMGenerator(meth, runner, args);
 		ret.fs = new FunctionState(meth, runner, args);

@@ -34,9 +34,11 @@ import org.flasck.flas.tc3.TypeChecker;
 import org.flasck.flas.tc3.TypeDumper;
 import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.utils.FileUtils;
 
 public class Main {
@@ -139,6 +141,7 @@ public class Main {
 		{
 			JSEnvironment jse = new JSEnvironment(config.jsDir());
 			ByteCodeEnvironment bce = new ByteCodeEnvironment();
+			populateBCE(bce);
 			
 			JSGenerator jsGenerator = new JSGenerator(jse);
 			StackVisitor jvmstack = new StackVisitor();
@@ -192,6 +195,12 @@ public class Main {
 		if (compiler.getBuilder() != null)
 			compiler.getBuilder().build();
 		return compiler.hasErrors();
+	}
+
+	private static void populateBCE(ByteCodeEnvironment bce) {
+		ByteCodeCreator ec = bce.newClass("org.flasck.flas.testrunner.JVMRunner");
+		ec.dontGenerate();
+		ec.defineField(true, Access.PUBLIC, J.FLEVALCONTEXT, "cxt");
 	}
 
 	private static void saveBCE(ErrorReporter errors, File jvmDir, ByteCodeEnvironment bce) {

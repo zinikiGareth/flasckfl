@@ -12,12 +12,14 @@ import org.zinutils.bytecode.MethodDefiner;
 public class CaptureAssertionClauseVisitor extends LeafAdapter implements Visitor, ResultAware {
 	private NestedVisitor sv;
 	private MethodDefiner meth;
+	private IExpr runner;
 	private IExpr fcx;
 	private IExpr value;
 
-	public CaptureAssertionClauseVisitor(NestedVisitor sv, MethodDefiner meth, IExpr fcx) {
+	public CaptureAssertionClauseVisitor(NestedVisitor sv, MethodDefiner meth, IExpr runner, IExpr fcx) {
 		this.sv = sv;
 		this.meth = meth;
+		this.runner = runner;
 		this.fcx = fcx;
 		sv.push(this);
 	}
@@ -34,7 +36,7 @@ public class CaptureAssertionClauseVisitor extends LeafAdapter implements Visito
 		else {
 			IExpr lhs = meth.as(value, J.OBJECT);
 			IExpr rhs = meth.as((IExpr) r, J.OBJECT);
-			IExpr ret = meth.callVirtual("void", fcx, "assertSameValue", lhs, rhs);
+			IExpr ret = meth.callVirtual("void", runner, "assertSameValue", lhs, rhs);
 			sv.result(ret);
 		}
 	}

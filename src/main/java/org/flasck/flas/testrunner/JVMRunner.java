@@ -29,7 +29,7 @@ import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
 public class JVMRunner extends CommonTestRunner implements ServiceProvider {
-	private final FLEvalContext cxt;
+	public final FLEvalContext cxt;
 //	private final EntityStore store;
 //	private final JDKFlasckController controller;
 	// TODO: I don't think this needs to be a special thing in the modern world

@@ -17,7 +17,6 @@ import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
 	public class SwitchCase {
@@ -35,11 +34,12 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private final Map<Slot, IExpr> switchVars;
 	private final AVar myVar;
 	private final List<SwitchCase> cases = new ArrayList<>();
-	private SwitchCase current = null;
+	private List<IExpr> currentBlock;
 
-	public HSIGenerator(FunctionState state, StackVisitor sv, Map<Slot, IExpr> switchVars, Slot slot) {
+	public HSIGenerator(FunctionState state, StackVisitor sv, Map<Slot, IExpr> switchVars, Slot slot, List<IExpr> blk) {
 		this.state = state;
 		this.sv = sv;
+		this.currentBlock = blk;
 		this.meth = state.meth;
 		this.switchVars = new HashMap<>(switchVars);
 		myVar = getSwitchVar(slot);
@@ -58,13 +58,14 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void switchOn(Slot slot) {
 		// push a nested generator for this case
-		sv.push(new HSIGenerator(state, sv, switchVars, slot));
+		sv.push(new HSIGenerator(state, sv, switchVars, slot, currentBlock));
 	}
 
 	@Override
 	public void withConstructor(String ctor) {
-		current = new SwitchCase(ctor);
+		SwitchCase current = new SwitchCase(ctor);
 		cases.add(0, current);
+		currentBlock = current.block;
 	}
 
 	@Override
@@ -75,15 +76,17 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void defaultCase() {
-		current = new SwitchCase(null);
+		SwitchCase current = new SwitchCase(null);
 		cases.add(0, current);
+		currentBlock = current.block;
 	}
 
 	@Override
 	public void errorNoCase() {
-		current = new SwitchCase(null);
+		SwitchCase current = new SwitchCase(null);
 		cases.add(0, current);
-		current.block.add(meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no such case")))));
+		currentBlock = current.block;
+		currentBlock.add(meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no such case")))));
 	}
 
 	@Override
@@ -95,12 +98,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		IExpr ret = null;
 		for (SwitchCase c : cases) {
 			IExpr blk;
-			if (c.block.isEmpty())
-				throw new NotImplementedException("there must be at least one statement in a block");
-			else if (c.block.size() == 1)
-				blk = c.block.get(0);
-			else
-				blk = meth.block(c.block.toArray(new IExpr[c.block.size()]));
+			blk = JVMGenerator.makeBlock(meth, c.block);
 			if (c.ctor == null)
 				ret = blk;
 			else
@@ -108,7 +106,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		sv.result(ret);
 	}
-	
+
 	@Override
 	public void startInline(FunctionIntro fi) {
 		sv.push(new ExprGenerator(state, sv));
@@ -116,7 +114,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void result(Object r) {
-		current.block.add((IExpr)r);
+		currentBlock.add((IExpr)r);
 	}
 
 	private AVar getSwitchVar(Slot slot) {
@@ -125,7 +123,8 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			throw new NullPointerException("No expr for slot " + slot);
 		if (!(e instanceof AVar)) {
 			AVar var = new Var.AVar(meth, J.OBJECT, state.nextVar("s"));
-			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", state.fcx, e));
+			IExpr assign = meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", state.fcx, e));
+			currentBlock.add(assign);
 			e = var;
 			switchVars.put(slot, e);
 		}
