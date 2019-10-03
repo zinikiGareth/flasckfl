@@ -233,6 +233,7 @@ public class FunctionGeneration {
 		new JVMGenerator(bce, sv);
 		new Traverser(sv).visitFunction(fn);
 	}
+	
 	@Test
 	public void handleAField() {
 		IExpr cxt = context.mock(IExpr.class, "cxt");
@@ -243,6 +244,7 @@ public class FunctionGeneration {
 		Var args = new Var.AVar(meth, "[Object", "args");
 
 		JVMGenerator gen = JVMGenerator.forTests(meth, cxt, args);
+		StackVisitor sv = (StackVisitor) gen.stackVisitor();
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
@@ -258,9 +260,9 @@ public class FunctionGeneration {
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
-		gen.hsiArgs(Arrays.asList(a0));
-		gen.switchOn(a0);
-		gen.withConstructor("Cons");
+		sv.hsiArgs(Arrays.asList(a0));
+		sv.switchOn(a0);
+		sv.withConstructor("Cons");
 		context.assertIsSatisfied();
 		IExpr var25 = (IExpr) captureHead0.get(0);
 		
@@ -271,7 +273,7 @@ public class FunctionGeneration {
 			oneOf(meth).stringConst("head"); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "field", cxt, var25, dummy); will(returnValue(dummy));
 		}});
-		gen.constructorField(a0, "head", cm1);
+		sv.constructorField(a0, "head", cm1);
 
 		IExpr ass2 = context.mock(IExpr.class, "ass2");
 		CaptureAction captureHead1 = new CaptureAction(ass2);
@@ -280,8 +282,8 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(27)), with(dummy)); will(captureHead1);
 		}});
-		gen.switchOn(cm1);
-		gen.withConstructor("True");
+		sv.switchOn(cm1);
+		sv.withConstructor("True");
 	}
 
 
@@ -295,6 +297,7 @@ public class FunctionGeneration {
 		Var args = new Var.AVar(meth, "[Object", "args");
 
 		JVMGenerator gen = JVMGenerator.forTests(meth, cxt, args);
+		StackVisitor sv = (StackVisitor) gen.stackVisitor();
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		IExpr ass1 = context.mock(IExpr.class, "ass1");
@@ -304,50 +307,63 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
-			oneOf(ass1).flush();
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
-		gen.hsiArgs(Arrays.asList(a0));
-		gen.switchOn(a0);
-		gen.withConstructor("Nil");
+		sv.hsiArgs(Arrays.asList(a0));
+		sv.switchOn(a0);
+		sv.withConstructor("Nil");
+		context.assertIsSatisfied();
+		IExpr head0 = (IExpr) captureHead0.get(0);
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
 		intro.functionCase(new FunctionCaseDefn(null, expr));
 
-		IExpr jvmExpr = context.mock(IExpr.class, "jvmExpr");
+		IExpr nilExpr = context.mock(IExpr.class, "nilExpr");
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("hello"); will(returnValue(dummy));
-			oneOf(meth).returnObject(dummy); will(returnValue(jvmExpr));
+			oneOf(meth).returnObject(dummy); will(returnValue(nilExpr));
 		}});
-		gen.startInline(intro);
-		gen.visitExpr(expr, 0);
-		gen.visitStringLiteral(expr);
-		gen.endInline(intro);
+		sv.startInline(intro);
+		sv.visitExpr(expr, 0);
+		sv.visitStringLiteral(expr);
+		sv.endInline(intro);
+		context.assertIsSatisfied();
 		
 		final FunctionIntro intro2;
 		intro2 = new FunctionIntro(name, new ArrayList<>());
 		NumericLiteral number = new NumericLiteral(pos, "42", 2);
 		intro2.functionCase(new FunctionCaseDefn(null, number));
 
+		IExpr elseExpr = context.mock(IExpr.class, "elseExpr");
 		context.checking(new Expectations() {{
 			oneOf(meth).intConst(42); will(returnValue(dummy));
 			oneOf(meth).box(dummy); will(returnValue(dummy));
 			oneOf(meth).aNull(); will(returnValue(dummy));
 			oneOf(meth).castTo(dummy, "java.lang.Double"); will(returnValue(dummy));
 			oneOf(meth).makeNew(J.NUMBER, dummy, dummy); will(returnValue(dummy));
-			oneOf(meth).returnObject(dummy); will(returnValue(jvmExpr));
+			oneOf(meth).returnObject(dummy); will(returnValue(elseExpr));
 		}});
-		gen.defaultCase();
-		gen.startInline(intro2);
-		gen.visitExpr(number, 0);
-		gen.visitNumericLiteral(number);
-		gen.endInline(intro2);
+		sv.defaultCase();
+		sv.startInline(intro2);
+		sv.visitExpr(number, 0);
+		sv.visitNumericLiteral(number);
+		sv.endInline(intro2);
+		context.assertIsSatisfied();
+
+		IExpr ifExpr = context.mock(IExpr.class, "ifExpr");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("Nil"); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
+			oneOf(meth).ifBoolean(dummy, nilExpr, elseExpr); will(returnValue(ifExpr));
+		}});
+		sv.endSwitch();
+		context.assertIsSatisfied();
 
 		context.checking(new Expectations() {{
-			oneOf(jvmExpr).flush();
+			oneOf(ifExpr).flush();
 		}});
-		gen.endSwitch();
+		sv.leaveFunction(null);
 	}
 
 	@Test
@@ -360,6 +376,8 @@ public class FunctionGeneration {
 		Var args = new Var.AVar(meth, "[Object", "args");
 
 		JVMGenerator gen = JVMGenerator.forTests(meth, cxt, args);
+		StackVisitor sv = (StackVisitor) gen.stackVisitor();
+		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		IExpr ass1 = context.mock(IExpr.class, "ass1");
 		CaptureAction captureHead0 = new CaptureAction(ass1);
@@ -368,16 +386,15 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
-			oneOf(ass1).flush();
 			oneOf(meth).arrayItem(J.OBJECT, args, 1); will(returnValue(dummy));
 		}});
 
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
-		gen.hsiArgs(Arrays.asList(a0, a1));
+		sv.hsiArgs(Arrays.asList(a0, a1));
 		
-		gen.switchOn(a0);
-		gen.withConstructor("Nil");
+		sv.switchOn(a0);
+		sv.withConstructor("Nil");
 		
 		IExpr ass2 = context.mock(IExpr.class, "ass2");
 		CaptureAction captureHead1 = new CaptureAction(ass2);
@@ -385,12 +402,10 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(26));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(26)), with(dummy)); will(captureHead1);
-			oneOf(ass2).flush();
 		}});
-		gen.switchOn(a1);
-		gen.withConstructor("Nil");
+		sv.switchOn(a1);
+		sv.withConstructor("Nil");
 		
-		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
@@ -401,10 +416,10 @@ public class FunctionGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(jvmExpr));
 		}});
-		gen.startInline(intro);
-		gen.visitExpr(expr, 0);
-		gen.visitStringLiteral(expr);
-		gen.endInline(intro);
+		sv.startInline(intro);
+		sv.visitExpr(expr, 0);
+		sv.visitStringLiteral(expr);
+		sv.endInline(intro);
 		
 		IExpr nscInner = context.mock(IExpr.class, "nscInner");
 		context.checking(new Expectations() {{
@@ -413,7 +428,7 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(nscInner));
 		}});
-		gen.errorNoCase();
+		sv.errorNoCase();
 
 		Var head1 = (Var) captureHead1.get(0);
 		IExpr innerIf = context.mock(IExpr.class, "innerIf");
@@ -422,7 +437,7 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head1, dummy); will(returnValue(dummy));
 			oneOf(meth).ifBoolean(dummy, jvmExpr, nscInner); will(returnValue(innerIf));
 		}});
-		gen.endSwitch();
+		sv.endSwitch();
 		
 		IExpr nscOuter = context.mock(IExpr.class, "nscOuter");
 		context.checking(new Expectations() {{
@@ -431,7 +446,7 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(nscOuter));
 		}});
-		gen.errorNoCase();
+		sv.errorNoCase();
 
 		Var head0 = (Var) captureHead0.get(0);
 		context.checking(new Expectations() {{
@@ -439,7 +454,7 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
 			oneOf(meth).ifBoolean(dummy, innerIf, nscOuter);
 		}});
-		gen.endSwitch();
+		sv.endSwitch();
 	}
 	
 	@SuppressWarnings("unchecked")

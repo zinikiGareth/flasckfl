@@ -1,6 +1,5 @@
 package org.flasck.flas.compiler.jvmgen;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,25 +34,8 @@ import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
-import org.zinutils.bytecode.Var.AVar;
 
 public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
-	public class SwitchMatch {
-		private AVar switchOn;
-		private String ctor;
-		public IExpr expr;
-
-		public SwitchMatch(AVar switchOn, String ctor) {
-			this.switchOn = switchOn;
-			this.ctor = ctor;
-		}
-	}
-
-	private static class SwitchLevel {
-		private AVar currentSwitch;
-		private List<SwitchMatch> switches = new ArrayList<>();
-	}
-	
 	private final ByteCodeStorage bce;
 	private final StackVisitor sv;
 	private MethodDefiner meth;
@@ -63,8 +45,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ByteCodeSink downClz;
 	private IExpr fcx;
 	private Var fargs;
-	private SwitchLevel currentLevel;
-	private final List<SwitchLevel> switchStack = new ArrayList<>();
 	private final Map<Slot, IExpr> switchVars = new HashMap<>();
 	private FunctionState fs;
 	private IExpr resultExpr;
@@ -124,9 +104,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.lenientMode(leniency);
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
-		switchStack.clear();
 		switchVars.clear();
-		switchStack.add(new SwitchLevel());
 		fs = new FunctionState(meth, (Var)fcx, fargs);
 	}
 	
@@ -141,21 +119,15 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void switchOn(Slot slot) {
-		AVar sv = getSwitchVar(slot);
-		currentLevel = new SwitchLevel();
-		currentLevel.currentSwitch = sv;
-		switchStack.add(0, currentLevel);
+		sv.push(new HSIGenerator(fs, sv, switchVars, slot));
 	}
 
 	@Override
 	public void withConstructor(String ctor) {
-		currentLevel.switches.add(new SwitchMatch(currentLevel.currentSwitch, ctor));
 	}
 	
 	@Override
 	public void constructorField(Slot parent, String field, Slot slot) {
-		AVar var = getSwitchVar(parent);
-		switchVars.put(slot, meth.callStatic(J.FLEVAL, J.OBJECT, "field", fcx, var, meth.stringConst(field)));
 	}
 
 	@Override
@@ -164,17 +136,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void errorNoCase() {
-		SwitchMatch si = new SwitchMatch(currentLevel.currentSwitch, null);
-		si.expr = meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no such case"))));
-		currentLevel.switches.add(si);
 	}
 
 	@Override
 	public void bind(Slot slot, String var) {
-		// TODO Auto-generated method stub
-		
 	}
 
+	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
 		sv.push(new ExprGenerator(fs, sv));
@@ -182,28 +150,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void endSwitch() {
-		IExpr ret = null;
-		for (int i=currentLevel.switches.size()-1;i>=0;i--) {
-			SwitchMatch si = currentLevel.switches.get(i);
-			if (ret == null)
-				ret = si.expr;
-			else if (si.ctor == null)
-				throw new RuntimeException("ctor should not be null");
-			else
-				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isA", fcx, si.switchOn, meth.stringConst(si.ctor)), si.expr, ret);
-		}
-		switchStack.remove(0);
-		if (switchStack.isEmpty())
-			ret.flush();
-		else {
-			currentLevel = switchStack.get(0);
-			currentLevel.switches.get(currentLevel.switches.size()-1).expr = ret;
-		}
 	}
 	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
-		if (clz == null) {
+		if (meth == null) {
 			// we elected not to generate, so just forget it ...
 			return;
 		}
@@ -335,6 +286,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void visitUnitTest(UnitTestCase e) {
 		String clzName = e.name.javaName();
 		clz = bce.newClass(clzName);
+		clz.generateAssociatedSourceFile();
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "dotest");
 		PendingVar runner = ann.argument("org.flasck.flas.testrunner.JVMRunner", "runner");
 		ann.returns(JavaType.void_);
@@ -414,20 +366,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		if (type == null || !(type.defn() instanceof ContractDecl))
 			meth.argument(J.OBJECT, "_ih");
-	}
-
-	private AVar getSwitchVar(Slot slot) {
-		IExpr e = switchVars.get(slot);
-		if (e == null)
-			throw new NullPointerException("No expr for slot " + slot);
-		if (!(e instanceof AVar)) {
-			AVar var = new Var.AVar(meth, J.OBJECT, fs.nextVar("s"));
-			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, e));
-			e = var;
-			switchVars.put(slot, e);
-		}
-		AVar sv = (AVar) e;
-		return sv;
 	}
 
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner, Var args) {
