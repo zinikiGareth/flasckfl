@@ -30,13 +30,13 @@
 		assert (c False Nil)
 			1
 	
-	test that head is matched
-		assert (d3 [False])
-			1
-			 
-	test that head is matched
+	test that when head is matched it picks the specific case
 		assert (d3 [True])
 			2
+			 
+	test that when head is not matched the default case applies
+		assert (d3 [False])
+			1
 			 
 	test the simple case of e
 		assert (e True [])

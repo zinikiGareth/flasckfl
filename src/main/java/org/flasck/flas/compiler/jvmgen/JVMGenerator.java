@@ -67,6 +67,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.runner = runner;
 		this.fcx = runner;
 		this.fargs = args;
+		this.currentBlock = new ArrayList<IExpr>();
 	}
 
 	private JVMGenerator(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {

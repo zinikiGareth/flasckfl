@@ -72,6 +72,17 @@ FLContext.prototype.compare = function(left, right) {
 		return false;
 }
 
+FLContext.prototype.field = function(obj, field) {
+// TODO: this probably involves backing documents ...
+	obj = this.full(obj);
+	if (field == "head" && Array.isArray(obj) && obj.length > 0)
+		return obj[0];
+	else if (field == "tail" && Array.isArray(obj) && obj.length > 0)
+		throw new Error("implement field(tail)");
+	else
+		return obj[field];
+}
+
 if (typeof(module) !== 'undefined')
 	module.exports = FLContext;
 else

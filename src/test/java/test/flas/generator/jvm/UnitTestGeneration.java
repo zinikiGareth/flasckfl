@@ -39,6 +39,7 @@ public class UnitTestGeneration {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		context.checking(new Expectations() {{
+			allowing(bcc).generateAssociatedSourceFile();
 			oneOf(meth).nextLocal(); will(returnValue(6));
 		}});
 		Var arg = new Var.AVar(meth, "JVMRunner", "runner");
@@ -46,7 +47,7 @@ public class UnitTestGeneration {
 			oneOf(bce).newClass("test.something._ut_package._ut4"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "void", "dotest"); will(returnValue(meth));
 			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
-			oneOf(meth).as(arg, "org.ziniki.ziwsh.json.FLEvalContext");
+			oneOf(meth).getField(arg, "cxt");
 		}});
 		StackVisitor sv = new StackVisitor();
 		JVMGenerator gen = new JVMGenerator(bce, sv);

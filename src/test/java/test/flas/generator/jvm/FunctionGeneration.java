@@ -113,6 +113,8 @@ public class FunctionGeneration {
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
 		IExpr arg0 = context.mock(IExpr.class, "arg0");
+		IExpr ass1 = context.mock(IExpr.class, "ass1");
+		IExpr blk1 = context.mock(IExpr.class, "blk1");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
@@ -122,7 +124,7 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(arg0));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
-			oneOf(meth).assign(with(VarMatcher.local(25)), with(head));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass1));
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
 			
@@ -135,7 +137,8 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
 			
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
-			oneOf(doif).flush();
+			oneOf(meth).block(ass1, doif); will(returnValue(blk1));
+			oneOf(blk1).flush();
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1);
@@ -177,6 +180,8 @@ public class FunctionGeneration {
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
 		IExpr arg0 = context.mock(IExpr.class, "arg0");
+		IExpr ass1 = context.mock(IExpr.class, "ass1");
+		IExpr blk1 = context.mock(IExpr.class, "blk1");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
@@ -186,7 +191,7 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(arg0));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
-			oneOf(meth).assign(with(VarMatcher.local(25)), with(head));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass1));
 			
 			oneOf(meth).stringConst("goodbye"); will(returnValue(gret));
 			oneOf(meth).returnObject(gret); will(returnValue(gr));
@@ -207,7 +212,8 @@ public class FunctionGeneration {
 			
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
 			oneOf(meth).ifBoolean(isACons, gr, doif); will(returnValue(doif2));
-			oneOf(doif2).flush();
+			oneOf(meth).block(ass1, doif2); will(returnValue(blk1));
+			oneOf(blk1).flush();
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1);
@@ -360,8 +366,10 @@ public class FunctionGeneration {
 		sv.endSwitch();
 		context.assertIsSatisfied();
 
+		IExpr blk1 = context.mock(IExpr.class, "blk1");
 		context.checking(new Expectations() {{
-			oneOf(ifExpr).flush();
+			oneOf(meth).block(ass1, ifExpr); will(returnValue(blk1));
+			oneOf(blk1).flush();
 		}});
 		sv.leaveFunction(null);
 	}
@@ -449,10 +457,13 @@ public class FunctionGeneration {
 		sv.errorNoCase();
 
 		Var head0 = (Var) captureHead0.get(0);
+		IExpr ifExpr = context.mock(IExpr.class, "ifExpr");
+		IExpr blk1 = context.mock(IExpr.class, "blk1");
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("Nil"); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
-			oneOf(meth).ifBoolean(dummy, innerIf, nscOuter);
+			oneOf(meth).block(ass2, innerIf); will(returnValue(blk1));
+			oneOf(meth).ifBoolean(dummy, blk1, nscOuter); will(returnValue(ifExpr));
 		}});
 		sv.endSwitch();
 	}
@@ -477,6 +488,10 @@ public class FunctionGeneration {
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
 		IExpr arg0 = context.mock(IExpr.class, "arg0");
+		IExpr ass1 = context.mock(IExpr.class, "ass1");
+		IExpr ass2 = context.mock(IExpr.class, "ass2");
+		IExpr blk1 = context.mock(IExpr.class, "blk1");
+		IExpr blk2 = context.mock(IExpr.class, "blk2");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
@@ -486,7 +501,7 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(arg0));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
-			oneOf(meth).assign(with(VarMatcher.local(25)), with(head));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass1));
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
 			
@@ -499,7 +514,8 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
 			
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
-			oneOf(doif).flush();
+			oneOf(meth).block(ass1, doif); will(returnValue(blk1));
+			oneOf(blk1).flush();
 
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$y"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
@@ -509,7 +525,7 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(arg0));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
-			oneOf(meth).assign(with(VarMatcher.local(25)), with(head));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass2));
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
 			
@@ -522,7 +538,8 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
 			
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
-			oneOf(doif).flush();
+			oneOf(meth).block(ass2, doif); will(returnValue(blk2));
+			oneOf(blk2).flush();
 		}});
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv);
