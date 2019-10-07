@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 
 public interface HSIOptions {
@@ -23,6 +24,7 @@ public interface HSIOptions {
 	void addVar(VarName varName, FunctionIntro fi);
 	void addTyped(TypeReference tr, VarName varName, FunctionIntro fi);
 	HSICtorTree requireCM(String ctor);
+	void addConstant(Primitive type, FunctionIntro fi);
 	HSITree getCM(String constructor);
 	void includes(FunctionIntro current);
 	List<FunctionIntro> getIntrosForType(String ty);

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -150,6 +151,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 
 	public void visitPatternVar(InputPosition varLoc, String var) {
 		top.visitPatternVar(varLoc, var);
+	}
+
+	public void visitConstPattern(ConstPattern p) {
+		top.visitConstPattern(p);
 	}
 
 	public void leavePattern(Object patt) {

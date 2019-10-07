@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -28,6 +29,7 @@ import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.repository.Traverser.VarMapping;
@@ -45,10 +47,11 @@ public class PatternAnalysis {
 	final NumericLiteral number = new NumericLiteral(pos, 42);
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Visitor v = context.mock(Visitor.class);
+	final RepositoryReader repo = context.mock(RepositoryReader.class);
 
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 	final StackVisitor sv = new StackVisitor();
-	final PatternAnalyzer analyzer = new PatternAnalyzer(null, null, sv);
+	final PatternAnalyzer analyzer = new PatternAnalyzer(null, repo, sv);
 
 	@Test
 	public void analyzeFunctionWithNoArguments() {
@@ -112,6 +115,39 @@ public class PatternAnalysis {
 			intro.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro);
 		}
+		new Traverser(sv).visitFunction(fn);
+		HSIVisitor hsi = context.mock(HSIVisitor.class);
+		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
+		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
+		slots.add(s);
+		context.checking(new Expectations() {{
+			oneOf(hsi).switchOn(s);
+			oneOf(hsi).withConstructor("Number");
+			oneOf(hsi).startInline(intro);
+			oneOf(hsi).visitExpr(number, 0);
+			oneOf(hsi).visitNumericLiteral(number);
+			oneOf(hsi).endInline(intro);
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
+		}});
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
+	}
+	
+	@Test
+	public void analyzeFunctionWithAConstant() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		final FunctionIntro intro;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			args.add(new ConstPattern(pos, ConstPattern.INTEGER, "42"));
+			intro = new FunctionIntro(nameF, args);
+			intro.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro);
+		}
+		context.checking(new Expectations() {{
+			oneOf(repo).get("Number"); will(returnValue(LoadBuiltins.number));
+		}});
 		new Traverser(sv).visitFunction(fn);
 		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();

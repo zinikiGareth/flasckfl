@@ -50,6 +50,14 @@
 		assert (e False ['hello', 'world'])
 			3
 
+	test we can switch on a constant
+		assert (f 3)
+			0
+
+	test any other constant is an error
+		assert (f 5)
+			Error "no matching case"
+
 	test if a variable is ignored, it's value is irrelevant
 		assert (k 22)
 			0

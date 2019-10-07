@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
 import org.zinutils.exceptions.NotImplementedException;
@@ -61,6 +62,13 @@ public class HSIPatternOptions implements HSIOptions {
 		TV tv = new TV(null, varName);
 		tv.intros.add(fi);
 		vars.add(tv);
+	}
+	
+	@Override
+	public void addConstant(Primitive type, FunctionIntro fi) {
+		String tn = type.name().uniqueName();
+		types.put(tn, new TV(type, null));
+		types.get(tn).intros.add(fi);
 	}
 
 	@Override

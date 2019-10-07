@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -294,6 +295,8 @@ public class Traverser implements Visitor {
 			visitTypedPattern((TypedPattern)p);
 		else if (p instanceof ConstructorMatch)
 			visitConstructorMatch((ConstructorMatch)p);
+		else if (p instanceof ConstPattern)
+			visitConstPattern((ConstPattern)p);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Pattern not handled: " + p.getClass());
 		leavePattern(p);
@@ -340,6 +343,11 @@ public class Traverser implements Visitor {
 
 	public void visitPatternVar(InputPosition varLoc, String var) {
 		visitor.visitPatternVar(varLoc, var);
+	}
+
+	@Override
+	public void visitConstPattern(ConstPattern p) {
+		visitor.visitConstPattern(p);
 	}
 
 	@Override

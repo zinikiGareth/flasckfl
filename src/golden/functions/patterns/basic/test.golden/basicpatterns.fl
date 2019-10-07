@@ -32,7 +32,7 @@
 	e False x = 3
 
 // Number->Number
-f 3 = 0
+	f 3 = 0
 
 // String->Number
 g "hello" = 1

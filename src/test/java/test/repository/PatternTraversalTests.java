@@ -1,6 +1,7 @@
 package test.repository;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -33,6 +34,7 @@ public class PatternTraversalTests {
 	final VarPattern vp = new VarPattern(pos, new VarName(pos, fnName, "v"));
 	final TypedPattern tp = new TypedPattern(pos, list, new VarName(pos, null, "x"));
 	final ConstructorMatch cm = new ConstructorMatch(pos, "Nil");
+	final ConstPattern nc = new ConstPattern(pos, ConstPattern.INTEGER, "42");
 
 	@Test
 	public void simpleVarPattern() {
@@ -66,5 +68,15 @@ public class PatternTraversalTests {
 			oneOf(v).leavePattern(cm);
 		}});
 		new Traverser(v).visitPattern(cm);
+	}
+
+	@Test
+	public void numericConstant() {
+		context.checking(new Expectations() {{
+			oneOf(v).visitPattern(nc);
+			oneOf(v).visitConstPattern(nc);
+			oneOf(v).leavePattern(nc);
+		}});
+		new Traverser(v).visitPattern(nc);
 	}
 }

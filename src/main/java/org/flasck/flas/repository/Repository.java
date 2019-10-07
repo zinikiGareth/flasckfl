@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -97,6 +98,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitObjectMethod(ObjectMethod e);
 		void visitAssertExpr(boolean isValue, Expr e);
 		void leaveAssertExpr(boolean isValue, Expr e);
+		void visitConstPattern(ConstPattern p);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();

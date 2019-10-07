@@ -1,5 +1,6 @@
 package org.flasck.flas.patterns;
 
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -9,6 +10,9 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.Primitive;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class PatternAnalyzer extends LeafAdapter {
 	private HSITree hsiTree;
@@ -17,16 +21,16 @@ public class PatternAnalyzer extends LeafAdapter {
 	private HSIOptions slot;
 	private FunctionIntro current;
 	private ErrorResult errors;
-	private Repository repository;
+	private RepositoryReader repository;
 	
-	public PatternAnalyzer(ErrorResult errors, Repository repository, NestedVisitor sv) {
+	public PatternAnalyzer(ErrorResult errors, RepositoryReader repository, NestedVisitor sv) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
 		sv.push(this);
 	}
 
-	public PatternAnalyzer(ErrorResult errors, Repository repository, NestedVisitor sv, HSITree tree, FunctionIntro current) {
+	public PatternAnalyzer(ErrorResult errors, RepositoryReader repository, NestedVisitor sv, HSITree tree, FunctionIntro current) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
@@ -82,6 +86,20 @@ public class PatternAnalyzer extends LeafAdapter {
 		sv.result(hsiTree);
 	}
 
+	@Override
+	public void visitConstPattern(ConstPattern p) {
+		Primitive ty;
+		switch (p.type) {
+		case ConstPattern.INTEGER:
+			ty = repository.get("Number");
+			break;
+		default:
+			throw new NotImplementedException("Cannot handle " + p.type);
+		}
+		this.slot.addConstant(ty, current);
+		this.slot.includes(this.current);
+	}
+	
 	@Override
 	public void leaveFunctionIntro(FunctionIntro fi) {
 		// TODO: this should actually bind a projection of the tree
