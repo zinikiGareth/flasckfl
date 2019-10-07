@@ -114,6 +114,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSIfExpr ifConst(String var, int cnst) {
+		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating), new JSBlock(this.creating));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
 	public void errorNoCase() {
 		stmts.add(new JSError("no matching case"));
 	}

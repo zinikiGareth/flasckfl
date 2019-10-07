@@ -157,10 +157,12 @@ public class PatternAnalysis {
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(s);
 			oneOf(hsi).withConstructor("Number");
+			oneOf(hsi).matchNumber(42);
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
+			oneOf(hsi).errorNoCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});

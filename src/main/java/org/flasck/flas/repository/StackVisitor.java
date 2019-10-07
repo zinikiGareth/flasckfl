@@ -265,6 +265,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 		hsi.constructorField(parent, field, slot);
 	}
 
+	public void matchNumber(int i) {
+		hsi.matchNumber(i);
+	}
+
 	public void defaultCase() {
 		hsi.defaultCase();
 	}

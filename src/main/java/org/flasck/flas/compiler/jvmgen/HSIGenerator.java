@@ -75,6 +75,10 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
+	public void matchNumber(int i) {
+	}
+
+	@Override
 	public void defaultCase() {
 		SwitchCase current = new SwitchCase(null);
 		cases.add(0, current);

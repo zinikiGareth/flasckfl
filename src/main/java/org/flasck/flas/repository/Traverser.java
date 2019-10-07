@@ -223,7 +223,19 @@ public class Traverser implements Visitor {
 					hsi.withConstructor(ty);
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(opts.getIntrosForType(ty));
-					visitHSI(fn, vars, remaining, intersect);
+					if ("Number".equals(ty)) {
+						for (int k : opts.numericConstants(intersect)) {
+							hsi.matchNumber(k);
+							ArrayList<FunctionIntro> forConst = new ArrayList<>(intersect);
+							forConst.retainAll(opts.getIntrosForType(ty));
+							visitHSI(fn, vars, remaining, intersect);
+							intersect.removeAll(forConst);
+						}
+					}
+					if (intersect.isEmpty())
+						hsi.errorNoCase();
+					else
+						visitHSI(fn, vars, remaining, intersect);
 				}
 			}
 			vars = vars.remember(s, opts, intros);

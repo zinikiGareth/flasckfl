@@ -106,6 +106,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	}
 
 	@Override
+	public void matchNumber(int val) {
+		this.block.ifConst(currentLevel.currentVar, val);
+	}
+
+	@Override
 	public void defaultCase() {
 		if (!stack.isEmpty())
 			this.block.returnObject(this.stack.remove(0));

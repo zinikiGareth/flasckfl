@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -38,6 +39,7 @@ public class HSIPatternOptions implements HSIOptions {
 	private List<TV> vars = new ArrayList<>();
 	private Map<String, TV> types = new TreeMap<>(); 
 	private Map<String, HSICtorTree> ctors = new TreeMap<>();
+	private Set<Integer> numericConstants = new TreeSet<>();
 
 	@Override
 	public void includes(FunctionIntro fi) {
@@ -65,10 +67,12 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 	
 	@Override
-	public void addConstant(Primitive type, FunctionIntro fi) {
+	public void addConstant(Primitive type, String value, FunctionIntro fi) {
 		String tn = type.name().uniqueName();
 		types.put(tn, new TV(type, null));
 		types.get(tn).intros.add(fi);
+		if (type.name().uniqueName().equals("Number"))
+			numericConstants.add(Integer.parseInt(value));
 	}
 
 	@Override
@@ -106,6 +110,11 @@ public class HSIPatternOptions implements HSIOptions {
 			}
 		}
 		return ret;
+	}
+
+	@Override
+	public Set<Integer> numericConstants(ArrayList<FunctionIntro> intersect) {
+		return numericConstants;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.flasck.flas.patterns;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public interface HSIOptions {
 	void addVar(VarName varName, FunctionIntro fi);
 	void addTyped(TypeReference tr, VarName varName, FunctionIntro fi);
 	HSICtorTree requireCM(String ctor);
-	void addConstant(Primitive type, FunctionIntro fi);
+	void addConstant(Primitive type, String value, FunctionIntro fi);
 	HSITree getCM(String constructor);
 	void includes(FunctionIntro current);
 	List<FunctionIntro> getIntrosForType(String ty);
@@ -33,6 +34,7 @@ public interface HSIOptions {
 	Set<String> ctors();
 	List<IntroVarName> vars(List<FunctionIntro> intros);
 	Set<String> types(List<FunctionIntro> intros);
+	Set<Integer> numericConstants(ArrayList<FunctionIntro> intersect);
 	boolean hasSwitches(List<FunctionIntro> intros);
 	int score();
 }

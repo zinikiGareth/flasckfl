@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ConstPattern;
@@ -19,7 +18,6 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.TypeChecker;
-import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -47,7 +45,7 @@ public class PatternsProduceTypes {
 		FunctionIntro fi = new FunctionIntro(nameF, args);
 		HSIArgsTree hat = new HSIArgsTree(1);
 		hat.consider(fi);
-		hat.get(0).addConstant(LoadBuiltins.number, fi);
+		hat.get(0).addConstant(LoadBuiltins.number, "42", fi);
 		fi.bindTree(hat);
 		fn.intro(fi);
 		tc.visitFunction(fn);
@@ -72,7 +70,7 @@ public class PatternsProduceTypes {
 		FunctionIntro fi = new FunctionIntro(nameF, args);
 		HSIArgsTree hat = new HSIArgsTree(1);
 		hat.consider(fi);
-		hat.get(0).addConstant(LoadBuiltins.string, fi);
+		hat.get(0).addConstant(LoadBuiltins.string, "42", fi);
 		fi.bindTree(hat);
 		fn.intro(fi);
 		tc.visitFunction(fn);

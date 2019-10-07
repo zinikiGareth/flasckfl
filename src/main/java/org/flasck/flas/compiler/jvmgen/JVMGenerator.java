@@ -136,6 +136,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
+	public void matchNumber(int i) {
+	}
+
+	@Override
 	public void defaultCase() {
 	}
 

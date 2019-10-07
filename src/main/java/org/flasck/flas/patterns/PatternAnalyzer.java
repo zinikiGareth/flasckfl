@@ -9,7 +9,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.Primitive;
 import org.zinutils.exceptions.NotImplementedException;
@@ -96,7 +95,7 @@ public class PatternAnalyzer extends LeafAdapter {
 		default:
 			throw new NotImplementedException("Cannot handle " + p.type);
 		}
-		this.slot.addConstant(ty, current);
+		this.slot.addConstant(ty, p.value, current);
 		this.slot.includes(this.current);
 	}
 	

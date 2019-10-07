@@ -304,6 +304,53 @@ public class FunctionGenerationJS {
 	}
 
 	@Test
+	public void numericConstants() {
+		JSExpr cxt = context.mock(JSExpr.class, "cxt");
+		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		
+		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
+		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil0");
+		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
+		context.checking(new Expectations() {{
+			oneOf(meth).head("_0");
+			oneOf(meth).ifCtor("_0", "Number"); will(returnValue(outer));
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		gen.hsiArgs(Arrays.asList(a0));
+		gen.switchOn(a0);
+		gen.withConstructor("Number");
+
+		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
+		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
+		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
+		context.checking(new Expectations() {{
+			oneOf(isNil).ifConst("_0", 42); will(returnValue(inner));
+		}});
+		gen.matchNumber(42);
+
+		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
+		StringLiteral expr = new StringLiteral(pos, "hello");
+		intro.functionCase(new FunctionCaseDefn(null, expr));
+
+		context.checking(new Expectations() {{
+			oneOf(isNil).string("hello"); will(returnValue(dummy));
+		}});
+		gen.startInline(intro);
+		gen.visitExpr(expr, 0);
+		gen.visitStringLiteral(expr);
+		gen.endInline(intro);
+
+		context.checking(new Expectations() {{
+			oneOf(isNil).returnObject(dummy);
+			oneOf(notNil).errorNoCase();
+		}});
+		gen.errorNoCase();
+		gen.endSwitch();
+	}
+
+	@Test
 	public void nestedSwitching() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr dummy = context.mock(JSExpr.class, "dummy");
