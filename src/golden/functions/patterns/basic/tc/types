@@ -7,6 +7,7 @@ test.golden.d1 :: Nil->Number
 test.golden.d2 :: Any->Number
 test.golden.d3 :: Cons->Number
 test.golden.e :: Boolean->List->Number
+test.golden.f :: Number->Number
 test.golden.h :: Number->Number
 test.golden.k :: Any->Number
 test.golden.l :: Number->Number

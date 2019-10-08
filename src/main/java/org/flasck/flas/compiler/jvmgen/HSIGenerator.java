@@ -19,9 +19,19 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
 
 public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
+	public class ConstBlock {
+		private final int val;
+		private final List<IExpr> block = new ArrayList<>();
+		
+		public ConstBlock(int val) {
+			this.val = val;
+		}
+	}
+
 	public class SwitchCase {
 		private final String ctor;
 		private final List<IExpr> block = new ArrayList<>();
+		private final List<ConstBlock> constants = new ArrayList<>();
 
 		public SwitchCase(String ctor) {
 			this.ctor = ctor;
@@ -74,12 +84,18 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		switchVars.put(slot, meth.callStatic(J.FLEVAL, J.OBJECT, "field", state.fcx, var, meth.stringConst(field)));
 	}
 
+	// TODO: what does a switch look like in JVM bytecodes?  Can I be bothered?
 	@Override
-	public void matchNumber(int i) {
+	public void matchNumber(int val) {
+		SwitchCase current = cases.get(0);
+		ConstBlock blk = new ConstBlock(val);
+		current.constants.add(blk);
+		this.currentBlock = blk.block;
 	}
 
 	@Override
 	public void matchDefault() {
+		currentBlock = cases.get(0).block;
 	}
 
 	@Override
@@ -102,14 +118,22 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void endSwitch() {
 		IExpr ret = null;
 		for (SwitchCase c : cases) {
-			IExpr blk;
-			blk = JVMGenerator.makeBlock(meth, c.block);
+			IExpr blk = JVMGenerator.makeBlock(meth, c.block);
+			blk = matchConstants(c.constants, blk);
 			if (c.ctor == null)
 				ret = blk;
 			else
 				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isA", state.fcx, myVar, meth.stringConst(c.ctor)), blk, ret);
 		}
 		sv.result(ret);
+	}
+
+	private IExpr matchConstants(List<ConstBlock> constants, IExpr blk) {
+		for (ConstBlock b : constants) {
+			IExpr tmp = JVMGenerator.makeBlock(meth, b.block);
+			blk = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isConst", state.fcx, myVar, meth.intConst(b.val)), tmp, blk);
+		}
+		return blk;
 	}
 
 	@Override

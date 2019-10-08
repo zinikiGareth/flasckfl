@@ -106,6 +106,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		switchVars.put(slot, var);
 	}
 
+	// TODO: would this be better as a switch?
 	@Override
 	public void matchNumber(int val) {
 		JSIfExpr ifCtor = this.block.ifConst(currentLevel.currentVar, val);

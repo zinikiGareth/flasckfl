@@ -375,6 +375,88 @@ public class FunctionGeneration {
 	}
 
 	@Test
+	public void numericConstants() {
+		IExpr cxt = context.mock(IExpr.class, "cxt");
+		IExpr dummy = context.mock(IExpr.class, "dummy");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		Var args = new Var.AVar(meth, "[Object", "args");
+
+		JVMGenerator gen = JVMGenerator.forTests(meth, cxt, args);
+		StackVisitor sv = (StackVisitor) gen.stackVisitor();
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		
+		IExpr ass1 = context.mock(IExpr.class, "ass1");
+		CaptureAction captureHead0 = new CaptureAction(ass1);
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
+			oneOf(meth).nextLocal(); will(returnValue(25));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
+		}});
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
+		sv.hsiArgs(Arrays.asList(a0));
+		sv.switchOn(a0);
+		sv.withConstructor("Number");
+		context.assertIsSatisfied();
+
+		context.checking(new Expectations() {{
+//			oneOf(isNil).ifConst("_0", 42); will(returnValue(inner));
+		}});
+		sv.matchNumber(42);
+
+		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
+		StringLiteral expr = new StringLiteral(pos, "hello");
+		intro.functionCase(new FunctionCaseDefn(null, expr));
+
+		IExpr stmt = context.mock(IExpr.class, "stmt");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("hello"); will(returnValue(dummy));
+			oneOf(meth).returnObject(dummy); will(returnValue(stmt));
+		}});
+		sv.startInline(intro);
+		sv.visitExpr(expr, 0);
+		sv.visitStringLiteral(expr);
+		sv.endInline(intro);
+		
+		IExpr numberNotConst = context.mock(IExpr.class, "numberNotConst");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).returnObject(dummy); will(returnValue(numberNotConst));
+		}});
+		sv.matchDefault();
+		sv.errorNoCase();
+		context.assertIsSatisfied();
+
+		IExpr notNumber = context.mock(IExpr.class, "notNumber");
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).returnObject(dummy); will(returnValue(notNumber));
+		}});
+		sv.defaultCase();
+		sv.errorNoCase();
+		
+		Var head0 = (Var) captureHead0.get(0);
+		IExpr numberBranch = context.mock(IExpr.class, "numberBranch");
+		IExpr i42 = context.mock(IExpr.class, "i42");
+		IExpr is42 = context.mock(IExpr.class, "is42");
+		context.checking(new Expectations() {{
+			oneOf(meth).intConst(42); will(returnValue(i42));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isConst", cxt, head0, i42); will(returnValue(is42));
+			oneOf(meth).ifBoolean(is42, stmt, numberNotConst); will(returnValue(numberBranch));
+			oneOf(meth).stringConst("Number"); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
+			oneOf(meth).ifBoolean(dummy, numberBranch, notNumber); will(returnValue(dummy));
+		}});
+		sv.endSwitch();
+	}
+
+	@Test
 	public void nestedSwitching() {
 		IExpr cxt = context.mock(IExpr.class, "cxt");
 		IExpr dummy = context.mock(IExpr.class, "dummy");
