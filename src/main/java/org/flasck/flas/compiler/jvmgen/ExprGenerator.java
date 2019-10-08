@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -97,6 +98,11 @@ public class ExprGenerator extends LeafAdapter {
 				stack.add(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
 			}
 		} else if (defn instanceof VarPattern) {
+			IExpr in = meth.arrayItem(J.OBJECT, state.fargs, 0);
+			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
+			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
+			stack.add(var);
+		} else if (defn instanceof TypedPattern) {
 			IExpr in = meth.arrayItem(J.OBJECT, state.fargs, 0);
 			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
 			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();

@@ -1,0 +1,5 @@
+	f (Number x) = g
+		g = x
+		
+h x = j
+j y = x + y

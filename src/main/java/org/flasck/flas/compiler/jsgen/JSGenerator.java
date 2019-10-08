@@ -16,6 +16,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -222,6 +223,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 			// TODO: I think we should do something here ...
 		} else if (defn instanceof VarPattern) {
 			stack.add(block.boundVar(((VarPattern)defn).var));
+		} else if (defn instanceof TypedPattern) {
+			stack.add(block.boundVar(((TypedPattern)defn).var.var));
 		} else
 			throw new NotImplementedException();
 	}

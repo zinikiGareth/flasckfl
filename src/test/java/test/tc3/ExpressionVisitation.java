@@ -9,9 +9,12 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
@@ -114,6 +117,23 @@ public class ExpressionVisitation {
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.result(tyPlus);
+	}
+
+	@Test
+	public void aTypedVariableReturnsItsType() {
+		RepositoryReader repository = context.mock(RepositoryReader.class);
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		FunctionName func = FunctionName.function(pos, null, "f");
+		TypeReference string = new TypeReference(pos, "String");
+		string.bind(LoadBuiltins.string);
+		TypedPattern funcVar = new TypedPattern(pos, string, new VarName(pos, func, "x"));
+		context.checking(new Expectations() {{
+			oneOf(nv).result(LoadBuiltins.string);
+		}});
+		UnresolvedVar uv = new UnresolvedVar(pos, "x");
+		uv.bind(funcVar);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		tc.visitUnresolvedVar(uv, 0);
 	}
 
 	@Test

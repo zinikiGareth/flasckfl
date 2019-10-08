@@ -30,6 +30,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		// TODO: this should happen on "function dependency group", but we don't have that yet
+		System.out.println("TC fn " + fn.name().uniqueName());
 		this.state = new FunctionGroupTCState();
 		types.clear();
 	}
@@ -61,8 +62,11 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
-		if (types.isEmpty())
+		if (fn.intros().isEmpty())
 			return;
+		if (types.isEmpty())
+			throw new RuntimeException("No types inferred for " + fn.name().uniqueName());
+		System.out.println("TC fn " + fn.name().uniqueName() + " = " + consolidateType());
 		fn.bindType(consolidateType());
 		types.clear();
 	}

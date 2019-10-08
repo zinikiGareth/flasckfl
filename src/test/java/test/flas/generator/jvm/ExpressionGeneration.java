@@ -20,10 +20,12 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
@@ -104,6 +106,27 @@ public class ExpressionGeneration {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");
 		expr.bind(new VarPattern(pos, new VarName(pos, nameX, "p")));
+		Var ax = null;
+		IExpr cx = context.mock(IExpr.class, "cx");
+		IExpr args = context.mock(IExpr.class, "args");
+		IExpr head0 = context.mock(IExpr.class, "head0");
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, ax, 0); will(returnValue(args));
+			oneOf(meth).nextLocal(); will(returnValue(18));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
+			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0));
+		}});
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv));
+		gen.visitExpr(expr, 2);
+	}
+
+	@Test
+	public void aTypedFunctionArgument() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		FunctionName nameX = FunctionName.function(pos, pkg, "p");
+		TypeReference string = new TypeReference(pos, "String");
+		string.bind(LoadBuiltins.string);
+		expr.bind(new TypedPattern(pos, string, new VarName(pos, nameX, "p")));
 		Var ax = null;
 		IExpr cx = context.mock(IExpr.class, "cx");
 		IExpr args = context.mock(IExpr.class, "args");

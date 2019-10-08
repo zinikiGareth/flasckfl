@@ -1,11 +1,7 @@
 package test.flas.generator.js;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -15,28 +11,28 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.compiler.jsgen.ExtractField;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ExpressionGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -81,6 +77,21 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");
 		expr.bind(new VarPattern(pos, new VarName(pos, nameX, "p")));
+		JSExpr cx = context.mock(JSExpr.class, "cx");
+		context.checking(new Expectations() {{
+			oneOf(meth).boundVar("p");
+		}});
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, cx));
+		gen.visitExpr(expr, 2);
+	}
+	
+	@Test
+	public void aTypedFunctionArgument() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		FunctionName nameX = FunctionName.function(pos, pkg, "p");
+		TypeReference string = new TypeReference(pos, "String");
+		string.bind(LoadBuiltins.string);
+		expr.bind(new TypedPattern(pos, string, new VarName(pos, nameX, "p")));
 		JSExpr cx = context.mock(JSExpr.class, "cx");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("p");

@@ -1,0 +1,2 @@
+test.golden.f :: Number->Number
+test.golden.f.g :: Number->Number
