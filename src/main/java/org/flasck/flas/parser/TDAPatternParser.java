@@ -45,12 +45,13 @@ public class TDAPatternParser implements TDAParsing {
 		if (qn != null)
 			return handleASimpleConstructor(qn);
 		
-		PattToken initial = PattToken.from(toks);
+		PattToken initial = PattToken.from(errors, toks);
 		if (initial == null)
 			return null;
 
 		switch (initial.type) {
 			case PattToken.NUMBER:
+			case PattToken.STRING:
 			case PattToken.TRUE:
 			case PattToken.FALSE: // Constants by themselves
 			{
@@ -82,7 +83,7 @@ public class TDAPatternParser implements TDAParsing {
 			TDAParsing success = delegate.handleOneORBMemberCase(toks);
 			if (success == null)
 				return null;
-			crb = PattToken.from(toks);
+			crb = PattToken.from(errors, toks);
 			if (crb == null)
 				return invalidPattern(toks);
 			if (crb.type == PattToken.CRB)
@@ -108,7 +109,7 @@ public class TDAPatternParser implements TDAParsing {
 			return handleCasesStartingWithAType(toks, qn);
 		}
 		else {
-			PattToken inside = PattToken.from(toks);
+			PattToken inside = PattToken.from(errors, toks);
 			if (inside == null)
 				return invalidPattern(toks);
 			switch (inside.type) {
@@ -133,6 +134,10 @@ public class TDAPatternParser implements TDAParsing {
 		switch (constant.type) {
 			case PattToken.NUMBER: {
 				consumer.accept(new ConstPattern(constant.location, ConstPattern.INTEGER, constant.text));
+				return this;
+			}
+			case PattToken.STRING: {
+				consumer.accept(new ConstPattern(constant.location, ConstPattern.STRING, constant.text));
 				return this;
 			}
 			case PattToken.TRUE:
@@ -169,7 +174,7 @@ public class TDAPatternParser implements TDAParsing {
 		int beforeChecking = toks.at();
 		
 		// Now, see what else we've got ...
-		PattToken tok = PattToken.from(toks);
+		PattToken tok = PattToken.from(errors, toks);
 		if (tok.type == PattToken.VAR) {
 			TypedPattern m = new TypedPattern(type.location, tr, namer.nameVar(tok.location, tok.text));
 			consumer.accept(m);
@@ -190,14 +195,14 @@ public class TDAPatternParser implements TDAParsing {
 	public TDAParsing handleAConstructorMatch(TypeNameToken type, Tokenizable toks) {
 		ConstructorMatch m = new ConstructorMatch(type.location, type.text);
 		while (true) {
-			PattToken fld = PattToken.from(toks);
+			PattToken fld = PattToken.from(errors, toks);
 			if (fld == null)
 				return invalidPattern(toks);
 			if (fld.type == PattToken.CCB)
 				break;
 			if (fld.type != PattToken.VAR)
 				return invalidPattern(toks);
-			PattToken colon = PattToken.from(toks); // :
+			PattToken colon = PattToken.from(errors, toks); // :
 			if (colon == null || colon.type != PattToken.COLON)
 				return invalidPattern(toks);
 			TDAParsing success = new TDAPatternParser(errors, namer, patt -> {
@@ -205,7 +210,7 @@ public class TDAPatternParser implements TDAParsing {
 			}, topLevel).tryParsing(toks);
 			if (success == null)
 				return null;
-			PattToken ccb = PattToken.from(toks);
+			PattToken ccb = PattToken.from(errors, toks);
 			if (ccb == null)
 				return invalidPattern(toks);
 			if (ccb.type == PattToken.CCB)
@@ -224,14 +229,14 @@ public class TDAPatternParser implements TDAParsing {
 		}, topLevel);
 		while (true) {
 			int from = toks.at();
-			PattToken nx = PattToken.from(toks);
+			PattToken nx = PattToken.from(errors, toks);
 			if (nx.type == PattToken.CSB) {
 				break;
 			}
 			toks.reset(from);
 			if (inner.tryParsing(toks) == null)
 				return null;
-			PattToken comma = PattToken.from(toks);
+			PattToken comma = PattToken.from(errors, toks);
 			if (comma.type == PattToken.CSB)
 				break;
 			else if (comma.type != PattToken.COMMA)

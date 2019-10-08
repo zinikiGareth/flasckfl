@@ -175,6 +175,44 @@ public class PatternAnalysis {
 	}
 	
 	@Test
+	public void analyzeFunctionWithAStringConstant() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		final FunctionIntro intro;
+		{
+			ArrayList<Object> args = new ArrayList<>();
+			args.add(new ConstPattern(pos, ConstPattern.STRING, "hello"));
+			intro = new FunctionIntro(nameF, args);
+			intro.functionCase(new FunctionCaseDefn(null, number));
+			fn.intro(intro);
+		}
+		context.checking(new Expectations() {{
+			oneOf(repo).get("String"); will(returnValue(LoadBuiltins.string));
+		}});
+		new Traverser(sv).visitFunction(fn);
+		HSIVisitor hsi = context.mock(HSIVisitor.class);
+		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
+		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
+		slots.add(s);
+		Sequence seq = context.sequence("gen");
+		context.checking(new Expectations() {{
+			oneOf(hsi).switchOn(s); inSequence(seq);
+			oneOf(hsi).withConstructor("String"); inSequence(seq);
+			oneOf(hsi).matchString("hello"); inSequence(seq);
+			oneOf(hsi).startInline(intro); inSequence(seq);
+			oneOf(hsi).visitExpr(number, 0); inSequence(seq);
+			oneOf(hsi).visitNumericLiteral(number); inSequence(seq);
+			oneOf(hsi).endInline(intro); inSequence(seq);
+			oneOf(hsi).matchDefault(); inSequence(seq);
+			oneOf(hsi).errorNoCase(); inSequence(seq);
+			oneOf(hsi).defaultCase(); inSequence(seq);
+			oneOf(hsi).errorNoCase(); inSequence(seq);
+			oneOf(hsi).endSwitch(); inSequence(seq);
+		}});
+		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
+	}
+	
+	@Test
 	public void analyzeFunctionWithASimpleNoArgConstructor() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		final FunctionIntro intro;

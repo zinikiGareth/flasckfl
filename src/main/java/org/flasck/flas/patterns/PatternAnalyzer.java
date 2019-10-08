@@ -92,6 +92,9 @@ public class PatternAnalyzer extends LeafAdapter {
 		case ConstPattern.INTEGER:
 			ty = repository.get("Number");
 			break;
+		case ConstPattern.STRING:
+			ty = repository.get("String");
+			break;
 		default:
 			throw new NotImplementedException("Cannot handle " + p.type);
 		}

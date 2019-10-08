@@ -26,14 +26,14 @@ public class TDATupleDeclarationParser implements TDAParsing {
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable line) {
-		PattToken orb = PattToken.from(line);
+		PattToken orb = PattToken.from(errors, line);
 		if (orb == null || orb.type != PattToken.ORB)
 			return null;
 
 		List<LocatedName> vars = new ArrayList<>();
 		boolean haveCRB = false;
 		while (line.hasMore()) {
-			PattToken nx = PattToken.from(line);
+			PattToken nx = PattToken.from(errors, line);
 			if (nx.type == PattToken.CRB) {
 				if (vars.isEmpty())
 					errors.message(line, "missing var in tuple declaration");
@@ -46,7 +46,7 @@ public class TDATupleDeclarationParser implements TDAParsing {
 				return null;
 			}
 			vars.add(new LocatedName(nx.location, nx.text));
-			PattToken cm = PattToken.from(line);
+			PattToken cm = PattToken.from(errors, line);
 			if (cm == null) {
 				errors.message(line, "syntax error");
 				return null;

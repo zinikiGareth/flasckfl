@@ -13,6 +13,8 @@ JVM PASS False and Nil will be 3
 JVM PASS any False case will always be 3
 JVM PASS we can switch on a constant
 JVM PASS any other constant is an error
+JVM PASS we can switch on a string
+JVM PASS any other string is an error
 JVM PASS if a variable is ignored, it's value is irrelevant
 JVM PASS if a variable is ignored, it's value is irrelevant part 2
 JVM PASS that we can pass any number to a function expecting numbers
@@ -31,6 +33,8 @@ JS PASS False and Nil will be 3
 JS PASS any False case will always be 3
 JS PASS we can switch on a constant
 JS PASS any other constant is an error
+JS PASS we can switch on a string
+JS PASS any other string is an error
 JS PASS if a variable is ignored, it's value is irrelevant
 JS PASS if a variable is ignored, it's value is irrelevant part 2
 JS PASS that we can pass any number to a function expecting numbers

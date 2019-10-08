@@ -58,6 +58,14 @@
 		assert (f 5)
 			Error "no matching case"
 
+	test we can switch on a string
+		assert (g "hello")
+			1
+
+	test any other string is an error
+		assert (g "goodbye")
+			Error "no matching case"
+
 	test if a variable is ignored, it's value is irrelevant
 		assert (k 22)
 			0

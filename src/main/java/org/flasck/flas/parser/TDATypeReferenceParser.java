@@ -28,7 +28,7 @@ public class TDATypeReferenceParser implements TDAParsing {
 			throw new RuntimeException("I think we should know what we're getting at this point, but if not turn this into an error");
 		}
 		int mark = toks.at();
-		PattToken tok = PattToken.from(toks);
+		PattToken tok = PattToken.from(errors, toks);
 		List<TypeReference> andTypeParameters = new ArrayList<>();
 		if (tok.type == PattToken.OSB) {
 			TDATypeReferenceParser inner = new TDATypeReferenceParser(errors, x -> andTypeParameters.add(x));
@@ -37,7 +37,7 @@ public class TDATypeReferenceParser implements TDAParsing {
 					// it failed, we fail ...
 					return null;
 				}
-				tok = PattToken.from(toks);
+				tok = PattToken.from(errors, toks);
 				if (tok.type == PattToken.COMMA)
 					continue;
 				else if (tok.type == PattToken.CSB)

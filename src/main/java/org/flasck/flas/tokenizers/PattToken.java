@@ -1,13 +1,15 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 
 public class PattToken {
 	public static final int VAR = 1;
 	public static final int TYPE = 2;
 	public static final int NUMBER = 3;
-	public static final int TRUE = 4;
-	public static final int FALSE = 5;
+	public static final int STRING = 4;
+	public static final int TRUE = 5;
+	public static final int FALSE = 6;
 
 	// chars and strings
 
@@ -31,7 +33,7 @@ public class PattToken {
 		this.text = text;
 	}
 
-	public static PattToken from(Tokenizable line) {
+	public static PattToken from(ErrorReporter errors, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -48,7 +50,9 @@ public class PattToken {
 			else
 				return new PattToken(tok.location, Character.isUpperCase(c)?TYPE:VAR, tok.text, line.at());
 		} else if (c == '"' || c == '\'') {
-			throw new RuntimeException("Handle string parsing");
+			InputPosition loc = line.realinfo();
+			String s = StringToken.from(errors, line);
+			return new PattToken(loc, PattToken.STRING, s, line.at());
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1))) {
 			NumberToken num = NumberToken.from(line);

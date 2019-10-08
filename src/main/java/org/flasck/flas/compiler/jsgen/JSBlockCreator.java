@@ -12,6 +12,7 @@ public interface JSBlockCreator {
 	void field(String asVar, String fromVar, String field);
 	JSIfExpr ifCtor(String var, String ctor);
 	JSIfExpr ifConst(String string, int cnst);
+	JSIfExpr ifConst(String string, String cnst);
 	void errorNoCase();
 	JSExpr callFunction(String string, JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);

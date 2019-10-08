@@ -20,11 +20,18 @@ import org.zinutils.bytecode.Var.AVar;
 
 public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
 	public class ConstBlock {
-		private final int val;
+		private final Integer val;
+		private final String str;
 		private final List<IExpr> block = new ArrayList<>();
 		
 		public ConstBlock(int val) {
 			this.val = val;
+			this.str = null;
+		}
+
+		public ConstBlock(String val) {
+			this.val = null;
+			this.str = val;
 		}
 	}
 
@@ -94,6 +101,14 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
+	public void matchString(String val) {
+		SwitchCase current = cases.get(0);
+		ConstBlock blk = new ConstBlock(val);
+		current.constants.add(blk);
+		this.currentBlock = blk.block;
+	}
+
+	@Override
 	public void matchDefault() {
 		currentBlock = cases.get(0).block;
 	}
@@ -131,7 +146,10 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private IExpr matchConstants(List<ConstBlock> constants, IExpr blk) {
 		for (ConstBlock b : constants) {
 			IExpr tmp = JVMGenerator.makeBlock(meth, b.block);
-			blk = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isConst", state.fcx, myVar, meth.intConst(b.val)), tmp, blk);
+			if (b.val != null)
+				blk = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isConst", state.fcx, myVar, meth.intConst(b.val)), tmp, blk);
+			else
+				blk = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isConst", state.fcx, myVar, meth.stringConst(b.str)), tmp, blk);
 		}
 		return blk;
 	}

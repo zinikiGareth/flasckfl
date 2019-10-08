@@ -71,6 +71,18 @@ public class TDAPatternParsingTests {
 	}
 
 	@Test
+	public void stringsCanBePatterns() {
+		final Tokenizable line = line("'hello'");
+		context.checking(new Expectations() {{
+			oneOf(builder).accept(with(ConstPatternMatcher.string("hello")));
+		}});
+		TDAPatternParser parser = new TDAPatternParser(errors, vnamer, builder, topLevel);
+		TDAParsing canContinue = parser.tryParsing(line);
+		assertNotNull(canContinue);
+		assertNull(parser.tryParsing(line));
+	}
+
+	@Test
 	public void numbersCanBePatternsInsideParens() { // except: why?
 		final Tokenizable line = line("(42)");
 		context.checking(new Expectations() {{

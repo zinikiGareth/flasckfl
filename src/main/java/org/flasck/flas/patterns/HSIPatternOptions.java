@@ -40,6 +40,7 @@ public class HSIPatternOptions implements HSIOptions {
 	private Map<String, TV> types = new TreeMap<>(); 
 	private Map<String, HSICtorTree> ctors = new TreeMap<>();
 	private Set<Integer> numericConstants = new TreeSet<>();
+	private Set<String> stringConstants = new TreeSet<>();
 
 	@Override
 	public void includes(FunctionIntro fi) {
@@ -73,6 +74,10 @@ public class HSIPatternOptions implements HSIOptions {
 		types.get(tn).intros.add(fi);
 		if (type.name().uniqueName().equals("Number"))
 			numericConstants.add(Integer.parseInt(value));
+		else if (type.name().uniqueName().equals("String"))
+			stringConstants.add(value);
+		else
+			throw new NotImplementedException("Cannot handle const of type " + type);
 	}
 
 	@Override
@@ -115,6 +120,11 @@ public class HSIPatternOptions implements HSIOptions {
 	@Override
 	public Set<Integer> numericConstants(ArrayList<FunctionIntro> intersect) {
 		return numericConstants;
+	}
+
+	@Override
+	public Set<String> stringConstants(ArrayList<FunctionIntro> intersect) {
+		return stringConstants;
 	}
 
 	@Override

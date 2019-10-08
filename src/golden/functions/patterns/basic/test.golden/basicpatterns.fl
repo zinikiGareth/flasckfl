@@ -35,7 +35,7 @@
 	f 3 = 0
 
 // String->Number
-g "hello" = 1
+	g "hello" = 1
 
 // Number->Number
 	h (Number x) = 5

@@ -115,6 +115,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	}
 
 	@Override
+	public void matchString(String val) {
+		JSIfExpr ifCtor = this.block.ifConst(currentLevel.currentVar, val);
+		this.block = ifCtor.trueCase();
+		this.currentLevel.matchDefault = ifCtor.falseCase();
+	}
+
+	@Override
 	public void matchDefault() {
 		if (this.currentLevel.matchDefault != null) {
 			if (!stack.isEmpty())

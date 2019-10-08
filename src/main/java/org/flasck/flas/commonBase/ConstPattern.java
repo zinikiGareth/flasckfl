@@ -5,6 +5,7 @@ import org.flasck.flas.blockForm.InputPosition;
 public class ConstPattern implements Pattern {
 	public static final int INTEGER = 1;
 	public static final int BOOLEAN = 2;
+	public static final int STRING = 3;
 
 	public final int type;
 	public final String value;

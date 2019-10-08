@@ -35,6 +35,7 @@ public interface HSIOptions {
 	List<IntroVarName> vars(List<FunctionIntro> intros);
 	Set<String> types(List<FunctionIntro> intros);
 	Set<Integer> numericConstants(ArrayList<FunctionIntro> intersect);
+	Set<String> stringConstants(ArrayList<FunctionIntro> intersect);
 	boolean hasSwitches(List<FunctionIntro> intros);
 	int score();
 }

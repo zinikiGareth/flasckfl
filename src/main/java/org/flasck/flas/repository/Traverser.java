@@ -237,6 +237,19 @@ public class Traverser implements Visitor {
 							hsi.matchDefault();
 						}
 					}
+					if ("String".equals(ty)) {
+						Set<String> strings = opts.stringConstants(intersect);
+						if (!strings.isEmpty()) {
+							for (String k : strings) {
+								hsi.matchString(k);
+								ArrayList<FunctionIntro> forConst = new ArrayList<>(intersect);
+								forConst.retainAll(opts.getIntrosForType(ty));
+								visitHSI(fn, vars, remaining, intersect);
+								intersect.removeAll(forConst);
+							}
+							hsi.matchDefault();
+						}
+					}
 					if (intersect.isEmpty())
 						hsi.errorNoCase();
 					else

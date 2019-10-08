@@ -269,6 +269,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 		hsi.matchNumber(i);
 	}
 
+	public void matchString(String s) {
+		hsi.matchString(s);
+	}
+
 	public void matchDefault() {
 		hsi.matchDefault();
 	}
