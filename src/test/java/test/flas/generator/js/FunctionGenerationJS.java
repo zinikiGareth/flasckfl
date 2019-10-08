@@ -335,17 +335,21 @@ public class FunctionGenerationJS {
 		intro.functionCase(new FunctionCaseDefn(null, expr));
 
 		context.checking(new Expectations() {{
-			oneOf(isNil).string("hello"); will(returnValue(dummy));
+			oneOf(isNil1).string("hello"); will(returnValue(dummy));
 		}});
 		gen.startInline(intro);
 		gen.visitExpr(expr, 0);
 		gen.visitStringLiteral(expr);
 		gen.endInline(intro);
-
+		
 		context.checking(new Expectations() {{
-			oneOf(isNil).returnObject(dummy);
+			oneOf(isNil1).returnObject(dummy);
+			oneOf(notNil1).errorNoCase();
 			oneOf(notNil).errorNoCase();
 		}});
+		gen.matchDefault();
+		gen.errorNoCase();
+		gen.defaultCase();
 		gen.errorNoCase();
 		gen.endSwitch();
 	}
@@ -397,12 +401,14 @@ public class FunctionGenerationJS {
 			oneOf(isNil1).returnObject(dummy);
 			oneOf(notNil1).errorNoCase();
 		}});
+		gen.defaultCase();
 		gen.errorNoCase();
 		gen.endSwitch();
 		
 		context.checking(new Expectations() {{
 			oneOf(notNil0).errorNoCase();
 		}});
+		gen.defaultCase();
 		gen.errorNoCase();
 		gen.endSwitch();
 	}
@@ -457,6 +463,7 @@ public class FunctionGenerationJS {
 			oneOf(isNil1).returnObject(dummy);
 			oneOf(notNil1).errorNoCase();
 		}});
+		gen.defaultCase();
 		gen.errorNoCase();
 		gen.endSwitch();
 
@@ -498,12 +505,14 @@ public class FunctionGenerationJS {
 			oneOf(notNil1b).errorNoCase();
 			oneOf(isNil1b).returnObject(dummy);
 		}});
+		gen.defaultCase();
 		gen.errorNoCase();
 		gen.endSwitch();
 
 		context.checking(new Expectations() {{
 			oneOf(notFalse0).errorNoCase();
 		}});
+		gen.defaultCase();
 		gen.errorNoCase();
 		gen.endSwitch();
 	}

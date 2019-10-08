@@ -88,6 +88,7 @@ public class HSITraversalTests {
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).endInline(fi);
+			oneOf(v).defaultCase();
 			oneOf(v).errorNoCase();
 			oneOf(v).endSwitch();
 			oneOf(v).leaveFunction(fn);
@@ -122,6 +123,7 @@ public class HSITraversalTests {
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).endInline(fi);
+			oneOf(v).defaultCase();
 			oneOf(v).errorNoCase();
 			oneOf(v).endSwitch();
 			oneOf(v).leaveFunction(fn);

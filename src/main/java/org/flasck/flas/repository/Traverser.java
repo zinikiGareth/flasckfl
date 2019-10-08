@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -224,12 +225,16 @@ public class Traverser implements Visitor {
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(opts.getIntrosForType(ty));
 					if ("Number".equals(ty)) {
-						for (int k : opts.numericConstants(intersect)) {
-							hsi.matchNumber(k);
-							ArrayList<FunctionIntro> forConst = new ArrayList<>(intersect);
-							forConst.retainAll(opts.getIntrosForType(ty));
-							visitHSI(fn, vars, remaining, intersect);
-							intersect.removeAll(forConst);
+						Set<Integer> numbers = opts.numericConstants(intersect);
+						if (!numbers.isEmpty()) {
+							for (int k : numbers) {
+								hsi.matchNumber(k);
+								ArrayList<FunctionIntro> forConst = new ArrayList<>(intersect);
+								forConst.retainAll(opts.getIntrosForType(ty));
+								visitHSI(fn, vars, remaining, intersect);
+								intersect.removeAll(forConst);
+							}
+							hsi.matchDefault();
 						}
 					}
 					if (intersect.isEmpty())
@@ -241,11 +246,11 @@ public class Traverser implements Visitor {
 			vars = vars.remember(s, opts, intros);
 			ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 			intersect.retainAll(opts.getDefaultIntros(intros));
+			if (wantSwitch)
+				hsi.defaultCase();
 			if (intersect.isEmpty()) {
 				hsi.errorNoCase();
 			} else {
-				if (wantSwitch)
-					hsi.defaultCase();
 				visitHSI(fn, vars, remaining, intersect);
 			}
 			if (wantSwitch) {

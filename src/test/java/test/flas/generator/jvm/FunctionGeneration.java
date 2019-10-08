@@ -436,6 +436,7 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(nscInner));
 		}});
+		sv.defaultCase();
 		sv.errorNoCase();
 
 		Var head1 = (Var) captureHead1.get(0);
@@ -454,6 +455,7 @@ public class FunctionGeneration {
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(nscOuter));
 		}});
+		sv.defaultCase();
 		sv.errorNoCase();
 
 		Var head0 = (Var) captureHead0.get(0);

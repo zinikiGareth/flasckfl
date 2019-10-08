@@ -79,6 +79,10 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
+	public void matchDefault() {
+	}
+
+	@Override
 	public void defaultCase() {
 		SwitchCase current = new SwitchCase(null);
 		cases.add(0, current);
@@ -87,9 +91,6 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void errorNoCase() {
-		SwitchCase current = new SwitchCase(null);
-		cases.add(0, current);
-		currentBlock = current.block;
 		currentBlock.add(meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no such case")))));
 	}
 

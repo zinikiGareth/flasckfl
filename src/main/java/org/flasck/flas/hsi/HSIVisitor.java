@@ -10,6 +10,7 @@ public interface HSIVisitor extends Visitor {
 	void withConstructor(String string);
 	void constructorField(Slot parent, String field, Slot slot);
 	void matchNumber(int i);
+	void matchDefault();
 	void defaultCase();
 	void errorNoCase();
 	void bind(Slot slot, String var);

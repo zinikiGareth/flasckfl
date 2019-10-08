@@ -29,6 +29,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	private static class SwitchLevel {
 		private String currentVar;
+		private JSBlockCreator matchDefault;
 		private JSBlockCreator elseBlock;
 	}
 	
@@ -107,7 +108,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void matchNumber(int val) {
-		this.block.ifConst(currentLevel.currentVar, val);
+		JSIfExpr ifCtor = this.block.ifConst(currentLevel.currentVar, val);
+		this.block = ifCtor.trueCase();
+		this.currentLevel.matchDefault = ifCtor.falseCase();
+	}
+
+	@Override
+	public void matchDefault() {
+		if (this.currentLevel.matchDefault != null) {
+			if (!stack.isEmpty())
+				this.block.returnObject(this.stack.remove(0));
+			this.block = this.currentLevel.matchDefault;
+		}
 	}
 
 	@Override
@@ -119,9 +131,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void errorNoCase() {
-		if (!stack.isEmpty())
-			this.block.returnObject(this.stack.remove(0));
-		this.currentLevel.elseBlock.errorNoCase();
+		this.block.errorNoCase();
 	}
 
 	@Override
@@ -131,14 +141,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void startInline(FunctionIntro fi) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void endInline(FunctionIntro fi) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

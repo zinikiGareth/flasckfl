@@ -34,6 +34,7 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.repository.Traverser.VarMapping;
 import org.jmock.Expectations;
+import org.jmock.Sequence;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
@@ -128,6 +129,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
@@ -154,17 +156,20 @@ public class PatternAnalysis {
 		VarMapping vars = new VarMapping();
 		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
 		slots.add(s);
+		Sequence seq = context.sequence("gen");
 		context.checking(new Expectations() {{
-			oneOf(hsi).switchOn(s);
-			oneOf(hsi).withConstructor("Number");
-			oneOf(hsi).matchNumber(42);
-			oneOf(hsi).startInline(intro);
-			oneOf(hsi).visitExpr(number, 0);
-			oneOf(hsi).visitNumericLiteral(number);
-			oneOf(hsi).endInline(intro);
-			oneOf(hsi).errorNoCase();
-			oneOf(hsi).errorNoCase();
-			oneOf(hsi).endSwitch();
+			oneOf(hsi).switchOn(s); inSequence(seq);
+			oneOf(hsi).withConstructor("Number"); inSequence(seq);
+			oneOf(hsi).matchNumber(42); inSequence(seq);
+			oneOf(hsi).startInline(intro); inSequence(seq);
+			oneOf(hsi).visitExpr(number, 0); inSequence(seq);
+			oneOf(hsi).visitNumericLiteral(number); inSequence(seq);
+			oneOf(hsi).endInline(intro); inSequence(seq);
+			oneOf(hsi).matchDefault(); inSequence(seq);
+			oneOf(hsi).errorNoCase(); inSequence(seq);
+			oneOf(hsi).defaultCase(); inSequence(seq);
+			oneOf(hsi).errorNoCase(); inSequence(seq);
+			oneOf(hsi).endSwitch(); inSequence(seq);
 		}});
 		new Traverser(hsi).visitHSI(fn, vars, slots, fn.intros());
 	}
@@ -193,6 +198,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
@@ -236,6 +242,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(simpleExpr, 0);
 			oneOf(hsi).visitStringLiteral(simpleExpr);
 			oneOf(hsi).endInline(intro2);
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
@@ -303,8 +310,10 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
@@ -349,6 +358,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro1);
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 			oneOf(hsi).withConstructor("True");
@@ -358,8 +368,10 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(simpleExpr, 0);
 			oneOf(hsi).visitStringLiteral(simpleExpr);
 			oneOf(hsi).endInline(intro2);
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
@@ -410,8 +422,10 @@ public class PatternAnalysis {
 			oneOf(hsi).visitExpr(number, 0);
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro1);
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
@@ -463,6 +477,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro1);
 			oneOf(hsi).endSwitch();
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
@@ -514,6 +529,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro2);
 			oneOf(hsi).endSwitch();
+			oneOf(hsi).defaultCase();
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
