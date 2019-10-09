@@ -119,6 +119,7 @@ public class HSITraversalTests {
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
 			oneOf(v).withConstructor("Number");
+			oneOf(v).bind(with(SlotMatcher.from(slots, 0)), with("x"));
 			oneOf(v).startInline(fi);
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);

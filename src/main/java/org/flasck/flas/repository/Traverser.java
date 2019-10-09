@@ -191,7 +191,9 @@ public class Traverser implements Visitor {
 	public void visitHSI(FunctionDefinition fn, VarMapping vars, List<Slot> slots, List<FunctionIntro> intros) {
 		HSIVisitor hsi = (HSIVisitor) visitor;
 		if (slots.isEmpty()) {
-			if (intros.size() == 1) {
+			if (intros.isEmpty())
+				hsi.errorNoCase();
+			else if (intros.size() == 1) {
 				FunctionIntro intro = intros.get(0);
 				vars.bindFor(hsi, intro);
 				handleInline(intro);
@@ -202,6 +204,7 @@ public class Traverser implements Visitor {
 			List<Slot> remaining = new ArrayList<>(slots);
 			remaining.remove(s);
 			HSIOptions opts = s.getOptions();
+			vars = vars.remember(s, opts, intros);
 			boolean wantSwitch = opts.hasSwitches(intros);
 			if (wantSwitch) {
 				hsi.switchOn(s);
@@ -256,16 +259,11 @@ public class Traverser implements Visitor {
 						visitHSI(fn, vars, remaining, intersect);
 				}
 			}
-			vars = vars.remember(s, opts, intros);
 			ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 			intersect.retainAll(opts.getDefaultIntros(intros));
 			if (wantSwitch)
 				hsi.defaultCase();
-			if (intersect.isEmpty()) {
-				hsi.errorNoCase();
-			} else {
-				visitHSI(fn, vars, remaining, intersect);
-			}
+			visitHSI(fn, vars, remaining, intersect);
 			if (wantSwitch) {
 				hsi.endSwitch();
 			}

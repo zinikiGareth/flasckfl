@@ -61,12 +61,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		System.out.println("JS " + fn.name().jsName() + " = " + fn.intros().size());
 		switchVars.clear();
 		if (fn.intros().isEmpty()) {
 			this.meth = null;
 			return;
 		}
-		this.meth = jse.newFunction(fn.name().container().jsName(), fn.name().name);
+		String pkg = fn.name().packageName().jsName();
+		this.meth = jse.newFunction(pkg, fn.name().jsName().substring(pkg.length()+1));
 		this.meth.argument("_cxt");
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);

@@ -106,6 +106,16 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return inContext;
 	}
 
+	public PackageName packageName() {
+		NameOfThing ret = inContext;
+		while (ret != null) {
+			if (ret instanceof PackageName)
+				return (PackageName) ret;
+			ret = ret.container();
+		}
+		throw new RuntimeException("No PackageName found");
+	}
+	
 	public NameOfThing containingCard() {
 		if (inContext == null)
 			return null;

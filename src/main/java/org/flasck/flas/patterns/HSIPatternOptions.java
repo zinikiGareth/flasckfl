@@ -1,6 +1,7 @@
 package org.flasck.flas.patterns;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,13 +109,19 @@ public class HSIPatternOptions implements HSIOptions {
 	@Override
 	public List<IntroVarName> vars(List<FunctionIntro> intros) {
 		List<IntroVarName> ret = new ArrayList<>();
-		for (TV v : vars) {
+		addVars(ret, intros, vars);
+		addVars(ret, intros, types.values());
+		return ret;
+	}
+
+	private void addVars(List<IntroVarName> ret, List<FunctionIntro> intros, Collection<TV> list) {
+		for (TV v : list) {
 			for (FunctionIntro i : intros) {
 				if (v.intros.contains(i))
-					ret.add(new IntroVarName(i, v.var));
+					if (v.var != null)
+						ret.add(new IntroVarName(i, v.var));
 			}
 		}
-		return ret;
 	}
 
 	@Override
