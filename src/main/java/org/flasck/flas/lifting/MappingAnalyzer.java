@@ -1,5 +1,6 @@
 package org.flasck.flas.lifting;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -11,6 +12,8 @@ public class MappingAnalyzer {
 
 	private final FunctionDefinition fn;
 	private final MappingCollector collector;
+	// TODO: this should be the "case" name with _1 or whatever
+	private FunctionName name;
 
 	public MappingAnalyzer(FunctionDefinition fn, MappingCollector c) {
 		this.fn = fn;
@@ -18,20 +21,22 @@ public class MappingAnalyzer {
 	}
 
 	public void visitFunctionIntro(FunctionIntro fi) {
-		// TODO Auto-generated method stub
-		
+		name = fi.name();
 	}
 
 	public void visitUnresolvedVar(UnresolvedVar vr) {
 		RepositoryEntry defn = vr.defn();
 		if (defn instanceof VarPattern) {
 			VarPattern vp = (VarPattern) defn;
-			if (vp.name().scope != fn.name())
+			if (vp.name().scope != name)
 				collector.recordNestedVar(fn, vp);
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) defn;
-			if (tp.name().scope != fn.name())
+			if (tp.name().scope != name)
 				collector.recordNestedVar(fn, tp);
+		} else if (defn instanceof FunctionDefinition) {
+			if (defn != fn)
+				collector.recordDependency(fn, (FunctionDefinition) defn);
 		}
 	}
 

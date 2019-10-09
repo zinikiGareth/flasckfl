@@ -7,4 +7,5 @@ import org.flasck.flas.parsedForm.VarPattern;
 public interface MappingCollector {
 	void recordNestedVar(FunctionDefinition fn, VarPattern vp);
 	void recordNestedVar(FunctionDefinition fn, TypedPattern tp);
+	void recordDependency(FunctionDefinition from, FunctionDefinition to);
 }

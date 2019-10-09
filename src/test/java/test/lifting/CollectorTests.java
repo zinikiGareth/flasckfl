@@ -123,6 +123,44 @@ public class CollectorTests {
 		ma.visitUnresolvedVar(vr);
 	}
 	
-	// function-function references are recorded
-	// function-itself references are ignored
+	@Test
+	public void aReferenceToAnotherFunctionIsRecorded() {
+		MappingCollector c = context.mock(MappingCollector.class);
+		
+		FunctionName nameO = FunctionName.function(pos, pkg, "other");
+		FunctionDefinition other = new FunctionDefinition(nameO, 0);
+		
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		UnresolvedVar vr = new UnresolvedVar(pos, "x");
+		vr.bind(other);
+		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
+		ma.visitFunctionIntro(fi);
+		
+		context.checking(new Expectations() {{
+			oneOf(c).recordDependency(fn, other);
+		}});
+		ma.visitUnresolvedVar(vr);
+	}
+	
+	@Test
+	public void aReferenceToThisFunctionIsIgnored() {
+		MappingCollector c = context.mock(MappingCollector.class);
+		
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		UnresolvedVar vr = new UnresolvedVar(pos, "x");
+		vr.bind(fn);
+		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
+		ma.visitFunctionIntro(fi);
+		
+		context.checking(new Expectations() {{
+		}});
+		ma.visitUnresolvedVar(vr);
+	}
+
 }
