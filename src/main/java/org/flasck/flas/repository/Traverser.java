@@ -458,6 +458,23 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
+		if (nargs == 0 && visitor.isHsi()) {
+			NestedVarReader nv = isFnNeedingNesting(var);
+			if (nv != null) {
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				List<Object> args = (List)nv.vars();
+				ApplyExpr ae = new ApplyExpr(var.location, var, args);
+				visitor.visitApplyExpr(ae);
+				visitor.visitExpr(var, args.size());
+				visitor.visitUnresolvedVar(var, args.size());
+				for (Object v : args) {
+					visitor.visitExpr((Expr) v, 0);
+					visitor.visitUnresolvedVar((UnresolvedVar) v, 0);
+				}
+				visitor.leaveApplyExpr(ae);
+				return; // don't just visit the var ...
+			}
+		}
 		visitor.visitUnresolvedVar(var, nargs);
 	}
 

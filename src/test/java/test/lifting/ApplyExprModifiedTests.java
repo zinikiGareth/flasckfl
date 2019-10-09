@@ -42,7 +42,7 @@ public class ApplyExprModifiedTests {
 	public void aCallToANestedFunctionWithVarsGetsThosePassedIn() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
-		FunctionDefinition ff = new FunctionDefinition(nameF, 1);
+//		FunctionDefinition ff = new FunctionDefinition(nameF, 1);
 		
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
@@ -53,7 +53,7 @@ public class ApplyExprModifiedTests {
 
 		MappingStore ms = new MappingStore();
 		ms.recordNestedVar(fi, vp);
-		ms.recordDependency(ff, fn);
+//		ms.recordDependency(ff, fn);
 		fn.nestedVars(ms);
 
 		UnresolvedVar fnCall = new UnresolvedVar(pos, "g");
@@ -72,10 +72,37 @@ public class ApplyExprModifiedTests {
 			oneOf(hsi).leaveApplyExpr(ae);
 		}});
 		Traverser traverser = new Traverser(hsi);
-		traverser.rememberCaller(ff);
+//		traverser.rememberCaller(ff);
 		traverser.visitApplyExpr(ae);
 	}
 	
-	// I think we need to consider the case where what we see is just an UV but being bound to a function it then "becomes" an AE of the nested vars
+	@Test
+	public void aCallToANestedFunctionWhichIsJustAVarBecomesAnAEWithNestedVars() {
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
+		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
+		
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
+		FunctionDefinition fn = new FunctionDefinition(nameG, 0);
+		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
+		fn.intro(fi);
 
+		MappingStore ms = new MappingStore();
+		ms.recordNestedVar(fi, vp);
+		fn.nestedVars(ms);
+
+		UnresolvedVar fnCall = new UnresolvedVar(pos, "g");
+		fnCall.bind(fn);
+		
+		context.checking(new Expectations() {{
+			oneOf(hsi).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))));
+			oneOf(hsi).visitExpr(fnCall, 1);
+			oneOf(hsi).visitUnresolvedVar(fnCall, 1);
+			oneOf(hsi).visitExpr(with(ExprMatcher.unresolved("x")), with(0));
+			oneOf(hsi).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
+			oneOf(hsi).leaveApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))));
+		}});
+		Traverser traverser = new Traverser(hsi);
+		traverser.visitUnresolvedVar(fnCall, 0);
+	}
+	
 }

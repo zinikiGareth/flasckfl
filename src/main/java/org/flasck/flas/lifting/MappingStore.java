@@ -1,6 +1,7 @@
 package org.flasck.flas.lifting;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
-	public Collection<UnresolvedVar> vars() {
+	public List<UnresolvedVar> vars() {
 		return patterns.stream().map(po -> po.var).collect(Collectors.toList());
 	}
 
