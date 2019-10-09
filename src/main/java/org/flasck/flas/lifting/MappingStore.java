@@ -80,4 +80,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		return patterns.stream().map(po -> po.var).collect(Collectors.toList());
 	}
 
+	public boolean isInteresting() {
+		return !patterns.isEmpty();
+	}
 }
