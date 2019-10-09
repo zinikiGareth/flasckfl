@@ -13,7 +13,6 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -142,10 +141,7 @@ public class Traverser implements Visitor {
 			return; // not for generation
 		visitor.visitFunction(fn);
 		if (visitor.isHsi()) {
-			List<Slot> slots = new ArrayList<>();
-			for (int i=0;i<fn.argCount();i++) {
-				slots.add(new ArgSlot(i, fn.hsiTree().get(i)));
-			}
+			List<Slot> slots = fn.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
 			visitHSI(fn, new VarMapping(), slots, fn.intros());
 		} else {

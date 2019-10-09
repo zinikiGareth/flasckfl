@@ -6,10 +6,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.lifting.Lifter;
 import org.flasck.flas.lifting.MappingAnalyzer;
 import org.flasck.flas.lifting.MappingCollector;
-import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -17,8 +15,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LoadBuiltins;
-import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Repository.Visitor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -28,15 +24,12 @@ public class CollectorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition pos = new InputPosition("-", 1, 0, null);
 	PackageName pkg = new PackageName("test.foo");
-	Repository r = new Repository();
-	Lifter l = new RepositoryLifter();
-	Visitor v = context.mock(Visitor.class);
 
 	@Test
 	public void aVarPatternNotLocalToThisFunctionIsRecorded() {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
@@ -46,7 +39,7 @@ public class CollectorTests {
 		ma.visitFunctionIntro(fi);
 		
 		context.checking(new Expectations() {{
-			oneOf(c).recordNestedVar(fn, vp);
+			oneOf(c).recordNestedVar(fi, vp);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}
@@ -55,7 +48,7 @@ public class CollectorTests {
 	public void aVarPatternLocalToThisFunctionIsIgnored() {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameG, "x"));
@@ -73,7 +66,7 @@ public class CollectorTests {
 	public void aTypedVarPatternNotLocalToThisFunctionIsRecorded() {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"));
@@ -83,7 +76,7 @@ public class CollectorTests {
 		ma.visitFunctionIntro(fi);
 		
 		context.checking(new Expectations() {{
-			oneOf(c).recordNestedVar(fn, tp);
+			oneOf(c).recordNestedVar(fi, tp);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}
@@ -92,7 +85,7 @@ public class CollectorTests {
 	public void aTypedVarPatternLocalToThisFunctionIsIgnored() {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameG, "x"));
@@ -110,7 +103,7 @@ public class CollectorTests {
 	public void aConstructorIsIgnored() {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
 		UnresolvedVar vr = new UnresolvedVar(pos, "Nil");
@@ -131,7 +124,7 @@ public class CollectorTests {
 		FunctionDefinition other = new FunctionDefinition(nameO, 0);
 		
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
@@ -150,7 +143,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		FunctionName nameG = FunctionName.function(pos, nameF, "f");
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
@@ -162,5 +155,4 @@ public class CollectorTests {
 		}});
 		ma.visitUnresolvedVar(vr);
 	}
-
 }

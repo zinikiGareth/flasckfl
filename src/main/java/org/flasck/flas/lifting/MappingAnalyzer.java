@@ -14,6 +14,7 @@ public class MappingAnalyzer {
 	private final MappingCollector collector;
 	// TODO: this should be the "case" name with _1 or whatever
 	private FunctionName name;
+	private FunctionIntro fi;
 
 	public MappingAnalyzer(FunctionDefinition fn, MappingCollector c) {
 		this.fn = fn;
@@ -21,6 +22,7 @@ public class MappingAnalyzer {
 	}
 
 	public void visitFunctionIntro(FunctionIntro fi) {
+		this.fi = fi;
 		name = fi.name();
 	}
 
@@ -29,11 +31,11 @@ public class MappingAnalyzer {
 		if (defn instanceof VarPattern) {
 			VarPattern vp = (VarPattern) defn;
 			if (vp.name().scope != name)
-				collector.recordNestedVar(fn, vp);
+				collector.recordNestedVar(fi, vp);
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) defn;
 			if (tp.name().scope != name)
-				collector.recordNestedVar(fn, tp);
+				collector.recordNestedVar(fi, tp);
 		} else if (defn instanceof FunctionDefinition) {
 			if (defn != fn)
 				collector.recordDependency(fn, (FunctionDefinition) defn);
