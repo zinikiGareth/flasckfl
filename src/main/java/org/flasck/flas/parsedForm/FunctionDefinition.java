@@ -90,4 +90,8 @@ public class FunctionDefinition implements RepositoryEntry, WithTypeSignature {
 	public void nestedVars(NestedVarReader nestedVars) {
 		this.nestedVars = nestedVars;
 	}
+
+	public NestedVarReader nestedVars() {
+		return nestedVars;
+	}
 }

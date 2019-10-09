@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIPatternOptions;
@@ -18,21 +19,26 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		VarName name;
 		Pattern p;
 		HSIPatternOptions opts;
+		UnresolvedVar var;
 		
 		public PO(VarPattern p, FunctionIntro fi) {
-			this.name = p.name();
-			this.p = p;
-			this.opts = new HSIPatternOptions();
-			this.opts.includes(fi);
+			this(fi, p, p.name());
 			this.opts.addVar(p.name(), fi);
+			this.var.bind(p);
 		}
 
 		public PO(TypedPattern p, FunctionIntro fi) {
-			this.name = p.name();
+			this(fi, p, p.name());
+			this.opts.addTyped(p.type, p.name(), fi);
+			this.var.bind(p);
+		}
+		
+		private PO(FunctionIntro fi, Pattern p, VarName name) {
 			this.p = p;
+			this.name = name;
 			this.opts = new HSIPatternOptions();
 			this.opts.includes(fi);
-			this.opts.addTyped(p.type, p.name(), fi);
+			this.var = new UnresolvedVar(fi.location, this.name.var);
 		}
 
 		@Override
@@ -41,12 +47,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		}
 
 		private String name() {
-			if (p instanceof VarPattern)
-				return ((VarPattern)p).name().uniqueName();
-			else if (p instanceof TypedPattern)
-				return ((TypedPattern)p).name().uniqueName();
-			else
-				return "";
+			return name.uniqueName();
 		}
 	}
 
@@ -71,6 +72,11 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	@Override
 	public Collection<HSIOptions> all() {
 		return patterns.stream().map(po -> po.opts).collect(Collectors.toList());
+	}
+
+	@Override
+	public Collection<UnresolvedVar> vars() {
+		return patterns.stream().map(po -> po.var).collect(Collectors.toList());
 	}
 
 }

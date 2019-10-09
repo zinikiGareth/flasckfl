@@ -84,8 +84,6 @@ public class InsertorTests {
 		}});
 		Traverser traverser = new Traverser(hsi);
 		traverser.visitHSI(fn, new VarMapping(), slots, fn.intros());
-
-		assertEquals(1, slots.size());
 	}
 
 	@Test
@@ -115,7 +113,5 @@ public class InsertorTests {
 		}});
 		Traverser traverser = new Traverser(hsi);
 		traverser.visitHSI(fn, new VarMapping(), slots, fn.intros());
-
-		assertEquals(1, slots.size());
 	}
 }

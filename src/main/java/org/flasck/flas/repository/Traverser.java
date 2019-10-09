@@ -16,6 +16,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -46,6 +47,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class Traverser implements Visitor {
 	private final Visitor visitor;
+	private FunctionDefinition currentFunction;
 
 	public Traverser(Visitor visitor) {
 		this.visitor = visitor;
@@ -141,9 +143,11 @@ public class Traverser implements Visitor {
 			return; // not for generation
 		visitor.visitFunction(fn);
 		if (visitor.isHsi()) {
+			rememberCaller(fn);
 			List<Slot> slots = fn.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
 			visitHSI(fn, new VarMapping(), slots, fn.intros());
+			rememberCaller(null);
 		} else {
 			for (FunctionIntro i : fn.intros())
 				visitFunctionIntro(i);
@@ -151,6 +155,10 @@ public class Traverser implements Visitor {
 		visitor.leaveFunction(fn);
 	}
 	
+	public void rememberCaller(FunctionDefinition fn) {
+		this.currentFunction = fn;
+	}
+
 	private static class SlotVar {
 		private final Slot s;
 		private final VarName var;
@@ -417,10 +425,31 @@ public class Traverser implements Visitor {
 
 	public void visitApplyExpr(ApplyExpr expr) {
 		visitor.visitApplyExpr(expr);
-		visitExpr((Expr) expr.fn, expr.args.size());
+		int cnt = expr.args.size();
+		Expr fn = (Expr) expr.fn;
+		NestedVarReader nv = null;
+		if (visitor.isHsi()) {
+			nv = isFnNeedingNesting(fn);
+			if (nv != null)
+				cnt += nv.vars().size();
+		}
+		visitExpr(fn, cnt);
+		if (nv != null) {
+			for (UnresolvedVar uv : nv.vars())
+				visitExpr(uv, 0);
+		}
 		for (Object x : expr.args)
 			visitExpr((Expr) x, 0);
 		visitor.leaveApplyExpr(expr);
+	}
+
+	private NestedVarReader isFnNeedingNesting(Expr uv) {
+		if (uv instanceof UnresolvedVar) {
+			UnresolvedVar fn = (UnresolvedVar)uv;
+			if (fn.defn() instanceof FunctionDefinition)
+				return ((FunctionDefinition)fn.defn()).nestedVars();
+		}
+		return null;
 	}
 
 	@Override

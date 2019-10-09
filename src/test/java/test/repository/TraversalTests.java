@@ -195,6 +195,7 @@ public class TraversalTests {
 	public void exprVisitsFunctionApplication() {
 		ApplyExpr ex = new ApplyExpr(pos, var, simpleExpr, number);
 		context.checking(new Expectations() {{
+			allowing(v).isHsi(); will(returnValue(false));
 			oneOf(v).visitExpr(ex, 2);
 			oneOf(v).visitApplyExpr(ex);
 			oneOf(v).visitExpr(var, 2);
