@@ -1,5 +1,13 @@
+
+// simplest case
 	f (Number x) = g
 		g = x
-		
+
+// with another (direct) argument		
 h x = j
 j y = x + y
+
+// recursive (indented) case -- add to both l & m
+k x = l
+l = m
+m = x
