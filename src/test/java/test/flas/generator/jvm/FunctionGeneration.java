@@ -8,9 +8,13 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.compiler.jsgen.JSExpr;
+import org.flasck.flas.compiler.jsgen.JSGenerator;
+import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
+import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -51,6 +55,38 @@ public class FunctionGeneration {
 		}});
 	}
 
+	@Test
+	public void varsAreNamedAfterSlotID() {
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+			oneOf(meth).nextLocal(); will(returnValue(23));
+		}});
+		Var args = new Var.AVar(meth, "JVMRunner", "runner");
+		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
+		Slot slot = new ArgSlot(3, null);
+		IExpr arg0 = context.mock(IExpr.class, "arg0");
+		IExpr head = context.mock(IExpr.class, "head");
+		IExpr ass1 = context.mock(IExpr.class, "ass1");
+		context.checking(new Expectations() {{
+			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
+			oneOf(meth).nextLocal(); will(returnValue(25));
+			oneOf(meth).arrayItem(J.OBJECT, args, 3); will(returnValue(arg0));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
+			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass1));
+		}});
+		FunctionName name = FunctionName.function(pos, pkg, "x");
+		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		fn.intro(fi);
+		sv.visitFunction(fn);
+		sv.bind(slot, "x");
+	}
+	
 	@Test
 	public void aSimpleFunction() {
 		IExpr iret = context.mock(IExpr.class, "ret");

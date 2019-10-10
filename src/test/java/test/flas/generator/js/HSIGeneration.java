@@ -6,16 +6,37 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.flasck.flas.compiler.jsgen.ExtractField;
+import org.flasck.flas.compiler.jsgen.JSExpr;
+import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.JSMethod;
+import org.flasck.flas.compiler.jsgen.JSMethodCreator;
+import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.Slot;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class HSIGeneration {
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);
 
+	@Test
+	public void varsAreNamedAfterSlotID() {
+		JSMethodCreator meth = context.mock(JSMethodCreator.class);
+		JSExpr runner = context.mock(JSExpr.class);
+		JSGenerator gen = JSGenerator.forTests(meth, runner);
+		Slot slot = new ArgSlot(3, null);
+		context.checking(new Expectations() {{
+			oneOf(meth).bindVar("_3", "x");
+		}});
+		gen.bind(slot , "x");
+	}
+	
 	@Test
 	public void headProducesAnEvalStatement() {
 		JSMethod meth = new JSMethod(null, "fred");

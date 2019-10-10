@@ -4,8 +4,8 @@
 		g = x
 
 // with another (direct) argument		
-h x = j
-j y = x + y
+	h x = j 3
+		j y = x + y
 
 // recursive (indented) case -- add to both l & m
 k x = l

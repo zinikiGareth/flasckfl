@@ -140,7 +140,7 @@ public class FunctionGenerationJS {
 			oneOf(meth).argument("_1"); will(returnValue(slot1));
 			oneOf(meth).head("_0");
 			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
-			oneOf(isNil).bindVar("_0", "x");
+			oneOf(isNil).bindVar("_1", "x");
 			oneOf(isNil).boundVar("x"); will(returnValue(ret));
 			oneOf(isNil).returnObject(ret);
 			oneOf(notNil).errorNoCase();

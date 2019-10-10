@@ -6,5 +6,6 @@ public interface Slot {
 
 	HSIOptions getOptions();
 	int score();
+	String id();
 
 }

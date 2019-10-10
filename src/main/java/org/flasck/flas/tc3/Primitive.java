@@ -21,7 +21,7 @@ public class Primitive implements RepositoryEntry, Type {
 
 	@Override
 	public int argCount() {
-		throw new NotImplementedException();
+		return 0;
 	}
 
 	@Override

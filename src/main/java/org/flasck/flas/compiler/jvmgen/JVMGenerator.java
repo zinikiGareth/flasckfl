@@ -157,6 +157,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void bind(Slot slot, String var) {
+		fs.bindVar(currentBlock, var, slot);
 	}
 
 	// This is needed here as well as HSIGenerator to handle the no-switch case
@@ -324,7 +325,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-		List<IExpr> currentBlock = new ArrayList<IExpr>();
 		new CaptureAssertionClauseVisitor(sv, this.meth, this.runner, this.fcx);
 	}
 	

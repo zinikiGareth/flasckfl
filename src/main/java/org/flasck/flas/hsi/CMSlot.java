@@ -20,4 +20,8 @@ public class CMSlot implements Slot {
 		throw new NotImplementedException();
 	}
 
+	@Override
+	public String id() {
+		throw new NotImplementedException("I think we need an id somehow");
+	}
 }

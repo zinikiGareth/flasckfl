@@ -107,9 +107,7 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 				stack.add(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
 			}
 		} else if (defn instanceof VarPattern) {
-			IExpr in = meth.arrayItem(J.OBJECT, state.fargs, 0);
-			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
-			currentBlock.add(meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
+			AVar var = state.boundVar(((VarPattern)defn).var);
 			stack.add(var);
 		} else if (defn instanceof TypedPattern) {
 			IExpr in = meth.arrayItem(J.OBJECT, state.fargs, 0);
@@ -227,6 +225,7 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void bind(Slot slot, String var) {
+		throw new NotImplementedException();
 	}
 
 	@Override

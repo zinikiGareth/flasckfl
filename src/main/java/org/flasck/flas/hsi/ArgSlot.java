@@ -25,4 +25,8 @@ public class ArgSlot implements Slot {
 		return argPos;
 	}
 
+	@Override
+	public String id() {
+		return Integer.toString(argPos);
+	}
 }

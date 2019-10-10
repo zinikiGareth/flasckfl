@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jvmgen.ExprGenerator;
 import org.flasck.flas.compiler.jvmgen.FunctionState;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -113,15 +114,21 @@ public class ExpressionGeneration {
 		IExpr args = context.mock(IExpr.class, "args");
 		IExpr head0 = context.mock(IExpr.class, "head0");
 		IExpr assign = context.mock(IExpr.class, "assign");
+		IExpr returnV = context.mock(IExpr.class, "return");
 		context.checking(new Expectations() {{
-			oneOf(meth).arrayItem(J.OBJECT, ax, 0); will(returnValue(args));
+			oneOf(meth).arrayItem(J.OBJECT, ax, 1); will(returnValue(args));
 			oneOf(meth).nextLocal(); will(returnValue(18));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0)); will(returnValue(assign));
 			oneOf(block).add(assign);
+			oneOf(meth).returnObject(with(VarMatcher.local(18))); will(returnValue(returnV));
+			oneOf(sv).result(returnV);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv, block));
+		FunctionState state = new FunctionState(meth, cx, null);
+		state.bindVar(block, "p", new ArgSlot(1, null));
+		Traverser gen = new Traverser(new ExprGenerator(state, sv, block));
 		gen.visitExpr(expr, 2);
+		gen.endInline(null);
 	}
 
 	@Test

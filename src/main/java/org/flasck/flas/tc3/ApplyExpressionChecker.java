@@ -16,27 +16,28 @@ import org.flasck.flas.repository.ResultAware;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
-	private final RepositoryReader r;
+	private final RepositoryReader repository;
 	private final NestedVisitor nv;
 	private final List<Type> results = new ArrayList<>();
 	private final CurrentTCState state;
 
 	public ApplyExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
-		this.r = repository;
+		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, r, state, nv));
+		nv.push(new ExpressionChecker(errors, repository, state, nv));
 	}
 	
 	@Override
 	public void result(Object r) {
-		if (r == null)
+		if (r == null) {
 			throw new NullPointerException("Cannot handle null type");
+		}
 		results.add((Type) r);
 	}
 
@@ -48,7 +49,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 		Type fn = results.remove(0);
 		if (fn.argCount() != results.size())
-			throw new RuntimeException("should be an error or a curry case");
+			throw new RuntimeException("should be an error or a curry case: " + fn + " " + fn.argCount() + " " + results.size());
 		int pos = 0;
 		while (!results.isEmpty()) {
 			Type ai = results.remove(0);
@@ -76,12 +77,12 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 
 	private void handleListBuilder(ApplyExpr expr) {
 		if (expr.args.isEmpty()) {
-			nv.result(r.get("Nil"));
+			nv.result(repository.get("Nil"));
 		} else {
 			// TODO: I think we need to check all the arguments TCed OK
 			// I think we need to make sure that they are all of the same type, but can we allow a "mixed" list?
 			// Specifically, surely we can allow a list of Union types?  Even if only some of them are included?
-			nv.result(r.get("Cons"));
+			nv.result(repository.get("Cons"));
 		}
 	}
 }

@@ -126,18 +126,28 @@ public class Main {
 		
 		// typechecking
 		{
-			StackVisitor sv = new StackVisitor();
-			new TypeChecker(errors, repository, sv);
-			repository.traverse(sv);
-			
-			// dump types if specified
 			File ty = config.writeTypesTo;
-			if (ty != null) {
-				FileOutputStream fos = new FileOutputStream(ty);
-				PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos));
-				Visitor dumper = new TypeDumper(pw);
-				repository.traverse(dumper);
-				pw.close();
+			try {
+				StackVisitor sv = new StackVisitor();
+				new TypeChecker(errors, repository, sv);
+				repository.traverse(sv);
+				
+				// dump types if specified
+				if (ty != null) {
+					FileOutputStream fos = new FileOutputStream(ty);
+					PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos));
+					Visitor dumper = new TypeDumper(pw);
+					repository.traverse(dumper);
+					pw.close();
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				if (ty != null) {
+					FileOutputStream fos = new FileOutputStream(ty);
+					PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos));
+					ex.printStackTrace(pw);
+					pw.close();
+				}
 			}
 		}
 		
