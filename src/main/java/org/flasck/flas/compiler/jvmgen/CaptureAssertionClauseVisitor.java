@@ -1,5 +1,8 @@
 package org.flasck.flas.compiler.jvmgen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -15,6 +18,7 @@ public class CaptureAssertionClauseVisitor extends LeafAdapter implements Visito
 	private IExpr runner;
 	private IExpr fcx;
 	private IExpr value;
+	private List<IExpr> block = new ArrayList<>();
 
 	public CaptureAssertionClauseVisitor(NestedVisitor sv, MethodDefiner meth, IExpr runner, IExpr fcx) {
 		this.sv = sv;
@@ -26,7 +30,7 @@ public class CaptureAssertionClauseVisitor extends LeafAdapter implements Visito
 
 	@Override
 	public void visitAssertExpr(boolean isValue, Expr e) {
-		sv.push(new ExprGenerator(new FunctionState(meth, fcx, null), sv));
+		sv.push(new ExprGenerator(new FunctionState(meth, fcx, null), sv, block));
 	}
 
 	@Override
@@ -37,7 +41,8 @@ public class CaptureAssertionClauseVisitor extends LeafAdapter implements Visito
 			IExpr lhs = meth.as(value, J.OBJECT);
 			IExpr rhs = meth.as((IExpr) r, J.OBJECT);
 			IExpr ret = meth.callVirtual("void", runner, "assertSameValue", lhs, rhs);
-			sv.result(ret);
+			block.add(ret);
+			sv.result(JVMGenerator.makeBlock(meth, block));
 		}
 	}
 }

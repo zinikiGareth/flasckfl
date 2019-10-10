@@ -1,2 +1,2 @@
-test.golden.f :: Number->Number
-test.golden.f.g :: Number->Number
+test.golden.f :: Number-><<UNDEFINED>>
+test.golden.f.g :: Any->Number

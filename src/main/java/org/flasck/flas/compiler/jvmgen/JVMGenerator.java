@@ -162,7 +162,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new ExprGenerator(fs, sv));
+		sv.push(new ExprGenerator(fs, sv, currentBlock));
 	}
 
 	@Override
@@ -324,6 +324,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
+		List<IExpr> currentBlock = new ArrayList<IExpr>();
 		new CaptureAssertionClauseVisitor(sv, this.meth, this.runner, this.fcx);
 	}
 	

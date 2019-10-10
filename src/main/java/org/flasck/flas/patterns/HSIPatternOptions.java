@@ -157,8 +157,10 @@ public class HSIPatternOptions implements HSIOptions {
 		} else {
 			Set<String> ms = ctors.keySet();
 			Type ut = repository.findUnionWith(ms);
-			if (ut == null)
-				throw new NotImplementedException("Could not find union for " + ms);
+			if (ut == null) {
+				return repository.get("Any");
+//				throw new NotImplementedException("Could not find union for " + ms);
+			}
 			return ut;
 		}
 	}

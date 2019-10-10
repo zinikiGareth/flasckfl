@@ -71,6 +71,11 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
+	public int size() {
+		return patterns.size();
+	}
+
+	@Override
 	public Collection<HSIOptions> all() {
 		return patterns.stream().map(po -> po.opts).collect(Collectors.toList());
 	}

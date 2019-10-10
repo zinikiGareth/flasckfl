@@ -28,7 +28,8 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar vr, int nargs) {
-		ma.visitUnresolvedVar(vr);
+		if (ma != null)
+			ma.visitUnresolvedVar(vr);
 	}
 
 	@Override

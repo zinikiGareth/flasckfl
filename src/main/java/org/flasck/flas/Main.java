@@ -22,6 +22,7 @@ import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -110,8 +111,11 @@ public class Main {
 			}
 		}
 		
-		// TODO: dependency ordering
-		// TODO: variable scope lifting
+		{
+			new RepositoryLifter().lift(repository);
+			// TODO: dependency ordering
+		}
+		
 		
 		// pattern analysis
 		{

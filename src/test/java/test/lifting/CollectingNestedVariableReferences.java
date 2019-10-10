@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import test.parsing.ExprMatcher;
+import test.parsing.FunctionDefinitionMatcher;
 
 public class CollectingNestedVariableReferences {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -263,7 +264,7 @@ public class CollectingNestedVariableReferences {
 			oneOf(v).endInline(with(any(FunctionIntro.class))); inSequence(seq);
 			oneOf(v).leaveFunction(fnF); inSequence(seq);
 			
-			oneOf(v).visitFunction(fnG); inSequence(seq);
+			oneOf(v).visitFunction(with(FunctionDefinitionMatcher.named("test.foo.f.g").args(2))); inSequence(seq);
 			oneOf(v).hsiArgs((List<Slot>) with(Matchers.hasSize(2))); inSequence(seq);
 			oneOf(v).bind((Slot) with(any(Slot.class)), with("x")); inSequence(seq);
 			oneOf(v).bind((Slot) with(any(Slot.class)), with("s")); inSequence(seq);

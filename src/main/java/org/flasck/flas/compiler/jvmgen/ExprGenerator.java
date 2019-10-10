@@ -7,6 +7,8 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.hsi.HSIVisitor;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -25,20 +27,27 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ExprGenerator extends LeafAdapter {
+public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 	private final FunctionState state;
 	private final NestedVisitor sv;
 	private final MethodDefiner meth;
 	private final IExpr fcx;
 	private final List<IExpr> stack = new ArrayList<IExpr>();
+	private final List<IExpr> currentBlock;
 
-	public ExprGenerator(FunctionState state, NestedVisitor sv) {
+	public ExprGenerator(FunctionState state, NestedVisitor sv, List<IExpr> currentBlock) {
 		this.state = state;
 		this.sv = sv;
+		this.currentBlock = currentBlock;
 		this.meth = state.meth;
 		this.fcx = state.fcx;
 	}
 
+	@Override
+	public boolean isHsi() {
+		return true;
+	}
+	
 	@Override
 	public void endInline(FunctionIntro fi) {
 		if (stack.size() != 1)
@@ -100,12 +109,12 @@ public class ExprGenerator extends LeafAdapter {
 		} else if (defn instanceof VarPattern) {
 			IExpr in = meth.arrayItem(J.OBJECT, state.fargs, 0);
 			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
-			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
+			currentBlock.add(meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
 			stack.add(var);
 		} else if (defn instanceof TypedPattern) {
 			IExpr in = meth.arrayItem(J.OBJECT, state.fargs, 0);
 			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
-			meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)).flush();
+			currentBlock.add(meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
 			stack.add(var);
 		} else
 			throw new NotImplementedException();
@@ -151,8 +160,7 @@ public class ExprGenerator extends LeafAdapter {
 			else
 				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
-			IExpr assign = meth.assign(v, call);
-			assign.flush();
+			currentBlock.add(meth.assign(v, call));
 			stack.add(v);
 		}
 	}
@@ -179,5 +187,49 @@ public class ExprGenerator extends LeafAdapter {
 			throw new RuntimeException("There is no operator " + op);
 		}
 		return J.FLEVAL + "$" + inner;
+	}
+
+	@Override
+	public void hsiArgs(List<Slot> slots) {
+	}
+
+	@Override
+	public void switchOn(Slot slot) {
+	}
+
+	@Override
+	public void withConstructor(String string) {
+	}
+
+	@Override
+	public void constructorField(Slot parent, String field, Slot slot) {
+	}
+
+	@Override
+	public void matchNumber(int i) {
+	}
+
+	@Override
+	public void matchString(String s) {
+	}
+
+	@Override
+	public void matchDefault() {
+	}
+
+	@Override
+	public void defaultCase() {
+	}
+
+	@Override
+	public void errorNoCase() {
+	}
+
+	@Override
+	public void bind(Slot slot, String var) {
+	}
+
+	@Override
+	public void endSwitch() {
 	}
 }

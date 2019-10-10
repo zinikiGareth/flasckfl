@@ -7,6 +7,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.patterns.HSIOptions;
 
 public interface NestedVarReader {
+	int size();
 	Collection<HSIOptions> all();
 	List<UnresolvedVar> vars();
 }

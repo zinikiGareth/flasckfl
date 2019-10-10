@@ -36,6 +36,8 @@ public class FunctionDefinition implements RepositoryEntry, WithTypeSignature {
 	}
 	
 	public int argCount() {
+		if (nestedVars != null)
+			return nargs + nestedVars.size();
 		return nargs;
 	}
 
@@ -81,7 +83,7 @@ public class FunctionDefinition implements RepositoryEntry, WithTypeSignature {
 			for (HSIOptions o : nestedVars.all())
 				slots.add(new ArgSlot(j++, o));
 		}
-		for (int i=0;i<argCount();i++) {
+		for (int i=0;i<nargs;i++) {
 			slots.add(new ArgSlot(j++, hsiTree.get(i)));
 		}
 		return slots;
