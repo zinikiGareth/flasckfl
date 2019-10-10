@@ -62,14 +62,14 @@ public class ApplyExprModifiedTests {
 		ApplyExpr ae = new ApplyExpr(pos, fnCall, sl);
 		
 		context.checking(new Expectations() {{
-			oneOf(hsi).visitApplyExpr(ae);
+			oneOf(hsi).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"), ExprMatcher.string(sl.text))));
 			oneOf(hsi).visitExpr(fnCall, 2);
 			oneOf(hsi).visitUnresolvedVar(fnCall, 2);
 			oneOf(hsi).visitExpr(with(ExprMatcher.unresolved("x")), with(0));
 			oneOf(hsi).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
 			oneOf(hsi).visitExpr(sl, 0);
 			oneOf(hsi).visitStringLiteral(sl);
-			oneOf(hsi).leaveApplyExpr(ae);
+			oneOf(hsi).leaveApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"), ExprMatcher.string(sl.text))));
 		}});
 		Traverser traverser = new Traverser(hsi);
 //		traverser.rememberCaller(ff);

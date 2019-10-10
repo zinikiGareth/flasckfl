@@ -36,6 +36,7 @@ import org.flasck.flas.repository.Traverser.VarMapping;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
@@ -48,11 +49,20 @@ public class PatternAnalysis {
 	final NumericLiteral number = new NumericLiteral(pos, 42);
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Visitor v = context.mock(Visitor.class);
+	final HSIVisitor hsi = context.mock(HSIVisitor.class);
 	final RepositoryReader repo = context.mock(RepositoryReader.class);
 
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 	final StackVisitor sv = new StackVisitor();
 	final PatternAnalyzer analyzer = new PatternAnalyzer(null, repo, sv);
+
+	@Before
+	public void before() {
+		context.checking(new Expectations() {{
+			allowing(v).isHsi(); will(returnValue(false));
+			allowing(hsi).isHsi(); will(returnValue(true));
+		}});
+	}
 
 	@Test
 	public void analyzeFunctionWithNoArguments() {
@@ -64,7 +74,6 @@ public class PatternAnalysis {
 			fn.intro(intro);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		context.checking(new Expectations() {{
@@ -88,7 +97,6 @@ public class PatternAnalysis {
 			fn.intro(intro);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot s0 = new ArgSlot(0, fn.hsiTree().get(0));
@@ -117,7 +125,6 @@ public class PatternAnalysis {
 			fn.intro(intro);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
@@ -152,7 +159,6 @@ public class PatternAnalysis {
 			oneOf(repo).get("Number"); will(returnValue(LoadBuiltins.number));
 		}});
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
@@ -190,7 +196,6 @@ public class PatternAnalysis {
 			oneOf(repo).get("String"); will(returnValue(LoadBuiltins.string));
 		}});
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
@@ -225,7 +230,6 @@ public class PatternAnalysis {
 			fn.intro(intro);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
@@ -264,7 +268,6 @@ public class PatternAnalysis {
 			fn.intro(intro2);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
@@ -302,7 +305,6 @@ public class PatternAnalysis {
 			fn.intro(intro);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot s0 = new ArgSlot(0, fn.hsiTree().get(0));
@@ -333,7 +335,6 @@ public class PatternAnalysis {
 			fn.intro(intro);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
@@ -381,7 +382,6 @@ public class PatternAnalysis {
 			fn.intro(intro2);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
@@ -439,7 +439,6 @@ public class PatternAnalysis {
 			fn.intro(intro2);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		ArrayList<Slot> slots = new ArrayList<>();
 		VarMapping vars = new VarMapping();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
@@ -493,7 +492,6 @@ public class PatternAnalysis {
 			fn.intro(intro2);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		VarMapping vars = new VarMapping();
 		ArrayList<Slot> slots = new ArrayList<>();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));
@@ -547,7 +545,6 @@ public class PatternAnalysis {
 			fn.intro(intro2);
 		}
 		new Traverser(sv).visitFunction(fn);
-		HSIVisitor hsi = context.mock(HSIVisitor.class);
 		VarMapping vars = new VarMapping();
 		ArrayList<Slot> slots = new ArrayList<>();
 		ArgSlot a0 = new ArgSlot(0, fn.hsiTree().get(0));

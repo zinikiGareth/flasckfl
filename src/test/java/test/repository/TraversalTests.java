@@ -11,12 +11,12 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -33,6 +33,7 @@ import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.tc3.Primitive;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -48,6 +49,13 @@ public class TraversalTests {
 	final Repository r = new Repository();
 	final Visitor v = context.mock(Visitor.class);
 	final Traverser t = new Traverser(v);
+
+	@Before
+	public void before() {
+		context.checking(new Expectations() {{
+			allowing(v).isHsi(); will(returnValue(false));
+		}});
+	}
 
 	@Test
 	public void traversePrimitive() {

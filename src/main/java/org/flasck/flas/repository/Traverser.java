@@ -406,7 +406,8 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitExpr(Expr expr, int nargs) {
-		visitor.visitExpr(expr, nargs);
+		if (!isNeedingEnhancement(expr, nargs))
+			visitor.visitExpr(expr, nargs);
 		if (expr == null)
 			return;
 		else if (expr instanceof ApplyExpr)
@@ -423,24 +424,35 @@ public class Traverser implements Visitor {
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
 
+	private boolean isNeedingEnhancement(Expr expr, int nargs) {
+		if (!visitor.isHsi())
+			return false;
+		if (expr instanceof ApplyExpr && isFnNeedingNesting((Expr) ((ApplyExpr)expr).fn) != null)
+			return true;
+		if (expr instanceof UnresolvedVar && nargs == 0 && isFnNeedingNesting((UnresolvedVar)expr) != null)
+			return true;
+		return false;
+	}
+
 	public void visitApplyExpr(ApplyExpr expr) {
-		visitor.visitApplyExpr(expr);
-		int cnt = expr.args.size();
+		ApplyExpr ae = expr;
 		Expr fn = (Expr) expr.fn;
-		NestedVarReader nv = null;
 		if (visitor.isHsi()) {
-			nv = isFnNeedingNesting(fn);
-			if (nv != null)
-				cnt += nv.vars().size();
+			NestedVarReader nv = isFnNeedingNesting(fn);
+			if (nv != null) {
+				List<Object> args = new ArrayList<>();
+				for (UnresolvedVar uv : nv.vars())
+					args.add(uv);
+				args.addAll(expr.args);
+				ae = new ApplyExpr(expr.location, fn, args);
+			}
 		}
-		visitExpr(fn, cnt);
-		if (nv != null) {
-			for (UnresolvedVar uv : nv.vars())
-				visitExpr(uv, 0);
-		}
-		for (Object x : expr.args)
+		
+		visitor.visitApplyExpr(ae);
+		visitExpr(fn, ae.args.size());
+		for (Object x : ae.args)
 			visitExpr((Expr) x, 0);
-		visitor.leaveApplyExpr(expr);
+		visitor.leaveApplyExpr(ae);
 	}
 
 	private NestedVarReader isFnNeedingNesting(Expr uv) {

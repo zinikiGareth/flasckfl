@@ -44,7 +44,7 @@ public class HSITraversalTests {
 		CaptureAction boundSlot = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
-			oneOf(v).isHsi(); will(returnValue(true));
+			allowing(v).isHsi(); will(returnValue(true));
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).bind(with(any(Slot.class)), with("x")); will(boundSlot);
 			oneOf(v).startInline(fi);
@@ -80,7 +80,7 @@ public class HSITraversalTests {
 		CaptureAction slots = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
-			oneOf(v).isHsi(); will(returnValue(true));
+			allowing(v).isHsi(); will(returnValue(true));
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
 			oneOf(v).withConstructor("Nil");
@@ -115,7 +115,7 @@ public class HSITraversalTests {
 		CaptureAction slots = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
-			oneOf(v).isHsi(); will(returnValue(true));
+			allowing(v).isHsi(); will(returnValue(true));
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
 			oneOf(v).withConstructor("Number");
