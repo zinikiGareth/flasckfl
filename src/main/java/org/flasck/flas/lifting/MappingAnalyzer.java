@@ -38,7 +38,7 @@ public class MappingAnalyzer {
 				collector.recordNestedVar(fi, tp);
 		} else if (defn instanceof FunctionDefinition) {
 			if (defn != fn)
-				collector.recordDependency(fn, (FunctionDefinition) defn);
+				collector.recordDependency((FunctionDefinition) defn);
 		}
 	}
 

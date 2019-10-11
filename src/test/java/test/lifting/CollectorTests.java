@@ -133,7 +133,7 @@ public class CollectorTests {
 		ma.visitFunctionIntro(fi);
 		
 		context.checking(new Expectations() {{
-			oneOf(c).recordDependency(fn, other);
+			oneOf(c).recordDependency(other);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}

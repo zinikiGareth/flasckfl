@@ -8,6 +8,6 @@
 		j y = x + y
 
 // recursive (indented) case -- add to both l & m
-k x = l
-l = m
-m = x
+	k x = l
+		l = m
+			m = x

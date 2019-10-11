@@ -5,3 +5,7 @@
 	test that we can add through indirection
 		assert (h 4)
 			7
+			
+	test that we can use a middleman
+		assert (k 4)
+			4

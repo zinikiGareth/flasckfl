@@ -23,6 +23,7 @@ public interface HSIOptions {
 	}
 	
 	void addVar(VarName varName, FunctionIntro fi);
+	void addVarWithType(TypeReference tr, VarName varName, FunctionIntro fi);
 	void addTyped(TypeReference tr, VarName varName, FunctionIntro fi);
 	HSICtorTree requireCM(String ctor);
 	void addConstant(Primitive type, String value, FunctionIntro fi);

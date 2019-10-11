@@ -1,7 +1,9 @@
 package org.flasck.flas.lifting;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,20 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 			this.opts.addTyped(p.type, p.name(), fi);
 			this.var.bind(p);
 		}
-		
+
+		// for the merging case
+		public PO(PO o, FunctionIntro fi) {
+			this(fi, new VarPattern(o.p.location(), o.name), o.name);
+			if (o.p instanceof TypedPattern) {
+				TypedPattern tp = (TypedPattern) o.p;
+				this.opts.addVarWithType(tp.type, tp.var, fi);
+				this.var.bind(tp);
+			} else {
+				this.opts.addVar(o.name, fi);
+				this.var.bind((VarPattern)o.p);
+			}
+		}
+
 		private PO(FunctionIntro fi, Pattern p, VarName name) {
 			this.p = p;
 			this.name = name;
@@ -53,6 +68,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	private TreeSet<PO> patterns = new TreeSet<>();
+	private Set<FunctionDefinition> deps = new HashSet<>(); 
 	
 	@Override
 	public void recordNestedVar(FunctionIntro fi, VarPattern vp) {
@@ -65,14 +81,37 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
-	public void recordDependency(FunctionDefinition from, FunctionDefinition to) {
-		// TODO Auto-generated method stub
-		
+	public void recordDependency(FunctionDefinition dependsOn) {
+		deps.add(dependsOn);
 	}
 
 	@Override
 	public int size() {
 		return patterns.size();
+	}
+
+	@Override
+	public boolean containsReferencesNotIn(Set<FunctionDefinition> resolved) {
+		HashSet<FunctionDefinition> ret = new HashSet<>(deps);
+		ret.removeAll(resolved);
+		return !ret.isEmpty();
+	}
+
+	@Override
+	public Set<FunctionDefinition> references() {
+		return deps;
+	}
+	
+	@Override
+	public void enhanceWith(FunctionDefinition fn, NestedVarReader nestedVars) {
+		TreeSet<PO> ops = ((MappingStore)nestedVars).patterns;
+		for (PO o : ops) {
+			if (o.name.scope == fn.name())
+				continue;
+
+			for (FunctionIntro fi : fn.intros())
+				patterns.add(new PO(o, fi));
+		}
 	}
 
 	@Override
@@ -86,6 +125,6 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	public boolean isInteresting() {
-		return !patterns.isEmpty();
+		return !patterns.isEmpty() || !deps.isEmpty();
 	}
 }

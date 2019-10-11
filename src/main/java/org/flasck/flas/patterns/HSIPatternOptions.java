@@ -69,6 +69,13 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 	
 	@Override
+	public void addVarWithType(TypeReference tr, VarName varName, FunctionIntro fi) {
+		TV tv = new TV((Type) tr.defn(), varName);
+		tv.intros.add(fi);
+		vars.add(tv);
+	}
+	
+	@Override
 	public void addConstant(Primitive type, String value, FunctionIntro fi) {
 		String tn = type.name().uniqueName();
 		types.put(tn, new TV(type, null));
