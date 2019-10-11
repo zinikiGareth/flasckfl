@@ -103,7 +103,15 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 	
 	@Override
+	public boolean dependsOn(FunctionDefinition fn) {
+		return deps.contains(fn);
+	}
+
+	@Override
 	public void enhanceWith(FunctionDefinition fn, NestedVarReader nestedVars) {
+		if (nestedVars == null)
+			return;
+		
 		TreeSet<PO> ops = ((MappingStore)nestedVars).patterns;
 		for (PO o : ops) {
 			if (o.name.scope == fn.name())

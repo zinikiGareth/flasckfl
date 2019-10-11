@@ -1,13 +1,14 @@
 package org.flasck.flas.lifting;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 
@@ -17,13 +18,13 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	private Set<FunctionDefinition> dull = new TreeSet<>();
 	private Set<FunctionDefinition> interesting = new TreeSet<>();
 
-	// This doesn't belong here but in some kind of "output" value (it's the dependency list) ... I've lost the plot ...
-	private ArrayList<DependencyGroup> ordering;
+	private List<FunctionGroup> ordering;
 
 	@Override
-	public void lift(Repository r) {
+	public List<FunctionGroup> lift(Repository r) {
 		r.traverse(this);
 		resolve();
+		return ordering;
 	}
 
 	@Override
@@ -55,32 +56,62 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	}
 
 	// Resolve all fn-to-fn references
-	public void resolve() {
+	// Return the ordering for the benefit of unit tests
+	public List<FunctionGroup> resolve() {
 		// TODO: we should probably have more direct unit tests of this
 		// It possibly should also have its own class of some kind
-		Set<FunctionDefinition> resolved = new TreeSet<>(dull);
 		ordering = new ArrayList<>();
-		while (resolved.size() < interesting.size()) {
+		Set<FunctionDefinition> resolved = new TreeSet<>(dull);
+		for (FunctionDefinition f : dull)
+			ordering.add(new DependencyGroup(f));
+		Set<FunctionDefinition> remaining = new TreeSet<>(interesting);
+		while (!remaining.isEmpty()) {
 			boolean handled = false;
-			for (FunctionDefinition fn : interesting) {
+			for (FunctionDefinition fn : remaining) {
 				NestedVarReader nv = fn.nestedVars();
 				if (nv.containsReferencesNotIn(resolved)) {
-					// TODO: all the cases around mutual recursion are buried here ... extract all the common ones and put them together
-					// Can we do this by having a map and having the values be shared?  We can create new ones as needed, and then replace all of them with a "merged" one when we find they're the same?
-					// Note this is more reliable than trying to guess because if f depends on g and e depends on g but when we get to g it depends on both, we will already have two structures
 					continue;
 				}
 				resolved.add(fn);
+				remaining.remove(fn);
 				handled = true;
 				for (FunctionDefinition r : nv.references()) {
 					// TODO: failing because you can't just copy the pattern opts ... it needs the FIs rewriting
 					// In fact, I'm increasingly dubious about the whole switching thing.  I think we should make them all just VarPatterns
 					// The switch will already have been done.
-					nv.enhanceWith(fn,r.nestedVars());
+					nv.enhanceWith(fn, r.nestedVars());
 				}
+				ordering.add(new DependencyGroup(fn));
 			}
-			if (!handled)
-				throw new RuntimeException("Failed to make progress " + interesting + " " + resolved);
+			if (!handled) {
+				// if we can't make progress, you have to assume that some mutual recursion is at play ... try everything in turn ..
+				for (FunctionDefinition fn : remaining) {
+					Set<FunctionDefinition> tc = buildTransitiveClosure(fn, resolved);
+					if (tc != null) {
+						ordering.add(new DependencyGroup(tc));
+						resolved.addAll(tc);
+						remaining.removeAll(tc);
+						handled = true;
+						break;
+					}
+				}			
+				if (!handled)
+					throw new RuntimeException("Failed to make progress: " + remaining + " -- " + resolved);
+			}
 		}
+		return ordering;
+	}
+
+	private Set<FunctionDefinition> buildTransitiveClosure(FunctionDefinition fn, Set<FunctionDefinition> resolved) {
+		NestedVarReader nv = fn.nestedVars();
+		TreeSet<FunctionDefinition> others = new TreeSet<>(nv.references());
+		others.removeAll(resolved);
+		// in order to qualify, all these functions must reference fn
+		for (FunctionDefinition o : others) {
+			if (!o.nestedVars().dependsOn(fn))
+				return null;
+		}
+		others.add(fn);
+		return others;
 	}
 }

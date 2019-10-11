@@ -15,4 +15,5 @@ public interface NestedVarReader {
 	boolean containsReferencesNotIn(Set<FunctionDefinition> resolved);
 	Set<FunctionDefinition> references();
 	void enhanceWith(FunctionDefinition fn, NestedVarReader nestedVars);
+	boolean dependsOn(FunctionDefinition fn);
 }

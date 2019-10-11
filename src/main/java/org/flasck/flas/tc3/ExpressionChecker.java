@@ -46,6 +46,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(var.defn());
 		} else if (var.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) var.defn();
+			System.out.println("FNTYPE: " + fn.name() + " " + fn.type());
 			nv.result(fn.type());
 		} else if (var.defn() instanceof VarPattern) {
 			VarPattern vp = (VarPattern) var.defn();

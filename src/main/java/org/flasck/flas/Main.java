@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Level;
@@ -24,6 +25,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.patterns.PatternAnalyzer;
+import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
@@ -112,8 +114,7 @@ public class Main {
 		}
 		
 		{
-			new RepositoryLifter().lift(repository);
-			// TODO: dependency ordering
+			List<FunctionGroup> ordering = new RepositoryLifter().lift(repository);
 		}
 		
 		

@@ -1,5 +1,7 @@
 package test.lifting;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.Repository;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -58,7 +61,8 @@ public class CollectingNestedVariableReferences {
 		fn.bindHsi(hsiTree);
 		r.addEntry(name, fn);
 		
-		l.lift(r);
+		List<FunctionGroup> ordering = l.lift(r);
+		assertOrder(ordering, "test.foo.f");
 		
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
@@ -110,7 +114,8 @@ public class CollectingNestedVariableReferences {
 			r.addEntry(nameG, fnG);
 		}
 		
-		l.lift(r);
+		List<FunctionGroup> ordering = l.lift(r);
+		assertOrder(ordering, "test.foo.f", "test.foo.f.g");
 		
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
@@ -171,7 +176,9 @@ public class CollectingNestedVariableReferences {
 			r.addEntry(nameG, fnG);
 		}
 		callG.bind(fnG);
-		l.lift(r);
+
+		List<FunctionGroup> ordering = l.lift(r);
+		assertOrder(ordering, "test.foo.f.g", "test.foo.f");
 		
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
@@ -243,7 +250,9 @@ public class CollectingNestedVariableReferences {
 			r.addEntry(nameG, fnG);
 		}
 		callG.bind(fnG);
-		l.lift(r);
+
+		List<FunctionGroup> ordering = l.lift(r);
+		assertOrder(ordering, "test.foo.f.g", "test.foo.f");
 		
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
@@ -277,5 +286,23 @@ public class CollectingNestedVariableReferences {
 		r.traverse(v);
 	}
 
-	// TODO: need to handle middlemen cases
+	public static void assertOrder(List<FunctionGroup> ordering, String... fns) {
+		assertEquals(ordering.toString(), fns.length, ordering.size());
+		for (int i=0;i<fns.length;i++) {
+			String grpContents = assembleGroup(ordering.get(i));
+			assertEquals(fns[i], grpContents);
+		}
+	}
+
+	private static String assembleGroup(FunctionGroup grp) {
+		StringBuilder sb = new StringBuilder();
+		String sep = "";
+		for (FunctionDefinition f : grp) {
+			sb.append(sep);
+			sb.append(f.name().uniqueName());
+			sep = "//";
+		}
+		return sb.toString();
+	}
+
 }
