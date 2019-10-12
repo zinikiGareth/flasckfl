@@ -76,6 +76,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitFunctionGroup(FunctionGroup grp) {
+	}
+	
+	@Override
 	public void visitFunction(FunctionDefinition fn) {
 	}
 
@@ -89,6 +93,10 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
+	}
+
+	@Override
+	public void leaveFunctionGroup(FunctionGroup grp) {
 	}
 
 	@Override

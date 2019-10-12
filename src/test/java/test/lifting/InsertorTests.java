@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.lifting.MappingStore;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -155,7 +156,7 @@ public class InsertorTests {
 		lifter.visitFunctionIntro(fiH);
 		lifter.visitUnresolvedVar(xr, 0);
 		lifter.leaveFunction(fnH);
-		List<FunctionGroup> ordering = lifter.resolve();
+		FunctionGroupOrdering ordering = lifter.resolve();
 		CollectingNestedVariableReferences.assertOrder(ordering, "test.foo.f.g.h", "test.foo.f.g");
 		
 		List<Slot> slots = fnG.slots();

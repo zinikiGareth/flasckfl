@@ -48,6 +48,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class Traverser implements Visitor {
 	private final Visitor visitor;
 	private FunctionDefinition currentFunction;
+	private FunctionGroups functionOrder;
 
 	public Traverser(Visitor visitor) {
 		this.visitor = visitor;
@@ -56,6 +57,12 @@ public class Traverser implements Visitor {
 	@Override
 	public boolean isHsi() {
 		return visitor.isHsi();
+	}
+
+	public void visitFunctionsInDependencyGroups(FunctionGroups order) {
+		this.functionOrder = order;
+		for (FunctionGroup grp : order)
+			visitFunctionGroup(grp);
 	}
 
 	/** It's starting to concern me that for some things (contracts, unit tests) we visit
@@ -75,9 +82,10 @@ public class Traverser implements Visitor {
 			visitContractDecl((ContractDecl)e);
 		else if (e instanceof ObjectDefn)
 			visitObjectDefn((ObjectDefn)e);
-		else if (e instanceof FunctionDefinition)
-			visitFunction((FunctionDefinition)e);
-		else if (e instanceof ObjectMethod)
+		else if (e instanceof FunctionDefinition) {
+			if (functionOrder == null)
+				visitFunction((FunctionDefinition)e);
+		} else if (e instanceof ObjectMethod)
 			visitObjectMethod((ObjectMethod)e);
 		else if (e instanceof StructDefn)
 			visitStructDefn((StructDefn)e);
@@ -137,6 +145,15 @@ public class Traverser implements Visitor {
 		visitor.visitObjectMethod(e);
 	}
 
+	
+	@Override
+	public void visitFunctionGroup(FunctionGroup grp) {
+		visitor.visitFunctionGroup(grp);
+		for (FunctionDefinition fd : grp)
+			visitFunction(fd);
+		leaveFunctionGroup(grp);
+	}
+
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		if (fn.intros().isEmpty())
@@ -152,7 +169,7 @@ public class Traverser implements Visitor {
 			for (FunctionIntro i : fn.intros())
 				visitFunctionIntro(i);
 		}
-		visitor.leaveFunction(fn);
+		leaveFunction(fn);
 	}
 	
 	public void rememberCaller(FunctionDefinition fn) {
@@ -316,6 +333,13 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
+		visitor.leaveFunction(fn);
+	}
+
+
+	@Override
+	public void leaveFunctionGroup(FunctionGroup grp) {
+		visitor.leaveFunctionGroup(grp);
 	}
 
 	@Override

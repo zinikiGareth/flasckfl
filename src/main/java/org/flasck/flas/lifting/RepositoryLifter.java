@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.FunctionGroup;
+import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 
@@ -31,10 +32,10 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	private List<FunctionGroup> ordering;
 
 	@Override
-	public List<FunctionGroup> lift(Repository r) {
+	public FunctionGroups lift(Repository r) {
 		r.traverse(this);
 		resolve();
-		return ordering;
+		return new FunctionGroupOrdering(ordering);
 	}
 
 	@Override
@@ -67,7 +68,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 
 	// Resolve all fn-to-fn references
 	// Return the ordering for the benefit of unit tests
-	public List<FunctionGroup> resolve() {
+	public FunctionGroupOrdering resolve() {
 		// TODO: we should probably have more direct unit tests of this
 		// It possibly should also have its own class of some kind
 		ordering = new ArrayList<>();
@@ -112,7 +113,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 					throw new RuntimeException("Failed to make progress: " + remaining + " -- " + resolved);
 			}
 		}
-		return ordering;
+		return new FunctionGroupOrdering(ordering);
 	}
 
 	private Set<FunctionDefinition> buildTransitiveClosure(FunctionDefinition fn, Set<FunctionDefinition> resolved) {

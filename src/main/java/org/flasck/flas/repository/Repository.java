@@ -63,10 +63,12 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitUnresolvedVar(UnresolvedVar var, int nargs);
 		void visitUnresolvedOperator(UnresolvedOperator operator, int nargs);
 		void visitTypeReference(TypeReference var);
+		void visitFunctionGroup(FunctionGroup grp);
 		void visitFunction(FunctionDefinition fn);
 		void visitFunctionIntro(FunctionIntro fi);
 		void leaveFunctionIntro(FunctionIntro fi);
 		void leaveFunction(FunctionDefinition fn);
+		void leaveFunctionGroup(FunctionGroup grp);
 		void visitPattern(Object patt);
 		void visitVarPattern(VarPattern p);
 		void visitTypedPattern(TypedPattern p);
@@ -223,6 +225,15 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void traverse(Visitor visitor) {
 		Traverser t = new Traverser(visitor);
+		for (RepositoryEntry e : dict.values()) {
+			t.visitEntry(e);
+		}
+	}
+
+	@Override
+	public void traverseInGroups(Visitor visitor, FunctionGroups groups) {
+		Traverser t = new Traverser(visitor);
+		t.visitFunctionsInDependencyGroups(groups);
 		for (RepositoryEntry e : dict.values()) {
 			t.visitEntry(e);
 		}

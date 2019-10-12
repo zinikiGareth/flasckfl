@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -154,7 +155,7 @@ public class DependencyOrdering {
 	}
 
 	private void assertOrder(String... fns) {
-		List<FunctionGroup> ordering = lifter.resolve();
+		FunctionGroupOrdering ordering = lifter.resolve();
 		CollectingNestedVariableReferences.assertOrder(ordering, fns);
 	}
 }

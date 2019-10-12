@@ -26,6 +26,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.FunctionGroup;
+import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
@@ -113,8 +114,9 @@ public class Main {
 			}
 		}
 		
+		FunctionGroups ordering;
 		{
-			List<FunctionGroup> ordering = new RepositoryLifter().lift(repository);
+			ordering = new RepositoryLifter().lift(repository);
 		}
 		
 		
@@ -131,7 +133,7 @@ public class Main {
 			try {
 				StackVisitor sv = new StackVisitor();
 				new TypeChecker(errors, repository, sv);
-				repository.traverse(sv);
+				repository.traverseInGroups(sv, ordering);
 				
 				// dump types if specified
 				if (ty != null) {

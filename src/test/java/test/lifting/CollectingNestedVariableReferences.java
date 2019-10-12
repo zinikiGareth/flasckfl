@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.FunctionGroup;
+import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.Repository;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -61,7 +62,7 @@ public class CollectingNestedVariableReferences {
 		fn.bindHsi(hsiTree);
 		r.addEntry(name, fn);
 		
-		List<FunctionGroup> ordering = l.lift(r);
+		FunctionGroups ordering = l.lift(r);
 		assertOrder(ordering, "test.foo.f");
 		
 		Sequence seq = context.sequence("order");
@@ -114,7 +115,7 @@ public class CollectingNestedVariableReferences {
 			r.addEntry(nameG, fnG);
 		}
 		
-		List<FunctionGroup> ordering = l.lift(r);
+		FunctionGroups ordering = l.lift(r);
 		assertOrder(ordering, "test.foo.f", "test.foo.f.g");
 		
 		Sequence seq = context.sequence("order");
@@ -177,7 +178,7 @@ public class CollectingNestedVariableReferences {
 		}
 		callG.bind(fnG);
 
-		List<FunctionGroup> ordering = l.lift(r);
+		FunctionGroups ordering = l.lift(r);
 		assertOrder(ordering, "test.foo.f.g", "test.foo.f");
 		
 		Sequence seq = context.sequence("order");
@@ -251,7 +252,7 @@ public class CollectingNestedVariableReferences {
 		}
 		callG.bind(fnG);
 
-		List<FunctionGroup> ordering = l.lift(r);
+		FunctionGroups ordering = l.lift(r);
 		assertOrder(ordering, "test.foo.f.g", "test.foo.f");
 		
 		Sequence seq = context.sequence("order");
@@ -286,11 +287,11 @@ public class CollectingNestedVariableReferences {
 		r.traverse(v);
 	}
 
-	public static void assertOrder(List<FunctionGroup> ordering, String... fns) {
+	public static void assertOrder(FunctionGroups ordering, String... fns) {
 		assertEquals(ordering.toString(), fns.length, ordering.size());
-		for (int i=0;i<fns.length;i++) {
-			String grpContents = assembleGroup(ordering.get(i));
-			assertEquals(fns[i], grpContents);
+		int i=0;
+		for (FunctionGroup g : ordering) {
+			assertEquals(fns[i++], assembleGroup(g));
 		}
 	}
 

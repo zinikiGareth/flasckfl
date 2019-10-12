@@ -105,6 +105,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 		top.visitTypeReference(var);
 	}
 
+	public void visitFunctionGroup(FunctionGroup grp) {
+		top.visitFunctionGroup(grp);
+	}
+
 	public void visitFunction(FunctionDefinition fn) {
 		top.visitFunction(fn);
 	}
@@ -119,6 +123,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 
 	public void leaveFunction(FunctionDefinition fn) {
 		top.leaveFunction(fn);
+	}
+
+	public void leaveFunctionGroup(FunctionGroup grp) {
+		top.leaveFunctionGroup(grp);
 	}
 
 	public void visitPattern(Object patt) {

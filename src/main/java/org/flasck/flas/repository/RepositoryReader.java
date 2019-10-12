@@ -8,6 +8,7 @@ import org.flasck.flas.tc3.Type;
 public interface RepositoryReader {
 	<T extends RepositoryEntry> T get(String string);
 	void traverse(Visitor visitor);
+	void traverseInGroups(Visitor visitor, FunctionGroups groups);
 	void dump();
 	Type findUnionWith(Set<String> ms);
 }
