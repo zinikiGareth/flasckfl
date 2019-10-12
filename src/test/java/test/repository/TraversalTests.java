@@ -33,7 +33,6 @@ import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.tc3.Primitive;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -49,13 +48,6 @@ public class TraversalTests {
 	final Repository r = new Repository();
 	final Visitor v = context.mock(Visitor.class);
 	final Traverser t = new Traverser(v);
-
-	@Before
-	public void before() {
-		context.checking(new Expectations() {{
-			allowing(v).isHsi(); will(returnValue(false));
-		}});
-	}
 
 	@Test
 	public void traversePrimitive() {
@@ -203,7 +195,6 @@ public class TraversalTests {
 	public void exprVisitsFunctionApplication() {
 		ApplyExpr ex = new ApplyExpr(pos, var, simpleExpr, number);
 		context.checking(new Expectations() {{
-			allowing(v).isHsi(); will(returnValue(false));
 			oneOf(v).visitExpr(ex, 2);
 			oneOf(v).visitApplyExpr(ex);
 			oneOf(v).visitExpr(var, 2);

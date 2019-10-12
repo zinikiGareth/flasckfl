@@ -31,13 +31,6 @@ public class ApplyExprModifiedTests {
 	PackageName pkg = new PackageName("test.foo");
 	HSIVisitor hsi = context.mock(HSIVisitor.class);
 
-	@Before
-	public void before() {
-		context.checking(new Expectations() {{
-			allowing(hsi).isHsi(); will(returnValue(true));
-		}});
-	}
-	
 	@Test
 	public void aCallToANestedFunctionWithVarsGetsThosePassedIn() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
@@ -71,7 +64,7 @@ public class ApplyExprModifiedTests {
 			oneOf(hsi).visitStringLiteral(sl);
 			oneOf(hsi).leaveApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"), ExprMatcher.string(sl.text))));
 		}});
-		Traverser traverser = new Traverser(hsi);
+		Traverser traverser = new Traverser(hsi).withNestedPatterns();
 //		traverser.rememberCaller(ff);
 		traverser.visitApplyExpr(ae);
 	}
@@ -101,7 +94,7 @@ public class ApplyExprModifiedTests {
 			oneOf(hsi).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
 			oneOf(hsi).leaveApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))));
 		}});
-		Traverser traverser = new Traverser(hsi);
+		Traverser traverser = new Traverser(hsi).withNestedPatterns();
 		traverser.visitUnresolvedVar(fnCall, 0);
 	}
 	

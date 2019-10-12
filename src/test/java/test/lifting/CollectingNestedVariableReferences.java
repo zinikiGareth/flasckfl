@@ -67,7 +67,6 @@ public class CollectingNestedVariableReferences {
 		
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
-			allowing(v).isHsi(); will(returnValue(true));
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).hsiArgs((List<Slot>) with(Matchers.hasSize(1))); inSequence(seq);
 			oneOf(v).bind((Slot) with(any(Slot.class)), with("x")); inSequence(seq);
@@ -77,7 +76,7 @@ public class CollectingNestedVariableReferences {
 			oneOf(v).endInline(fi); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
 		}});
-		r.traverse(v);
+		r.traverseWithHSI(v);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -120,7 +119,6 @@ public class CollectingNestedVariableReferences {
 		
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
-			allowing(v).isHsi(); will(returnValue(true));
 			oneOf(v).visitFunction(fnF); inSequence(seq);
 			oneOf(v).hsiArgs((List<Slot>) with(Matchers.hasSize(1))); inSequence(seq);
 			oneOf(v).bind((Slot) with(any(Slot.class)), with("x")); inSequence(seq);
@@ -139,7 +137,7 @@ public class CollectingNestedVariableReferences {
 			oneOf(v).endInline(with(any(FunctionIntro.class))); inSequence(seq);
 			oneOf(v).leaveFunction(fnG); inSequence(seq);
 		}});
-		r.traverse(v);
+		r.traverseWithHSI(v);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -183,7 +181,6 @@ public class CollectingNestedVariableReferences {
 		
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
-			allowing(v).isHsi(); will(returnValue(true));
 			oneOf(v).visitFunction(fnF); inSequence(seq);
 			oneOf(v).hsiArgs((List<Slot>) with(Matchers.hasSize(1))); inSequence(seq);
 			oneOf(v).bind((Slot) with(any(Slot.class)), with("x")); inSequence(seq);
@@ -206,7 +203,7 @@ public class CollectingNestedVariableReferences {
 			oneOf(v).endInline(with(any(FunctionIntro.class))); inSequence(seq);
 			oneOf(v).leaveFunction(fnG); inSequence(seq);
 		}});
-		r.traverse(v);
+		r.traverseInGroups(v, null, true, true);
 	}
 
 
@@ -257,7 +254,6 @@ public class CollectingNestedVariableReferences {
 		
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
-			allowing(v).isHsi(); will(returnValue(true));
 			oneOf(v).visitFunction(fnF); inSequence(seq);
 			oneOf(v).hsiArgs((List<Slot>) with(Matchers.hasSize(1))); inSequence(seq);
 			oneOf(v).bind((Slot) with(any(Slot.class)), with("x")); inSequence(seq);
@@ -284,7 +280,7 @@ public class CollectingNestedVariableReferences {
 			oneOf(v).endInline(with(any(FunctionIntro.class))); inSequence(seq);
 			oneOf(v).leaveFunction(fnG); inSequence(seq);
 		}});
-		r.traverse(v);
+		r.traverseInGroups(v, null, true, true);
 	}
 
 	public static void assertOrder(FunctionGroups ordering, String... fns) {

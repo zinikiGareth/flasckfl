@@ -133,7 +133,8 @@ public class Main {
 			try {
 				StackVisitor sv = new StackVisitor();
 				new TypeChecker(errors, repository, sv);
-				repository.traverseInGroups(sv, ordering);
+				// It doesn't want HSI but it DOES want enhancements ... go figure
+				repository.traverseInGroups(sv, ordering, true, false);
 				
 				// dump types if specified
 				if (ty != null) {
@@ -164,8 +165,8 @@ public class Main {
 			StackVisitor jvmstack = new StackVisitor();
 			new JVMGenerator(bce, jvmstack);
 
-			repository.traverse(jsGenerator);
-			repository.traverse(jvmstack);
+			repository.traverseWithHSI(jsGenerator);
+			repository.traverseWithHSI(jvmstack);
 			
 			if (compiler.hasErrors()) {
 				errors.showFromMark(mark, ew, 0);

@@ -49,20 +49,29 @@ public class Traverser implements Visitor {
 	private final Visitor visitor;
 	private FunctionDefinition currentFunction;
 	private FunctionGroups functionOrder;
+	private boolean wantNestedPatterns;
+	private boolean wantHSI;
 
 	public Traverser(Visitor visitor) {
 		this.visitor = visitor;
 	}
 
-	@Override
-	public boolean isHsi() {
-		return visitor.isHsi();
+	public Traverser withNestedPatterns() {
+		this.wantNestedPatterns = true;
+		return this;
+	}
+
+	public Traverser withHSI() {
+		this.wantHSI = true;
+		return this;
 	}
 
 	public void visitFunctionsInDependencyGroups(FunctionGroups order) {
 		this.functionOrder = order;
-		for (FunctionGroup grp : order)
-			visitFunctionGroup(grp);
+		if (order != null) {
+			for (FunctionGroup grp : order)
+				visitFunctionGroup(grp);
+		}
 	}
 
 	/** It's starting to concern me that for some things (contracts, unit tests) we visit
@@ -159,7 +168,7 @@ public class Traverser implements Visitor {
 		if (fn.intros().isEmpty())
 			return; // not for generation
 		visitor.visitFunction(fn);
-		if (visitor.isHsi()) {
+		if (wantHSI) {
 			rememberCaller(fn);
 			List<Slot> slots = fn.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
@@ -449,7 +458,7 @@ public class Traverser implements Visitor {
 	}
 
 	private boolean isNeedingEnhancement(Expr expr, int nargs) {
-		if (!visitor.isHsi())
+		if (!wantNestedPatterns)
 			return false;
 		if (expr instanceof ApplyExpr && isFnNeedingNesting((Expr) ((ApplyExpr)expr).fn) != null)
 			return true;
@@ -461,7 +470,7 @@ public class Traverser implements Visitor {
 	public void visitApplyExpr(ApplyExpr expr) {
 		ApplyExpr ae = expr;
 		Expr fn = (Expr) expr.fn;
-		if (visitor.isHsi()) {
+		if (wantNestedPatterns) {
 			NestedVarReader nv = isFnNeedingNesting(fn);
 			if (nv != null) {
 				List<Object> args = new ArrayList<>();
@@ -494,7 +503,7 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
-		if (nargs == 0 && visitor.isHsi()) {
+		if (nargs == 0 && wantNestedPatterns) {
 			NestedVarReader nv = isFnNeedingNesting(var);
 			if (nv != null) {
 				@SuppressWarnings({ "rawtypes", "unchecked" })

@@ -63,11 +63,6 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
-	public boolean isHsi() {
-		return true;
-	}
-	
-	@Override
 	public void hsiArgs(List<Slot> slots) {
 		throw new RuntimeException("This should never be called");
 	}

@@ -35,13 +35,6 @@ public class InsertorTests {
 	PackageName pkg = new PackageName("test.foo");
 	HSIVisitor hsi = context.mock(HSIVisitor.class);
 
-	@Before
-	public void config() {
-		context.checking(new Expectations() {{
-			allowing(hsi).isHsi(); will(returnValue(true));
-		}});
-	}
-	
 	@Test
 	public void aFunctionWithNestedVarsGetsThemInHSIArgs() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
@@ -94,7 +87,7 @@ public class InsertorTests {
 			// it doesn't have an actual expression so nothing comes out - this is fine for testing and won't happen in real life
 			oneOf(hsi).endInline(fi);
 		}});
-		Traverser traverser = new Traverser(hsi);
+		Traverser traverser = new Traverser(hsi).withHSI();
 		traverser.visitHSI(fn, new VarMapping(), slots, fn.intros());
 	}
 
@@ -123,7 +116,7 @@ public class InsertorTests {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		Traverser traverser = new Traverser(hsi);
+		Traverser traverser = new Traverser(hsi).withHSI();
 		traverser.visitHSI(fn, new VarMapping(), slots, fn.intros());
 	}
 
@@ -168,7 +161,7 @@ public class InsertorTests {
 			oneOf(hsi).visitUnresolvedVar(xr, 0);
 			oneOf(hsi).endInline(fiG);
 		}});
-		Traverser traverser = new Traverser(hsi);
+		Traverser traverser = new Traverser(hsi).withHSI();
 		traverser.visitHSI(fnG, new VarMapping(), slots, fnG.intros());
 	}
 }

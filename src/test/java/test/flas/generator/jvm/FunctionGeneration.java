@@ -126,7 +126,7 @@ public class FunctionGeneration {
 		fn.bindHsi(hsi);
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv);
-		new Traverser(sv).visitFunction(fn);
+		new Traverser(sv).withHSI().visitFunction(fn);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -188,7 +188,7 @@ public class FunctionGeneration {
 		fn.bindHsi(hsi);
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv);
-		new Traverser(sv).visitFunction(fn);
+		new Traverser(sv).withHSI().visitFunction(fn);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -273,7 +273,7 @@ public class FunctionGeneration {
 		fn.bindHsi(hsi);
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv);
-		new Traverser(sv).visitFunction(fn);
+		new Traverser(sv).withHSI().visitFunction(fn);
 	}
 	
 	@Test
@@ -749,7 +749,7 @@ public class FunctionGeneration {
 			hsi.consider(fi);
 			hsi.get(0).requireCM("Nil").consider(fi);
 			fn.bindHsi(hsi);
-			new Traverser(sv).visitFunction(fn);
+			new Traverser(sv).withHSI().visitFunction(fn);
 		}
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "y");
@@ -762,7 +762,7 @@ public class FunctionGeneration {
 			hsi.consider(fi);
 			hsi.get(0).requireCM("Nil").consider(fi);
 			fn.bindHsi(hsi);
-			new Traverser(sv).visitFunction(fn);
+			new Traverser(sv).withHSI().visitFunction(fn);
 		}
 	}
 

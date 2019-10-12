@@ -91,7 +91,7 @@ public class FunctionGenerationJS {
 		hsi.consider(fi);
 		hsi.get(0).requireCM("Nil").consider(fi);
 		fn.bindHsi(hsi);
-		new Traverser(gen).visitFunction(fn);
+		new Traverser(gen).withHSI().visitFunction(fn);
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class FunctionGenerationJS {
 		hsi.consider(fi);
 		hsi.get(0).addVar(vnx, fi);
 		fn.bindHsi(hsi);
-		new Traverser(gen).visitFunction(fn);
+		new Traverser(gen).withHSI().visitFunction(fn);
 	}
 
 	@Test
@@ -160,7 +160,7 @@ public class FunctionGenerationJS {
 		hsi.get(0).requireCM("Nil").consider(fi);
 		hsi.get(1).addVar(vnx, fi);
 		fn.bindHsi(hsi);
-		new Traverser(gen).visitFunction(fn);
+		new Traverser(gen).withHSI().visitFunction(fn);
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class FunctionGenerationJS {
 		hsi.consider(f2);
 		hsi.get(0).requireCM("Cons").consider(f2);
 		fn.bindHsi(hsi);
-		new Traverser(gen).visitFunction(fn);
+		new Traverser(gen).withHSI().visitFunction(fn);
 	}
 
 	@Test
@@ -611,7 +611,7 @@ public class FunctionGenerationJS {
 			hsi.consider(fi);
 			hsi.get(0).requireCM("Nil").consider(fi);
 			fn.bindHsi(hsi);
-			new Traverser(gen).visitFunction(fn);
+			new Traverser(gen).withHSI().visitFunction(fn);
 		}
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "y");
@@ -624,7 +624,7 @@ public class FunctionGenerationJS {
 			hsi.consider(fi);
 			hsi.get(0).requireCM("Nil").consider(fi);
 			fn.bindHsi(hsi);
-			new Traverser(gen).visitFunction(fn);
+			new Traverser(gen).withHSI().visitFunction(fn);
 		}
 	}
 }

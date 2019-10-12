@@ -44,11 +44,6 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 	}
 
 	@Override
-	public boolean isHsi() {
-		return true;
-	}
-	
-	@Override
 	public void endInline(FunctionIntro fi) {
 		if (stack.size() != 1)
 			throw new RuntimeException("I think this is impossible, but obviously not");

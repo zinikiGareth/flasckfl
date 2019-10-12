@@ -47,7 +47,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 
 	private void setTop(Visitor v) {
 		this.top = v;
-		if (v.isHsi())
+		if (v instanceof HSIVisitor)
 			this.hsi = (HSIVisitor) v;
 		else
 			this.hsi = null;
@@ -59,10 +59,6 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 		setTop(stack.get(0));
 		if (this.top instanceof ResultAware)
 			((ResultAware)this.top).result(r);
-	}
-
-	public boolean isHsi() {
-		return top.isHsi();
 	}
 
 	public void visitEntry(RepositoryEntry entry) {

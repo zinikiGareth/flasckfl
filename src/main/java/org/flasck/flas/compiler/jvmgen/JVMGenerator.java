@@ -87,11 +87,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
-	public boolean isHsi() {
-		return true;
-	}
-
-	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		if (fn.intros().isEmpty()) {
 			this.clz = null;

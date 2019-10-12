@@ -55,11 +55,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	}
 
 	@Override
-	public boolean isHsi() {
-		return true;
-	}
-
-	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		System.out.println("JS " + fn.name().jsName() + " = " + fn.intros().size());
 		switchVars.clear();

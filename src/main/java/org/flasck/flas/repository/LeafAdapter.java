@@ -35,11 +35,6 @@ import org.flasck.flas.tc3.Primitive;
  */
 public class LeafAdapter implements Visitor {
 	@Override
-	public boolean isHsi() {
-		return false;
-	}
-
-	@Override
 	public void visitEntry(RepositoryEntry entry) {
 	}
 

@@ -18,6 +18,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.DuplicateNameException;
+import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -52,7 +53,6 @@ import org.flasck.flas.tc3.Type;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
-		boolean isHsi();
 		void visitEntry(RepositoryEntry entry);
 		void visitPrimitive(Primitive p);
 		void visitStructDefn(StructDefn s);
@@ -231,8 +231,20 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
-	public void traverseInGroups(Visitor visitor, FunctionGroups groups) {
+	public void traverseWithHSI(HSIVisitor v) {
+		Traverser t = new Traverser(v).withHSI();
+		for (RepositoryEntry e : dict.values()) {
+			t.visitEntry(e);
+		}
+	}
+
+	@Override
+	public void traverseInGroups(Visitor visitor, FunctionGroups groups, boolean withNestedPatterns, boolean withHSI) {
 		Traverser t = new Traverser(visitor);
+		if (withNestedPatterns)
+			t.withNestedPatterns();
+		if (withHSI)
+			t.withHSI();
 		t.visitFunctionsInDependencyGroups(groups);
 		for (RepositoryEntry e : dict.values()) {
 			t.visitEntry(e);
