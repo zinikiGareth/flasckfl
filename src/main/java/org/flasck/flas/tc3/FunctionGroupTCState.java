@@ -31,5 +31,4 @@ public class FunctionGroupTCState implements CurrentTCState {
 			throw new NotImplementedException("Cannot handle more than 26 poly types at once");
 		return new PolyType(pos, new String(new char[] { (char)('A' + polyCount++) }));
 	}
-
 }

@@ -7,6 +7,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.patterns.HSITree;
+import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
@@ -28,10 +29,14 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void visitFunction(FunctionDefinition fn) {
-		// TODO: this should happen on "function dependency group", but we don't have that yet
-		System.out.println("TC fn " + fn.name().uniqueName());
+	public void visitFunctionGroup(FunctionGroup grp) {
+		System.out.println("TC grp " + grp);
 		this.state = new FunctionGroupTCState();
+	}
+
+	@Override
+	public void visitFunction(FunctionDefinition fn) {
+		System.out.println("TC fn " + fn.name().uniqueName());
 		types.clear();
 	}
 	
@@ -69,6 +74,11 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 		System.out.println("TC fn " + fn.name().uniqueName() + " = " + consolidateType());
 		fn.bindType(consolidateType());
 		types.clear();
+	}
+
+	@Override
+	public void leaveFunctionGroup(FunctionGroup grp) {
+		System.out.println("Leave TC grp " + grp);
 	}
 
 	private Type consolidateType() {

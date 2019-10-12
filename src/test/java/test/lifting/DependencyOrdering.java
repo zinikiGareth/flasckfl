@@ -1,7 +1,6 @@
 package test.lifting;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -11,7 +10,6 @@ import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.repository.FunctionGroup;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;

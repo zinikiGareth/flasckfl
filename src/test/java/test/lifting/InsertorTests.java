@@ -21,7 +21,6 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.repository.Traverser.VarMapping;
 import org.jmock.Expectations;
