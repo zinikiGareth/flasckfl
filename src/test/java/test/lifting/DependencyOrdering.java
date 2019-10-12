@@ -75,6 +75,59 @@ public class DependencyOrdering {
 		assertOrder("test.foo.f//test.foo.g//test.foo.h");
 	}
 
+	@Test
+	public void circularRecursionIsHandled() { // f -> g; g -> h; h -> f: all one group
+		FunctionDefinition fnF = function("f");
+		FunctionDefinition fnG = function("g");
+		FunctionDefinition fnH = function("h");
+		visit(fnF, fnG);
+		visit(fnG, fnH);
+		visit(fnH, fnF);
+
+		assertOrder("test.foo.f//test.foo.g//test.foo.h");
+	}
+
+	@Test
+	public void circularRecursionCanAlsoDependOnOthers() { // f -> g; g -> h, k; h -> f: all one group; but k is easy
+		FunctionDefinition fnF = function("f");
+		FunctionDefinition fnG = function("g");
+		FunctionDefinition fnH = function("h");
+		FunctionDefinition fnK = quick("k");
+		visit(fnF, fnG);
+		visit(fnG, fnH, fnK);
+		visit(fnH, fnF);
+
+		assertOrder("test.foo.k", "test.foo.f//test.foo.g//test.foo.h");
+	}
+
+	@Test
+	public void aFunctionDependingOnACycleComesAtTheEndByItself() { // f -> g; g <-> h
+		FunctionDefinition fnF = function("f");
+		FunctionDefinition fnG = function("g");
+		FunctionDefinition fnH = function("h");
+		visit(fnF, fnG);
+		visit(fnG, fnH);
+		visit(fnH, fnG);
+
+		assertOrder("test.foo.g//test.foo.h", "test.foo.f");
+	}
+
+	@Test
+	public void twoCyclesCanBeHandledEvenWithComplexConnections() { // f -> g, l; g -> h, k; h -> f, k, l: all one group; k <-> l
+		FunctionDefinition fnF = function("f");
+		FunctionDefinition fnG = function("g");
+		FunctionDefinition fnH = function("h");
+		FunctionDefinition fnK = function("k");
+		FunctionDefinition fnL = function("l");
+		visit(fnF, fnG, fnL);
+		visit(fnG, fnH, fnK);
+		visit(fnH, fnF, fnK, fnL);
+		visit(fnK, fnL);
+		visit(fnL, fnK);
+
+		assertOrder("test.foo.k//test.foo.l", "test.foo.f//test.foo.g//test.foo.h");
+	}
+
 	private FunctionDefinition quick(String name, FunctionDefinition... deps) {
 		FunctionDefinition fn = function(name);
 		visit(fn, deps);

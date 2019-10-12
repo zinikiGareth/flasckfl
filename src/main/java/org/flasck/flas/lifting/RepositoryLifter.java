@@ -1,10 +1,13 @@
 package org.flasck.flas.lifting;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.lifting.RepositoryLifter.SizeComparator;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -13,6 +16,13 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 
 public class RepositoryLifter extends LeafAdapter implements Lifter {
+	public class SizeComparator implements Comparator<Set<?>> {
+		@Override
+		public int compare(Set<?> o1, Set<?> o2) {
+			return Integer.compare(o1.size(), o2.size());
+		}
+	}
+
 	private MappingStore ms;
 	private MappingAnalyzer ma;
 	private Set<FunctionDefinition> dull = new TreeSet<>();
@@ -67,13 +77,14 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		Set<FunctionDefinition> remaining = new TreeSet<>(interesting);
 		while (!remaining.isEmpty()) {
 			boolean handled = false;
+			Set<FunctionDefinition> done = new HashSet<>();
 			for (FunctionDefinition fn : remaining) {
 				NestedVarReader nv = fn.nestedVars();
 				if (nv.containsReferencesNotIn(resolved)) {
 					continue;
 				}
 				resolved.add(fn);
-				remaining.remove(fn);
+				done.add(fn);
 				handled = true;
 				for (FunctionDefinition r : nv.references()) {
 					// TODO: failing because you can't just copy the pattern opts ... it needs the FIs rewriting
@@ -83,19 +94,21 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 				}
 				ordering.add(new DependencyGroup(fn));
 			}
+			remaining.removeAll(done);
 			if (!handled) {
-				// if we can't make progress, you have to assume that some mutual recursion is at play ... try everything in turn ..
+				// if we can't make progress, you have to assume that some mutual recursion is at play ... try everything in turn ... then pick the least complex one
+				Set<Set<FunctionDefinition>> options = new TreeSet<>(new SizeComparator());
 				for (FunctionDefinition fn : remaining) {
 					Set<FunctionDefinition> tc = buildTransitiveClosure(fn, resolved);
-					if (tc != null) {
-						ordering.add(new DependencyGroup(tc));
-						resolved.addAll(tc);
-						remaining.removeAll(tc);
-						handled = true;
-						break;
-					}
-				}			
-				if (!handled)
+					if (tc != null)
+						options.add(tc);
+				}
+				if (!options.isEmpty()) {
+					Set<FunctionDefinition> tc = options.iterator().next();
+					ordering.add(new DependencyGroup(tc));
+					resolved.addAll(tc);
+					remaining.removeAll(tc);
+				} else
 					throw new RuntimeException("Failed to make progress: " + remaining + " -- " + resolved);
 			}
 		}
@@ -106,18 +119,19 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		Set<FunctionDefinition> closure = new TreeSet<>();
 		buildMaximalTransitiveClosure(fn, resolved, closure);
 		for (FunctionDefinition f : closure) {
-			if (!checkFn(f, resolved, closure))
+			if (!checkFn(f, closure))
 				return null;
 		}
 		return closure;
 	}
 
-	private boolean checkFn(FunctionDefinition f, Set<FunctionDefinition> resolved, Set<FunctionDefinition> closure) {
-		NestedVarReader nv = f.nestedVars();
-		Set<FunctionDefinition> refs = new TreeSet<FunctionDefinition>(nv.references());
-		refs.removeAll(resolved);
-		refs.removeAll(closure);
-		return refs.isEmpty();
+	private boolean checkFn(FunctionDefinition f, Set<FunctionDefinition> closure) {
+		for (FunctionDefinition g : closure) {
+			NestedVarReader nv = g.nestedVars();
+			if (nv.dependsOn(f))
+				return true;
+		}
+		return false;
 	}
 
 	private void buildMaximalTransitiveClosure(FunctionDefinition fn, Set<FunctionDefinition> resolved, Set<FunctionDefinition> closure) {
