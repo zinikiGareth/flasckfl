@@ -39,44 +39,44 @@ public class PatternTraversalTests {
 	@Test
 	public void simpleVarPattern() {
 		context.checking(new Expectations() {{
-			oneOf(v).visitPattern(vp);
-			oneOf(v).visitVarPattern(vp);
+			oneOf(v).visitPattern(vp, false);
+			oneOf(v).visitVarPattern(vp, false);
 			oneOf(v).visitPatternVar(pos, "v");
-			oneOf(v).leavePattern(vp);
+			oneOf(v).leavePattern(vp, false);
 		}});
-		new Traverser(v).visitPattern(vp);
+		new Traverser(v).visitPattern(vp, false);
 	}
 
 	@Test
 	public void simpleTypedPattern() {
 		context.checking(new Expectations() {{
-			oneOf(v).visitPattern(tp);
-			oneOf(v).visitTypedPattern(tp);
+			oneOf(v).visitPattern(tp, false);
+			oneOf(v).visitTypedPattern(tp, false);
 			oneOf(v).visitTypeReference(list);
 			oneOf(v).visitPatternVar(pos, "x");
-			oneOf(v).leavePattern(tp);
+			oneOf(v).leavePattern(tp, false);
 		}});
-		new Traverser(v).visitPattern(tp);
+		new Traverser(v).visitPattern(tp, false);
 	}
 
 	@Test
 	public void simpleConstructorMatch() {
 		context.checking(new Expectations() {{
-			oneOf(v).visitPattern(cm);
-			oneOf(v).visitConstructorMatch(cm);
+			oneOf(v).visitPattern(cm, false);
+			oneOf(v).visitConstructorMatch(cm, false);
 			oneOf(v).leaveConstructorMatch(cm);
-			oneOf(v).leavePattern(cm);
+			oneOf(v).leavePattern(cm, false);
 		}});
-		new Traverser(v).visitPattern(cm);
+		new Traverser(v).visitPattern(cm, false);
 	}
 
 	@Test
 	public void numericConstant() {
 		context.checking(new Expectations() {{
-			oneOf(v).visitPattern(nc);
-			oneOf(v).visitConstPattern(nc);
-			oneOf(v).leavePattern(nc);
+			oneOf(v).visitPattern(nc, false);
+			oneOf(v).visitConstPattern(nc, false);
+			oneOf(v).leavePattern(nc, false);
 		}});
-		new Traverser(v).visitPattern(nc);
+		new Traverser(v).visitPattern(nc, false);
 	}
 }

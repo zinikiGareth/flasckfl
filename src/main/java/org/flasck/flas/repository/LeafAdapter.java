@@ -95,23 +95,23 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitPattern(Object patt) {
+	public void visitPattern(Object patt, boolean isNested) {
 	}
 
 	@Override
-	public void visitVarPattern(VarPattern p) {
+	public void visitVarPattern(VarPattern p, boolean isNested) {
 	}
 
 	@Override
-	public void visitTypedPattern(TypedPattern p) {
+	public void visitTypedPattern(TypedPattern p, boolean isNested) {
 	}
 
 	@Override
-	public void visitConstructorMatch(ConstructorMatch p) {
+	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
 	}
 
 	@Override
-	public void visitConstructorField(String field, Object patt) {
+	public void visitConstructorField(String field, Object patt, boolean isNested) {
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitConstPattern(ConstPattern p) {
+	public void visitConstPattern(ConstPattern p, boolean isNested) {
 	}
 
 	@Override
@@ -131,7 +131,7 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void leavePattern(Object patt) {
+	public void leavePattern(Object patt, boolean isNested) {
 	}
 
 	@Override

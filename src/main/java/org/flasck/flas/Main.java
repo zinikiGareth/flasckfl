@@ -124,7 +124,7 @@ public class Main {
 		{
 			StackVisitor sv = new StackVisitor();
 			new PatternAnalyzer(errors, repository, sv);
-			repository.traverse(sv);
+			repository.traverseInGroups(sv, null, true, false);
 		}
 		
 		// typechecking
@@ -133,7 +133,6 @@ public class Main {
 			try {
 				StackVisitor sv = new StackVisitor();
 				new TypeChecker(errors, repository, sv);
-				// It doesn't want HSI but it DOES want enhancements ... go figure
 				repository.traverseInGroups(sv, ordering, true, false);
 				
 				// dump types if specified

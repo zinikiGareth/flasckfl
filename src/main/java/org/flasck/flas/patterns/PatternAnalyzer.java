@@ -51,31 +51,34 @@ public class PatternAnalyzer extends LeafAdapter {
 	}
 	
 	@Override
-	public void visitPattern(Object patt) {
+	public void visitPattern(Object patt, boolean isNested) {
 		this.slot = hsiTree.get(nslot++);
 	}
 	
 	@Override
-	public void visitVarPattern(VarPattern p) {
+	public void visitVarPattern(VarPattern p, boolean isNested) {
 		this.slot.addVar(p.name(), current);
 		this.slot.includes(this.current);
 	}
 	
 	@Override
-	public void visitTypedPattern(TypedPattern p) {
-		this.slot.addTyped(p.type, p.var, current);
+	public void visitTypedPattern(TypedPattern p, boolean isNested) {
+		if (!isNested)
+			this.slot.addTyped(p.type, p.var, current);
+		else
+			this.slot.addVarWithType(p.type, p.var, current);
 		this.slot.includes(this.current);
 	}
 	
 	@Override
-	public void visitConstructorMatch(ConstructorMatch p) {
+	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
 		HSITree nested = slot.requireCM(p.ctor);
 		nested.consider(current);
 		new PatternAnalyzer(errors, repository, sv, nested, current);
 	}
 	
 	@Override
-	public void visitConstructorField(String field, Object patt) {
+	public void visitConstructorField(String field, Object patt, boolean isNested) {
 		this.slot = ((HSICtorTree)hsiTree).field(field);
 		this.slot.includes(this.current);
 	}
@@ -86,7 +89,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	}
 
 	@Override
-	public void visitConstPattern(ConstPattern p) {
+	public void visitConstPattern(ConstPattern p, boolean isNested) {
 		Primitive ty;
 		switch (p.type) {
 		case ConstPattern.INTEGER:

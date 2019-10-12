@@ -167,18 +167,18 @@ public class Traverser implements Visitor {
 	public void visitFunction(FunctionDefinition fn) {
 		if (fn.intros().isEmpty())
 			return; // not for generation
+		rememberCaller(fn);
 		visitor.visitFunction(fn);
 		if (wantHSI) {
-			rememberCaller(fn);
 			List<Slot> slots = fn.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
 			visitHSI(fn, new VarMapping(), slots, fn.intros());
-			rememberCaller(null);
 		} else {
 			for (FunctionIntro i : fn.intros())
 				visitFunctionIntro(i);
 		}
 		leaveFunction(fn);
+		rememberCaller(null);
 	}
 	
 	public void rememberCaller(FunctionDefinition fn) {
@@ -327,8 +327,15 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitFunctionIntro(FunctionIntro i) {
 		visitor.visitFunctionIntro(i);
+		if (wantNestedPatterns) {
+			NestedVarReader nv = currentFunction.nestedVars();
+			if (nv != null) {
+				for (Object p : nv.patterns())
+					visitPattern(p, true);
+			}
+		}
 		for (Object p : i.args)
-			visitPattern(p);
+			visitPattern(p, false);
 		for (FunctionCaseDefn c : i.cases())
 			visitCase(c);
 		leaveFunctionIntro(i);
@@ -352,47 +359,47 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
-	public void visitPattern(Object p) {
-		visitor.visitPattern(p);
+	public void visitPattern(Object p, boolean isNested) {
+		visitor.visitPattern(p, isNested);
 		if (p instanceof VarPattern)
-			visitVarPattern((VarPattern) p);
+			visitVarPattern((VarPattern) p, isNested);
 		else if (p instanceof TypedPattern)
-			visitTypedPattern((TypedPattern)p);
+			visitTypedPattern((TypedPattern)p, isNested);
 		else if (p instanceof ConstructorMatch)
-			visitConstructorMatch((ConstructorMatch)p);
+			visitConstructorMatch((ConstructorMatch)p, isNested);
 		else if (p instanceof ConstPattern)
-			visitConstPattern((ConstPattern)p);
+			visitConstPattern((ConstPattern)p, isNested);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Pattern not handled: " + p.getClass());
-		leavePattern(p);
+		leavePattern(p, isNested);
 	}
 
 	@Override
-	public void visitVarPattern(VarPattern p) {
-		visitor.visitVarPattern(p);
+	public void visitVarPattern(VarPattern p, boolean isNested) {
+		visitor.visitVarPattern(p, isNested);
 		visitPatternVar(p.varLoc, p.var);
 	}
 
 	@Override
-	public void visitTypedPattern(TypedPattern p) {
-		visitor.visitTypedPattern(p);
+	public void visitTypedPattern(TypedPattern p, boolean isNested) {
+		visitor.visitTypedPattern(p, isNested);
 		visitTypeReference(p.type);
 		visitPatternVar(p.var.loc, p.var.var);
 	}
 
 	@Override
-	public void visitConstructorMatch(ConstructorMatch p) {
-		visitor.visitConstructorMatch(p);
+	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
+		visitor.visitConstructorMatch(p, isNested);
 		for (Field f : p.args) {
-			visitConstructorField(f.field, f.patt);
+			visitConstructorField(f.field, f.patt, isNested);
 		}
 		leaveConstructorMatch(p);
 	}
 
 	@Override
-	public void visitConstructorField(String field, Object patt) {
-		visitor.visitConstructorField(field, patt);
-		visitPattern(patt);
+	public void visitConstructorField(String field, Object patt, boolean isNested) {
+		visitor.visitConstructorField(field, patt, isNested);
+		visitPattern(patt, isNested);
 		leaveConstructorField(field, patt);
 	}
 
@@ -411,13 +418,13 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
-	public void visitConstPattern(ConstPattern p) {
-		visitor.visitConstPattern(p);
+	public void visitConstPattern(ConstPattern p, boolean isNested) {
+		visitor.visitConstPattern(p, isNested);
 	}
 
 	@Override
-	public void leavePattern(Object patt) {
-		visitor.leavePattern(patt);
+	public void leavePattern(Object patt, boolean isNested) {
+		visitor.leavePattern(patt, isNested);
 	}
 
 	@Override

@@ -203,7 +203,7 @@ public class CollectingNestedVariableReferences {
 			oneOf(v).endInline(with(any(FunctionIntro.class))); inSequence(seq);
 			oneOf(v).leaveFunction(fnG); inSequence(seq);
 		}});
-		r.traverseInGroups(v, null, true, true);
+		r.traverseWithHSI(v);
 	}
 
 
@@ -280,7 +280,7 @@ public class CollectingNestedVariableReferences {
 			oneOf(v).endInline(with(any(FunctionIntro.class))); inSequence(seq);
 			oneOf(v).leaveFunction(fnG); inSequence(seq);
 		}});
-		r.traverseInGroups(v, null, true, true);
+		r.traverseWithHSI(v);
 	}
 
 	public static void assertOrder(FunctionGroups ordering, String... fns) {

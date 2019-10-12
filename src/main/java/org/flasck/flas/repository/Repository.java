@@ -69,15 +69,15 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveFunctionIntro(FunctionIntro fi);
 		void leaveFunction(FunctionDefinition fn);
 		void leaveFunctionGroup(FunctionGroup grp);
-		void visitPattern(Object patt);
-		void visitVarPattern(VarPattern p);
-		void visitTypedPattern(TypedPattern p);
-		void visitConstructorMatch(ConstructorMatch p);
-		void visitConstructorField(String field, Object patt);
+		void visitPattern(Object patt, boolean isNested);
+		void visitVarPattern(VarPattern p, boolean isNested);
+		void visitTypedPattern(TypedPattern p, boolean isNested);
+		void visitConstructorMatch(ConstructorMatch p, boolean isNested);
+		void visitConstructorField(String field, Object patt, boolean isNested);
 		void leaveConstructorField(String field, Object patt);
 		void leaveConstructorMatch(ConstructorMatch p);
 		void visitPatternVar(InputPosition varLoc, String var);
-		void leavePattern(Object patt);
+		void leavePattern(Object patt, boolean isNested);
 		void visitCase(FunctionCaseDefn c);
 		void startInline(FunctionIntro fi);
 		void endInline(FunctionIntro fi);
@@ -100,7 +100,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitObjectMethod(ObjectMethod e);
 		void visitAssertExpr(boolean isValue, Expr e);
 		void leaveAssertExpr(boolean isValue, Expr e);
-		void visitConstPattern(ConstPattern p);
+		void visitConstPattern(ConstPattern p, boolean isNested);
 	}
 
 	private final Map<String, RepositoryEntry> dict = new TreeMap<>();
@@ -232,7 +232,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public void traverseWithHSI(HSIVisitor v) {
-		Traverser t = new Traverser(v).withHSI();
+		Traverser t = new Traverser(v).withHSI().withNestedPatterns();
 		for (RepositoryEntry e : dict.values()) {
 			t.visitEntry(e);
 		}
@@ -240,7 +240,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public void traverseInGroups(Visitor visitor, FunctionGroups groups, boolean withNestedPatterns, boolean withHSI) {
-		Traverser t = new Traverser(visitor);
+ 		Traverser t = new Traverser(visitor);
 		if (withNestedPatterns)
 			t.withNestedPatterns();
 		if (withHSI)

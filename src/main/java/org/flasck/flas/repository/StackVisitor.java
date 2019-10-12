@@ -125,24 +125,24 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 		top.leaveFunctionGroup(grp);
 	}
 
-	public void visitPattern(Object patt) {
-		top.visitPattern(patt);
+	public void visitPattern(Object patt, boolean isNested) {
+		top.visitPattern(patt, isNested);
 	}
 
-	public void visitVarPattern(VarPattern p) {
-		top.visitVarPattern(p);
+	public void visitVarPattern(VarPattern p, boolean isNested) {
+		top.visitVarPattern(p, isNested);
 	}
 
-	public void visitTypedPattern(TypedPattern p) {
-		top.visitTypedPattern(p);
+	public void visitTypedPattern(TypedPattern p, boolean isNested) {
+		top.visitTypedPattern(p, isNested);
 	}
 
-	public void visitConstructorMatch(ConstructorMatch p) {
-		top.visitConstructorMatch(p);
+	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
+		top.visitConstructorMatch(p, isNested);
 	}
 
-	public void visitConstructorField(String field, Object patt) {
-		top.visitConstructorField(field, patt);
+	public void visitConstructorField(String field, Object patt, boolean isNested) {
+		top.visitConstructorField(field, patt, isNested);
 	}
 
 	public void leaveConstructorField(String field, Object patt) {
@@ -157,12 +157,12 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 		top.visitPatternVar(varLoc, var);
 	}
 
-	public void visitConstPattern(ConstPattern p) {
-		top.visitConstPattern(p);
+	public void visitConstPattern(ConstPattern p, boolean isNested) {
+		top.visitConstPattern(p, isNested);
 	}
 
-	public void leavePattern(Object patt) {
-		top.leavePattern(patt);
+	public void leavePattern(Object patt, boolean isNested) {
+		top.leavePattern(patt, isNested);
 	}
 
 	public void visitCase(FunctionCaseDefn c) {

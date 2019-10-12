@@ -12,6 +12,7 @@ public interface NestedVarReader {
 	int size();
 	Collection<HSIOptions> all();
 	List<UnresolvedVar> vars();
+	List<Object> patterns();
 	boolean containsReferencesNotIn(Set<FunctionDefinition> resolved);
 	Set<FunctionDefinition> references();
 	void enhanceWith(FunctionDefinition fn, NestedVarReader nestedVars);
