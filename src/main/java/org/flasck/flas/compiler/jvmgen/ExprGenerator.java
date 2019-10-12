@@ -102,7 +102,10 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 				stack.add(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
 			}
 		} else if (defn instanceof VarPattern) {
-			AVar var = state.boundVar(((VarPattern)defn).var);
+			String v = ((VarPattern)defn).var;
+			AVar var = state.boundVar(v);
+			if (var == null)
+				throw new RuntimeException("Could not find " + v);
 			stack.add(var);
 		} else if (defn instanceof TypedPattern) {
 			IExpr in = meth.arrayItem(J.OBJECT, state.fargs, 0);

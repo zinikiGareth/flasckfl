@@ -2,15 +2,19 @@ package org.flasck.flas.tc3;
 
 import java.io.PrintWriter;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class Primitive implements RepositoryEntry, Type {
+public class Primitive implements RepositoryEntry, Type, NamedThing {
+	private final InputPosition loc;
 	private final SolidName name;
 
-	public Primitive(String name) {
+	public Primitive(InputPosition loc, String name) {
+		this.loc = loc;
 		this.name = new SolidName(null, name);
 	}
 
@@ -32,6 +36,16 @@ public class Primitive implements RepositoryEntry, Type {
 	@Override
 	public NameOfThing name() {
 		return name;
+	}
+	
+	@Override
+	public NameOfThing getName() {
+		return name;
+	}
+
+	@Override
+	public InputPosition location() {
+		return loc;
 	}
 
 	@Override

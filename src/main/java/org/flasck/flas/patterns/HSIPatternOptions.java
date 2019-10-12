@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -148,15 +149,23 @@ public class HSIPatternOptions implements HSIOptions {
 
 	@Override
 	public Type minimalType(CurrentTCState state, RepositoryReader repository) {
-		if (ctors.size() == 1 && types.isEmpty())
+		List<TV> vs = new ArrayList<>();
+		Map<String, TV> ts = new TreeMap<>(types);
+		for (TV v : vars) {
+			if (v.type == null)
+				vs.add(v);
+			else
+				ts.put(((NamedThing)v.type).getName().uniqueName(), v);
+		}
+		if (ctors.size() == 1 && ts.isEmpty())
 			return repository.get(ctors.keySet().iterator().next());
-		else if (ctors.isEmpty() && types.size() == 1)
-			return types.values().iterator().next().type;
-		else if (types.containsKey("Any"))
-			return types.get("Any").type;
-		else if (ctors.isEmpty() && types.isEmpty() && !vars.isEmpty()) {
+		else if (ctors.isEmpty() && ts.size() == 1)
+			return ts.values().iterator().next().type;
+		else if (ts.containsKey("Any"))
+			return ts.get("Any").type;
+		else if (ctors.isEmpty() && ts.isEmpty() && !vs.isEmpty()) {
 			// TODO: need to consolidate all the vars in this slot
-			UnifiableType ut = state.hasVar(vars.get(0).var.uniqueName());
+			UnifiableType ut = state.hasVar(vs.get(0).var.uniqueName());
 			if (ut == null)
 				return repository.get("Any");
 			else

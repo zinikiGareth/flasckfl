@@ -1,2 +1,7 @@
-test.golden.f :: Number-><<UNDEFINED>>
-test.golden.f.g :: Any->Number
+test.golden.f :: Number->Number
+test.golden.f.g :: Number->Number
+test.golden.h :: Number->Number
+test.golden.h.j :: Number->Number->Number
+test.golden.k :: A->A
+test.golden.k.l :: A->A
+test.golden.k.l.m :: A->A

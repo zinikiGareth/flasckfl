@@ -76,6 +76,17 @@ public class PatternExtraction {
 	}
 
 	@Test
+	public void aVarWithAType() { // very similar to the above, but stored differently so that HSI doesn't process it "again"
+		HSIPatternOptions po = new HSIPatternOptions();
+		TypeReference tr = new TypeReference(pos, "Number");
+		tr.bind(LoadBuiltins.number);
+		po.addVarWithType(tr, new VarName(pos, nameF, "v"), null);
+		Type ty = po.minimalType(state, r);
+		assertNotNull(ty);
+		assertEquals(LoadBuiltins.number, ty);
+	}
+
+	@Test
 	public void aUnionThatIncludesAnyWillReturnAny() {
 		HSIPatternOptions po = new HSIPatternOptions();
 		TypeReference tr = new TypeReference(pos, "Number");

@@ -51,7 +51,7 @@ public class TraversalTests {
 
 	@Test
 	public void traversePrimitive() {
-		Primitive p = new Primitive("Foo");
+		Primitive p = new Primitive(pos, "Foo");
 		r.addEntry(p.name(), p);
 		context.checking(new Expectations() {{
 			oneOf(v).visitPrimitive(p);

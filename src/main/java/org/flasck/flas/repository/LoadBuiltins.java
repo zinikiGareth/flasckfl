@@ -15,9 +15,9 @@ import org.flasck.flas.tc3.Primitive;
 
 public class LoadBuiltins {
 	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
-	public static final Primitive any = new Primitive("Any");
-	public static final Primitive number = new Primitive("Number");
-	public static final Primitive string = new Primitive("String");
+	public static final Primitive any = new Primitive(pos, "Any");
+	public static final Primitive number = new Primitive(pos, "Number");
+	public static final Primitive string = new Primitive(pos, "String");
 	public static final StructDefn falseT = new StructDefn(pos, FieldsType.STRUCT, null, "False", false);
 	public static final StructDefn trueT = new StructDefn(pos, FieldsType.STRUCT, null, "True", false);
 	public static final UnionTypeDefn bool = new UnionTypeDefn(pos, false, new SolidName(null, "Boolean"));

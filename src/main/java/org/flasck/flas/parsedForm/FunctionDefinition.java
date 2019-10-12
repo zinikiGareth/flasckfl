@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
-import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
@@ -78,13 +77,8 @@ public class FunctionDefinition implements RepositoryEntry, WithTypeSignature, C
 
 	public List<Slot> slots() {
 		List<Slot> slots = new ArrayList<>();
-		int j=0;
-		if (nestedVars != null) {
-			for (HSIOptions o : nestedVars.all())
-				slots.add(new ArgSlot(j++, o));
-		}
-		for (int i=0;i<nargs;i++) {
-			slots.add(new ArgSlot(j++, hsiTree.get(i)));
+		for (int i=0;i<argCount();i++) {
+			slots.add(new ArgSlot(i, hsiTree.get(i)));
 		}
 		return slots;
 	}
