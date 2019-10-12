@@ -63,6 +63,18 @@ public class DependencyOrdering {
 		assertOrder("test.foo.f//test.foo.g");
 	}
 
+	@Test
+	public void mutualRecursionCanGetMessy() { // f -> g; g -> f, h; h -> g: all one group
+		FunctionDefinition fnF = function("f");
+		FunctionDefinition fnG = function("g");
+		FunctionDefinition fnH = function("h");
+		visit(fnF, fnG);
+		visit(fnG, fnF, fnH);
+		visit(fnH, fnG);
+
+		assertOrder("test.foo.f//test.foo.g//test.foo.h");
+	}
+
 	private FunctionDefinition quick(String name, FunctionDefinition... deps) {
 		FunctionDefinition fn = function(name);
 		visit(fn, deps);

@@ -103,15 +103,33 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	}
 
 	private Set<FunctionDefinition> buildTransitiveClosure(FunctionDefinition fn, Set<FunctionDefinition> resolved) {
-		NestedVarReader nv = fn.nestedVars();
-		TreeSet<FunctionDefinition> others = new TreeSet<>(nv.references());
-		others.removeAll(resolved);
-		// in order to qualify, all these functions must reference fn
-		for (FunctionDefinition o : others) {
-			if (!o.nestedVars().dependsOn(fn))
+		Set<FunctionDefinition> closure = new TreeSet<>();
+		buildMaximalTransitiveClosure(fn, resolved, closure);
+		for (FunctionDefinition f : closure) {
+			if (!checkFn(f, resolved, closure))
 				return null;
 		}
-		others.add(fn);
-		return others;
+		return closure;
+	}
+
+	private boolean checkFn(FunctionDefinition f, Set<FunctionDefinition> resolved, Set<FunctionDefinition> closure) {
+		NestedVarReader nv = f.nestedVars();
+		Set<FunctionDefinition> refs = new TreeSet<FunctionDefinition>(nv.references());
+		refs.removeAll(resolved);
+		refs.removeAll(closure);
+		return refs.isEmpty();
+	}
+
+	private void buildMaximalTransitiveClosure(FunctionDefinition fn, Set<FunctionDefinition> resolved, Set<FunctionDefinition> closure) {
+		if (closure.contains(fn))
+			return;
+		closure.add(fn);
+		NestedVarReader nv = fn.nestedVars();
+		Set<FunctionDefinition> added = new TreeSet<FunctionDefinition>(nv.references());
+		added.removeAll(resolved);
+		added.removeAll(closure);
+		for (FunctionDefinition o : added) {
+			buildMaximalTransitiveClosure(o, resolved, closure);
+		}
 	}
 }
