@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Traverser;
@@ -41,6 +42,7 @@ public class HSITraversalTests {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
 		VarName vx = new VarName(pos, fname, "x");
+		VarPattern vp = new VarPattern(pos, vx);
 		CaptureAction slots = new CaptureAction(null);
 		CaptureAction boundSlot = new CaptureAction(null);
 		context.checking(new Expectations() {{
@@ -55,7 +57,7 @@ public class HSITraversalTests {
 		}});
 		HSIArgsTree tree = new HSIArgsTree(1);
 		tree.consider(fi);
-		tree.get(0).addVar(vx, fi);
+		tree.get(0).addVar(vp, fi);
 		fn.bindHsi(tree);
 		
 		fi.functionCase(new FunctionCaseDefn(null, number));

@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -42,7 +43,7 @@ public class PatternExtraction {
 			oneOf(state).hasVar("test.repo.fred.x"); will(returnValue(null));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
-		po.addVar(new VarName(pos, nameF, "x"), null);
+		po.addVar(new VarPattern(pos, new VarName(pos, nameF, "x")), null);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.any, ty);
@@ -57,7 +58,7 @@ public class PatternExtraction {
 			oneOf(xv).resolve(); will(returnValue(pa));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
-		po.addVar(new VarName(pos, nameF, "x"), null);
+		po.addVar(new VarPattern(pos, new VarName(pos, nameF, "x")), null);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(pa, ty);

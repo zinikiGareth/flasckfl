@@ -57,7 +57,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void visitVarPattern(VarPattern p, boolean isNested) {
-		this.slot.addVar(p.name(), current);
+		this.slot.addVar(p, current);
 		this.slot.includes(this.current);
 	}
 	

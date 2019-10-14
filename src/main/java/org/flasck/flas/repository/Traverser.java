@@ -199,7 +199,7 @@ public class Traverser implements Visitor {
 			HSIOptions tree = hsiTree.get(i);
 			ArgSlot as = new ArgSlot(i, tree);
 			((TreeOrderVisitor)visitor).argSlot(as);
-			visitPatternTree(tree, as);
+			visitPatternTree(tree);
 		}
 		for (FunctionIntro fi : fn.intros()) {
 			visitor.visitFunctionIntro(fi);
@@ -208,12 +208,17 @@ public class Traverser implements Visitor {
 		}
 	}
 
-	private void visitPatternTree(HSIOptions hsiOptions, ArgSlot as) {
+	private void visitPatternTree(HSIOptions hsiOptions) {
 		TreeOrderVisitor tov = (TreeOrderVisitor)visitor;
 		for (StructDefn t : hsiOptions.ctors()) {
 			// visit(t) // establishing a context
-			HSITree cm = hsiOptions.getCM(t);
-			tov.matchConstructor(as, t);
+			HSICtorTree cm = (HSICtorTree) hsiOptions.getCM(t);
+			tov.matchConstructor(t);
+			for (int i=0;i<cm.width();i++) {
+				String fld = cm.getField(i);
+				tov.matchField(t.findField(fld));
+				visitPatternTree(cm.get(i));
+			}
 //			for (int i=0;i<cm.width();i++) {
 //				visitPatternTree(cm.get(i));
 //			}
@@ -223,9 +228,9 @@ public class Traverser implements Visitor {
 			// visit(t, v, intro)
 			// }
 //		}
-//		for (IntroVarName iv : hsiOptions.defaultSomethingSomething) {
-//		visit(null, v, intro)
-//		}
+		for (IntroVarName iv : hsiOptions.vars()) {
+			tov.visitVarPattern(iv.vp, false);
+		}
 	}
 
 	public void rememberCaller(FunctionDefinition fn) {

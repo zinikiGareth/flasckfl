@@ -110,6 +110,7 @@ public class FunctionGenerationJS {
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "f");
 		VarName vnx = new VarName(pos, name, "x");
+		VarPattern vp = new VarPattern(pos, vnx);
 		JSGenerator gen = new JSGenerator(jss);
 		FunctionDefinition fn = new FunctionDefinition(name, 1);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -120,7 +121,7 @@ public class FunctionGenerationJS {
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(1);
 		hsi.consider(fi);
-		hsi.get(0).addVar(vnx, fi);
+		hsi.get(0).addVar(vp, fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).withHSI().visitFunction(fn);
 	}
@@ -148,6 +149,7 @@ public class FunctionGenerationJS {
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "f");
 		VarName vnx = new VarName(pos, name, "x");
+		VarPattern vp = new VarPattern(pos, vnx);
 		JSGenerator gen = new JSGenerator(jss);
 		FunctionDefinition fn = new FunctionDefinition(name, 2);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -159,7 +161,7 @@ public class FunctionGenerationJS {
 		HSIArgsTree hsi = new HSIArgsTree(2);
 		hsi.consider(fi);
 		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
-		hsi.get(1).addVar(vnx, fi);
+		hsi.get(1).addVar(vp, fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).withHSI().visitFunction(fn);
 	}

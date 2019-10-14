@@ -26,7 +26,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		
 		public PO(VarPattern p, FunctionIntro fi) {
 			this(fi, p, p.name());
-			this.opts.addVar(p.name(), fi);
+			this.opts.addVar(p, fi);
 			this.var.bind(p);
 		}
 
@@ -44,7 +44,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 				this.opts.addVarWithType(tp.type, tp.var, fi);
 				this.var.bind(tp);
 			} else {
-				this.opts.addVar(o.name, fi);
+				this.opts.addVar((VarPattern) o.p, fi);
 				this.var.bind((VarPattern)o.p);
 			}
 		}

@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -30,7 +31,7 @@ public class SlotSelection {
 	public void aConstructorIsPreferredToAVar() {
 		HSIArgsTree tree = new HSIArgsTree(2);
 		tree.get(0).requireCM(LoadBuiltins.nil);
-		tree.get(1).addVar(new VarName(pos, nameF, "x"), null);
+		tree.get(1).addVar(new VarPattern(pos, new VarName(pos, nameF, "x")), null);
 		ArgSlot s0 = new ArgSlot(0, tree.get(0));
 		ArgSlot s1 = new ArgSlot(1, tree.get(1));
 		assertEquals(s0, Traverser.selectSlot(Arrays.asList(s0, s1)));
@@ -39,7 +40,7 @@ public class SlotSelection {
 	@Test
 	public void aConstructorIsPreferredToAVarEvenIfLater() {
 		HSIArgsTree tree = new HSIArgsTree(2);
-		tree.get(0).addVar(new VarName(pos, nameF, "x"), null);
+		tree.get(0).addVar(new VarPattern(pos, new VarName(pos, nameF, "x")), null);
 		tree.get(1).requireCM(LoadBuiltins.nil);
 		ArgSlot s0 = new ArgSlot(0, tree.get(0));
 		ArgSlot s1 = new ArgSlot(1, tree.get(1));

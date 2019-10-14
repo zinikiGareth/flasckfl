@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.junit.Test;
@@ -19,7 +20,7 @@ public class SlotScoring {
 	@Test
 	public void justAVarScoresZero() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.addVar(new VarName(pos, nameF, "v"), null);
+		tree.addVar(new VarPattern(pos, new VarName(pos, nameF, "v")), null);
 		assertEquals(0, tree.score());
 	}
 
@@ -69,7 +70,7 @@ public class SlotScoring {
 		tree.requireCM(LoadBuiltins.cons);
 		tree.addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "n"), null);
 		tree.addTyped(new TypeReference(pos, "Any"), new VarName(pos, nameF, "v"), null);
-		tree.addVar(new VarName(pos, nameF, "v"), null);
+		tree.addVar(new VarPattern(pos, new VarName(pos, nameF, "v")), null);
 		assertEquals(8, tree.score());
 	}
 

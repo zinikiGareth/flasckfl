@@ -8,15 +8,18 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.patterns.HSICtorTree;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
@@ -101,8 +104,8 @@ public class TreeOrderTraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
-			oneOf(v).matchConstructor(with(SlotMatcher.id("0")), with(LoadBuiltins.cons)); inSequence(seq);
-			oneOf(v).matchConstructor(with(SlotMatcher.id("0")), with(LoadBuiltins.nil)); inSequence(seq);
+			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
+			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi1); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
@@ -111,6 +114,67 @@ public class TreeOrderTraversalTests {
 			oneOf(v).visitExpr(number, 0); inSequence(seq);
 			oneOf(v).visitNumericLiteral(number); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi2); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+		}});
+		t.visitFunction(fn);
+	}
+
+	@Test
+	public void multipleArgumentsCanBeHandledInTurn() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
+		fi.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		fn.intro(fi);
+		HSITree hsi = new HSIArgsTree(2);
+		hsi.get(0).requireCM(LoadBuiltins.cons).consider(fi);
+		hsi.get(1).requireCM(LoadBuiltins.nil).consider(fi);
+		fn.bindHsi(hsi);
+		Sequence seq = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(v).visitFunction(fn); inSequence(seq);
+			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
+			oneOf(v).argSlot(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
+			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
+			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
+			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+		}});
+		t.visitFunction(fn);
+	}
+
+	@Test
+	public void structsCanMatchFields() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
+		fi.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		fn.intro(fi);
+		HSITree hsi = new HSIArgsTree(2);
+		HSICtorTree cons = hsi.get(0).requireCM(LoadBuiltins.cons);
+		cons.consider(fi);
+		VarName vn = new VarName(pos, nameF, "h");
+		VarPattern vp = new VarPattern(pos, vn);
+		cons.field("head").addVar(vp, fi);
+		cons.field("tail").requireCM(LoadBuiltins.nil);
+		hsi.get(1).requireCM(LoadBuiltins.nil).consider(fi);
+		fn.bindHsi(hsi);
+		Sequence seq = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(v).visitFunction(fn); inSequence(seq);
+			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
+			oneOf(v).matchField(LoadBuiltins.cons.findField("head")); inSequence(seq);
+			oneOf(v).visitVarPattern(vp, false); inSequence(seq);
+			oneOf(v).matchField(LoadBuiltins.cons.findField("tail")); inSequence(seq);
+			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
+			oneOf(v).argSlot(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
+			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
+			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
+			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
 		}});
 		t.visitFunction(fn);

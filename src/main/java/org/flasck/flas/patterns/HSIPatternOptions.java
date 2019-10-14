@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -24,8 +25,15 @@ import org.zinutils.exceptions.NotImplementedException;
 public class HSIPatternOptions implements HSIOptions {
 	class TV {
 		Type type;
+		VarPattern vp;
 		VarName var;
 		List<FunctionIntro> intros = new ArrayList<>();
+
+		public TV(Type type, VarPattern vp) {
+			this.type = type;
+			this.vp = vp;
+			this.var = vp.name();
+		}
 
 		public TV(Type type, VarName var) {
 			this.type = type;
@@ -65,8 +73,8 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 	
 	@Override
-	public void addVar(VarName varName, FunctionIntro fi) {
-		TV tv = new TV(null, varName);
+	public void addVar(VarPattern vp, FunctionIntro fi) {
+		TV tv = new TV(null, vp);
 		tv.intros.add(fi);
 		vars.add(tv);
 	}
@@ -81,7 +89,7 @@ public class HSIPatternOptions implements HSIOptions {
 	@Override
 	public void addConstant(Primitive type, String value, FunctionIntro fi) {
 		String tn = type.name().uniqueName();
-		types.put(tn, new TV(type, null));
+		types.put(tn, new TV(type, (VarName)null));
 		types.get(tn).intros.add(fi);
 		if (type.name().uniqueName().equals("Number"))
 			numericConstants.add(Integer.parseInt(value));
@@ -116,6 +124,17 @@ public class HSIPatternOptions implements HSIOptions {
 		return ctors.keySet();
 	}
 
+	@Override
+	public List<IntroVarName> vars() {
+		List<IntroVarName> ret = new ArrayList<>();
+		for (TV v : vars) {
+			if (v.intros.size() != 1)
+				throw new RuntimeException("I wasn't expecting that");
+			ret.add(new IntroVarName(v.intros.get(0), v.vp));
+		}
+		return ret;
+	}
+	
 	@Override
 	public List<IntroVarName> vars(List<FunctionIntro> intros) {
 		List<IntroVarName> ret = new ArrayList<>();
