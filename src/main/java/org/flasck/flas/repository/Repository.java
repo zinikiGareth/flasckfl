@@ -211,7 +211,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
-	public Type findUnionWith(Set<String> ms) {
+	public Type findUnionWith(Set<StructDefn> ms) {
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
 				UnionTypeDefn utd = (UnionTypeDefn) k;
@@ -230,22 +230,28 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		}
 	}
 
-	@Override
-	public void traverseWithHSI(HSIVisitor v) {
-		Traverser t = new Traverser(v).withHSI().withNestedPatterns();
+	public void traverseLifted(Visitor visitor) {
+ 		Traverser t = new Traverser(visitor);
+		t.withNestedPatterns();
 		for (RepositoryEntry e : dict.values()) {
 			t.visitEntry(e);
 		}
 	}
 
 	@Override
-	public void traverseInGroups(Visitor visitor, FunctionGroups groups, boolean withNestedPatterns, boolean withHSI) {
+	public void traverseInGroups(Visitor visitor, FunctionGroups groups) {
  		Traverser t = new Traverser(visitor);
-		if (withNestedPatterns)
-			t.withNestedPatterns();
-		if (withHSI)
-			t.withHSI();
-		t.visitFunctionsInDependencyGroups(groups);
+		t.withNestedPatterns();
+		t.withFunctionsInDependencyGroups(groups);
+		t.withPatternsInTreeOrder();
+		for (RepositoryEntry e : dict.values()) {
+			t.visitEntry(e);
+		}
+	}
+
+	@Override
+	public void traverseWithHSI(HSIVisitor v) {
+		Traverser t = new Traverser(v).withHSI().withNestedPatterns();
 		for (RepositoryEntry e : dict.values()) {
 			t.visitEntry(e);
 		}

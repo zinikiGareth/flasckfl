@@ -35,8 +35,8 @@ public class LoadBuiltins {
 		// add cases to unions
 		bool.addCase(new TypeReference(pos, "False").bind(falseT));
 		bool.addCase(new TypeReference(pos, "True").bind(trueT));
-		list.addCase(new TypeReference(pos, "Nil"));
-		list.addCase(new TypeReference(pos, "Cons", new TypeReference(pos, "A")));
+		list.addCase(new TypeReference(pos, "Nil").bind(nil));
+		list.addCase(new TypeReference(pos, "Cons", new TypeReference(pos, "A")).bind(cons));
 }
 	
 	public static void applyTo(Repository repository) {

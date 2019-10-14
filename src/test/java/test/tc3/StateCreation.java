@@ -37,10 +37,10 @@ public class StateCreation {
 			allowing(nv).push(with(any(TypeChecker.class)));
 		}});
 	}
+	
 	@Test
 	public void testASimpleNoArgConstructorSaysThisMustBeInTheArgType() {
 		context.checking(new Expectations() {{
-			oneOf(repository).get("Nil"); will(returnValue(LoadBuiltins.nil));
 			oneOf(state).argType(LoadBuiltins.nil);
 		}});
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);

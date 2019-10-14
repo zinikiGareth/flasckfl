@@ -10,7 +10,12 @@ import org.zinutils.support.jmock.CaptureAction;
 public class SlotMatcher extends TypeSafeMatcher<Slot> {
 	private CaptureAction slots;
 	private int slotNum;
+	private String id;
 
+	public SlotMatcher(String id) {
+		this.id = id;
+	}
+	
 	public SlotMatcher(CaptureAction slots, int slotNum) {
 		this.slots = slots;
 		this.slotNum = slotNum;
@@ -24,7 +29,9 @@ public class SlotMatcher extends TypeSafeMatcher<Slot> {
 	@Override
 	public void describeTo(Description arg0) {
 		arg0.appendText("Slot[");
-		if (slots == null)
+		if (id != null)
+			arg0.appendValue(id);
+		else if (slots == null)
 			arg0.appendValue(slotNum);
 		else if (!slots.hasCaptured())
 			arg0.appendValue(slotNum + " not captured");
@@ -41,7 +48,13 @@ public class SlotMatcher extends TypeSafeMatcher<Slot> {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean matchesSafely(Slot arg0) {
+		if (id != null)
+			return id.equals(arg0.id());
 		return ((List<Slot>)slots.get(0)).get(slotNum) == arg0;
+	}
+
+	public static SlotMatcher id(String id) {
+		return new SlotMatcher(id);
 	}
 
 }

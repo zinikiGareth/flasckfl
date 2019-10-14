@@ -13,9 +13,11 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
@@ -41,6 +43,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.patterns.HSICtorTree;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIOptions.IntroVarName;
+import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.Primitive;
 import org.zinutils.exceptions.NotImplementedException;
@@ -51,6 +54,7 @@ public class Traverser implements Visitor {
 	private FunctionGroups functionOrder;
 	private boolean wantNestedPatterns;
 	private boolean wantHSI;
+	private boolean patternsTree;
 
 	public Traverser(Visitor visitor) {
 		this.visitor = visitor;
@@ -66,12 +70,18 @@ public class Traverser implements Visitor {
 		return this;
 	}
 
-	public void visitFunctionsInDependencyGroups(FunctionGroups order) {
+	public Traverser withFunctionsInDependencyGroups(FunctionGroups order) {
 		this.functionOrder = order;
 		if (order != null) {
 			for (FunctionGroup grp : order)
 				visitFunctionGroup(grp);
 		}
+		return this;
+	}
+
+	public Traverser withPatternsInTreeOrder() {
+		this.patternsTree = true;
+		return this;
 	}
 
 	/** It's starting to concern me that for some things (contracts, unit tests) we visit
@@ -169,7 +179,9 @@ public class Traverser implements Visitor {
 			return; // not for generation
 		rememberCaller(fn);
 		visitor.visitFunction(fn);
-		if (wantHSI) {
+		if (patternsTree) {
+			visitPatternsInTreeOrder(fn);
+		} else if (wantHSI) {
 			List<Slot> slots = fn.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
 			visitHSI(fn, new VarMapping(), slots, fn.intros());
@@ -181,6 +193,41 @@ public class Traverser implements Visitor {
 		rememberCaller(null);
 	}
 	
+	private void visitPatternsInTreeOrder(FunctionDefinition fn) {
+		HSITree hsiTree = fn.hsiTree();
+		for (int i=0;i<hsiTree.width();i++) {
+			HSIOptions tree = hsiTree.get(i);
+			ArgSlot as = new ArgSlot(i, tree);
+			((TreeOrderVisitor)visitor).argSlot(as);
+			visitPatternTree(tree, as);
+		}
+		for (FunctionIntro fi : fn.intros()) {
+			visitor.visitFunctionIntro(fi);
+			visitFunctionCases(fi);
+			visitor.leaveFunctionIntro(fi);
+		}
+	}
+
+	private void visitPatternTree(HSIOptions hsiOptions, ArgSlot as) {
+		TreeOrderVisitor tov = (TreeOrderVisitor)visitor;
+		for (StructDefn t : hsiOptions.ctors()) {
+			// visit(t) // establishing a context
+			HSITree cm = hsiOptions.getCM(t);
+			tov.matchConstructor(as, t);
+//			for (int i=0;i<cm.width();i++) {
+//				visitPatternTree(cm.get(i));
+//			}
+		}
+//		for (String t : hsiOptions.types()) {
+			// for (IntroVarNameWithType tv : hsiOptions.forType(t)) {
+			// visit(t, v, intro)
+			// }
+//		}
+//		for (IntroVarName iv : hsiOptions.defaultSomethingSomething) {
+//		visit(null, v, intro)
+//		}
+	}
+
 	public void rememberCaller(FunctionDefinition fn) {
 		this.currentFunction = fn;
 	}
@@ -238,8 +285,8 @@ public class Traverser implements Visitor {
 			boolean wantSwitch = opts.hasSwitches(intros);
 			if (wantSwitch) {
 				hsi.switchOn(s);
-				for (String c : opts.ctors()) {
-					hsi.withConstructor(c);
+				for (StructDefn c : opts.ctors()) {
+					hsi.withConstructor(c.name.uniqueName());
 					HSICtorTree cm = (HSICtorTree) opts.getCM(c);
 					List<Slot> extended = new ArrayList<>(remaining);
 					for (int i=0;i<cm.width();i++) {
@@ -253,7 +300,7 @@ public class Traverser implements Visitor {
 					intersect.retainAll(cm.intros());
 					visitHSI(fn, vars, extended, intersect);
 				}
-				for (String ty : opts.types(intros)) {
+				for (String ty : opts.types()) {
 					hsi.withConstructor(ty);
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(opts.getIntrosForType(ty));
@@ -319,8 +366,7 @@ public class Traverser implements Visitor {
 
 	private void handleInline(FunctionIntro i) {
 		startInline(i);
-		for (FunctionCaseDefn c : i.cases())
-			visitCase(c);
+		visitFunctionCases(i);
 		endInline(i);
 	}
 
@@ -328,9 +374,13 @@ public class Traverser implements Visitor {
 	public void visitFunctionIntro(FunctionIntro i) {
 		visitor.visitFunctionIntro(i);
 		visitPatterns(i);
+		visitFunctionCases(i);
+		leaveFunctionIntro(i);
+	}
+
+	private void visitFunctionCases(FunctionIntro i) {
 		for (FunctionCaseDefn c : i.cases())
 			visitCase(c);
-		leaveFunctionIntro(i);
 	}
 
 	// useful for unit testing

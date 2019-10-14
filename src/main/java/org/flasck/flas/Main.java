@@ -122,7 +122,7 @@ public class Main {
 		{
 			StackVisitor sv = new StackVisitor();
 			new PatternAnalyzer(errors, repository, sv);
-			repository.traverseInGroups(sv, null, true, false);
+			repository.traverseLifted(sv);
 		}
 		
 		// typechecking
@@ -131,7 +131,7 @@ public class Main {
 			try {
 				StackVisitor sv = new StackVisitor();
 				new TypeChecker(errors, repository, sv);
-				repository.traverseInGroups(sv, ordering, true, false);
+				repository.traverseInGroups(sv, ordering);
 				
 				// dump types if specified
 				if (ty != null) {

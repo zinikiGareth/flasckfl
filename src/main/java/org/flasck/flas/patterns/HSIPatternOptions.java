@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.Primitive;
@@ -41,7 +42,7 @@ public class HSIPatternOptions implements HSIOptions {
 	private List<FunctionIntro> all = new ArrayList<>();
 	private List<TV> vars = new ArrayList<>();
 	private Map<String, TV> types = new TreeMap<>(); 
-	private Map<String, HSICtorTree> ctors = new TreeMap<>();
+	private Map<StructDefn, HSICtorTree> ctors = new TreeMap<>(StructDefn.nameComparator);
 	private Set<Integer> numericConstants = new TreeSet<>();
 	private Set<String> stringConstants = new TreeSet<>();
 
@@ -52,10 +53,9 @@ public class HSIPatternOptions implements HSIOptions {
 	
 	@Override
 	public HSICtorTree requireCM(StructDefn ctor) {
-		String name = ctor.name.uniqueName();
-		if (!ctors.containsKey(name))
-			ctors.put(name, new HSICtorTree());
-		return ctors.get(name);
+		if (!ctors.containsKey(ctor))
+			ctors.put(ctor, new HSICtorTree());
+		return ctors.get(ctor);
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public HSITree getCM(String constructor) {
+	public HSITree getCM(StructDefn constructor) {
 		return ctors.get(constructor);
 	}
 
@@ -112,7 +112,7 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public Set<String> ctors() {
+	public Set<StructDefn> ctors() {
 		return ctors.keySet();
 	}
 
@@ -145,7 +145,7 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public Set<String> types(List<FunctionIntro> intros) {
+	public Set<String> types() {
 		return types.keySet();
 	}
 
@@ -160,7 +160,7 @@ public class HSIPatternOptions implements HSIOptions {
 				ts.put(((NamedThing)v.type).getName().uniqueName(), v);
 		}
 		if (ctors.size() == 1 && ts.isEmpty())
-			return repository.get(ctors.keySet().iterator().next());
+			return ctors.keySet().iterator().next();
 		else if (ctors.isEmpty() && ts.size() == 1)
 			return ts.values().iterator().next().type;
 		else if (ts.containsKey("Any"))
@@ -169,11 +169,11 @@ public class HSIPatternOptions implements HSIOptions {
 			// TODO: need to consolidate all the vars in this slot
 			UnifiableType ut = state.hasVar(vs.get(0).var.uniqueName());
 			if (ut == null)
-				return repository.get("Any");
+				return LoadBuiltins.any;
 			else
 				return ut.resolve();
 		} else {
-			Set<String> ms = ctors.keySet();
+			Set<StructDefn> ms = ctors.keySet();
 			Type ut = repository.findUnionWith(ms);
 			if (ut == null) {
 				return repository.get("Any");

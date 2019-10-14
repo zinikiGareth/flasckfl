@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -37,16 +38,14 @@ public class PatternExtraction {
 
 	@Test
 	public void anUntypedVariable() {
-		RepositoryEntry any = context.mock(REType.class, "Any");
 		context.checking(new Expectations() {{
 			oneOf(state).hasVar("test.repo.fred.x"); will(returnValue(null));
-			oneOf(r).get("Any"); will(returnValue(any));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.addVar(new VarName(pos, nameF, "x"), null);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
-		assertEquals(any, ty);
+		assertEquals(LoadBuiltins.any, ty);
 	}
 
 	@Test
@@ -102,15 +101,11 @@ public class PatternExtraction {
 
 	@Test
 	public void simplestCaseWithJustAConstructor() {
-		RepositoryEntry nil = context.mock(REType.class, "Nil");
-		context.checking(new Expectations() {{
-			oneOf(r).get("Nil"); will(returnValue(nil));
-		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.requireCM(LoadBuiltins.nil);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
-		assertEquals(nil, ty);
+		assertEquals(LoadBuiltins.nil, ty);
 	}
 
 
@@ -119,7 +114,7 @@ public class PatternExtraction {
 	public void caseWithTwoConstructorsThatArePartOfASingleUnion() {
 		RepositoryEntry bool = context.mock(REType.class, "Boolean");
 		context.checking(new Expectations() {{
-			oneOf(r).findUnionWith((Set<String>) with(Matchers.contains("False", "True"))); will(returnValue(bool));
+			oneOf(r).findUnionWith((Set<StructDefn>) with(Matchers.contains(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(bool));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.requireCM(LoadBuiltins.trueT);

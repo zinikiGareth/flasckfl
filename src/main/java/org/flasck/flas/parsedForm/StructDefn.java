@@ -2,6 +2,7 @@ package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -13,6 +14,13 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
 public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, Type {
+	public static Comparator<StructDefn> nameComparator = new Comparator<StructDefn>() {
+		@Override
+		public int compare(StructDefn l, StructDefn r) {
+			return l.name().uniqueName().compareTo(r.name().uniqueName());
+		}
+	};
+
 	// for tests
 	public StructDefn(InputPosition location, FieldsDefn.FieldsType type, String pkg, String tn, boolean generate, PolyType... polys) {
 		this(null, location, type, new SolidName(pkg == null ? null : new PackageName(pkg), tn), generate, Arrays.asList(polys));

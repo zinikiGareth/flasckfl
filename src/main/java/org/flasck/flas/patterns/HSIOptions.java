@@ -28,14 +28,14 @@ public interface HSIOptions {
 	void addTyped(TypeReference tr, VarName varName, FunctionIntro fi);
 	HSICtorTree requireCM(StructDefn ctor);
 	void addConstant(Primitive type, String value, FunctionIntro fi);
-	HSITree getCM(String constructor);
+	HSITree getCM(StructDefn constructor);
 	void includes(FunctionIntro current);
 	List<FunctionIntro> getIntrosForType(String ty);
 	List<FunctionIntro> getDefaultIntros(List<FunctionIntro> intros);
 	Type minimalType(CurrentTCState state, RepositoryReader repository);
-	Set<String> ctors();
+	Set<StructDefn> ctors();
 	List<IntroVarName> vars(List<FunctionIntro> intros);
-	Set<String> types(List<FunctionIntro> intros);
+	Set<String> types();
 	Set<Integer> numericConstants(ArrayList<FunctionIntro> intersect);
 	Set<String> stringConstants(ArrayList<FunctionIntro> intersect);
 	boolean hasSwitches(List<FunctionIntro> intros);

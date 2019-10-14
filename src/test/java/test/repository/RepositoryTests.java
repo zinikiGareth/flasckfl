@@ -285,9 +285,9 @@ public class RepositoryTests {
 	public void canFindAUnionInTheRepository() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
-		Set<String> ms = new TreeSet<>();
-		ms.add("True");
-		ms.add("False");
+		Set<StructDefn> ms = new TreeSet<>(StructDefn.nameComparator);
+		ms.add(LoadBuiltins.trueT);
+		ms.add(LoadBuiltins.falseT);
 		UnionTypeDefn b = (UnionTypeDefn) r.findUnionWith(ms);
 		assertEquals(LoadBuiltins.bool, b);
 	}
@@ -296,10 +296,10 @@ public class RepositoryTests {
 	public void inOrderToMatchAUnionMustContainAllTheThings() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
-		Set<String> ms = new TreeSet<>();
-		ms.add("True");
-		ms.add("False");
-		ms.add("Butno");
+		Set<StructDefn> ms = new TreeSet<>(StructDefn.nameComparator);
+		ms.add(LoadBuiltins.trueT);
+		ms.add(LoadBuiltins.falseT);
+		ms.add(LoadBuiltins.nil);
 		assertNull(r.findUnionWith(ms));
 	}
 	
@@ -307,8 +307,8 @@ public class RepositoryTests {
 	public void inOrderToMatchAUnionMustNotContainMoreThings() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
-		Set<String> ms = new TreeSet<>();
-		ms.add("True");
+		Set<StructDefn> ms = new TreeSet<>(StructDefn.nameComparator);
+		ms.add(LoadBuiltins.trueT);
 		assertNull(r.findUnionWith(ms));
 	}
 
@@ -316,9 +316,9 @@ public class RepositoryTests {
 	public void allTheThingsMustBeTheRightThings() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
-		Set<String> ms = new TreeSet<>();
-		ms.add("True");
-		ms.add("Butno");
+		Set<StructDefn> ms = new TreeSet<>(StructDefn.nameComparator);
+		ms.add(LoadBuiltins.trueT);
+		ms.add(LoadBuiltins.nil);
 		assertNull(r.findUnionWith(ms));
 	}
 	
