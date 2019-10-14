@@ -16,7 +16,9 @@ import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
+import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.TypeChecker;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -30,15 +32,16 @@ public class PatternsProduceTypes {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
+	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 
 	@Test
 	public void aConstantPatternIsANumber() {
 		context.checking(new Expectations() {{
-			oneOf(sv).push(with(any(TypeChecker.class)));
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
+			allowing(state);
 		}});
-		TypeChecker tc = new TypeChecker(errors, repository, sv);
+		GroupChecker tc = new GroupChecker(errors, repository, sv, state);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		ArrayList<Object> args = new ArrayList<>();
 		args.add(new ConstPattern(pos, ConstPattern.INTEGER, "42"));
@@ -48,6 +51,7 @@ public class PatternsProduceTypes {
 		hat.get(0).addConstant(LoadBuiltins.number, "42", fi);
 		fi.bindTree(hat);
 		fn.intro(fi);
+		fn.bindHsi(hat);
 		tc.visitFunction(fn);
 		tc.visitFunctionIntro(fi);
 		tc.result(LoadBuiltins.number);
@@ -60,10 +64,10 @@ public class PatternsProduceTypes {
 	@Test
 	public void aStringConstantPatternIsAString() {
 		context.checking(new Expectations() {{
-			oneOf(sv).push(with(any(TypeChecker.class)));
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
+			allowing(state);
 		}});
-		TypeChecker tc = new TypeChecker(errors, repository, sv);
+		GroupChecker tc = new GroupChecker(errors, repository, sv, state);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		ArrayList<Object> args = new ArrayList<>();
 		args.add(new ConstPattern(pos, ConstPattern.INTEGER, "42"));
@@ -73,6 +77,7 @@ public class PatternsProduceTypes {
 		hat.get(0).addConstant(LoadBuiltins.string, "42", fi);
 		fi.bindTree(hat);
 		fn.intro(fi);
+		fn.bindHsi(hat);
 		tc.visitFunction(fn);
 		tc.visitFunctionIntro(fi);
 		tc.result(LoadBuiltins.number);
