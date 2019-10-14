@@ -2,3 +2,5 @@
 	e (Cons {head: True}) = 1
 	e x = 0
 
+// Cons[A]->A
+	hd (Cons {head: x}) = x

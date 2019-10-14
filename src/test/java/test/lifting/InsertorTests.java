@@ -21,12 +21,16 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.FunctionGroup;
+import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.repository.Traverser.VarMapping;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+
+import test.parsing.PatternMatcher;
 
 public class InsertorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -35,7 +39,7 @@ public class InsertorTests {
 	HSIVisitor hsi = context.mock(HSIVisitor.class);
 
 	@Test
-	public void aFunctionWithNestedVarsGetsThemInHSIArgs() {
+	public void aFunctionWithNestedVarsGetsThemWhenTraversingPatterns() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
@@ -47,11 +51,19 @@ public class InsertorTests {
 		ms.recordNestedVar(fi, vp);
 		fn.nestedVars(ms);
 
-		assertEquals(1, fn.slots().size());
+		Traverser t = new Traverser(hsi).withNestedPatterns();
+		t.rememberCaller(fn);
+		context.checking(new Expectations() {{
+			oneOf(hsi).visitPattern(vp, true);
+			oneOf(hsi).visitVarPattern(vp, true);
+			oneOf(hsi).visitPatternVar(pos, vp.var);
+			oneOf(hsi).leavePattern(vp, true);
+		}});
+		t.visitPatterns(fi);
 	}
 
 	@Test
-	public void aFunctionWithNestedTypedVarsGetsThemInHSIArgs() {
+	public void aFunctionWithNestedTypedVarsGetsThemWhenTraversingPatterns() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"));
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
@@ -63,60 +75,16 @@ public class InsertorTests {
 		ms.recordNestedVar(fi, tp);
 		fn.nestedVars(ms);
 
-		assertEquals(1, fn.slots().size());
-	}
-
-	@Test
-	public void theSlotsWillResultInBoundVarsOnVisitHSI() {
-		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
-		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 0);
-		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
-		fn.intro(fi);
-
-		MappingStore ms = new MappingStore();
-		ms.recordNestedVar(fi, vp);
-		fn.nestedVars(ms);
-		
-		List<Slot> slots = fn.slots();
+		Traverser t = new Traverser(hsi).withNestedPatterns();
+		t.rememberCaller(fn);
 		context.checking(new Expectations() {{
-			oneOf(hsi).bind(slots.get(0), "x");
-			oneOf(hsi).startInline(fi);
-			// it doesn't have an actual expression so nothing comes out - this is fine for testing and won't happen in real life
-			oneOf(hsi).endInline(fi);
+			oneOf(hsi).visitPattern(tp, true);
+			oneOf(hsi).visitTypedPattern(tp, true);
+			oneOf(hsi).visitTypeReference(tp.type);
+			oneOf(hsi).visitPatternVar(pos, tp.var.var);
+			oneOf(hsi).leavePattern(tp, true);
 		}});
-		Traverser traverser = new Traverser(hsi).withHSI();
-		traverser.visitHSI(fn, new VarMapping(), slots, fn.intros());
-	}
-
-	@Test
-	public void theSlotsWillResultInBoundTypedVarsOnVisitHSI() {
-		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"));
-		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 0);
-		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
-		fn.intro(fi);
-
-		MappingStore ms = new MappingStore();
-		ms.recordNestedVar(fi, tp);
-		fn.nestedVars(ms);
-		
-		List<Slot> slots = fn.slots();
-		context.checking(new Expectations() {{
-			oneOf(hsi).switchOn(slots.get(0));
-			oneOf(hsi).withConstructor("Number");
-			oneOf(hsi).bind(slots.get(0), "x");
-			oneOf(hsi).startInline(fi);
-			// it doesn't have an actual expression so nothing comes out - this is fine for testing and won't happen in real life
-			oneOf(hsi).endInline(fi);
-			oneOf(hsi).defaultCase();
-			oneOf(hsi).errorNoCase();
-			oneOf(hsi).endSwitch();
-		}});
-		Traverser traverser = new Traverser(hsi).withHSI();
-		traverser.visitHSI(fn, new VarMapping(), slots, fn.intros());
+		t.visitPatterns(fi);
 	}
 
 	@Test
@@ -148,19 +116,37 @@ public class InsertorTests {
 		lifter.visitUnresolvedVar(xr, 0);
 		lifter.leaveFunction(fnH);
 		FunctionGroupOrdering ordering = lifter.resolve();
-		CollectingNestedVariableReferences.assertOrder(ordering, "test.foo.f.g.h", "test.foo.f.g");
+		assertOrder(ordering, "test.foo.f.g.h", "test.foo.f.g");
 		
-		List<Slot> slots = fnG.slots();
-		assertEquals(1, slots.size());
-		
+		Traverser t = new Traverser(hsi).withNestedPatterns();
+		t.rememberCaller(fnG);
 		context.checking(new Expectations() {{
-			oneOf(hsi).bind(slots.get(0), "x");
-			oneOf(hsi).startInline(fiG);
-			oneOf(hsi).visitExpr(xr, 0);
-			oneOf(hsi).visitUnresolvedVar(xr, 0);
-			oneOf(hsi).endInline(fiG);
+			oneOf(hsi).visitPattern(with(PatternMatcher.var("test.foo.f.x")), with(true));
+			oneOf(hsi).visitVarPattern((VarPattern) with(PatternMatcher.var("test.foo.f.x")), with(true));
+//			oneOf(hsi).visitVarPattern(vp, true);
+			oneOf(hsi).visitPatternVar(pos, xr.var);
+			oneOf(hsi).leavePattern(with(PatternMatcher.var("test.foo.f.x")), with(true));
 		}});
-		Traverser traverser = new Traverser(hsi).withHSI();
-		traverser.visitHSI(fnG, new VarMapping(), slots, fnG.intros());
+		t.visitPatterns(fiG);
 	}
+	
+	public static void assertOrder(FunctionGroups ordering, String... fns) {
+		assertEquals(ordering.toString(), fns.length, ordering.size());
+		int i = 0;
+		for (FunctionGroup g : ordering) {
+			assertEquals(fns[i++], assembleGroup(g));
+		}
+	}
+
+	private static String assembleGroup(FunctionGroup grp) {
+		StringBuilder sb = new StringBuilder();
+		String sep = "";
+		for (FunctionDefinition f : grp) {
+			sb.append(sep);
+			sb.append(f.name().uniqueName());
+			sep = "//";
+		}
+		return sb.toString();
+	}
+
 }

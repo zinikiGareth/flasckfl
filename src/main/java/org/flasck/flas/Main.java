@@ -126,7 +126,7 @@ public class Main {
 		}
 		
 		// typechecking
-		{
+		if (config.doTypeCheck) {
 			File ty = config.writeTypesTo;
 			try {
 				StackVisitor sv = new StackVisitor();
@@ -162,25 +162,29 @@ public class Main {
 			StackVisitor jvmstack = new StackVisitor();
 			new JVMGenerator(bce, jvmstack);
 
-			repository.traverseWithHSI(jsGenerator);
-			repository.traverseWithHSI(jvmstack);
+			if (config.generateJS)
+				repository.traverseWithHSI(jsGenerator);
+			if (config.generateJVM)
+				repository.traverseWithHSI(jvmstack);
 			
 			if (compiler.hasErrors()) {
 				errors.showFromMark(mark, ew, 0);
 				return true;
 			}
 			
-			saveJSE(errors, config.jsDir(), jse);
-			saveBCE(errors, config.jvmDir(), bce);
+			if (config.generateJS)
+				saveJSE(errors, config.jsDir(), jse);
+			if (config.generateJVM)
+				saveBCE(errors, config.jvmDir(), bce);
 
 			Map<File, PrintWriter> writers = new HashMap<>();
-			if (config.unitjvm) {
+			if (config.generateJVM && config.unitjvm) {
 				BCEClassLoader bcl = new BCEClassLoader(bce);
 				JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
 				jvmRunner.runAll(writers);
 			}
 
-			if (config.unitjs) {
+			if (config.generateJS && config.unitjs) {
 				JSRunner jsRunner = new JSRunner(config, repository, jse);
 				jsRunner.runAll(writers);
 			}

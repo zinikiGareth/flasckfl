@@ -306,7 +306,7 @@ public class FunctionGeneration {
 		
 		HSIPatternOptions headOpts = new HSIPatternOptions();
 		headOpts.includes(intro);
-		Slot cm1 = new CMSlot(headOpts);
+		Slot cm1 = new CMSlot("0_head", headOpts);
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("head"); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "field", cxt, var25, dummy); will(returnValue(dummy));

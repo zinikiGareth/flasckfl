@@ -21,7 +21,7 @@ public class ConstraintUnification {
 	
 	@Test
 	public void ifWeDontDoAnythingWeEndUpAskingForAPolyVar() {
-		UnifiableType ut = state.functionParameter(pos, "v");
+		UnifiableType ut = state.requireVarConstraints(pos, "v");
 		Type ty = ut.resolve();
 		assertTrue(ty instanceof PolyType);
 		assertEquals("A", ((PolyType)ty).name());
@@ -30,8 +30,8 @@ public class ConstraintUnification {
 
 	@Test
 	public void twoTypesGetTwoPolyVars() {
-		UnifiableType uv = state.functionParameter(pos, "v");
-		UnifiableType uw = state.functionParameter(pos, "w");
+		UnifiableType uv = state.requireVarConstraints(pos, "v");
+		UnifiableType uw = state.requireVarConstraints(pos, "w");
 		Type tv = uv.resolve();
 		assertTrue(tv instanceof PolyType);
 		Type tw = uw.resolve();
@@ -42,7 +42,7 @@ public class ConstraintUnification {
 	
 	@Test
 	public void oneIncoportatedByConstraintCreatesAnIdentity() {
-		UnifiableType ut = state.functionParameter(pos, "v");
+		UnifiableType ut = state.requireVarConstraints(pos, "v");
 		ut.incorporatedBy(pos, LoadBuiltins.number);
 		Type ty = ut.resolve();
 		assertEquals(LoadBuiltins.number, ty);

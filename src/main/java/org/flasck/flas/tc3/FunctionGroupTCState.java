@@ -7,12 +7,20 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PolyType;
 import org.zinutils.exceptions.NotImplementedException;
 
+import test.tc3.TypeMatcher;
+
 public class FunctionGroupTCState implements CurrentTCState {
 	private Map<String, TypeConstraintSet> constraints = new TreeMap<>();
 	int polyCount = 0;
 
+	
 	@Override
-	public UnifiableType functionParameter(InputPosition pos, String var) {
+	public void argType(TypeMatcher named) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public UnifiableType requireVarConstraints(InputPosition pos, String var) {
 		if (constraints.containsKey(var))
 			return constraints.get(var);
 		TypeConstraintSet ret = new TypeConstraintSet(this, pos);

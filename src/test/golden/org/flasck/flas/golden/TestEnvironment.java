@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.Configuration;
 import org.zinutils.system.RunProcess;
 import org.zinutils.utils.Crypto;
 import org.zinutils.utils.FileUtils;
@@ -122,6 +123,8 @@ public class TestEnvironment {
 	}
 
 	public void checkTypes() throws IOException {
+		if (!new Configuration(null, new String[0]).doTypeCheck)
+			return;
 		FileUtils.assertDirectory(goldtc);
 		FileUtils.assertFile(new File(goldtc, "types"));
 		assertGolden(goldtc, tc2);

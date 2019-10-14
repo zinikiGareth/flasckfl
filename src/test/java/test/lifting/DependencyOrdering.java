@@ -154,6 +154,6 @@ public class DependencyOrdering {
 
 	private void assertOrder(String... fns) {
 		FunctionGroupOrdering ordering = lifter.resolve();
-		CollectingNestedVariableReferences.assertOrder(ordering, fns);
+		InsertorTests.assertOrder(ordering, fns);
 	}
 }

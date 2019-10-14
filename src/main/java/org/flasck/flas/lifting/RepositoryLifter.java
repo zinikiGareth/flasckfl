@@ -87,9 +87,6 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 				done.add(fn);
 				handled = true;
 				for (FunctionDefinition r : nv.references()) {
-					// TODO: failing because you can't just copy the pattern opts ... it needs the FIs rewriting
-					// In fact, I'm increasingly dubious about the whole switching thing.  I think we should make them all just VarPatterns
-					// The switch will already have been done.
 					nv.enhanceWith(fn, r.nestedVars());
 				}
 				ordering.add(new DependencyGroup(fn));

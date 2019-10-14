@@ -1,5 +1,5 @@
 test.golden.a :: Nil->Number
-test.golden.a2 :: Cons->Number
+test.golden.a2 :: Cons[Any]->Number
 test.golden.a3 :: Cons->Number
 test.golden.b :: Boolean->Number
 test.golden.c :: Boolean->Nil->Number

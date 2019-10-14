@@ -245,7 +245,7 @@ public class Traverser implements Visitor {
 					for (int i=0;i<cm.width();i++) {
 						String fld = cm.getField(i);
 						HSIOptions oi = cm.get(i);
-						CMSlot fieldSlot = new CMSlot(oi);
+						CMSlot fieldSlot = new CMSlot(s.id()+"_"+fld, oi);
 						hsi.constructorField(s, fld, fieldSlot);
 						extended.add(fieldSlot);
 					}
@@ -327,6 +327,14 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitFunctionIntro(FunctionIntro i) {
 		visitor.visitFunctionIntro(i);
+		visitPatterns(i);
+		for (FunctionCaseDefn c : i.cases())
+			visitCase(c);
+		leaveFunctionIntro(i);
+	}
+
+	// useful for unit testing
+	public void visitPatterns(FunctionIntro i) {
 		if (wantNestedPatterns) {
 			NestedVarReader nv = currentFunction.nestedVars();
 			if (nv != null) {
@@ -336,9 +344,6 @@ public class Traverser implements Visitor {
 		}
 		for (Object p : i.args)
 			visitPattern(p, false);
-		for (FunctionCaseDefn c : i.cases())
-			visitCase(c);
-		leaveFunctionIntro(i);
 	}
 
 	

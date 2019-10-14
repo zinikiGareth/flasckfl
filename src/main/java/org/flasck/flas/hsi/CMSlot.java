@@ -1,12 +1,13 @@
 package org.flasck.flas.hsi;
 
 import org.flasck.flas.patterns.HSIOptions;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class CMSlot implements Slot {
 	private final HSIOptions contained;
+	private final String id;
 
-	public CMSlot(HSIOptions contained) {
+	public CMSlot(String id, HSIOptions contained) {
+		this.id = id;
 		this.contained = contained;
 	}
 
@@ -17,11 +18,11 @@ public class CMSlot implements Slot {
 
 	@Override
 	public int score() {
-		throw new NotImplementedException();
+		return contained.score();
 	}
 
 	@Override
 	public String id() {
-		throw new NotImplementedException("I think we need an id somehow");
+		return id;
 	}
 }

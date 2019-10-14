@@ -14,13 +14,15 @@ public class Configuration {
 	public boolean dumpTypes;
 	private List<File> searchFlim = new ArrayList<>();
 	private File root;
+	public boolean doTypeCheck = true;
+	public boolean generateJS = true;
+	public boolean generateJVM = true;
 	public File writeFlim;
 	public File writeHSIE;
 	public File writeJS;
 //	private File writeDroid;
 	public File writeJVM;
 //	private boolean buildDroid = true;
-//	public final boolean tda = true;
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
 	public final List<File> inputs = new ArrayList<File>();
