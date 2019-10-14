@@ -3,14 +3,11 @@ package test.lifting;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
-import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.lifting.MappingStore;
 import org.flasck.flas.lifting.RepositoryLifter;
@@ -24,7 +21,6 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.Traverser;
-import org.flasck.flas.repository.Traverser.VarMapping;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;

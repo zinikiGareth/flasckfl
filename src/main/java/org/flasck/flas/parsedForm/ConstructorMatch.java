@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class ConstructorMatch implements Pattern {
 	public class Field implements Locatable {
@@ -35,6 +36,7 @@ public class ConstructorMatch implements Pattern {
 	public final String ctor;
 	public final List<Field> args = new ArrayList<Field>();
 	public final InputPosition location;
+	private StructDefn defn;
 
 	public ConstructorMatch(InputPosition loc, String ctor) {
 		if (loc == null)
@@ -42,7 +44,17 @@ public class ConstructorMatch implements Pattern {
 		this.location = loc;
 		this.ctor = ctor;
 	}
-	
+
+	public ConstructorMatch bind(StructDefn defn) {
+		this.defn = defn;
+		return this;
+	}
+
+	public StructDefn actual() {
+		if (defn == null)
+			throw new NotImplementedException("Not resolved: " + ctor);
+		return defn;
+	}
 	@Override
 	public InputPosition location() {
 		return location;

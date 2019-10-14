@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -93,7 +94,7 @@ public class HSITraversalTests {
 		}});
 		HSIArgsTree tree = new HSIArgsTree(1);
 		tree.consider(fi);
-		tree.get(0).requireCM("Nil").consider(fi);
+		tree.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 		fn.bindHsi(tree);
 		
 		t.visitFunction(fn);

@@ -7,7 +7,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.FunctionGroup;

@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.patterns.HSIPatternOptions;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
@@ -180,7 +181,7 @@ public class FunctionGeneration {
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(1);
 		hsi.consider(fi);
-		hsi.get(0).requireCM("Nil").consider(fi);
+		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 		fn.bindHsi(hsi);
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv);
@@ -263,9 +264,9 @@ public class FunctionGeneration {
 		}
 		HSIArgsTree hsi = new HSIArgsTree(1);
 		hsi.consider(f1);
-		hsi.get(0).requireCM("Nil").consider(f1);
+		hsi.get(0).requireCM(LoadBuiltins.nil).consider(f1);
 		hsi.consider(f2);
-		hsi.get(0).requireCM("Cons").consider(f2);
+		hsi.get(0).requireCM(LoadBuiltins.cons).consider(f2);
 		fn.bindHsi(hsi);
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv);
@@ -743,7 +744,7 @@ public class FunctionGeneration {
 			fn.intro(fi);
 			HSIArgsTree hsi = new HSIArgsTree(1);
 			hsi.consider(fi);
-			hsi.get(0).requireCM("Nil").consider(fi);
+			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(sv).withHSI().visitFunction(fn);
 		}
@@ -756,7 +757,7 @@ public class FunctionGeneration {
 			fn.intro(fi);
 			HSIArgsTree hsi = new HSIArgsTree(1);
 			hsi.consider(fi);
-			hsi.get(0).requireCM("Nil").consider(fi);
+			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(sv).withHSI().visitFunction(fn);
 		}

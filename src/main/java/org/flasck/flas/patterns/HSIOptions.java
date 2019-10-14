@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -25,7 +26,7 @@ public interface HSIOptions {
 	void addVar(VarName varName, FunctionIntro fi);
 	void addVarWithType(TypeReference tr, VarName varName, FunctionIntro fi);
 	void addTyped(TypeReference tr, VarName varName, FunctionIntro fi);
-	HSICtorTree requireCM(String ctor);
+	HSICtorTree requireCM(StructDefn ctor);
 	void addConstant(Primitive type, String value, FunctionIntro fi);
 	HSITree getCM(String constructor);
 	void includes(FunctionIntro current);

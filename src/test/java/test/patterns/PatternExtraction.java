@@ -107,7 +107,7 @@ public class PatternExtraction {
 			oneOf(r).get("Nil"); will(returnValue(nil));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
-		po.requireCM("Nil");
+		po.requireCM(LoadBuiltins.nil);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(nil, ty);
@@ -122,8 +122,8 @@ public class PatternExtraction {
 			oneOf(r).findUnionWith((Set<String>) with(Matchers.contains("False", "True"))); will(returnValue(bool));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
-		po.requireCM("True");
-		po.requireCM("False");
+		po.requireCM(LoadBuiltins.trueT);
+		po.requireCM(LoadBuiltins.falseT);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
 		assertEquals(bool, ty);

@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -50,10 +51,11 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 	
 	@Override
-	public HSICtorTree requireCM(String ctor) {
-		if (!ctors.containsKey(ctor))
-			ctors.put(ctor, new HSICtorTree());
-		return ctors.get(ctor);
+	public HSICtorTree requireCM(StructDefn ctor) {
+		String name = ctor.name.uniqueName();
+		if (!ctors.containsKey(name))
+			ctors.put(name, new HSICtorTree());
+		return ctors.get(name);
 	}
 
 	@Override

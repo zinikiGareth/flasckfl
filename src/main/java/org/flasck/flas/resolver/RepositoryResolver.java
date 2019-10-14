@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -43,6 +45,19 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		this.scope = fn.name();
 	}
 
+	@Override
+	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
+		RepositoryEntry defn = find(scope, p.ctor);
+		if (defn == null) {
+			errors.message(p.location, "cannot find type '" + p.ctor + "'");
+			return;
+		} else if (!(defn instanceof StructDefn)) {
+			errors.message(p.location, p.ctor + " is not a struct defn");
+			return;
+		} else
+			p.bind((StructDefn) defn);
+	}
+	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		this.scope = scopeStack.remove(0);

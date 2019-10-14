@@ -19,7 +19,6 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.GroupChecker;
-import org.flasck.flas.tc3.TypeChecker;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;

@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.patterns.HSIPatternOptions;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -89,7 +90,7 @@ public class FunctionGenerationJS {
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(1);
 		hsi.consider(fi);
-		hsi.get(0).requireCM("Nil").consider(fi);
+		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).withHSI().visitFunction(fn);
 	}
@@ -157,7 +158,7 @@ public class FunctionGenerationJS {
 		fn.intro(fi);
 		HSIArgsTree hsi = new HSIArgsTree(2);
 		hsi.consider(fi);
-		hsi.get(0).requireCM("Nil").consider(fi);
+		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 		hsi.get(1).addVar(vnx, fi);
 		fn.bindHsi(hsi);
 		new Traverser(gen).withHSI().visitFunction(fn);
@@ -207,9 +208,9 @@ public class FunctionGenerationJS {
 		}
 		HSIArgsTree hsi = new HSIArgsTree(1);
 		hsi.consider(f1);
-		hsi.get(0).requireCM("Nil").consider(f1);
+		hsi.get(0).requireCM(LoadBuiltins.nil).consider(f1);
 		hsi.consider(f2);
-		hsi.get(0).requireCM("Cons").consider(f2);
+		hsi.get(0).requireCM(LoadBuiltins.cons).consider(f2);
 		fn.bindHsi(hsi);
 		new Traverser(gen).withHSI().visitFunction(fn);
 	}
@@ -609,7 +610,7 @@ public class FunctionGenerationJS {
 			fn.intro(fi);
 			HSIArgsTree hsi = new HSIArgsTree(1);
 			hsi.consider(fi);
-			hsi.get(0).requireCM("Nil").consider(fi);
+			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(gen).withHSI().visitFunction(fn);
 		}
@@ -622,7 +623,7 @@ public class FunctionGenerationJS {
 			fn.intro(fi);
 			HSIArgsTree hsi = new HSIArgsTree(1);
 			hsi.consider(fi);
-			hsi.get(0).requireCM("Nil").consider(fi);
+			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
 			new Traverser(gen).withHSI().visitFunction(fn);
 		}

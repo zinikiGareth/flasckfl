@@ -5,24 +5,21 @@ import java.util.ArrayList;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.GroupChecker;
-import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeChecker;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import test.patterns.PatternExtraction.REType;
 
 public class StateCreation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -42,18 +39,16 @@ public class StateCreation {
 	}
 	@Test
 	public void testASimpleNoArgConstructorSaysThisMustBeInTheArgType() {
-		REType ty = context.mock(REType.class);
 		context.checking(new Expectations() {{
-			oneOf(repository).get("Nil"); will(returnValue(ty));
-			oneOf(ty).name(); will(returnValue(new SolidName(null, "Nil")));
-			oneOf(state).argType(with(TypeMatcher.named("Nil")));
+			oneOf(repository).get("Nil"); will(returnValue(LoadBuiltins.nil));
+			oneOf(state).argType(LoadBuiltins.nil);
 		}});
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		HSIArgsTree hat = new HSIArgsTree(1);
 		hat.consider(fi);
-		hat.get(0).requireCM("Nil");
+		hat.get(0).requireCM(LoadBuiltins.nil);
 		fn.bindHsi(hat);
 		
 		GroupChecker tc = new GroupChecker(errors, repository, nv, state);

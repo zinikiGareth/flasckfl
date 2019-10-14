@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.patterns.HSIPatternOptions;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.junit.Test;
 
 public class SlotScoring {
@@ -40,15 +41,15 @@ public class SlotScoring {
 	@Test
 	public void aConstructorScores3() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.requireCM("Nil");
+		tree.requireCM(LoadBuiltins.nil);
 		assertEquals(3, tree.score());
 	}
 
 	@Test
 	public void eachConstructorScores3() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.requireCM("Nil");
-		tree.requireCM("Cons");
+		tree.requireCM(LoadBuiltins.nil);
+		tree.requireCM(LoadBuiltins.cons);
 		assertEquals(6, tree.score());
 	}
 
@@ -63,9 +64,9 @@ public class SlotScoring {
 	@Test
 	public void checkThingsAddUpTheWayYouWouldExpect() {
 		HSIPatternOptions tree = new HSIPatternOptions();
-		tree.requireCM("Nil");
+		tree.requireCM(LoadBuiltins.nil);
 		tree.addTyped(new TypeReference(pos, "List"), new VarName(pos, nameF, "t"), null);
-		tree.requireCM("Cons");
+		tree.requireCM(LoadBuiltins.cons);
 		tree.addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "n"), null);
 		tree.addTyped(new TypeReference(pos, "Any"), new VarName(pos, nameF, "v"), null);
 		tree.addVar(new VarName(pos, nameF, "v"), null);

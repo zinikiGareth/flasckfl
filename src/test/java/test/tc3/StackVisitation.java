@@ -25,7 +25,6 @@ import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.Type;
-import org.flasck.flas.tc3.TypeChecker;
 import org.flasck.flas.tc3.UnifiableType;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;

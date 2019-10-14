@@ -215,7 +215,7 @@ public class PatternAnalysis {
 		final FunctionIntro intro;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "Nil"));
+			args.add(new ConstructorMatch(pos, "Nil").bind(LoadBuiltins.nil));
 			intro = new FunctionIntro(nameF, args);
 			intro.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro);
@@ -245,7 +245,7 @@ public class PatternAnalysis {
 		final FunctionIntro intro1;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "Nil"));
+			args.add(new ConstructorMatch(pos, "Nil").bind(LoadBuiltins.nil));
 			intro1 = new FunctionIntro(nameF, args);
 			intro1.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro1);
@@ -253,7 +253,7 @@ public class PatternAnalysis {
 		final FunctionIntro intro2;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "Cons"));
+			args.add(new ConstructorMatch(pos, "Cons").bind(LoadBuiltins.cons));
 			intro2 = new FunctionIntro(nameF, args);
 			intro2.functionCase(new FunctionCaseDefn(null, simpleExpr));
 			fn.intro(intro2);
@@ -319,8 +319,8 @@ public class PatternAnalysis {
 		final FunctionIntro intro;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "Nil"));
-			args.add(new ConstructorMatch(pos, "Nil"));
+			args.add(new ConstructorMatch(pos, "Nil").bind(LoadBuiltins.nil));
+			args.add(new ConstructorMatch(pos, "Nil").bind(LoadBuiltins.nil));
 			intro = new FunctionIntro(nameF, args);
 			intro.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro);
@@ -357,8 +357,8 @@ public class PatternAnalysis {
 		final FunctionIntro intro1;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "True"));
-			args.add(new ConstructorMatch(pos, "Nil"));
+			args.add(new ConstructorMatch(pos, "True").bind(LoadBuiltins.trueT));
+			args.add(new ConstructorMatch(pos, "Nil").bind(LoadBuiltins.nil));
 			intro1 = new FunctionIntro(nameF, args);
 			intro1.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro1);
@@ -366,8 +366,8 @@ public class PatternAnalysis {
 		final FunctionIntro intro2;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "False"));
-			args.add(new ConstructorMatch(pos, "Nil"));
+			args.add(new ConstructorMatch(pos, "False").bind(LoadBuiltins.falseT));
+			args.add(new ConstructorMatch(pos, "Nil").bind(LoadBuiltins.nil));
 			intro2 = new FunctionIntro(nameF, args);
 			intro2.functionCase(new FunctionCaseDefn(null, simpleExpr));
 			fn.intro(intro2);
@@ -414,8 +414,8 @@ public class PatternAnalysis {
 		final FunctionIntro intro1;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "True"));
-			args.add(new ConstructorMatch(pos, "Nil"));
+			args.add(new ConstructorMatch(pos, "True").bind(LoadBuiltins.trueT));
+			args.add(new ConstructorMatch(pos, "Nil").bind(LoadBuiltins.nil));
 			intro1 = new FunctionIntro(nameF, args);
 			intro1.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro1);
@@ -423,7 +423,7 @@ public class PatternAnalysis {
 		final FunctionIntro intro2;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "False"));
+			args.add(new ConstructorMatch(pos, "False").bind(LoadBuiltins.falseT));
 			args.add(new VarPattern(pos, new VarName(pos, nameF, "v")));
 			intro2 = new FunctionIntro(nameF, args);
 			intro2.functionCase(new FunctionCaseDefn(null, simpleExpr));
@@ -467,7 +467,7 @@ public class PatternAnalysis {
 		final FunctionIntro intro1;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "Cons"));
+			args.add(new ConstructorMatch(pos, "Cons").bind(LoadBuiltins.cons));
 			intro1 = new FunctionIntro(nameF, args);
 			intro1.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro1);
@@ -475,8 +475,8 @@ public class PatternAnalysis {
 		final FunctionIntro intro2;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			ConstructorMatch cm = new ConstructorMatch(pos, "Cons");
-			cm.args.add(cm.new Field(pos, "head", new ConstructorMatch(pos, "True")));
+			ConstructorMatch cm = new ConstructorMatch(pos, "Cons").bind(LoadBuiltins.cons);
+			cm.args.add(cm.new Field(pos, "head", new ConstructorMatch(pos, "True").bind(LoadBuiltins.trueT)));
 			args.add(cm);
 			intro2 = new FunctionIntro(nameF, args);
 			intro2.functionCase(new FunctionCaseDefn(null, simpleExpr));
@@ -520,8 +520,8 @@ public class PatternAnalysis {
 		final FunctionIntro intro1;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			ConstructorMatch cm = new ConstructorMatch(pos, "Cons");
-			cm.args.add(cm.new Field(pos, "head", new ConstructorMatch(pos, "True")));
+			ConstructorMatch cm = new ConstructorMatch(pos, "Cons").bind(LoadBuiltins.cons);
+			cm.args.add(cm.new Field(pos, "head", new ConstructorMatch(pos, "True").bind(LoadBuiltins.trueT)));
 			args.add(cm);
 			intro1 = new FunctionIntro(nameF, args);
 			intro1.functionCase(new FunctionCaseDefn(null, simpleExpr));
@@ -530,7 +530,7 @@ public class PatternAnalysis {
 		final FunctionIntro intro2;
 		{
 			ArrayList<Object> args = new ArrayList<>();
-			args.add(new ConstructorMatch(pos, "Cons"));
+			args.add(new ConstructorMatch(pos, "Cons").bind(LoadBuiltins.cons));
 			intro2 = new FunctionIntro(nameF, args);
 			intro2.functionCase(new FunctionCaseDefn(null, number));
 			fn.intro(intro2);
