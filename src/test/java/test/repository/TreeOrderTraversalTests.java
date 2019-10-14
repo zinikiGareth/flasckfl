@@ -13,6 +13,7 @@ import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -166,11 +167,36 @@ public class TreeOrderTraversalTests {
 			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
 			oneOf(v).matchField(LoadBuiltins.cons.findField("head")); inSequence(seq);
-			oneOf(v).visitVarPattern(vp, false); inSequence(seq);
+			oneOf(v).varInIntro(vp, fi); inSequence(seq);
 			oneOf(v).matchField(LoadBuiltins.cons.findField("tail")); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).argSlot(with(SlotMatcher.id("1"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
+			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
+			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
+			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+		}});
+		t.visitFunction(fn);
+	}
+
+	// TODO: a case that shows we get different var bindings for different intros ...
+	
+	@Test
+	public void typesAreOKToo() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
+		fi.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		fn.intro(fi);
+		HSITree hsi = new HSIArgsTree(1);
+		hsi.get(0).addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"), fi);
+		fn.bindHsi(hsi);
+		Sequence seq = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(v).visitFunction(fn); inSequence(seq);
+			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).matchType(LoadBuiltins.number, "x", fi); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);

@@ -223,13 +223,12 @@ public class Traverser implements Visitor {
 //				visitPatternTree(cm.get(i));
 //			}
 		}
-//		for (String t : hsiOptions.types()) {
-			// for (IntroVarNameWithType tv : hsiOptions.forType(t)) {
-			// visit(t, v, intro)
-			// }
-//		}
+		for (String t : hsiOptions.types()) {
+//			tov.matchType(ty, var, intro);
+//			hsiOptions.typeBindings(t);
+		}
 		for (IntroVarName iv : hsiOptions.vars()) {
-			tov.visitVarPattern(iv.vp, false);
+			tov.varInIntro(iv.vp, iv.intro);
 		}
 	}
 
