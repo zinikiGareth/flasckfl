@@ -20,18 +20,18 @@ public class TypeWithNameAndPolys extends TypeWithName {
 	
 	public List<PolyVar> polys() {
 		if (polys == null)
-			throw new UtilException("Cannot obtain poly vars of " + name());
+			throw new UtilException("Cannot obtain poly vars of " + nameAsString());
 		return polys;
 	}
 
 	public PolyVar poly(int i) {
 		if (polys == null)
-			throw new UtilException("Cannot obtain poly vars of " + name());
+			throw new UtilException("Cannot obtain poly vars of " + nameAsString());
 		return polys.get(i);
 	}
 
 	protected void show(StringBuilder sb) {
-		sb.append(name());
+		sb.append(nameAsString());
         if (polys != null && !polys.isEmpty())
         	sb.append(polys);
 	}

@@ -267,7 +267,7 @@ public class Rewriter implements CodeGenRegistry {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			for (PolyVar t : polys) {
-				if (t.name().equals(name))
+				if (t.nameAsString().equals(name))
 					return t;
 			}
 			return nested.resolve(location, name);
@@ -374,7 +374,7 @@ public class Rewriter implements CodeGenRegistry {
 			super(cx);
 			objName = od.name();
 			for (PolyVar v : polys)
-				this.polys.put(v.name(), v);
+				this.polys.put(v.nameAsString(), v);
 //			for (StructField sf : od.fields) {
 //				try {
 //					members.put(sf.name, rewrite(this, sf.type, true));
@@ -918,7 +918,7 @@ public class Rewriter implements CodeGenRegistry {
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name().uniqueName()))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.name()), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name(), c.intro.args.size());
+				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.nameAsString()), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name(), c.intro.args.size());
 				rewriteCase(c2, rwm, c, true, false);
 				methods.put(c.intro.name().uniqueName(), rwm);
 				rw.methods.add(rwm);
@@ -933,7 +933,7 @@ public class Rewriter implements CodeGenRegistry {
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name().uniqueName()))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.name()), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name(), c.intro.args.size());
+				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.nameAsString()), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name(), c.intro.args.size());
 				rewriteCase(c2, rwm, c, true, false);
 				methods.put(c.intro.name().uniqueName(), rwm);
 				rwm.gatherScopedVars();
@@ -1124,7 +1124,7 @@ public class Rewriter implements CodeGenRegistry {
 			for (MethodCaseDefn c : hi.methods) {
 				if (methods.containsKey(c.intro.name().uniqueName()))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rm = new RWMethodDefinition(ret.location(), contracts.get(ret.name()), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name(), c.intro.args.size());
+				RWMethodDefinition rm = new RWMethodDefinition(ret.location(), contracts.get(ret.nameAsString()), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name(), c.intro.args.size());
 				rewriteCase(hc, rm, c, true, false);
 				ret.methods.add(rm);
 				rm.gatherScopedVars();
@@ -1578,15 +1578,15 @@ public class Rewriter implements CodeGenRegistry {
 			if (ret instanceof TypeWithNameAndPolys) {
 				TypeWithNameAndPolys tnp = (TypeWithNameAndPolys) ret;
 				if (tnp.hasPolys() && !type.hasPolys()) {
-					errors.message(type.location(), "cannot use " + tnp.name() + " without specifying polymorphic arguments");
+					errors.message(type.location(), "cannot use " + tnp.nameAsString() + " without specifying polymorphic arguments");
 					return null;
 				} else if (!tnp.hasPolys() && type.hasPolys()) {
-					errors.message(type.location(), "cannot use polymorphic arguments to type " + tnp.name());
+					errors.message(type.location(), "cannot use polymorphic arguments to type " + tnp.nameAsString());
 					return null;
 				} else if (tnp.hasPolys() && type.hasPolys()) {
 					// check and instantiate
 					if (type.polys().size() != tnp.polys().size()) {
-						errors.message(type.location(), "incorrect number of polymorphic arguments to type " + tnp.name());
+						errors.message(type.location(), "incorrect number of polymorphic arguments to type " + tnp.nameAsString());
 						return null;
 					} else {
 						List<Type> rwp = new ArrayList<Type>();
@@ -1925,9 +1925,9 @@ public class Rewriter implements CodeGenRegistry {
 				RWContractImplements ci = cardImplements.get(ctr.implName);
 				if (ci == null)
 					throw new UtilException("Could not find contract implements for " + ctr.implName);
-				RWContractDecl cd = contracts.get(ci.name());
+				RWContractDecl cd = contracts.get(ci.nameAsString());
 				if (cd == null)
-					throw new UtilException("Could not find contract decl for " + ci.name());
+					throw new UtilException("Could not find contract decl for " + ci.nameAsString());
 				Set<RWContractMethodDecl> requireds = new TreeSet<RWContractMethodDecl>(); 
 				for (RWContractMethodDecl m : cd.methods) {
 					if (m.dir.equals(ContractMethodDir.DOWN) && m.required)
@@ -1949,7 +1949,7 @@ public class Rewriter implements CodeGenRegistry {
 				}
 				if (!requireds.isEmpty()) {
 					for (RWContractMethodDecl d : requireds)
-						errors.message(ci.location(), ci.name() + " does not implement " + d);
+						errors.message(ci.location(), ci.nameAsString() + " does not implement " + d);
 				}
 			}
 		}

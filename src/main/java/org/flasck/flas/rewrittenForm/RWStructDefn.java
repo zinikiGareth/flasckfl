@@ -72,7 +72,7 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 			for (RWStructField f : fields) {
 				sb.append(sep);
 				sep = ",";
-				sb.append(((TypeWithName)f.type).name());
+				sb.append(((TypeWithName)f.type).nameAsString());
 				sb.append(" ");
 				sb.append(f.name);
 			}
@@ -82,7 +82,7 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 	}
 
 	public String asString() {
-		StringBuilder sb = new StringBuilder(name());
+		StringBuilder sb = new StringBuilder(nameAsString());
 		if (!polys().isEmpty()) {
 			sb.append(polys());
 		}
@@ -91,12 +91,12 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 
 	@Override
 	public int compareTo(Object o) {
-		return this.name().compareTo(((ExternalRef)o).uniqueName());
+		return this.nameAsString().compareTo(((ExternalRef)o).uniqueName());
 	}
 
 	@Override
 	public String uniqueName() {
-		return this.name();
+		return this.nameAsString();
 	}
 
 	@Override

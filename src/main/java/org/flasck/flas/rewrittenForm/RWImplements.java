@@ -43,6 +43,6 @@ public class RWImplements extends TypeWithName implements TypeWithMethods {
 	
 	@Override
 	public String toString() {
-		return name();
+		return nameAsString();
 	}
 }

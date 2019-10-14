@@ -158,9 +158,9 @@ public class MethodConvertor {
 					if (ti == null) {
 						atypes.add(tp.type); 
 						rwargs.add(tp);
-					} else if (tp.type.name().equals(ti.name())) // it's fine as it is
+					} else if (tp.type.nameAsString().equals(ti.nameAsString())) // it's fine as it is
 						rwargs.add(tp);
-					else if (ti.name().equals("Any")) // it's fine to subclass Any
+					else if (ti.nameAsString().equals("Any")) // it's fine to subclass Any
 						rwargs.add(tp);
 					else
 						throw new UtilException("Cannot handle the case where we have contract defining " + ti + " and we use " + tp.type);
@@ -239,7 +239,7 @@ public class MethodConvertor {
 			}
 		}
 		if (cmd == null) {
-			errors.message(m.contractLocation, "contract '" + m.fromContract.name() + "' does not have a method '" + mn +"' to implement");
+			errors.message(m.contractLocation, "contract '" + m.fromContract.nameAsString() + "' does not have a method '" + mn +"' to implement");
 			return null;
 		}
 		
@@ -428,7 +428,7 @@ public class MethodConvertor {
 				return null;
 			}
 			TypeWithName hlType = (TypeWithName) hl.type;
-			if (hlType.name().equals("Any")) {
+			if (hlType.nameAsString().equals("Any")) {
 				errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
 				return null;
 			}
@@ -456,7 +456,7 @@ public class MethodConvertor {
 				location = si.location();
 				if (!(slotType instanceof RWStructDefn)) {
 					// There may be some valid cases mixed up in here; if so, fix them later
-					errors.message(si.location(), "cannot extract member '" + si.text + "' of a non-struct: '" + slotType.name() + "'");
+					errors.message(si.location(), "cannot extract member '" + si.text + "' of a non-struct: '" + slotType.nameAsString() + "'");
 					return null;
 				}
 				RWStructDefn sd = (RWStructDefn) slotType;
@@ -495,7 +495,7 @@ public class MethodConvertor {
 				methodType = senderType.getMethodType(method.text);
 		}
 		if (methodType == null) {
-			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
+			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.nameAsString());
 			return null;
 		}
 		if (senderType instanceof RWContractImplements && !cd.checkMethodDir(method.text, ContractMethodDir.UP)) {

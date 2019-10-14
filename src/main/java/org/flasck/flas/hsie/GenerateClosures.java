@@ -295,22 +295,22 @@ public class GenerateClosures {
 			form.varConstraints.add(cv, ate.type);
 			return conv;
 		} else if (conv.obj instanceof StringLiteral) {
-			if (!ate.type.name().equals("String")) {
-				errors.message(ate.location(), "cannot assign a string to " + ate.type.name());
+			if (!ate.type.nameAsString().equals("String")) {
+				errors.message(ate.location(), "cannot assign a string to " + ate.type.nameAsString());
 			}
 			return conv;
 		} else if (conv.obj instanceof NumericLiteral || conv.obj instanceof Integer) {
-			if (!ate.type.name().equals("Number")) {
-				errors.message(ate.location(), "cannot assign a number to " + ate.type.name());
+			if (!ate.type.nameAsString().equals("Number")) {
+				errors.message(ate.location(), "cannot assign a number to " + ate.type.nameAsString());
 			}
 			return conv;
 		} else if (conv.obj instanceof BooleanLiteral) {
-			if (!ate.type.name().equals("Boolean")) {
-				errors.message(ate.location(), "cannot assign a boolean to " + ate.type.name());
+			if (!ate.type.nameAsString().equals("Boolean")) {
+				errors.message(ate.location(), "cannot assign a boolean to " + ate.type.nameAsString());
 			}
 			return conv;
 		} else if (conv.obj instanceof PackageVar) {
-			System.out.println("Need to check types of packagevars against fields: " + conv.obj + " as " + ate.type.name());
+			System.out.println("Need to check types of packagevars against fields: " + conv.obj + " as " + ate.type.nameAsString());
 			return conv;
 		} else
 			throw new UtilException("You haven't covered the case for " + conv.obj + (conv.obj != null ? " of " + conv.obj.getClass() : ""));

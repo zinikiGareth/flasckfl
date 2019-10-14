@@ -14,13 +14,13 @@ public class JvmTypeMapper {
 	public static JavaType map(Type type) {
 		if (type instanceof PrimitiveType) {
 			PrimitiveType pt = (PrimitiveType)type;
-			if (pt.name().equals("Number"))
+			if (pt.nameAsString().equals("Number"))
 				return new JavaType("org.flasck.jvm.builtin.FLNumber");
-			else if (pt.name().equals("String"))
+			else if (pt.nameAsString().equals("String"))
 				return JavaType.string;
-			else if (pt.name().equals("Boolean"))
+			else if (pt.nameAsString().equals("Boolean"))
 				return JavaType.boolean_;
-			else if (pt.name().equals("Type"))
+			else if (pt.nameAsString().equals("Type"))
 				return new JavaType(Object.class.getName());
 			else
 				throw new UtilException("Not handled " + type);

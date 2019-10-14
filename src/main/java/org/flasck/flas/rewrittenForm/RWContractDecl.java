@@ -49,6 +49,6 @@ public class RWContractDecl extends TypeWithName implements TypeWithMethods {
 	
 	@Override
 	public String toString() {
-		return "contract " + name();
+		return "contract " + nameAsString();
 	}
 }

@@ -26,7 +26,7 @@ public class TypeOfSomethingElse extends TypeWithName {
 		return typeName;
 	}
 
-	public String name() {
+	public String nameAsString() {
 		return "typeOf(" + typeName.uniqueName() + ")";
 	}
 

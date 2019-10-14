@@ -29,7 +29,7 @@ public class RWObjectDefn extends TypeWithNameAndPolys implements TypeWithMethod
 	}
 
 	public String uniqueName() {
-		return name();
+		return nameAsString();
 	}
 
 	public SolidName myName() {
@@ -82,7 +82,7 @@ public class RWObjectDefn extends TypeWithNameAndPolys implements TypeWithMethod
 	}
 
 	public String asString() {
-		StringBuilder sb = new StringBuilder(name());
+		StringBuilder sb = new StringBuilder(nameAsString());
 		if (hasPolys()) {
 			sb.append("[");
 			String sep = "";

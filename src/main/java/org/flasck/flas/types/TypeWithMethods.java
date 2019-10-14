@@ -4,7 +4,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.NameOfThing;
 
 public interface TypeWithMethods extends Locatable {
-	String name();
+	String nameAsString();
 	NameOfThing getTypeName();
 	boolean hasMethod(String named);
 	FunctionType getMethodType(String named);

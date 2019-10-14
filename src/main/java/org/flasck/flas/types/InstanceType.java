@@ -17,8 +17,8 @@ public class InstanceType extends TypeWithName {
 		this.types = types;
 	}
 
-	public String name() {
-		return type.name();
+	public String nameAsString() {
+		return type.nameAsString();
 	}
 
 	public Type innerType() {
@@ -31,18 +31,18 @@ public class InstanceType extends TypeWithName {
 	
 	public List<Type> polys() {
 		if (types == null)
-			throw new UtilException("Cannot obtain poly vars of " + name());
+			throw new UtilException("Cannot obtain poly vars of " + nameAsString());
 		return types;
 	}
 
 	public Type poly(int i) {
 		if (types == null)
-			throw new UtilException("Cannot obtain poly vars of " + name());
+			throw new UtilException("Cannot obtain poly vars of " + nameAsString());
 		return types.get(i);
 	}
 
 	protected void show(StringBuilder sb) {
-		sb.append(type.name());
+		sb.append(type.nameAsString());
 		if (types != null && !types.isEmpty()) {
 			sb.append(types);
 		}

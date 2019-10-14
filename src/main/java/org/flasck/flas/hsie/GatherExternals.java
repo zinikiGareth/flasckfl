@@ -77,7 +77,7 @@ public class GatherExternals {
 	}
 	
 	private void process(RWTypedPattern tp) {
-		curr.dependsOn(tp.type.name());
+		curr.dependsOn(tp.type.nameAsString());
 	}
 	
 	private void process(RWConstructorMatch cm) {

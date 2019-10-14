@@ -105,7 +105,7 @@ public class KnowledgeWriter implements RepoVisitor {
 			writeTypeUsage(xe, f);
 		}
 		if (copyToScreen)
-			System.out.println("  type " + td.name());
+			System.out.println("  type " + td.nameAsString());
 	}
 
 
@@ -124,7 +124,7 @@ public class KnowledgeWriter implements RepoVisitor {
 			}
 		}
 		if (copyToScreen) {
-			System.out.println("  contract " + cd.name());
+			System.out.println("  contract " + cd.nameAsString());
 			for (RWContractMethodDecl m : cd.methods) {
 				System.out.print(Justification.LEFT.format("", 4));
 				System.out.print(Justification.PADRIGHT.format(m.dir.name().toLowerCase(), 5));
@@ -171,7 +171,7 @@ public class KnowledgeWriter implements RepoVisitor {
 			writeSolidName(xh, x.contractName);
 		}
 		if (copyToScreen) {
-			System.out.println("  card " + cg.struct.name());
+			System.out.println("  card " + cg.struct.nameAsString());
 			for (ContractGrouping x : cg.contracts) {
 				System.out.println("    contract " + x.contractName.uniqueName());
 			}
@@ -222,7 +222,7 @@ public class KnowledgeWriter implements RepoVisitor {
 	private void writeTypeUsage(XMLElement xe, Type type) {
 		if (type instanceof PolyVar) {
 			XMLElement ty = xe.addElement("Poly");
-			ty.setAttribute("name", ((TypeWithName)type).name());
+			ty.setAttribute("name", ((TypeWithName)type).nameAsString());
 		} else if (type instanceof InstanceType) {
 			InstanceType it = (InstanceType) type;
 			XMLElement ty = xe.addElement("Instance");
@@ -250,7 +250,7 @@ public class KnowledgeWriter implements RepoVisitor {
 		} else if (type instanceof TypeOfSomethingElse) {
 			XMLElement ty = xe.addElement("DEAL_WITH_THIS");
 			ty.setAttribute("whatAmI", type.getClass().getName());
-			ty.setAttribute("name", ((TypeWithName)type).name());
+			ty.setAttribute("name", ((TypeWithName)type).nameAsString());
 		} else if (type instanceof TypeWithName) {
 			NameOfThing solidName = ((TypeWithName)type).getTypeName();
 			writeSolidName(xe, solidName);

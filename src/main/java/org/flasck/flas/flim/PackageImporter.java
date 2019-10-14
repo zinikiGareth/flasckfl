@@ -75,20 +75,20 @@ public class PackageImporter {
 				String baseName = xe.required("name");
 				RWStructDefn sd = new RWStructDefn(location(xe), FieldsDefn.FieldsType.STRUCT, new SolidName(packageName, baseName), false, polys);
 				xe.attributesDone();
-				pkg.define(sd.name(), sd);
+				pkg.define(sd.nameAsString(), sd);
 				todos.add(new Pass2(sd, xe));
 			} else if (xe.hasTag("Object")) {
 				List<PolyVar> polys = new ArrayList<>();
 				String baseName = xe.required("name");
 				RWObjectDefn od = new RWObjectDefn(location(xe), new SolidName(packageName, baseName), false, polys);
 				xe.attributesDone();
-				pkg.define(od.name(), od);
+				pkg.define(od.nameAsString(), od);
 				todos.add(new Pass2(od, xe));
 			} else if (xe.hasTag("Contract")) {
 				String baseName = xe.required("name");
 				RWContractDecl cd = new RWContractDecl(null, location(xe), new SolidName(packageName, baseName), false);
 				xe.attributesDone();
-				pkg.define(cd.name(), cd);
+				pkg.define(cd.nameAsString(), cd);
 				todos.add(new Pass2(cd, xe));
 			} else if (xe.hasTag("Function")) {
 				// we don't have anything to create right now ...
@@ -135,7 +135,7 @@ public class PackageImporter {
 				RWContractDecl cd = (RWContractDecl) p.parent;
 				for (XMLElement cme : p.children) {
 					InputPosition loc = location(cme);
-					FunctionName fn = FunctionName.functionInCardContext(loc, new CardName(packageName, cd.name()), cme.required("name"));
+					FunctionName fn = FunctionName.functionInCardContext(loc, new CardName(packageName, cd.nameAsString()), cme.required("name"));
 					List<Object> args = new ArrayList<Object>();
 					List<Type> types = new ArrayList<Type>();
 					for (XMLElement pe : cme.elementChildren()) {

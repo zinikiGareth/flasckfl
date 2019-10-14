@@ -116,8 +116,8 @@ public class TypeChecker2 {
 	private void pass1() throws NeedIndirectionException {
 		rw.visit(new Pass1Visitor(this), true);
 		for (PrimitiveType bi : rw.primitives.values()) {
-			export.put(bi.name(), bi);
-			gk(bi.name(), new NamedType(bi.location(), bi.getTypeName()));
+			export.put(bi.nameAsString(), bi);
+			gk(bi.nameAsString(), new NamedType(bi.location(), bi.getTypeName()));
 		}
 		for (RWUnionTypeDefn ud : rw.types.values()) {
 			List<TypeInfo> polys = new ArrayList<>();
@@ -126,7 +126,7 @@ public class TypeChecker2 {
 					polys.add(convertType(t));
 			}
 			NamedType uty = new NamedType(ud.location(), ud.getTypeName(), polys);
-			gk(ud.name(), uty);
+			gk(ud.nameAsString(), uty);
 			
 			unions.add(ud);
 		}
@@ -137,7 +137,7 @@ public class TypeChecker2 {
 				for (Type t : od.polys())
 					polys.add(convertType(t));
 			}
-			gk(od.name(), new NamedType(od.location(), od.getTypeName(), polys));
+			gk(od.nameAsString(), new NamedType(od.location(), od.getTypeName(), polys));
 			/*
 			if (od.ctorArgs != null) {
 				List<Type> args = new ArrayList<>();
@@ -644,7 +644,7 @@ public class TypeChecker2 {
 				for (NamedType nt : nts) {
 					RWStructDefn ti = structs.get(nt.name);
 					if (ti.findField(ctr.fname) == null)
-						errors.message(ctr.posn, "the type " + ti.name() + " does not have a field " + ctr.fname);
+						errors.message(ctr.posn, "the type " + ti.nameAsString() + " does not have a field " + ctr.fname);
 				}
 			}
 		}
@@ -697,7 +697,7 @@ public class TypeChecker2 {
 			RWStructDefn sd = structs.get(sw.ctor);
 			if (sd != null) {
 				Map<String, TypeVar> mapping = new HashMap<>();
-				constraints.add(sw.var, freshPolys(structTypes.get(sd.name()), mapping));
+				constraints.add(sw.var, freshPolys(structTypes.get(sd.nameAsString()), mapping));
 				for (HSIEBlock sc : sw.nestedCommands()) {
 					if (sc instanceof BindCmd) {
 						BindCmd b = (BindCmd)sc;
@@ -834,16 +834,16 @@ public class TypeChecker2 {
 			HashSet<RWUnionTypeDefn> possibles = new HashSet<>();
 			nextUnion:
 			for (RWUnionTypeDefn ud : unions) {
-				if (!ctors.contains(ud.name())) {
+				if (!ctors.contains(ud.nameAsString())) {
 					// Make sure all the cases are actually used
 					for (TypeWithName cs : ud.cases)
-						if (!ctors.contains(cs.name()))
+						if (!ctors.contains(cs.nameAsString()))
 							continue nextUnion;
 				}
-				if (!ud.name().equals("Any")) {
+				if (!ud.nameAsString().equals("Any")) {
 					// make sure all the ctors are in the union
 					for (String s : ctors)
-						if (!ud.hasCtor(s) && !ud.name().equals(s))
+						if (!ud.hasCtor(s) && !ud.nameAsString().equals(s))
 							continue nextUnion;
 				}
 				
@@ -854,7 +854,7 @@ public class TypeChecker2 {
 				throw new UtilException("There is no good union for " + ctors);
 			if (possibles.size() > 1) {
 				for (RWUnionTypeDefn p : possibles) {
-					if (p.name().equals("Any")) {
+					if (p.nameAsString().equals("Any")) {
 						possibles.remove(p);
 						break;
 					}
@@ -874,7 +874,7 @@ public class TypeChecker2 {
 						ti = ((TypeFunc) ti).args.get(0);
 					}
 					NamedType nt = (NamedType) ti;
-					if (nt.name.equals(chosen.name())) {
+					if (nt.name.equals(chosen.nameAsString())) {
 						for (int i=0;i<chosen.polys().size();i++)
 							polyArgs.set(i, nt.polyArgs.get(i));
 					} else {
@@ -981,15 +981,15 @@ public class TypeChecker2 {
 
 	TypeInfo convertType(Type type) {
 		if (type instanceof PolyVar)
-			return new PolyInfo(type.location(), ((PolyVar) type).name());
+			return new PolyInfo(type.location(), ((PolyVar) type).nameAsString());
 		else if (type instanceof RWStructDefn)
-			return structTypes.get(((RWStructDefn) type).name());
+			return structTypes.get(((RWStructDefn) type).nameAsString());
 		else if (type instanceof PrimitiveType ||
 				type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn ||
 				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWContractService ||
 				type instanceof RWHandlerImplements)
 			try {
-				return getTypeOf(type.location(), ((TypeWithName) type).name());
+				return getTypeOf(type.location(), ((TypeWithName) type).nameAsString());
 			} catch (NeedIndirectionException ex) {
 				throw new UtilException("this should have been handled", ex);
 			}
@@ -1121,7 +1121,7 @@ public class TypeChecker2 {
 					String s = ((PolyInfo)ti).name;
 					TypeInfo ut = null;
 					for (int i=0;i<od.polys().size();i++) {
-						if (od.poly(i).name().equals(s))
+						if (od.poly(i).nameAsString().equals(s))
 							ut = nt.polyArgs.get(i);
 					}
 					if (ut == null)

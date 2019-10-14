@@ -15,7 +15,7 @@ public class TypeWithName extends Type implements NamedThing {
 		this.typeName = type;
 	}
 
-	public String name() {
+	public String nameAsString() {
 		return typeName.uniqueName();
 	}
 	
@@ -37,7 +37,7 @@ public class TypeWithName extends Type implements NamedThing {
 	}
 	
 	protected void show(StringBuilder sb) {
-		sb.append(name());
+		sb.append(nameAsString());
 	}
 	
 	@Override

@@ -27,7 +27,7 @@ public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<
 	
 	public boolean hasCtor(String s) {
 		for (TypeWithName cs : cases)
-			if (cs.name().equals(s))
+			if (cs.nameAsString().equals(s))
 				return true;
 		return false;
 	}
@@ -39,7 +39,7 @@ public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<
 		if (!hasPolys())
 			return new ArrayList<Integer>();
 		for (TypeWithName cs : cases) {
-			if (cs.name().equals(name)) {
+			if (cs.nameAsString().equals(name)) {
 				List<Integer> ret = new ArrayList<>();
 				if (cs instanceof TypeWithNameAndPolys && ((TypeWithNameAndPolys)cs).hasPolys()) {
 					for (Type t : ((TypeWithNameAndPolys)cs).polys()) {
@@ -49,23 +49,23 @@ public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<
 								k = i;
 						}
 						if (k == -1)
-							throw new UtilException("Type " + name() + " does not have poly " + t + " from case " + name);
+							throw new UtilException("Type " + nameAsString() + " does not have poly " + t + " from case " + name);
 						ret.add(k);
 					}
 				}
 				return ret;
 			}
 		}
-		throw new UtilException("The union " + name() + " does not contain " + name);
+		throw new UtilException("The union " + nameAsString() + " does not contain " + name);
 	}
 
 	@Override
 	public int compareTo(RWUnionTypeDefn o) {
-		return name().compareTo(o.name());
+		return nameAsString().compareTo(o.nameAsString());
 	}
 	
 	@Override
 	public String toString() {
-		return name();
+		return nameAsString();
 	}
 }

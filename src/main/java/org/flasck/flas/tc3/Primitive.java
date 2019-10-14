@@ -7,20 +7,17 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.types.TypeWithName;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class Primitive implements RepositoryEntry, Type, NamedThing {
-	private final InputPosition loc;
-	private final SolidName name;
-
+public class Primitive extends TypeWithName implements RepositoryEntry, Type, NamedThing {
 	public Primitive(InputPosition loc, String name) {
-		this.loc = loc;
-		this.name = new SolidName(null, name);
+		super(null, loc, new SolidName(null, name));
 	}
 
 	@Override
 	public String signature() {
-		return this.name.baseName();
+		return ((SolidName)this.name()).baseName();
 	}
 
 	@Override
@@ -35,31 +32,21 @@ public class Primitive implements RepositoryEntry, Type, NamedThing {
 
 	@Override
 	public NameOfThing name() {
-		return name;
+		return getName();
 	}
 	
 	@Override
-	public NameOfThing getName() {
-		return name;
-	}
-
-	@Override
-	public InputPosition location() {
-		return loc;
-	}
-
-	@Override
 	public void dumpTo(PrintWriter pw) {
-		pw.print(name.baseName());
+		pw.print(signature());
 	}
 	
 	@Override
 	public String toString() {
-		return "Primitive[" + name.uniqueName() + "]";
+		return "Primitive[" + name().uniqueName() + "]";
 	}
 
 	@Override
 	public boolean incorporates(Type other) {
-		return other instanceof Primitive && ((Primitive)other).name.uniqueName().equals(name.uniqueName());
+		return other instanceof Primitive && ((Primitive)other).name().uniqueName().equals(name().uniqueName());
 	}
 }

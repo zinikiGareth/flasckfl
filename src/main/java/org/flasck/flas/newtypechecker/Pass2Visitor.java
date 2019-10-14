@@ -36,7 +36,7 @@ public class Pass2Visitor implements RepoVisitor {
 		}
 		TypeFunc ti = new TypeFunc(sd.location(), fs, sty);
 		tc.gk(sd.uniqueName(), ti);
-		tc.ctors.put(sd.name(), tc.asType(ti));
+		tc.ctors.put(sd.nameAsString(), tc.asType(ti));
 	}
 
 	@Override

@@ -314,7 +314,7 @@ public class HSIE {
 					if (tp.type.getName().uniqueName().equals("Any"))
 						o.anything(pe.getValue(), tp.var.var);
 					else
-						o.ifCtor(tp.typeLocation, tp.type.name(), new ArrayList<Field>(), pe.getValue());
+						o.ifCtor(tp.typeLocation, tp.type.nameAsString(), new ArrayList<Field>(), pe.getValue());
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;
 					if (cp.type == ConstPattern.INTEGER) {

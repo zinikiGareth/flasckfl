@@ -43,7 +43,7 @@ public class Pass1Visitor implements RepoVisitor {
 	}
 
 	public void visitContractDecl(RWContractDecl cd) {
-		tc.gk(cd.name(), new NamedType(cd.location(), cd.getTypeName()));
+		tc.gk(cd.nameAsString(), new NamedType(cd.location(), cd.getTypeName()));
 	}
 
 	@Override
