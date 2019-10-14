@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -131,7 +132,7 @@ public class HSITraversalTests {
 		}});
 		HSIArgsTree tree = new HSIArgsTree(1);
 		tree.consider(fi);
-		tree.get(0).addTyped(new TypeReference(pos, "Number"), new VarName(pos, fname, "x"), fi);
+		tree.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, fname, "x")), fi);
 		fn.bindHsi(tree);
 		
 		t.visitFunction(fn);

@@ -1,6 +1,7 @@
 package org.flasck.flas.types;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;

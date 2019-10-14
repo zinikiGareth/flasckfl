@@ -7,12 +7,25 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.repository.RepositoryEntry;
-import org.flasck.flas.types.TypeWithName;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class Primitive extends TypeWithName implements RepositoryEntry, Type, NamedThing {
+public class Primitive implements RepositoryEntry, NamedType, NamedThing {
+	private final InputPosition loc;
+	private final SolidName name;
+
 	public Primitive(InputPosition loc, String name) {
-		super(null, loc, new SolidName(null, name));
+		this.loc = loc;
+		this.name = new SolidName(null, name);
+	}
+
+	@Override
+	public InputPosition location() {
+		return loc;
+	}
+
+	@Override
+	public NameOfThing getName() {
+		return name;
 	}
 
 	@Override

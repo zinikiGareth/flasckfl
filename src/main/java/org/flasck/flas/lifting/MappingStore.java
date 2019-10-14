@@ -32,7 +32,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 
 		public PO(TypedPattern p, FunctionIntro fi) {
 			this(fi, p, p.name());
-			this.opts.addTyped(p.type, p.name(), fi);
+			this.opts.addTyped(p, fi);
 			this.var.bind(p);
 		}
 

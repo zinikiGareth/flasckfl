@@ -64,7 +64,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	@Override
 	public void visitTypedPattern(TypedPattern p, boolean isNested) {
 		if (!isNested)
-			this.slot.addTyped(p.type, p.var, current);
+			this.slot.addTyped(p, current);
 		else
 			this.slot.addVarWithType(p.type, p.var, current);
 		this.slot.includes(this.current);

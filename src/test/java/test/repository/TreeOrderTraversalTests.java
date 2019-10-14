@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -190,7 +191,7 @@ public class TreeOrderTraversalTests {
 		fi.functionCase(new FunctionCaseDefn(null, simpleExpr));
 		fn.intro(fi);
 		HSITree hsi = new HSIArgsTree(1);
-		hsi.get(0).addTyped(new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"), fi);
+		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x")), fi);
 		fn.bindHsi(hsi);
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{

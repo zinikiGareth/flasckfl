@@ -42,9 +42,11 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.patterns.HSICtorTree;
 import org.flasck.flas.patterns.HSIOptions;
+import org.flasck.flas.patterns.HSIOptions.IntroTypeVar;
 import org.flasck.flas.patterns.HSIOptions.IntroVarName;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -219,13 +221,11 @@ public class Traverser implements Visitor {
 				tov.matchField(t.findField(fld));
 				visitPatternTree(cm.get(i));
 			}
-//			for (int i=0;i<cm.width();i++) {
-//				visitPatternTree(cm.get(i));
-//			}
 		}
-		for (String t : hsiOptions.types()) {
-//			tov.matchType(ty, var, intro);
-//			hsiOptions.typeBindings(t);
+		for (NamedType t : hsiOptions.types()) {
+			for (IntroTypeVar tv : hsiOptions.typedVars(t)) {
+				tov.matchType(t, tv.tp.var.var, tv.intro);
+			}
 		}
 		for (IntroVarName iv : hsiOptions.vars()) {
 			tov.varInIntro(iv.vp, iv.intro);
@@ -304,11 +304,12 @@ public class Traverser implements Visitor {
 					intersect.retainAll(cm.intros());
 					visitHSI(fn, vars, extended, intersect);
 				}
-				for (String ty : opts.types()) {
-					hsi.withConstructor(ty);
+				for (NamedType ty : opts.types()) {
+					String name = ty.name().uniqueName();
+					hsi.withConstructor(name);
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(opts.getIntrosForType(ty));
-					if ("Number".equals(ty)) {
+					if ("Number".equals(name)) {
 						Set<Integer> numbers = opts.numericConstants(intersect);
 						if (!numbers.isEmpty()) {
 							for (int k : numbers) {
@@ -321,7 +322,7 @@ public class Traverser implements Visitor {
 							hsi.matchDefault();
 						}
 					}
-					if ("String".equals(ty)) {
+					if ("String".equals(name)) {
 						Set<String> strings = opts.stringConstants(intersect);
 						if (!strings.isEmpty()) {
 							for (String k : strings) {

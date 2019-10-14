@@ -8,9 +8,11 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 
@@ -31,20 +33,30 @@ public interface HSIOptions {
 		}
 	}
 	
+	public class IntroTypeVar {
+		public final FunctionIntro intro;
+		public final TypedPattern tp;
+		public IntroTypeVar(FunctionIntro intro, TypedPattern tp) {
+			this.intro = intro;
+			this.tp = tp;
+		}
+	}
+	
 	void addVar(VarPattern vp, FunctionIntro fi);
 	void addVarWithType(TypeReference tr, VarName varName, FunctionIntro fi);
-	void addTyped(TypeReference tr, VarName varName, FunctionIntro fi);
+	void addTyped(TypedPattern tr, FunctionIntro fi);
 	HSICtorTree requireCM(StructDefn ctor);
 	void addConstant(Primitive type, String value, FunctionIntro fi);
 	HSITree getCM(StructDefn constructor);
 	void includes(FunctionIntro current);
-	List<FunctionIntro> getIntrosForType(String ty);
+	List<FunctionIntro> getIntrosForType(NamedType ty);
 	List<FunctionIntro> getDefaultIntros(List<FunctionIntro> intros);
 	Type minimalType(CurrentTCState state, RepositoryReader repository);
 	Set<StructDefn> ctors();
+	List<IntroTypeVar> typedVars(NamedType ty);
 	List<IntroVarName> vars();
 	List<IntroVarName> vars(List<FunctionIntro> intros);
-	Set<String> types();
+	Set<NamedType> types();
 	Set<Integer> numericConstants(ArrayList<FunctionIntro> intersect);
 	Set<String> stringConstants(ArrayList<FunctionIntro> intersect);
 	boolean hasSwitches(List<FunctionIntro> intros);

@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.FunctionGroups;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -61,7 +62,7 @@ public class InsertorTests {
 	@Test
 	public void aFunctionWithNestedTypedVarsGetsThemWhenTraversingPatterns() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"));
+		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x"));
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 0);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
@@ -86,7 +87,7 @@ public class InsertorTests {
 	@Test
 	public void middlemenAreAlsoEnhanced() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"));
+		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x"));
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fnG = new FunctionDefinition(nameG, 0);
 		FunctionIntro fiG = new FunctionIntro(nameG, new ArrayList<>());

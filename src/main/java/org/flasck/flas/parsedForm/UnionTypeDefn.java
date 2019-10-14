@@ -11,10 +11,11 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.UnionFieldConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, Type {
+public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, NamedType {
 	public final transient boolean generate;
 	private final InputPosition location;
 	private final SolidName name;
