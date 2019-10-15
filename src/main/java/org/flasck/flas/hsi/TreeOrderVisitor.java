@@ -14,4 +14,7 @@ public interface TreeOrderVisitor extends Visitor {
 	void matchField(StructField fld);
 	void matchType(Type ty, VarName var, FunctionIntro intro);
 	void varInIntro(VarPattern vp, FunctionIntro intro);
+	void endField(StructField fld);
+	void endConstructor(StructDefn ctor);
+	void endArg(Slot s);
 }

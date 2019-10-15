@@ -324,4 +324,16 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 	public void varInIntro(VarPattern vp, FunctionIntro intro) {
 		tov.varInIntro(vp, intro);
 	}
+
+	public void endField(StructField fld) {
+		tov.endField(fld);
+	}
+
+	public void endConstructor(StructDefn ctor) {
+		tov.endConstructor(ctor);
+	}
+
+	public void endArg(Slot s) {
+		tov.endArg(s);
+	}
 }

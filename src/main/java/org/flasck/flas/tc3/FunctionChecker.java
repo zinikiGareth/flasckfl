@@ -24,7 +24,6 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final NestedVisitor sv;
 	private final List<Type> resultTypes = new ArrayList<>();
 	private final CurrentTCState state;
-	private StructTypeConstraints currentStruct;
 
 	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state) {
 		this.errors = errors;
@@ -56,6 +55,21 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	@Override
 	public void varInIntro(VarPattern vp, FunctionIntro intro) {
+		throw new NotImplementedException("This should not happen here .. just argslots");
+	}
+
+	@Override
+	public void endField(StructField fld) {
+		throw new NotImplementedException("This should not happen here .. just argslots");
+	}
+
+	@Override
+	public void endConstructor(StructDefn ctor) {
+		throw new NotImplementedException("This should not happen here .. just argslots");
+	}
+
+	@Override
+	public void endArg(Slot s) {
 		throw new NotImplementedException("This should not happen here .. just argslots");
 	}
 

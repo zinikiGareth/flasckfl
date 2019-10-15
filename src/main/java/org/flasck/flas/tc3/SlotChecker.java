@@ -50,4 +50,18 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void endField(StructField fld) {
+		sv.result(null);
+	}
+
+	@Override
+	public void endConstructor(StructDefn ctor) {
+	}
+
+	@Override
+	public void endArg(Slot s) {
+		sv.result(null);
+	}
 }
