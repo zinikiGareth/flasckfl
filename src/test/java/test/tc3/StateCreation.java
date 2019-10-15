@@ -53,7 +53,7 @@ public class StateCreation {
 		
 		GroupChecker tc = new GroupChecker(errors, repository, nv, state);
 		tc.visitFunction(fn);
-		tc.visitPatterns(hat);
+//		tc.visitPatterns(hat);
 	}
 
 }

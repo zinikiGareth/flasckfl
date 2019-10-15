@@ -189,13 +189,14 @@ public class TreeOrderTraversalTests {
 		fi.functionCase(new FunctionCaseDefn(null, simpleExpr));
 		fn.intro(fi);
 		HSITree hsi = new HSIArgsTree(1);
-		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x")), fi);
+		VarName vx = new VarName(pos, nameF, "x");
+		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), vx), fi);
 		fn.bindHsi(hsi);
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
-			oneOf(v).matchType(LoadBuiltins.number, "x", fi); inSequence(seq);
+			oneOf(v).matchType(LoadBuiltins.number, vx, fi); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
@@ -219,8 +220,10 @@ public class TreeOrderTraversalTests {
 		VarName xn = new VarName(pos, nameF, "x");
 		VarPattern xp = new VarPattern(pos, xn);
 		HSITree hsi = new HSIArgsTree(2);
-		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "n")), fi1);
-		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "String").bind(LoadBuiltins.string), new VarName(pos, nameF, "s")), fi2);
+		VarName nn = new VarName(pos, nameF, "n");
+		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), nn), fi1);
+		VarName sn = new VarName(pos, nameF, "s");
+		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "String").bind(LoadBuiltins.string), sn), fi2);
 		hsi.get(1).addVar(vp, fi1);
 		hsi.get(1).addVar(xp, fi2);
 		fn.bindHsi(hsi);
@@ -228,8 +231,8 @@ public class TreeOrderTraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
-			oneOf(v).matchType(LoadBuiltins.number, "n", fi1); inSequence(seq);
-			oneOf(v).matchType(LoadBuiltins.string, "s", fi2); inSequence(seq);
+			oneOf(v).matchType(LoadBuiltins.number, nn, fi1); inSequence(seq);
+			oneOf(v).matchType(LoadBuiltins.string, sn, fi2); inSequence(seq);
 			oneOf(v).argSlot(with(SlotMatcher.id("1"))); inSequence(seq);
 			oneOf(v).varInIntro(vp, fi1); inSequence(seq);
 			oneOf(v).varInIntro(xp, fi2); inSequence(seq);

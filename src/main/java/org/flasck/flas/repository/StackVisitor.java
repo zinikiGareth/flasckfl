@@ -9,8 +9,10 @@ import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -33,11 +35,13 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.Primitive;
+import org.flasck.flas.tc3.Type;
 
-public class StackVisitor implements NestedVisitor, HSIVisitor {
+public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor {
 	private List<Visitor> stack = new LinkedList<>();
 	private Visitor top;
 	private HSIVisitor hsi;
+	private TreeOrderVisitor tov;
 	
 	@Override
 	public void push(Visitor v) {
@@ -51,6 +55,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 			this.hsi = (HSIVisitor) v;
 		else
 			this.hsi = null;
+		if (v instanceof TreeOrderVisitor)
+			this.tov = (TreeOrderVisitor) v;
+		else
+			this.tov = null;
 	}
 
 	@Override
@@ -295,5 +303,25 @@ public class StackVisitor implements NestedVisitor, HSIVisitor {
 
 	public void endSwitch() {
 		hsi.endSwitch();
+	}
+
+	public void argSlot(Slot s) {
+		tov.argSlot(s);
+	}
+
+	public void matchConstructor(StructDefn ctor) {
+		tov.matchConstructor(ctor);
+	}
+
+	public void matchField(StructField fld) {
+		tov.matchField(fld);
+	}
+
+	public void matchType(Type ty, VarName var, FunctionIntro intro) {
+		tov.matchType(ty, var, intro);
+	}
+
+	public void varInIntro(VarPattern vp, FunctionIntro intro) {
+		tov.varInIntro(vp, intro);
 	}
 }

@@ -1,5 +1,6 @@
 package org.flasck.flas.hsi;
 
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -11,6 +12,6 @@ public interface TreeOrderVisitor extends Visitor {
 	void argSlot(Slot s);
 	void matchConstructor(StructDefn ctor);
 	void matchField(StructField fld);
-	void matchType(Type ty, String var, FunctionIntro intro);
+	void matchType(Type ty, VarName var, FunctionIntro intro);
 	void varInIntro(VarPattern vp, FunctionIntro intro);
 }

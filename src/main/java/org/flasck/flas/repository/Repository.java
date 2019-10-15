@@ -103,7 +103,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitConstPattern(ConstPattern p, boolean isNested);
 	}
 
-	private final Map<String, RepositoryEntry> dict = new TreeMap<>();
+	final Map<String, RepositoryEntry> dict = new TreeMap<>();
 	
 	public Repository() {
 	}
@@ -225,17 +225,13 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void traverse(Visitor visitor) {
 		Traverser t = new Traverser(visitor);
-		for (RepositoryEntry e : dict.values()) {
-			t.visitEntry(e);
-		}
+		t.doTraversal(this);
 	}
 
 	public void traverseLifted(Visitor visitor) {
  		Traverser t = new Traverser(visitor);
 		t.withNestedPatterns();
-		for (RepositoryEntry e : dict.values()) {
-			t.visitEntry(e);
-		}
+		t.doTraversal(this);
 	}
 
 	@Override
@@ -244,17 +240,13 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.withNestedPatterns();
 		t.withFunctionsInDependencyGroups(groups);
 		t.withPatternsInTreeOrder();
-		for (RepositoryEntry e : dict.values()) {
-			t.visitEntry(e);
-		}
+		t.doTraversal(this);
 	}
 
 	@Override
 	public void traverseWithHSI(HSIVisitor v) {
 		Traverser t = new Traverser(v).withHSI().withNestedPatterns();
-		for (RepositoryEntry e : dict.values()) {
-			t.visitEntry(e);
-		}
+		t.doTraversal(this);
 	}
 
 	@Override

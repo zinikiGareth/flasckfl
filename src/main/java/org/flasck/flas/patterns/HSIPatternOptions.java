@@ -140,7 +140,12 @@ public class HSIPatternOptions implements HSIOptions {
 		List<IntroTypeVar> ret = new ArrayList<>();
 		if (tv.intros.size() != 1)
 			throw new RuntimeException("I wasn't expecting that");
-		ret.add(new IntroTypeVar(tv.intros.get(0), tv.tp));
+		IntroTypeVar itv;
+		if (tv.tp != null)
+			itv = new IntroTypeVar(tv.intros.get(0), tv.tp);
+		else
+			itv = new IntroTypeVar(tv.intros.get(0), tv.type);
+		ret.add(itv);
 		return ret;
 	}
 
@@ -150,7 +155,12 @@ public class HSIPatternOptions implements HSIOptions {
 		for (TV v : vars) {
 			if (v.intros.size() != 1)
 				throw new RuntimeException("I wasn't expecting that");
-			ret.add(new IntroVarName(v.intros.get(0), v.vp));
+			IntroVarName iv;
+			if (v.vp != null)
+				iv = new IntroVarName(v.intros.get(0), v.vp);
+			else
+				iv = new IntroVarName(v.intros.get(0), v.var);
+			ret.add(iv);
 		}
 		return ret;
 	}

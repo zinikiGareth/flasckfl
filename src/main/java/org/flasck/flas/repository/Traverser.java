@@ -74,16 +74,22 @@ public class Traverser implements Visitor {
 
 	public Traverser withFunctionsInDependencyGroups(FunctionGroups order) {
 		this.functionOrder = order;
-		if (order != null) {
-			for (FunctionGroup grp : order)
-				visitFunctionGroup(grp);
-		}
 		return this;
 	}
 
 	public Traverser withPatternsInTreeOrder() {
 		this.patternsTree = true;
 		return this;
+	}
+
+	public void doTraversal(Repository repository) {
+		if (functionOrder != null) {
+			for (FunctionGroup grp : functionOrder)
+				visitFunctionGroup(grp);
+		}
+		for (RepositoryEntry e : repository.dict.values()) {
+			visitEntry(e);
+		}
 	}
 
 	/** It's starting to concern me that for some things (contracts, unit tests) we visit
@@ -224,7 +230,10 @@ public class Traverser implements Visitor {
 		}
 		for (NamedType t : hsiOptions.types()) {
 			for (IntroTypeVar tv : hsiOptions.typedVars(t)) {
-				tov.matchType(t, tv.tp.var.var, tv.intro);
+				if (tv.tp != null)
+					tov.matchType(t, tv.tp.var, tv.intro);
+				else
+					tov.matchType(t, null, tv.intro); // for constants, there is no var to bind
 			}
 		}
 		for (IntroVarName iv : hsiOptions.vars()) {
