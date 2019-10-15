@@ -20,7 +20,8 @@ public class TypeConstraintSet implements UnifiableType {
 	private final Set<Type> incorporatedBys = new HashSet<>();
 	private final Map<StructDefn, StructTypeConstraints> constraints = new TreeMap<>(StructDefn.nameComparator);
 	private final InputPosition pos;
-	private Type t;
+	private Type resolvedTo;
+	private int returned = 0;
 	
 	public TypeConstraintSet(CurrentTCState state, InputPosition pos) {
 		this.state = state;
@@ -29,6 +30,10 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public Type resolve() {
+		if (resolvedTo != null)
+			return resolvedTo;
+		if (constraints.isEmpty() && incorporatedBys.isEmpty() && returned == 0)
+			return LoadBuiltins.any;
 		if (!constraints.isEmpty()) {
 			// We have been explicitly told that this is true, usually through pattern matching
 			if (constraints.size() == 1) {
@@ -51,19 +56,26 @@ public class TypeConstraintSet implements UnifiableType {
 						else
 							polys.add(LoadBuiltins.any);
 					}
-					return new PolyInstance(ty, polys);
+					resolvedTo = new PolyInstance(ty, polys);
+					return resolvedTo;
 				}
 			}
 		}
 		if (incorporatedBys.isEmpty())
-			t = state.nextPoly(pos);
+			resolvedTo = state.nextPoly(pos);
 		else {
 			// TODO: merge multiple things or throw an error
-			t = incorporatedBys.iterator().next();
+			resolvedTo = incorporatedBys.iterator().next();
 		}
-		return t;
+		return resolvedTo;
 	}
 	
+	
+	@Override
+	public void isReturned() {
+		returned ++;
+	}
+
 	@Override
 	public void incorporatedBy(InputPosition pos, Type incorporator) {
 		incorporatedBys.add(incorporator);
@@ -71,23 +83,23 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public String signature() {
-		if (t == null)
+		if (resolvedTo == null)
 			throw new NotImplementedException("Has not been resolved");
-		return t.signature();
+		return resolvedTo.signature();
 	}
 
 	@Override
 	public int argCount() {
-		if (t == null)
+		if (resolvedTo == null)
 			throw new NotImplementedException("Has not been resolved");
-		return t.argCount();
+		return resolvedTo.argCount();
 	}
 
 	@Override
 	public Type get(int pos) {
-		if (t == null)
+		if (resolvedTo == null)
 			throw new NotImplementedException("Has not been resolved");
-		return t.get(pos);
+		return resolvedTo.get(pos);
 	}
 
 	@Override

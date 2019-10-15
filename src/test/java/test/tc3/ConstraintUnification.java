@@ -2,7 +2,6 @@ package test.tc3;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PolyType;
@@ -24,31 +23,11 @@ public class ConstraintUnification {
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 	
 	@Test
-	public void ifWeDontDoAnythingWeEndUpAskingForAPolyVar() {
-		context.checking(new Expectations() {{
-			oneOf(state).nextPoly(pos); will(returnValue(new PolyType(pos, "A")));
-		}});
+	public void ifWeDontDoAnythingWeEndUpWithAny() {
 		UnifiableType ut = new TypeConstraintSet(state, pos);
-		Type ty = ut.resolve();
-		assertTrue(ty instanceof PolyType);
-		assertEquals("A", ((PolyType)ty).name());
-		assertEquals(pos, ((PolyType)ty).location());
+		assertEquals(LoadBuiltins.any, ut.resolve());
 	}
 
-	@Test
-	public void twoTypesGetTwoPolyVars() {
-		UnifiableType uv = new TypeConstraintSet(state, pos);
-		UnifiableType uw = new TypeConstraintSet(state, pos);
-		context.checking(new Expectations() {{
-			oneOf(state).nextPoly(pos);
-		}});
-		uv.resolve();
-		context.checking(new Expectations() {{
-			oneOf(state).nextPoly(pos);
-		}});
-		uw.resolve();
-	}
-	
 	@Test
 	public void oneIncoporatedByConstraintCreatesAnIdentity() {
 		UnifiableType ut = new TypeConstraintSet(state, pos);
@@ -75,6 +54,15 @@ public class ConstraintUnification {
 	
 	@SuppressWarnings("unchecked")
 	@Test
+	public void ifYouAskSomethingToBeAConsWithHeadNotConstrainedYouStillGetAny() {
+		UnifiableType ut = new TypeConstraintSet(state, pos);
+		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
+		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
+		assertThat(ut.resolve(), PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadSpecifiedThatsTheType() {
 		UnifiableType ut = new TypeConstraintSet(state, pos);
 		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
@@ -83,6 +71,23 @@ public class ConstraintUnification {
 		assertThat(ut.resolve(), PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.falseT)));
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void ifYouUseAVarThenYouGetAFreshPolyVar() {
+		UnifiableType ut = new TypeConstraintSet(state, pos);
+		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
+		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
+		f.isReturned();
+
+		PolyType polyA = new PolyType(pos, "A");
+		context.checking(new Expectations() {{
+			oneOf(state).nextPoly(pos); will(returnValue(polyA));
+		}});
+		
+		assertThat(f.resolve(), Matchers.is(polyA));
+		assertThat(ut.resolve(), PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(polyA)));
+	}
+
 	// TODO: head as a var leads to Cons[A] unless the var is completely unused
 	// TODO: just specify the tail
 	// TODO: conflict -> error
