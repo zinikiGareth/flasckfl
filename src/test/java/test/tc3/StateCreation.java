@@ -50,7 +50,7 @@ public class StateCreation {
 
 		context.checking(new Expectations() {{
 			oneOf(arg).canBeStruct(LoadBuiltins.cons); will(returnValue(cons));
-			oneOf(cons).field(LoadBuiltins.cons.findField("head")); will(returnValue(head));
+			oneOf(cons).field(state, null, LoadBuiltins.cons.findField("head")); will(returnValue(head));
 		}});
 		nv.matchConstructor(LoadBuiltins.cons);
 		nv.matchField(LoadBuiltins.cons.findField("head"));
@@ -95,7 +95,7 @@ public class StateCreation {
 
 		context.checking(new Expectations() {{
 			oneOf(arg).canBeStruct(LoadBuiltins.cons); will(returnValue(cons));
-			oneOf(cons).field(LoadBuiltins.cons.findField("head")); will(returnValue(head));
+			oneOf(cons).field(state, null, LoadBuiltins.cons.findField("head")); will(returnValue(head));
 		}});
 		nv.matchConstructor(LoadBuiltins.cons);
 		nv.matchField(LoadBuiltins.cons.findField("head"));

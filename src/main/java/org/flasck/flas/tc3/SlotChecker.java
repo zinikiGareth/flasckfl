@@ -35,7 +35,7 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 
 	@Override
 	public void matchField(StructField fld) {
-		UnifiableType ft = currentStruct.field(fld);
+		UnifiableType ft = currentStruct.field(state, null, fld);
 		sv.push(new SlotChecker(sv, state, ft));
 	}
 

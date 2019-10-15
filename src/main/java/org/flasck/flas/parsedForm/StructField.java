@@ -1,10 +1,18 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.Comparator;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.VarName;
 
 public class StructField implements Locatable {
+	public static Comparator<StructField> nameComparator = new Comparator<StructField>() {
+		@Override
+		public int compare(StructField o1, StructField o2) {
+			return o1.name.compareTo(o2.name);
+		}
+	};
 	public final InputPosition loc;
 	public final InputPosition assOp;
 	public final boolean accessor;

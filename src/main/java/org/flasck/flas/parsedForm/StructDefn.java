@@ -108,4 +108,13 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	public PolyType findPoly(TypeReference ft) {
+		if (polys == null)
+			return null;
+		for (PolyType pt : polys)
+			if (pt.name().equals(ft.name()))
+				return pt;
+		return null;
+	}
 }
