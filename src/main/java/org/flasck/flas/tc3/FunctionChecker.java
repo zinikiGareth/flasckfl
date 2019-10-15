@@ -16,6 +16,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrderVisitor {
 	private final ErrorReporter errors;
@@ -23,7 +24,6 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final NestedVisitor sv;
 	private final List<Type> resultTypes = new ArrayList<>();
 	private final CurrentTCState state;
-	private UnifiableType currentArg;
 	private StructTypeConstraints currentStruct;
 
 	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state) {
@@ -35,30 +35,28 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void argSlot(Slot s) {
-		currentArg = state.nextArg();
+		UnifiableType currentArg = state.nextArg();
+		sv.push(new SlotChecker(sv, state, currentArg));
 	}
 
 	@Override
 	public void matchConstructor(StructDefn ctor) {
-		currentStruct = currentArg.canBeStruct(ctor);
+		throw new NotImplementedException("This should not happen here .. just argslots");
 	}
 
 	@Override
 	public void matchField(StructField fld) {
-		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("This should not happen here .. just argslots");
 	}
 
 	@Override
 	public void matchType(Type ty, VarName var, FunctionIntro intro) {
-		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("This should not happen here .. just argslots");
 	}
 
 	@Override
 	public void varInIntro(VarPattern vp, FunctionIntro intro) {
-		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("This should not happen here .. just argslots");
 	}
 
 	@Override
