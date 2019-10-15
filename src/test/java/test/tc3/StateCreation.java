@@ -13,6 +13,7 @@ import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.SlotChecker;
@@ -32,25 +33,22 @@ public class StateCreation {
 	private final PackageName pkg = new PackageName("test.repo");
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
-	private final FunctionName nameF = FunctionName.function(pos, pkg, "f");
-	private final NestedVisitor nv = context.mock(NestedVisitor.class);
+	private final StackVisitor nv = new StackVisitor();
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Test
-	public void testASimpleNoArgConstructorSaysThisMustBeInTheArgType() {
+	public void aSimpleNoArgConstructorSaysThisMustBeInTheArgType() {
 		UnifiableType arg = context.mock(UnifiableType.class);
+		nv.push(new FunctionChecker(errors, repository, nv, state));
 		
-		CaptureAction captureSC = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(state).nextArg(); will(returnValue(arg));
-			oneOf(nv).push(with(any(SlotChecker.class))); will(captureSC);
 		}});
-		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
-		fc.argSlot(new ArgSlot(0, null));
+		nv.argSlot(new ArgSlot(0, null));
 		context.checking(new Expectations() {{
 			oneOf(arg).canBeStruct(LoadBuiltins.nil);
 		}});
-		((SlotChecker) captureSC.get(0)).matchConstructor(LoadBuiltins.nil);
+		nv.matchConstructor(LoadBuiltins.nil);
 	}
 
 	@Test
@@ -58,30 +56,49 @@ public class StateCreation {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
 		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
 		UnifiableType head = context.mock(UnifiableType.class, "head");
+		nv.push(new FunctionChecker(errors, repository, nv, state));
 		
-		CaptureAction captureSC = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(state).nextArg(); will(returnValue(arg));
-			oneOf(nv).push(with(any(SlotChecker.class))); will(captureSC);
 		}});
-		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
-		fc.argSlot(new ArgSlot(0, null));
+		nv.argSlot(new ArgSlot(0, null));
 
-		CaptureAction captureFSC = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(arg).canBeStruct(LoadBuiltins.cons); will(returnValue(cons));
 			oneOf(cons).field(LoadBuiltins.cons.findField("head")); will(returnValue(head));
-			oneOf(nv).push(with(any(SlotChecker.class))); will(captureFSC);
 		}});
-		SlotChecker sc = (SlotChecker) captureSC.get(0);
-		sc.matchConstructor(LoadBuiltins.cons);
-		sc.matchField(LoadBuiltins.cons.findField("head"));
+		nv.matchConstructor(LoadBuiltins.cons);
+		nv.matchField(LoadBuiltins.cons.findField("head"));
 
 		context.checking(new Expectations() {{
 			oneOf(head).canBeStruct(LoadBuiltins.nil);
 		}});
-		SlotChecker fsc = (SlotChecker) captureFSC.get(0);
-		fsc.matchConstructor(LoadBuiltins.nil);
+		nv.matchConstructor(LoadBuiltins.nil);
+	}
+
+	@Test
+	public void alternativeConstructorsCanBeOfferedForTheSameSlot() {
+		UnifiableType arg = context.mock(UnifiableType.class, "arg");
+		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
+		UnifiableType head = context.mock(UnifiableType.class, "head");
+		nv.push(new FunctionChecker(errors, repository, nv, state));
+		
+		context.checking(new Expectations() {{
+			oneOf(state).nextArg(); will(returnValue(arg));
+		}});
+		nv.argSlot(new ArgSlot(0, null));
+
+		context.checking(new Expectations() {{
+			oneOf(arg).canBeStruct(LoadBuiltins.cons); will(returnValue(cons));
+			oneOf(cons).field(LoadBuiltins.cons.findField("head")); will(returnValue(head));
+		}});
+		nv.matchConstructor(LoadBuiltins.cons);
+		nv.matchField(LoadBuiltins.cons.findField("head"));
+
+		context.checking(new Expectations() {{
+			oneOf(head).canBeStruct(LoadBuiltins.nil);
+		}});
+		nv.matchConstructor(LoadBuiltins.nil);
 	}
 
 }
