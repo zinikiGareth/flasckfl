@@ -11,9 +11,10 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 
-public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, Type {
+public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType {
 	public static Comparator<StructDefn> nameComparator = new Comparator<StructDefn>() {
 		@Override
 		public int compare(StructDefn l, StructDefn r) {

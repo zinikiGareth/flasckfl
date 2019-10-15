@@ -181,8 +181,6 @@ public class TreeOrderTraversalTests {
 		}});
 		t.visitFunction(fn);
 	}
-
-	// TODO: a case that shows we get different var bindings for different intros ...
 	
 	@Test
 	public void typesAreOKToo() {
@@ -202,6 +200,47 @@ public class TreeOrderTraversalTests {
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+		}});
+		t.visitFunction(fn);
+	}
+
+	@Test
+	public void aFunctionWithTwoIntrosGivesEachOneTheRightVariableArguments() {
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
+		fi1.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		fn.intro(fi1);
+		FunctionIntro fi2 = new FunctionIntro(nameF, new ArrayList<>());
+		fi2.functionCase(new FunctionCaseDefn(null, number));
+		fn.intro(fi2);
+		VarName vn = new VarName(pos, nameF, "v");
+		VarPattern vp = new VarPattern(pos, vn);
+		VarName xn = new VarName(pos, nameF, "x");
+		VarPattern xp = new VarPattern(pos, xn);
+		HSITree hsi = new HSIArgsTree(2);
+		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "n")), fi1);
+		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "String").bind(LoadBuiltins.string), new VarName(pos, nameF, "s")), fi2);
+		hsi.get(1).addVar(vp, fi1);
+		hsi.get(1).addVar(xp, fi2);
+		fn.bindHsi(hsi);
+		Sequence seq = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(v).visitFunction(fn); inSequence(seq);
+			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).matchType(LoadBuiltins.number, "n", fi1); inSequence(seq);
+			oneOf(v).matchType(LoadBuiltins.string, "s", fi2); inSequence(seq);
+			oneOf(v).argSlot(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).varInIntro(vp, fi1); inSequence(seq);
+			oneOf(v).varInIntro(xp, fi2); inSequence(seq);
+			oneOf(v).visitFunctionIntro(fi1); inSequence(seq);
+			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
+			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveFunctionIntro(fi1); inSequence(seq);
+			oneOf(v).visitFunctionIntro(fi2); inSequence(seq);
+			oneOf(v).visitExpr(number, 0); inSequence(seq);
+			oneOf(v).visitNumericLiteral(number); inSequence(seq);
+			oneOf(v).leaveFunctionIntro(fi2); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
 		}});
 		t.visitFunction(fn);
