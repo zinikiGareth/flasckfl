@@ -23,6 +23,7 @@ import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker;
+import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
@@ -42,15 +43,15 @@ public class StackVisitation {
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 
 	@Test
-	public void whenWeVisitAFunctionIntroWePushAnExpressionMatcher() {
+	public void whenWeVisitAFunctionWePushAFunctionChecker() {
 		FunctionName name = FunctionName.function(pos, null, "f");
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		fi.bindTree(new HSIArgsTree(0));
 		context.checking(new Expectations() {{
-			oneOf(nv).push(with(any(ExpressionChecker.class)));
+			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
-		GroupChecker tc = new GroupChecker(errors, repository, nv, null);
-		tc.visitFunctionIntro(fi);
+		GroupChecker gc = new GroupChecker(errors, repository, nv, null);
+		gc.visitFunction(new FunctionDefinition(name, 0));
 	}
 
 	@Test
@@ -62,13 +63,13 @@ public class StackVisitation {
 		fn.intro(fi);
 		Type ty = context.mock(Type.class);
 		context.checking(new Expectations() {{
-			oneOf(nv).push(with(any(ExpressionChecker.class)));
+			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
-		GroupChecker tc = new GroupChecker(errors, repository, nv, null);
-		tc.visitFunctionIntro(fi);
-		tc.result(ty);
-		tc.leaveFunctionIntro(fi);
-		tc.leaveFunction(fn);
+		GroupChecker gc = new GroupChecker(errors, repository, nv, null);
+		gc.visitFunction(fn);
+		gc.result(ty);
+		gc.leaveFunctionIntro(fi);
+		gc.leaveFunction(fn);
 		assertEquals(ty, fn.type());
 	}
 

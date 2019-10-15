@@ -18,6 +18,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
+import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.GroupChecker;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -37,7 +38,7 @@ public class PatternsProduceTypes {
 	@Test
 	public void aConstantPatternIsANumber() {
 		context.checking(new Expectations() {{
-			oneOf(sv).push(with(any(ExpressionChecker.class)));
+			oneOf(sv).push(with(any(FunctionChecker.class)));
 			allowing(state);
 		}});
 		GroupChecker tc = new GroupChecker(errors, repository, sv, state);
