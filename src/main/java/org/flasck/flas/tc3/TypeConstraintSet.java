@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -13,9 +14,11 @@ import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.RepositoryReader;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TypeConstraintSet implements UnifiableType {
+	private final RepositoryReader repository;
 	private final CurrentTCState state;
 	private final Set<Type> incorporatedBys = new HashSet<>();
 	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
@@ -24,7 +27,8 @@ public class TypeConstraintSet implements UnifiableType {
 	private Type resolvedTo;
 	private int returned = 0;
 	
-	public TypeConstraintSet(CurrentTCState state, InputPosition pos) {
+	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos) {
+		repository = r;
 		this.state = state;
 		this.pos = pos;
 	}
@@ -50,12 +54,16 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 			throw new NotImplementedException("a unification case");
 		}
+		// TODO: I think the tys = ... repo.findUnion() wants to wrap this whole function, but I'm not QUITE sure how it works with the "minimal" constraints detected in expression checking
+		// Are they secondary?
 		if (!ctors.isEmpty()) {
-			// We have been explicitly told that this is true, usually through pattern matching
-			if (ctors.size() == 1) {
-				StructDefn ty = ctors.keySet().iterator().next();
+			// We have been explicitly told that these are true, usually through pattern matching
+			// This is too broad; but I think we are going to need to do something like this ultimately, so just suck it up ...
+			Set<Type> tys = new HashSet<Type>();
+			for (Entry<StructDefn, StructTypeConstraints> e : ctors.entrySet()) {
+				StructDefn ty = e.getKey();
 				if (!ty.hasPolys())
-					return ty;
+					tys.add(ty);
 				else {
 					StructTypeConstraints stc = ctors.get(ty);
 					Map<PolyType, Type> polyMap = new HashMap<>();
@@ -73,9 +81,13 @@ public class TypeConstraintSet implements UnifiableType {
 							polys.add(LoadBuiltins.any);
 					}
 					resolvedTo = new PolyInstance(ty, polys);
-					return resolvedTo;
+					tys.add(resolvedTo);
 				}
 			}
+			if (tys.size() == 1)
+				return tys.iterator().next();
+			else
+				return repository.findUnionWith(tys);
 		}
 		if (incorporatedBys.isEmpty())
 			resolvedTo = state.nextPoly(pos);
@@ -125,7 +137,7 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public StructTypeConstraints canBeStruct(StructDefn sd) {
 		if (!ctors.containsKey(sd))
-			ctors.put(sd, new StructFieldConstraints(sd));
+			ctors.put(sd, new StructFieldConstraints(repository, sd));
 		return ctors.get(sd);
 	}
 

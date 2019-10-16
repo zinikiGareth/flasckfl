@@ -13,5 +13,5 @@ public interface RepositoryReader {
 	void traverseWithHSI(HSIVisitor visitor);
 	void traverseInGroups(Visitor visitor, FunctionGroups groups);
 	void dump();
-	Type findUnionWith(Set<StructDefn> ms);
+	Type findUnionWith(Set<Type> tys);
 }

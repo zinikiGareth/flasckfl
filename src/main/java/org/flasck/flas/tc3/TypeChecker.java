@@ -21,6 +21,6 @@ public class TypeChecker extends LeafAdapter {
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
 		System.out.println("TC grp " + grp);
-		sv.push(new GroupChecker(errors, repository, sv, new FunctionGroupTCState()));
+		sv.push(new GroupChecker(errors, repository, sv, new FunctionGroupTCState(repository)));
 	}
 }

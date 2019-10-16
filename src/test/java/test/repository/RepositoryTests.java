@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -43,6 +43,7 @@ import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.tc3.Type;
 import org.junit.Test;
 
 public class RepositoryTests {
@@ -285,7 +286,7 @@ public class RepositoryTests {
 	public void canFindAUnionInTheRepository() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
-		Set<StructDefn> ms = new TreeSet<>(StructDefn.nameComparator);
+		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
 		UnionTypeDefn b = (UnionTypeDefn) r.findUnionWith(ms);
@@ -296,7 +297,7 @@ public class RepositoryTests {
 	public void inOrderToMatchAUnionMustContainAllTheThings() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
-		Set<StructDefn> ms = new TreeSet<>(StructDefn.nameComparator);
+		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
 		ms.add(LoadBuiltins.nil);
@@ -307,7 +308,7 @@ public class RepositoryTests {
 	public void inOrderToMatchAUnionMustNotContainMoreThings() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
-		Set<StructDefn> ms = new TreeSet<>(StructDefn.nameComparator);
+		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		assertNull(r.findUnionWith(ms));
 	}
@@ -316,7 +317,7 @@ public class RepositoryTests {
 	public void allTheThingsMustBeTheRightThings() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
-		Set<StructDefn> ms = new TreeSet<>(StructDefn.nameComparator);
+		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.nil);
 		assertNull(r.findUnionWith(ms));

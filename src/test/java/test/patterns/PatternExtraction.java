@@ -114,16 +114,15 @@ public class PatternExtraction {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void caseWithTwoConstructorsThatArePartOfASingleUnion() {
-		RepositoryEntry bool = context.mock(REType.class, "Boolean");
 		context.checking(new Expectations() {{
-			oneOf(r).findUnionWith((Set<StructDefn>) with(Matchers.contains(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(bool));
+			oneOf(r).findUnionWith((Set<Type>) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.requireCM(LoadBuiltins.trueT);
 		po.requireCM(LoadBuiltins.falseT);
 		Type ty = po.minimalType(state, r);
 		assertNotNull(ty);
-		assertEquals(bool, ty);
+		assertEquals(LoadBuiltins.bool, ty);
 	}
 
 }

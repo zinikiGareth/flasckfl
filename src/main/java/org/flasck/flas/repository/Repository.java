@@ -211,7 +211,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
-	public Type findUnionWith(Set<StructDefn> ms) {
+	public Type findUnionWith(Set<Type> ms) {
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
 				UnionTypeDefn utd = (UnionTypeDefn) k;

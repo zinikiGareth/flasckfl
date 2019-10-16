@@ -2,6 +2,7 @@ package org.flasck.flas.patterns;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -223,7 +224,7 @@ public class HSIPatternOptions implements HSIOptions {
 			else
 				return ut.resolve();
 		} else {
-			Set<StructDefn> ms = ctors.keySet();
+			Set<Type> ms = new HashSet<>(ctors.keySet());
 			Type ut = repository.findUnionWith(ms);
 			if (ut == null) {
 				return repository.get("Any");

@@ -5,15 +5,21 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.repository.RepositoryReader;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionGroupTCState implements CurrentTCState {
-	private Map<String, TypeConstraintSet> constraints = new TreeMap<>();
+	private final RepositoryReader repository;
+	private final Map<String, TypeConstraintSet> constraints = new TreeMap<>();
 	int polyCount = 0;
 	
+	public FunctionGroupTCState(RepositoryReader repository) {
+		this.repository = repository;
+	}
+
 	@Override
 	public UnifiableType nextArg() {
-		return new TypeConstraintSet(this, null);
+		return new TypeConstraintSet(repository, this, null);
 	}
 
 	@Override
@@ -25,7 +31,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public UnifiableType requireVarConstraints(InputPosition pos, String var) {
 		if (constraints.containsKey(var))
 			return constraints.get(var);
-		TypeConstraintSet ret = new TypeConstraintSet(this, pos);
+		TypeConstraintSet ret = new TypeConstraintSet(repository, this, pos);
 		constraints.put(var, ret);
 		return ret;
 	}

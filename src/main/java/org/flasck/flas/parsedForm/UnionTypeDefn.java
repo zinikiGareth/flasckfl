@@ -56,11 +56,11 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		return polyvars;
 	}
 	
-	public boolean matches(Set<StructDefn> ms) {
+	public boolean matches(Set<Type> ms) {
 		if (cases.size() != ms.size())
 			return false;
 		for (TypeReference s : cases) {
-			if (!ms.contains(s.defn()))
+			if (!ms.contains((Type)s.defn()))
 				return false;
 		}
 		return true;
