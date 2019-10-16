@@ -9,4 +9,5 @@ public interface CurrentTCState {
 	UnifiableType hasVar(String var);
 	PolyType nextPoly(InputPosition pos);
 	void argType(Type type);
+	void bindVarToUT(String name, UnifiableType ty);
 }

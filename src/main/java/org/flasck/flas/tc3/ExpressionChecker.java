@@ -15,7 +15,6 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
-import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 
 public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	public static class ExprResult {

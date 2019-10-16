@@ -10,7 +10,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionGroupTCState implements CurrentTCState {
 	private final RepositoryReader repository;
-	private final Map<String, TypeConstraintSet> constraints = new TreeMap<>();
+	private final Map<String, UnifiableType> constraints = new TreeMap<>();
 	int polyCount = 0;
 	
 	public FunctionGroupTCState(RepositoryReader repository) {
@@ -28,12 +28,15 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	@Override
+	public void bindVarToUT(String name, UnifiableType ty) {
+		constraints.put(name, ty);
+	}
+
+	@Override
 	public UnifiableType requireVarConstraints(InputPosition pos, String var) {
-		if (constraints.containsKey(var))
-			return constraints.get(var);
-		TypeConstraintSet ret = new TypeConstraintSet(repository, this, pos);
-		constraints.put(var, ret);
-		return ret;
+		if (!constraints.containsKey(var))
+			throw new RuntimeException("We don't have var constraints for " + var + " but it should have been bound during arg processing");
+		return constraints.get(var);
 	}
 
 	@Override

@@ -38,7 +38,7 @@ public class TypeConstraintSet implements UnifiableType {
 		if (resolvedTo != null)
 			return resolvedTo;
 		if (ctors.isEmpty() && incorporatedBys.isEmpty() && types.isEmpty() && returned == 0)
-			return LoadBuiltins.any;
+			return (resolvedTo = LoadBuiltins.any);
 		if (!types.isEmpty()) {
 			if (types.size() == 1) {
 				Type ret = types.iterator().next();
@@ -48,9 +48,9 @@ public class TypeConstraintSet implements UnifiableType {
 					for (PolyType p : sd.polys()) {
 						polys.add(LoadBuiltins.any);
 					}
-					return new PolyInstance(sd, polys);
+					return (resolvedTo = new PolyInstance(sd, polys));
 				}
-				return ret;
+				return (resolvedTo = ret);
 			}
 			throw new NotImplementedException("a unification case");
 		}
@@ -80,14 +80,13 @@ public class TypeConstraintSet implements UnifiableType {
 						else
 							polys.add(LoadBuiltins.any);
 					}
-					resolvedTo = new PolyInstance(ty, polys);
-					tys.add(resolvedTo);
+					tys.add(new PolyInstance(ty, polys));
 				}
 			}
 			if (tys.size() == 1)
-				return tys.iterator().next();
+				return (resolvedTo = tys.iterator().next());
 			else
-				return repository.findUnionWith(tys);
+				return (resolvedTo = repository.findUnionWith(tys));
 		}
 		if (incorporatedBys.isEmpty())
 			resolvedTo = state.nextPoly(pos);

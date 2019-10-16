@@ -50,8 +50,7 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 
 	@Override
 	public void varInIntro(VarPattern vp, FunctionIntro intro) {
-		// TODO Auto-generated method stub
-		
+		state.bindVarToUT(vp.name().uniqueName(), ty);
 	}
 
 	@Override
@@ -65,6 +64,6 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 
 	@Override
 	public void endArg(Slot s) {
-		sv.result(new ArgResult(ty.resolve()));
+		sv.result(new ArgResult(ty));
 	}
 }
