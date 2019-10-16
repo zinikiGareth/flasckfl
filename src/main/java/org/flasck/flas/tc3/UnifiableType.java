@@ -9,6 +9,9 @@ public interface UnifiableType extends Type {
 	// In this case, we allow the struct defn to be further constrained on its fields
 	StructTypeConstraints canBeStruct(StructDefn sd);
 
+	// We can represent the notion that a variable is typed in an argument
+	void canBeType(Type ofType);
+
 	// This makes the statement that whatever the ultimate type is, it cannot be "bigger than" or "different to" incorporator
 	// e.g. if it is incorporated by List, it can be Nil, Cons or List, but it cannot be Number
 	// if it is incorporated by Nil, it cannot be Cons, List or Number

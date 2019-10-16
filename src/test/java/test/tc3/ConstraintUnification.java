@@ -92,5 +92,23 @@ public class ConstraintUnification {
 	// TODO: just specify the tail
 	// TODO: conflict -> error
 	// TODO: nil or cons[A] -> list[A]
+	
+	@Test
+	public void aSingleArgConstraintJustGivesYouThatType() {
+		UnifiableType ut = new TypeConstraintSet(state, pos);
+		ut.canBeType(LoadBuiltins.string);
+		Type ty = ut.resolve();
+		assertEquals(LoadBuiltins.string, ty);
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void aSingleArgTypeConstraintWithAPolymorphicCtorGivesYouAnys() {
+		UnifiableType ut = new TypeConstraintSet(state, pos);
+		ut.canBeType(LoadBuiltins.cons);
+		Type ty = ut.resolve();
+		assertThat(ty, PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
+	}
 }
 

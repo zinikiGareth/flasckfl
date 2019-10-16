@@ -40,9 +40,11 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 	}
 
 	@Override
-	public void matchType(Type ty, VarName var, FunctionIntro intro) {
-		// TODO Auto-generated method stub
-		
+	public void matchType(Type ofType, VarName var, FunctionIntro intro) {
+		ty.canBeType(ofType);
+		// TODO: should we do something with the varname and intro?
+		// I think we're supposed to bind them in a map somewhere ... write the appropriate tests ...
+		// I think that goes in "state"
 	}
 
 	@Override

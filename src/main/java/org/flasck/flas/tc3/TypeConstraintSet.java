@@ -18,7 +18,8 @@ import org.zinutils.exceptions.NotImplementedException;
 public class TypeConstraintSet implements UnifiableType {
 	private final CurrentTCState state;
 	private final Set<Type> incorporatedBys = new HashSet<>();
-	private final Map<StructDefn, StructTypeConstraints> constraints = new TreeMap<>(StructDefn.nameComparator);
+	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
+	private final Set<Type> types = new HashSet<>();
 	private final InputPosition pos;
 	private Type resolvedTo;
 	private int returned = 0;
@@ -32,16 +33,31 @@ public class TypeConstraintSet implements UnifiableType {
 	public Type resolve() {
 		if (resolvedTo != null)
 			return resolvedTo;
-		if (constraints.isEmpty() && incorporatedBys.isEmpty() && returned == 0)
+		if (ctors.isEmpty() && incorporatedBys.isEmpty() && types.isEmpty() && returned == 0)
 			return LoadBuiltins.any;
-		if (!constraints.isEmpty()) {
+		if (!types.isEmpty()) {
+			if (types.size() == 1) {
+				Type ret = types.iterator().next();
+				if (ret instanceof StructDefn && ((StructDefn)ret).hasPolys()) {
+					StructDefn sd = (StructDefn) ret;
+					List<Type> polys = new ArrayList<>();
+					for (PolyType p : sd.polys()) {
+						polys.add(LoadBuiltins.any);
+					}
+					return new PolyInstance(sd, polys);
+				}
+				return ret;
+			}
+			throw new NotImplementedException("a unification case");
+		}
+		if (!ctors.isEmpty()) {
 			// We have been explicitly told that this is true, usually through pattern matching
-			if (constraints.size() == 1) {
-				StructDefn ty = constraints.keySet().iterator().next();
+			if (ctors.size() == 1) {
+				StructDefn ty = ctors.keySet().iterator().next();
 				if (!ty.hasPolys())
 					return ty;
 				else {
-					StructTypeConstraints stc = constraints.get(ty);
+					StructTypeConstraints stc = ctors.get(ty);
 					Map<PolyType, Type> polyMap = new HashMap<>();
 					for (StructField f : stc.fields()) {
 						PolyType pt = ty.findPoly(f.type);
@@ -69,7 +85,6 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 		return resolvedTo;
 	}
-	
 	
 	@Override
 	public void isReturned() {
@@ -109,8 +124,13 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public StructTypeConstraints canBeStruct(StructDefn sd) {
-		if (!constraints.containsKey(sd))
-			constraints.put(sd, new StructFieldConstraints(sd));
-		return constraints.get(sd);
+		if (!ctors.containsKey(sd))
+			ctors.put(sd, new StructFieldConstraints(sd));
+		return ctors.get(sd);
+	}
+
+	@Override
+	public void canBeType(Type ofType) {
+		types.add(ofType);
 	}
 }
