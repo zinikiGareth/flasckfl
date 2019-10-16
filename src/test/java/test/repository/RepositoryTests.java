@@ -3,8 +3,10 @@ package test.repository;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +45,7 @@ import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.junit.Test;
 
@@ -323,4 +326,18 @@ public class RepositoryTests {
 		assertNull(r.findUnionWith(ms));
 	}
 	
+	@Test
+	public void unionsCanBeFormedOfPolyInstances() {
+		Repository r = new Repository();
+		LoadBuiltins.applyTo(r);
+		Set<Type> ms = new HashSet<>();
+		ms.add(new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.bool)));
+		ms.add(LoadBuiltins.nil);
+		Type u = r.findUnionWith(ms);
+		assertNotNull(u);
+		assertTrue(u instanceof PolyInstance);
+		PolyInstance pi = (PolyInstance) u;
+		assertEquals(1, pi.getPolys().size());
+		assertEquals(LoadBuiltins.bool, pi.getPolys().get(0));
+	}
 }

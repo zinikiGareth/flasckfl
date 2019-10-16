@@ -215,8 +215,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
 				UnionTypeDefn utd = (UnionTypeDefn) k;
-				if (utd.matches(ms))
-					return utd;
+				Type union = utd.matches(ms);
+				if (union != null)
+					return union;
 			}
 		}
 		return null;

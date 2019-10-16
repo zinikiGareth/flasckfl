@@ -2,18 +2,22 @@ package org.flasck.flas.tc3;
 
 import java.util.List;
 
-import org.flasck.flas.parsedForm.StructDefn;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class PolyInstance implements Type {
-	private final StructDefn ty;
+	private final NamedType ty;
 	private final List<Type> polys;
 
-	public PolyInstance(StructDefn ty, List<Type> polys) {
+	public PolyInstance(NamedType ty, List<Type> polys) {
 		this.ty = ty;
 		this.polys = polys;
 	}
 
+	// TODO: its possible for this to be a union as well, I think ...
+	public NamedType struct() {
+		return ty;
+	}
+	
 	public List<Type> getPolys() {
 		return polys;
 	}

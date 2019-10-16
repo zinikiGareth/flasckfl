@@ -3,6 +3,7 @@ package org.flasck.flas.parsedForm;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,9 +11,12 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.UnionFieldConsumer;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, NamedType {
@@ -56,14 +60,77 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		return polyvars;
 	}
 	
-	public boolean matches(Set<Type> ms) {
-		if (cases.size() != ms.size())
+	public Type matches(Set<Type> members) {
+		Set<String> all = new HashSet<>();
+		Set<String> left = new HashSet<>();
+		for (TypeReference tr : cases) {
+			all.add(tr.name());
+			left.add(tr.name());
+		}
+		SetMap<String, Type> polys = new SetMap<String, Type>();
+		for (Type t : members) {
+			NamedType sd;
+			if (t instanceof StructDefn || t instanceof UnionTypeDefn)
+				sd = (StructDefn) t;
+			else if (t instanceof PolyInstance) {
+				PolyInstance pi = (PolyInstance)t;
+				sd = pi.struct();
+				TypeReference mine = findCase(sd.name().uniqueName());
+				if (mine == null)
+					return null;
+				List<Type> pip = pi.getPolys();
+				if (!mine.hasPolys() || pip.size() !=  mine.polys().size())
+					throw new NotImplementedException("I can't see how this isn't an error that should have been caught somewhere else");
+				for (int i=0;i<pip.size();i++) {
+					polys.add(mine.polys().get(i).name(), pip.get(i));
+				}
+			} else
+				return null;
+			if (!all.contains(sd.name().uniqueName()))
+				return null;
+			left.remove(sd.name().uniqueName());
+		}
+		if (!left.isEmpty())
+			return null;
+		if (!polys.isEmpty()) {
+			List<Type> bound = new ArrayList<>();
+			for (PolyType pt : this.polyvars) {
+				if (polys.contains(pt.name())) {
+					// TODO: I think we need to (recursively) unify these ...
+					bound.add(polys.get(pt.name()).iterator().next());
+				} else
+					bound.add(LoadBuiltins.any);
+			}
+			return new PolyInstance(this, bound);
+		} else
+			return this;
+		/*
+		// TODO: we need to do deeper analysis to make sure poly vars are consistently instantiated
+		// TODO: this prep work is the same for each of the union types to be considered - should we do it before calling this?
+		Set<StructDefn> structs = new HashSet<StructDefn>();
+		for (Type t : members) {
+			if (t instanceof StructDefn)
+				structs.add((StructDefn) t);
+			else if (t instanceof PolyInstance)
+				structs.add(((PolyInstance)t).struct());
+			else
+				return false;
+		}
+		if (cases.size() != structs.size())
 			return false;
 		for (TypeReference s : cases) {
-			if (!ms.contains((Type)s.defn()))
+			if (!structs.contains((Type)s.defn()))
 				return false;
 		}
 		return true;
+		*/
+	}
+
+	private TypeReference findCase(String ctor) {
+		for (TypeReference c : cases)
+			if (c.name().equals(ctor))
+				return c;
+		return null;
 	}
 
 	@Override
