@@ -36,7 +36,7 @@ public class ExpressionVisitation {
 		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(LoadBuiltins.number))));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.number))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitNumericLiteral(new NumericLiteral(pos, "42", 2));
@@ -47,7 +47,7 @@ public class ExpressionVisitation {
 		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitStringLiteral(new StringLiteral(pos, "yoyo"));
@@ -58,7 +58,7 @@ public class ExpressionVisitation {
 		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "Nil");
 		uv.bind(LoadBuiltins.nil);
@@ -74,7 +74,7 @@ public class ExpressionVisitation {
 		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0);
 		x.bindType(tyX);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(tyX))));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyX))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(x);
@@ -90,7 +90,7 @@ public class ExpressionVisitation {
 		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(tyPlus))));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
 		}});
 		UnresolvedOperator uv = new UnresolvedOperator(pos, "+");
 		uv.bind(plus);
@@ -106,7 +106,7 @@ public class ExpressionVisitation {
 		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(tyPlus))));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.result(tyPlus);
@@ -121,7 +121,7 @@ public class ExpressionVisitation {
 		string.bind(LoadBuiltins.string);
 		TypedPattern funcVar = new TypedPattern(pos, string, new VarName(pos, func, "x"));
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);
@@ -138,7 +138,7 @@ public class ExpressionVisitation {
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).requireVarConstraints(pos, "f.x"); will(returnValue(ut));
-			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(ut))));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(ut))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);

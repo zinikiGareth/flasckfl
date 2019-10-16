@@ -15,8 +15,17 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 
 public class ExpressionChecker extends LeafAdapter implements ResultAware {
+	public static class ExprResult {
+		public final Type type;
+		
+		public ExprResult(Type t) {
+			this.type = t;
+		}
+	}
+
 	private final RepositoryReader r;
 	private final NestedVisitor nv;
 	private final CurrentTCState state;
@@ -81,6 +90,6 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void announce(Type ty) {
-		nv.result(new FunctionChecker.ArgResult(false, ty));
+		nv.result(new ExprResult(ty));
 	}
 }

@@ -23,6 +23,7 @@ import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker;
+import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.Type;
@@ -117,9 +118,9 @@ public class StackVisitation {
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		NumericLiteral e2 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1, e2);
-		aec.result(fnt);
-		aec.result(nbr);
-		aec.result(nbr);
+		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(nbr));
+		aec.result(new ExprResult(nbr));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -145,9 +146,9 @@ public class StackVisitation {
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		StringLiteral e2 = new StringLiteral(pos, "hello");
 		ApplyExpr ae = new ApplyExpr(pos, op, e1, e2);
-		aec.result(fnt);
-		aec.result(nbr);
-		aec.result(str);
+		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(nbr));
+		aec.result(new ExprResult(str));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -168,9 +169,9 @@ public class StackVisitation {
 		StringLiteral e2 = new StringLiteral(pos, "hello");
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1, e2);
-		aec.result(fnt);
-		aec.result(err);
-		aec.result(nbr);
+		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(err));
+		aec.result(new ExprResult(nbr));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -199,9 +200,9 @@ public class StackVisitation {
 		uv.bind(funcVar);
 		NumericLiteral e2 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, uv, e2);
-		aec.result(fnt);
-		aec.result(ut);
-		aec.result(nbr);
+		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(ut));
+		aec.result(new ExprResult(nbr));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -220,8 +221,8 @@ public class StackVisitation {
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1);
-		aec.result(fnt);
-		aec.result(nbr);
+		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(nbr));
 		aec.leaveApplyExpr(ae);
 	}
 }

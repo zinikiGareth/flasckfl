@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
@@ -64,6 +65,6 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 
 	@Override
 	public void endArg(Slot s) {
-		sv.result(new FunctionChecker.ArgResult(true, ty.resolve()));
+		sv.result(new ArgResult(ty.resolve()));
 	}
 }

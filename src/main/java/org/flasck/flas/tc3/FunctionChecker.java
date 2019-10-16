@@ -16,15 +16,14 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrderVisitor {
 	public static class ArgResult {
-		public final boolean isArg;
 		public final Type type;
 		
-		public ArgResult(boolean isArg, Type t) {
-			this.isArg = isArg;
+		public ArgResult(Type t) {
 			this.type = t;
 		}
 	}
@@ -91,11 +90,10 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void result(Object r) {
-		ArgResult ar = (ArgResult) r;
-		if (ar.isArg)
-			argTypes.add(ar.type);
+		if (r instanceof ArgResult)
+			argTypes.add(((ArgResult)r).type);
 		else
-			resultTypes.add(ar.type);
+			resultTypes.add(((ExprResult)r).type);
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -38,7 +39,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		if (r == null) {
 			throw new NullPointerException("Cannot handle null type");
 		}
-		results.add((Type) r);
+		results.add(((ExprResult) r).type);
 	}
 
 	@Override
