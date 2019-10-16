@@ -6,9 +6,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -16,12 +14,12 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -37,10 +35,8 @@ public class ExpressionVisitation {
 	public void numericConstantsReturnNumber() {
 		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
-		RepositoryEntry tyNumber = context.mock(RepositoryEntry.class);
 		context.checking(new Expectations() {{
-			oneOf(repository).get("Number"); will(returnValue(tyNumber));
-			oneOf(nv).result(tyNumber);
+			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(LoadBuiltins.number))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitNumericLiteral(new NumericLiteral(pos, "42", 2));
@@ -50,10 +46,8 @@ public class ExpressionVisitation {
 	public void stringConstantsReturnString() {
 		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
-		RepositoryEntry tyNumber = context.mock(RepositoryEntry.class);
 		context.checking(new Expectations() {{
-			oneOf(repository).get("String"); will(returnValue(tyNumber));
-			oneOf(nv).result(tyNumber);
+			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitStringLiteral(new StringLiteral(pos, "yoyo"));
@@ -63,12 +57,11 @@ public class ExpressionVisitation {
 	public void aNoArgConstructorReturnsItsType() {
 		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
-		RepositoryEntry tyNil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(tyNil);
+			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "Nil");
-		uv.bind(tyNil);
+		uv.bind(LoadBuiltins.nil);
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
@@ -81,7 +74,7 @@ public class ExpressionVisitation {
 		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0);
 		x.bindType(tyX);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(tyX);
+			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(tyX))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(x);
@@ -97,7 +90,7 @@ public class ExpressionVisitation {
 		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(tyPlus);
+			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(tyPlus))));
 		}});
 		UnresolvedOperator uv = new UnresolvedOperator(pos, "+");
 		uv.bind(plus);
@@ -113,7 +106,7 @@ public class ExpressionVisitation {
 		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(tyPlus);
+			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(tyPlus))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.result(tyPlus);
@@ -128,7 +121,7 @@ public class ExpressionVisitation {
 		string.bind(LoadBuiltins.string);
 		TypedPattern funcVar = new TypedPattern(pos, string, new VarName(pos, func, "x"));
 		context.checking(new Expectations() {{
-			oneOf(nv).result(LoadBuiltins.string);
+			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);
@@ -145,7 +138,7 @@ public class ExpressionVisitation {
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).requireVarConstraints(pos, "f.x"); will(returnValue(ut));
-			oneOf(nv).result(ut);
+			oneOf(nv).result(with(ArgResultMatcher.expr(Matchers.is(ut))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);

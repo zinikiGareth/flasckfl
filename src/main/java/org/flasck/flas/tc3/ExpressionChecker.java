@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
@@ -30,12 +31,12 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitNumericLiteral(NumericLiteral number) {
-		nv.result(r.get("Number"));
+		announce(LoadBuiltins.number);
 	}
 
 	@Override
 	public void visitStringLiteral(StringLiteral s) {
-		nv.result(r.get("String"));
+		announce(LoadBuiltins.string);
 	}
 
 	@Override
@@ -43,17 +44,17 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		if (var == null || var.defn() == null)
 			throw new NullPointerException("undefined var: " + var);
 		if (var.defn() instanceof StructDefn) {
-			nv.result(var.defn());
+			announce((Type) var.defn());
 		} else if (var.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) var.defn();
 			System.out.println("FNTYPE: " + fn.name() + " " + fn.type());
-			nv.result(fn.type());
+			announce(fn.type());
 		} else if (var.defn() instanceof VarPattern) {
 			VarPattern vp = (VarPattern) var.defn();
-			nv.result(state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
+			announce(state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
 		} else if (var.defn() instanceof TypedPattern) {
 			TypedPattern vp = (TypedPattern) var.defn();
-			nv.result(vp.type.defn());
+			announce((Type) vp.type.defn());
 		} else
 			throw new RuntimeException("Cannot handle " + var.defn() + " of type " + var.defn().getClass());
 	}
@@ -61,10 +62,10 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator var, int nargs) {
 		if (var.defn() instanceof StructDefn) {
-			nv.result(var.defn());
+			announce((Type) var.defn());
 		} else if (var.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) var.defn();
-			nv.result(fn.type());
+			announce(fn.type());
 		} else
 			throw new RuntimeException("Cannot handle " + var);
 	}
@@ -76,6 +77,10 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		nv.result(r);
+		announce((Type)r);
+	}
+
+	private void announce(Type ty) {
+		nv.result(new FunctionChecker.ArgResult(false, ty));
 	}
 }

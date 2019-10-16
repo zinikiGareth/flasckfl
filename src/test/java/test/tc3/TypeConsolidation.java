@@ -12,6 +12,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.FunctionChecker;
+import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -37,7 +38,7 @@ public class TypeConsolidation {
 	@Test
 	public void aSingleResultIsJustASimpleConstant() {
 		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
-		fc.result(LoadBuiltins.number);
+		fc.result(new ArgResult(false, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
 			oneOf(nv).result(LoadBuiltins.number);
@@ -49,8 +50,8 @@ public class TypeConsolidation {
 	@Test
 	public void twoResultsImpliesAnApply() {
 		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
-		fc.result(LoadBuiltins.nil);
-		fc.result(LoadBuiltins.number);
+		fc.result(new ArgResult(true, LoadBuiltins.nil));
+		fc.result(new ArgResult(false, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.nil), Matchers.is(LoadBuiltins.number))));

@@ -19,9 +19,20 @@ import org.flasck.flas.repository.ResultAware;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrderVisitor {
+	public static class ArgResult {
+		public final boolean isArg;
+		public final Type type;
+		
+		public ArgResult(boolean isArg, Type t) {
+			this.isArg = isArg;
+			this.type = t;
+		}
+	}
+
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
+	private final List<Type> argTypes = new ArrayList<>();
 	private final List<Type> resultTypes = new ArrayList<>();
 	private final CurrentTCState state;
 
@@ -80,7 +91,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void result(Object r) {
-		resultTypes.add((Type) r);
+		ArgResult ar = (ArgResult) r;
+		if (ar.isArg)
+			argTypes.add(ar.type);
+		else
+			resultTypes.add(ar.type);
 	}
 
 	@Override
@@ -94,13 +109,16 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 
 	private Type buildApplyType() {
-		if (resultTypes.isEmpty())
-			throw new RuntimeException("This is probably a cascade error");
-		if (resultTypes.size() == 1)
-			return resultTypes.get(0);
+		Type result = consolidate(resultTypes);
+		if (argTypes.isEmpty())
+			return result;
 		else {
-			Apply ret = new Apply(resultTypes);
-			return ret;
+			return new Apply(argTypes, result);
 		}
+	}
+
+	private Type consolidate(List<Type> types) {
+		// TODO: this actually needs to consolidate the types ...
+		return types.get(0);
 	}
 }

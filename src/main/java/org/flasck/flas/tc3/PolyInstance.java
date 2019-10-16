@@ -20,7 +20,17 @@ public class PolyInstance implements Type {
 
 	@Override
 	public String signature() {
-		throw new NotImplementedException();
+		StringBuilder ret = new StringBuilder();
+		ret.append(ty.name().uniqueName());
+		ret.append("[");
+		String sep = "";
+		for (Type p : polys) {
+			ret.append(sep);
+			ret.append(p.signature());
+			sep = ",";
+		}
+		ret.append("]");
+		return ret.toString();
 	}
 
 	@Override

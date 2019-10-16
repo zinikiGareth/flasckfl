@@ -20,6 +20,14 @@ public class Apply implements Type {
 		this.tys = types;
 	}
 
+	public Apply(List<Type> argTypes, Type result) {
+		if (argTypes.isEmpty())
+			throw new RuntimeException("Must have at least one input and one output");
+		tys = new ArrayList<>();
+		tys.addAll(argTypes);
+		tys.add(result);
+	}
+
 	@Override
 	public String signature() {
 		StringBuilder sb = new StringBuilder();
@@ -51,4 +59,8 @@ public class Apply implements Type {
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return signature();
+	}
 }

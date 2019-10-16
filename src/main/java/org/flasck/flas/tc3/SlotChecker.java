@@ -62,6 +62,6 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 
 	@Override
 	public void endArg(Slot s) {
-		sv.result(null);
+		sv.result(new FunctionChecker.ArgResult(true, ty.resolve()));
 	}
 }
