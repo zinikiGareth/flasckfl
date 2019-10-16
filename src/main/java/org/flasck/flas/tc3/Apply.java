@@ -4,13 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Apply implements Type {
-	private List<Type> tys = new ArrayList<>();
+	private final List<Type> tys;
 
 	public Apply(Type... types) {
 		if (types.length < 2)
 			throw new RuntimeException("Must have at least one input and one output");
+		tys = new ArrayList<>();
 		for (Type t : types)
 			tys.add(t);
+	}
+
+	public Apply(List<Type> types) {
+		if (types.size() < 2)
+			throw new RuntimeException("Must have at least one input and one output");
+		this.tys = types;
 	}
 
 	@Override

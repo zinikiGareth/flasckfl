@@ -202,12 +202,14 @@ public class Traverser implements Visitor {
 	}
 	
 	private void visitPatternsInTreeOrder(FunctionDefinition fn) {
+		TreeOrderVisitor tov = (TreeOrderVisitor)visitor;
 		HSITree hsiTree = fn.hsiTree();
 		for (int i=0;i<hsiTree.width();i++) {
 			HSIOptions tree = hsiTree.get(i);
 			ArgSlot as = new ArgSlot(i, tree);
-			((TreeOrderVisitor)visitor).argSlot(as);
+			tov.argSlot(as);
 			visitPatternTree(tree);
+			tov.endArg(as);
 		}
 		for (FunctionIntro fi : fn.intros()) {
 			visitor.visitFunctionIntro(fi);
@@ -224,9 +226,12 @@ public class Traverser implements Visitor {
 			tov.matchConstructor(t);
 			for (int i=0;i<cm.width();i++) {
 				String fld = cm.getField(i);
-				tov.matchField(t.findField(fld));
+				StructField tf = t.findField(fld);
+				tov.matchField(tf);
 				visitPatternTree(cm.get(i));
+				tov.endField(tf);
 			}
+			tov.endConstructor(t);
 		}
 		for (NamedType t : hsiOptions.types()) {
 			for (IntroTypeVar tv : hsiOptions.typedVars(t)) {

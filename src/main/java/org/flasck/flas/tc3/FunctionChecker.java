@@ -89,12 +89,18 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			sv.result(null);
 		if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + fn.name().uniqueName());
-		System.out.println("TC fn " + fn.name().uniqueName() + " = " + consolidateType());
-		sv.result(consolidateType());
+		System.out.println("TC fn " + fn.name().uniqueName() + " = " + buildApplyType());
+		sv.result(buildApplyType());
 	}
 
-	private Type consolidateType() {
-		// TODO: this actually needs to consolidate the types ...
-		return resultTypes.get(0);
+	private Type buildApplyType() {
+		if (resultTypes.isEmpty())
+			throw new RuntimeException("This is probably a cascade error");
+		if (resultTypes.size() == 1)
+			return resultTypes.get(0);
+		else {
+			Apply ret = new Apply(resultTypes);
+			return ret;
+		}
 	}
 }

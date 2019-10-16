@@ -40,7 +40,7 @@ public class PolyTypeMatcher extends TypeSafeMatcher<Type>{
 		return true;
 	}
 
-	public static PolyTypeMatcher of(StructDefn sd, Matcher<Type>... args) {
+	public static PolyTypeMatcher of(StructDefn sd, @SuppressWarnings("unchecked") Matcher<Type>... args) {
 		return new PolyTypeMatcher(sd, Arrays.asList(args));
 	}
 }

@@ -12,6 +12,11 @@ public class FunctionGroupTCState implements CurrentTCState {
 	int polyCount = 0;
 	
 	@Override
+	public UnifiableType nextArg() {
+		return new TypeConstraintSet(this, null);
+	}
+
+	@Override
 	public void argType(Type ty) {
 //		throw new NotImplementedException();
 	}
