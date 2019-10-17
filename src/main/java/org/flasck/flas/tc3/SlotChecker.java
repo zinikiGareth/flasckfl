@@ -6,7 +6,6 @@ import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
@@ -49,8 +48,8 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 	}
 
 	@Override
-	public void varInIntro(VarPattern vp, FunctionIntro intro) {
-		state.bindVarToUT(vp.name().uniqueName(), ty);
+	public void varInIntro(VarName vn, FunctionIntro intro) {
+		state.bindVarToUT(vn.uniqueName(), ty);
 	}
 
 	@Override

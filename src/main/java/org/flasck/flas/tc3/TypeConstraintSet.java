@@ -130,6 +130,9 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public boolean incorporates(Type other) {
+		// Is this true?
+		// I think that the case that has arisen is if you have a UT for a function "f", then it could be asked if it incorporates something ...
+		// So you have to assume that f : ?->? and we are being told something about this type with respect to "other" ...
 		throw new NotImplementedException("The type algorithm should recognize us and call incorporatedBy instead");
 	}
 

@@ -242,7 +242,7 @@ public class Traverser implements Visitor {
 			}
 		}
 		for (IntroVarName iv : hsiOptions.vars()) {
-			tov.varInIntro(iv.vp, iv.intro);
+			tov.varInIntro(iv.var, iv.intro);
 		}
 	}
 
