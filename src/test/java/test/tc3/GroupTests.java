@@ -17,6 +17,7 @@ import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.Application;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
@@ -25,7 +26,8 @@ import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.SlotChecker;
-import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.TypeConstraintSet;
+import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -81,6 +83,12 @@ public class GroupTests {
 		// I think this is probably a "big test" that depends on a lot of other things working correctly, so you might want to @Ignore it and
 		// go write something else in the interim
 		
+		
+		// TODO: somebody needs to introduce these, and I think it should probably happen in "visitGroup" and we'll need to capture them ..
+		UnifiableType utF = new TypeConstraintSet(repository, state, pos);
+		UnifiableType utG = new TypeConstraintSet(repository, state, pos);
+		
+		
 		gc.visitFunctionGroup(grp);
 		CaptureAction captureFCF = new CaptureAction(null);
 		context.checking(new Expectations() {{
@@ -100,7 +108,7 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcf.visitFunctionIntro(fiF1);
-		fcf.result(new ExprResult(LoadBuiltins.string)); // NO! Should be (Apply ut2 String)
+		fcf.result(new ExprResult(new Application(utG, LoadBuiltins.string)));
 		fcf.leaveFunctionIntro(fiF1);
 
 		context.checking(new Expectations() {{
@@ -112,7 +120,8 @@ public class GroupTests {
 		
 		CaptureAction captureFType = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)))); will(captureFType); // Still no ....
+			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), 
+									ApplicationMatcher.of(Matchers.is(utG), Matchers.is(LoadBuiltins.string))))); will(captureFType);
 		}});
 		fcf.leaveFunction(fnF);
 		context.assertIsSatisfied();
@@ -137,7 +146,7 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcg.visitFunctionIntro(fiG1);
-		fcg.result(new ExprResult(LoadBuiltins.string)); // NO! Should be (Apply ut1 Number)
+		fcg.result(new ExprResult(new Application(utF, LoadBuiltins.number)));
 		fcg.leaveFunctionIntro(fiG1);
 
 		context.checking(new Expectations() {{
@@ -149,7 +158,8 @@ public class GroupTests {
 
 		CaptureAction captureGType = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.string)))); will(captureGType); // Still no ....
+			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), 
+					ApplicationMatcher.of(Matchers.is(utF), Matchers.is(LoadBuiltins.number))))); will(captureFType);
 		}});
 		fcg.leaveFunction(fnG);
 		context.assertIsSatisfied();

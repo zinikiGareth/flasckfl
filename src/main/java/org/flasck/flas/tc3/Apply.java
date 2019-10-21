@@ -61,6 +61,16 @@ public class Apply implements Type {
 
 	@Override
 	public String toString() {
-		return signature();
+		StringBuilder sb = new StringBuilder();
+		for (Type t : tys) {
+			sb.append("-->");
+			if (t == null)
+				sb.append("<<UNDEFINED>>");
+			else if (t instanceof TypeConstraintSet && !((TypeConstraintSet)t).isResolved())
+				sb.append("UnifiableType");
+			else
+				sb.append("(" + t.toString() + ")");
+		}
+		return sb.toString();
 	}
 }

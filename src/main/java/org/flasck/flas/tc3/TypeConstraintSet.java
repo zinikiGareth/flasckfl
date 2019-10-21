@@ -33,6 +33,10 @@ public class TypeConstraintSet implements UnifiableType {
 		this.pos = pos;
 	}
 
+	public boolean isResolved() {
+		return resolvedTo != null;
+	}
+	
 	@Override
 	public Type resolve() {
 		if (resolvedTo != null)
@@ -146,5 +150,10 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public void canBeType(Type ofType) {
 		types.add(ofType);
+	}
+	
+	@Override
+	public String toString() {
+		return "TCS{" + "??}";
 	}
 }

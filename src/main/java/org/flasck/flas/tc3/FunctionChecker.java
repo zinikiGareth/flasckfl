@@ -106,12 +106,12 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 
 	private Type buildApplyType() {
-		for (Type t : argTypes)
-			if (t instanceof UnifiableType)
-				((UnifiableType)t).resolve();
-		for (Type t : resultTypes)
-			if (t instanceof UnifiableType)
-				((UnifiableType)t).resolve();
+//		for (Type t : argTypes)
+//			if (t instanceof UnifiableType)
+//				((UnifiableType)t).resolve();
+//		for (Type t : resultTypes)
+//			if (t instanceof UnifiableType)
+//				((UnifiableType)t).resolve();
 		Type result = consolidate(resultTypes);
 		if (argTypes.isEmpty())
 			return result;
