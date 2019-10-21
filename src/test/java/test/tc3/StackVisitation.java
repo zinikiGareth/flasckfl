@@ -67,12 +67,14 @@ public class StackVisitation {
 		Type ty = context.mock(Type.class);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
+			oneOf(nv).result(null);
 		}});
 		GroupChecker gc = new GroupChecker(errors, repository, nv, null);
 		gc.visitFunction(fn);
 		gc.result(ty);
 		gc.leaveFunctionIntro(fi);
 		gc.leaveFunction(fn);
+		gc.leaveFunctionGroup(null);
 		assertEquals(ty, fn.type());
 	}
 

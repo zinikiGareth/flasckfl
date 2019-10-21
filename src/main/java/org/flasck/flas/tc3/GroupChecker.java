@@ -1,5 +1,9 @@
 package org.flasck.flas.tc3;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.repository.FunctionGroup;
@@ -14,6 +18,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private CurrentTCState state;
 	private FunctionDefinition currentFunction;
+	private final Map<FunctionDefinition, Type> memberTypes = new HashMap<>(); 
 
 	public GroupChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state) {
 		this.errors = errors;
@@ -31,12 +36,16 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
-		currentFunction.bindType((Type)r);
+		memberTypes.put(currentFunction, (Type)r);
+		this.currentFunction = null;
 	}
 
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
 		System.out.println("Leave TC grp " + grp);
+		for (Entry<FunctionDefinition, Type> e : memberTypes.entrySet()) {
+			e.getKey().bindType(e.getValue());
+		}
 		sv.result(null);
 	}
 }
