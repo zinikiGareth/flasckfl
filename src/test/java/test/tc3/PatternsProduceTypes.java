@@ -52,20 +52,13 @@ public class PatternsProduceTypes {
 	public void aConstantPatternIsANumber() {
 		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
-		ArrayList<Object> args = new ArrayList<>();
-		args.add(new ConstPattern(pos, ConstPattern.INTEGER, "42"));
-		FunctionIntro fi = new FunctionIntro(nameF, args);
-		HSIArgsTree hat = new HSIArgsTree(1);
-		hat.consider(fi);
-		hat.get(0).addConstant(LoadBuiltins.number, "42", fi);
-		fi.bindTree(hat);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
-		fn.bindHsi(hat);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
-		Slot s = new ArgSlot(0, hat.get(0));
+		Slot s = new ArgSlot(0, null);
 		fc.argSlot(s);
 		fc.result(new ArgResult(LoadBuiltins.number));
 		context.checking(new Expectations() {{
@@ -86,20 +79,13 @@ public class PatternsProduceTypes {
 	public void aStringConstantPatternIsAString() {
 		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
-		ArrayList<Object> args = new ArrayList<>();
-		args.add(new ConstPattern(pos, ConstPattern.INTEGER, "42"));
-		FunctionIntro fi = new FunctionIntro(nameF, args);
-		HSIArgsTree hat = new HSIArgsTree(1);
-		hat.consider(fi);
-		hat.get(0).addConstant(LoadBuiltins.string, "42", fi);
-		fi.bindTree(hat);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
-		fn.bindHsi(hat);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
-		Slot s = new ArgSlot(0, hat.get(0));
+		Slot s = new ArgSlot(0, null);
 		fc.argSlot(s);
 		fc.result(new ArgResult(LoadBuiltins.string));
 		context.checking(new Expectations() {{
