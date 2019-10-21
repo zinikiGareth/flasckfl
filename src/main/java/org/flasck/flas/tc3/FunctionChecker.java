@@ -121,7 +121,9 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 
 	private Type consolidate(List<Type> types) {
-		// TODO: this actually needs to consolidate the types ...
-		return types.get(0);
+		if (types.size() == 1)
+			return types.get(0);
+		
+		return new ConsolidateTypes(types);
 	}
 }

@@ -121,7 +121,11 @@ public class GroupTests {
 		CaptureAction captureFType = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), 
-									(Matcher)ApplicationMatcher.of(Matchers.is(utG), Matchers.is(LoadBuiltins.string))))); will(captureFType);
+					(Matcher)ConsolidatedTypeMatcher.with(
+							(Matcher)ApplicationMatcher.of(Matchers.is(utG), Matchers.is(LoadBuiltins.string)),
+							Matchers.is(LoadBuiltins.string)
+					)
+			))); will(captureFType);
 		}});
 		fcf.leaveFunction(fnF);
 		context.assertIsSatisfied();
@@ -159,7 +163,11 @@ public class GroupTests {
 		CaptureAction captureGType = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), 
-					(Matcher)ApplicationMatcher.of(Matchers.is(utF), Matchers.is(LoadBuiltins.number))))); will(captureGType);
+					(Matcher)ConsolidatedTypeMatcher.with(
+							(Matcher)ApplicationMatcher.of(Matchers.is(utF), Matchers.is(LoadBuiltins.number)),
+							Matchers.is(LoadBuiltins.string)
+					)
+			))); will(captureGType);
 		}});
 		fcg.leaveFunction(fnG);
 		context.assertIsSatisfied();

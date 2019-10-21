@@ -37,7 +37,7 @@ public class TypeConsolidation {
 	}
 	
 	@Test
-	public void aSingleResultIsJustASimpleConstant() {
+	public void withNoArgsItsJustASimpleConstant() {
 		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
 		fc.result(new ExprResult(LoadBuiltins.number));
 		
@@ -49,13 +49,39 @@ public class TypeConsolidation {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void twoResultsImpliesAnApply() {
+	public void anArgAndAResultImpliesAnApply() {
 		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
 		fc.result(new ArgResult(LoadBuiltins.nil));
 		fc.result(new ExprResult(LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.nil), Matchers.is(LoadBuiltins.number))));
+		}});
+		fc.leaveFunction(f);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void multipleIdenticallyTypedExpressionsCanBeConsolidatedInAContainer() {
+		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
+		fc.result(new ExprResult(LoadBuiltins.number));
+		fc.result(new ExprResult(LoadBuiltins.number));
+		
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(ConsolidatedTypeMatcher.with(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number))));
+		}});
+		fc.leaveFunction(f);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void multipleExpressionsCanBeConsolidatedInAContainer() {
+		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
+		fc.result(new ExprResult(LoadBuiltins.trueT));
+		fc.result(new ExprResult(LoadBuiltins.falseT));
+		
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(ConsolidatedTypeMatcher.with(Matchers.is(LoadBuiltins.trueT), Matchers.is(LoadBuiltins.falseT))));
 		}});
 		fc.leaveFunction(f);
 	}
