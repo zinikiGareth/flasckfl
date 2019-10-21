@@ -50,6 +50,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	public interface Visitor {
@@ -212,6 +213,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public Type findUnionWith(Set<Type> ms) {
+		if (ms.isEmpty())
+			throw new NotImplementedException();
+		if (ms.size() == 1)
+			return ms.iterator().next();
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
 				UnionTypeDefn utd = (UnionTypeDefn) k;

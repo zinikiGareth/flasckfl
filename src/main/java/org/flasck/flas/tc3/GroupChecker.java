@@ -1,8 +1,10 @@
 package org.flasck.flas.tc3;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -36,6 +38,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
+		System.out.println("TC result " + currentFunction.name().uniqueName() + " :: " + r);
 		memberTypes.put(currentFunction, (Type)r);
 		this.currentFunction = null;
 	}
@@ -43,9 +46,23 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
 		System.out.println("Leave TC grp " + grp);
+		state.resolveAll();
 		for (Entry<FunctionDefinition, Type> e : memberTypes.entrySet()) {
-			e.getKey().bindType(e.getValue());
+			e.getKey().bindType(consolidate(e.getValue()));
 		}
 		sv.result(null);
+	}
+
+	private Type consolidate(Type value) {
+		if (value instanceof ConsolidateTypes) {
+			ConsolidateTypes ct = (ConsolidateTypes) value;
+			Set<Type> tys = new HashSet<>();
+			for (Type t : ct.types)
+				tys.add(consolidate(t));
+			return repository.findUnionWith(tys);
+		} else if (value instanceof UnifiableType) {
+			return ((UnifiableType)value).resolve();
+		} else
+			return value;
 	}
 }

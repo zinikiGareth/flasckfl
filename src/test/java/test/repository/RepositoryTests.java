@@ -313,7 +313,7 @@ public class RepositoryTests {
 		LoadBuiltins.applyTo(r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
-		assertNull(r.findUnionWith(ms));
+		assertEquals(LoadBuiltins.trueT, r.findUnionWith(ms));
 	}
 
 	@Test

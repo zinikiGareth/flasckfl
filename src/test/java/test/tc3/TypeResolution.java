@@ -1,0 +1,101 @@
+package test.tc3;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.Repository;
+import org.flasck.flas.tc3.ConsolidateTypes;
+import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.FunctionGroupTCState;
+import org.flasck.flas.tc3.GroupChecker;
+import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.TypeConstraintSet;
+import org.hamcrest.Matchers;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+public class TypeResolution {
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final Repository repository = new Repository();
+	private CurrentTCState state = new FunctionGroupTCState(repository);
+	private final NestedVisitor sv = context.mock(NestedVisitor.class);
+	private final GroupChecker gc = new GroupChecker(errors, repository, sv, state);
+	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private final PackageName pkg = new PackageName("test.repo");
+	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
+	FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
+
+	@Before
+	public void begin() {
+		LoadBuiltins.applyTo(repository);
+		context.checking(new Expectations() {{
+			allowing(sv);
+		}});
+	}
+
+	@Test
+	public void aSimplePrimitiveIsEasyToResolve() {
+		gc.visitFunction(fnF);
+		gc.result(LoadBuiltins.number);
+		gc.leaveFunctionGroup(null);
+		assertEquals(LoadBuiltins.number, fnF.type());
+	}
+
+	@Test
+	public void multipleIdenticalTypesAreEasilyConsolidated() {
+		gc.visitFunction(fnF);
+		gc.result(new ConsolidateTypes(Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)));
+		gc.leaveFunctionGroup(null);
+		assertEquals(LoadBuiltins.number, fnF.type());
+	}
+
+	@Test
+	public void aUnionCanBeFormedFromItsComponentParts() {
+		gc.visitFunction(fnF);
+		gc.result(new ConsolidateTypes(Arrays.asList(LoadBuiltins.falseT, LoadBuiltins.trueT)));
+		gc.leaveFunctionGroup(null);
+		assertEquals(LoadBuiltins.bool, fnF.type());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void aUnionCanBeFormedFromItsComponentPolymorphicParts() {
+		gc.visitFunction(fnF);
+		gc.result(new ConsolidateTypes(Arrays.asList(LoadBuiltins.nil, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any)))));
+		gc.leaveFunctionGroup(null);
+		assertThat(fnF.type(), PolyTypeMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
+	}
+
+	@Test
+	public void becauseWeResolveAllTheTypesAUnifiableTypeCanBecomeASimplePrimitiveWhichIsEasyToResolve() {
+		gc.visitFunction(fnF);
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos);
+		ut.canBeType(LoadBuiltins.number);
+		gc.result(ut);
+		gc.leaveFunctionGroup(null);
+		assertEquals(LoadBuiltins.number, fnF.type());
+	}
+
+	@Test
+	public void weCanObviouslyHaveAUnifiableTypeOfNumberResolveWithNumberItself() {
+		gc.visitFunction(fnF);
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos);
+		ut.canBeType(LoadBuiltins.number);
+		gc.result(new ConsolidateTypes(Arrays.asList(ut, LoadBuiltins.number)));
+		gc.leaveFunctionGroup(null);
+		assertEquals(LoadBuiltins.number, fnF.type());
+	}
+}

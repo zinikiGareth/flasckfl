@@ -3,7 +3,6 @@ package org.flasck.flas.repository;
 import java.util.Set;
 
 import org.flasck.flas.hsi.HSIVisitor;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.Type;
 

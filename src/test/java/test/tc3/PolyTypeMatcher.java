@@ -3,7 +3,7 @@ package test.tc3;
 import java.util.Arrays;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.hamcrest.Description;
@@ -11,17 +11,17 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 public class PolyTypeMatcher extends TypeSafeMatcher<Type>{
-	private final StructDefn sd;
+	private final NamedType sd;
 	private final List<Matcher<Type>> asList;
 
-	public PolyTypeMatcher(StructDefn sd, List<Matcher<Type>> list) {
+	public PolyTypeMatcher(NamedType sd, List<Matcher<Type>> list) {
 		this.sd = sd;
 		this.asList = list;
 	}
 
 	@Override
 	public void describeTo(Description arg0) {
-		arg0.appendValue(sd.name.uniqueName());
+		arg0.appendValue(sd.name().uniqueName());
 		arg0.appendValue(asList);
 	}
 
@@ -40,7 +40,7 @@ public class PolyTypeMatcher extends TypeSafeMatcher<Type>{
 		return true;
 	}
 
-	public static PolyTypeMatcher of(StructDefn sd, @SuppressWarnings("unchecked") Matcher<Type>... args) {
+	public static PolyTypeMatcher of(NamedType sd, @SuppressWarnings("unchecked") Matcher<Type>... args) {
 		return new PolyTypeMatcher(sd, Arrays.asList(args));
 	}
 }
