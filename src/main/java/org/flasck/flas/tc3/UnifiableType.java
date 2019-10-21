@@ -1,5 +1,7 @@
 package org.flasck.flas.tc3;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.StructDefn;
 
@@ -26,4 +28,8 @@ public interface UnifiableType extends Type {
 	// It could be "Top" (Any), it could be a polymorphic var (eg A) or it could be a concrete type (such as Number)
 	// It could also be something more complex, such as List[A]
 	Type resolve();
+
+	// We conclude that this is being used in a function application and as such must be a function
+	// able to be applied to these types
+	Application canBeAppliedTo(List<Type> results);
 }

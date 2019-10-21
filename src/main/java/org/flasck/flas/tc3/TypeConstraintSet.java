@@ -23,6 +23,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final Set<Type> incorporatedBys = new HashSet<>();
 	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
 	private final Set<Type> types = new HashSet<>();
+	private final Set<List<Type>> applications = new HashSet<>();
 	private final InputPosition pos;
 	private Type resolvedTo;
 	private int returned = 0;
@@ -152,6 +153,12 @@ public class TypeConstraintSet implements UnifiableType {
 		types.add(ofType);
 	}
 	
+	@Override
+	public Application canBeAppliedTo(List<Type> results) {
+		applications .add(results);
+		return new Application(this, results);
+	}
+
 	@Override
 	public String toString() {
 		return "TCS{" + "??}";

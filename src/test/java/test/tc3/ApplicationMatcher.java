@@ -3,13 +3,14 @@ package test.tc3;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.flas.tc3.Application;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class ApplicationMatcher extends TypeSafeMatcher<Type> {
+public class ApplicationMatcher extends TypeSafeMatcher<Application> {
 	private Matcher<UnifiableType> ut;
 	private List<Matcher<? extends Type>> args;
 
@@ -27,8 +28,16 @@ public class ApplicationMatcher extends TypeSafeMatcher<Type> {
 	}
 
 	@Override
-	protected boolean matchesSafely(Type arg0) {
-		return false;
+	protected boolean matchesSafely(Application app) {
+		if (!ut.matches(app.op))
+			return false;
+		if (args.size() != app.tys.size())
+			return false;
+		for (int i=0;i<args.size();i++) {
+			if (!args.get(i).matches(app.tys.get(i)))
+				return false;
+		}
+		return true;
 	}
 
 	@SuppressWarnings("unchecked")

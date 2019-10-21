@@ -49,7 +49,11 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			return;
 		}
 		Type fn = results.remove(0);
-		if (fn.argCount() != results.size())
+		if (fn instanceof UnifiableType) {
+			UnifiableType ut = (UnifiableType)fn;
+			nv.result(ut.canBeAppliedTo(results));
+			return;
+		} else if (fn.argCount() != results.size())
 			throw new RuntimeException("should be an error or a curry case: " + fn + " " + fn.argCount() + " " + results.size());
 		int pos = 0;
 		while (!results.isEmpty()) {

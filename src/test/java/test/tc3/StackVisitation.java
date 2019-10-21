@@ -27,7 +27,9 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -201,6 +203,26 @@ public class StackVisitation {
 		NumericLiteral e2 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, uv, e2);
 		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(ut));
+		aec.result(new ExprResult(nbr));
+		aec.leaveApplyExpr(ae);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void leaveApplyExpressionCanHandleUnifiableTypesAsFunctionsProducingApplications() {
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		Type nbr = context.mock(Type.class, "nbr");
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		FunctionName func = FunctionName.function(pos, null, "f");
+		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(ApplicationMatcher.of(Matchers.is(ut), Matchers.is(nbr))));
+		}});
+		UnresolvedVar fn = new UnresolvedVar(pos, "f");
+		fn.bind(funcVar);
+		NumericLiteral nl = new NumericLiteral(pos, "42", 2);
+		ApplyExpr ae = new ApplyExpr(pos, fn, nl);
 		aec.result(new ExprResult(ut));
 		aec.result(new ExprResult(nbr));
 		aec.leaveApplyExpr(ae);
