@@ -1,0 +1,168 @@
+package test.tc3;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.util.ArrayList;
+
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.lifting.DependencyGroup;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.repository.FunctionGroup;
+import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.ExpressionChecker;
+import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.flasck.flas.tc3.FunctionChecker;
+import org.flasck.flas.tc3.FunctionChecker.ArgResult;
+import org.flasck.flas.tc3.FunctionGroupTCState;
+import org.flasck.flas.tc3.GroupChecker;
+import org.flasck.flas.tc3.SlotChecker;
+import org.flasck.flas.tc3.Type;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.zinutils.support.jmock.CaptureAction;
+
+public class GroupTests {
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final RepositoryReader repository = context.mock(RepositoryReader.class);
+	private CurrentTCState state = new FunctionGroupTCState(repository);
+	private final NestedVisitor sv = context.mock(NestedVisitor.class);
+	private final GroupChecker gc = new GroupChecker(errors, repository, sv, state);
+	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private final PackageName pkg = new PackageName("test.repo");
+	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
+	FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
+	final FunctionName nameG = FunctionName.function(pos, pkg, "g");
+	FunctionDefinition fnG = new FunctionDefinition(nameG, 1);
+	ArrayList<Object> args = new ArrayList<>();
+	FunctionIntro fiF1 = new FunctionIntro(nameF, args);
+	FunctionIntro fiF2 = new FunctionIntro(nameF, args);
+	FunctionIntro fiG1 = new FunctionIntro(nameG, args);
+	FunctionIntro fiG2 = new FunctionIntro(nameG, args);
+	private FunctionGroup grp = new DependencyGroup(fnF, fnG);
+
+	@Before
+	public void begin() {
+		context.checking(new Expectations() {{
+			fnF.intro(fiF1);
+			fnF.intro(fiF2);
+			fnG.intro(fiG1);
+			fnG.intro(fiG2);
+		}});
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void mutuallyRecursiveFunctionsAreAllDecidedAtTheEnd() {
+		// I want to write a test that says that f and g are mutually recursive
+		// I think I want to conclude that f :: Number->String and g :: String->String
+		// But obviously in between I need to know that f is UT1 and is (UT2 String) returns String
+		//                                          and g is UT2 and is (UT1 Number) returns String
+		// What we actually know is that they both have 1 arg and that that is typed pattern (Number/String)
+		// And then we have two possible return types, one of which is the "UT application" and the other is the type we want
+		// Unification is then reasonable.
+		
+		// What I want to *prove* is that we don't resolve too soon.
+		
+		// I think this is probably a "big test" that depends on a lot of other things working correctly, so you might want to @Ignore it and
+		// go write something else in the interim
+		
+		gc.visitFunctionGroup(grp);
+		CaptureAction captureFCF = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(FunctionChecker.class))); will(captureFCF);
+		}});
+		gc.visitFunction(fnF);
+		context.assertIsSatisfied();
+		FunctionChecker fcf = (FunctionChecker)captureFCF.get(0);
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(SlotChecker.class)));
+		}});
+		fcf.argSlot(new ArgSlot(0, null));
+		fcf.result(new ArgResult(LoadBuiltins.number));
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fcf.visitFunctionIntro(fiF1);
+		fcf.result(new ExprResult(LoadBuiltins.string)); // NO! Should be (Apply ut2 String)
+		fcf.leaveFunctionIntro(fiF1);
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fcf.visitFunctionIntro(fiF2);
+		fcf.result(new ExprResult(LoadBuiltins.string));
+		fcf.leaveFunctionIntro(fiF2);
+		
+		CaptureAction captureFType = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)))); will(captureFType); // Still no ....
+		}});
+		fcf.leaveFunction(fnF);
+		context.assertIsSatisfied();
+		gc.result(captureFType.get(0));
+		
+		context.assertIsSatisfied();
+		CaptureAction captureFCG = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(FunctionChecker.class))); will(captureFCG);
+		}});
+		gc.visitFunction(fnG);
+		context.assertIsSatisfied();
+		FunctionChecker fcg = (FunctionChecker)captureFCG.get(0);
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(SlotChecker.class)));
+		}});
+		fcg.argSlot(new ArgSlot(0, null));
+		fcg.result(new ArgResult(LoadBuiltins.string));
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fcg.visitFunctionIntro(fiG1);
+		fcg.result(new ExprResult(LoadBuiltins.string)); // NO! Should be (Apply ut1 Number)
+		fcg.leaveFunctionIntro(fiG1);
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fcg.visitFunctionIntro(fiG1);
+		fcg.result(new ExprResult(LoadBuiltins.string));
+		fcg.leaveFunctionIntro(fiG1);
+
+		CaptureAction captureGType = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.string)))); will(captureGType); // Still no ....
+		}});
+		fcg.leaveFunction(fnG);
+		context.assertIsSatisfied();
+		gc.result(captureGType.get(0));
+		
+		context.checking(new Expectations() {{
+			oneOf(sv).result(null); // leave function group doesn't propagate anything ...
+		}});
+		gc.leaveFunctionGroup(grp);
+		assertNotNull(fnF.type());
+		assertThat(fnF.type(), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)));
+		assertNotNull(fnG.type());
+		assertThat(fnG.type(), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.string)));
+	}
+
+}
