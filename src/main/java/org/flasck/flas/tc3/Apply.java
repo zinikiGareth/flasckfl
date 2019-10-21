@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Apply implements Type {
-	private final List<Type> tys;
+	public final List<Type> tys;
 
 	public Apply(Type... types) {
 		if (types.length < 2)

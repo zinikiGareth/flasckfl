@@ -27,7 +27,7 @@ public class StateCreation {
 		nv.push(new FunctionChecker(errors, repository, nv, state));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).nextArg(); will(returnValue(arg));
+			oneOf(state).createUT(); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 		context.checking(new Expectations() {{
@@ -44,7 +44,7 @@ public class StateCreation {
 		nv.push(new FunctionChecker(errors, repository, nv, state));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).nextArg(); will(returnValue(arg));
+			oneOf(state).createUT(); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 
@@ -67,7 +67,7 @@ public class StateCreation {
 		nv.push(new FunctionChecker(errors, repository, nv, state));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).nextArg(); will(returnValue(arg));
+			oneOf(state).createUT(); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 
@@ -89,7 +89,7 @@ public class StateCreation {
 		nv.push(new FunctionChecker(errors, repository, nv, state));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).nextArg(); will(returnValue(arg));
+			oneOf(state).createUT(); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 

@@ -19,6 +19,8 @@ import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.TypeConstraintSet;
+import org.flasck.flas.tc3.UnifiableType;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -80,6 +82,14 @@ public class TypeResolution {
 	}
 
 	@Test
+	public void anyIsBasicallyIgnoredWhenWeHaveSomethingElseInAConsolidatedType() {
+		gc.visitFunction(fnF);
+		gc.result(new ConsolidateTypes(Arrays.asList(LoadBuiltins.number, LoadBuiltins.any)));
+		gc.leaveFunctionGroup(null);
+		assertThat(fnF.type(), Matchers.is(LoadBuiltins.number));
+	}
+
+	@Test
 	public void becauseWeResolveAllTheTypesAUnifiableTypeCanBecomeASimplePrimitiveWhichIsEasyToResolve() {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos);
@@ -97,5 +107,20 @@ public class TypeResolution {
 		gc.result(new ConsolidateTypes(Arrays.asList(ut, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void ifWeHaveIdentifiedAFunctionAndHaveAnApplicationOfItWeCanDeduceTheCorrectType() {
+		gc.visitFunction(fnF);
+		UnifiableType utG = state.createUT(); // a function argument "f"
+//		TypeConstraintSet utG = new TypeConstraintSet(repository, state, pos);
+		UnifiableType result = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.string)); // (f String) :: ?result
+		result.canBeType(LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
+		gc.result(result);
+		gc.leaveFunctionGroup(null);
+		assertThat(utG.resolve(), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.nil)));
+		System.out.println(utG.resolve());
+		assertEquals(LoadBuiltins.nil, fnF.type());
 	}
 }

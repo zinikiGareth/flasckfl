@@ -31,5 +31,5 @@ public interface UnifiableType extends Type {
 
 	// We conclude that this is being used in a function application and as such must be a function
 	// able to be applied to these types
-	Application canBeAppliedTo(List<Type> results);
+	UnifiableType canBeAppliedTo(List<Type> results);
 }

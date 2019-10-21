@@ -1,7 +1,9 @@
 package org.flasck.flas.tc3;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -13,6 +15,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -59,9 +62,18 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			Set<Type> tys = new HashSet<>();
 			for (Type t : ct.types)
 				tys.add(consolidate(t));
-			return repository.findUnionWith(tys);
+			Type ret = repository.findUnionWith(tys);
+			if (ret == null)
+				throw new NotImplementedException("Cannot figure out a union for " + tys);
+			return ret;
 		} else if (value instanceof UnifiableType) {
 			return ((UnifiableType)value).resolve();
+		} else if (value instanceof Apply) {
+			Apply apply = (Apply)value;
+			List<Type> consolidated = new ArrayList<Type>();
+			for (Type t : apply.tys)
+				consolidated.add(consolidate(t));
+			return new Apply(consolidated);
 		} else
 			return value;
 	}

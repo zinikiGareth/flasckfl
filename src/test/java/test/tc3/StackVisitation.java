@@ -29,7 +29,6 @@ import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
-import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -211,7 +210,6 @@ public class StackVisitation {
 		aec.leaveApplyExpr(ae);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void leaveApplyExpressionCanHandleUnifiableTypesAsFunctionsProducingApplications() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
@@ -219,8 +217,10 @@ public class StackVisitation {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
 		FunctionName func = FunctionName.function(pos, null, "f");
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
+		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ApplicationMatcher.of(Matchers.is(ut), Matchers.is(nbr))));
+			oneOf(nv).result(with(any(UnifiableType.class)));
+			oneOf(state).createUT(); will(returnValue(result));
 		}});
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		fn.bind(funcVar);

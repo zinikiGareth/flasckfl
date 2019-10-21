@@ -1,0 +1,2 @@
+test.golden.doit :: Number->A->A
+test.golden.k :: Number->Any

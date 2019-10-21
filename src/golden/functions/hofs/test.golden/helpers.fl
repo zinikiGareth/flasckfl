@@ -1,0 +1,6 @@
+
+// I feel it should be possible to put these in the .ut file, but that doesn't seem
+// to be covered by "data"
+// Maybe "helpers" should enter a mode looking for function (or more) decls?
+
+	k (Number n) = 0

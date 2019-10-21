@@ -4,6 +4,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -17,7 +19,6 @@ import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
-import org.flasck.flas.tc3.Application;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
@@ -108,7 +109,8 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcf.visitFunctionIntro(fiF1);
-		fcf.result(new ExprResult(new Application(utG, LoadBuiltins.string)));
+		UnifiableType r1 = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.number));
+		fcf.result(new ExprResult(r1));
 		fcf.leaveFunctionIntro(fiF1);
 
 		context.checking(new Expectations() {{
@@ -122,7 +124,7 @@ public class GroupTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), 
 					(Matcher)ConsolidatedTypeMatcher.with(
-							(Matcher)ApplicationMatcher.of(Matchers.is(utG), Matchers.is(LoadBuiltins.string)),
+							Matchers.is(r1),
 							Matchers.is(LoadBuiltins.string)
 					)
 			))); will(captureFType);
@@ -150,7 +152,8 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcg.visitFunctionIntro(fiG1);
-		fcg.result(new ExprResult(new Application(utF, LoadBuiltins.number)));
+		UnifiableType r2 = utF.canBeAppliedTo(Arrays.asList(LoadBuiltins.string));
+		fcg.result(new ExprResult(r2));
 		fcg.leaveFunctionIntro(fiG1);
 
 		context.checking(new Expectations() {{
@@ -164,7 +167,7 @@ public class GroupTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), 
 					(Matcher)ConsolidatedTypeMatcher.with(
-							(Matcher)ApplicationMatcher.of(Matchers.is(utF), Matchers.is(LoadBuiltins.number)),
+							Matchers.is(r2),
 							Matchers.is(LoadBuiltins.string)
 					)
 			))); will(captureGType);
@@ -174,6 +177,8 @@ public class GroupTests {
 		gc.result(captureGType.get(0));
 		
 		context.checking(new Expectations() {{
+			// the "any" here is because we haven't constrained the result type since returning it
+			exactly(2).of(repository).findUnionWith((Set)with(Matchers.containsInAnyOrder(LoadBuiltins.any, LoadBuiltins.string))); will(returnValue(LoadBuiltins.string));
 			oneOf(sv).result(null); // leave function group doesn't propagate anything ...
 		}});
 		gc.leaveFunctionGroup(grp);
@@ -183,4 +188,5 @@ public class GroupTests {
 		assertThat(fnG.type(), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.string)));
 	}
 
+	// TODO: I want to add another test where the return value of f/g is used (eg by +) so that we deduce its type and add constraints in a different way.
 }

@@ -1,6 +1,9 @@
 package org.flasck.flas.tc3;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -12,14 +15,17 @@ public class FunctionGroupTCState implements CurrentTCState {
 	private final RepositoryReader repository;
 	private final Map<String, UnifiableType> constraints = new TreeMap<>();
 	int polyCount = 0;
+	private Set<UnifiableType> allUTs = new HashSet<>();
 	
 	public FunctionGroupTCState(RepositoryReader repository) {
 		this.repository = repository;
 	}
 
 	@Override
-	public UnifiableType nextArg() {
-		return new TypeConstraintSet(repository, this, null);
+	public UnifiableType createUT() {
+		TypeConstraintSet ret = new TypeConstraintSet(repository, this, null);
+		allUTs.add(ret);
+		return ret;
 	}
 
 	@Override
@@ -29,6 +35,8 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 	@Override
 	public void bindVarToUT(String name, UnifiableType ty) {
+		if (!allUTs.contains(ty))
+			throw new NotImplementedException("Where did this come from?");
 		constraints.put(name, ty);
 	}
 
@@ -53,7 +61,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	
 	@Override
 	public void resolveAll() {
-		for (UnifiableType ut : constraints.values()) {
+		for (UnifiableType ut : allUTs) {
 			ut.resolve();
 		}
 	}

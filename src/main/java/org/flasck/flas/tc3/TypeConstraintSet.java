@@ -18,12 +18,22 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TypeConstraintSet implements UnifiableType {
+	public class UnifiableApplication {
+		private final List<Type> args;
+		private final UnifiableType ret;
+
+		public UnifiableApplication(List<Type> args, UnifiableType ret) {
+			this.args = args;
+			this.ret = ret;
+		}
+	}
+
 	private final RepositoryReader repository;
 	private final CurrentTCState state;
 	private final Set<Type> incorporatedBys = new HashSet<>();
 	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
 	private final Set<Type> types = new HashSet<>();
-	private final Set<List<Type>> applications = new HashSet<>();
+	private final Set<UnifiableApplication> applications = new HashSet<>();
 	private final InputPosition pos;
 	private Type resolvedTo;
 	private int returned = 0;
@@ -42,7 +52,7 @@ public class TypeConstraintSet implements UnifiableType {
 	public Type resolve() {
 		if (resolvedTo != null)
 			return resolvedTo;
-		if (ctors.isEmpty() && incorporatedBys.isEmpty() && types.isEmpty() && returned == 0)
+		if (ctors.isEmpty() && incorporatedBys.isEmpty() && types.isEmpty() && applications.isEmpty() && returned == 0)
 			return (resolvedTo = LoadBuiltins.any);
 		if (!types.isEmpty()) {
 			if (types.size() == 1) {
@@ -92,6 +102,25 @@ public class TypeConstraintSet implements UnifiableType {
 				return (resolvedTo = tys.iterator().next());
 			else
 				return (resolvedTo = repository.findUnionWith(tys));
+		}
+		if (!applications.isEmpty()) {
+			for (UnifiableApplication x : applications) {
+				// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
+				// and while it could possibly recurse, I don't think that can then refer back to us
+				// If we do run into that problem, we should probably throw a special "UnresolvedReferenceException" here and then catch that in the loop
+				// and then go around again
+				// But at least make sure you have a test case before doing that ...
+				List<Type> forApply = new ArrayList<>();
+				for (Type t : x.args) {
+					if (t instanceof UnifiableType)
+						forApply.add(((UnifiableType)t).resolve());
+					else
+						forApply.add(t);
+				}
+				forApply.add(x.ret.resolve());
+				resolvedTo = new Apply(forApply);
+			}
+			return resolvedTo;
 		}
 		if (incorporatedBys.isEmpty())
 			resolvedTo = state.nextPoly(pos);
@@ -154,13 +183,18 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 	
 	@Override
-	public Application canBeAppliedTo(List<Type> results) {
-		applications .add(results);
-		return new Application(this, results);
+	public UnifiableType canBeAppliedTo(List<Type> args) {
+		// Here we introduce a new variable that we will be able to constrain
+		UnifiableType ret = state.createUT();
+		applications.add(new UnifiableApplication(args, ret));
+		return ret;
 	}
 
 	@Override
 	public String toString() {
-		return "TCS{" + "??}";
+		if (isResolved())
+			return signature();
+		else
+			return "TCS{" + "??}";
 	}
 }

@@ -3,6 +3,7 @@ package org.flasck.flas.repository;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -215,7 +216,15 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	public Type findUnionWith(Set<Type> ms) {
 		if (ms.isEmpty())
 			throw new NotImplementedException();
-		if (ms.size() == 1)
+		Set<Type> collect = new HashSet<Type>();
+		for (Type t : ms) {
+			if (t.equals(LoadBuiltins.any))
+				continue;
+			collect.add(t);
+		}
+		if (collect.isEmpty())
+			return LoadBuiltins.any;
+		else if (collect.size() == 1)
 			return ms.iterator().next();
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
