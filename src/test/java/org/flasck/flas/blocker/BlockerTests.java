@@ -104,6 +104,40 @@ public class BlockerTests {
 		blocker.flush();
 	}
 
+	@Test
+	public void indentingRestartsAfterNewFile() {
+		context.checking(new Expectations() {{
+			oneOf(consumer).newFile();
+			oneOf(consumer).line(with(1), with(LineMatcher.match("level1")));
+			oneOf(consumer).line(with(2), with(LineMatcher.match("level2")));
+			oneOf(consumer).newFile();
+			oneOf(consumer).line(with(1), with(LineMatcher.match("level1 again")));
+		}});
+		blocker.newFile();
+		line("\tlevel1");
+		line("\t\tlevel2");
+		blocker.flush();
+		blocker.newFile();
+		line("\tlevel1 again");
+		blocker.flush();
+	}
+	
+	@Test
+	public void indentingRestartsAfterNewFileAtTopLevel() {
+		context.checking(new Expectations() {{
+			oneOf(consumer).newFile();
+			oneOf(consumer).line(with(1), with(LineMatcher.match("level1")));
+			oneOf(consumer).newFile();
+			oneOf(consumer).line(with(1), with(LineMatcher.match("level1 again")));
+		}});
+		blocker.newFile();
+		line("\tlevel1");
+		blocker.flush();
+		blocker.newFile();
+		line("\tlevel1 again");
+		blocker.flush();
+	}
+	
 	private void line(String line) {
 		blocker.present("-", lineNo++, line);
 	}

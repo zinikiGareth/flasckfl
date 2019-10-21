@@ -59,8 +59,11 @@ public class Blocker {
 	}
 
 	public void flush() {
-		if (currline != null)
+		if (currline != null) {
 			consumer.line(currLevel, currline);
+			currLevel = 0;
+			currline = null;
+		}
 		consumer.flush();
 	}
 

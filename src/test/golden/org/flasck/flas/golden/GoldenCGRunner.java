@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Main;
@@ -20,6 +22,7 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunner;
+import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
 
@@ -64,11 +67,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 
 		ByteCodeCreator bcc = emptyTestClass(bce, "goldenTests");
+		Set<File> dirs = new TreeSet<>(new FileNameComparator());
 		for (File f : FileUtils.findFilesMatching(new File("src/golden"), "*.fl")) {
 			File dir = f.getParentFile().getParentFile();
 			if (p == null || p.matcher(dir.getPath()).find())
-				addGoldenTest(bcc, dir);
+				dirs.add(dir);
 		}
+		for (File dir : dirs)
+			addGoldenTest(bcc, dir);
 		if (bcc.methodCount() == 1) {
 			addMethod(bcc, "classEmpty", false, new TestMethodContentProvider() {
 				@Override
