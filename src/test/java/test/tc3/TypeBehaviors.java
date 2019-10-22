@@ -46,4 +46,22 @@ public class TypeBehaviors {
 		assertFalse(number.incorporates(string));
 	}
 
+	@Test
+	public void applyInsertsParensAroundNestedApply() {
+		Primitive number = new Primitive(pos, "Number");
+		Apply f = new Apply(number, number);
+		assertEquals("Number->Number", f.signature());
+		Apply hof = new Apply(f, number);
+		assertEquals("(Number->Number)->Number", hof.signature());
+	}
+	
+	@Test
+	public void applyDoesNotInsertParensAroundApplyAtEnd() {
+		Primitive number = new Primitive(pos, "Number");
+		Apply f = new Apply(number, number);
+		assertEquals("Number->Number", f.signature());
+		Apply hof = new Apply(number, f);
+		assertEquals("Number->Number->Number", hof.signature());
+	}
+	
 }

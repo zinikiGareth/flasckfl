@@ -3,7 +3,7 @@ package org.flasck.flas.tc3;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Apply implements Type {
+public class Apply implements Type, SignatureNeedsParensType {
 	public final List<Type> tys;
 
 	public Apply(Type... types) {
@@ -32,13 +32,20 @@ public class Apply implements Type {
 	public String signature() {
 		StringBuilder sb = new StringBuilder();
 		String sep = "";
-		for (Type t : tys) {
+		for (int i=0;i<tys.size();i++) {
+			Type t = tys.get(i);
 			sb.append(sep);
 			sep = "->";
 			if (t == null)
 				sb.append("<<UNDEFINED>>");
-			else
+			else {
+				boolean needParens = t instanceof SignatureNeedsParensType && i < tys.size()-1;
+				if (needParens)
+					sb.append("(");
 				sb.append(t.signature());
+				if (needParens)
+					sb.append(")");
+			}
 		}
 		return sb.toString();
 	}
