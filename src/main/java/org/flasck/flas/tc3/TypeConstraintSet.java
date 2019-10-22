@@ -30,18 +30,20 @@ public class TypeConstraintSet implements UnifiableType {
 
 	private final RepositoryReader repository;
 	private final CurrentTCState state;
+	private final InputPosition pos;
+	private final String id;
 	private final Set<Type> incorporatedBys = new HashSet<>();
 	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
 	private final Set<Type> types = new HashSet<>();
 	private final Set<UnifiableApplication> applications = new HashSet<>();
-	private final InputPosition pos;
 	private Type resolvedTo;
 	private int returned = 0;
 	
-	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos) {
+	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id) {
 		repository = r;
 		this.state = state;
 		this.pos = pos;
+		this.id = id;
 	}
 
 	public boolean isResolved() {
@@ -132,7 +134,7 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	@Override
 	public void isReturned() {
-		returned ++;
+		returned++;
 	}
 
 	@Override
@@ -194,6 +196,6 @@ public class TypeConstraintSet implements UnifiableType {
 		if (isResolved())
 			return signature();
 		else
-			return "TCS{" + "??}";
+			return "TCS{" + id + "}";
 	}
 }

@@ -214,7 +214,7 @@ public class StackVisitation {
 	public void leaveApplyExpressionCanHandleUnifiableTypesAsFunctionsProducingApplications() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
 		Type nbr = context.mock(Type.class, "nbr");
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		FunctionName func = FunctionName.function(pos, null, "f");
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
 		UnifiableType result = context.mock(UnifiableType.class, "result");

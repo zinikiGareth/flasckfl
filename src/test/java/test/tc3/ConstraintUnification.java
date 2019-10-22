@@ -28,13 +28,13 @@ public class ConstraintUnification {
 
 	@Test
 	public void ifWeDontDoAnythingWeEndUpWithAny() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		assertEquals(LoadBuiltins.any, ut.resolve());
 	}
 
 	@Test
 	public void oneIncoporatedByConstraintCreatesAnIdentity() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.incorporatedBy(pos, LoadBuiltins.number);
 		Type ty = ut.resolve();
 		assertEquals(LoadBuiltins.number, ty);
@@ -42,7 +42,7 @@ public class ConstraintUnification {
 	
 	@Test
 	public void ifYouAskSomethingToBeANilItWillBe() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeStruct(LoadBuiltins.nil);
 		Type ty = ut.resolve();
 		assertEquals(LoadBuiltins.nil, ty);
@@ -51,7 +51,7 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsAndDontConstrainItYouGetAnyAsThePoly() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeStruct(LoadBuiltins.cons);
 		assertThat(ut.resolve(), PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
@@ -59,7 +59,7 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadNotConstrainedYouStillGetAny() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		assertThat(ut.resolve(), PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
@@ -68,7 +68,7 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadSpecifiedThatsTheType() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.canBeStruct(LoadBuiltins.falseT);
@@ -78,7 +78,7 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouUseAVarThenYouGetAFreshPolyVar() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.isReturned();
@@ -100,7 +100,7 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void trueAndFalseUnifyToBoolean() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeStruct(LoadBuiltins.trueT);
 		ut.canBeStruct(LoadBuiltins.falseT);
 		context.checking(new Expectations() {{
@@ -112,7 +112,7 @@ public class ConstraintUnification {
 	
 	@Test
 	public void aSingleArgConstraintJustGivesYouThatType() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeType(LoadBuiltins.string);
 		Type ty = ut.resolve();
 		assertEquals(LoadBuiltins.string, ty);
@@ -121,7 +121,7 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aSingleArgTypeConstraintWithAPolymorphicCtorGivesYouAnys() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos);
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeType(LoadBuiltins.cons);
 		Type ty = ut.resolve();
 		assertThat(ty, PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));

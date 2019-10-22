@@ -91,8 +91,12 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	public void result(Object r) {
 		if (r instanceof ArgResult)
 			argTypes.add(((ArgResult)r).type);
-		else
-			resultTypes.add(((ExprResult)r).type);
+		else {
+			Type ret = ((ExprResult)r).type;
+			if (ret instanceof UnifiableType)
+				((UnifiableType)ret).isReturned();
+			resultTypes.add(ret);
+		}
 	}
 
 	@Override

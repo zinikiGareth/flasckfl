@@ -1,6 +1,5 @@
 package org.flasck.flas.tc3;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +22,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 	@Override
 	public UnifiableType createUT() {
-		TypeConstraintSet ret = new TypeConstraintSet(repository, this, null);
+		TypeConstraintSet ret = new TypeConstraintSet(repository, this, null, "ret_" + allUTs.size());
 		allUTs.add(ret);
 		return ret;
 	}

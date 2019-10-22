@@ -92,7 +92,7 @@ public class TypeResolution {
 	@Test
 	public void becauseWeResolveAllTheTypesAUnifiableTypeCanBecomeASimplePrimitiveWhichIsEasyToResolve() {
 		gc.visitFunction(fnF);
-		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos);
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeType(LoadBuiltins.number);
 		gc.result(ut);
 		gc.leaveFunctionGroup(null);
@@ -102,7 +102,7 @@ public class TypeResolution {
 	@Test
 	public void weCanObviouslyHaveAUnifiableTypeOfNumberResolveWithNumberItself() {
 		gc.visitFunction(fnF);
-		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos);
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeType(LoadBuiltins.number);
 		gc.result(new ConsolidateTypes(Arrays.asList(ut, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);

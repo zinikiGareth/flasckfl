@@ -27,6 +27,7 @@ import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.SlotChecker;
+import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matcher;
@@ -86,8 +87,8 @@ public class GroupTests {
 		
 		
 		// TODO: somebody needs to introduce these, and I think it should probably happen in "visitGroup" and we'll need to capture them ..
-		UnifiableType utF = new TypeConstraintSet(repository, state, pos);
-		UnifiableType utG = new TypeConstraintSet(repository, state, pos);
+		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "tcs");
+		UnifiableType utG = new TypeConstraintSet(repository, state, pos, "tcs");
 		
 		
 		gc.visitFunctionGroup(grp);
@@ -178,7 +179,8 @@ public class GroupTests {
 		
 		context.checking(new Expectations() {{
 			// the "any" here is because we haven't constrained the result type since returning it
-			exactly(2).of(repository).findUnionWith((Set)with(Matchers.containsInAnyOrder(LoadBuiltins.any, LoadBuiltins.string))); will(returnValue(LoadBuiltins.string));
+			oneOf(repository).findUnionWith((Set)with((Matcher<Type>)Matchers.containsInAnyOrder((Matcher)PolyVarMatcher.called("A"), Matchers.is(LoadBuiltins.string)))); will(returnValue(LoadBuiltins.string));
+			oneOf(repository).findUnionWith((Set)with((Matcher<Type>)Matchers.containsInAnyOrder((Matcher)PolyVarMatcher.called("B"), Matchers.is(LoadBuiltins.string)))); will(returnValue(LoadBuiltins.string));
 			oneOf(sv).result(null); // leave function group doesn't propagate anything ...
 		}});
 		gc.leaveFunctionGroup(grp);
