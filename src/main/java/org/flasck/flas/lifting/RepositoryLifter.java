@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -23,6 +26,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		}
 	}
 
+	private LiftingDependencyMapper dependencies = new LiftingDependencyMapper();
 	private MappingStore ms;
 	private MappingAnalyzer ma;
 	private Set<FunctionDefinition> dull = new TreeSet<>();
@@ -39,8 +43,9 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		dependencies.recordFunction(fn);
 		ms = new MappingStore();
-		ma = new MappingAnalyzer(fn, ms);
+		ma = new MappingAnalyzer(fn, ms, dependencies);
 	}
 
 	@Override

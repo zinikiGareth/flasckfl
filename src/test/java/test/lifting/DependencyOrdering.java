@@ -4,12 +4,15 @@ import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
@@ -127,6 +130,43 @@ public class DependencyOrdering {
 		assertOrder("test.foo.k//test.foo.l", "test.foo.f//test.foo.g//test.foo.h");
 	}
 
+	@Test
+	public void aFunctionDependingOnANestedVariableIsInTheSameGroupAsTheParentFunction() { // f x -> g; g -> x
+		FunctionDefinition fnF = function("f");
+		FunctionDefinition fnG = function(fnF.name(), "g");
+		visit(fnF, fnG);
+
+		lifter.visitFunction(fnG);
+		lifter.visitFunctionIntro(fnG.intros().get(0));
+		VarPattern vp = new VarPattern(pos, new VarName(pos, fnF.name(), "x"));
+		UnresolvedVar ref = new UnresolvedVar(pos, vp.name().var);
+		ref.bind(vp);
+		lifter.visitUnresolvedVar(ref, 0);
+		lifter.leaveFunction(fnG);
+
+		assertOrder("test.foo.f//test.foo.f.g");
+	}
+
+	@Test
+	public void aPairOfNestedFunctionsWhereOneDoesNotDependOnANestedVariableWillComeInTwoGroups() { // f x -> g; g -> x; h
+		FunctionDefinition fnF = function("f");
+		FunctionDefinition fnG = function(fnF.name(), "g");
+		FunctionDefinition fnH = function(fnF.name(), "h");
+		visit(fnF, fnG);
+
+		lifter.visitFunction(fnG);
+		lifter.visitFunctionIntro(fnG.intros().get(0));
+		VarPattern vp = new VarPattern(pos, new VarName(pos, fnF.name(), "x"));
+		UnresolvedVar ref = new UnresolvedVar(pos, vp.name().var);
+		ref.bind(vp);
+		lifter.visitUnresolvedVar(ref, 0);
+		lifter.leaveFunction(fnG);
+
+		visit(fnH);
+
+		assertOrder("test.foo.f.h", "test.foo.f//test.foo.f.g");
+	}
+
 	private FunctionDefinition quick(String name, FunctionDefinition... deps) {
 		FunctionDefinition fn = function(name);
 		visit(fn, deps);
@@ -134,7 +174,12 @@ public class DependencyOrdering {
 	}
 
 	private FunctionDefinition function(String name) {
-		FunctionName fname = FunctionName.function(pos, pkg, name);
+		NameOfThing scope = pkg;
+		return function(scope, name);
+	}
+
+	private FunctionDefinition function(NameOfThing scope, String name) {
+		FunctionName fname = FunctionName.function(pos, scope, name);
 		FunctionDefinition fn = new FunctionDefinition(fname, 0);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
 		fn.intro(fi);

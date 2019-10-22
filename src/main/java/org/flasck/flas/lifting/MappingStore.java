@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIPatternOptions;
 
+// This is a record per-function
 public class MappingStore implements MappingCollector, NestedVarReader {
 	public class PO implements Comparable<PO> {
 		VarName name;

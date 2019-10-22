@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.lifting.MappingAnalyzer;
 import org.flasck.flas.lifting.MappingCollector;
+import org.flasck.flas.lifting.VarDependencyMapper;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -24,6 +25,7 @@ public class CollectorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition pos = new InputPosition("-", 1, 0, null);
 	PackageName pkg = new PackageName("test.foo");
+	private VarDependencyMapper dependencies = context.mock(VarDependencyMapper.class);
 
 	@Test
 	public void aVarPatternNotLocalToThisFunctionIsRecorded() {
@@ -31,7 +33,7 @@ public class CollectorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
-		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(vp);
@@ -40,6 +42,7 @@ public class CollectorTests {
 		
 		context.checking(new Expectations() {{
 			oneOf(c).recordNestedVar(fi, vp);
+			oneOf(dependencies).recordVarDependency(nameG, nameF, c);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}
@@ -50,7 +53,7 @@ public class CollectorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
-		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameG, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(vp);
@@ -68,7 +71,7 @@ public class CollectorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
-		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(tp);
@@ -77,6 +80,7 @@ public class CollectorTests {
 		
 		context.checking(new Expectations() {{
 			oneOf(c).recordNestedVar(fi, tp);
+			oneOf(dependencies).recordVarDependency(nameG, nameF, c);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}
@@ -87,7 +91,7 @@ public class CollectorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
-		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameG, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(tp);
@@ -105,7 +109,7 @@ public class CollectorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
-		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		UnresolvedVar vr = new UnresolvedVar(pos, "Nil");
 		vr.bind(LoadBuiltins.nil);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
@@ -126,7 +130,7 @@ public class CollectorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
-		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(other);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
@@ -145,7 +149,7 @@ public class CollectorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
-		MappingAnalyzer ma = new MappingAnalyzer(fn, c);
+		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(fn);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
