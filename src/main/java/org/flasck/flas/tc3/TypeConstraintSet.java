@@ -52,82 +52,81 @@ public class TypeConstraintSet implements UnifiableType {
 	public Type resolve() {
 		if (resolvedTo != null)
 			return resolvedTo;
-		if (ctors.isEmpty() && incorporatedBys.isEmpty() && types.isEmpty() && applications.isEmpty() && returned == 0)
-			return (resolvedTo = LoadBuiltins.any);
-		if (!types.isEmpty()) {
-			if (types.size() == 1) {
-				Type ret = types.iterator().next();
-				if (ret instanceof StructDefn && ((StructDefn)ret).hasPolys()) {
-					StructDefn sd = (StructDefn) ret;
-					List<Type> polys = new ArrayList<>();
-					for (PolyType p : sd.polys()) {
-						polys.add(LoadBuiltins.any);
-					}
-					return (resolvedTo = new PolyInstance(sd, polys));
+		Set<Type> tys = new HashSet<Type>();
+		for (Type t : types) {
+			if (t instanceof StructDefn && ((StructDefn)t).hasPolys()) {
+				StructDefn sd = (StructDefn) t;
+				List<Type> polys = new ArrayList<>();
+				// TODO: I think for type cases we should in fact insist on them specifying the polymorphic vars
+				// We would then have them here (probably already as a PolyInstance!) ...
+				for (PolyType p : sd.polys()) {
+					polys.add(LoadBuiltins.any);
 				}
-				return (resolvedTo = ret);
-			}
-			throw new NotImplementedException("a unification case");
+				tys.add(new PolyInstance(sd, polys));
+			} else
+				tys.add(t);
 		}
-		// TODO: I think the tys = ... repo.findUnion() wants to wrap this whole function, but I'm not QUITE sure how it works with the "minimal" constraints detected in expression checking
-		// Are they secondary?
-		if (!ctors.isEmpty()) {
-			// We have been explicitly told that these are true, usually through pattern matching
-			// This is too broad; but I think we are going to need to do something like this ultimately, so just suck it up ...
-			Set<Type> tys = new HashSet<Type>();
-			for (Entry<StructDefn, StructTypeConstraints> e : ctors.entrySet()) {
-				StructDefn ty = e.getKey();
-				if (!ty.hasPolys())
-					tys.add(ty);
-				else {
-					StructTypeConstraints stc = ctors.get(ty);
-					Map<PolyType, Type> polyMap = new HashMap<>();
-					for (StructField f : stc.fields()) {
-						PolyType pt = ty.findPoly(f.type);
-						if (pt == null)
-							continue;
-						polyMap.put(pt, stc.get(f).resolve());
-					}
-					List<Type> polys = new ArrayList<>();
-					for (PolyType p : ty.polys()) {
-						if (polyMap.containsKey(p))
-							polys.add(polyMap.get(p));
-						else
-							polys.add(LoadBuiltins.any);
-					}
-					tys.add(new PolyInstance(ty, polys));
+
+		// We have been explicitly told that these are true, usually through pattern matching
+		// This is too broad; but I think we are going to need to do something like this ultimately, so just suck it up ...
+		for (Entry<StructDefn, StructTypeConstraints> e : ctors.entrySet()) {
+			StructDefn ty = e.getKey();
+			if (!ty.hasPolys())
+				tys.add(ty);
+			else {
+				StructTypeConstraints stc = ctors.get(ty);
+				Map<PolyType, Type> polyMap = new HashMap<>();
+				for (StructField f : stc.fields()) {
+					PolyType pt = ty.findPoly(f.type);
+					if (pt == null)
+						continue;
+					polyMap.put(pt, stc.get(f).resolve());
 				}
-			}
-			if (tys.size() == 1)
-				return (resolvedTo = tys.iterator().next());
-			else
-				return (resolvedTo = repository.findUnionWith(tys));
-		}
-		if (!applications.isEmpty()) {
-			for (UnifiableApplication x : applications) {
-				// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
-				// and while it could possibly recurse, I don't think that can then refer back to us
-				// If we do run into that problem, we should probably throw a special "UnresolvedReferenceException" here and then catch that in the loop
-				// and then go around again
-				// But at least make sure you have a test case before doing that ...
-				List<Type> forApply = new ArrayList<>();
-				for (Type t : x.args) {
-					if (t instanceof UnifiableType)
-						forApply.add(((UnifiableType)t).resolve());
+				List<Type> polys = new ArrayList<>();
+				for (PolyType p : ty.polys()) {
+					if (polyMap.containsKey(p))
+						polys.add(polyMap.get(p));
 					else
-						forApply.add(t);
+						polys.add(LoadBuiltins.any);
 				}
-				forApply.add(x.ret.resolve());
-				resolvedTo = new Apply(forApply);
+				tys.add(new PolyInstance(ty, polys));
 			}
-			return resolvedTo;
 		}
-		if (incorporatedBys.isEmpty())
-			resolvedTo = state.nextPoly(pos);
+		
+		for (UnifiableApplication x : applications) {
+			// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
+			// and while it could possibly recurse, I don't think that can then refer back to us
+			// If we do run into that problem, we should probably throw a special "UnresolvedReferenceException" here and then catch that in the loop
+			// and then go around again
+			// But at least make sure you have a test case before doing that ...
+			List<Type> forApply = new ArrayList<>();
+			for (Type t : x.args) {
+				if (t instanceof UnifiableType)
+					forApply.add(((UnifiableType)t).resolve());
+				else
+					forApply.add(t);
+			}
+			forApply.add(x.ret.resolve());
+			tys.add(new Apply(forApply));
+		}
+		
+		tys.addAll(incorporatedBys);
+
+		if (tys.isEmpty()) {
+			if (returned != 0)
+				resolvedTo = state.nextPoly(pos);
+			else
+				resolvedTo = LoadBuiltins.any;
+		} else if (tys.size() == 1)
+			resolvedTo = tys.iterator().next();
 		else {
-			// TODO: merge multiple things or throw an error
-			resolvedTo = incorporatedBys.iterator().next();
+			resolvedTo = repository.findUnionWith(tys);
+			if (resolvedTo == null) {
+				// this is a legit type error
+				throw new NotImplementedException("This should be a legit cannot merge type error");
+			}
 		}
+
 		return resolvedTo;
 	}
 	
