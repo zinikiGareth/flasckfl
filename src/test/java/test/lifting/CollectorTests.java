@@ -80,7 +80,6 @@ public class CollectorTests {
 		
 		context.checking(new Expectations() {{
 			oneOf(c).recordNestedVar(fi, tp);
-			oneOf(dependencies).recordVarDependency(nameG, nameF, c);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}

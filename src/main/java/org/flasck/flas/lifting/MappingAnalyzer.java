@@ -40,7 +40,6 @@ public class MappingAnalyzer {
 			TypedPattern tp = (TypedPattern) defn;
 			if (tp.name().scope != name) {
 				collector.recordNestedVar(fi, tp);
-				dependencies.recordVarDependency(name, (FunctionName)tp.name().scope, collector);
 			}
 		} else if (defn instanceof FunctionDefinition) {
 			if (defn != fn)
