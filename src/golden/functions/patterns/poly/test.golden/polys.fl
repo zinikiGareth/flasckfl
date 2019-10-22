@@ -3,4 +3,4 @@
 	e x = 0
 
 // Cons[A]->A
-.	hd (Cons {head: x}) = x
+	hd (Cons {head: x}) = x

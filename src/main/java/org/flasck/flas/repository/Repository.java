@@ -225,7 +225,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		if (collect.isEmpty())
 			return LoadBuiltins.any;
 		else if (collect.size() == 1)
-			return ms.iterator().next();
+			return collect.iterator().next();
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
 				UnionTypeDefn utd = (UnionTypeDefn) k;

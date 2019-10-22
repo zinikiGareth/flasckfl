@@ -1,2 +1,2 @@
 test.golden.e :: Cons[True]->Number
-test.golden.head :: Cons[A]->A
+test.golden.hd :: Cons[A]->A

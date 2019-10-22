@@ -61,6 +61,9 @@ public class ConstraintUnification {
 	public void ifYouAskSomethingToBeAConsWithHeadNotConstrainedYouStillGetAny() {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld")));
+		}});
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		assertThat(ut.resolve(), PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
@@ -70,6 +73,9 @@ public class ConstraintUnification {
 	public void ifYouAskSomethingToBeAConsWithHeadSpecifiedThatsTheType() {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld")));
+		}});
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.canBeStruct(LoadBuiltins.falseT);
 		assertThat(ut.resolve(), PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.falseT)));
@@ -80,6 +86,9 @@ public class ConstraintUnification {
 	public void ifYouUseAVarThenYouGetAFreshPolyVar() {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld")));
+		}});
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.isReturned();
 
