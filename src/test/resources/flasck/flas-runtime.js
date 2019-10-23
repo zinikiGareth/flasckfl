@@ -14,11 +14,6 @@ FLClosure.prototype.toString = function() {
 	return "FLClosure[]";
 }
 
-if (typeof(module) !== 'undefined') {
-	module.exports = FLClosure;
-} else {
-	window.FLClosure = FLClosure;
-}
 
 const FLCurry = function(reqd, fn, args) {
 	this.fn = fn;
@@ -43,17 +38,9 @@ FLCurry.prototype.toString = function() {
 	return "FLCurry[" + reqd + "]";
 }
 
-if (typeof(module) !== 'undefined') {
-	module.exports = FLCurry;
-} else {
-	window.FLCurry = FLCurry;
-}
-if (typeof(require) !== 'undefined') {
-	const FLClosure = require('./closure');
-	const FLCurry = require('./curry');
-}
 
-var FLContext = function(env) {
+
+const FLContext = function(env) {
 }
 
 FLContext.prototype.closure = function(fn, ...args) {
@@ -122,10 +109,7 @@ FLContext.prototype.field = function(obj, field) {
 		return obj[field];
 }
 
-if (typeof(module) !== 'undefined')
-	module.exports = FLContext;
-else
-	window.FLContext = FLContext;
+
 class _FLError extends Error {
 	constructor(msg) {
     	super(msg);
@@ -143,10 +127,7 @@ var FLError = function(_cxt, msg) {
 	return new _FLError(msg);
 }
 
-if (typeof(module) !== 'undefined')
-	module.exports = FLError;
-else
-	window.FLError = FLError;
+
 const Nil = function() {
 }
 
@@ -161,12 +142,7 @@ Cons.eval = function(_cxt, hd, tl) {
 	return ["NotImplemented"];
 }
 
-if (typeof(module) !== 'undefined') {
-	module.exports = { Nil, Cons }
-} else {
-	window.Nil = Nil;
-	window.Cons = Cons;
-}
+
 const True = function() {
 }
 
@@ -203,10 +179,4 @@ FLBuiltin.mul = function(_cxt, a, b) {
 	return a*b;
 }
 
-if (typeof(module) !== 'undefined') {
-	module.exports = { False, True, FLBuiltin };
-} else {
-	window.FLBuiltin = FLBuiltin;
-	window.True = True;
-	window.False = False;
-}
+

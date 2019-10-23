@@ -106,14 +106,14 @@ public class ConstraintUnification {
 	// TODO: conflict -> error
 	// TODO: nil or cons[A] -> list[A]
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void trueAndFalseUnifyToBoolean() {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeStruct(LoadBuiltins.trueT);
 		ut.canBeStruct(LoadBuiltins.falseT);
 		context.checking(new Expectations() {{
-			oneOf(repository).findUnionWith((Set<Type>) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
+			oneOf(repository).findUnionWith((Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
 		}});
 		Type ty = ut.resolve();
 		assertEquals(LoadBuiltins.bool, ty);

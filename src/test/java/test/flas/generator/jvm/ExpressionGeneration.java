@@ -203,7 +203,7 @@ public class ExpressionGeneration {
 			oneOf(meth).intConst(2); will(returnValue(expArgs));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).as(x, "java.lang.Object"); will(returnValue(xAsObj));
-			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "curry", xAsObj, expArgs, args); will(returnValue(aev));
+			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLCurry", "curry", xAsObj, expArgs, args); will(returnValue(aev));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);

@@ -110,11 +110,11 @@ public class PatternExtraction {
 	}
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void caseWithTwoConstructorsThatArePartOfASingleUnion() {
 		context.checking(new Expectations() {{
-			oneOf(r).findUnionWith((Set<Type>) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
+			oneOf(r).findUnionWith((Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.requireCM(LoadBuiltins.trueT);
