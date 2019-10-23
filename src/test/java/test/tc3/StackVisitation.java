@@ -67,6 +67,7 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 			oneOf(state).resolveAll();
+			oneOf(state).bindVarPatternTypes();
 			oneOf(nv).result(null);
 		}});
 		GroupChecker gc = new GroupChecker(errors, repository, nv, state);

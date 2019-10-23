@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
@@ -63,7 +64,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 
 	@Override
-	public void varInIntro(VarName vn, FunctionIntro intro) {
+	public void varInIntro(VarName vn, VarPattern vp, FunctionIntro intro) {
 		throw new NotImplementedException("This should not happen here .. just argslots");
 	}
 

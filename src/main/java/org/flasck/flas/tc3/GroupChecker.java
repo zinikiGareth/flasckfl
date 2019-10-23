@@ -53,6 +53,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		for (Entry<FunctionDefinition, Type> e : memberTypes.entrySet()) {
 			e.getKey().bindType(consolidate(e.getValue()));
 		}
+		state.bindVarPatternTypes();
 		sv.result(null);
 	}
 

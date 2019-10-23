@@ -2,6 +2,7 @@ package org.flasck.flas.tc3;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.VarPattern;
 
 public interface CurrentTCState {
 	UnifiableType createUT();
@@ -11,4 +12,6 @@ public interface CurrentTCState {
 	void argType(Type type);
 	void bindVarToUT(String name, UnifiableType ty);
 	void resolveAll();
+	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
+	void bindVarPatternTypes();
 }

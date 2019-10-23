@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.Type;
 
 public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 	public final transient InputPosition typeLocation;
@@ -33,6 +34,10 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 		pw.println(toString());
 	}
 
+	public Type type() {
+		return (Type) type.defn();
+	}
+	
 	@Override
 	public String toString() {
 		return "TypedPattern[" + type + ":" + var.var +"]";

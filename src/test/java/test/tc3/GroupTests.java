@@ -10,11 +10,15 @@ import java.util.Set;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.patterns.HSIOptions;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -82,16 +86,9 @@ public class GroupTests {
 		
 		// What I want to *prove* is that we don't resolve too soon.
 		
-		// I think this is probably a "big test" that depends on a lot of other things working correctly, so you might want to @Ignore it and
-		// go write something else in the interim
+		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "utf");
+		UnifiableType utG = new TypeConstraintSet(repository, state, pos, "utg");
 		
-		
-		// TODO: somebody needs to introduce these, and I think it should probably happen in "visitGroup" and we'll need to capture them ..
-		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "tcs");
-		UnifiableType utG = new TypeConstraintSet(repository, state, pos, "tcs");
-		
-		
-		gc.visitFunctionGroup(grp);
 		CaptureAction captureFCF = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class))); will(captureFCF);
@@ -191,4 +188,61 @@ public class GroupTests {
 	}
 
 	// TODO: I want to add another test where the return value of f/g is used (eg by +) so that we deduce its type and add constraints in a different way.
+
+	@Test
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void aVarPatternHasItsTypeBoundEvenIfItsAFunction() {
+		UnifiableType fnArg = state.createUT();
+		
+		CaptureAction captureFCF = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(FunctionChecker.class))); will(captureFCF);
+		}});
+		gc.visitFunction(fnF);
+		context.assertIsSatisfied();
+		FunctionChecker fcf = (FunctionChecker)captureFCF.get(0);
+
+		CaptureAction captureSC = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(SlotChecker.class))); will(captureSC);
+		}});
+		HSIOptions opts = new HSIPatternOptions();
+		VarPattern pattG = new VarPattern(pos, new VarName(pos, nameF, "g"));
+		opts.addVar(pattG, fiF2);
+		fcf.argSlot(new ArgSlot(0, opts));
+		context.assertIsSatisfied();
+		((SlotChecker)captureSC.get(0)).varInIntro(pattG.name(), pattG, fiF2);
+		
+		fcf.result(new ArgResult(fnArg));
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fcf.visitFunctionIntro(fiF2);
+		UnifiableType r1 = fnArg.canBeAppliedTo(Arrays.asList(LoadBuiltins.number));
+		r1.canBeType(LoadBuiltins.string);
+		fcf.result(new ExprResult(r1));
+		fcf.leaveFunctionIntro(fiF2);
+		
+		CaptureAction captureFType = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(fnArg), 
+							Matchers.is(r1)
+			))); will(captureFType);
+		}});
+		fcf.leaveFunction(fnF);
+		context.assertIsSatisfied();
+		gc.result(captureFType.get(0));
+
+		context.checking(new Expectations() {{
+			oneOf(sv).result(null); // leave function group doesn't propagate anything ...
+		}});
+		gc.leaveFunctionGroup(grp);
+		assertNotNull(fnF.type());
+		assertThat(fnF.type(), (Matcher)ApplyMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)), Matchers.is(LoadBuiltins.string)));
+		Type argType = fnArg.resolve();
+		assertNotNull(argType);
+		assertThat(argType, (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)));
+		assertNotNull(pattG.type());
+	}
 }

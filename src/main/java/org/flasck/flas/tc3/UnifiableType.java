@@ -6,6 +6,14 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.StructDefn;
 
 public interface UnifiableType extends Type {
+	// It's always good to be able to tell if this has been resolved
+	boolean isResolved();
+	
+	// Ultimately we need to come up with some description of what this type is
+	// It could be "Top" (Any), it could be a polymorphic var (eg A) or it could be a concrete type (such as Number)
+	// It could also be something more complex, such as List[A]
+	Type resolve();
+
 	// particularly for the pattern-matching case, but also if an expression is created which returns this type,
 	// say that this slot can be represented by a particular struct defn
 	// In this case, we allow the struct defn to be further constrained on its fields
@@ -23,11 +31,6 @@ public interface UnifiableType extends Type {
 	// Anyway, the upshot is that it is almost undoubtedly used more than once (it must have come from somewhere)
 	// and thus needs to be polymorphic
 	void isReturned();
-
-	// Ultimately we need to come up with some description of what this type is
-	// It could be "Top" (Any), it could be a polymorphic var (eg A) or it could be a concrete type (such as Number)
-	// It could also be something more complex, such as List[A]
-	Type resolve();
 
 	// We conclude that this is being used in a function application and as such must be a function
 	// able to be applied to these types

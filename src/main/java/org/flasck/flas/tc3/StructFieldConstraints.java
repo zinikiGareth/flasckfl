@@ -10,12 +10,10 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.repository.RepositoryReader;
 
 public class StructFieldConstraints implements StructTypeConstraints {
-	private final RepositoryReader repository;
 	private final StructDefn sd;
 	private final Map<StructField, UnifiableType> fields = new TreeMap<>(StructField.nameComparator);
 
 	public StructFieldConstraints(RepositoryReader repository, StructDefn sd) {
-		this.repository = repository;
 		this.sd = sd;
 	}
 

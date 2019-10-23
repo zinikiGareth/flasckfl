@@ -114,7 +114,6 @@ public class TypeResolution {
 	public void ifWeHaveIdentifiedAFunctionAndHaveAnApplicationOfItWeCanDeduceTheCorrectType() {
 		gc.visitFunction(fnF);
 		UnifiableType utG = state.createUT(); // a function argument "f"
-//		TypeConstraintSet utG = new TypeConstraintSet(repository, state, pos);
 		UnifiableType result = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.string)); // (f String) :: ?result
 		result.canBeType(LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
 		gc.result(result);
