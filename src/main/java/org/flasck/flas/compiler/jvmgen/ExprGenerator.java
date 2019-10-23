@@ -127,7 +127,7 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 		} else if (fn instanceof UnresolvedOperator) {
 			UnresolvedOperator op = (UnresolvedOperator) fn;
 			defn = op.defn();
-			expArgs = op.argCount();
+			expArgs = ((WithTypeSignature)defn).argCount();
 		}
 		if (expr.args.isEmpty()) // then it's a spurious apply
 			return;
