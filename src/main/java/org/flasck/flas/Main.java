@@ -255,6 +255,7 @@ public class Main {
 	}
 
 	public static void setLogLevels() {
+		LogManager.getLogger("io.webfolder.ui4j").setLevel(Level.WARN);
 		LogManager.getLogger("Compiler").setLevel(Level.WARN);
 		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 		LogManager.getLogger("Generator").setLevel(Level.WARN);

@@ -109,7 +109,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	}
 	
 	public static void runGolden(String s, String phase) throws Exception {
-		System.out.println("Run golden test for " + s);
+		System.out.println("GoldenTest[" + s + "]:");
 		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, useJSRunner, useJVMRunner, checkNothing, checkEverything);
 		te.cleanUp();
 		

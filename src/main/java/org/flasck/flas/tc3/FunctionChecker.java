@@ -106,17 +106,10 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			sv.result(null);
 		if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + fn.name().uniqueName());
-		System.out.println("TC fn " + fn.name().uniqueName() + " = " + buildApplyType());
 		sv.result(buildApplyType());
 	}
 
 	private Type buildApplyType() {
-//		for (Type t : argTypes)
-//			if (t instanceof UnifiableType)
-//				((UnifiableType)t).resolve();
-//		for (Type t : resultTypes)
-//			if (t instanceof UnifiableType)
-//				((UnifiableType)t).resolve();
 		Type result = consolidate(resultTypes);
 		if (argTypes.isEmpty())
 			return result;

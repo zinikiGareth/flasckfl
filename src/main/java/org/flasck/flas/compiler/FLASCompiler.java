@@ -146,18 +146,18 @@ public class FLASCompiler {
 
 		String inPkg = dir.getName();
 		checkPackageName(inPkg);
-		System.out.println("Package " + inPkg);
+		System.out.println(" |" + inPkg);
 		ParsingPhase flp = new ParsingPhase(config.errors, inPkg, (TopLevelDefinitionConsumer)repository);
 		List<File> files = FileUtils.findFilesMatching(dir, "*.fl");
 		files.sort(new FileNameComparator());
 		for (File f : files) {
-			System.out.println(" > " + f.getName());
+			System.out.println("    " + f.getName());
 			flp.process(f);
 			config.errors.showFromMark(mark, errorWriter, 4);
 			mark = config.errors.mark();
 		}
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
-			System.out.println(" > " + f.getName());
+			System.out.println("    " + f.getName());
 			String file = FileUtils.dropExtension(f.getName());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
 			UnitTestPackage utp = new UnitTestPackage(utfn);

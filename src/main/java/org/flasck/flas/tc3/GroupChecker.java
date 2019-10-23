@@ -34,21 +34,18 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		System.out.println("TC fn " + fn.name().uniqueName());
 		sv.push(new FunctionChecker(errors, repository, sv, state));
 		this.currentFunction = fn;
 	}
 
 	@Override
 	public void result(Object r) {
-		System.out.println("TC result " + currentFunction.name().uniqueName() + " :: " + r);
 		memberTypes.put(currentFunction, (Type)r);
 		this.currentFunction = null;
 	}
 
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
-		System.out.println("Leave TC grp " + grp);
 		state.resolveAll();
 		for (Entry<FunctionDefinition, Type> e : memberTypes.entrySet()) {
 			e.getKey().bindType(consolidate(e.getValue()));
