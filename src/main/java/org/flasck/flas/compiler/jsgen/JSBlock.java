@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zinutils.bytecode.mock.IndentWriter;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class JSBlock implements JSBlockCreator {
 	private final List<JSExpr> stmts = new ArrayList<>();
