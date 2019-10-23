@@ -152,7 +152,7 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 			IExpr fn = stack.remove(stack.size()-1);
 			IExpr call;
 			if (depth < expArgs)
-				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
+				call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
 			else
 				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));

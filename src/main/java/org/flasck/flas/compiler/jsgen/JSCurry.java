@@ -19,7 +19,7 @@ public class JSCurry implements JSExpr {
 		if (var == null)
 			var = meth.obtainNextVar();
 		w.print("const " + var + " = ");
-		w.print("_cxt.curry(" + required);
+		w.print("_cxt.curry(" + required + ", ");
 		boolean isFirst = true;
 		for (JSExpr e : args) {
 			if (isFirst)
