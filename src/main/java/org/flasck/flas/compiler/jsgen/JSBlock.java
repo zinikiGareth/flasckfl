@@ -69,8 +69,10 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSClosure curry(int expArgs, JSExpr... args) {
-		throw new NotImplementedException("Curry is not yet supported");
+	public JSCurry curry(int expArgs, JSExpr... args) {
+		JSCurry stmt = new JSCurry(creating, expArgs, args);
+		stmts.add(stmt);
+		return stmt;
 	}
 
 	@Override
