@@ -261,6 +261,30 @@ public class StackVisitation {
 	}
 
 	@Test
+	public void aUnifiableTypeCanBeAppliedToAUnifiableTypeWhichCreatesABond() {
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "func");
+		UnifiableType utV = context.mock(UnifiableType.class);
+		FunctionName fname = FunctionName.function(pos, null, "f");
+		VarPattern func = new VarPattern(pos, new VarName(pos, fname, "f"));
+		VarPattern funcVar = new VarPattern(pos, new VarName(pos, fname, "x"));
+		UnifiableType result = context.mock(UnifiableType.class, "result");
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(); will(returnValue(result));
+			oneOf(utV).isUsed();
+			oneOf(nv).result(with(any(UnifiableType.class)));
+		}});
+		UnresolvedVar fn = new UnresolvedVar(pos, "f");
+		fn.bind(func);
+		UnresolvedVar var = new UnresolvedVar(pos, "x");
+		var.bind(funcVar);
+		ApplyExpr ae = new ApplyExpr(pos, fn, var);
+		aec.result(new ExprResult(utF));
+		aec.result(new ExprResult(utV));
+		aec.leaveApplyExpr(ae);
+	}
+
+	@Test
 	public void leaveApplyExpressionHandlesListsAsASpecialCase() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
 		REType cons = context.mock(REType.class, "cons");

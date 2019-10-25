@@ -27,12 +27,18 @@ public interface UnifiableType extends Type {
 	// if it is incorporated by Nil, it cannot be Cons, List or Number
 	void incorporatedBy(InputPosition pos, Type incorporator);
 
-	// This says that the value is returned (somewhere? From the top level?)
+	// This says that the value is returned from a sub-expression
 	// Anyway, the upshot is that it is almost undoubtedly used more than once (it must have come from somewhere)
 	// and thus needs to be polymorphic
 	void isReturned();
 
+	// The value is used as an argument in an expression where the function is also an unknown
+	// This causes the two to be bound together, requiring a polymorphic variable
+	void isUsed();
+
 	// We conclude that this is being used in a function application and as such must be a function
 	// able to be applied to these types
 	UnifiableType canBeAppliedTo(List<Type> results);
+
+
 }

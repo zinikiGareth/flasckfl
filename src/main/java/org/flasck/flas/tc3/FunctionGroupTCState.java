@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -17,7 +18,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	private final Map<String, UnifiableType> constraints = new TreeMap<>();
 	private final Map<VarPattern, UnifiableType> patts = new TreeMap<>(VarPattern.comparator);
 	int polyCount = 0;
-	private Set<UnifiableType> allUTs = new HashSet<>();
+	private Set<UnifiableType> allUTs = new LinkedHashSet<>();
 	
 	public FunctionGroupTCState(RepositoryReader repository) {
 		this.repository = repository;

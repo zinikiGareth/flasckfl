@@ -37,7 +37,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final Set<Type> types = new HashSet<>();
 	private final Set<UnifiableApplication> applications = new HashSet<>();
 	private Type resolvedTo;
-	private int returned = 0;
+	private int usedOrReturned = 0;
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id) {
 		repository = r;
@@ -115,7 +115,7 @@ public class TypeConstraintSet implements UnifiableType {
 		tys.addAll(incorporatedBys);
 
 		if (tys.isEmpty()) {
-			if (returned != 0)
+			if (usedOrReturned > 0)
 				resolvedTo = state.nextPoly(pos);
 			else
 				resolvedTo = LoadBuiltins.any;
@@ -134,7 +134,12 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	@Override
 	public void isReturned() {
-		returned++;
+		usedOrReturned++;
+	}
+
+	@Override
+	public void isUsed() {
+		usedOrReturned++;
 	}
 
 	@Override
@@ -187,6 +192,10 @@ public class TypeConstraintSet implements UnifiableType {
 	public UnifiableType canBeAppliedTo(List<Type> args) {
 		// Here we introduce a new variable that we will be able to constrain
 		UnifiableType ret = state.createUT();
+		for (Type ty : args) {
+			if (ty instanceof UnifiableType)
+				((UnifiableType)ty).isUsed();
+		}
 		applications.add(new UnifiableApplication(args, ret));
 		return ret;
 	}

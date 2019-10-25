@@ -83,7 +83,7 @@ public class ConstraintUnification {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void ifYouUseAVarThenYouGetAFreshPolyVar() {
+	public void ifYouReturnAVarThenYouGetAFreshPolyVar() {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		StructTypeConstraints stc = ut.canBeStruct(LoadBuiltins.cons);
 		context.checking(new Expectations() {{
