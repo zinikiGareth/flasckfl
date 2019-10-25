@@ -53,8 +53,8 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			UnifiableType ut = (UnifiableType)fn;
 			nv.result(ut.canBeAppliedTo(results));
 			return;
-		} else if (fn.argCount() != results.size())
-			throw new RuntimeException("should be an error or a curry case: " + fn + " " + fn.argCount() + " " + results.size());
+		} else if (fn.argCount() < results.size())
+			throw new RuntimeException("should be an error: " + fn + " " + fn.argCount() + " " + results.size());
 		int pos = 0;
 		while (!results.isEmpty()) {
 			Type ai = results.remove(0);
@@ -75,9 +75,14 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			pos++;
 		}
 		// whatever is left is the type
-		if (results.size() > 1)
-			throw new RuntimeException("need to build up a function type");
-		nv.result(fn.get(pos));
+		if (pos < fn.argCount()) {
+			List<Type> types = new ArrayList<Type>();
+			while (pos <= fn.argCount()) {
+				types.add(fn.get(pos++));
+			}
+			nv.result(new Apply(types));
+		} else
+			nv.result(fn.get(pos));
 	}
 
 	private void handleListBuilder(ApplyExpr expr) {

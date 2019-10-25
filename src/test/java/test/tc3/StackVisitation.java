@@ -29,6 +29,7 @@ import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -108,7 +109,7 @@ public class StackVisitation {
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		context.checking(new Expectations() {{
-			oneOf(fnt).argCount(); will(returnValue(2));
+			allowing(fnt).argCount(); will(returnValue(2));
 			oneOf(fnt).get(0); will(returnValue(nbr));
 			oneOf(nbr).incorporates(nbr); will(returnValue(true));
 			oneOf(fnt).get(1); will(returnValue(nbr));
@@ -118,7 +119,7 @@ public class StackVisitation {
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "+");
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
-		fn.bindType(nbr);
+		fn.bindType(fnt);
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		NumericLiteral e2 = new NumericLiteral(pos, "42", 2);
@@ -126,6 +127,33 @@ public class StackVisitation {
 		aec.result(new ExprResult(fnt));
 		aec.result(new ExprResult(nbr));
 		aec.result(new ExprResult(nbr));
+		aec.leaveApplyExpr(ae);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void leaveApplyExpressionWithInsufficientButValidTypesReturnsAnApply() {
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		Type fnt = context.mock(Type.class, "fn/2");
+		Type nbr = context.mock(Type.class, "nbr");
+		Type string = context.mock(Type.class, "string");
+		Type other = context.mock(Type.class, "other");
+		context.checking(new Expectations() {{
+			allowing(fnt).argCount(); will(returnValue(2));
+			oneOf(fnt).get(0); will(returnValue(string));
+			oneOf(string).incorporates(string); will(returnValue(true));
+			oneOf(fnt).get(1); will(returnValue(other));
+			oneOf(fnt).get(2); will(returnValue(nbr));
+			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(other), Matchers.is(nbr))));
+		}});
+		UnresolvedVar op = new UnresolvedVar(pos, "f");
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 2);
+		fn.bindType(fnt);
+		op.bind(fn);
+		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
+		ApplyExpr ae = new ApplyExpr(pos, op, e1);
+		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(string));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -189,7 +217,7 @@ public class StackVisitation {
 		FunctionName func = FunctionName.function(pos, null, "f");
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
 		context.checking(new Expectations() {{
-			oneOf(fnt).argCount(); will(returnValue(2));
+			allowing(fnt).argCount(); will(returnValue(2));
 			oneOf(fnt).get(0); will(returnValue(nbr));
 			oneOf(ut).incorporatedBy(pos, nbr);
 			oneOf(fnt).get(1); will(returnValue(nbr));
