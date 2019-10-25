@@ -1,0 +1,4 @@
+	test currying with addition
+		assert (apply1 (curry1 3) 7)
+			10
+	

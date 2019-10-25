@@ -10,6 +10,11 @@ FLClosure.prototype.eval = function(_cxt) {
 	return this.val;
 }
 
+FLClosure.prototype.apply = function(_, args) {
+	const asfn = this.eval(args[0]);
+	return asfn.apply(null, args);
+}
+
 FLClosure.prototype.toString = function() {
 	return "FLClosure[]";
 }
@@ -35,7 +40,7 @@ FLCurry.prototype.apply = function(_, args) {
 }
 
 FLCurry.prototype.toString = function() {
-	return "FLCurry[" + reqd + "]";
+	return "FLCurry[" + this.reqd + "]";
 }
 
 
