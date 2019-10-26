@@ -2,3 +2,4 @@
 	apply1 f z = f z
 	
 	curry1 x = f x
+	curry2 a = a + _

@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -25,9 +26,50 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor {
+	public static class XCArg {
+		private final int arg;
+		private final JSExpr expr;
+
+		public XCArg(int arg, JSExpr expr) {
+			this.arg = arg;
+			this.expr = expr;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof XCArg))
+				return false;
+			XCArg o = (XCArg) obj;
+			return o.arg == arg && o.expr == expr;
+		}
+		
+		@Override
+		public int hashCode() {
+			return arg ^ expr.hashCode();
+		}
+		
+		@Override
+		public String toString() {
+			return arg + ":" + expr;
+		}
+	}
+
+	public class JSCurryArg implements JSExpr {
+		@Override
+		public String asVar() {
+			throw new NotImplementedException();
+		}
+
+		@Override
+		public void write(IndentWriter w) {
+			throw new NotImplementedException();
+		}
+	}
+
 	private static class SwitchLevel {
 		private String currentVar;
 		private JSBlockCreator matchDefault;
@@ -221,6 +263,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 			stack.add(block.boundVar(((VarPattern)defn).var));
 		} else if (defn instanceof TypedPattern) {
 			stack.add(block.boundVar(((TypedPattern)defn).var.var));
+		} else if (defn instanceof CurryArgument) {
+			stack.add(new JSCurryArg());
 		} else
 			throw new NotImplementedException();
 	}
@@ -261,11 +305,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 			stack.add(block.callFunction(fn, args));
 		} else {
 			JSExpr[] args = new JSExpr[depth+1];
+			List<XCArg> xcs = new ArrayList<>();
 			int k = stack.size()-depth-1;
-			for (int i=0;i<=depth;i++)
-				args[i] = stack.remove(k);
+			for (int i=0;i<=depth;i++) {
+				JSExpr arg = stack.remove(k);
+				if (!(arg instanceof JSCurryArg))
+					xcs.add(new XCArg(i, arg));
+				args[i] = arg;
+			}
 			JSExpr call;
-			if (depth < expArgs)
+			if (xcs.size() < depth+1)
+				call = block.xcurry(expArgs, xcs);
+			else if (depth < expArgs)
 				call = block.curry(expArgs, args);
 			else
 				call = block.closure(args);

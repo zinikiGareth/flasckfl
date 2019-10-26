@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -25,6 +26,7 @@ public class LoadBuiltins {
 	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, new PolyType(pos, "A"));
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new PolyType(pos, "A"));
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
+	public static final CurryArgument ca = new CurryArgument();
 
 	static {
 		// add fields to structs
@@ -37,7 +39,7 @@ public class LoadBuiltins {
 		bool.addCase(new TypeReference(pos, "True").bind(trueT));
 		list.addCase(new TypeReference(pos, "Nil").bind(nil));
 		list.addCase(new TypeReference(pos, "Cons", new TypeReference(pos, "A")).bind(cons));
-}
+	}
 	
 	public static void applyTo(Repository repository) {
 		// Types
@@ -53,6 +55,7 @@ public class LoadBuiltins {
 		repository.addEntry(trueT.name(), trueT);
 		repository.addEntry(bool.name(), bool);
 		repository.addEntry(new SolidName(null, "[]"), nil);
+		repository.addEntry(new SolidName(null, "_"), ca);
 		repository.newStruct(nil);
 		repository.newStruct(cons);
 		repository.newUnion(list);

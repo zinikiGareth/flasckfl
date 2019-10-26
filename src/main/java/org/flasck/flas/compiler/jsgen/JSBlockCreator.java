@@ -1,5 +1,8 @@
 package org.flasck.flas.compiler.jsgen;
 
+import java.util.List;
+
+import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public interface JSBlockCreator {
@@ -19,6 +22,7 @@ public interface JSBlockCreator {
 	JSExpr pushFunction(String meth);
 	JSExpr closure(JSExpr... args);
 	JSExpr curry(int expArgs, JSExpr... args);
+	JSExpr xcurry(int expArgs, List<XCArg> posargs);
 	void returnObject(JSExpr jsExpr);
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
 	JSExpr boundVar(String var);

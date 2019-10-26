@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -122,6 +123,8 @@ public class Traverser implements Visitor {
 			visitUnitTestPackage((UnitTestPackage)e);
 		else if (e instanceof VarPattern || e instanceof TypedPattern)
 			; // do nothing: it is just in the repo for lookup purposes
+		else if (e instanceof CurryArgument)
+			; // do nothing; just for resolution
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
 	}

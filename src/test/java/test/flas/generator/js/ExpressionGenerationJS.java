@@ -3,6 +3,7 @@ package test.flas.generator.js;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -13,6 +14,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
+import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -29,6 +31,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Traverser;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -240,14 +243,31 @@ public class ExpressionGenerationJS {
 		gen.visitExpr(ae, 0);
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void aFunctionApplicationWithExplicitCurrying() {
+		UnresolvedVar fn = new UnresolvedVar(pos, "f");
+		FunctionName fnName = FunctionName.function(pos, pkg, "f");
+		fn.bind(new FunctionDefinition(fnName, 2));
+		UnresolvedVar uv = new UnresolvedVar(pos, "_");
+		uv.bind(LoadBuiltins.ca);
+		ApplyExpr ae = new ApplyExpr(pos, fn, uv, new StringLiteral(pos, "hello"));
+		JSExpr f = context.mock(JSExpr.class, "f");
+		JSExpr sv = context.mock(JSExpr.class, "sv");
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
+			oneOf(meth).string("hello"); will(returnValue(sv));
+			oneOf(meth).xcurry(with(2), (List<XCArg>) with(Matchers.contains(Matchers.equalTo(new XCArg(0, f)), Matchers.equalTo(new XCArg(2, sv)))));
+		}});
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, null));
+		gen.visitExpr(ae, 0);
+	}
+
 	@Test
 	public void errorsWantToBeCreatedThroughTheContext() {
 		StringLiteral lit = new StringLiteral(pos, "error message");
 		UnresolvedVar err = new UnresolvedVar(pos, "Error");
 		StructDefn errT = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
-//		StructDefn consT = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false);
-//		consT.addField(new StructField(pos, false, new TypeReference(pos, "A"), "head"));
-//		consT.addField(new StructField(pos, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
 		err.bind(errT);
 		ApplyExpr ae = new ApplyExpr(pos, err, lit);
 		JSExpr s = context.mock(JSExpr.class, "s");
