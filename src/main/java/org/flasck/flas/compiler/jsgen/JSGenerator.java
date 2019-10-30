@@ -362,6 +362,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 
 	private String resolveOpName(String op, int nargs) {
 		switch (op) {
+		case "==":
+			return "FLBuiltin.isEqual";
 		case "+":
 			return "FLBuiltin.plus";
 		case "-":

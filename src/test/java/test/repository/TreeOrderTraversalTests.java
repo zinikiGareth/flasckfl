@@ -67,20 +67,26 @@ public class TreeOrderTraversalTests {
 	public void aFunctionWithTwoIntrosVisitsAllCasesEvenWithoutPatterns() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 0);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>());
-		fi1.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
+		fi1.functionCase(fcd1);
 		fn.intro(fi1);
 		FunctionIntro fi2 = new FunctionIntro(nameF, new ArrayList<>());
-		fi2.functionCase(new FunctionCaseDefn(null, number));
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		fi2.functionCase(fcd2);
 		fn.intro(fi2);
 		fn.bindHsi(new HSIArgsTree(0));
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi1); inSequence(seq);
+			oneOf(v).visitCase(fcd1);
+			oneOf(v).leaveCase(fcd1);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi1); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi2); inSequence(seq);
+			oneOf(v).visitCase(fcd2);
+			oneOf(v).leaveCase(fcd2);
 			oneOf(v).visitExpr(number, 0); inSequence(seq);
 			oneOf(v).visitNumericLiteral(number); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi2); inSequence(seq);
@@ -93,10 +99,12 @@ public class TreeOrderTraversalTests {
 	public void aFunctionWithTwoIntrosAndOneArgVisitsThePatternsFirstThenTheCases() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		fi1.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
+		fi1.functionCase(fcd1);
 		fn.intro(fi1);
 		FunctionIntro fi2 = new FunctionIntro(nameF, new ArrayList<>());
-		fi2.functionCase(new FunctionCaseDefn(null, number));
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		fi2.functionCase(fcd2);
 		fn.intro(fi2);
 		HSITree hsi = new HSIArgsTree(1);
 		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi1);
@@ -112,12 +120,16 @@ public class TreeOrderTraversalTests {
 			oneOf(v).endConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi1); inSequence(seq);
+			oneOf(v).visitCase(fcd1); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveCase(fcd1); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi1); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi2); inSequence(seq);
+			oneOf(v).visitCase(fcd2); inSequence(seq);
 			oneOf(v).visitExpr(number, 0); inSequence(seq);
 			oneOf(v).visitNumericLiteral(number); inSequence(seq);
+			oneOf(v).leaveCase(fcd2); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi2); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
 		}});
@@ -128,7 +140,8 @@ public class TreeOrderTraversalTests {
 	public void multipleArgumentsCanBeHandledInTurn() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		fi.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
+		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSITree hsi = new HSIArgsTree(2);
 		hsi.get(0).requireCM(LoadBuiltins.cons).consider(fi);
@@ -146,8 +159,10 @@ public class TreeOrderTraversalTests {
 			oneOf(v).endConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
+			oneOf(v).visitCase(fcd); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveCase(fcd); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
 		}});
@@ -158,7 +173,8 @@ public class TreeOrderTraversalTests {
 	public void structsCanMatchFields() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		fi.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
+		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSITree hsi = new HSIArgsTree(2);
 		HSICtorTree cons = hsi.get(0).requireCM(LoadBuiltins.cons);
@@ -188,8 +204,10 @@ public class TreeOrderTraversalTests {
 			oneOf(v).endConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
+			oneOf(v).visitCase(fcd); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveCase(fcd); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
 		}});
@@ -200,7 +218,8 @@ public class TreeOrderTraversalTests {
 	public void typesAreOKToo() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		fi.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
+		fi.functionCase(fcd);
 		fn.intro(fi);
 		HSITree hsi = new HSIArgsTree(1);
 		VarName vx = new VarName(pos, nameF, "x");
@@ -213,8 +232,10 @@ public class TreeOrderTraversalTests {
 			oneOf(v).matchType(LoadBuiltins.number, vx, fi); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
+			oneOf(v).visitCase(fcd); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveCase(fcd); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
 		}});
@@ -225,10 +246,12 @@ public class TreeOrderTraversalTests {
 	public void aFunctionWithTwoIntrosGivesEachOneTheRightVariableArguments() {
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
-		fi1.functionCase(new FunctionCaseDefn(null, simpleExpr));
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
+		fi1.functionCase(fcd1);
 		fn.intro(fi1);
 		FunctionIntro fi2 = new FunctionIntro(nameF, new ArrayList<>());
-		fi2.functionCase(new FunctionCaseDefn(null, number));
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		fi2.functionCase(fcd2);
 		fn.intro(fi2);
 		VarName vn = new VarName(pos, nameF, "v");
 		VarPattern vp = new VarPattern(pos, vn);
@@ -254,12 +277,16 @@ public class TreeOrderTraversalTests {
 			oneOf(v).varInIntro(xn, xp, fi2); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi1); inSequence(seq);
+			oneOf(v).visitCase(fcd1); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
 			oneOf(v).visitStringLiteral(simpleExpr); inSequence(seq);
+			oneOf(v).leaveCase(fcd1); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi1); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi2); inSequence(seq);
+			oneOf(v).visitCase(fcd2); inSequence(seq);
 			oneOf(v).visitExpr(number, 0); inSequence(seq);
 			oneOf(v).visitNumericLiteral(number); inSequence(seq);
+			oneOf(v).leaveCase(fcd2); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi2); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
 		}});

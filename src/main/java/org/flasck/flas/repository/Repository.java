@@ -80,8 +80,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveConstructorMatch(ConstructorMatch p);
 		void visitPatternVar(InputPosition varLoc, String var);
 		void leavePattern(Object patt, boolean isNested);
-		void visitCase(FunctionCaseDefn c);
 		void startInline(FunctionIntro fi);
+		void visitCase(FunctionCaseDefn c);
+		void visitGuard(FunctionCaseDefn c);
+		void leaveGuard(FunctionCaseDefn c);
+		void leaveCase(FunctionCaseDefn c);
 		void endInline(FunctionIntro fi);
 		void visitExpr(Expr expr, int nArgs);
 		void visitStringLiteral(StringLiteral expr);

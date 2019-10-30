@@ -506,9 +506,26 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitCase(FunctionCaseDefn c) {
-		if (c.guard != null)
+		visitor.visitCase(c);
+		if (c.guard != null) {
+			visitor.visitGuard(c);
 			visitExpr(c.guard, 0);
+			visitor.leaveGuard(c);
+		}
 		visitExpr(c.expr, 0);
+		visitor.leaveCase(c);
+	}
+
+	public void visitGuard(FunctionCaseDefn c) {
+		visitor.visitGuard(c);
+	}
+
+	public void leaveGuard(FunctionCaseDefn c) {
+		visitor.leaveGuard(c);
+	}
+
+	public void leaveCase(FunctionCaseDefn c) {
+		visitor.leaveCase(c);
 	}
 
 	@Override

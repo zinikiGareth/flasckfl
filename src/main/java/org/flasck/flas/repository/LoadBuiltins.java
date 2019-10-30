@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Primitive;
+import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
 	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
@@ -27,6 +28,7 @@ public class LoadBuiltins {
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new PolyType(pos, "A"));
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 	public static final CurryArgument ca = new CurryArgument(pos);
+	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2);
 	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
 	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2);
 	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2);
@@ -46,6 +48,11 @@ public class LoadBuiltins {
 		list.addCase(new TypeReference(pos, "Cons", new TypeReference(pos, "A")).bind(cons));
 		
 		// specify function types
+		{
+			Type pa = new PolyType(pos, "A");
+//			isEqual.bindType(new Apply(pa, pa, bool));
+			isEqual.bindType(new Apply(number, number, bool));
+		}
 		plus.bindType(new Apply(number, number, number));
 		minus.bindType(new Apply(number, number, number));
 		mul.bindType(new Apply(number, number, number));
@@ -73,6 +80,7 @@ public class LoadBuiltins {
 		repository.newUnion(list);
 		repository.newStruct(error);
 
+		repository.functionDefn(isEqual);
 		repository.functionDefn(plus);
 		repository.functionDefn(minus);
 		repository.functionDefn(mul);

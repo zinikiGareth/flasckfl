@@ -177,6 +177,18 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitCase(c);
 	}
 
+	public void visitGuard(FunctionCaseDefn c) {
+		top.visitGuard(c);
+	}
+
+	public void leaveGuard(FunctionCaseDefn c) {
+		top.leaveGuard(c);
+	}
+
+	public void leaveCase(FunctionCaseDefn c) {
+		top.leaveCase(c);
+	}
+
 	public void startInline(FunctionIntro fi) {
 		top.startInline(fi);
 	}

@@ -143,6 +143,24 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitGuard(FunctionCaseDefn c) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void leaveGuard(FunctionCaseDefn c) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void leaveCase(FunctionCaseDefn c) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void endInline(FunctionIntro fi) {
 	}
 

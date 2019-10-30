@@ -253,6 +253,9 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 	private String resolveOpName(String op) {
 		String inner;
 		switch (op) {
+		case "==":
+			inner = "IsEqual";
+			break;
 		case "+":
 			inner = "Plus";
 			break;

@@ -46,11 +46,14 @@ public class HSITraversalTests {
 		VarPattern vp = new VarPattern(pos, vx);
 		CaptureAction slots = new CaptureAction(null);
 		CaptureAction boundSlot = new CaptureAction(null);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, number);
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).bind(with(any(Slot.class)), with("x")); will(boundSlot);
 			oneOf(v).startInline(fi);
+			oneOf(v).visitCase(fcd);
+			oneOf(v).leaveCase(fcd);
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).endInline(fi);
@@ -61,7 +64,7 @@ public class HSITraversalTests {
 		tree.get(0).addVar(vp, fi);
 		fn.bindHsi(tree);
 		
-		fi.functionCase(new FunctionCaseDefn(null, number));
+		fi.functionCase(fcd);
 		fn.intro(fi);
 		
 		t.visitFunction(fn);
@@ -77,7 +80,8 @@ public class HSITraversalTests {
 	public void aConstantConstructorForcesATypeErrorCase() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
-		fi.functionCase(new FunctionCaseDefn(null, number));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, number);
+		fi.functionCase(fcd);
 		fn.intro(fi);
 		
 		CaptureAction slots = new CaptureAction(null);
@@ -87,6 +91,8 @@ public class HSITraversalTests {
 			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
 			oneOf(v).withConstructor("Nil");
 			oneOf(v).startInline(fi);
+			oneOf(v).visitCase(fcd);
+			oneOf(v).leaveCase(fcd);
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).endInline(fi);
@@ -111,7 +117,8 @@ public class HSITraversalTests {
 	public void aTypeAnnotationBehavesMuchLikeAConstructorWithoutArgs() {
 		FunctionDefinition fn = new FunctionDefinition(fname, 1);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
-		fi.functionCase(new FunctionCaseDefn(null, number));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, number);
+		fi.functionCase(fcd);
 		fn.intro(fi);
 		
 		CaptureAction slots = new CaptureAction(null);
@@ -122,6 +129,8 @@ public class HSITraversalTests {
 			oneOf(v).withConstructor("Number");
 			oneOf(v).bind(with(SlotMatcher.from(slots, 0)), with("x"));
 			oneOf(v).startInline(fi);
+			oneOf(v).visitCase(fcd);
+			oneOf(v).leaveCase(fcd);
 			oneOf(v).visitExpr(number, 0);
 			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).endInline(fi);

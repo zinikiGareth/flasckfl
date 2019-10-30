@@ -34,20 +34,22 @@ public class FunctionTraversalTests {
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Repository r = new Repository();
 	final Visitor v = context.mock(Visitor.class);
+	final UnresolvedVar var = new UnresolvedVar(pos, "x");
+	final FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, var);
+	final FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, new ApplyExpr(pos, var, number));
 
 	@Before
 	public void initializeRepository() {
 		final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
-		final UnresolvedVar var = new UnresolvedVar(pos, "x");
 		{
 			final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
-			intro.functionCase(new FunctionCaseDefn(null, var));
+			intro.functionCase(fcd1);
 			fn.intro(intro);
 		}
 		{
 			final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
-			intro.functionCase(new FunctionCaseDefn(null, new ApplyExpr(pos, var, number)));
+			intro.functionCase(fcd2);
 			fn.intro(intro);
 		}
 		r.functionDefn(fn);
@@ -59,10 +61,14 @@ public class FunctionTraversalTests {
 			ExprMatcher ae = ExprMatcher.apply(ExprMatcher.unresolved("x"), ExprMatcher.number(42));
 			oneOf(v).visitFunction(with(any(FunctionDefinition.class)));
 			oneOf(v).visitFunctionIntro(with(any(FunctionIntro.class)));
+			oneOf(v).visitCase(fcd1);
+			oneOf(v).leaveCase(fcd1);
 			oneOf(v).visitExpr((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
 			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
 			oneOf(v).leaveFunctionIntro(with(any(FunctionIntro.class)));
 			oneOf(v).visitFunctionIntro(with(any(FunctionIntro.class)));
+			oneOf(v).visitCase(fcd2);
+			oneOf(v).leaveCase(fcd2);
 			oneOf(v).visitExpr((ApplyExpr) with(ae), with(0));
 			oneOf(v).visitApplyExpr((ApplyExpr) with(ae));
 			oneOf(v).visitExpr((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(1));
