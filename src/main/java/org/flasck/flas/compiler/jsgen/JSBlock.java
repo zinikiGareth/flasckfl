@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSBlock implements JSBlockCreator {
@@ -70,6 +71,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSCurry curry(int expArgs, JSExpr... args) {
 		JSCurry stmt = new JSCurry(creating, expArgs, args);
+		stmts.add(stmt);
+		return stmt;
+	}
+
+	@Override
+	public JSExpr xcurry(int expArgs, List<XCArg> posargs) {
+		JSXCurry stmt = new JSXCurry(creating, expArgs, posargs);
 		stmts.add(stmt);
 		return stmt;
 	}

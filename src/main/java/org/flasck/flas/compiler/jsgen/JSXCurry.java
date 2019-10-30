@@ -1,17 +1,20 @@
 package org.flasck.flas.compiler.jsgen;
 
+import java.util.List;
+
+import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSCurry implements JSExpr {
+public class JSXCurry implements JSExpr {
 	private final JSMethod meth;
-	private final JSExpr[] args;
+	private final List<XCArg> args;
 	private final int required;
 	private String var;
 
-	public JSCurry(JSMethod meth, int required, JSExpr... args) {
+	public JSXCurry(JSMethod meth, int required, List<XCArg> posargs) {
 		this.meth = meth;
 		this.required = required;
-		this.args = args;
+		this.args = posargs;
 	}
 
 	@Override
@@ -19,10 +22,12 @@ public class JSCurry implements JSExpr {
 		if (var == null)
 			var = meth.obtainNextVar();
 		w.print("const " + var + " = ");
-		w.print("_cxt.curry(" + required);
-		for (JSExpr e : args) {
+		w.print("_cxt.xcurry(" + required);
+		for (XCArg e : args) {
 			w.print(", ");
-			w.print(e.asVar());
+			w.print(Integer.toString(e.arg));
+			w.print(", ");
+			w.print(e.expr.asVar());
 		}
 		w.println(");");
 	}

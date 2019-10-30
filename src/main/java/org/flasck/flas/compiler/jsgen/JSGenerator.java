@@ -31,8 +31,8 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor {
 	public static class XCArg {
-		private final int arg;
-		private final JSExpr expr;
+		public final int arg;
+		public final JSExpr expr;
 
 		public XCArg(int arg, JSExpr expr) {
 			this.arg = arg;

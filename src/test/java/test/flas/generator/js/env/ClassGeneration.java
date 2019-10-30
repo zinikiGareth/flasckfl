@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.compiler.jsgen.JSClass;
@@ -14,6 +15,7 @@ import org.flasck.flas.compiler.jsgen.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSFile;
+import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.JSLiteral;
 import org.flasck.flas.compiler.jsgen.JSMethod;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
@@ -266,5 +268,35 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n}\n", sw.toString());
+	}
+	
+	@Test
+	public void aClosureIsGeneratored() {
+		JSClass clz = new JSClass("test", "Clazz");
+		JSMethodCreator meth = clz.createMethod("f");
+		meth.argument("_cxt");
+		meth.closure(meth.pushFunction("f"), meth.string("hello"));
+		clz.writeTo(w);
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n", sw.toString());
+	}
+	
+	@Test
+	public void aCurryIsGeneratored() {
+		JSClass clz = new JSClass("test", "Clazz");
+		JSMethodCreator meth = clz.createMethod("f");
+		meth.argument("_cxt");
+		meth.curry(2, meth.pushFunction("f"), meth.string("hello"));
+		clz.writeTo(w);
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n", sw.toString());
+	}
+	
+	@Test
+	public void anExplicitCurryIsGeneratored() {
+		JSClass clz = new JSClass("test", "Clazz");
+		JSMethodCreator meth = clz.createMethod("f");
+		meth.argument("_cxt");
+		meth.xcurry(2, Arrays.asList(new XCArg(0, meth.pushFunction("f")), new XCArg(2, meth.string("hello"))));
+		clz.writeTo(w);
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n", sw.toString());
 	}
 }
