@@ -17,10 +17,12 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.CurryArgumentType;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
@@ -300,6 +302,32 @@ public class StackVisitation {
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1);
 		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(nbr));
+		aec.leaveApplyExpr(ae);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void leaveApplyExpressionCanDealWithExplicitCurrying() {
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		Type fnt = context.mock(Type.class, "fn/2");
+		Type nbr = context.mock(Type.class, "nbr");
+		context.checking(new Expectations() {{
+			allowing(fnt).argCount(); will(returnValue(2));
+			oneOf(fnt).get(0); will(returnValue(nbr));
+			oneOf(fnt).get(1); will(returnValue(nbr));
+			oneOf(nbr).incorporates(nbr); will(returnValue(true));
+			oneOf(fnt).get(2); will(returnValue(nbr));
+			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(nbr), Matchers.is(nbr))));
+		}});
+		UnresolvedOperator op = new UnresolvedOperator(pos, "+");
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
+		fn.bindType(fnt);
+		op.bind(fn);
+		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
+		ApplyExpr ae = new ApplyExpr(pos, op, LoadBuiltins.ca, e1);
+		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(new CurryArgumentType(pos)));
 		aec.result(new ExprResult(nbr));
 		aec.leaveApplyExpr(ae);
 	}

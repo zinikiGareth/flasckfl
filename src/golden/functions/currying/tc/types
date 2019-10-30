@@ -1,3 +1,4 @@
 test.golden.apply1 :: (A->B)->A->B
 test.golden.curry1 :: Number->Number->Number
+test.golden.curry2 :: Number->Number->Number
 test.golden.f :: Number->Number->Number

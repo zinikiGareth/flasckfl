@@ -16,9 +16,11 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.CurryArgumentType;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -142,6 +144,20 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		tc.visitUnresolvedVar(uv, 0);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void anExplicitCurrySlotReturnsACurryVarType() {
+		RepositoryReader repository = context.mock(RepositoryReader.class);
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(ExprResultMatcher.expr((Matcher)any(CurryArgumentType.class))));
+		}});
+		UnresolvedVar uv = new UnresolvedVar(pos, "x");
+		uv.bind(LoadBuiltins.ca);
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}

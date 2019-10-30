@@ -55,6 +55,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			return;
 		} else if (fn.argCount() < results.size())
 			throw new RuntimeException("should be an error: " + fn + " " + fn.argCount() + " " + results.size());
+		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
 		while (!results.isEmpty()) {
 			Type ai = results.remove(0);
@@ -64,7 +65,9 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			}
 			InputPosition loc = ((Locatable)expr.args.get(pos)).location();
 			Type fi = fn.get(pos);
-			if (ai instanceof UnifiableType) {
+			if (ai instanceof CurryArgumentType) {
+				tocurry.add(fi);
+			} else if (ai instanceof UnifiableType) {
 				UnifiableType ut = (UnifiableType) ai;
 				ut.incorporatedBy(loc, fi);
 			} else if (!fi.incorporates(ai)) {
@@ -74,13 +77,14 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			}
 			pos++;
 		}
-		// whatever is left is the type
-		if (pos < fn.argCount()) {
-			List<Type> types = new ArrayList<Type>();
-			while (pos <= fn.argCount()) {
-				types.add(fn.get(pos++));
-			}
-			nv.result(new Apply(types));
+		// anything left must be curried
+		while (pos < fn.argCount()) {
+			tocurry.add(fn.get(pos++));
+		}
+		// if we have any curried args, we need to make an apply
+		if (!tocurry.isEmpty()) {
+			tocurry.add(fn.get(pos));
+			nv.result(new Apply(tocurry));
 		} else
 			nv.result(fn.get(pos));
 	}

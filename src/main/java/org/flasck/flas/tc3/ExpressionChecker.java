@@ -1,9 +1,11 @@
 package org.flasck.flas.tc3;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -62,6 +64,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		} else if (var.defn() instanceof TypedPattern) {
 			TypedPattern vp = (TypedPattern) var.defn();
 			announce((Type) vp.type.defn());
+		} else if (var.defn() instanceof CurryArgument) {
+			announce((Type) new CurryArgumentType(((Locatable)var.defn()).location()));
 		} else
 			throw new RuntimeException("Cannot handle " + var.defn() + " of type " + var.defn().getClass());
 	}

@@ -26,7 +26,7 @@ public class LoadBuiltins {
 	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, new PolyType(pos, "A"));
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new PolyType(pos, "A"));
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
-	public static final CurryArgument ca = new CurryArgument();
+	public static final CurryArgument ca = new CurryArgument(pos);
 
 	static {
 		// add fields to structs
