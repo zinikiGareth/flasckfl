@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -28,6 +29,56 @@ import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExprGenerator extends LeafAdapter implements HSIVisitor {
+	public class XCArg {
+		public final int arg;
+		public final IExpr expr;
+
+		public XCArg(int arg, IExpr expr) {
+			this.arg = arg;
+			this.expr = expr;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof XCArg))
+				return false;
+			XCArg o = (XCArg) obj;
+			return o.arg == arg && o.expr == expr;
+		}
+		
+		@Override
+		public int hashCode() {
+			return arg ^ expr.hashCode();
+		}
+		
+		@Override
+		public String toString() {
+			return arg + ":" + expr;
+		}
+	}
+
+	public class JVMCurryArg implements IExpr {
+		@Override
+		public void spitOutByteCode(MethodDefiner meth) {
+			throw new NotImplementedException();
+		}
+
+		@Override
+		public void flush() {
+			throw new NotImplementedException();
+		}
+
+		@Override
+		public String getType() {
+			throw new NotImplementedException();
+		}
+
+		@Override
+		public int asSource(StringBuilder sb, int ind, boolean b) {
+			throw new NotImplementedException();
+		}
+	}
+
 	private final FunctionState state;
 	private final NestedVisitor sv;
 	private final MethodDefiner meth;
@@ -112,6 +163,8 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
 			currentBlock.add(meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
 			stack.add(var);
+		} else if (defn instanceof CurryArgument) {
+			stack.add(new JVMCurryArg());
 		} else
 			throw new NotImplementedException();
 	}
@@ -150,8 +203,11 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 			stack.add(ctor);
 		} else {
 			IExpr fn = stack.remove(stack.size()-1);
+			List<XCArg> xcs = checkExtendedCurry(provided);
 			IExpr call;
-			if (depth < expArgs)
+			if (xcs != null) {
+				call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "xcurry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), meth.arrayOf(J.OBJECT, asjvm(xcs)));
+			} else if (depth < expArgs)
 				call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
 			else
 				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
@@ -159,6 +215,32 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 			currentBlock.add(meth.assign(v, call));
 			stack.add(v);
 		}
+	}
+
+	private List<XCArg> checkExtendedCurry(List<IExpr> provided) {
+		List<XCArg> ret = new ArrayList<>();
+		boolean needed = false;
+		int i=0;
+		for (IExpr e : provided) {
+			if ((e instanceof JVMCurryArg))
+				needed = true;
+			else
+				ret.add(new XCArg(i, e));
+			i++;
+		}
+		if (!needed)
+			return null;
+		else
+			return ret;
+	}
+
+	private List<IExpr> asjvm(List<XCArg> xcs) {
+		List<IExpr> ret = new ArrayList<>();
+		for (XCArg a : xcs) {
+			ret.add(meth.intConst(a.arg));
+			ret.add(a.expr);
+		}
+		return ret;
 	}
 
 	@Override
