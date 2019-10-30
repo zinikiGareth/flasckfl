@@ -6,6 +6,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CurryArgument;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -27,10 +28,19 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 	}
 
+	public static class GuardResult {
+		public final Type type;
+		
+		public GuardResult(Type t) {
+			this.type = t;
+		}
+	}
+
 	private final RepositoryReader r;
 	private final NestedVisitor nv;
 	private final CurrentTCState state;
 	private final ErrorReporter errors;
+	private boolean isGuard;
 
 	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
@@ -39,6 +49,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		this.nv = nv;
 	}
 	
+	@Override
+	public void visitGuard(FunctionCaseDefn c) {
+		isGuard = true;
+	}
+
 	@Override
 	public void visitNumericLiteral(NumericLiteral number) {
 		announce(LoadBuiltins.number);
@@ -92,6 +107,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void announce(Type ty) {
-		nv.result(new ExprResult(ty));
+		if (isGuard)
+			nv.result(new GuardResult(ty));
+		else
+			nv.result(new ExprResult(ty));
 	}
 }

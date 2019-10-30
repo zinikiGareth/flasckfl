@@ -17,6 +17,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.flasck.flas.tc3.ExpressionChecker.GuardResult;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrderVisitor {
@@ -92,14 +93,20 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	public void result(Object r) {
 		if (r instanceof ArgResult)
 			argTypes.add(((ArgResult)r).type);
-		else {
+		else if (r instanceof GuardResult) {
+			Type ret = ((GuardResult)r).type;
+			System.out.println("Guard type is " + ret);
+
+			// There will be an expression as well, so push another checker ...
+			sv.push(new ExpressionChecker(errors, repository, state, sv));
+		} else {
 			Type ret = ((ExprResult)r).type;
 			if (ret instanceof UnifiableType)
 				((UnifiableType)ret).isReturned();
 			resultTypes.add(ret);
 		}
 	}
-
+	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		if (fn.intros().isEmpty())
