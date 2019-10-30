@@ -108,4 +108,47 @@ public class GuardTests {
 		}});
 		fc.leaveFunction(fn);
 	}
+
+	@Test
+	public void theGuardTypeCanBeTrue() {
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
+		fn.intro(fi);
+		fc.visitFunction(fn);
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fc.result(new GuardResult(pos, LoadBuiltins.trueT));
+	}
+
+	@Test
+	public void theGuardTypeCanBeFalse() {
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
+		fn.intro(fi);
+		fc.visitFunction(fn);
+
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fc.result(new GuardResult(pos, LoadBuiltins.falseT));
+	}
+
+	@Test
+	public void itsAnErrorForTheGuardTypeToBeNumber() {
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
+		fn.intro(fi);
+		fc.visitFunction(fn);
+
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "guards must be booleans");
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fc.result(new GuardResult(pos, LoadBuiltins.number));
+	}
 }

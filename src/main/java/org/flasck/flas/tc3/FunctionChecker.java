@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
@@ -94,9 +95,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		if (r instanceof ArgResult)
 			argTypes.add(((ArgResult)r).type);
 		else if (r instanceof GuardResult) {
-			Type ret = ((GuardResult)r).type;
-			System.out.println("Guard type is " + ret);
-
+			GuardResult gr = (GuardResult)r;
+			Type ret = gr.type;
+			if (!ret.equals(LoadBuiltins.bool) && !ret.equals(LoadBuiltins.trueT) && !ret.equals(LoadBuiltins.falseT))
+				errors.message(gr.location(), "guards must be booleans");
+			
 			// There will be an expression as well, so push another checker ...
 			sv.push(new ExpressionChecker(errors, repository, state, sv));
 		} else {

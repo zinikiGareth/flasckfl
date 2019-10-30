@@ -1,5 +1,6 @@
 package org.flasck.flas.tc3;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -28,11 +29,18 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 	}
 
-	public static class GuardResult {
+	public static class GuardResult implements Locatable {
 		public final Type type;
+		private final InputPosition pos;
 		
-		public GuardResult(Type t) {
+		public GuardResult(InputPosition pos, Type t) {
+			this.pos = pos;
 			this.type = t;
+		}
+
+		@Override
+		public InputPosition location() {
+			return pos;
 		}
 	}
 
@@ -40,7 +48,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor nv;
 	private final CurrentTCState state;
 	private final ErrorReporter errors;
-	private boolean isGuard;
+	private InputPosition guardPos;
 
 	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
@@ -51,7 +59,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitGuard(FunctionCaseDefn c) {
-		isGuard = true;
+		guardPos = c.guard.location();
 	}
 
 	@Override
@@ -107,8 +115,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void announce(Type ty) {
-		if (isGuard)
-			nv.result(new GuardResult(ty));
+		if (guardPos != null)
+			nv.result(new GuardResult(guardPos, ty));
 		else
 			nv.result(new ExprResult(ty));
 	}
