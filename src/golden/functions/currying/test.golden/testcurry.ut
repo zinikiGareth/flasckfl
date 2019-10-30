@@ -2,3 +2,7 @@
 		assert (apply1 (curry1 3) 7)
 			10
 	
+	test currying with subtracting
+		assert (apply1 (curry2 2) 10)
+			8
+	

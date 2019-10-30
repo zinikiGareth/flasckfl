@@ -463,6 +463,7 @@ public class ExpressionGeneration {
 		IExpr fcx = context.mock(IExpr.class, "fcx");
 		IExpr f = context.mock(IExpr.class, "f");
 		IExpr i1 = context.mock(IExpr.class, "i1");
+		IExpr bi1 = context.mock(IExpr.class, "bi1");
 		IExpr i2 = context.mock(IExpr.class, "i2");
 		IExpr str = context.mock(IExpr.class, "str");
 		IExpr bogus = context.mock(IExpr.class, "bogus"); // will not be used anywhere
@@ -476,7 +477,8 @@ public class ExpressionGeneration {
 			oneOf(meth).as(f, J.OBJECT); will(returnValue(f));
 			oneOf(meth).intConst(2); will(returnValue(i2));
 			oneOf(meth).intConst(1); will(returnValue(i1));
-			oneOf(meth).arrayOf(with(J.OBJECT), (List)with(Matchers.contains(i1, str))); will(returnValue(args));
+			oneOf(meth).box(i1); will(returnValue(bi1));
+			oneOf(meth).arrayOf(with(J.OBJECT), (List)with(Matchers.contains(bi1, str))); will(returnValue(args));
 			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCURRY, "xcurry", f, i2, args); will(returnValue(xc));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, xc); will(returnValue(assign));

@@ -237,7 +237,7 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 	private List<IExpr> asjvm(List<XCArg> xcs) {
 		List<IExpr> ret = new ArrayList<>();
 		for (XCArg a : xcs) {
-			ret.add(meth.intConst(a.arg));
+			ret.add(meth.box(meth.intConst(a.arg)));
 			ret.add(a.expr);
 		}
 		return ret;
@@ -256,8 +256,14 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 		case "+":
 			inner = "Plus";
 			break;
+		case "-":
+			inner = "Minus";
+			break;
 		case "*":
 			inner = "Mul";
+			break;
+		case "/":
+			inner = "Div";
 			break;
 		case "[]":
 			return J.NIL;

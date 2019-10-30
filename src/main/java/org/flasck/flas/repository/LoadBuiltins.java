@@ -27,6 +27,11 @@ public class LoadBuiltins {
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new PolyType(pos, "A"));
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 	public static final CurryArgument ca = new CurryArgument(pos);
+	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
+	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2);
+	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2);
+	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2);
+	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1);
 
 	static {
 		// add fields to structs
@@ -39,6 +44,13 @@ public class LoadBuiltins {
 		bool.addCase(new TypeReference(pos, "True").bind(trueT));
 		list.addCase(new TypeReference(pos, "Nil").bind(nil));
 		list.addCase(new TypeReference(pos, "Cons", new TypeReference(pos, "A")).bind(cons));
+		
+		// specify function types
+		plus.bindType(new Apply(number, number, number));
+		minus.bindType(new Apply(number, number, number));
+		mul.bindType(new Apply(number, number, number));
+		div.bindType(new Apply(number, number, number));
+		length.bindType(new Apply(list, number));
 	}
 	
 	public static void applyTo(Repository repository) {
@@ -61,15 +73,10 @@ public class LoadBuiltins {
 		repository.newUnion(list);
 		repository.newStruct(error);
 
-		// Operators
-		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
-		plus.bindType(new Apply(number, number, number));
 		repository.functionDefn(plus);
-		FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2);
-		mul.bindType(new Apply(number, number, number));
+		repository.functionDefn(minus);
 		repository.functionDefn(mul);
-		FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1);
-		length.bindType(new Apply(list, number));
+		repository.functionDefn(div);
 		repository.functionDefn(length);
 		
 		// dubious backward compatibility

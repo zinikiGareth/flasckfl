@@ -20,19 +20,27 @@ FLClosure.prototype.toString = function() {
 }
 
 
-const FLCurry = function(reqd, fn, args) {
+const FLCurry = function(fn, reqd, xcs) {
 	this.fn = fn;
-	this.reqd = reqd;
-	args.splice(0,0, null);
-	this.args = args;
+	this.args = [null];
+	this.missing = [];
+	for (var i=1;i<=reqd;i++) {
+		if (xcs[i])
+			this.args.push(xcs[i]);
+		else {
+			this.args.push(null);
+			this.missing.push(i);
+		}
+	}
 }
 
 FLCurry.prototype.apply = function(_, args) {
 	this.args[0] = args[0];
 	for (var i=1;i<args.length;i++) {
-		this.args.push(args[i]);
+		var m = this.missing.pop();
+		this.args[m] = args[i];
 	}
-	if (this.args.length == this.reqd+1) { // because we have the context
+	if (this.missing.length == 0) {
 		return this.fn.apply(null, this.args);
 	} else {
 		return this;
@@ -52,8 +60,24 @@ FLContext.prototype.closure = function(fn, ...args) {
 	return new FLClosure(fn, args);
 }
 
-FLContext.prototype.curry = function(fn, reqd, ...args) {
-	return new FLCurry(fn, reqd, args);
+FLContext.prototype.curry = function(reqd, fn, ...args) {
+	var xcs = {};
+	for (var i=0;i<args.length;i++) {
+		xcs[i+1] = args[i];
+	}
+	return new FLCurry(fn, reqd, xcs);
+}
+
+FLContext.prototype.xcurry = function(reqd, ...args) {
+	var fn;
+	var xcs = {};
+	for (var i=0;i<args.length;i+=2) {
+		if (args[i] == 0)
+			fn = args[i+1];
+		else
+			xcs[args[i]] = args[i+1];
+	}
+	return new FLCurry(fn, reqd, xcs);
 }
 
 FLContext.prototype.array = function(...args) {
@@ -178,10 +202,22 @@ FLBuiltin.plus = function(_cxt, a, b) {
 	return a+b;
 }
 
+FLBuiltin.minus = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return a-b;
+}
+
 FLBuiltin.mul = function(_cxt, a, b) {
 	a = _cxt.full(a);
 	b = _cxt.full(b);
 	return a*b;
+}
+
+FLBuiltin.div = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return a/b;
 }
 
 

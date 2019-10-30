@@ -364,8 +364,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor {
 		switch (op) {
 		case "+":
 			return "FLBuiltin.plus";
+		case "-":
+			return "FLBuiltin.minus";
 		case "*":
 			return "FLBuiltin.mul";
+		case "/":
+			return "FLBuiltin.div";
 		case "[]":
 		{
 			if (nargs == 0)
