@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSBlock implements JSBlockCreator {
 	private final List<JSExpr> stmts = new ArrayList<>();
@@ -135,6 +136,18 @@ public class JSBlock implements JSBlockCreator {
 		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);
 		return ret;
+	}
+
+	@Override
+	public JSIfExpr ifTrue(JSExpr ge) {
+		JSIfExpr ret = new JSIfExpr(new IsTrueExpr(ge), new JSBlock(this.creating), new JSBlock(this.creating));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
+	public void errorNoDefaultGuard() {
+		stmts.add(new JSError("no default guard"));
 	}
 
 	@Override

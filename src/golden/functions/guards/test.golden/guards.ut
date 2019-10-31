@@ -1,0 +1,8 @@
+	test guard for 2 is selected
+		assert (guard 2)
+			14
+
+	test guard has a default case
+		assert (guard 5)
+			21
+			

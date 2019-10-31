@@ -10,28 +10,36 @@ import org.flasck.flas.repository.ResultAware;
 public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private JSBlockCreator block;
-	private boolean isGuard;
+	private boolean isGuard, seenGuard;
+	private JSBlockCreator trueblock;
 
 	public GuardGeneratorJS(NestedVisitor sv, JSBlockCreator block) {
 		this.sv = sv;
 		this.block = block;
+		this.trueblock = block;
 	}
 	
 	@Override
 	public void visitGuard(FunctionCaseDefn c) {
-		System.out.println("Visit Guard");
+		System.out.println("Visit Guard " + c.guard);
 		isGuard = true;
+		seenGuard = true;
 		sv.push(new ExprGeneratorJS(sv, this.block));
 	}
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
 		System.out.println("Main Expr");
-		sv.push(new ExprGeneratorJS(sv, this.block));
+		if (!seenGuard)
+			trueblock = block;
+		sv.push(new ExprGeneratorJS(sv, trueblock));
+		seenGuard = false;
 	}
 	
 	@Override
 	public void endInline(FunctionIntro fi) {
+		if (block != trueblock)
+			block.errorNoDefaultGuard();
 		sv.result(null);
 	}
 
@@ -41,11 +49,11 @@ public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 			System.out.println("guard is " + r);
 			isGuard = false;
 			JSIfExpr ifexpr = block.ifTrue((JSExpr) r);
-			block = ifexpr.trueCase();
-			ifexpr.falseCase().errorNoDefaultGuard();
+			trueblock = ifexpr.trueCase();
+			block = ifexpr.falseCase();
 		} else {
 			System.out.println("expr is " + r);
-			block.returnObject((JSExpr) r);
+			trueblock.returnObject((JSExpr) r);
 		}
 	}
 }

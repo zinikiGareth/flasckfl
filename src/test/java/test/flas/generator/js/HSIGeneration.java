@@ -9,6 +9,7 @@ import org.flasck.flas.compiler.jsgen.ExtractField;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSIfExpr;
+import org.flasck.flas.compiler.jsgen.JSLiteral;
 import org.flasck.flas.compiler.jsgen.JSMethod;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.hsi.ArgSlot;
@@ -59,6 +60,28 @@ public class HSIGeneration {
 	}
 
 	@Test
+	public void ifConstProducesAnIfWithTwoBlocks() {
+		JSMethod meth = new JSMethod(null, "fred");
+		meth.argument("_cxt");
+		JSIfExpr ifConst = meth.ifConst("_0", "hello");
+		ifConst.trueCase().returnObject(ifConst.trueCase().string("hello"));
+		ifConst.falseCase().returnObject(ifConst.falseCase().string("other"));
+		ifConst.write(w);
+		assertEquals("if ((_0 == 'hello')) {\n  return 'hello';\n} else {\n  return 'other';\n}\n", sw.toString());
+	}
+
+	@Test
+	public void ifTrueProducesAnIfWithTwoBlocks() {
+		JSMethod meth = new JSMethod(null, "fred");
+		meth.argument("_cxt");
+		JSIfExpr ifTrue = meth.ifTrue(new JSLiteral("true"));
+		ifTrue.trueCase().returnObject(ifTrue.trueCase().string("hello"));
+		ifTrue.falseCase().returnObject(ifTrue.falseCase().string("other"));
+		ifTrue.write(w);
+		assertEquals("if (_cxt.isTruthy(true)) {\n  return 'hello';\n} else {\n  return 'other';\n}\n", sw.toString());
+	}
+
+	@Test
 	public void errorCreatesAnError() {
 		JSMethod meth = new JSMethod(null, "fred");
 		meth.argument("_cxt");
@@ -66,6 +89,16 @@ public class HSIGeneration {
 		meth.errorNoCase();
 		meth.write(w);
 		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError(_cxt, 'no matching case');\n}\n", sw.toString());
+	}
+	
+	@Test
+	public void errorNoDefaultGuardCreatesAnError() {
+		JSMethod meth = new JSMethod(null, "fred");
+		meth.argument("_cxt");
+		meth.argument("_0");
+		meth.errorNoDefaultGuard();
+		meth.write(w);
+		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError(_cxt, 'no default guard');\n}\n", sw.toString());
 	}
 	
 	@Test

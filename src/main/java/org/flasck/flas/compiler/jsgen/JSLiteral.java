@@ -11,8 +11,7 @@ public class JSLiteral implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		// TODO Auto-generated method stub
-		
+		w.print(text);
 	}
 
 	@Override
