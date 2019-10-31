@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.parsedForm.CurryArgument;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -46,12 +47,27 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	public ExprGeneratorJS(NestedVisitor nv, JSBlockCreator block) {
 		this.sv = nv;
 		this.block = block;
+		System.out.println("Create ExprJS");
+	}
+
+	@Override
+	public void leaveGuard(FunctionCaseDefn c) {
+		if (stack.size() != 1)
+			throw new RuntimeException("I think this is impossible, but obviously not: " + stack.size());
+		sv.result(stack.remove(0));
+	}
+
+	@Override
+	public void leaveCase(FunctionCaseDefn c) {
+		if (stack.size() != 1)
+			throw new RuntimeException("I think this is impossible, but obviously not: " + stack.size());
+		sv.result(stack.remove(0));
 	}
 
 	@Override
 	public void endInline(FunctionIntro fi) {
 		if (stack.size() != 1)
-			throw new RuntimeException("I think this is impossible, but obviously not");
+			throw new RuntimeException("I think this is impossible, but obviously not: " + stack.size());
 		sv.result(stack.remove(0));
 	}
 

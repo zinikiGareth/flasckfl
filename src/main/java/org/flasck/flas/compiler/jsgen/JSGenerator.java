@@ -100,7 +100,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new ExprGeneratorJS(sv, this.block));
+		sv.push(new GuardGeneratorJS(sv, this.block));
 	}
 
 	@Override

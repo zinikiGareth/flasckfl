@@ -118,7 +118,7 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new ExprGeneratorJS(sv, this.block));
+		sv.push(new GuardGeneratorJS(sv, this.block));
 	}
 
 	@Override
