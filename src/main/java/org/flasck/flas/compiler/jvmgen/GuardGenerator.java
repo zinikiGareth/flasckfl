@@ -12,7 +12,6 @@ import org.flasck.flas.repository.ResultAware;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class GuardGenerator extends LeafAdapter implements ResultAware {
 	public class GE {
@@ -54,14 +53,17 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void endInline(FunctionIntro fi) {
 		IExpr ret = null;
-		GE c = stack.get(0);
-		if (ret == null) {
-			if (c.guard == null)
-				ret = c.expr;
-			else
-				ret = state.meth.returnObject(state.meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, state.meth.arrayOf(J.OBJECT, state.meth.stringConst("no default guard"))));
+		for (GE c : stack) {
+			if (ret == null) {
+				if (c.guard == null) {
+					ret = c.expr;
+					continue;
+				} else {
+					ret = state.meth.returnObject(state.meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, state.meth.arrayOf(J.OBJECT, state.meth.stringConst("no default guard"))));
+				}
+			}
+			ret = state.meth.ifBoolean(state.meth.callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", state.fcx, c.guard), c.expr, ret);
 		}
-		ret = state.meth.ifBoolean(state.meth.callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", state.fcx, c.guard), c.expr, ret);
 		sv.result(ret);
 	}
 
@@ -78,6 +80,7 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 			System.out.println("expr is " + r);
 //			trueblock.returnObject((JSExpr) r);
 			stack.add(0, new GE(currentGuard, (IExpr)r));
+			currentGuard = null;
 		}
 	}
 }
