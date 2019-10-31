@@ -16,9 +16,8 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository.Visitor;
-import org.flasck.jvm.J;
-import org.hamcrest.Matchers;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -112,10 +111,6 @@ public class GuardGeneration {
 		IExpr ro1 = context.mock(IExpr.class, "ro1");
 		IExpr e1 = context.mock(IExpr.class, "e1");
 		IExpr ist = context.mock(IExpr.class, "ist");
-		IExpr s = context.mock(IExpr.class, "s");
-		IExpr a2 = context.mock(IExpr.class, "a2");
-		IExpr err = context.mock(IExpr.class, "err");
-		IExpr rerr = context.mock(IExpr.class, "rerr");
 		IExpr e2 = context.mock(IExpr.class, "e2");
 		IExpr ro2 = context.mock(IExpr.class, "ro2");
 
@@ -147,38 +142,37 @@ public class GuardGeneration {
 		gen.endInline(fi);
 	}
 	
-	/*
 	@Test
 	public void twoGuardsNoDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGeneratorJS(gen, meth));
+		gen.push(new GuardGenerator(new FunctionState(meth, fcx, null), gen, block));
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
-		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
+		StringLiteral expr = new StringLiteral(pos, "hello");
 		FunctionCaseDefn fcd1 = new FunctionCaseDefn(t, expr);
 		fi.functionCase(fcd1);
 		UnresolvedVar f = new UnresolvedVar(pos, "False");
 		f.bind(LoadBuiltins.falseT);
-		FunctionCaseDefn fcd2 = new FunctionCaseDefn(f, expr);
+		StringLiteral expr2 = new StringLiteral(pos, "goodbye");
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(f, expr2);
 		fi.functionCase(fcd2);
 		fn.intro(fi);
 
-		JSExpr ge = context.mock(JSExpr.class, "ge");
-		JSBlockCreator yesGuard = context.mock(JSBlockCreator.class, "yesGuard");
-		JSBlockCreator noGuard = context.mock(JSBlockCreator.class, "noGuard");
-		JSIfExpr guard = new JSIfExpr(null, yesGuard, noGuard);
-		JSExpr r1 = context.mock(JSExpr.class, "r1");
+		IExpr a1 = context.mock(IExpr.class, "a1");
+		IExpr t1 = context.mock(IExpr.class, "t1");
+		IExpr ro1 = context.mock(IExpr.class, "ro1");
+		IExpr e1 = context.mock(IExpr.class, "e1");
 
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst("True"); will(returnValue(ge));
-			oneOf(meth).ifTrue(ge); will(returnValue(guard));
-			oneOf(yesGuard).literal("42"); will(returnValue(r1));
-			oneOf(yesGuard).returnObject(r1);
+			oneOf(meth).arrayOf(J.OBJECT, new ArrayList<>()); will(returnValue(a1));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.True", J.OBJECT, "eval", fcx, a1); will(returnValue(t1));
+			oneOf(meth).stringConst("hello"); will(returnValue(e1));
+			oneOf(meth).returnObject(e1); will(returnValue(ro1));
 		}});
 		
 		gen.startInline(fi);
@@ -188,33 +182,47 @@ public class GuardGeneration {
 		gen.visitUnresolvedVar(t, 0);
 		gen.leaveGuard(fcd1);
 		gen.visitExpr(expr, 0);
-		gen.visitNumericLiteral(expr);
+		gen.visitStringLiteral(expr);
 		gen.leaveCase(fcd1);
 		context.assertIsSatisfied();
 		
-		JSExpr ge2 = context.mock(JSExpr.class, "ge2");
-		JSBlockCreator yesGuard2 = context.mock(JSBlockCreator.class, "yesGuard2");
-		JSBlockCreator noGuard2 = context.mock(JSBlockCreator.class, "noGuard2");
-		JSIfExpr guard2 = new JSIfExpr(null, yesGuard2, noGuard2);
-		JSExpr r2 = context.mock(JSExpr.class, "r2");
+		IExpr a2 = context.mock(IExpr.class, "a2");
+		IExpr f1 = context.mock(IExpr.class, "f1");
+		IExpr e2 = context.mock(IExpr.class, "e2");
+		IExpr ro2 = context.mock(IExpr.class, "ro2");
+		IExpr ndg = context.mock(IExpr.class, "ndg");
+		IExpr a3 = context.mock(IExpr.class, "a3");
+		IExpr err = context.mock(IExpr.class, "err");
+		IExpr rerr = context.mock(IExpr.class, "rerr");
+		IExpr isf = context.mock(IExpr.class, "isf");
+		IExpr ist = context.mock(IExpr.class, "ist");
+		IExpr if1 = context.mock(IExpr.class, "if1");
+		IExpr if2 = context.mock(IExpr.class, "if2");
 
 		context.checking(new Expectations() {{
-			oneOf(noGuard).structConst("False"); will(returnValue(ge2));
-			oneOf(noGuard).ifTrue(ge2); will(returnValue(guard2));
-			oneOf(yesGuard2).literal("42"); will(returnValue(r2));
-			oneOf(yesGuard2).returnObject(r2);
-			oneOf(noGuard2).errorNoDefaultGuard();
+			oneOf(meth).arrayOf(J.OBJECT, new ArrayList<>()); will(returnValue(a2));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.False", J.OBJECT, "eval", fcx, a2); will(returnValue(f1));
+			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
+			oneOf(meth).returnObject(e2); will(returnValue(ro2));
+			oneOf(meth).stringConst("no default guard"); will(returnValue(ndg));
+			oneOf(meth).arrayOf(J.OBJECT, ndg); will(returnValue(a3));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.Error", J.OBJECT, "eval", fcx, a3); will(returnValue(err));
+			oneOf(meth).returnObject(err); will(returnValue(rerr));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, f1); will(returnValue(isf));
+			oneOf(meth).ifBoolean(isf, ro2, rerr); will(returnValue(if1));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, t1); will(returnValue(ist));
+			oneOf(meth).ifBoolean(ist, ro1, if1); will(returnValue(if2));
 		}});
 		gen.visitCase(fcd2);
 		gen.visitGuard(fcd2);
 		gen.visitExpr(f, 0);
 		gen.visitUnresolvedVar(f, 0);
 		gen.leaveGuard(fcd2);
-		gen.visitExpr(expr, 0);
-		gen.visitNumericLiteral(expr);
+		gen.visitExpr(expr2, 0);
+		gen.visitStringLiteral(expr2);
 		gen.leaveCase(fcd2);
 		gen.endInline(fi);
 	}
-*/
+	
 	// two + default
 }
