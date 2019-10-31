@@ -47,7 +47,6 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	public ExprGeneratorJS(NestedVisitor nv, JSBlockCreator block) {
 		this.sv = nv;
 		this.block = block;
-		System.out.println("Create ExprJS");
 	}
 
 	@Override

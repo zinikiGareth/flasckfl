@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -54,6 +53,7 @@ public class GuardGeneration {
 
 		IExpr a1 = context.mock(IExpr.class, "a1");
 		IExpr t1 = context.mock(IExpr.class, "t1");
+		IExpr ot1 = context.mock(IExpr.class, "ot1");
 		IExpr ro1 = context.mock(IExpr.class, "ro1");
 		IExpr e1 = context.mock(IExpr.class, "e1");
 		IExpr ist = context.mock(IExpr.class, "ist");
@@ -71,7 +71,8 @@ public class GuardGeneration {
 			oneOf(meth).arrayOf(J.OBJECT, s); will(returnValue(a2));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Error", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, t1); will(returnValue(ist));
+			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
 			oneOf(meth).ifBoolean(ist, ro1, rerr);
 		}});
 		
@@ -108,6 +109,7 @@ public class GuardGeneration {
 
 		IExpr a1 = context.mock(IExpr.class, "a1");
 		IExpr t1 = context.mock(IExpr.class, "t1");
+		IExpr ot1 = context.mock(IExpr.class, "ot1");
 		IExpr ro1 = context.mock(IExpr.class, "ro1");
 		IExpr e1 = context.mock(IExpr.class, "e1");
 		IExpr ist = context.mock(IExpr.class, "ist");
@@ -121,7 +123,8 @@ public class GuardGeneration {
 			oneOf(meth).returnObject(e1); will(returnValue(ro1));
 			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
 			oneOf(meth).returnObject(e2); will(returnValue(ro2));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, t1); will(returnValue(ist));
+			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
 			oneOf(meth).ifBoolean(ist, ro1, ro2);
 		}});
 		
@@ -165,6 +168,7 @@ public class GuardGeneration {
 
 		IExpr a1 = context.mock(IExpr.class, "a1");
 		IExpr t1 = context.mock(IExpr.class, "t1");
+		IExpr ot1 = context.mock(IExpr.class, "ot1");
 		IExpr ro1 = context.mock(IExpr.class, "ro1");
 		IExpr e1 = context.mock(IExpr.class, "e1");
 
@@ -188,6 +192,7 @@ public class GuardGeneration {
 		
 		IExpr a2 = context.mock(IExpr.class, "a2");
 		IExpr f1 = context.mock(IExpr.class, "f1");
+		IExpr of1 = context.mock(IExpr.class, "of1");
 		IExpr e2 = context.mock(IExpr.class, "e2");
 		IExpr ro2 = context.mock(IExpr.class, "ro2");
 		IExpr ndg = context.mock(IExpr.class, "ndg");
@@ -208,9 +213,11 @@ public class GuardGeneration {
 			oneOf(meth).arrayOf(J.OBJECT, ndg); will(returnValue(a3));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Error", J.OBJECT, "eval", fcx, a3); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, f1); will(returnValue(isf));
+			oneOf(meth).as(f1, J.OBJECT); will(returnValue(of1));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, of1); will(returnValue(isf));
 			oneOf(meth).ifBoolean(isf, ro2, rerr); will(returnValue(if1));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, t1); will(returnValue(ist));
+			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
+			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
 			oneOf(meth).ifBoolean(ist, ro1, if1); will(returnValue(if2));
 		}});
 		gen.visitCase(fcd2);

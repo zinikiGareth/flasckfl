@@ -21,7 +21,6 @@ public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitGuard(FunctionCaseDefn c) {
-		System.out.println("Visit Guard " + c.guard);
 		isGuard = true;
 		seenGuard = true;
 		sv.push(new ExprGeneratorJS(sv, this.block));
@@ -29,7 +28,6 @@ public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		System.out.println("Main Expr");
 		if (!seenGuard)
 			trueblock = block;
 		sv.push(new ExprGeneratorJS(sv, trueblock));
@@ -46,13 +44,11 @@ public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void result(Object r) {
 		if (isGuard) {
-			System.out.println("guard is " + r);
 			isGuard = false;
 			JSIfExpr ifexpr = block.ifTrue((JSExpr) r);
 			trueblock = ifexpr.trueCase();
 			block = ifexpr.falseCase();
 		} else {
-			System.out.println("expr is " + r);
 			trueblock.returnObject((JSExpr) r);
 		}
 	}

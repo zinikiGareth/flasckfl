@@ -51,7 +51,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private FunctionState fs;
 	private IExpr resultExpr;
 	private List<IExpr> currentBlock;
-	private static final boolean leniency = false;
+	private static final boolean leniency = true;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;
@@ -158,7 +158,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new ExprGenerator(fs, sv, currentBlock));
+		sv.push(new GuardGenerator(fs, sv, currentBlock));
 	}
 
 	@Override

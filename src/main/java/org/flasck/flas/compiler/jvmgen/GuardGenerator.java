@@ -47,7 +47,10 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
 		System.out.println("Main Expr");
-		sv.push(new ExprGenerator(state, sv, new ArrayList<>()));
+		List<IExpr> blk = new ArrayList<>();
+		if (currentGuard == null && stack.isEmpty())
+			blk = this.block;
+		sv.push(new ExprGenerator(state, sv, blk));
 	}
 	
 	@Override
@@ -62,7 +65,7 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 					ret = state.meth.returnObject(state.meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, state.meth.arrayOf(J.OBJECT, state.meth.stringConst("no default guard"))));
 				}
 			}
-			ret = state.meth.ifBoolean(state.meth.callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", state.fcx, c.guard), c.expr, ret);
+			ret = state.meth.ifBoolean(state.meth.callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", state.fcx, state.meth.as(c.guard, J.OBJECT)), c.expr, ret);
 		}
 		sv.result(ret);
 	}
@@ -73,12 +76,8 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 			System.out.println("guard is " + r);
 			isGuard = false;
 			currentGuard = (IExpr) r;
-//			JSIfExpr ifexpr = block.ifTrue((JSExpr) r);
-//			trueblock = ifexpr.trueCase();
-//			block = ifexpr.falseCase();
 		} else {
 			System.out.println("expr is " + r);
-//			trueblock.returnObject((JSExpr) r);
 			stack.add(0, new GE(currentGuard, (IExpr)r));
 			currentGuard = null;
 		}

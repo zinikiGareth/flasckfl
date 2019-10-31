@@ -356,7 +356,8 @@ public class FunctionGeneration {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		intro.functionCase(new FunctionCaseDefn(null, expr));
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, expr);
+		intro.functionCase(fcd1);
 
 		IExpr nilExpr = context.mock(IExpr.class, "nilExpr");
 		context.checking(new Expectations() {{
@@ -364,15 +365,18 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(dummy); will(returnValue(nilExpr));
 		}});
 		sv.startInline(intro);
+		sv.visitCase(fcd1);
 		sv.visitExpr(expr, 0);
 		sv.visitStringLiteral(expr);
+		sv.leaveCase(fcd1);
 		sv.endInline(intro);
 		context.assertIsSatisfied();
 		
 		final FunctionIntro intro2;
 		intro2 = new FunctionIntro(name, new ArrayList<>());
 		NumericLiteral number = new NumericLiteral(pos, "42", 2);
-		intro2.functionCase(new FunctionCaseDefn(null, number));
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		intro2.functionCase(fcd2);
 
 		IExpr elseExpr = context.mock(IExpr.class, "elseExpr");
 		context.checking(new Expectations() {{
@@ -385,8 +389,10 @@ public class FunctionGeneration {
 		}});
 		sv.defaultCase();
 		sv.startInline(intro2);
+		sv.visitCase(fcd2);
 		sv.visitExpr(number, 0);
 		sv.visitNumericLiteral(number);
+		sv.leaveCase(fcd2);
 		sv.endInline(intro2);
 		context.assertIsSatisfied();
 
@@ -437,7 +443,8 @@ public class FunctionGeneration {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		intro.functionCase(new FunctionCaseDefn(null, expr));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		intro.functionCase(fcd);
 
 		IExpr stmt = context.mock(IExpr.class, "stmt");
 		context.checking(new Expectations() {{
@@ -445,8 +452,10 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(dummy); will(returnValue(stmt));
 		}});
 		sv.startInline(intro);
+		sv.visitCase(fcd);
 		sv.visitExpr(expr, 0);
 		sv.visitStringLiteral(expr);
+		sv.leaveCase(fcd);
 		sv.endInline(intro);
 		
 		IExpr numberNotConst = context.mock(IExpr.class, "numberNotConst");
@@ -516,7 +525,8 @@ public class FunctionGeneration {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		intro.functionCase(new FunctionCaseDefn(null, expr));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		intro.functionCase(fcd);
 
 		IExpr stmt = context.mock(IExpr.class, "stmt");
 		context.checking(new Expectations() {{
@@ -524,8 +534,10 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(dummy); will(returnValue(stmt));
 		}});
 		sv.startInline(intro);
+		sv.visitCase(fcd);
 		sv.visitExpr(expr, 0);
 		sv.visitStringLiteral(expr);
+		sv.leaveCase(fcd);
 		sv.endInline(intro);
 		
 		IExpr numberNotConst = context.mock(IExpr.class, "numberNotConst");
@@ -615,8 +627,10 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(dummy); will(returnValue(jvmExpr));
 		}});
 		sv.startInline(intro);
+		sv.visitCase(fcd);
 		sv.visitExpr(expr, 0);
 		sv.visitStringLiteral(expr);
+		sv.leaveCase(fcd);
 		sv.endInline(intro);
 		
 		IExpr nscInner = context.mock(IExpr.class, "nscInner");
