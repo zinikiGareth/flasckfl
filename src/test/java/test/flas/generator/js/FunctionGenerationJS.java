@@ -283,21 +283,25 @@ public class FunctionGenerationJS {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		intro.functionCase(new FunctionCaseDefn(null, expr));
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, expr);
+		intro.functionCase(fcd1);
 
 		context.checking(new Expectations() {{
 			oneOf(isNil).string("hello"); will(returnValue(dummy));
 			oneOf(isNil).returnObject(dummy);
 		}});
 		gen.startInline(intro);
+		gen.visitCase(fcd1);
 		gen.visitExpr(expr, 0);
 		gen.visitStringLiteral(expr);
+		gen.leaveCase(fcd1);
 		gen.endInline(intro);
 		
 		final FunctionIntro intro2;
 		intro2 = new FunctionIntro(name, new ArrayList<>());
 		NumericLiteral number = new NumericLiteral(pos, "42", 2);
-		intro2.functionCase(new FunctionCaseDefn(null, number));
+		FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, number);
+		intro2.functionCase(fcd2);
 
 		context.checking(new Expectations() {{
 			oneOf(notNil).literal("42"); will(returnValue(dummy));
@@ -305,8 +309,10 @@ public class FunctionGenerationJS {
 		}});
 		gen.defaultCase();
 		gen.startInline(intro2);
+		gen.visitCase(fcd2);
 		gen.visitExpr(number, 0);
 		gen.visitNumericLiteral(number);
+		gen.leaveCase(fcd2);
 		gen.endInline(intro2);
 
 		gen.endSwitch();
@@ -342,15 +348,18 @@ public class FunctionGenerationJS {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		intro.functionCase(new FunctionCaseDefn(null, expr));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		intro.functionCase(fcd);
 
 		context.checking(new Expectations() {{
 			oneOf(isNil1).string("hello"); will(returnValue(dummy));
 			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
+		gen.visitCase(fcd);
 		gen.visitExpr(expr, 0);
 		gen.visitStringLiteral(expr);
+		gen.leaveCase(fcd);
 		gen.endInline(intro);
 		
 		context.checking(new Expectations() {{
@@ -394,15 +403,18 @@ public class FunctionGenerationJS {
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		intro.functionCase(new FunctionCaseDefn(null, expr));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		intro.functionCase(fcd);
 
 		context.checking(new Expectations() {{
 			oneOf(isNil1).string("hello"); will(returnValue(dummy));
 			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
+		gen.visitCase(fcd);
 		gen.visitExpr(expr, 0);
 		gen.visitStringLiteral(expr);
+		gen.leaveCase(fcd);
 		gen.endInline(intro);
 		
 		context.checking(new Expectations() {{
@@ -457,8 +469,10 @@ public class FunctionGenerationJS {
 			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
+		gen.visitCase(fcd);
 		gen.visitExpr(expr, 0);
 		gen.visitStringLiteral(expr);
+		gen.leaveCase(fcd);
 		gen.endInline(intro);
 		
 		context.checking(new Expectations() {{
@@ -519,8 +533,10 @@ public class FunctionGenerationJS {
 			}});
 
 			gen.startInline(intro1);
+			gen.visitCase(fcd1);
 			gen.visitExpr(expr1, 0);
 			gen.visitStringLiteral(expr1);
+			gen.leaveCase(fcd1);
 			gen.endInline(intro1);
 		}
 		
@@ -561,8 +577,10 @@ public class FunctionGenerationJS {
 			}});
 
 			gen.startInline(intro2);
+			gen.visitCase(fcd2);
 			gen.visitExpr(expr2, 0);
 			gen.visitStringLiteral(expr2);
+			gen.leaveCase(fcd2);
 			gen.endInline(intro2);
 		}
 
