@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.CurryArgument;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -92,6 +93,20 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 		this.currentBlock = currentBlock;
 		this.meth = state.meth;
 		this.fcx = state.fcx;
+	}
+
+	@Override
+	public void leaveGuard(FunctionCaseDefn c) {
+		if (stack.size() != 1)
+			throw new RuntimeException("I think this is impossible, but obviously not");
+		sv.result(stack.remove(0));
+	}
+
+	@Override
+	public void leaveCase(FunctionCaseDefn c) {
+		if (stack.size() != 1)
+			throw new RuntimeException("I think this is impossible, but obviously not");
+		sv.result(meth.returnObject(stack.remove(0)));
 	}
 
 	@Override

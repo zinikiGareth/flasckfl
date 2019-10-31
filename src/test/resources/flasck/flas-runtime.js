@@ -34,6 +34,7 @@ const FLCurry = function(fn, reqd, xcs) {
 	}
 }
 
+// TODO: I think this trashes the current curry; instead it should do things locally and create a new curry if needed.
 FLCurry.prototype.apply = function(_, args) {
 	this.args[0] = args[0];
 	for (var i=1;i<args.length;i++) {
@@ -94,6 +95,11 @@ FLContext.prototype.full = function(obj) {
 	while (obj instanceof FLClosure)
 		obj = obj.eval(this);
 	return obj;
+}
+
+FLContext.prototype.isTruthy = function(val) {
+	val = this.full(val);
+	return !!val;
 }
 
 FLContext.prototype.isA = function(val, ty) {
@@ -218,6 +224,12 @@ FLBuiltin.div = function(_cxt, a, b) {
 	a = _cxt.full(a);
 	b = _cxt.full(b);
 	return a/b;
+}
+
+FLBuiltin.isEqual = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return _cxt.compare(a,b);
 }
 
 
