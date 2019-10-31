@@ -158,12 +158,13 @@ public class Main {
 			ByteCodeEnvironment bce = new ByteCodeEnvironment();
 			populateBCE(bce);
 			
-			JSGenerator jsGenerator = new JSGenerator(jse);
+			StackVisitor jsstack = new StackVisitor();
+			new JSGenerator(jse, jsstack);
 			StackVisitor jvmstack = new StackVisitor();
 			new JVMGenerator(bce, jvmstack);
 
 			if (config.generateJS)
-				repository.traverseWithHSI(jsGenerator);
+				repository.traverseWithHSI(jsstack);
 			if (config.generateJVM)
 				repository.traverseWithHSI(jvmstack);
 			

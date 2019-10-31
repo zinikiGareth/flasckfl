@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -48,7 +49,8 @@ public class FunctionGenerationJS {
 			oneOf(meth).literal("42"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
-		JSGenerator gen = new JSGenerator(jss);
+		StackVisitor gen = new StackVisitor();
+		new JSGenerator(jss, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -58,7 +60,7 @@ public class FunctionGenerationJS {
 		HSIArgsTree hsi = new HSIArgsTree(0);
 		hsi.consider(fi);
 		fn.bindHsi(hsi);
-		new Traverser(gen).visitFunction(fn);
+		new Traverser(gen).withHSI().visitFunction(fn);
 	}
 	
 	@Test
@@ -81,7 +83,8 @@ public class FunctionGenerationJS {
 			
 			oneOf(notNil).errorNoCase();
 		}});
-		JSGenerator gen = new JSGenerator(jss);
+		StackVisitor gen = new StackVisitor();
+		new JSGenerator(jss, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -111,7 +114,8 @@ public class FunctionGenerationJS {
 		FunctionName name = FunctionName.function(pos, pkg, "f");
 		VarName vnx = new VarName(pos, name, "x");
 		VarPattern vp = new VarPattern(pos, vnx);
-		JSGenerator gen = new JSGenerator(jss);
+		StackVisitor gen = new StackVisitor();
+		new JSGenerator(jss, gen);
 		FunctionDefinition fn = new FunctionDefinition(name, 1);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
@@ -150,7 +154,8 @@ public class FunctionGenerationJS {
 		FunctionName name = FunctionName.function(pos, pkg, "f");
 		VarName vnx = new VarName(pos, name, "x");
 		VarPattern vp = new VarPattern(pos, vnx);
-		JSGenerator gen = new JSGenerator(jss);
+		StackVisitor gen = new StackVisitor();
+		new JSGenerator(jss, gen);
 		FunctionDefinition fn = new FunctionDefinition(name, 2);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
@@ -193,7 +198,8 @@ public class FunctionGenerationJS {
 			
 			oneOf(notNil).errorNoCase();
 		}});
-		JSGenerator gen = new JSGenerator(jss);
+		StackVisitor gen = new StackVisitor();
+		new JSGenerator(jss, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1);
 		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
@@ -220,7 +226,8 @@ public class FunctionGenerationJS {
 	@Test
 	public void handleAField() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		StackVisitor sv = new StackVisitor();
+		JSGenerator.forTests(meth, cxt, sv);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 
 		JSBlockCreator isCons = context.mock(JSBlockCreator.class, "isCons");
@@ -237,28 +244,29 @@ public class FunctionGenerationJS {
 			oneOf(isCons).field("_1", "_0", "head");
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
-		gen.hsiArgs(Arrays.asList(a0));
-		gen.switchOn(a0);
-		gen.withConstructor("Cons");
+		sv.hsiArgs(Arrays.asList(a0));
+		sv.switchOn(a0);
+		sv.withConstructor("Cons");
 		HSIPatternOptions headOpts = new HSIPatternOptions();
 		headOpts.includes(intro);
 		Slot cm1 = new CMSlot("0_head", headOpts);
-		gen.constructorField(a0, "head", cm1);
+		sv.constructorField(a0, "head", cm1);
 
 		JSIfExpr inner = new JSIfExpr(null, context.mock(JSBlockCreator.class, "innerT"), context.mock(JSBlockCreator.class, "innerF"));
 		context.checking(new Expectations() {{
 			oneOf(isCons).head("_1");
 			oneOf(isCons).ifCtor("_1", "True"); will(returnValue(inner));
 		}});
-		gen.switchOn(cm1);
-		gen.withConstructor("True");
+		sv.switchOn(cm1);
+		sv.withConstructor("True");
 	}
 
 	@Test
 	public void constructorOrVar() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr dummy = context.mock(JSExpr.class, "dummy");
-		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		StackVisitor gen = new StackVisitor();
+		JSGenerator.forTests(meth, cxt, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
@@ -279,6 +287,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(isNil).string("hello"); will(returnValue(dummy));
+			oneOf(isNil).returnObject(dummy);
 		}});
 		gen.startInline(intro);
 		gen.visitExpr(expr, 0);
@@ -291,8 +300,8 @@ public class FunctionGenerationJS {
 		intro2.functionCase(new FunctionCaseDefn(null, number));
 
 		context.checking(new Expectations() {{
-			oneOf(isNil).returnObject(dummy);
 			oneOf(notNil).literal("42"); will(returnValue(dummy));
+			oneOf(notNil).returnObject(dummy);
 		}});
 		gen.defaultCase();
 		gen.startInline(intro2);
@@ -300,9 +309,6 @@ public class FunctionGenerationJS {
 		gen.visitNumericLiteral(number);
 		gen.endInline(intro2);
 
-		context.checking(new Expectations() {{
-			oneOf(notNil).returnObject(dummy);
-		}});
 		gen.endSwitch();
 	}
 
@@ -310,7 +316,8 @@ public class FunctionGenerationJS {
 	public void numericConstants() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr dummy = context.mock(JSExpr.class, "dummy");
-		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		StackVisitor gen = new StackVisitor();
+		JSGenerator.forTests(meth, cxt, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
@@ -339,6 +346,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(isNil1).string("hello"); will(returnValue(dummy));
+			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
 		gen.visitExpr(expr, 0);
@@ -346,7 +354,6 @@ public class FunctionGenerationJS {
 		gen.endInline(intro);
 		
 		context.checking(new Expectations() {{
-			oneOf(isNil1).returnObject(dummy);
 			oneOf(notNil1).errorNoCase();
 			oneOf(notNil).errorNoCase();
 		}});
@@ -361,7 +368,8 @@ public class FunctionGenerationJS {
 	public void stringConstants() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr dummy = context.mock(JSExpr.class, "dummy");
-		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		StackVisitor gen = new StackVisitor();
+		JSGenerator.forTests(meth, cxt, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
@@ -390,6 +398,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(isNil1).string("hello"); will(returnValue(dummy));
+			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
 		gen.visitExpr(expr, 0);
@@ -397,7 +406,6 @@ public class FunctionGenerationJS {
 		gen.endInline(intro);
 		
 		context.checking(new Expectations() {{
-			oneOf(isNil1).returnObject(dummy);
 			oneOf(notNil1).errorNoCase();
 			oneOf(notNil).errorNoCase();
 		}});
@@ -412,7 +420,8 @@ public class FunctionGenerationJS {
 	public void nestedSwitching() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr dummy = context.mock(JSExpr.class, "dummy");
-		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		StackVisitor gen = new StackVisitor();
+		JSGenerator.forTests(meth, cxt, gen);
 		
 		JSBlockCreator isNil0 = context.mock(JSBlockCreator.class, "isNil0");
 		JSBlockCreator notNil0 = context.mock(JSBlockCreator.class, "notNil0");
@@ -445,6 +454,7 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(isNil1).string("hello"); will(returnValue(dummy));
+			oneOf(isNil1).returnObject(dummy);
 		}});
 		gen.startInline(intro);
 		gen.visitExpr(expr, 0);
@@ -452,7 +462,6 @@ public class FunctionGenerationJS {
 		gen.endInline(intro);
 		
 		context.checking(new Expectations() {{
-			oneOf(isNil1).returnObject(dummy);
 			oneOf(notNil1).errorNoCase();
 		}});
 		gen.defaultCase();
@@ -472,7 +481,8 @@ public class FunctionGenerationJS {
 		FunctionName name = FunctionName.function(pos, pkg, "c");
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr dummy = context.mock(JSExpr.class, "dummy");
-		JSGenerator gen = JSGenerator.forTests(meth, cxt);
+		StackVisitor gen = new StackVisitor();
+		JSGenerator.forTests(meth, cxt, gen);
 		
 		JSBlockCreator isTrue0 = context.mock(JSBlockCreator.class, "isTrue0");
 		JSBlockCreator notTrue0 = context.mock(JSBlockCreator.class, "notTrue0");
@@ -505,6 +515,7 @@ public class FunctionGenerationJS {
 
 			context.checking(new Expectations() {{
 				oneOf(isNil1).string("hello"); will(returnValue(dummy));
+				oneOf(isNil1).returnObject(dummy);
 			}});
 
 			gen.startInline(intro1);
@@ -514,7 +525,6 @@ public class FunctionGenerationJS {
 		}
 		
 		context.checking(new Expectations() {{
-			oneOf(isNil1).returnObject(dummy);
 			oneOf(notNil1).errorNoCase();
 		}});
 		gen.defaultCase();
@@ -547,6 +557,7 @@ public class FunctionGenerationJS {
 
 			context.checking(new Expectations() {{
 				oneOf(isNil1b).string("goodbye"); will(returnValue(dummy));
+				oneOf(isNil1b).returnObject(dummy);
 			}});
 
 			gen.startInline(intro2);
@@ -557,7 +568,6 @@ public class FunctionGenerationJS {
 
 		context.checking(new Expectations() {{
 			oneOf(notNil1b).errorNoCase();
-			oneOf(isNil1b).returnObject(dummy);
 		}});
 		gen.defaultCase();
 		gen.errorNoCase();
@@ -602,7 +612,9 @@ public class FunctionGenerationJS {
 			
 			oneOf(notNil).errorNoCase();
 		}});
-		JSGenerator gen = new JSGenerator(jss);
+		StackVisitor gen = new StackVisitor();
+		new JSGenerator(jss, gen);
+		Traverser trav = new Traverser(gen).withHSI();
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "x");
 			FunctionDefinition fn = new FunctionDefinition(name, 1);
@@ -614,7 +626,7 @@ public class FunctionGenerationJS {
 			hsi.consider(fi);
 			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
-			new Traverser(gen).withHSI().visitFunction(fn);
+			trav.visitFunction(fn);
 		}
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "y");
@@ -627,7 +639,7 @@ public class FunctionGenerationJS {
 			hsi.consider(fi);
 			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
-			new Traverser(gen).withHSI().visitFunction(fn);
+			trav.visitFunction(fn);
 		}
 	}
 }

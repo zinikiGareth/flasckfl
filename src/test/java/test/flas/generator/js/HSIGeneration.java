@@ -29,7 +29,7 @@ public class HSIGeneration {
 	public void varsAreNamedAfterSlotID() {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		JSExpr runner = context.mock(JSExpr.class);
-		JSGenerator gen = JSGenerator.forTests(meth, runner);
+		JSGenerator gen = JSGenerator.forTests(meth, runner, null);
 		Slot slot = new ArgSlot(3, null);
 		context.checking(new Expectations() {{
 			oneOf(meth).bindVar("_3", "x");
