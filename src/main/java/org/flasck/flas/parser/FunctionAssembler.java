@@ -1,5 +1,6 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -16,11 +17,20 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 	}
 
 	@Override
+	public int nextCaseNumber(FunctionName fname) {
+		if (curr != null && curr.name().uniqueName().equals(fname.uniqueName()))
+			return curr.intros().size() + 1;
+		else
+			return 1;
+	}
+	
+	@Override
 	public void functionIntro(FunctionIntro next) {
-		if (curr == null || !next.name().equals(curr.name())) {
+		FunctionName fname = (FunctionName) next.name().inContext;
+		if (curr == null || !fname.equals(curr.name())) {
 			if (curr != null)
 				consumer.functionDefn(curr);
-			curr = new FunctionDefinition(next.name(), next.args.size());
+			curr = new FunctionDefinition(fname, next.args.size());
 			broken = false;
 		}
 		if (curr.argCount() != next.args.size()) {

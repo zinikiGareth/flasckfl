@@ -18,12 +18,14 @@ import org.flasck.flas.tokenizers.Tokenizable;
 public class TDAFunctionParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final FunctionNameProvider functionNamer;
+	private final FunctionCaseNameProvider functionCaseNamer;
 	private final FunctionIntroConsumer consumer;
 	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDAFunctionParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel) {
+	public TDAFunctionParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionCaseNameProvider functionCaseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.functionNamer = functionNamer;
+		this.functionCaseNamer = functionCaseNamer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
 	}
@@ -34,10 +36,11 @@ public class TDAFunctionParser implements TDAParsing {
 		if (t == null || t.type != ExprToken.IDENTIFIER)
 			return null;
 		final FunctionName fname = functionNamer.functionName(t.location, t.text);
+		final FunctionName fcase = functionCaseNamer.functionCaseName(t.location, t.text, consumer.nextCaseNumber(fname));
 		
 		ErrorMark currErr = errors.mark();
 		List<Object> args = new ArrayList<>();
-		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fname, v), p -> {
+		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fcase, v), p -> {
 			args.add(p);
 		}, topLevel);
 		while (pp.tryParsing(line, currErr) != null)
@@ -46,8 +49,8 @@ public class TDAFunctionParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		
 		// And it resets so that we can pull tok again and see it is an equals sign, or else nothing ...
-		InnerPackageNamer innerNamer = new InnerPackageNamer(fname);
-		final FunctionIntro intro = new FunctionIntro(fname, args);
+		InnerPackageNamer innerNamer = new InnerPackageNamer(fcase);
+		final FunctionIntro intro = new FunctionIntro(fcase, args);
 		consumer.functionIntro(intro);
 		if (!line.hasMore()) {
 			return new TDAFunctionGuardedEquationParser(errors, intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case"));
@@ -80,11 +83,11 @@ public class TDAFunctionParser implements TDAParsing {
 		consumer.moveOn();
 	}
 
-	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel) {
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionCaseNameProvider caseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDAFunctionParser(errors, namer, consumer, topLevel);
+				return new TDAFunctionParser(errors, namer, caseNamer, consumer, topLevel);
 			}
 		};
 	}

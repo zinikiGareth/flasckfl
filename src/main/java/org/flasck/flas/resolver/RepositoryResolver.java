@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -46,6 +47,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
+	public void visitFunctionIntro(FunctionIntro fi) {
+		scopeStack.add(0, scope);
+		this.scope = fi.name();
+	}
+
+	@Override
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
 		RepositoryEntry defn = find(scope, p.ctor);
 		if (defn == null) {
@@ -56,6 +63,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		} else
 			p.bind((StructDefn) defn);
+	}
+	
+	@Override
+	public void leaveFunctionIntro(FunctionIntro fi) {
+		this.scope = scopeStack.remove(0);
 	}
 	
 	@Override

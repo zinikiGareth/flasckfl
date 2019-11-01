@@ -22,6 +22,7 @@ import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAObjectElementsParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -110,8 +111,13 @@ public class TDAObjectElementsParser implements TDAParsing {
 				public void moveOn() {
 					fa.moveOn();
 				}
+
+				@Override
+				public int nextCaseNumber(FunctionName fname) {
+					throw new NotImplementedException();
+				}
 			};
-			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, consumer, topLevel);
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, null, consumer, topLevel);
 			currParser = fcp;
 			return fcp.tryParsing(toks);
 		}
