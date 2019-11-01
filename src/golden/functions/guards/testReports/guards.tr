@@ -1,4 +1,12 @@
 JVM PASS guard for 2 is selected
 JVM PASS guard has a default case
+JVM PASS guard2 for 2 is calculated correctly
+JVM PASS guard2 for 5 is calculated correctly
+JVM PASS guard2 for 7 is calculated correctly
+JVM PASS guard2 for 0 is an error
 JS PASS guard for 2 is selected
 JS PASS guard has a default case
+JS PASS guard2 for 2 is calculated correctly
+JS PASS guard2 for 5 is calculated correctly
+JS PASS guard2 for 7 is calculated correctly
+JS PASS guard2 for 0 is an error

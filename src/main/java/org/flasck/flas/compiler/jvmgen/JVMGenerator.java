@@ -51,7 +51,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private FunctionState fs;
 	private IExpr resultExpr;
 	private List<IExpr> currentBlock;
-	private static final boolean leniency = true;
+	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;

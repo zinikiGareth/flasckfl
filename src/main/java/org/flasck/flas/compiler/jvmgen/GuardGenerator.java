@@ -16,20 +16,24 @@ import org.zinutils.bytecode.JavaType;
 public class GuardGenerator extends LeafAdapter implements ResultAware {
 	public class GE {
 		public IExpr guard;
+		public List<IExpr> testBlk;
 		public IExpr expr;
 
-		public GE(IExpr guard, IExpr expr) {
+		public GE(IExpr guard, List<IExpr> testBlk, IExpr expr) {
 			this.guard = guard;
+			this.testBlk = testBlk;
 			this.expr = expr;
 		}
 	}
 
 	private final NestedVisitor sv;
 	private final FunctionState state;
+	private final List<GE> stack = new ArrayList<>();
 	private boolean isGuard;
 	private IExpr currentGuard;
 	private List<IExpr> block;
-	private List<GE> stack = new ArrayList<>();
+	private List<IExpr> nestedBlk = null;
+	private List<IExpr> testBlk = null;
 
 	public GuardGenerator(FunctionState state, NestedVisitor sv, List<IExpr> currentBlock) {
 		this.state = state;
@@ -39,17 +43,17 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitGuard(FunctionCaseDefn c) {
-		System.out.println("Visit Guard " + c.guard);
 		isGuard = true;
-		sv.push(new ExprGenerator(state, sv, this.block));
+		sv.push(new ExprGenerator(state, sv, testBlk != null ? testBlk : this.block));
 	}
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		System.out.println("Main Expr");
-		List<IExpr> blk = new ArrayList<>();
+		List<IExpr> blk;
 		if (currentGuard == null && stack.isEmpty())
 			blk = this.block;
+		else
+			nestedBlk = blk = new ArrayList<>();
 		sv.push(new ExprGenerator(state, sv, blk));
 	}
 	
@@ -66,20 +70,28 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 				}
 			}
 			ret = state.meth.ifBoolean(state.meth.callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", state.fcx, state.meth.as(c.guard, J.OBJECT)), c.expr, ret);
+			if (c.testBlk != null) {
+				c.testBlk.add(ret);
+				ret = JVMGenerator.makeBlock(state.meth, c.testBlk);
+			}
 		}
 		sv.result(ret);
 	}
 
 	@Override
 	public void result(Object r) {
+		IExpr re = (IExpr)r;
 		if (isGuard) {
-			System.out.println("guard is " + r);
 			isGuard = false;
-			currentGuard = (IExpr) r;
+			currentGuard = re;
 		} else {
-			System.out.println("expr is " + r);
-			stack.add(0, new GE(currentGuard, (IExpr)r));
+			if (nestedBlk != null) {
+				nestedBlk.add(re);
+				re = JVMGenerator.makeBlock(state.meth, nestedBlk);
+			}
+			stack.add(0, new GE(currentGuard, testBlk, re));
 			currentGuard = null;
+			testBlk = new ArrayList<>();
 		}
 	}
 }

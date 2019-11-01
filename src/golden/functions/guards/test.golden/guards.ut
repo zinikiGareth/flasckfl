@@ -5,4 +5,20 @@
 	test guard has a default case
 		assert (guard 5)
 			21
-			
+
+	test guard2 for 2 is calculated correctly
+		assert (guard2 2)
+			6
+
+	test guard2 for 5 is calculated correctly
+		assert (guard2 5)
+			10
+
+	test guard2 for 7 is calculated correctly
+		assert (guard2 7)
+			8
+
+	test guard2 for 0 is an error
+		assert (guard2 0)
+			Error "no default guard"
+
