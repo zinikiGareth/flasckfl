@@ -11,6 +11,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.FunctionCaseNameProvider;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionNameProvider;
 import org.flasck.flas.parser.TDAFunctionGuardedEquationParser;
@@ -30,7 +31,8 @@ public class TDAFunctionParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
-	private FunctionNameProvider functionNamer = context.mock(FunctionNameProvider.class);
+	private FunctionNameProvider functionNamer = context.mock(FunctionNameProvider.class, "functionNamer");
+	private FunctionCaseNameProvider caseNamer = context.mock(FunctionCaseNameProvider.class, "caseNamer");
 	private FunctionIntroConsumer intro = context.mock(FunctionIntroConsumer.class);
 	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -40,7 +42,7 @@ public class TDAFunctionParsingTests {
 	public void aBlankLineReturnsNothingAndDoesNothing() {
 		context.checking(new Expectations() {{
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line(""));
 		assertNull(nested);
 	}
@@ -48,11 +50,14 @@ public class TDAFunctionParsingTests {
 	@Test
 	public void justANameIsAFunctionIntroWithNestedCaseParser() {
 		final Tokenizable line = line("f");
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(nameF));
+			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
+			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAFunctionGuardedEquationParser);
@@ -61,12 +66,15 @@ public class TDAFunctionParsingTests {
 	@Test
 	public void aNameMustHaveAnindentedCaseParserThatSeesSomething() {
 		final Tokenizable line = line("f");
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(nameF));
+			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
+			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(errors).message(with(any(InputPosition.class)), with("no function cases specified")	);
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line);
 		nested.scopeComplete(line.realinfo());
 	}
@@ -74,13 +82,16 @@ public class TDAFunctionParsingTests {
 	@Test
 	public void aNameCanTakeTheArgumentsFirst() {
 		final Tokenizable line = line("f x");
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
-			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.f.x")));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(nameF));
+			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
+			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
+			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.f._1.x")));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(errors).message(with(any(InputPosition.class)), with("no function cases specified")	);
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line);
 		nested.scopeComplete(line.realinfo());
 	}
@@ -88,24 +99,29 @@ public class TDAFunctionParsingTests {
 	@Test
 	public void aFunctionDeclCannotEndAtTheEquals() {
 		final Tokenizable line = line("f = ");
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(nameF));
+			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
+			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(errors).message(line, "function definition requires expression");
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
 
 	@Test
 	public void aFullFunctionDefinitionReturnsATopLevelParserOfSorts() {
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(nameF));
+			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
+			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
-//			oneOf(guards).functionCase(with(FunctionCaseMatcher.called(null, "f")));
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f = 3"));
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAMultiParser);
@@ -113,12 +129,15 @@ public class TDAFunctionParsingTests {
 
 	@Test
 	public void aFunctionDefinitionCanHaveAVariableArg() {
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(nameF));
+			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
+			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
-			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.f.x")));
+			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.f._1.x")));
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f x = 3"));
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAMultiParser);
@@ -126,12 +145,15 @@ public class TDAFunctionParsingTests {
 
 	@Test
 	public void aFunctionDefinitionCanHaveATypedArg() {
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(FunctionName.function(pos, pkg, "f")));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("f")); will(returnValue(nameF));
+			oneOf(intro).nextCaseNumber(nameF); will(returnValue(1));
+			oneOf(caseNamer).functionCaseName(with(any(InputPosition.class)), with("f"), with(1)); will(returnValue(FunctionName.caseName(nameF, 1)));
 			oneOf(intro).functionIntro(with(any(FunctionIntro.class)));
 			oneOf(builder).argument((TypedPattern) with(TypedPatternMatcher.typed("Number", "n")));
 		}});
-		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, intro, builder);
+		TDAFunctionParser parser = new TDAFunctionParser(tracker, functionNamer, caseNamer, intro, builder);
 		TDAParsing nested = parser.tryParsing(line("f (Number n) = n"));
 		assertNotNull(nested);
 		assertTrue(nested instanceof TDAMultiParser);

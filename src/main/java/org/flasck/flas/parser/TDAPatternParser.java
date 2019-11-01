@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -155,7 +156,11 @@ public class TDAPatternParser implements TDAParsing {
 	public TDAParsing handleASimpleVar(PattToken initial) {
 		final VarPattern vp = new VarPattern(initial.location, namer.nameVar(initial.location, initial.text));
 		consumer.accept(vp);
-		topLevel.argument(vp);
+		try {
+			topLevel.argument(vp);
+		} catch (DuplicateNameException ex) {
+			errors.message(vp.location(), "duplicate function argument " + vp.var);
+		}
 		return this;
 	}
 

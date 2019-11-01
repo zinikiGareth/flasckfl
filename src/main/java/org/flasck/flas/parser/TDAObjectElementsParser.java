@@ -114,10 +114,10 @@ public class TDAObjectElementsParser implements TDAParsing {
 
 				@Override
 				public int nextCaseNumber(FunctionName fname) {
-					throw new NotImplementedException();
+					return fa.nextCaseNumber(fname);
 				}
 			};
-			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, null, consumer, topLevel);
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), consumer, topLevel);
 			currParser = fcp;
 			return fcp.tryParsing(toks);
 		}

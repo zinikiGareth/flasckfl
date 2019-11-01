@@ -35,7 +35,7 @@ public class FunctionAssemblerTests {
 			oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0).intros(1)));
 		}});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "foo"), new ArrayList<>()));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "foo"), new ArrayList<>()));
 		asm.moveOn();
 	}
 
@@ -46,8 +46,8 @@ public class FunctionAssemblerTests {
 			oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 		}});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "foo"), new ArrayList<>()));
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList(new Object())));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "foo"), new ArrayList<>()));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(new Object())));
 		asm.moveOn();
 	}
 	
@@ -58,9 +58,9 @@ public class FunctionAssemblerTests {
 			oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(2)));
 		}});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "foo"), new ArrayList<>()));
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList(new Object())));
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList(new Object())));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "foo"), new ArrayList<>()));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(new Object())));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(new Object())));
 		asm.moveOn();
 	}
 	
@@ -73,9 +73,9 @@ public class FunctionAssemblerTests {
 			oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1))); will(throwException(new DuplicateNameException(pkg)));
 		}});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList(new Object())));
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "foo"), new ArrayList<>()));
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList(new Object())));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(new Object())));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "foo"), new ArrayList<>()));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(new Object())));
 		asm.moveOn();
 	}
 
@@ -87,9 +87,9 @@ public class FunctionAssemblerTests {
 			oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1))); will(throwException(new DuplicateNameException(pkg)));
 		}});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList(new Object())));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(new Object())));
 		asm.moveOn();
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList(new Object())));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(new Object())));
 		asm.moveOn();
 	}
 
@@ -99,8 +99,13 @@ public class FunctionAssemblerTests {
 			oneOf(errors).message(pos, "inconsistent number of formal parameters");
 		}});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList()));
-		asm.functionIntro(new FunctionIntro(FunctionName.function(pos, pkg, "bar"), Arrays.asList(new Object())));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList()));
+		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(new Object())));
 		asm.moveOn();
+	}
+	
+	FunctionName caseName(FunctionAssembler asm, String name) {
+		FunctionName fname = FunctionName.function(pos, pkg, name);
+		return FunctionName.caseName(fname, asm.nextCaseNumber(fname));
 	}
 }

@@ -63,7 +63,7 @@ public class TDAIntroParser implements TDAParsing {
 			return new TDAMultiParser(errors, 
 				errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, null, assembler, consumer),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, consumer),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
 			);
 		}
@@ -82,7 +82,7 @@ public class TDAIntroParser implements TDAParsing {
 			return new TDAMultiParser(errors, 
 				errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, null, assembler, consumer),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, consumer),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
 			);
 		}
@@ -185,7 +185,7 @@ public class TDAIntroParser implements TDAParsing {
 			return new TDAMultiParser(errors, 
 				errors -> new TDAObjectElementsParser(errors, new ObjectNestedNamer(on), od, consumer),
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, null, assembler, consumer),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, consumer),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
 			);
 		}

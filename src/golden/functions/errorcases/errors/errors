@@ -1,0 +1,2 @@
+    duplicatevar  3.4:    f x  _ x = Nil
+                              duplicate function argument x
