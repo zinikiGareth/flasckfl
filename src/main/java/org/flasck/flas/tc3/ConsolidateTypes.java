@@ -1,5 +1,6 @@
 package org.flasck.flas.tc3;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,11 +10,17 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class ConsolidateTypes implements Type, Locatable {
 	private final InputPosition loc;
-	public final List<Type> types;
+	public final List<Type> types = new ArrayList<Type>();
+	private Type result;
 
 	public ConsolidateTypes(InputPosition loc, List<Type> types) {
 		this.loc = loc;
-		this.types = types;
+		for (Type t : types) {
+			if (t instanceof UnifiableType)
+				((UnifiableType)t).consolidatesWith(this);
+			else
+				this.types.add(t);
+		}
 	}
 
 	public ConsolidateTypes(InputPosition loc, Type...types) {
@@ -38,6 +45,20 @@ public class ConsolidateTypes implements Type, Locatable {
 	@Override
 	public boolean incorporates(Type other) {
 		throw new NotImplementedException();
+	}
+	
+	public void consolidatesTo(Type result) {
+		this.result = result;
+	}
+	
+	public boolean isConsolidated() {
+		return result != null;
+	}
+	
+	public Type consolidatedAs() {
+		if (result == null)
+			throw new NotImplementedException("This type has not been consolidated");
+		return result;
 	}
 	
 	@Override

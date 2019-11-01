@@ -40,5 +40,7 @@ public interface UnifiableType extends Type {
 	// able to be applied to these types
 	UnifiableType canBeAppliedTo(List<Type> results);
 
-
+	// When building a consolidated type, we need to handle UnifiableTypes separately
+	// and note here that this is part of that
+	void consolidatesWith(ConsolidateTypes consolidateTypes);
 }

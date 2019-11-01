@@ -45,33 +45,44 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
-		state.resolveAll();
+		// First go through and figure out what we can
 		for (Entry<FunctionDefinition, Type> e : memberTypes.entrySet()) {
-			e.getKey().bindType(consolidate(e.getValue()));
+			consolidate(e.getValue(), false);
+		}
+		
+		// Then we can resolve all the UTs
+		state.resolveAll();
+		
+		// Then we can bind the types
+		for (Entry<FunctionDefinition, Type> e : memberTypes.entrySet()) {
+			e.getKey().bindType(consolidate(e.getValue(), true));
 		}
 		state.bindVarPatternTypes();
 		sv.result(null);
 	}
 
-	public Type consolidate(Type value) {
+	public Type consolidate(Type value, boolean haveResolvedUTs) {
 		if (value instanceof ConsolidateTypes) {
 			ConsolidateTypes ct = (ConsolidateTypes) value;
+			if (ct.isConsolidated())
+				return ct.consolidatedAs();
 			Set<Type> tys = new HashSet<>();
 			for (Type t : ct.types)
-				tys.add(consolidate(t));
+				tys.add(consolidate(t, haveResolvedUTs));
 			Type ret = repository.findUnionWith(tys);
 			if (ret == null) {
 				errors.message(ct.location(), "unable to unify " + tys);
 				return null;
 			}
+			ct.consolidatesTo(ret);
 			return ret;
-		} else if (value instanceof UnifiableType) {
+		} else if (value instanceof UnifiableType && haveResolvedUTs) {
 			return ((UnifiableType)value).resolve();
 		} else if (value instanceof Apply) {
 			Apply apply = (Apply)value;
 			List<Type> consolidated = new ArrayList<Type>();
 			for (Type t : apply.tys)
-				consolidated.add(consolidate(t));
+				consolidated.add(consolidate(t, haveResolvedUTs));
 			return new Apply(consolidated);
 		} else
 			return value;

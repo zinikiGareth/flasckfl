@@ -30,6 +30,7 @@ import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.SlotChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
@@ -122,7 +123,6 @@ public class GroupTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), 
 					(Matcher)ConsolidatedTypeMatcher.with(
-							Matchers.is(r1),
 							Matchers.is(LoadBuiltins.string)
 					)
 			))); will(captureFType);
@@ -165,7 +165,6 @@ public class GroupTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), 
 					(Matcher)ConsolidatedTypeMatcher.with(
-							Matchers.is(r2),
 							Matchers.is(LoadBuiltins.string)
 					)
 			))); will(captureGType);
@@ -176,8 +175,8 @@ public class GroupTests {
 		
 		context.checking(new Expectations() {{
 			// the "any" here is because we haven't constrained the result type since returning it
-			oneOf(repository).findUnionWith((Set)with((Matcher<Type>)Matchers.containsInAnyOrder((Matcher)PolyVarMatcher.called("A"), Matchers.is(LoadBuiltins.string)))); will(returnValue(LoadBuiltins.string));
-			oneOf(repository).findUnionWith((Set)with((Matcher<Type>)Matchers.containsInAnyOrder((Matcher)PolyVarMatcher.called("B"), Matchers.is(LoadBuiltins.string)))); will(returnValue(LoadBuiltins.string));
+			oneOf(repository).findUnionWith((Set)with(Matchers.contains(Matchers.is(LoadBuiltins.string)))); will(returnValue(LoadBuiltins.string));
+			oneOf(repository).findUnionWith((Set)with(Matchers.contains(Matchers.is(LoadBuiltins.string)))); will(returnValue(LoadBuiltins.string));
 			oneOf(sv).result(null); // leave function group doesn't propagate anything ...
 		}});
 		gc.leaveFunctionGroup(grp);

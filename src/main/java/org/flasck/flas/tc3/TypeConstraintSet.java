@@ -38,6 +38,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final Set<UnifiableApplication> applications = new HashSet<>();
 	private Type resolvedTo;
 	private int usedOrReturned = 0;
+	private final Set<ConsolidateTypes> consolidations = new HashSet<>();
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id) {
 		repository = r;
@@ -113,6 +114,9 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 		
 		tys.addAll(incorporatedBys);
+		
+		for (ConsolidateTypes ct : consolidations)
+			tys.add(ct.consolidatedAs());
 
 		if (tys.isEmpty()) {
 			if (usedOrReturned > 0)
@@ -198,6 +202,11 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 		applications.add(new UnifiableApplication(args, ret));
 		return ret;
+	}
+
+	@Override
+	public void consolidatesWith(ConsolidateTypes consolidateTypes) {
+		consolidations .add(consolidateTypes);
 	}
 
 	@Override
