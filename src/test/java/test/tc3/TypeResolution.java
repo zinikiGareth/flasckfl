@@ -59,7 +59,7 @@ public class TypeResolution {
 	@Test
 	public void multipleIdenticalTypesAreEasilyConsolidated() {
 		gc.visitFunction(fnF);
-		gc.result(new ConsolidateTypes(Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)));
+		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -67,7 +67,7 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentParts() {
 		gc.visitFunction(fnF);
-		gc.result(new ConsolidateTypes(Arrays.asList(LoadBuiltins.falseT, LoadBuiltins.trueT)));
+		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.falseT, LoadBuiltins.trueT)));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.bool, fnF.type());
 	}
@@ -76,7 +76,7 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentPolymorphicParts() {
 		gc.visitFunction(fnF);
-		gc.result(new ConsolidateTypes(Arrays.asList(LoadBuiltins.nil, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any)))));
+		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.nil, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any)))));
 		gc.leaveFunctionGroup(null);
 		assertThat(fnF.type(), PolyTypeMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
 	}
@@ -84,7 +84,7 @@ public class TypeResolution {
 	@Test
 	public void anyIsBasicallyIgnoredWhenWeHaveSomethingElseInAConsolidatedType() {
 		gc.visitFunction(fnF);
-		gc.result(new ConsolidateTypes(Arrays.asList(LoadBuiltins.number, LoadBuiltins.any)));
+		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.any)));
 		gc.leaveFunctionGroup(null);
 		assertThat(fnF.type(), Matchers.is(LoadBuiltins.number));
 	}
@@ -104,7 +104,7 @@ public class TypeResolution {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeType(LoadBuiltins.number);
-		gc.result(new ConsolidateTypes(Arrays.asList(ut, LoadBuiltins.number)));
+		gc.result(new ConsolidateTypes(pos, Arrays.asList(ut, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}

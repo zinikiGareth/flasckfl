@@ -1,14 +1,23 @@
 package org.flasck.flas.tc3;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ConsolidateTypes implements Type {
+public class ConsolidateTypes implements Type, Locatable {
+	private final InputPosition loc;
 	public final List<Type> types;
 
-	public ConsolidateTypes(List<Type> types) {
+	public ConsolidateTypes(InputPosition loc, List<Type> types) {
+		this.loc = loc;
 		this.types = types;
+	}
+
+	public ConsolidateTypes(InputPosition loc, Type...types) {
+		this(loc, Arrays.asList(types));
 	}
 
 	@Override
@@ -34,5 +43,10 @@ public class ConsolidateTypes implements Type {
 	@Override
 	public String toString() {
 		return "Consolidate" + types;
+	}
+
+	@Override
+	public InputPosition location() {
+		return loc;
 	}
 }

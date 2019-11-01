@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
@@ -13,7 +15,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
 // TODO: having both nargs & type feels like duplication, but we know about nargs SOOOO much earlier
-public class FunctionDefinition implements RepositoryEntry, WithTypeSignature, Comparable<FunctionDefinition> {
+public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeSignature, Comparable<FunctionDefinition> {
 	private final FunctionName name;
 	private final int nargs;
 	private final List<FunctionIntro> intros = new ArrayList<>();
@@ -34,6 +36,14 @@ public class FunctionDefinition implements RepositoryEntry, WithTypeSignature, C
 		return name;
 	}
 	
+	@Override
+	public InputPosition location() {
+		if (intros.isEmpty())
+			return null;
+		else
+			return intros.get(0).location;
+	}
+
 	public int argCount() {
 		if (nestedVars != null)
 			return nargs + nestedVars.size();

@@ -15,7 +15,6 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -54,15 +53,17 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		sv.result(null);
 	}
 
-	private Type consolidate(Type value) {
+	public Type consolidate(Type value) {
 		if (value instanceof ConsolidateTypes) {
 			ConsolidateTypes ct = (ConsolidateTypes) value;
 			Set<Type> tys = new HashSet<>();
 			for (Type t : ct.types)
 				tys.add(consolidate(t));
 			Type ret = repository.findUnionWith(tys);
-			if (ret == null)
-				throw new NotImplementedException("Cannot figure out a union for " + tys);
+			if (ret == null) {
+				errors.message(ct.location(), "unable to unify " + tys);
+				return null;
+			}
 			return ret;
 		} else if (value instanceof UnifiableType) {
 			return ((UnifiableType)value).resolve();

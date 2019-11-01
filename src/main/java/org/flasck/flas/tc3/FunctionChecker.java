@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
@@ -116,11 +117,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			sv.result(null);
 		if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + fn.name().uniqueName());
-		sv.result(buildApplyType());
+		sv.result(buildApplyType(fn.location()));
 	}
 
-	private Type buildApplyType() {
-		Type result = consolidate(resultTypes);
+	private Type buildApplyType(InputPosition pos) {
+		Type result = consolidate(pos, resultTypes);
 		if (argTypes.isEmpty())
 			return result;
 		else {
@@ -128,10 +129,10 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		}
 	}
 
-	private Type consolidate(List<Type> types) {
+	private Type consolidate(InputPosition pos, List<Type> types) {
 		if (types.size() == 1)
 			return types.get(0);
 		
-		return new ConsolidateTypes(types);
+		return new ConsolidateTypes(pos, types);
 	}
 }

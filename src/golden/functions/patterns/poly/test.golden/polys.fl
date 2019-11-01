@@ -4,3 +4,8 @@
 
 // Cons[A]->A
 	hd (Cons {head: x}) = x
+	
+// We should be able to merge a poly and Nil
+
+	pn True  x = Nil
+	pn False y = y
