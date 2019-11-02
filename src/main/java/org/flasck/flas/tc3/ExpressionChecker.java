@@ -9,6 +9,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -80,6 +81,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce((Type) var.defn());
 		} else if (var.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) var.defn();
+			announce(fn.type());
+		} else if (var.defn() instanceof StandaloneMethod) {
+			StandaloneMethod fn = (StandaloneMethod) var.defn();
 			announce(fn.type());
 		} else if (var.defn() instanceof VarPattern) {
 			VarPattern vp = (VarPattern) var.defn();

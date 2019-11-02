@@ -10,12 +10,14 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.Type;
 
 public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry {
 	private final InputPosition location;
 	private final FunctionName name;
 	private final List<Pattern> args;
 	private final List<ActionMessage> messages = new ArrayList<>();
+	private Type type;
 
 	public ObjectActionHandler(InputPosition location, FunctionName name, List<Pattern> args) {
 		this.location = location;
@@ -34,6 +36,18 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 
 	public List<Pattern> args() {
 		return args;
+	}
+
+	public void bindType(Type ty) {
+		if (this.type != null)
+			throw new RuntimeException("Cannot bind type more than once");
+		this.type = ty;
+	}
+
+	public Type type() {
+		if (this.type == null)
+			throw new RuntimeException("Type not bound");
+		return this.type;
 	}
 
 	@Override

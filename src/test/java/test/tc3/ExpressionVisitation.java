@@ -1,5 +1,7 @@
 package test.tc3;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -7,6 +9,8 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -74,6 +78,22 @@ public class ExpressionVisitation {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyX = context.mock(Type.class);
 		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0);
+		x.bindType(tyX);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyX))));
+		}});
+		UnresolvedVar uv = new UnresolvedVar(pos, "x");
+		uv.bind(x);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		tc.visitUnresolvedVar(uv, 0);
+	}
+
+	@Test
+	public void aStandaloneMethodReturnsItsResolvedType() {
+		RepositoryReader repository = context.mock(RepositoryReader.class);
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		Type tyX = context.mock(Type.class);
+		StandaloneMethod x = new StandaloneMethod(new ObjectMethod(pos, FunctionName.standaloneMethod(pos, null, "m"), new ArrayList<>()));
 		x.bindType(tyX);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyX))));
