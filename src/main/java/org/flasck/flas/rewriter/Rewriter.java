@@ -39,9 +39,6 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.BuiltinOperation;
-import org.flasck.flas.flim.ImportPackage;
-import org.flasck.flas.flim.ImportedCard;
-import org.flasck.flas.flim.PackageFinder;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -149,8 +146,7 @@ import org.zinutils.utils.Indenter;
 // and ultimately pull these two together
 public class Rewriter implements CodeGenRegistry {
 	static final Logger logger = LoggerFactory.getLogger("Rewriter");
-	private final ErrorResult errors;
-	public final PackageFinder pkgFinder;
+	private ErrorResult errors;
 	public final Map<String, PrimitiveType> primitives = new TreeMap<>();
 	private final Map<String, Expr> constants = new TreeMap<>();
 	private final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
@@ -159,7 +155,6 @@ public class Rewriter implements CodeGenRegistry {
 	public final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
 	// I'm not 100% sure we need both of these, but it seems we need more info for "generating" cards than we do for "referencing" cards on import ...
 	private final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
-	private final Map<String, ImportedCard> ctis = new TreeMap<String, ImportedCard>();
 	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
 	public final List<RWD3Thing> d3s = new ArrayList<RWD3Thing>();
 	public final Map<CSName, RWContractImplements> cardImplements = new TreeMap<CSName, RWContractImplements>();
@@ -203,30 +198,6 @@ public class Rewriter implements CodeGenRegistry {
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (name.equals("."))
-				return BuiltinOperation.FIELD.at(location);
-			if (name.equals("()"))
-				return BuiltinOperation.TUPLE.at(location);
-			if (name.equals("let")) {
-				throw new UtilException("I don't think let is something I really support");
-//				return BuiltinOperation.LET.at(location);
-			}
-			if (name.contains(".")) {
-				int idx = name.lastIndexOf(".");
-				String pkgName = name.substring(0, idx);
-				pkgFinder.loadFlim(errors, pkgName);
-				Object val = getMe(location, new SolidName(new PackageName(pkgName), name.substring(idx+1)));
-				if (val != null)
-					return val;
-			} else {
-				Object val = getMe(location, new SolidName(null, name));
-				if (val != null) {
-					if (val instanceof PackageVar && ((PackageVar)val).defn instanceof BooleanLiteral) // possibly other cases - group with an appropriate interface
-						return ((PackageVar)val).defn;
-					else
-						return val;
-				}
-			}
 			throw new ResolutionException(location, name);
 		}
 	}
@@ -610,56 +581,7 @@ public class Rewriter implements CodeGenRegistry {
 
 	}
 
-	public Rewriter(ErrorResult errors, List<File> pkgdirs, ImportPackage rootPkg) {
-		this.errors = errors;
-		if (rootPkg != null) {
-			this.pkgFinder = new PackageFinder(this, pkgdirs, rootPkg);
-			importPackage1(rootPkg);
-			importPackage2(rootPkg);
-		} else
-			this.pkgFinder = null; // for test cases
-	}
-
-	public void importPackage1(ImportPackage pkg) {
-		for (Entry<String, Object> x : pkg) {
-			String name = x.getKey();
-			Object val = x.getValue();
-			if (val instanceof RWObjectDefn) {
-				objects.put(name, (RWObjectDefn) val);
-			} else if (val instanceof RWStructDefn) {
-				structs.put(name, (RWStructDefn) val);
-			} else if (val instanceof RWUnionTypeDefn) {
-				types.put(name, (RWUnionTypeDefn) val);
-			} else if (val instanceof RWContractDecl) {
-				contracts.put(name, (RWContractDecl) val);
-			} else if (val instanceof CardGrouping) {
-				throw new UtilException("I claim we don't import CardGrouping objects");
-			} else if (val instanceof ImportedCard) {
-				ctis.put(name, (ImportedCard)val);
-			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
-//				System.out.println("Not adding anything for " + name + " " + val);
-			} else if (val == null) {
-//				System.out.println("Cannot add type for " + name + " as it is null");
-			} else if (val instanceof Type) {
-				Type ty = (Type) val;
-				if (ty instanceof PrimitiveType)
-					primitives.put(name, (PrimitiveType) ty);
-				else
-					throw new UtilException("Cannot handle type of " + ty.getClass());
-			} else if (val instanceof BooleanLiteral) {
-				constants.put(name, (Expr) val);
-			}
-		}
-	}
-	
-	public void importPackage2(ImportPackage pkg) {
-		for (Entry<String, Object> x : pkg) {
-			String name = x.getKey();
-			Object val = x.getValue();
-			if (val instanceof RWFunctionDefinition) {
-				functions.put(name, (RWFunctionDefinition)val);
-			}
-		}
+	public Rewriter(ErrorResult errors, List<File> pkgdirs) {
 	}
 
 	public void rewritePackageScope(String priorPackage, IScope priorScope, String inPkg, final Scope scope) {
@@ -1698,8 +1620,6 @@ public class Rewriter implements CodeGenRegistry {
 			return functions.get(id);
 		else if (cards.containsKey(id))
 			return cards.get(id);
-		else if (ctis.containsKey(id))
-			return ctis.get(id);
 		else if (fnArgs.containsKey(id))
 			return fnArgs.get(id);
 		else

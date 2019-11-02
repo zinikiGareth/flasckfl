@@ -23,7 +23,7 @@ public class SimpleUnitTestRunnerTests {
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	FLASCompiler sc = new FLASCompiler(null, null, new PrintWriter(System.out));
 	ErrorResult errors = new ErrorResult();
-	Rewriter rw = new Rewriter(errors, null, null);
+	Rewriter rw = new Rewriter(errors, null);
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	CompileResult prior;
 	private UnitTestResultHandler resultHandler = context.mock(UnitTestResultHandler.class);

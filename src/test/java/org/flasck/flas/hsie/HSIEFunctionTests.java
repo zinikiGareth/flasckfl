@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.PrintWriter;
 
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
@@ -32,7 +31,7 @@ public class HSIEFunctionTests {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
 		// c1.provideCaseName(0);
 		s.define(errors, "primes", c1);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm primesForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.primes"));
 		assertNotNull(primesForm);
@@ -54,7 +53,7 @@ public class HSIEFunctionTests {
 		s.define(errors, "fib", c2);
 		s.define(errors, "fib", c3);
 		assertEquals(0, errors.count());
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm fibForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.fib"));
 		assertNotNull(fibForm);
@@ -75,7 +74,7 @@ public class HSIEFunctionTests {
 		s.define(errors, "take", c1);
 		s.define(errors, "take", c2);
 		s.define(errors, "take", c3);
-		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewritePackageScope(null, null, "ME", s);
 		HSIEForm takeForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.take"));
 		assertNotNull(takeForm);

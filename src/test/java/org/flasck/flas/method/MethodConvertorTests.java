@@ -19,8 +19,6 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.flim.Builtin;
-import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -48,7 +46,6 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.types.Type;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
@@ -68,14 +65,8 @@ public class MethodConvertorTests {
 
 	public MethodConvertorTests() {
 		errors = new ErrorResult();
-		ImportPackage biscope = Builtin.builtins();
-		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
-		RWStructDefn send = (RWStructDefn) biscope.get("Send");
-		{
-			RWFunctionDefinition doSend = new RWFunctionDefinition(FunctionName.function(posn, null, "doSend"), 1, false);
-			doSend.setType(Type.function(posn, any, send));
-			biscope.define("doSend", doSend);
-		}
+		RWUnionTypeDefn any = null;
+		RWStructDefn send = null;
 		orgFooScope = Scope.topScope("org.foo");
 //		orgFooScope.define(errors, "doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
 		{
@@ -114,7 +105,7 @@ public class MethodConvertorTests {
 		}
 		
 		{
-			rewriter = new Rewriter(errors, null, biscope);
+			rewriter = new Rewriter(errors, null);
 			cd = new CardDefinition(posn, posn, new CardName(new PackageName("org.foo"), "Card"));
 			cd.state = new StateDefinition(posn);
 			cd.state.addField(new StructField(posn, false, new TypeReference(posn, "String"), "str"));
