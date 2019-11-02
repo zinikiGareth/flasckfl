@@ -5,7 +5,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class PolyType implements Locatable, Type {
+public class PolyType implements Locatable, Type, Comparable<PolyType> {
 	private InputPosition location;
 	private String name;
 
@@ -46,5 +46,10 @@ public class PolyType implements Locatable, Type {
 	public boolean incorporates(Type other) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public int compareTo(PolyType o) {
+		return this.name.compareTo(o.name);
 	}
 }

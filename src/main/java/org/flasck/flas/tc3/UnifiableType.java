@@ -43,4 +43,8 @@ public interface UnifiableType extends Type {
 	// When building a consolidated type, we need to handle UnifiableTypes separately
 	// and note here that this is part of that
 	void consolidatesWith(ConsolidateTypes consolidateTypes);
+
+	// When a function has polymorphic args, a UT is instantiated to handle that
+	// This is called when one of those is passed a variable
+	void isPassed(InputPosition loc, Type ai);
 }

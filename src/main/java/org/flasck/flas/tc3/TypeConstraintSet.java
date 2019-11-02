@@ -222,7 +222,13 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void consolidatesWith(ConsolidateTypes consolidateTypes) {
-		consolidations .add(consolidateTypes);
+		consolidations.add(consolidateTypes);
+	}
+	
+	@Override
+	public void isPassed(InputPosition loc, Type ai) {
+		// This is the same implementation as "canBeType" - is that correct?
+		types.add(ai);
 	}
 
 	@Override

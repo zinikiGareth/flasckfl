@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -20,6 +21,7 @@ import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.CurryArgumentType;
@@ -130,6 +132,29 @@ public class StackVisitation {
 		aec.result(new ExprResult(nbr));
 		aec.result(new ExprResult(nbr));
 		aec.leaveApplyExpr(ae);
+	}
+
+	@Test
+	public void applyExpressionWithPolyApplyInstantiatesFreshUTs() {
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		PolyType pt = new PolyType(pos, "A");
+		Type fnt = new Apply(pt, pt);
+		Type nbr = LoadBuiltins.number;
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "ut_A");
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(); will(returnValue(ut));
+			oneOf(nv).result(ut);
+		}});
+		UnresolvedVar f = new UnresolvedVar(pos, "f"); // A->A
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 2);
+		fn.bindType(fnt);
+		f.bind(fn);
+		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
+		ApplyExpr ae = new ApplyExpr(pos, f, e1);
+		aec.result(new ExprResult(fnt));
+		aec.result(new ExprResult(nbr));
+		aec.leaveApplyExpr(ae);
+		assertEquals(LoadBuiltins.number, ut.resolve());
 	}
 
 	@SuppressWarnings("unchecked")

@@ -1,5 +1,6 @@
 test.golden.e :: Cons[True]->Number
 test.golden.f :: A->A->A
+test.golden.g :: Number->Number
 test.golden.hd :: Cons[A]->A
 test.golden.pn :: Boolean->Nil->Nil
 test.golden.r :: Number->Any->Number

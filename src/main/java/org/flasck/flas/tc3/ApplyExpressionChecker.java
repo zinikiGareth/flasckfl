@@ -2,12 +2,15 @@ package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -39,7 +42,27 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		if (r == null) {
 			throw new NullPointerException("Cannot handle null type");
 		}
-		results.add(((ExprResult) r).type);
+		results.add(instantiateFreshPolys(new TreeMap<>(), ((ExprResult) r).type));
+	}
+
+	public Type instantiateFreshPolys(Map<PolyType, UnifiableType> uts, Type type) {
+		if (type instanceof PolyType) {
+			PolyType pt = (PolyType) type;
+			if (uts.containsKey(pt))
+				return uts.get(pt);
+			else {
+				UnifiableType ret = state.createUT();
+				uts.put(pt, ret);
+				return ret;
+			}
+		} else if (type instanceof Apply) {
+			Apply a = (Apply) type;
+			List<Type> types = new ArrayList<>();
+			for (Type t : a.tys)
+				types.add(instantiateFreshPolys(uts, t));
+			return new Apply(types);
+		} else
+			return type;
 	}
 
 	@Override
@@ -70,6 +93,9 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			} else if (ai instanceof UnifiableType) {
 				UnifiableType ut = (UnifiableType) ai;
 				ut.incorporatedBy(loc, fi);
+			} else if (fi instanceof UnifiableType) {
+				UnifiableType ut = (UnifiableType) fi;
+				ut.isPassed(loc, ai);
 			} else if (!fi.incorporates(ai)) {
 				errors.message(loc, "typing: " + fi + " " + ai);
 				nv.result(new ErrorType());

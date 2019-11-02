@@ -119,7 +119,6 @@ public class TypeResolution {
 		gc.result(result);
 		gc.leaveFunctionGroup(null);
 		assertThat(utG.resolve(), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.nil)));
-		System.out.println(utG.resolve());
 		assertEquals(LoadBuiltins.nil, fnF.type());
 	}
 }
