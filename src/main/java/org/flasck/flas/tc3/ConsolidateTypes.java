@@ -10,15 +10,18 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class ConsolidateTypes implements Type, Locatable {
 	private final InputPosition loc;
+	public final List<UnifiableType> uts = new ArrayList<>();
 	public final List<Type> types = new ArrayList<Type>();
 	private Type result;
 
 	public ConsolidateTypes(InputPosition loc, List<Type> types) {
 		this.loc = loc;
 		for (Type t : types) {
-			if (t instanceof UnifiableType)
-				((UnifiableType)t).consolidatesWith(this);
-			else
+			if (t instanceof UnifiableType) {
+				UnifiableType ut = (UnifiableType)t;
+				uts.add(ut);
+				ut.consolidatesWith(this);
+			} else
 				this.types.add(t);
 		}
 	}

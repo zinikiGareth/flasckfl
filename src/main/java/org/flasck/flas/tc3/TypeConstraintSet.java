@@ -115,11 +115,22 @@ public class TypeConstraintSet implements UnifiableType {
 		
 		tys.addAll(incorporatedBys);
 		
-		for (ConsolidateTypes ct : consolidations)
-			tys.add(ct.consolidatedAs());
+		List<UnifiableType> sameAs = new ArrayList<>();
+		for (ConsolidateTypes ct : consolidations) {
+			if (!ct.types.isEmpty())
+				tys.add(ct.consolidatedAs());
+			for (UnifiableType ut : ct.uts) {
+				if (ut == this)
+					continue;
+				if (ut.isResolved())
+					tys.add(ut.resolve());
+				else
+					sameAs.add(ut);
+			}
+		}
 
 		if (tys.isEmpty()) {
-			if (usedOrReturned > 0)
+			if (usedOrReturned > 0 || !sameAs.isEmpty())
 				resolvedTo = state.nextPoly(pos);
 			else
 				resolvedTo = LoadBuiltins.any;
@@ -133,6 +144,11 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		}
 
+		for (UnifiableType ut : sameAs) {
+			if (!ut.isResolved())
+				ut.incorporatedBy(null, resolvedTo);
+		}
+		
 		return resolvedTo;
 	}
 	

@@ -9,3 +9,18 @@
 
 	pn True  x = Nil
 	pn False y = y
+
+// we need to be able to instantiate inferred types later
+// this should give A->A->A
+	f a b
+		| True	= a
+		| False	= b
+
+// then this should be fine
+g x = f 2 x
+
+
+// Number->Any->Number
+	r a b
+		| True	= a
+		| False	= 42

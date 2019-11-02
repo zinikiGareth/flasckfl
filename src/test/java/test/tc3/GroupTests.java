@@ -108,6 +108,7 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcf.visitFunctionIntro(fiF1);
+		fcf.visitCase(null);
 		UnifiableType r1 = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.number));
 		fcf.result(new ExprResult(r1));
 		fcf.leaveFunctionIntro(fiF1);
@@ -116,6 +117,7 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcf.visitFunctionIntro(fiF2);
+		fcf.visitCase(null);
 		fcf.result(new ExprResult(LoadBuiltins.string));
 		fcf.leaveFunctionIntro(fiF2);
 		
@@ -150,6 +152,7 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcg.visitFunctionIntro(fiG1);
+		fcg.visitCase(null);
 		UnifiableType r2 = utF.canBeAppliedTo(Arrays.asList(LoadBuiltins.string));
 		fcg.result(new ExprResult(r2));
 		fcg.leaveFunctionIntro(fiG1);
@@ -158,6 +161,7 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcg.visitFunctionIntro(fiG1);
+		fcg.visitCase(null);
 		fcg.result(new ExprResult(LoadBuiltins.string));
 		fcg.leaveFunctionIntro(fiG1);
 
@@ -218,6 +222,7 @@ public class GroupTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fcf.visitFunctionIntro(fiF2);
+		fcf.visitCase(null);
 		UnifiableType r1 = fnArg.canBeAppliedTo(Arrays.asList(LoadBuiltins.number));
 		r1.canBeType(LoadBuiltins.string);
 		fcf.result(new ExprResult(r1));

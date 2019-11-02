@@ -50,8 +50,8 @@ public class LoadBuiltins {
 		// specify function types
 		{
 			Type pa = new PolyType(pos, "A");
-//			isEqual.bindType(new Apply(pa, pa, bool));
-			isEqual.bindType(new Apply(number, number, bool));
+			isEqual.bindType(new Apply(pa, pa, bool));
+//			isEqual.bindType(new Apply(number, number, bool));
 		}
 		plus.bindType(new Apply(number, number, number));
 		minus.bindType(new Apply(number, number, number));

@@ -63,6 +63,7 @@ public class PatternsProduceTypes {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fc.visitFunctionIntro(fi);
+		fc.visitCase(null);
 		context.assertIsSatisfied();
 		fc.result(new ExprResult(LoadBuiltins.number));
 		fc.leaveFunctionIntro(fi);
@@ -90,6 +91,7 @@ public class PatternsProduceTypes {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fc.visitFunctionIntro(fi);
+		fc.visitCase(null);
 		fc.result(new ExprResult(LoadBuiltins.number));
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{

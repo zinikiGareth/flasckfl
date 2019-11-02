@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -69,9 +70,21 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			Set<Type> tys = new HashSet<>();
 			for (Type t : ct.types)
 				tys.add(consolidate(t, haveResolvedUTs));
+			if (haveResolvedUTs) {
+				for (UnifiableType ut : ct.uts)
+					tys.add(ut.resolve());
+			}
+			if (tys.isEmpty()) {
+				if (!haveResolvedUTs)
+					return null;
+				throw new RuntimeException("I can't figure out how this can come to pass");
+			}
 			Type ret = repository.findUnionWith(tys);
 			if (ret == null) {
-				errors.message(ct.location(), "unable to unify " + tys);
+				Set<String> sigs = new TreeSet<>();
+				for (Type t : tys)
+					sigs.add(t.signature());
+				errors.message(ct.location(), "unable to unify " + String.join(", ", sigs));
 				return null;
 			}
 			ct.consolidatesTo(ret);

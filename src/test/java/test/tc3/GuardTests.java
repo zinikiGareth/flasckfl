@@ -74,30 +74,35 @@ public class GuardTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class))); will(eg);
 		}});
 		fc.visitFunctionIntro(fi);
-		context.assertIsSatisfied();
+		fc.visitCase(fic1);
 
+		context.assertIsSatisfied();
 		ExpressionChecker ec = (ExpressionChecker) eg.get(0);
+
 		ec.visitGuard(fic1);
 		CaptureAction gr = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(any(GuardResult.class))); will(gr);
 		}});
 		ec.result(LoadBuiltins.bool);
-		context.assertIsSatisfied();
 
+		context.assertIsSatisfied();
 		CaptureAction eg2 = new CaptureAction(null);
+
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(ExpressionChecker.class))); will(eg2);
 		}});
 		fc.result(gr.get(0));
-		context.assertIsSatisfied();
 
+		context.assertIsSatisfied();
 		ExpressionChecker ec2 = (ExpressionChecker) eg2.get(0);
+
 		CaptureAction er = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(any(ExprResult.class))); will(er);
 		}});
 		ec2.result(LoadBuiltins.number);
+
 		context.assertIsSatisfied();
 		fc.result(er.get(0));
 		

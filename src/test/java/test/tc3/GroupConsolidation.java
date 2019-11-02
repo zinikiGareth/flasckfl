@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Repository;
@@ -14,6 +15,7 @@ import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.ConsolidateTypes;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.GroupChecker;
+import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -56,7 +58,7 @@ public class GroupConsolidation {
 	@Test
 	public void youCannotMakeAUnionOfNumberAndString() {
 		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "unable to unify [Primitive[Number], Primitive[String]]");
+			oneOf(errors).message(pos, "unable to unify Number, String");
 		}});
 		assertNull(gc.consolidate(new ConsolidateTypes(pos, LoadBuiltins.number, LoadBuiltins.string), true));
 	}
@@ -79,15 +81,9 @@ public class GroupConsolidation {
 	}
 	
 	@Test
-	@Ignore
-	public void aTCSWithBlahBlah() {
-//		assertEquals(LoadBuiltins.any, gc.consolidate(new TypeConstraintSet(repository, state, pos, "id1")));
-		fail();
-	}
-
-	@Test
 	public void aUnionOfATypeAndAnEmptyTCSDoesTheRightThing() {
-		assertEquals(LoadBuiltins.number, gc.consolidate(new ConsolidateTypes(pos, new TypeConstraintSet(repository, state, pos, "id1"), LoadBuiltins.number), true));
+		Type c1 = gc.consolidate(new ConsolidateTypes(pos, new TypeConstraintSet(repository, state, pos, "id1"), LoadBuiltins.number), false);
+		assertEquals(LoadBuiltins.number, c1);
 	}
 
 	@Test
@@ -98,5 +94,35 @@ public class GroupConsolidation {
 		assertEquals(1, ct.types.size());
 		assertEquals(LoadBuiltins.number, gc.consolidate(ct, false));
 		assertEquals(LoadBuiltins.number, tcs.resolve());
+	}
+
+	// can this happen in real life?
+	@Test
+	public void consolidatingASingleUTDeliversAny() {
+		TypeConstraintSet tcs1 = new TypeConstraintSet(repository, state, pos, "id1");
+		ConsolidateTypes ct = new ConsolidateTypes(pos, tcs1);
+		assertEquals(0, ct.types.size());
+		Type beforeResolution = gc.consolidate(ct, false);
+		assertNull(beforeResolution);
+		assertEquals(LoadBuiltins.any, tcs1.resolve());
+		assertEquals(LoadBuiltins.any, gc.consolidate(ct, true));
+	}
+
+	@Test
+	public void consolidatingTwoUTsMeansTheyWillResolveToTheSamePoly() {
+		TypeConstraintSet tcs1 = new TypeConstraintSet(repository, state, pos, "id1");
+		TypeConstraintSet tcs2 = new TypeConstraintSet(repository, state, pos, "id1");
+		ConsolidateTypes ct = new ConsolidateTypes(pos, tcs1, tcs2);
+		assertEquals(0, ct.types.size());
+		Type beforeResolution = gc.consolidate(ct, false);
+		assertNull(beforeResolution);
+		PolyType pa = new PolyType(pos, "A");
+		context.checking(new Expectations() {{
+			oneOf(state).nextPoly(pos); will(returnValue(pa));
+		}});
+		Type r1 = tcs1.resolve();
+		assertEquals(pa, r1);
+		assertEquals(pa, tcs2.resolve());
+		assertEquals(pa, gc.consolidate(ct, true));
 	}
 }
