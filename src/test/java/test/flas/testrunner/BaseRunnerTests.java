@@ -17,7 +17,6 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
@@ -42,7 +41,6 @@ public abstract class BaseRunnerTests {
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ErrorResult errors = new ErrorResult();
 	Rewriter rw = new Rewriter(errors, null, null);
-	TypeChecker2 tc = new TypeChecker2(errors, rw);
 	// TODO: defining bce here feels out of place and should be in the JVMRunnerTest
 	// But it is "part of" the CompileResult.  Why?
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();

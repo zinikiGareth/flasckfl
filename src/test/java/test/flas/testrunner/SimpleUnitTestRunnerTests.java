@@ -5,7 +5,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.testrunner.TestRunner;
@@ -23,7 +22,6 @@ public class SimpleUnitTestRunnerTests {
 	FLASCompiler sc = new FLASCompiler(null);
 	ErrorResult errors = new ErrorResult();
 	Rewriter rw = new Rewriter(errors, null, null);
-	TypeChecker2 tc = new TypeChecker2(errors, rw);
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	CompileResult prior;
 	private UnitTestResultHandler resultHandler = context.mock(UnitTestResultHandler.class);

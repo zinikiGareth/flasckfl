@@ -25,13 +25,13 @@ public class RandomSentenceTest {
 		FileUtils.assertDirectory(fd);
 		File repoFile = File.createTempFile("repo", ".txt");
 		SentenceProducer p = new SentenceProducer(fd, "/gh-grammar/grammar.xml");
-		p.debugMode();
+//		p.debugMode();
 		AtomicBoolean failed = new AtomicBoolean(false);
 		Map<String, String> matchers = new TreeMap<>();
-		final Consumer<SentenceData> collector = used -> { FileUtils.cat(used.file); matchers.putAll(used.matchers); };
+		final Consumer<SentenceData> collector = used -> { matchers.putAll(used.matchers); };
 		p.sentence(seed, "source-file", collector);
 		p.sentence(seed, "unit-test-file", collector);
-		System.out.println("MSS = " + matchers);
+//		System.out.println("MSS = " + matchers);
 		try {
 			boolean f = org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), fd.toString() });
 			if (!f) {

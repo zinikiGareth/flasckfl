@@ -22,7 +22,6 @@ import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAObjectElementsParser implements TDAParsing {
 	private final ErrorReporter errors;

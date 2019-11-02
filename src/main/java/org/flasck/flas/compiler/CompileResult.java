@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.NotImplementedException;
@@ -13,18 +12,16 @@ import org.zinutils.xml.XML;
 
 public class CompileResult {
 	public final ByteCodeEnvironment bce;
-	private final TypeChecker2 tc;
 	private final Scope scope;
 	private final List<File> jsFiles = new ArrayList<>();
 
-	public CompileResult(Scope scope, ByteCodeEnvironment bce, TypeChecker2 tc) {
+	public CompileResult(Scope scope, ByteCodeEnvironment bce) {
 		this.scope = scope;
 		this.bce = bce;
-		this.tc = tc;
 	}
 
 	public XML exports() {
-		return tc.buildXML(getPackage().uniqueName(), false);
+		return XML.create("1.0", "Deprecated");
 	}
 
 	public NameOfThing getPackage() {
