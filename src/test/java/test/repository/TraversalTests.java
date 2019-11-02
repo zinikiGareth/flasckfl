@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -115,6 +116,18 @@ public class TraversalTests {
 		s.methods.add(meth);
 		r.addEntry(meth.name(), meth);
 		context.checking(new Expectations() {{
+			oneOf(v).visitObjectMethod(meth);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traverseStandaloneMethodFromTheRepository() {
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>());
+		StandaloneMethod sm = new StandaloneMethod(meth);
+		r.addEntry(sm.name(), sm);
+		context.checking(new Expectations() {{
+			oneOf(v).visitStandaloneMethod(sm);
 			oneOf(v).visitObjectMethod(meth);
 		}});
 		r.traverse(v);

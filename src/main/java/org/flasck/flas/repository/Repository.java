@@ -101,8 +101,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitContractDecl(ContractDecl cd);
 		void visitContractMethod(ContractMethodDecl cmd);
 		void leaveContractDecl(ContractDecl cd);
-		void visitObjectDefn(ObjectDefn e);
-		void visitObjectMethod(ObjectMethod e);
+		void visitObjectDefn(ObjectDefn obj);
+		void visitObjectMethod(ObjectMethod meth);
+		void visitStandaloneMethod(StandaloneMethod meth);
 		void visitAssertExpr(boolean isValue, Expr e);
 		void leaveAssertExpr(boolean isValue, Expr e);
 		void visitConstPattern(ConstPattern p, boolean isNested);

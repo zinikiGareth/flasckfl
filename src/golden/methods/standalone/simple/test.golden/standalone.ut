@@ -1,0 +1,3 @@
+	test we can generate a Debug command
+		assert (adebug)
+			Debug "hello"

@@ -1,0 +1,3 @@
+
+	method adebug
+		<- Debug "hello"

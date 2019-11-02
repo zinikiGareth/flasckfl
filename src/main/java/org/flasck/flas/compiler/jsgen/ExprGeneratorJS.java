@@ -130,7 +130,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof CurryArgument) {
 			stack.add(new JSCurryArg());
 		} else
-			throw new NotImplementedException();
+			throw new NotImplementedException("cannot generate fn for " + defn);
 	}
 
 	@Override

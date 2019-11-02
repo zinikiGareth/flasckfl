@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -271,6 +272,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitObjectMethod(ObjectMethod e) {
 		top.visitObjectMethod(e);
+	}
+
+	public void visitStandaloneMethod(StandaloneMethod meth) {
+		top.visitStandaloneMethod(meth);
 	}
 
 	public void hsiArgs(List<Slot> slots) {

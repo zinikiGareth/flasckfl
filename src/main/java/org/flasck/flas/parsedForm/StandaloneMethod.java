@@ -6,8 +6,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.repository.RepositoryEntry;
 
 public class StandaloneMethod implements RepositoryEntry {
-
-	private final ObjectMethod om;
+	public final ObjectMethod om;
 
 	public StandaloneMethod(ObjectMethod om) {
 		this.om = om;
