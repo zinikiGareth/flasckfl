@@ -117,6 +117,7 @@ public class TraversalTests {
 		r.addEntry(meth.name(), meth);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectMethod(meth);
+			oneOf(v).leaveObjectMethod(meth);
 		}});
 		r.traverse(v);
 	}
@@ -129,6 +130,8 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitStandaloneMethod(sm);
 			oneOf(v).visitObjectMethod(meth);
+			oneOf(v).leaveObjectMethod(meth);
+			oneOf(v).leaveStandaloneMethod(sm);
 		}});
 		r.traverse(v);
 	}

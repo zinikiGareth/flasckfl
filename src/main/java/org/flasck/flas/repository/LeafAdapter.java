@@ -73,8 +73,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
-		// TODO Auto-generated method stub
-		
+	}
+
+	@Override
+	public void leaveObjectMethod(ObjectMethod meth) {
+	}
+
+	@Override
+	public void leaveStandaloneMethod(StandaloneMethod meth) {
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.flasck.flas.lifting;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -15,10 +16,16 @@ public class DependencyGroup implements FunctionGroup {
 		this.functions = new TreeSet<>();
 		for (FunctionDefinition f : fns)
 			functions.add(f);
+		this.standalones = new HashSet<StandaloneMethod>();
 	}
 
 	public DependencyGroup(Set<FunctionDefinition> tc) {
 		this.functions = tc;
+	}
+
+	public DependencyGroup(Set<FunctionDefinition> functions, Set<StandaloneMethod> standalones) {
+		this.functions = functions;
+		this.standalones = standalones;
 	}
 
 	@Override

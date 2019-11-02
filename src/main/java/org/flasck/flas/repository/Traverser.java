@@ -178,18 +178,30 @@ public class Traverser implements Visitor {
 		visitor.visitFunctionGroup(grp);
 		for (FunctionDefinition fd : grp.functions())
 			visitFunction(fd);
+		for (StandaloneMethod sm : grp.standalones())
+			visitStandaloneMethod(sm);
 		leaveFunctionGroup(grp);
 	}
 
 	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
 		visitor.visitStandaloneMethod(meth);
-		visitor.visitObjectMethod(meth.om);
+		visitObjectMethod(meth.om);
+		leaveStandaloneMethod(meth);
 	}
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod e) {
 		visitor.visitObjectMethod(e);
+		leaveObjectMethod(e);
+	}
+
+	public void leaveObjectMethod(ObjectMethod meth) {
+		visitor.leaveObjectMethod(meth);
+	}
+
+	public void leaveStandaloneMethod(StandaloneMethod meth) {
+		visitor.leaveStandaloneMethod(meth);
 	}
 
 	@Override

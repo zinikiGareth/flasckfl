@@ -278,6 +278,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitStandaloneMethod(meth);
 	}
 
+	public void leaveObjectMethod(ObjectMethod meth) {
+		top.leaveObjectMethod(meth);
+	}
+
+	public void leaveStandaloneMethod(StandaloneMethod meth) {
+		top.leaveStandaloneMethod(meth);
+	}
+
 	public void hsiArgs(List<Slot> slots) {
 		hsi.hsiArgs(slots);
 	}

@@ -2,6 +2,7 @@ package test.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -10,6 +11,8 @@ import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Repository.Visitor;
@@ -29,9 +32,11 @@ public class FunctionGroupTraversalTests {
 	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
 	final FunctionName nameG = FunctionName.function(pos, pkg, "g");
 	final FunctionName nameH = FunctionName.function(pos, pkg, "h");
+	final FunctionName nameS1 = FunctionName.function(pos, pkg, "s1");
 	FunctionDefinition fn = new FunctionDefinition(nameF, 2);
 	FunctionDefinition gn = new FunctionDefinition(nameG, 2);
 	FunctionDefinition hn = new FunctionDefinition(nameH, 2);
+	StandaloneMethod s1 = new StandaloneMethod(new ObjectMethod(pos, nameS1, new ArrayList<>()));
 
 	@Before
 	public void intros() {
@@ -143,5 +148,25 @@ public class FunctionGroupTraversalTests {
 		}});
 		FunctionGroupOrdering order = new FunctionGroupOrdering(Arrays.asList(grp1, grp2));
 		new Traverser(v).withFunctionsInDependencyGroups(order).doTraversal(new Repository());
+	}
+
+	@Test
+	public void aSingleGroupWithAStandaloneMethod() {
+		HashSet<StandaloneMethod> ms1 = new HashSet<StandaloneMethod>();
+		ms1.add(s1);
+		FunctionGroup grp1 = new DependencyGroup(new HashSet<>(), ms1);
+
+		Sequence s = context.sequence("inorder");
+		context.checking(new Expectations() {{
+			oneOf(v).visitFunctionGroup(grp1); inSequence(s);
+			
+			oneOf(v).visitStandaloneMethod(s1); inSequence(s);
+			oneOf(v).visitObjectMethod(s1.om); inSequence(s);
+			oneOf(v).leaveObjectMethod(s1.om); inSequence(s);
+			oneOf(v).leaveStandaloneMethod(s1); inSequence(s);
+			
+			oneOf(v).leaveFunctionGroup(grp1); inSequence(s);
+		}});
+		new Traverser(v).withFunctionsInDependencyGroups(new FunctionGroupOrdering(Arrays.asList(grp1))).doTraversal(new Repository());
 	}
 }
