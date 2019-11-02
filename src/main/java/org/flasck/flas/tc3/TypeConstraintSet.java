@@ -53,6 +53,11 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	@Override
 	public Type resolve() {
+		return resolve(true);
+	}
+	
+	@Override
+	public Type resolve(boolean hard) {
 		if (resolvedTo != null)
 			return resolvedTo;
 		Set<Type> tys = new HashSet<Type>();
@@ -128,19 +133,34 @@ public class TypeConstraintSet implements UnifiableType {
 					sameAs.add(ut);
 			}
 		}
+		
+		HashSet<Type> all = new HashSet<Type>();
+		for (Type ty : tys) {
+			if (ty instanceof UnifiableType) {
+				UnifiableType ut = (UnifiableType) ty;
+				if (ut.isResolved())
+					all.add(ut.resolve());
+				else
+					sameAs.add(ut);
+			} else
+				all.add(ty);
+		}
 
-		if (tys.isEmpty()) {
+		if (all.isEmpty()) {
+			if (!hard) { // don't resolve just yet ...
+				return null;
+			}
 			if (usedOrReturned > 0 || !sameAs.isEmpty())
 				resolvedTo = state.nextPoly(pos);
 			else
 				resolvedTo = LoadBuiltins.any;
-		} else if (tys.size() == 1)
-			resolvedTo = tys.iterator().next();
+		} else if (all.size() == 1)
+			resolvedTo = all.iterator().next();
 		else {
-			resolvedTo = repository.findUnionWith(tys);
+			resolvedTo = repository.findUnionWith(all);
 			if (resolvedTo == null) {
 				// this is a legit type error
-				throw new NotImplementedException("This should be a legit cannot merge type error");
+				throw new NotImplementedException("This should be a legit cannot merge type error: cannot unify " + all);
 			}
 		}
 

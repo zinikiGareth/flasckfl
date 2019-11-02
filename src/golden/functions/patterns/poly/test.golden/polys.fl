@@ -17,7 +17,7 @@
 		| False	= b
 
 // then this should be fine
-g x = f 2 x
+	g x = f 2 x
 
 
 // Number->Any->Number

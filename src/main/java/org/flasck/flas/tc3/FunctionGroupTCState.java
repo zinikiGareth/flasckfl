@@ -81,7 +81,10 @@ public class FunctionGroupTCState implements CurrentTCState {
 	@Override
 	public void resolveAll() {
 		for (UnifiableType ut : allUTs) {
-			ut.resolve();
+			ut.resolve(false);
+		}
+		for (UnifiableType ut : allUTs) {
+			ut.resolve(true);
 		}
 	}
 }
