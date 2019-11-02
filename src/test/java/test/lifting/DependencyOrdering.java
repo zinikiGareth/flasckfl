@@ -11,8 +11,11 @@ import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +34,16 @@ public class DependencyOrdering {
 	}
 
 	@Test
+	public void methodsAreConsideredToo() {
+		FunctionName fname = FunctionName.standaloneMethod(pos, pkg, "m");
+		StandaloneMethod meth = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>()));
+		lifter.visitStandaloneMethod(meth);
+		lifter.leaveStandaloneMethod(meth);
+		
+		assertOrder("test.foo.m");
+	}
+
+	@Test
 	public void withNoDependenciesFunctionsAreInAlphaOrder() {
 		quick("f");
 		quick("g");
@@ -44,6 +57,27 @@ public class DependencyOrdering {
 		quick("f", fnG);
 
 		assertOrder("test.foo.g", "test.foo.f");
+	}
+
+	@Test
+	public void aFunctionReferencingAMethodComesAfterIt() {
+//		FunctionDefinition[] deps = {};
+		FunctionName fname = FunctionName.standaloneMethod(pos, pkg, "m");
+		StandaloneMethod fn = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>()));
+//		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
+//		fn.intro(fi);
+		lifter.visitStandaloneMethod(fn);
+//		lifter.visitFunctionIntro(fn.intros().get(0));
+//		for (FunctionDefinition d : deps) {
+//			UnresolvedVar ref = new UnresolvedVar(pos, d.name().name);
+//			ref.bind(d);
+//			lifter.visitUnresolvedVar(ref, 0);
+//		}
+		lifter.leaveStandaloneMethod(fn);
+		
+		quick("f", fn);
+		
+		assertOrder("test.foo.m", "test.foo.f");
 	}
 
 	@Test
@@ -167,7 +201,7 @@ public class DependencyOrdering {
 		assertOrder("test.foo.f.h", "test.foo.f//test.foo.f.g");
 	}
 
-	private FunctionDefinition quick(String name, FunctionDefinition... deps) {
+	private FunctionDefinition quick(String name, RepositoryEntry... deps) {
 		FunctionDefinition fn = function(name);
 		visit(fn, deps);
 		return fn;
@@ -186,11 +220,11 @@ public class DependencyOrdering {
 		return fn;
 	}
 
-	private void visit(FunctionDefinition fn, FunctionDefinition... deps) {
+	private void visit(FunctionDefinition fn, RepositoryEntry... deps) {
 		lifter.visitFunction(fn);
 		lifter.visitFunctionIntro(fn.intros().get(0));
-		for (FunctionDefinition d : deps) {
-			UnresolvedVar ref = new UnresolvedVar(pos, d.name().name);
+		for (RepositoryEntry d : deps) {
+			UnresolvedVar ref = new UnresolvedVar(pos, ((FunctionName)d.name()).name);
 			ref.bind(d);
 			lifter.visitUnresolvedVar(ref, 0);
 		}

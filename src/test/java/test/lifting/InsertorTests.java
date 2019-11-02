@@ -14,6 +14,7 @@ import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -127,18 +128,18 @@ public class InsertorTests {
 		t.visitPatterns(fiG);
 	}
 	
-	public static void assertOrder(FunctionGroups ordering, String... fns) {
-		assertEquals(ordering.toString(), fns.length, ordering.size());
+	public static void assertOrder(FunctionGroups ordering, String... groups) {
+		assertEquals(ordering.toString(), groups.length, ordering.size());
 		int i = 0;
 		for (FunctionGroup g : ordering) {
-			assertEquals(fns[i++], assembleGroup(g));
+			assertEquals(groups[i++], assembleGroup(g));
 		}
 	}
 
 	private static String assembleGroup(FunctionGroup grp) {
 		StringBuilder sb = new StringBuilder();
 		String sep = "";
-		for (FunctionDefinition f : grp.functions()) {
+		for (StandaloneDefn f : grp.functions()) {
 			sb.append(sep);
 			sb.append(f.name().uniqueName());
 			sep = "//";

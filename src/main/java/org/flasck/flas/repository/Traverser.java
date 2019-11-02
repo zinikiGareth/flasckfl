@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -176,10 +177,14 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
 		visitor.visitFunctionGroup(grp);
-		for (FunctionDefinition fd : grp.functions())
-			visitFunction(fd);
-		for (StandaloneMethod sm : grp.standalones())
-			visitStandaloneMethod(sm);
+		for (StandaloneDefn sd : grp.functions()) {
+			if (sd instanceof FunctionDefinition)
+				visitFunction((FunctionDefinition) sd);
+			else if (sd instanceof StandaloneMethod)
+				visitStandaloneMethod((StandaloneMethod) sd);
+			else
+				throw new NotImplementedException();
+		}
 		leaveFunctionGroup(grp);
 	}
 

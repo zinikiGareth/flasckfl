@@ -9,6 +9,8 @@ import java.util.TreeSet;
 
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.FunctionGroups;
@@ -26,8 +28,8 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	private LiftingDependencyMapper dependencies = new LiftingDependencyMapper();
 	private MappingStore ms;
 	private MappingAnalyzer ma;
-	private Set<FunctionDefinition> dull = new TreeSet<>();
-	private Set<FunctionDefinition> interesting = new TreeSet<>();
+	private Set<StandaloneDefn> dull = new TreeSet<>();
+	private Set<StandaloneDefn> interesting = new TreeSet<>();
 
 	private List<FunctionGroup> ordering;
 
@@ -43,6 +45,11 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		dependencies.recordFunction(fn);
 		ms = new MappingStore();
 		ma = new MappingAnalyzer(fn, ms, dependencies);
+	}
+
+	@Override
+	public void visitStandaloneMethod(StandaloneMethod meth) {
+		// does this need to do anything?
 	}
 
 	@Override
@@ -67,65 +74,73 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		ms = null;
 	}
 
+	
+	@Override
+	public void leaveStandaloneMethod(StandaloneMethod meth) {
+		dull.add(meth);
+	}
+
 	// Resolve all fn-to-fn references
 	// Return the ordering for the benefit of unit tests
 	public FunctionGroupOrdering resolve() {
 		// TODO: we should probably have more direct unit tests of this
 		// It possibly should also have its own class of some kind
 		ordering = new ArrayList<>();
-		Set<FunctionDefinition> resolved = new TreeSet<>(dull);
-		for (FunctionDefinition f : dull)
+		
+		for (StandaloneDefn f : dull)
 			ordering.add(new DependencyGroup(f));
-		Set<FunctionDefinition> remaining = new TreeSet<>(interesting);
-		while (!remaining.isEmpty()) {
+
+		Set<StandaloneDefn> processedFns = new TreeSet<>(dull);
+		Set<StandaloneDefn> remainingFns = new TreeSet<>(interesting);
+		while (!remainingFns.isEmpty()) {
 			boolean handled = false;
-			Set<FunctionDefinition> done = new HashSet<>();
-			for (FunctionDefinition fn : remaining) {
+			Set<StandaloneDefn> done = new HashSet<>();
+			for (StandaloneDefn fn : remainingFns) {
 				NestedVarReader nv = fn.nestedVars();
-				if (nv.containsReferencesNotIn(resolved)) {
+				if (nv.containsReferencesNotIn(processedFns)) {
 					continue;
 				}
-				resolved.add(fn);
+				processedFns.add(fn);
 				done.add(fn);
 				handled = true;
-				for (FunctionDefinition r : nv.references()) {
+				for (StandaloneDefn r : nv.references()) {
 					nv.enhanceWith(fn, r.nestedVars());
 				}
 				ordering.add(new DependencyGroup(fn));
 			}
-			remaining.removeAll(done);
+			remainingFns.removeAll(done);
 			if (!handled) {
 				// if we can't make progress, you have to assume that some mutual recursion is at play ... try everything in turn ... then pick the least complex one
-				Set<Set<FunctionDefinition>> options = new TreeSet<>(new SizeComparator());
-				for (FunctionDefinition fn : remaining) {
-					Set<FunctionDefinition> tc = buildTransitiveClosure(fn, resolved);
+				Set<Set<StandaloneDefn>> options = new TreeSet<>(new SizeComparator());
+				for (StandaloneDefn fn : remainingFns) {
+					Set<StandaloneDefn> tc = buildTransitiveClosure(fn, processedFns);
 					if (tc != null)
 						options.add(tc);
 				}
 				if (!options.isEmpty()) {
-					Set<FunctionDefinition> tc = options.iterator().next();
+					Set<StandaloneDefn> tc = options.iterator().next();
 					ordering.add(new DependencyGroup(tc));
-					resolved.addAll(tc);
-					remaining.removeAll(tc);
+					processedFns.addAll(tc);
+					remainingFns.removeAll(tc);
 				} else
-					throw new RuntimeException("Failed to make progress: " + remaining + " -- " + resolved);
+					throw new RuntimeException("Failed to make progress: " + remainingFns + " -- " + processedFns);
 			}
 		}
 		return new FunctionGroupOrdering(ordering);
 	}
 
-	private Set<FunctionDefinition> buildTransitiveClosure(FunctionDefinition fn, Set<FunctionDefinition> resolved) {
-		Set<FunctionDefinition> closure = new TreeSet<>();
+	private Set<StandaloneDefn> buildTransitiveClosure(StandaloneDefn fn, Set<StandaloneDefn> resolved) {
+		Set<StandaloneDefn> closure = new TreeSet<>();
 		buildMaximalTransitiveClosure(fn, resolved, closure);
-		for (FunctionDefinition f : closure) {
+		for (StandaloneDefn f : closure) {
 			if (!checkFn(f, closure))
 				return null;
 		}
 		return closure;
 	}
 
-	private boolean checkFn(FunctionDefinition f, Set<FunctionDefinition> closure) {
-		for (FunctionDefinition g : closure) {
+	private boolean checkFn(StandaloneDefn f, Set<StandaloneDefn> closure) {
+		for (StandaloneDefn g : closure) {
 			NestedVarReader nv = g.nestedVars();
 			if (nv.dependsOn(f))
 				return true;
@@ -133,15 +148,15 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		return false;
 	}
 
-	private void buildMaximalTransitiveClosure(FunctionDefinition fn, Set<FunctionDefinition> resolved, Set<FunctionDefinition> closure) {
+	private void buildMaximalTransitiveClosure(StandaloneDefn fn, Set<StandaloneDefn> resolved, Set<StandaloneDefn> closure) {
 		if (closure.contains(fn))
 			return;
 		closure.add(fn);
 		NestedVarReader nv = fn.nestedVars();
-		Set<FunctionDefinition> added = new TreeSet<FunctionDefinition>(nv.references());
+		Set<StandaloneDefn> added = new TreeSet<>(nv.references());
 		added.removeAll(resolved);
 		added.removeAll(closure);
-		for (FunctionDefinition o : added) {
+		for (StandaloneDefn o : added) {
 			buildMaximalTransitiveClosure(o, resolved, closure);
 		}
 	}

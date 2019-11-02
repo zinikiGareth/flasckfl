@@ -11,11 +11,14 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIPatternOptions;
+import org.zinutils.exceptions.NotImplementedException;
 
 // This is a record per-function
 public class MappingStore implements MappingCollector, NestedVarReader {
@@ -69,7 +72,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	private TreeSet<PO> patterns = new TreeSet<>();
-	private Set<FunctionDefinition> deps = new HashSet<>(); 
+	private Set<StandaloneDefn> deps = new HashSet<>(); 
 	
 	@Override
 	public void recordNestedVar(FunctionIntro fi, VarPattern vp) {
@@ -87,39 +90,48 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
+	public void recordDependency(StandaloneMethod dependsOn) {
+		deps.add(dependsOn);
+	}
+
+	@Override
 	public int size() {
 		return patterns.size();
 	}
 
 	@Override
-	public boolean containsReferencesNotIn(Set<FunctionDefinition> resolved) {
-		HashSet<FunctionDefinition> ret = new HashSet<>(deps);
+	public boolean containsReferencesNotIn(Set<StandaloneDefn> resolved) {
+		Set<StandaloneDefn> ret = new HashSet<>(deps);
 		ret.removeAll(resolved);
 		return !ret.isEmpty();
 	}
 
 	@Override
-	public Set<FunctionDefinition> references() {
+	public Set<StandaloneDefn> references() {
 		return deps;
 	}
 	
 	@Override
-	public boolean dependsOn(FunctionDefinition fn) {
+	public boolean dependsOn(StandaloneDefn fn) {
 		return deps.contains(fn);
 	}
 
 	@Override
-	public void enhanceWith(FunctionDefinition fn, NestedVarReader nestedVars) {
+	public void enhanceWith(StandaloneDefn sd, NestedVarReader nestedVars) {
 		if (nestedVars == null)
 			return;
 		
 		TreeSet<PO> ops = ((MappingStore)nestedVars).patterns;
 		for (PO o : ops) {
-			if (o.name.scope == fn.name())
+			if (o.name.scope == sd.name())
 				continue;
 
-			for (FunctionIntro fi : fn.intros())
-				patterns.add(new PO(o, fi));
+			if (sd instanceof FunctionDefinition) {
+				FunctionDefinition fn = (FunctionDefinition) sd;
+				for (FunctionIntro fi : fn.intros())
+					patterns.add(new PO(o, fi));
+			} else
+				throw new NotImplementedException();
 		}
 	}
 

@@ -3,17 +3,16 @@ package org.flasck.flas.lifting;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.RepositoryEntry;
 
 public class MappingAnalyzer {
-
 	private final FunctionDefinition fn;
 	private final MappingCollector collector;
 	private final VarDependencyMapper dependencies;
-	// TODO: this should be the "case" name with _1 or whatever
 	private FunctionName name;
 	private FunctionIntro fi;
 
@@ -44,6 +43,9 @@ public class MappingAnalyzer {
 		} else if (defn instanceof FunctionDefinition) {
 			if (defn != fn)
 				collector.recordDependency((FunctionDefinition) defn);
+		} else if (defn instanceof StandaloneMethod) {
+			if (defn != fn)
+				collector.recordDependency((StandaloneMethod) defn);
 		}
 	}
 

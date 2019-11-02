@@ -1,9 +1,7 @@
 package org.flasck.flas.repository;
 
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StandaloneDefn;
 
 public interface FunctionGroup {
-	Iterable<FunctionDefinition> functions();
-	Iterable<StandaloneMethod> standalones();
+	Iterable<StandaloneDefn> functions();
 }

@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -36,6 +37,11 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	public void visitFunction(FunctionDefinition fn) {
 		sv.push(new FunctionChecker(errors, repository, sv, state));
 		this.currentFunction = fn;
+	}
+
+	@Override
+	public void visitStandaloneMethod(StandaloneMethod meth) {
+		throw new RuntimeException("HERE!");
 	}
 
 	@Override

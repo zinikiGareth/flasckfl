@@ -5,6 +5,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.zinutils.collections.SetMap;
 
 public class LiftingDependencyMapper implements VarDependencyMapper {
@@ -25,6 +26,10 @@ public class LiftingDependencyMapper implements VarDependencyMapper {
 			}
 			dependencies.removeAll(fn.name());
 		}
+	}
+	
+	public void recordMethod(StandaloneMethod meth) {
+		
 	}
 	
 	@Override

@@ -1,43 +1,29 @@
 package org.flasck.flas.lifting;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.repository.FunctionGroup;
 
 public class DependencyGroup implements FunctionGroup {
-	private Set<FunctionDefinition> functions;
-	private Set<StandaloneMethod> standalones;
+	private Set<StandaloneDefn> functions;
 
-	public DependencyGroup(FunctionDefinition... fns) {
+	public DependencyGroup(StandaloneDefn... fns) {
 		this.functions = new TreeSet<>();
-		for (FunctionDefinition f : fns)
+		for (StandaloneDefn f : fns)
 			functions.add(f);
-		this.standalones = new HashSet<StandaloneMethod>();
 	}
-
-	public DependencyGroup(Set<FunctionDefinition> tc) {
-		this.functions = tc;
-	}
-
-	public DependencyGroup(Set<FunctionDefinition> functions, Set<StandaloneMethod> standalones) {
+	
+	public DependencyGroup(Set<StandaloneDefn> functions) {
 		this.functions = functions;
-		this.standalones = standalones;
 	}
 
 	@Override
-	public Iterable<FunctionDefinition> functions() {
+	public Iterable<StandaloneDefn> functions() {
 		return functions;
 	}
 	
-	@Override
-	public Iterable<StandaloneMethod> standalones() {
-		return standalones;
-	}
-
 	@Override
 	public String toString() {
 		return functions.toString();

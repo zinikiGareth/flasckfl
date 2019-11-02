@@ -5,6 +5,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
@@ -43,6 +44,11 @@ public class PatternAnalyzer extends LeafAdapter {
 		hsiTree = new HSIArgsTree(fn.argCount());
 	}
 	
+	@Override
+	public void visitStandaloneMethod(StandaloneMethod meth) {
+		throw new RuntimeException("HERE!");
+	}
+
 	@Override
 	public void visitFunctionIntro(FunctionIntro fi) {
 		nslot = 0;
@@ -114,5 +120,10 @@ public class PatternAnalyzer extends LeafAdapter {
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
 		fn.bindHsi(hsiTree);
+	}
+
+	@Override
+	public void leaveStandaloneMethod(StandaloneMethod meth) {
+		throw new RuntimeException("HERE!");
 	}
 }
