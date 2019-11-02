@@ -1,32 +1,38 @@
 package org.flasck.flas.lifting;
 
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.repository.FunctionGroup;
 
 public class DependencyGroup implements FunctionGroup {
-	private Set<FunctionDefinition> group;
+	private Set<FunctionDefinition> functions;
+	private Set<StandaloneMethod> standalones;
 
 	public DependencyGroup(FunctionDefinition... fns) {
-		this.group = new TreeSet<>();
+		this.functions = new TreeSet<>();
 		for (FunctionDefinition f : fns)
-			group.add(f);
+			functions.add(f);
 	}
 
 	public DependencyGroup(Set<FunctionDefinition> tc) {
-		this.group = tc;
+		this.functions = tc;
 	}
 
 	@Override
-	public Iterator<FunctionDefinition> iterator() {
-		return group.iterator();
+	public Iterable<FunctionDefinition> functions() {
+		return functions;
 	}
 	
 	@Override
+	public Iterable<StandaloneMethod> standalones() {
+		return standalones;
+	}
+
+	@Override
 	public String toString() {
-		return group.toString();
+		return functions.toString();
 	}
 }

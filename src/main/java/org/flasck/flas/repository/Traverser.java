@@ -174,8 +174,11 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
-	public void visitObjectMethod(ObjectMethod e) {
-		visitor.visitObjectMethod(e);
+	public void visitFunctionGroup(FunctionGroup grp) {
+		visitor.visitFunctionGroup(grp);
+		for (FunctionDefinition fd : grp.functions())
+			visitFunction(fd);
+		leaveFunctionGroup(grp);
 	}
 
 	@Override
@@ -185,11 +188,8 @@ public class Traverser implements Visitor {
 	}
 	
 	@Override
-	public void visitFunctionGroup(FunctionGroup grp) {
-		visitor.visitFunctionGroup(grp);
-		for (FunctionDefinition fd : grp)
-			visitFunction(fd);
-		leaveFunctionGroup(grp);
+	public void visitObjectMethod(ObjectMethod e) {
+		visitor.visitObjectMethod(e);
 	}
 
 	@Override

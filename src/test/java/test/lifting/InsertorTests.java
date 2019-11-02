@@ -138,7 +138,7 @@ public class InsertorTests {
 	private static String assembleGroup(FunctionGroup grp) {
 		StringBuilder sb = new StringBuilder();
 		String sep = "";
-		for (FunctionDefinition f : grp) {
+		for (FunctionDefinition f : grp.functions()) {
 			sb.append(sep);
 			sb.append(f.name().uniqueName());
 			sep = "//";
