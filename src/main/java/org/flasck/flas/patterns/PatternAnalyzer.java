@@ -1,7 +1,7 @@
 package org.flasck.flas.patterns;
 
 import org.flasck.flas.commonBase.ConstPattern;
-import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -19,17 +19,17 @@ public class PatternAnalyzer extends LeafAdapter {
 	private int nslot;
 	private HSIOptions slot;
 	private FunctionIntro current;
-	private ErrorResult errors;
+	private ErrorReporter errors;
 	private RepositoryReader repository;
 	
-	public PatternAnalyzer(ErrorResult errors, RepositoryReader repository, NestedVisitor sv) {
+	public PatternAnalyzer(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
 		sv.push(this);
 	}
 
-	public PatternAnalyzer(ErrorResult errors, RepositoryReader repository, NestedVisitor sv, HSITree tree, FunctionIntro current) {
+	public PatternAnalyzer(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, HSITree tree, FunctionIntro current) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;

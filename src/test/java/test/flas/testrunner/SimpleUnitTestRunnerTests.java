@@ -1,5 +1,7 @@
 package test.flas.testrunner;
 
+import java.io.PrintWriter;
+
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.CompileResult;
@@ -19,7 +21,7 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 public class SimpleUnitTestRunnerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
-	FLASCompiler sc = new FLASCompiler(null);
+	FLASCompiler sc = new FLASCompiler(null, null, new PrintWriter(System.out));
 	ErrorResult errors = new ErrorResult();
 	Rewriter rw = new Rewriter(errors, null, null);
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();

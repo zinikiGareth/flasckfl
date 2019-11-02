@@ -73,12 +73,12 @@ public class GoldenJVM {
 //		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, out.getPath(), true, useJSRunner, useJVMRunner, false, checkEverything, stripNumbers);
 		
 		Main.setLogLevels();
-		FLASCompiler compiler = new FLASCompiler(null);
+		FLASCompiler compiler = new FLASCompiler(null, null, new PrintWriter(System.out));
 //		compiler.searchIn(new File(GoldenCGRunner.jvmdir, "services/flim"));
 //		compiler.unitTestPath(utpath);
 //		compiler.unitjs(useJSRunner);
 //		compiler.unitjvm(useJVMRunner);
-		compiler.errorWriter(new PrintWriter(System.out));
+//		compiler.errorWriter(new PrintWriter(System.out));
 //		try {
 //			compiler.writeJVMTo(droidTo);
 //			compiler.compile(dir);

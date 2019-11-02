@@ -1,47 +1,23 @@
 package org.flasck.flas;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.PhaseTo;
-import org.flasck.flas.compiler.jsgen.JSEnvironment;
-import org.flasck.flas.compiler.jsgen.JSGenerator;
-import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.errors.ErrorMark;
-import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.lifting.RepositoryLifter;
-import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Repository.Visitor;
-import org.flasck.flas.repository.StackVisitor;
-import org.flasck.flas.resolver.RepositoryResolver;
-import org.flasck.flas.resolver.Resolver;
-import org.flasck.flas.tc3.TypeChecker;
-import org.flasck.flas.tc3.TypeDumper;
-import org.flasck.flas.testrunner.JSRunner;
-import org.flasck.flas.testrunner.JVMRunner;
-import org.flasck.jvm.J;
-import org.zinutils.bytecode.BCEClassLoader;
-import org.zinutils.bytecode.ByteCodeCreator;
-import org.zinutils.bytecode.ByteCodeEnvironment;
-import org.zinutils.bytecode.JavaInfo.Access;
-import org.zinutils.utils.FileUtils;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -66,13 +42,10 @@ public class Main {
 			errors.showFromMark(mark, ew, 0);
 			return true;
 		}
-		// TODO: 2019-07-22 I'm going to suggest that we want separate things for parsing and generation and the like
-		// and that we can move between them ...
-		// So Compiler should just become "Parser" I think, and possibly move processInput there and move more context there.
-		FLASCompiler compiler = new FLASCompiler(config);
-		compiler.errorWriter(ew);
-//		compiler.scanWebZips();
+
 		Repository repository = new Repository();
+		FLASCompiler compiler = new FLASCompiler(errors, repository, ew);
+//		compiler.scanWebZips();
 		LoadBuiltins.applyTo(repository);
 		for (File input : config.inputs)
 			mark = compiler.processInput(config, repository, input, mark);
@@ -85,173 +58,49 @@ public class Main {
 			}
 		}
 		
-		if (compiler.hasErrors()) {
+		if (errors.hasErrors()) {
 			errors.showFromMark(mark, ew, 0);
 			return true;
 		} else if (config.upto == PhaseTo.PARSING)
 			return false;
 		
 		if (config.upto == PhaseTo.TEST_TRAVERSAL) {
-			try {
-				repository.traverse(new LeafAdapter());
-				return false;
-			} catch (Throwable t) {
-				t.printStackTrace(System.out);
-				return true;
-			}
+			return testTraversal(repository);
 		}
 
+		if (compiler.resolve(mark))
+			return true;
 		
-		// resolution
-		{
-			Resolver resolver = new RepositoryResolver(errors, repository);
-			repository.traverse(resolver);
-			if (compiler.hasErrors()) {
-				errors.showFromMark(mark, ew, 0);
-				return true;
-			}
-		}
+		FunctionGroups ordering = compiler.lift();
+		compiler.analyzePatterns();
 		
-		FunctionGroups ordering;
-		{
-			ordering = new RepositoryLifter().lift(repository);
-		}
-		
-		
-		// pattern analysis
-		{
-			StackVisitor sv = new StackVisitor();
-			new PatternAnalyzer(errors, repository, sv);
-			repository.traverseLifted(sv);
-		}
-		
-		// typechecking
 		if (config.doTypeCheck) {
-			File ty = config.writeTypesTo;
-			try {
-				StackVisitor sv = new StackVisitor();
-				new TypeChecker(errors, repository, sv);
-				repository.traverseInGroups(sv, ordering);
-				
-				// dump types if specified
-				if (ty != null) {
-					FileOutputStream fos = new FileOutputStream(ty);
-					PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos));
-					Visitor dumper = new TypeDumper(pw);
-					repository.traverse(dumper);
-					pw.close();
-				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				if (ty != null) {
-					FileOutputStream fos = new FileOutputStream(ty);
-					PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos));
-					ex.printStackTrace(pw);
-					pw.close();
-				}
-			}
-		}
-		
-		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
-		{
-			JSEnvironment jse = new JSEnvironment(config.jsDir());
-			ByteCodeEnvironment bce = new ByteCodeEnvironment();
-			populateBCE(bce);
-			
-			StackVisitor jsstack = new StackVisitor();
-			new JSGenerator(jse, jsstack);
-			StackVisitor jvmstack = new StackVisitor();
-			new JVMGenerator(bce, jvmstack);
-
-			if (config.generateJS)
-				repository.traverseWithHSI(jsstack);
-			if (config.generateJVM)
-				repository.traverseWithHSI(jvmstack);
-			
-			if (compiler.hasErrors()) {
-				errors.showFromMark(mark, ew, 0);
+			compiler.doTypeChecking(mark, ordering);
+			compiler.dumpTypes(config.writeTypesTo);
+			if (errors.hasErrors())
 				return true;
-			}
-			
-			if (config.generateJS)
-				saveJSE(errors, config.jsDir(), jse);
-			if (config.generateJVM)
-				saveBCE(errors, config.jvmDir(), bce);
-
-			Map<File, PrintWriter> writers = new HashMap<>();
-			if (config.generateJVM && config.unitjvm) {
-				BCEClassLoader bcl = new BCEClassLoader(bce);
-				JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
-				jvmRunner.runAll(writers);
-			}
-
-			if (config.generateJS && config.unitjs) {
-				JSRunner jsRunner = new JSRunner(config, repository, jse);
-				jsRunner.runAll(writers);
-			}
-			writers.values().forEach(w -> w.close());
-
-			if (compiler.hasErrors()) {
-				errors.showFromMark(mark, ew, 0);
-				return true;
-			}
 		}
 
+		if (compiler.convertMethods(mark))
+			return true;
 		
-//			p2 = new Phase2CompilationProcess();
-//			p2.process();
-//			if (errors.hasErrors()) {
-//				errors.showFromMark(mark, errorWriter, 4);
-//				return;
-//			}
-//			UnitTestPhase ut = new UnitTestPhase(repository);
-//			p2.bceTo(ut);
-//			if (errors.hasErrors()) {
-//				errors.showFromMark(mark, errorWriter, 4);
-//				return;
-//			}
+		if (compiler.generateCode(mark, config))
+			return true;
 
 		// This is to do with Android
 		if (compiler.getBuilder() != null)
 			compiler.getBuilder().build();
-		return compiler.hasErrors();
+		
+		return errors.hasErrors();
 	}
 
-	private static void populateBCE(ByteCodeEnvironment bce) {
-		ByteCodeCreator ec = bce.newClass("org.flasck.flas.testrunner.JVMRunner");
-		ec.dontGenerate();
-		ec.defineField(true, Access.PUBLIC, J.FLEVALCONTEXT, "cxt");
-	}
-
-	private static void saveBCE(ErrorReporter errors, File jvmDir, ByteCodeEnvironment bce) {
-//		bce.dumpAll(true);
-		if (jvmDir != null) {
-			FileUtils.assertDirectory(jvmDir);
-			try {
-				// Doing this makes things clean, but stops you putting multiple things in the
-				// same directory
-				// FileUtils.cleanDirectory(writeJVM);
-				for (ByteCodeCreator bcc : bce.all()) {
-					File wto = new File(jvmDir,
-							FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
-					bcc.writeTo(wto);
-				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				errors.message((InputPosition) null, ex.toString());
-			}
-		}
-	}
-
-	private static void saveJSE(ErrorReporter errors, File jsDir, JSEnvironment jse) {
-		if (jsDir != null) {
-			try {
-				jse.writeAllTo(jsDir);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				errors.message((InputPosition) null, ex.toString());
-			}
-//			jse.dumpAll(true);
+	private static boolean testTraversal(Repository repository) {
+		try {
+			repository.traverse(new LeafAdapter());
+			return false;
+		} catch (Throwable t) {
+			t.printStackTrace(System.out);
+			return true;
 		}
 	}
 

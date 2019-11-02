@@ -1,6 +1,7 @@
 package org.flasck.flas.droidgen;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class AndroidCGRunner extends CGHarnessRunner {
 	
 	private static Class<?>[] figureClasses() throws IOException, ErrorResultException, ClassNotFoundException {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
-		FLASCompiler compiler = new FLASCompiler(null);
+		FLASCompiler compiler = new FLASCompiler(null, null, new PrintWriter(System.out));
 //		compiler.searchIn(new File("src/main/resources/flim"));
 //		compiler.unitTestPath(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 
