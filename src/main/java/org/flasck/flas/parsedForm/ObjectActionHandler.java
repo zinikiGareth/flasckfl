@@ -8,15 +8,19 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parser.MethodMessagesConsumer;
+import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
-public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry {
+public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder {
 	private final InputPosition location;
 	private final FunctionName name;
 	private final List<Pattern> args;
 	private final List<ActionMessage> messages = new ArrayList<>();
+	private HSITree hsiTree;
 	private Type type;
 
 	public ObjectActionHandler(InputPosition location, FunctionName name, List<Pattern> args) {
@@ -36,6 +40,22 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 
 	public List<Pattern> args() {
 		return args;
+	}
+
+	public void bindHsi(HSITree hsiTree) {
+		this.hsiTree = hsiTree;
+	}
+
+	public HSITree hsiTree() {
+		return hsiTree;
+	}
+
+	public List<Slot> slots() {
+		List<Slot> slots = new ArrayList<>();
+		for (int i=0;i<hsiTree.width();i++) {
+			slots.add(new ArgSlot(i, hsiTree.get(i)));
+		}
+		return slots;
 	}
 
 	public void bindType(Type ty) {

@@ -1,9 +1,11 @@
 package test.lifting;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -38,7 +40,7 @@ public class ApplyExprModifiedTests {
 		
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
-		ArrayList<Object> args = new ArrayList<>();
+		List<Pattern> args = new ArrayList<>();
 		args.add(new TypedPattern(pos, new TypeReference(pos, "String"), new VarName(pos, nameG, "x")));
 		FunctionIntro fi = new FunctionIntro(nameG, args);
 		fn.intro(fi);

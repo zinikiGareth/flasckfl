@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorMark;
@@ -39,7 +40,7 @@ public class TDAFunctionParser implements TDAParsing {
 		final FunctionName fcase = functionCaseNamer.functionCaseName(t.location, t.text, consumer.nextCaseNumber(fname));
 		
 		ErrorMark currErr = errors.mark();
-		List<Object> args = new ArrayList<>();
+		List<Pattern> args = new ArrayList<>();
 		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fcase, v), p -> {
 			args.add(p);
 		}, topLevel);

@@ -5,9 +5,11 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
@@ -56,7 +58,7 @@ public class GroupTests {
 	FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
 	final FunctionName nameG = FunctionName.function(pos, pkg, "g");
 	FunctionDefinition fnG = new FunctionDefinition(nameG, 1);
-	ArrayList<Object> args = new ArrayList<>();
+	List<Pattern> args = new ArrayList<>();
 	FunctionIntro fiF1 = new FunctionIntro(nameF, args);
 	FunctionIntro fiF2 = new FunctionIntro(nameF, args);
 	FunctionIntro fiG1 = new FunctionIntro(nameG, args);

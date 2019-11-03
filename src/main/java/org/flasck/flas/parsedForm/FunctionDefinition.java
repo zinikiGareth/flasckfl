@@ -87,7 +87,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 
 	public List<Slot> slots() {
 		List<Slot> slots = new ArrayList<>();
-		for (int i=0;i<argCount();i++) {
+		for (int i=0;i<hsiTree.width();i++) {
 			slots.add(new ArgSlot(i, hsiTree.get(i)));
 		}
 		return slots;

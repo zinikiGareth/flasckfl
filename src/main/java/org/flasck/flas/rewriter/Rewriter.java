@@ -1106,9 +1106,9 @@ public class Rewriter implements CodeGenRegistry {
 		final FunctionName cn = c.name();
 		if (c.which == 0) {
 			// Rewrite the first function into an overall thing
-			final FunctionCaseDefn fcd = new FunctionCaseDefn(c.exprFnName(), new ArrayList<>(), c.ta.expr);
+//			final FunctionCaseDefn fcd = new FunctionCaseDefn(c.exprFnName(), new ArrayList<>(), c.ta.expr);
 //			fcd.provideCaseName(-1);
-			rewrite(cx, fcd);
+//			rewrite(cx, fcd);
 		}
 		
 		// now make this point to a deref of that

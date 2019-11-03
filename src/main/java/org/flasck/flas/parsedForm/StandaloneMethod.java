@@ -1,9 +1,12 @@
 package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
+import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
@@ -25,6 +28,18 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 	
 	public Type type() {
 		return om.type();
+	}
+
+	public void bindHsi(HSITree hsiTree) {
+		om.bindHsi(hsiTree);
+	}
+
+	public HSITree hsiTree() {
+		return om.hsiTree();
+	}
+
+	public List<Slot> slots() {
+		return om.slots();
 	}
 
 	public void nestedVars(NestedVarReader nestedVars) {

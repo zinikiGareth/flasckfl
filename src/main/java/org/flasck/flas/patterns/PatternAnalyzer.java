@@ -1,6 +1,7 @@
 package org.flasck.flas.patterns;
 
 import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -57,7 +58,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	}
 	
 	@Override
-	public void visitPattern(Object patt, boolean isNested) {
+	public void visitPattern(Pattern patt, boolean isNested) {
 		this.slot = hsiTree.get(nslot++);
 	}
 	
@@ -84,7 +85,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	}
 	
 	@Override
-	public void visitConstructorField(String field, Object patt, boolean isNested) {
+	public void visitConstructorField(String field, Pattern patt, boolean isNested) {
 		this.slot = ((HSICtorTree)hsiTree).field(field);
 		this.slot.includes(this.current);
 	}

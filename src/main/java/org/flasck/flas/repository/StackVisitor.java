@@ -8,11 +8,14 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
+import org.flasck.flas.parsedForm.ActionMessage;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -21,6 +24,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -134,7 +138,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.leaveFunctionGroup(grp);
 	}
 
-	public void visitPattern(Object patt, boolean isNested) {
+	public void visitPattern(Pattern patt, boolean isNested) {
 		top.visitPattern(patt, isNested);
 	}
 
@@ -150,7 +154,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitConstructorMatch(p, isNested);
 	}
 
-	public void visitConstructorField(String field, Object patt, boolean isNested) {
+	public void visitConstructorField(String field, Pattern patt, boolean isNested) {
 		top.visitConstructorField(field, patt, isNested);
 	}
 
@@ -276,6 +280,30 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitStandaloneMethod(StandaloneMethod meth) {
 		top.visitStandaloneMethod(meth);
+	}
+
+	public void visitMessage(ActionMessage msg) {
+		top.visitMessage(msg);
+	}
+
+	public void visitAssignMessage(AssignMessage msg) {
+		top.visitAssignMessage(msg);
+	}
+
+	public void leaveAssignMessage(AssignMessage msg) {
+		top.leaveAssignMessage(msg);
+	}
+
+	public void visitSendMessage(SendMessage msg) {
+		top.visitSendMessage(msg);
+	}
+
+	public void leaveSendMessage(SendMessage msg) {
+		top.leaveSendMessage(msg);
+	}
+
+	public void leaveMessage(ActionMessage msg) {
+		top.leaveMessage(msg);
 	}
 
 	public void leaveObjectMethod(ObjectMethod meth) {

@@ -3,6 +3,7 @@ package test.tc3;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -29,7 +30,7 @@ public class TypeConsolidation {
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	FunctionDefinition f = new FunctionDefinition(FunctionName.function(pos, null, "f"), 0);
-	FunctionIntro fi = new FunctionIntro(f.name(), new ArrayList<Object>());
+	FunctionIntro fi = new FunctionIntro(f.name(), new ArrayList<Pattern>());
 
 	@Before
 	public void before() {

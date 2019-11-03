@@ -1,9 +1,11 @@
 package org.flasck.flas.parsedForm;
 
-import org.flasck.flas.commonBase.names.FunctionName;
+import java.util.List;
+
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
 
-public interface StandaloneDefn {
-	FunctionName name();
+public interface StandaloneDefn extends LogicHolder {
 	NestedVarReader nestedVars();
+	List<Slot> slots();
 }

@@ -11,10 +11,10 @@ import org.zinutils.exceptions.NotImplementedException;
 public class ConstructorMatch implements Pattern {
 	public class Field implements Locatable {
 		public final String field;
-		public final Object patt;
+		public final Pattern patt;
 		private InputPosition loc;
 		
-		public Field(InputPosition loc, String field, Object patt) {
+		public Field(InputPosition loc, String field, Pattern patt) {
 			this.loc = loc;
 			this.field = field;
 			this.patt = patt;

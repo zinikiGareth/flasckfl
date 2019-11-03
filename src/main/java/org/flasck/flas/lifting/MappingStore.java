@@ -146,7 +146,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
-	public List<Object> patterns() {
+	public List<Pattern> patterns() {
 		return patterns.stream().map(po -> po.p).collect(Collectors.toList());
 	}
 

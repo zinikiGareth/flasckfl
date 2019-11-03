@@ -12,6 +12,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -508,7 +509,7 @@ public class MethodConvertorTests {
 
 	protected void defineEHMethod(IScope s, String name, MethodMessage... msgs) {
 		final FunctionName func = FunctionName.eventMethod(posn, new CardName(new PackageName("org.foo"), "Card"), name);
-		FunctionIntro intro = new FunctionIntro(func, Arrays.asList((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), new VarName(posn, null, "t")), (Object)new VarPattern(posn, new VarName(posn, func, "ev"))));
+		FunctionIntro intro = new FunctionIntro(func, Arrays.asList((Pattern)new TypedPattern(posn, new TypeReference(posn, "Thing"), new VarName(posn, null, "t")), (Pattern)new VarPattern(posn, new VarName(posn, func, "ev"))));
 		EventCaseDefn cs = new EventCaseDefn(posn, intro);
 		cs.provideCaseName(-1);
 		for (MethodMessage m : msgs)

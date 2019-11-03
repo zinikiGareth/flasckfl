@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -189,7 +190,7 @@ public class ResolverTests {
 			exactly(2).of(ry).get("++.Number"); will(returnValue(null));
 			exactly(2).of(ry).get("Number"); will(returnValue(number));
 		}});
-		List<Object> patts = new ArrayList<>();
+		List<Pattern> patts = new ArrayList<>();
 		TypeReference tl = new TypeReference(pos, "Number");
 		patts.add(new TypedPattern(pos, tl, new VarName(pos, op.name(), "l")));
 		TypeReference tr = new TypeReference(pos, "Number");

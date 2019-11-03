@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
@@ -19,6 +20,8 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.lifting.NestedVarReader;
+import org.flasck.flas.parsedForm.ActionMessage;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -27,8 +30,11 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PatternsHolder;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -55,7 +61,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class Traverser implements Visitor {
 	private final Visitor visitor;
-	private FunctionDefinition currentFunction;
+	private StandaloneDefn currentFunction;
 	private FunctionGroups functionOrder;
 	private boolean wantNestedPatterns;
 	private boolean wantHSI;
@@ -190,15 +196,20 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
+		rememberCaller(meth);
 		visitor.visitStandaloneMethod(meth);
 		visitObjectMethod(meth.om);
 		leaveStandaloneMethod(meth);
+		rememberCaller(null);
 	}
 	
 	@Override
-	public void visitObjectMethod(ObjectMethod e) {
-		visitor.visitObjectMethod(e);
-		leaveObjectMethod(e);
+	public void visitObjectMethod(ObjectMethod meth) {
+		visitor.visitObjectMethod(meth);
+		if (!meth.args().isEmpty() && !meth.messages().isEmpty()) {
+			traverseFnOrMethod(meth);
+		}
+		leaveObjectMethod(meth);
 	}
 
 	public void leaveObjectMethod(ObjectMethod meth) {
@@ -215,21 +226,45 @@ public class Traverser implements Visitor {
 			return; // not for generation
 		rememberCaller(fn);
 		visitor.visitFunction(fn);
-		if (patternsTree) {
-			visitPatternsInTreeOrder(fn);
-		} else if (wantHSI) {
+		traverseFnOrMethod(fn);
+		leaveFunction(fn);
+		rememberCaller(null);
+	}
+
+	private void traverseFnOrMethod(LogicHolder sd) {
+		if (wantHSI) {
+			FunctionDefinition fn = (FunctionDefinition) sd;
 			List<Slot> slots = fn.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
 			visitHSI(fn, new VarMapping(), slots, fn.intros());
 		} else {
-			for (FunctionIntro i : fn.intros())
-				visitFunctionIntro(i);
-		}
-		leaveFunction(fn);
-		rememberCaller(null);
+			if (patternsTree)
+				visitPatternsInTreeOrder(sd);
+			visitLogic(sd);
+		} 
 	}
 	
-	private void visitPatternsInTreeOrder(FunctionDefinition fn) {
+	private void visitLogic(LogicHolder fn) {
+		if (wantHSI)
+			throw new NotImplementedException("We should not call visitLogic from visitHSI");
+		
+		if (fn instanceof FunctionDefinition) {
+			for (FunctionIntro i : ((FunctionDefinition) fn).intros())
+				visitFunctionIntro(i);
+		} else if (fn instanceof ObjectMethod) {
+			if (!patternsTree)
+				visitPatterns((PatternsHolder)fn);
+			visitMessages(((ObjectMethod)fn).messages());
+		} else
+			throw new NotImplementedException();
+	}
+
+	private void visitMessages(List<ActionMessage> messages) {
+		for (ActionMessage msg : messages)
+			visitMessage(msg);
+	}
+
+	private void visitPatternsInTreeOrder(LogicHolder fn) {
 		TreeOrderVisitor tov = (TreeOrderVisitor)visitor;
 		HSITree hsiTree = fn.hsiTree();
 		for (int i=0;i<hsiTree.width();i++) {
@@ -238,11 +273,6 @@ public class Traverser implements Visitor {
 			tov.argSlot(as);
 			visitPatternTree(tree);
 			tov.endArg(as);
-		}
-		for (FunctionIntro fi : fn.intros()) {
-			visitor.visitFunctionIntro(fi);
-			visitFunctionCases(fi);
-			visitor.leaveFunctionIntro(fi);
 		}
 	}
 
@@ -274,7 +304,7 @@ public class Traverser implements Visitor {
 		}
 	}
 
-	public void rememberCaller(FunctionDefinition fn) {
+	public void rememberCaller(StandaloneDefn fn) {
 		this.currentFunction = fn;
 	}
 
@@ -420,7 +450,8 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitFunctionIntro(FunctionIntro i) {
 		visitor.visitFunctionIntro(i);
-		visitPatterns(i);
+		if (!patternsTree)
+			visitPatterns(i);
 		visitFunctionCases(i);
 		leaveFunctionIntro(i);
 	}
@@ -431,15 +462,15 @@ public class Traverser implements Visitor {
 	}
 
 	// useful for unit testing
-	public void visitPatterns(FunctionIntro i) {
+	public void visitPatterns(PatternsHolder fn) {
 		if (wantNestedPatterns) {
 			NestedVarReader nv = currentFunction.nestedVars();
 			if (nv != null) {
-				for (Object p : nv.patterns())
+				for (Pattern p : nv.patterns())
 					visitPattern(p, true);
 			}
 		}
-		for (Object p : i.args)
+		for (Pattern p : fn.args())
 			visitPattern(p, false);
 	}
 
@@ -454,6 +485,46 @@ public class Traverser implements Visitor {
 		visitor.leaveFunction(fn);
 	}
 
+	@Override
+	public void visitMessage(ActionMessage msg) {
+		visitor.visitMessage(msg);
+		if (msg instanceof AssignMessage)
+			visitAssignMessage((AssignMessage)msg);
+		else if (msg instanceof SendMessage)
+			visitSendMessage((SendMessage)msg);
+		else
+			throw new NotImplementedException();
+			
+		leaveMessage(msg);
+	}
+
+	@Override
+	public void visitAssignMessage(AssignMessage msg) {
+		visitor.visitAssignMessage(msg);
+		leaveAssignMessage(msg);
+	}
+
+	@Override
+	public void leaveAssignMessage(AssignMessage msg) {
+		visitor.leaveAssignMessage(msg);
+	}
+
+	@Override
+	public void visitSendMessage(SendMessage msg) {
+		visitor.visitSendMessage(msg);
+		visitExpr(msg.expr, 0);
+		leaveSendMessage(msg);
+	}
+
+	@Override
+	public void leaveSendMessage(SendMessage msg) {
+		visitor.leaveSendMessage(msg);
+	}
+
+	@Override
+	public void leaveMessage(ActionMessage msg) {
+		visitor.leaveMessage(msg);
+	}
 
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
@@ -461,7 +532,7 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
-	public void visitPattern(Object p, boolean isNested) {
+	public void visitPattern(Pattern p, boolean isNested) {
 		visitor.visitPattern(p, isNested);
 		if (p instanceof VarPattern)
 			visitVarPattern((VarPattern) p, isNested);
@@ -499,7 +570,7 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
-	public void visitConstructorField(String field, Object patt, boolean isNested) {
+	public void visitConstructorField(String field, Pattern patt, boolean isNested) {
 		visitor.visitConstructorField(field, patt, isNested);
 		visitPattern(patt, isNested);
 		leaveConstructorField(field, patt);
