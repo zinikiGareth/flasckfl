@@ -290,6 +290,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitAssignMessage(msg);
 	}
 
+	public void visitAssignSlot(List<UnresolvedVar> slot) {
+		top.visitAssignSlot(slot);
+	}
+
 	public void leaveAssignMessage(AssignMessage msg) {
 		top.leaveAssignMessage(msg);
 	}

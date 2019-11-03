@@ -110,6 +110,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitObjectMethod(ObjectMethod meth);
 		void visitMessage(ActionMessage msg);
 		void visitAssignMessage(AssignMessage msg);
+		void visitAssignSlot(List<UnresolvedVar> slot);
 		void leaveAssignMessage(AssignMessage msg);
 		void visitSendMessage(SendMessage msg);
 		void leaveSendMessage(SendMessage msg);

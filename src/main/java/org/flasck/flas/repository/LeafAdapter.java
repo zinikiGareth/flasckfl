@@ -1,5 +1,7 @@
 package org.flasck.flas.repository;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
@@ -85,6 +87,10 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitAssignMessage(AssignMessage msg) {
+	}
+
+	@Override
+	public void visitAssignSlot(List<UnresolvedVar> slot) {
 	}
 
 	@Override

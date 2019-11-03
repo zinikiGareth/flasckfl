@@ -501,7 +501,14 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitAssignMessage(AssignMessage msg) {
 		visitor.visitAssignMessage(msg);
+		visitExpr(msg.expr, 0);
+		visitAssignSlot(msg.slot);
 		leaveAssignMessage(msg);
+	}
+
+	@Override
+	public void visitAssignSlot(List<UnresolvedVar> slot) {
+		visitor.visitAssignSlot(slot);
 	}
 
 	@Override
