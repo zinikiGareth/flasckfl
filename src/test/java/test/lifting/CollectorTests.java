@@ -11,6 +11,7 @@ import org.flasck.flas.lifting.MappingCollector;
 import org.flasck.flas.lifting.VarDependencyMapper;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -32,7 +33,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		TypeBinder fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
@@ -52,7 +53,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		TypeBinder fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameG, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
@@ -70,7 +71,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		TypeBinder fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
@@ -89,7 +90,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		TypeBinder fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameG, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
@@ -107,7 +108,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		TypeBinder fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		UnresolvedVar vr = new UnresolvedVar(pos, "Nil");
 		vr.bind(LoadBuiltins.nil);
@@ -128,7 +129,7 @@ public class CollectorTests {
 		
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		TypeBinder fn = new FunctionDefinition(nameG, 1);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(other);

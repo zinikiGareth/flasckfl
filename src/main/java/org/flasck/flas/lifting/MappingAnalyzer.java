@@ -4,19 +4,20 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.RepositoryEntry;
 
 public class MappingAnalyzer {
-	private final FunctionDefinition fn;
+	private final TypeBinder fn;
 	private final MappingCollector collector;
 	private final VarDependencyMapper dependencies;
 	private FunctionName name;
 	private FunctionIntro fi;
 
-	public MappingAnalyzer(FunctionDefinition fn, MappingCollector c, VarDependencyMapper dependencies) {
+	public MappingAnalyzer(TypeBinder fn, MappingCollector c, VarDependencyMapper dependencies) {
 		this.fn = fn;
 		this.collector = c;
 		this.dependencies = dependencies;

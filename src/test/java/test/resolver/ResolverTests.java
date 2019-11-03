@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -48,8 +49,8 @@ public class ResolverTests {
 	private final FunctionName nameX = FunctionName.function(pos, pkg, "x");
 	private final FunctionName nameY = FunctionName.function(pos, pkg, "y");
 	private final FunctionDefinition fn = new FunctionDefinition(nameF, 0);
-	private final FunctionDefinition vx = new FunctionDefinition(nameX, 0);
-	private final FunctionDefinition vy = new FunctionDefinition(nameY, 0);
+	private final TypeBinder vx = new FunctionDefinition(nameX, 0);
+	private final TypeBinder vy = new FunctionDefinition(nameY, 0);
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
 	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());

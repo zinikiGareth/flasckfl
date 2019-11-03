@@ -16,7 +16,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder {
+public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder, TypeBinder {
 	private final InputPosition location;
 	private final FunctionName name;
 	private final List<Pattern> args;

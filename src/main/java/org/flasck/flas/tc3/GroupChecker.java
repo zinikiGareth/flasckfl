@@ -11,7 +11,8 @@ import java.util.TreeSet;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -23,8 +24,8 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
 	private CurrentTCState state;
-	private FunctionDefinition currentFunction;
-	private final Map<FunctionDefinition, Type> memberTypes = new HashMap<>(); 
+	private TypeBinder currentFunction;
+	private final Map<TypeBinder, Type> memberTypes = new HashMap<>(); 
 
 	public GroupChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state) {
 		this.errors = errors;
@@ -40,8 +41,9 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void visitStandaloneMethod(StandaloneMethod meth) {
-		throw new RuntimeException("HERE!");
+	public void visitObjectMethod(ObjectMethod meth) {
+		sv.push(new FunctionChecker(errors, repository, sv, state));
+		this.currentFunction = meth;
 	}
 
 	@Override
@@ -53,15 +55,15 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
 		// First go through and figure out what we can
-		for (Entry<FunctionDefinition, Type> e : memberTypes.entrySet()) {
-			consolidate(e.getValue(), false);
+		for (Type ty : memberTypes.values()) {
+			consolidate(ty, false);
 		}
 		
 		// Then we can resolve all the UTs
 		state.resolveAll();
 		
 		// Then we can bind the types
-		for (Entry<FunctionDefinition, Type> e : memberTypes.entrySet()) {
+		for (Entry<TypeBinder, Type> e : memberTypes.entrySet()) {
 			e.getKey().bindType(consolidate(e.getValue(), true));
 		}
 		state.bindVarPatternTypes();

@@ -3,6 +3,7 @@ package test.tc3;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -13,7 +14,10 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -82,6 +86,35 @@ public class StackVisitation {
 		gc.leaveFunction(fn);
 		gc.leaveFunctionGroup(null);
 		assertEquals(ty, fn.type());
+	}
+
+	@Test
+	public void weCanTypecheckMethods() {
+		FunctionName name = FunctionName.standaloneMethod(pos, null, "meth");
+		ObjectMethod om = new ObjectMethod(pos, name, new ArrayList<>());
+		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
+		om.sendMessage(new SendMessage(pos, e1));
+
+		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+		fi.bindTree(new HSIArgsTree(0));
+		om.conversion(Arrays.asList(fi));
+		
+		Type ty = context.mock(Type.class);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(FunctionChecker.class)));
+		}});
+		GroupChecker gc = new GroupChecker(errors, repository, nv, state);
+		gc.visitObjectMethod(om);
+		context.assertIsSatisfied();
+		context.checking(new Expectations() {{
+			oneOf(state).resolveAll();
+			oneOf(state).bindVarPatternTypes();
+			oneOf(nv).result(null);
+		}});
+		gc.result(ty);
+		gc.leaveObjectMethod(om);
+		gc.leaveFunctionGroup(null);
+		assertEquals(ty, om.type());
 	}
 
 	@Test

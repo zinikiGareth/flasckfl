@@ -15,7 +15,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
 // TODO: having both nargs & type feels like duplication, but we know about nargs SOOOO much earlier
-public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeSignature, StandaloneDefn, Comparable<StandaloneDefn> {
+public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeSignature, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder {
 	private final FunctionName name;
 	private final int nargs;
 	private final List<FunctionIntro> intros = new ArrayList<>();
@@ -69,10 +69,12 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 		return "FunctionDefinition[" + name.uniqueName() + "/" + nargs + "{" + intros.size() + "}]";
 	}
 
+	@Override
 	public void bindType(Type ty) {
 		this.type = ty;
 	}
 	
+	@Override
 	public Type type() {
 		return type;
 	}

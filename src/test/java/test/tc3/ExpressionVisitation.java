@@ -11,6 +11,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -125,7 +126,7 @@ public class ExpressionVisitation {
 		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyPlus = context.mock(Type.class);
-		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
+		TypeBinder plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
