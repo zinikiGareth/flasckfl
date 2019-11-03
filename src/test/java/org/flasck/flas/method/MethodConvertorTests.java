@@ -57,7 +57,7 @@ public class MethodConvertorTests {
 	private Scope orgFooScope;
 	private Rewriter rewriter;
 	private ErrorResult errors;
-	private MethodConvertor convertor;
+	private OldMethodConvertor convertor;
 	private Map<String, RWFunctionDefinition> functions = new HashMap<>(); 
 	private CardDefinition cd;
 	private ContractImplements ce;
@@ -133,7 +133,7 @@ public class MethodConvertorTests {
 		rewriter.rewritePackageScope(null, null, "org.foo", orgFooScope);
 		if (checkRewritingErrors)
 			assertFalse(errors.singleString(), errors.hasErrors());
-		convertor = new MethodConvertor(errors, rewriter);
+		convertor = new OldMethodConvertor(errors, rewriter);
 	}
 
 	/* ---- Trivial Tests of top level functionality ---- */

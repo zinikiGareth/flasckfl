@@ -19,10 +19,14 @@ import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -79,7 +83,34 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
+	}
+	
+	@Test
+	public void analysisWorksForStandaloneMethodsToo() {
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>());
+		om.sendMessage(new SendMessage(pos, simpleExpr));
+		StandaloneMethod meth = new StandaloneMethod(om);
+		new Traverser(sv).visitStandaloneMethod(meth);
+
+		StackVisitor mc = new StackVisitor();
+		new MethodConvertor(mc);
+		new Traverser(mc).visitStandaloneMethod(meth);
+		
+		List<FunctionIntro> conv = meth.converted();
+		FunctionIntro intro = conv.get(0);
+		FunctionCaseDefn case1 = intro.cases().get(0);
+		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
+		context.checking(new Expectations() {{
+			oneOf(hsi).startInline(intro);
+			oneOf(hsi).visitCase(case1);
+			oneOf(hsi).visitExpr(simpleExpr, 0);
+			oneOf(hsi).visitStringLiteral(simpleExpr);
+			oneOf(hsi).leaveCase(case1);
+			oneOf(hsi).endInline(intro);
+		}});
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, conv);
 	}
 	
 	@Test
@@ -109,7 +140,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -146,7 +177,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -187,7 +218,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase(); inSequence(seq);
 			oneOf(hsi).endSwitch(); inSequence(seq);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -228,7 +259,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase(); inSequence(seq);
 			oneOf(hsi).endSwitch(); inSequence(seq);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -262,7 +293,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -313,7 +344,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
 	}
 
@@ -348,7 +379,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -390,7 +421,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -455,7 +486,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 
 	@Test
@@ -516,7 +547,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 	}
 	
 	@Test
@@ -575,7 +606,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
 		assertEquals(cfSlot.get(2), switchSlot.get(0));
 	}
@@ -634,7 +665,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(fn, vars, slots, fn.intros());
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
 		assertNotNull(fn.hsiTree());
 	}
 	

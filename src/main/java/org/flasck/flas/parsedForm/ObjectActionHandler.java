@@ -14,6 +14,7 @@ import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder {
 	private final InputPosition location;
@@ -22,6 +23,7 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 	private final List<ActionMessage> messages = new ArrayList<>();
 	private HSITree hsiTree;
 	private Type type;
+	private List<FunctionIntro> convertedIntros;
 
 	public ObjectActionHandler(InputPosition location, FunctionName name, List<Pattern> args) {
 		this.location = location;
@@ -56,6 +58,16 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 			slots.add(new ArgSlot(i, hsiTree.get(i)));
 		}
 		return slots;
+	}
+
+	public void conversion(List<FunctionIntro> convertedIntros) {
+		this.convertedIntros = convertedIntros;
+	}
+	
+	public List<FunctionIntro> converted() {
+		if (convertedIntros == null)
+			throw new NotImplementedException("there is no converted function");
+		return convertedIntros;
 	}
 
 	public void bindType(Type ty) {

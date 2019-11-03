@@ -206,7 +206,7 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
 		visitor.visitObjectMethod(meth);
-		if (!meth.args().isEmpty() && !meth.messages().isEmpty()) {
+		if (!meth.args().isEmpty() || !meth.messages().isEmpty()) {
 			traverseFnOrMethod(meth);
 		}
 		leaveObjectMethod(meth);
@@ -236,7 +236,7 @@ public class Traverser implements Visitor {
 			FunctionDefinition fn = (FunctionDefinition) sd;
 			List<Slot> slots = fn.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
-			visitHSI(fn, new VarMapping(), slots, fn.intros());
+			visitHSI(new VarMapping(), slots, fn.intros());
 		} else {
 			if (patternsTree)
 				visitPatternsInTreeOrder(sd);
@@ -341,7 +341,7 @@ public class Traverser implements Visitor {
 		}
 	}
 
-	public void visitHSI(FunctionDefinition fn, VarMapping vars, List<Slot> slots, List<FunctionIntro> intros) {
+	public void visitHSI(VarMapping vars, List<Slot> slots, List<FunctionIntro> intros) {
 		HSIVisitor hsi = (HSIVisitor) visitor;
 		if (slots.isEmpty()) {
 			if (intros.isEmpty())
@@ -374,7 +374,7 @@ public class Traverser implements Visitor {
 					}
 					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 					intersect.retainAll(cm.intros());
-					visitHSI(fn, vars, extended, intersect);
+					visitHSI(vars, extended, intersect);
 				}
 				for (NamedType ty : opts.types()) {
 					String name = ty.name().uniqueName();
@@ -388,7 +388,7 @@ public class Traverser implements Visitor {
 								hsi.matchNumber(k);
 								ArrayList<FunctionIntro> forConst = new ArrayList<>(intersect);
 								forConst.retainAll(opts.getIntrosForType(ty));
-								visitHSI(fn, vars, remaining, intersect);
+								visitHSI(vars, remaining, intersect);
 								intersect.removeAll(forConst);
 							}
 							hsi.matchDefault();
@@ -401,7 +401,7 @@ public class Traverser implements Visitor {
 								hsi.matchString(k);
 								ArrayList<FunctionIntro> forConst = new ArrayList<>(intersect);
 								forConst.retainAll(opts.getIntrosForType(ty));
-								visitHSI(fn, vars, remaining, intersect);
+								visitHSI(vars, remaining, intersect);
 								intersect.removeAll(forConst);
 							}
 							hsi.matchDefault();
@@ -410,14 +410,14 @@ public class Traverser implements Visitor {
 					if (intersect.isEmpty())
 						hsi.errorNoCase();
 					else
-						visitHSI(fn, vars, remaining, intersect);
+						visitHSI(vars, remaining, intersect);
 				}
 			}
 			ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 			intersect.retainAll(opts.getDefaultIntros(intros));
 			if (wantSwitch)
 				hsi.defaultCase();
-			visitHSI(fn, vars, remaining, intersect);
+			visitHSI(vars, remaining, intersect);
 			if (wantSwitch) {
 				hsi.endSwitch();
 			}

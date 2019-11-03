@@ -9,6 +9,7 @@ import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn> {
 	public final ObjectMethod om;
@@ -20,6 +21,10 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 
 	public FunctionName name() {
 		return om.name();
+	}
+
+	public int argCount() {
+		return om.args().size();
 	}
 	
 	public void bindType(Type ty) {
@@ -48,6 +53,14 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 
 	public NestedVarReader nestedVars() {
 		return nestedVars;
+	}
+
+	public void conversion(List<FunctionIntro> convertedIntros) {
+		om.conversion(convertedIntros);
+	}
+
+	public List<FunctionIntro> converted() {
+		return om.converted();
 	}
 
 	@Override

@@ -47,7 +47,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
-		throw new RuntimeException("HERE!");
+		hsiTree = new HSIArgsTree(meth.argCount());
 	}
 
 	@Override
@@ -125,6 +125,6 @@ public class PatternAnalyzer extends LeafAdapter {
 
 	@Override
 	public void leaveStandaloneMethod(StandaloneMethod meth) {
-		throw new RuntimeException("HERE!");
+		meth.bindHsi(hsiTree);
 	}
 }
