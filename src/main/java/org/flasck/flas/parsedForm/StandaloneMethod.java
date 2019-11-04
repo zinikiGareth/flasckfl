@@ -9,7 +9,6 @@ import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn> {
 	public final ObjectMethod om;

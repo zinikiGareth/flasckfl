@@ -77,7 +77,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(ut.canBeAppliedTo(results));
 			return;
 		} else if (fn.argCount() < results.size())
-			throw new RuntimeException("should be an error: " + fn + " " + fn.argCount() + " " + results.size());
+			throw new RuntimeException("should be an error: " + fn + " expects: " + fn.argCount() + " has: " + results.size());
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
 		while (!results.isEmpty()) {

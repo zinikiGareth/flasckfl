@@ -11,6 +11,8 @@ import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -93,6 +95,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 	
 	@Override
+	public void visitSendMessage(SendMessage sm) {
+		sv.push(new ExpressionChecker(errors, repository, state, sv));
+	}
+	
+	@Override
 	public void result(Object r) {
 		if (r instanceof ArgResult)
 			argTypes.add(((ArgResult)r).type);
@@ -116,9 +123,22 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	public void leaveFunction(FunctionDefinition fn) {
 		if (fn.intros().isEmpty())
 			sv.result(null);
-		if (resultTypes.isEmpty())
+		else if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + fn.name().uniqueName());
-		sv.result(buildApplyType(fn.location()));
+		else
+			sv.result(buildApplyType(fn.location()));
+	}
+	
+	@Override
+	public void leaveObjectMethod(ObjectMethod meth) {
+		if (meth.messages().isEmpty())
+			sv.result(null);
+		else if (resultTypes.isEmpty())
+			throw new RuntimeException("No types inferred for " + meth.name().uniqueName());
+		else {
+			Type ty = buildApplyType(meth.location());
+			sv.result(ty);
+		}
 	}
 
 	private Type buildApplyType(InputPosition pos) {

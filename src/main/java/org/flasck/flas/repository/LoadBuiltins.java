@@ -18,24 +18,37 @@ import org.flasck.flas.tc3.Type;
 public class LoadBuiltins {
 	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
 	
-	public static final CurryArgument ca = new CurryArgument(pos);
-
+	// Type References used here ...
+	private static final TypeReference polyATR = new TypeReference(pos, "A");
+	private static final TypeReference stringTR = new TypeReference(pos, "String");
+	private static final TypeReference falseTR = new TypeReference(pos, "False");
+	private static final TypeReference trueTR = new TypeReference(pos, "True"); 
+	private static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
+	private static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR);
+	private static final TypeReference listATR = new TypeReference(pos, "List", polyATR);
+	private static final TypeReference debugTR = new TypeReference(pos, "Debug");
+	
+	// "Primitive" types
 	public static final Primitive any = new Primitive(pos, "Any");
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
 
+	// Booleans
 	public static final StructDefn falseT = new StructDefn(pos, FieldsType.STRUCT, null, "False", false);
 	public static final StructDefn trueT = new StructDefn(pos, FieldsType.STRUCT, null, "True", false);
 	public static final UnionTypeDefn bool = new UnionTypeDefn(pos, false, new SolidName(null, "Boolean"));
 
+	// Lists
 	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
 	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, new PolyType(pos, "A"));
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new PolyType(pos, "A"));
 	
+	// Messages
 	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
 	
+	// Builtin operators
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2);
 	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
 	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2);
@@ -43,25 +56,37 @@ public class LoadBuiltins {
 	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2);
 	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1);
 
+	// This is a weird thing but it seems to fit best here
+	public static final CurryArgument ca = new CurryArgument(pos);
+
 	static {
+		// bind TRs
+		stringTR.bind(string);
+		consATR.bind(cons);
+		listATR.bind(list);
+		falseTR.bind(falseT);
+		trueTR.bind(trueT);
+		nilTR.bind(nil);
+		list.addCase(consATR);
+		debugTR.bind(debug);
+	
 		// add fields to structs
-		error.addField(new StructField(pos, false, new TypeReference(pos, "String"), "message"));
-		cons.addField(new StructField(pos, false, new TypeReference(pos, "A"), "head"));
-		cons.addField(new StructField(pos, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
-		debug.addField(new StructField(pos, false, new TypeReference(pos, "String"), "message"));
+		error.addField(new StructField(pos, false, stringTR, "message"));
+		cons.addField(new StructField(pos, false, polyATR, "head"));
+		cons.addField(new StructField(pos, false, listATR, "tail"));
+		debug.addField(new StructField(pos, false, stringTR, "message"));
 
 		// add cases to unions
-		bool.addCase(new TypeReference(pos, "False").bind(falseT));
-		bool.addCase(new TypeReference(pos, "True").bind(trueT));
-		list.addCase(new TypeReference(pos, "Nil").bind(nil));
-		list.addCase(new TypeReference(pos, "Cons", new TypeReference(pos, "A")).bind(cons));
-		message.addCase(new TypeReference(pos, "Debug").bind(debug));
+		bool.addCase(falseTR);
+		bool.addCase(trueTR);
+		list.addCase(nilTR);
+		list.addCase(consATR);
+		message.addCase(debugTR);
 		
 		// specify function types
 		{
 			Type pa = new PolyType(pos, "A");
 			isEqual.bindType(new Apply(pa, pa, bool));
-//			isEqual.bindType(new Apply(number, number, bool));
 		}
 		plus.bindType(new Apply(number, number, number));
 		minus.bindType(new Apply(number, number, number));

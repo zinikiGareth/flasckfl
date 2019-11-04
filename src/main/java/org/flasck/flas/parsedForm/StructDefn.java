@@ -40,12 +40,14 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 
 	@Override
 	public int argCount() {
-		return 0;
+		return fields.size();
 	}
 
 	@Override
 	public Type get(int pos) {
-		return this;
+		if (pos == fields.size())
+			return this;
+		return (Type)fields.get(pos).type.defn();
 	}
 
 	@Override

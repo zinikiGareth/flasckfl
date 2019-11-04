@@ -1,8 +1,6 @@
 package org.flasck.flas.parsedForm;
 
 import java.io.Writer;
-import java.util.List;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
