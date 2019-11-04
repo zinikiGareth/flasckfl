@@ -21,6 +21,7 @@ public class HSIArgsTree extends HSIPatternTree {
 			o.includes(fi);
 		return this;
 	}
+	
 	@Override
 	public int width() {
 		return slots.size();

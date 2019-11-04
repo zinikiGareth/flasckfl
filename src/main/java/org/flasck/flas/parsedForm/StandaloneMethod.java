@@ -23,7 +23,7 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 	}
 
 	public int argCount() {
-		return om.args().size();
+		return om.argCount();
 	}
 	
 	public void bindType(Type ty) {

@@ -121,11 +121,13 @@ public class Traverser implements Visitor {
 		else if (e instanceof FunctionDefinition) {
 			if (functionOrder == null)
 				visitFunction((FunctionDefinition)e);
-		} else if (e instanceof ObjectMethod)
-			visitObjectMethod((ObjectMethod)e);
-		else if (e instanceof StandaloneMethod)
-			visitStandaloneMethod((StandaloneMethod)e);
-		else if (e instanceof StructDefn)
+		} else if (e instanceof ObjectMethod) {
+			if (functionOrder == null)
+				visitObjectMethod((ObjectMethod)e);
+		} else if (e instanceof StandaloneMethod) {
+			if (functionOrder == null)
+				visitStandaloneMethod((StandaloneMethod)e);
+		} else if (e instanceof StructDefn)
 			visitStructDefn((StructDefn)e);
 		else if (e instanceof UnionTypeDefn)
 			visitUnionTypeDefn((UnionTypeDefn)e);

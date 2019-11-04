@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -52,6 +53,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		this.scope = fi.name();
 	}
 
+	@Override
+	public void visitObjectMethod(ObjectMethod meth) {
+		scopeStack.add(0, scope);
+		this.scope = meth.name();
+	}
+	
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
 		RepositoryEntry defn = find(scope, p.ctor);

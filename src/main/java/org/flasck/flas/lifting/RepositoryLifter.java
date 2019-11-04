@@ -71,6 +71,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		} else {
 			dull.add(fn);
 		}
+		ma = null;
 		ms = null;
 	}
 

@@ -20,6 +20,8 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -46,9 +48,11 @@ public class ResolverTests {
 	private final PackageName pkg = new PackageName("test.repo");
 	private final SolidName nested = new SolidName(pkg, "Nested");
 	private final FunctionName nameF = FunctionName.function(pos, nested, "f");
+	private final FunctionName nameM = FunctionName.function(pos, nested, "meth");
 	private final FunctionName nameX = FunctionName.function(pos, pkg, "x");
 	private final FunctionName nameY = FunctionName.function(pos, pkg, "y");
 	private final FunctionDefinition fn = new FunctionDefinition(nameF, 0);
+	private final ObjectMethod meth = new ObjectMethod(pos, nameM, new ArrayList<Pattern>());
 	private final TypeBinder vx = new FunctionDefinition(nameX, 0);
 	private final TypeBinder vy = new FunctionDefinition(nameY, 0);
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
@@ -162,6 +166,23 @@ public class ResolverTests {
 		Traverser t = new Traverser(r);
 		r.currentScope(nested);
 		t.visitFunction(fn);
+		assertEquals(vx, var.defn());
+	}
+
+	@Test
+	public void weCanResolveSomethingInsideAMethodMessage() {
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.Nested.meth.x"); will(returnValue(null));
+			oneOf(ry).get("test.repo.Nested.x"); will(returnValue(null));
+			oneOf(ry).get("test.repo.x"); will(returnValue(vx));
+		}});
+		final UnresolvedVar var = new UnresolvedVar(pos, "x");
+		meth.sendMessage(new SendMessage(pos, var));
+		Resolver r = new RepositoryResolver(errors, ry);
+		Traverser t = new Traverser(r);
+		r.currentScope(nested);
+		t.visitObjectMethod(meth);
 		assertEquals(vx, var.defn());
 	}
 

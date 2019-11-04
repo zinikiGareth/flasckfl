@@ -44,6 +44,10 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 		return args;
 	}
 
+	public int argCount() {
+		return args().size();
+	}
+	
 	public void bindHsi(HSITree hsiTree) {
 		this.hsiTree = hsiTree;
 	}
