@@ -343,26 +343,6 @@ public class StackVisitation {
 		aec.leaveApplyExpr(ae);
 	}
 
-	@Test
-	public void leaveApplyExpressionHandlesListsAsASpecialCase() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
-		REType cons = context.mock(REType.class, "cons");
-		Type fnt = context.mock(Type.class, "fn/2");
-		Type nbr = context.mock(Type.class, "nbr");
-		context.checking(new Expectations() {{
-			oneOf(repository).get("Cons"); will(returnValue(cons));
-			oneOf(nv).result(cons);
-		}});
-		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0);
-		op.bind(fn);
-		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
-		ApplyExpr ae = new ApplyExpr(pos, op, e1);
-		aec.result(new ExprResult(fnt));
-		aec.result(new ExprResult(nbr));
-		aec.leaveApplyExpr(ae);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Test
 	public void leaveApplyExpressionCanDealWithExplicitCurrying() {

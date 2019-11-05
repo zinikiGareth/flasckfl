@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Primitive;
 import org.junit.Test;
@@ -47,6 +50,21 @@ public class TypeBehaviors {
 	}
 
 	@Test
+	public void anyIncorporatesString() {
+		assertTrue(LoadBuiltins.any.incorporates(LoadBuiltins.string));
+	}
+
+	@Test
+	public void contractIncorporatesAnArbitraryContract() {
+		assertTrue(LoadBuiltins.contract.incorporates(new ContractDecl(pos, pos, new SolidName(null, "Svc"))));
+	}
+
+	@Test
+	public void contractDoesNotIncorporateString() {
+		assertFalse(LoadBuiltins.contract.incorporates(LoadBuiltins.string));
+	}
+
+	@Test
 	public void applyInsertsParensAroundNestedApply() {
 		Primitive number = new Primitive(pos, "Number");
 		Apply f = new Apply(number, number);
@@ -64,4 +82,23 @@ public class TypeBehaviors {
 		assertEquals("Number->Number->Number", hof.signature());
 	}
 	
+	@Test
+	public void aStructCanIncorporateItself() {
+		assertTrue(LoadBuiltins.cons.incorporates(LoadBuiltins.cons));
+	}
+
+	@Test
+	public void aStructCannotIncorporateNumber() {
+		assertFalse(LoadBuiltins.cons.incorporates(LoadBuiltins.number));
+	}
+
+	@Test
+	public void aUnionCanIncorporateItself() {
+		assertTrue(LoadBuiltins.list.incorporates(LoadBuiltins.list));
+	}
+
+	@Test
+	public void aUnionCanIncorporateAMemberStruct() {
+		assertTrue(LoadBuiltins.list.incorporates(LoadBuiltins.cons));
+	}
 }

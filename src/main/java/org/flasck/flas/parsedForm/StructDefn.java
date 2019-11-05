@@ -107,8 +107,7 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 
 	@Override
 	public boolean incorporates(Type other) {
-		// TODO Auto-generated method stub
-		return false;
+		return other == this;
 	}
 
 	public PolyType findPoly(TypeReference ft) {

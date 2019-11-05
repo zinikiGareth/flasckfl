@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,7 +14,9 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
@@ -117,12 +120,11 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 
 	private void handleListBuilder(ApplyExpr expr) {
 		if (expr.args.isEmpty()) {
-			nv.result(repository.get("Nil"));
+			nv.result(LoadBuiltins.nil);
 		} else {
-			// TODO: I think we need to check all the arguments TCed OK
-			// I think we need to make sure that they are all of the same type, but can we allow a "mixed" list?
-			// Specifically, surely we can allow a list of Union types?  Even if only some of them are included?
-			nv.result(repository.get("Cons"));
+			results.remove(0); // remove the nil from the front
+			Type ty = FunctionChecker.consolidate(expr.location(), results);
+			nv.result(new PolyInstance(LoadBuiltins.cons, Arrays.asList(ty)));
 		}
 	}
 }

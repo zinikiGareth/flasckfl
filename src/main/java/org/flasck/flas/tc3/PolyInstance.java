@@ -1,10 +1,14 @@
 package org.flasck.flas.tc3;
 
+import java.io.PrintWriter;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class PolyInstance implements Type {
+public class PolyInstance implements Type, RepositoryEntry {
 	private final NamedType ty;
 	private final List<Type> polys;
 
@@ -49,6 +53,24 @@ public class PolyInstance implements Type {
 
 	@Override
 	public boolean incorporates(Type other) {
+		if (!(other instanceof PolyInstance))
+			return false;
+		PolyInstance o = (PolyInstance) other;
+		if (!this.ty.incorporates(o.ty))
+			return false;
+		for (int i=0;i<polys.size();i++)
+			if (polys.get(i) != LoadBuiltins.any && polys.get(i) != o.polys.get(i))
+				return false;
+		return true;
+	}
+
+	@Override
+	public NameOfThing name() {
+		return ty.name();
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
 		throw new NotImplementedException();
 	}
 

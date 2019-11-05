@@ -31,6 +31,10 @@ public class TDAMethodParser {
 	
 	public TDAParsing parseMethod(FunctionNameProvider methodNamer, Tokenizable toks) {
 		ValidIdentifierToken var = VarNameToken.from(toks);
+		if (var == null) {
+			errors.message(toks, "no method name provided");
+			return new IgnoreNestedParser();
+		}
 		FunctionName fnName = methodNamer.functionName(var.location, var.text);
 		List<Pattern> args = new ArrayList<>();
 		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), p -> {

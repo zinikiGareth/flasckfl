@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
@@ -21,6 +22,7 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.ConstructorMatch;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -166,6 +168,45 @@ public class PatternAnalysis {
 		context.checking(new Expectations() {{
 			oneOf(hsi).switchOn(s);
 			oneOf(hsi).withConstructor("Number");
+			oneOf(hsi).bind(s, "x");
+			oneOf(hsi).startInline(intro);
+			oneOf(hsi).visitCase(fcd1);
+			oneOf(hsi).leaveCase(fcd1);
+			oneOf(hsi).visitExpr(number, 0);
+			oneOf(hsi).visitNumericLiteral(number);
+			oneOf(hsi).endInline(intro);
+			oneOf(hsi).defaultCase();
+			oneOf(hsi).errorNoCase();
+			oneOf(hsi).endSwitch();
+		}});
+		new Traverser(hsi).withHSI().visitHSI(vars, slots, fn.intros());
+	}
+	
+	@Test
+	public void argumentsCanBeContracts() {
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(null, "Svc"));
+		
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		final FunctionIntro intro;
+		final FunctionCaseDefn fcd1;
+		{
+			List<Pattern> args = new ArrayList<>();
+			TypeReference tr = new TypeReference(pos, "Svc");
+			tr.bind(cd);
+			args.add(new TypedPattern(pos, tr, new VarName(pos, nameF, "x")));
+			intro = new FunctionIntro(nameF, args);
+			fcd1 = new FunctionCaseDefn(null, number);
+			intro.functionCase(fcd1);
+			fn.intro(intro);
+		}
+		new Traverser(sv).visitFunction(fn);
+		ArrayList<Slot> slots = new ArrayList<>();
+		VarMapping vars = new VarMapping();
+		ArgSlot s = new ArgSlot(0, fn.hsiTree().get(0));
+		slots.add(s);
+		context.checking(new Expectations() {{
+			oneOf(hsi).switchOn(s);
+			oneOf(hsi).withConstructor("Svc");
 			oneOf(hsi).bind(s, "x");
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitCase(fcd1);

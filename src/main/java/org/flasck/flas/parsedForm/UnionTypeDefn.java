@@ -155,7 +155,11 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 
 	@Override
 	public boolean incorporates(Type other) {
-		// TODO Auto-generated method stub
+		if (this == other)
+			return true;
+		for (TypeReference ty : cases)
+			if (ty.defn() == other)
+				return true;
 		return false;
 	}
 }

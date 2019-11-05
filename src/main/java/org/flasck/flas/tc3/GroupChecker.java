@@ -18,6 +18,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -105,6 +106,13 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			for (Type t : apply.tys)
 				consolidated.add(consolidate(t, haveResolvedUTs));
 			return new Apply(consolidated);
+		} else if (value instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) value;
+			List<Type> polys = new ArrayList<>();
+			for (Type t : pi.getPolys()) {
+				polys.add(consolidate(t, haveResolvedUTs));
+			}
+			return new PolyInstance(pi.struct(), polys);
 		} else
 			return value;
 	}

@@ -24,10 +24,10 @@
 		up f (String msg)
 		
 // we can send to an argument, so this works and should typecheck in some way
-.	method (Sample svc)
-.		<- Send svc "f" ["hello"]
+	method q (Sample svc)
+		<- Send svc "f" ["hello"]
 
-.	method (Sample svc)
+.	method r (Sample svc)
 .		<- svc.f "hello"
 
 // standalone methods can't reference members because they have no state

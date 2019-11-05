@@ -149,7 +149,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		}
 	}
 
-	private Type consolidate(InputPosition pos, List<Type> types) {
+	public static Type consolidate(InputPosition pos, List<Type> types) {
 		if (types.size() == 1)
 			return types.get(0);
 		

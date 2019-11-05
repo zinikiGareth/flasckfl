@@ -9,8 +9,11 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.ContractMethodConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
-public class ContractDecl implements Locatable, ContractMethodConsumer, RepositoryEntry {
+public class ContractDecl implements Locatable, ContractMethodConsumer, RepositoryEntry, NamedType {
 	public final List<ContractMethodDecl> methods = new ArrayList<ContractMethodDecl>();
 	public final transient boolean generate;
 	public final InputPosition kw;
@@ -37,6 +40,26 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 		methods.add(md);
 	}
 	
+	@Override
+	public String signature() {
+		return contractName.uniqueName();
+	}
+
+	@Override
+	public int argCount() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public Type get(int pos) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public boolean incorporates(Type other) {
+		throw new NotImplementedException();
+	}
+
 	@Override
 	public String toString() {
 		return "Contract[" + contractName.uniqueName() + "]";

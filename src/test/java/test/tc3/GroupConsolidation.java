@@ -3,6 +3,9 @@ package test.tc3;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
@@ -13,6 +16,7 @@ import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.ConsolidateTypes;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.GroupChecker;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.hamcrest.Matcher;
@@ -70,6 +74,13 @@ public class GroupConsolidation {
 	@Test
 	public void anApplyCanConsolidateTrueAndFalseToBool() {
 		assertThat(gc.consolidate(new Apply(LoadBuiltins.string, new ConsolidateTypes(pos, LoadBuiltins.trueT, LoadBuiltins.falseT)), true), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.bool)));
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void aPolyInstanceHasItsParametersConsolidated() {
+		PolyInstance pi = new PolyInstance(LoadBuiltins.cons, Arrays.asList(new ConsolidateTypes(pos, LoadBuiltins.trueT, LoadBuiltins.falseT)));
+		assertThat(gc.consolidate(pi, true), (Matcher)PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.bool)));
 	}
 
 	@Test
