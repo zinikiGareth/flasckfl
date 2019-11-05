@@ -9,7 +9,6 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
@@ -24,13 +23,12 @@ public class ListBuilding {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
-	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 
 	@Test
 	public void nilReturnsNil() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(LoadBuiltins.nil);
 		}});
@@ -45,7 +43,7 @@ public class ListBuilding {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void consOfASingleArgumentReturnsAPolyInstanceWithThatType() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.number))));
 		}});
@@ -62,7 +60,7 @@ public class ListBuilding {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void consOfATwoStringsReturnsAPolyInstanceOfString() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(PolyTypeMatcher.of(LoadBuiltins.cons, (Matcher)ConsolidatedTypeMatcher.with(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.string)))));
 		}});

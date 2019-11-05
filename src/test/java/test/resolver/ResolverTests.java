@@ -1,11 +1,13 @@
 package test.resolver;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -28,6 +30,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.Repository;
@@ -274,4 +277,21 @@ public class ResolverTests {
 		assertEquals(cd, tr.defn());
 	}
 
+
+	@Test
+	public void testWeDoNotYetTryToResolveMemberNames() {
+		UnresolvedVar from = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "m");
+		MemberExpr dot = new MemberExpr(pos, from, fld);
+		RepositoryReader ry = context.mock(RepositoryReader.class);
+		VarPattern vp = new VarPattern(pos, new VarName(pos, pkg, "obj"));
+		context.checking(new Expectations() {{
+			oneOf(ry).get("test.repo.obj"); will(returnValue(vp));
+		}});
+		Resolver r = new RepositoryResolver(errors, ry);
+		r.currentScope(pkg);
+		new Traverser(r).visitMemberExpr(dot);
+		assertEquals(vp, from.defn());
+		assertNull(fld.defn());
+	}
 }

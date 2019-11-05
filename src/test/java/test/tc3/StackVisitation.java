@@ -4,14 +4,21 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -33,6 +40,7 @@ import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.GroupChecker;
+import org.flasck.flas.tc3.MemberExpressionChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
@@ -42,11 +50,10 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import test.patterns.PatternExtraction.REType;
-
 public class StackVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private final PackageName pkg = new PackageName("test.repo");
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
@@ -118,7 +125,7 @@ public class StackVisitation {
 
 	@Test
 	public void applyExpressionsPushAnotherMatcher() {
-		ExpressionChecker ec = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker ec = new ExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ApplyExpressionChecker.class)));
 		}});
@@ -130,8 +137,20 @@ public class StackVisitation {
 	}
 
 	@Test
+	public void memberExpressionsPushAnotherMatcher() {
+		ExpressionChecker ec = new ExpressionChecker(errors, state, nv);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(MemberExpressionChecker.class)));
+		}});
+		UnresolvedVar obj = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "f");
+		MemberExpr ae = new MemberExpr(pos, obj, fld);
+		ec.visitMemberExpr(ae);
+	}
+
+	@Test
 	public void applyExpressionCheckerAutoPushesOnExpr() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ExpressionChecker.class)));
 		}});
@@ -140,8 +159,20 @@ public class StackVisitation {
 	}
 
 	@Test
+	public void applyCheckerPushesOnMemberExpr() {
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(MemberExpressionChecker.class)));
+		}});
+		UnresolvedVar obj = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "f");
+		MemberExpr ae = new MemberExpr(pos, obj, fld);
+		aec.visitMemberExpr(ae);
+	}
+
+	@Test
 	public void leaveApplyExpressionWithValidTypesReturnsResult() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		context.checking(new Expectations() {{
@@ -168,7 +199,7 @@ public class StackVisitation {
 
 	@Test
 	public void applyExpressionWithPolyApplyInstantiatesFreshUTs() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		PolyType pt = new PolyType(pos, "A");
 		Type fnt = new Apply(pt, pt);
 		Type nbr = LoadBuiltins.number;
@@ -192,7 +223,7 @@ public class StackVisitation {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void leaveApplyExpressionWithInsufficientButValidTypesReturnsAnApply() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		Type string = context.mock(Type.class, "string");
@@ -218,7 +249,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionWithInvalidTypesThrowsAnError() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type str = context.mock(Type.class, "str");
 		Type nbr = context.mock(Type.class, "nbr");
@@ -246,7 +277,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionWithEarlierErrorTypesReturnsAnErrorTypeButDoesNotCascade() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type err = new ErrorType();
 		Type nbr = context.mock(Type.class, "nbr");
@@ -269,7 +300,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionAttachesConstraintsToPolyVarHolders() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		UnifiableType ut = context.mock(UnifiableType.class);
@@ -300,7 +331,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionCanHandleUnifiableTypesAsFunctionsProducingApplications() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type nbr = context.mock(Type.class, "nbr");
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		FunctionName func = FunctionName.function(pos, null, "f");
@@ -321,7 +352,7 @@ public class StackVisitation {
 
 	@Test
 	public void aUnifiableTypeCanBeAppliedToAUnifiableTypeWhichCreatesABond() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "func");
 		UnifiableType utV = context.mock(UnifiableType.class);
 		FunctionName fname = FunctionName.function(pos, null, "f");
@@ -346,7 +377,7 @@ public class StackVisitation {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void leaveApplyExpressionCanDealWithExplicitCurrying() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		context.checking(new Expectations() {{
@@ -368,4 +399,31 @@ public class StackVisitation {
 		aec.result(new ExprResult(nbr));
 		aec.leaveApplyExpr(ae);
 	}
+
+	@Test
+	public void leaveMemberExpressionCanFindAMethodInAValidContract() {
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+		List<Object> args = new ArrayList<>();
+		cd.addMethod(new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args));
+		
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, state, nv);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(LoadBuiltins.send);
+		}});
+		UnresolvedVar from = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "m");
+		MemberExpr dot = new MemberExpr(pos, from, fld);
+		mec.result(new ExprResult(cd));
+		mec.leaveMemberExpr(dot);
+	}
+	
+	// I think there are a number of other cases.  I'm not sure how many of them I actually want to allow and how many I view as errors
+	// NOTE: the MemberExpr triples for "object vars", "object invocation" and "contract method invocation"; we definitely want to handle the object cases
+	// objects:
+	//   the object could be an "object" of some description and we want to extract a var
+	//   we might want to invoke another method on an object (which would not be a contract decl)
+	//   note the object could be "this"
+	// unbound/AE cases:
+	//   the object could be an unbound var and we need to (somehow) figure that out - the logic here would be to tell the UT that we wanted to dispatch a particular call & then return a new UT that would have to take the appropriate args in a surrounding AE if any
+	//   the object could be the result of an AE itself that (for whatever reason) does not resolve to a ContractDecl immediately
 }

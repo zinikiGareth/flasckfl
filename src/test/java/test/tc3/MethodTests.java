@@ -19,7 +19,6 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository.Visitor;
-import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -46,7 +45,6 @@ public class MethodTests {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final RAV r = context.mock(RAV.class);
 	private final StackVisitor sv = new StackVisitor();
-	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Before
 	public void init() {
@@ -55,7 +53,7 @@ public class MethodTests {
 	
 	@Test
 	public void aSingleDebugMessageGivesTheStaticTypeDebug() {
-		sv.push(new FunctionChecker(errors, repository, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state));
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
 		sv.visitSendMessage(msg);
@@ -68,7 +66,7 @@ public class MethodTests {
 
 	@Test
 	public void noMessagesNullType() {
-		sv.push(new FunctionChecker(errors, repository, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state));
 		context.checking(new Expectations() {{
 			oneOf(r).result(null);
 		}});
@@ -78,7 +76,7 @@ public class MethodTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void weCanHandleArgumentTypes() {
-		sv.push(new FunctionChecker(errors, repository, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state));
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "String"), new VarName(pos, meth.name(), "str"));
 		args.add(tp);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));

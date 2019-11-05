@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -66,6 +67,7 @@ public class Traverser implements Visitor {
 	private boolean wantNestedPatterns;
 	private boolean wantHSI;
 	private boolean patternsTree;
+	private boolean visitMemberFields = false;
 
 	public Traverser(Visitor visitor) {
 		this.visitor = visitor;
@@ -88,6 +90,11 @@ public class Traverser implements Visitor {
 
 	public Traverser withPatternsInTreeOrder() {
 		this.patternsTree = true;
+		return this;
+	}
+
+	public Traverser withMemberFields() {
+		this.visitMemberFields = true;
 		return this;
 	}
 
@@ -659,6 +666,8 @@ public class Traverser implements Visitor {
 			visitUnresolvedVar((UnresolvedVar) expr, nargs);
 		else if (expr instanceof UnresolvedOperator)
 			visitUnresolvedOperator((UnresolvedOperator) expr, nargs);
+		else if (expr instanceof MemberExpr)
+			visitMemberExpr((MemberExpr)expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
@@ -708,10 +717,24 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
+	public void visitMemberExpr(MemberExpr expr) {
+		visitor.visitMemberExpr(expr);
+		visitExpr(expr.from, 0);
+		if (visitMemberFields)
+			visitExpr(expr.fld, 0);
+		leaveMemberExpr(expr);
+	}
+
+	@Override
+	public void leaveMemberExpr(MemberExpr expr) {
+		visitor.leaveMemberExpr(expr);
+	}
+	
+	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		if (nargs == 0 && wantNestedPatterns) {
 			NestedVarReader nv = isFnNeedingNesting(var);
-			if (nv != null) {
+			if (nv != null && !nv.vars().isEmpty()) {
 				@SuppressWarnings({ "rawtypes", "unchecked" })
 				List<Object> args = (List)nv.vars();
 				ApplyExpr ae = new ApplyExpr(var.location, var, args);
@@ -726,6 +749,8 @@ public class Traverser implements Visitor {
 				return; // don't just visit the var ...
 			}
 		}
+		if (isNeedingEnhancement(var, nargs))
+			visitor.visitExpr(var, nargs);
 		visitor.visitUnresolvedVar(var, nargs);
 	}
 

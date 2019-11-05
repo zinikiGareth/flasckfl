@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -236,6 +237,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveApplyExpr(ApplyExpr expr) {
 		top.leaveApplyExpr(expr);
+	}
+
+	public void visitMemberExpr(MemberExpr expr) {
+		top.visitMemberExpr(expr);
+	}
+
+	public void leaveMemberExpr(MemberExpr expr) {
+		top.leaveMemberExpr(expr);
 	}
 
 	public void visitUnitTestStep(UnitTestStep s) {

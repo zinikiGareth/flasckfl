@@ -21,14 +21,14 @@
 		<- Debug h
 
 	contract Sample
-		up f (String msg)
+		up meth (String msg)
 		
 // we can send to an argument, so this works and should typecheck in some way
 	method q (Sample svc)
-		<- Send svc "f" ["hello"]
+		<- Send svc "meth" ["hello"]
 
-.	method r (Sample svc)
-.		<- svc.f "hello"
+	method r (Sample svc)
+		<- svc.meth "hello"
 
 // standalone methods can't reference members because they have no state
 // standalone methods can't have assignment cases because they have no state

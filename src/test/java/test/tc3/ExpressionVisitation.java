@@ -19,7 +19,6 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.CurryArgumentType;
 import org.flasck.flas.tc3.ExpressionChecker;
@@ -40,42 +39,38 @@ public class ExpressionVisitation {
 
 	@Test
 	public void numericConstantsReturnNumber() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.number))));
 		}});
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitNumericLiteral(new NumericLiteral(pos, "42", 2));
 	}
 
 	@Test
 	public void stringConstantsReturnString() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
 		}});
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitStringLiteral(new StringLiteral(pos, "yoyo"));
 	}
 
 	@Test
 	public void aNoArgConstructorReturnsItsType() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "Nil");
 		uv.bind(LoadBuiltins.nil);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
 	@Test
 	public void aPreviouslyDefinedVarWithNoArgsReturnsItsType() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyX = context.mock(Type.class);
 		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0);
@@ -85,13 +80,12 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(x);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
 	@Test
 	public void aStandaloneMethodReturnsItsResolvedType() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyX = context.mock(Type.class);
 		StandaloneMethod x = new StandaloneMethod(new ObjectMethod(pos, FunctionName.standaloneMethod(pos, null, "m"), new ArrayList<>()));
@@ -101,13 +95,12 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(x);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
 	@Test
 	public void aBuiltinOperatorReturnsItsType() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyPlus = context.mock(Type.class);
 		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
@@ -117,13 +110,12 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedOperator uv = new UnresolvedOperator(pos, "+");
 		uv.bind(plus);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitUnresolvedOperator(uv, 2);
 	}
 
 	@Test
 	public void anExpressionCheckerTrampolinesResult() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyPlus = context.mock(Type.class);
 		TypeBinder plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
@@ -131,13 +123,12 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
 		}});
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.result(tyPlus);
 	}
 
 	@Test
 	public void aTypedVariableReturnsItsType() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		FunctionName func = FunctionName.function(pos, null, "f");
 		TypeReference string = new TypeReference(pos, "String");
@@ -148,13 +139,12 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
 	@Test
 	public void aFunctionVariableReturnsAPolyHolder() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		FunctionName func = FunctionName.function(pos, null, "f");
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
@@ -165,21 +155,20 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void anExplicitCurrySlotReturnsACurryVarType() {
-		RepositoryReader repository = context.mock(RepositoryReader.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr((Matcher)any(CurryArgumentType.class))));
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(LoadBuiltins.ca);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 }

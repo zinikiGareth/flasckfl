@@ -18,7 +18,6 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -37,13 +36,13 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		sv.push(new FunctionChecker(errors, repository, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state));
 		this.currentFunction = fn;
 	}
 
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		sv.push(new FunctionChecker(errors, repository, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state));
 		this.currentFunction = meth;
 	}
 

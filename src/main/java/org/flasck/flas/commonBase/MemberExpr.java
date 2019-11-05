@@ -5,10 +5,10 @@ import org.zinutils.exceptions.UtilException;
 
 public class MemberExpr implements Expr {
 	public final InputPosition location;
-	public final Object from;
-	public final Object fld;
+	public final Expr from;
+	public final Expr fld;
 
-	public MemberExpr(InputPosition location, Object from, Object fld) {
+	public MemberExpr(InputPosition location, Expr from, Expr fld) {
 		if (location == null)
 			throw new UtilException("MemberExpr without location");
 		this.location = location;

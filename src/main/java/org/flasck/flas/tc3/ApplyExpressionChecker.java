@@ -10,34 +10,36 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryEntry;
-import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
-	private final RepositoryReader repository;
 	private final NestedVisitor nv;
 	private final List<Type> results = new ArrayList<>();
 	private final CurrentTCState state;
 
-	public ApplyExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+	public ApplyExpressionChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
-		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, repository, state, nv));
+		nv.push(new ExpressionChecker(errors, state, nv));
+	}
+	
+	@Override
+	public void visitMemberExpr(MemberExpr expr) {
+		nv.push(new MemberExpressionChecker(errors, state, nv));
 	}
 	
 	@Override
@@ -74,6 +76,9 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			handleListBuilder(expr);
 			return;
 		}
+		// TODO: we may need to explicitly handle the case where we have a "Send" constructor that wants to collapse a set of arguments into a list
+		// But if we return the right contract method type, it may all just go swimmingly
+		// And we will just have that concern in MethodConversion
 		Type fn = results.remove(0);
 		if (fn instanceof UnifiableType) {
 			UnifiableType ut = (UnifiableType)fn;

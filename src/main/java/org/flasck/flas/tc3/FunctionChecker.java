@@ -19,7 +19,6 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.ExpressionChecker.GuardResult;
@@ -35,15 +34,13 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 
 	private final ErrorReporter errors;
-	private final RepositoryReader repository;
 	private final NestedVisitor sv;
 	private final List<Type> argTypes = new ArrayList<>();
 	private final List<Type> resultTypes = new ArrayList<>();
 	private final CurrentTCState state;
 
-	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state) {
+	public FunctionChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state) {
 		this.errors = errors;
-		this.repository = repository;
 		this.sv = sv;
 		this.state = state;
 	}
@@ -91,12 +88,12 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	@Override
 	public void visitCase(FunctionCaseDefn fcd) {
-		sv.push(new ExpressionChecker(errors, repository, state, sv));
+		sv.push(new ExpressionChecker(errors, state, sv));
 	}
 	
 	@Override
 	public void visitSendMessage(SendMessage sm) {
-		sv.push(new ExpressionChecker(errors, repository, state, sv));
+		sv.push(new ExpressionChecker(errors, state, sv));
 	}
 	
 	@Override
@@ -110,7 +107,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 				errors.message(gr.location(), "guards must be booleans");
 			
 			// There will be an expression as well, so push another checker ...
-			sv.push(new ExpressionChecker(errors, repository, state, sv));
+			sv.push(new ExpressionChecker(errors, state, sv));
 		} else {
 			Type ret = ((ExprResult)r).type;
 			if (ret instanceof UnifiableType)

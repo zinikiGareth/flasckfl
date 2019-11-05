@@ -26,7 +26,7 @@ public class FreshPolysTests {
 
 	@Test
 	public void weCanIntroduceANewPolyInstanceForAPolyVar() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(); will(returnValue(ut));
@@ -38,7 +38,7 @@ public class FreshPolysTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void weCanReplaceAPolyVarInsideAnApply() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(); will(returnValue(ut));
@@ -50,7 +50,7 @@ public class FreshPolysTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void weReplaceASinglePolyVarWithTheSameUTEachTime() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(); will(returnValue(ut));
@@ -62,7 +62,7 @@ public class FreshPolysTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void weReplaceDifferentPolyVarsWithSeparateUTs() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
 		UnifiableType ut1 = context.mock(UnifiableType.class, "ut1");
 		UnifiableType ut2 = context.mock(UnifiableType.class, "ut2");
 		context.checking(new Expectations() {{

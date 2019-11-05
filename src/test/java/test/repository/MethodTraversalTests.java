@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -22,6 +23,7 @@ import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -115,5 +117,51 @@ public class MethodTraversalTests {
 		slotName.add(slotX);
 		r.newStandaloneMethod(sm);
 		r.traverse(v);
+	}
+
+	@Test
+	public void traverseTheDotOperatorWithField() {
+		UnresolvedVar from = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "m");
+		MemberExpr dot = new MemberExpr(pos, from, fld);
+		ApplyExpr apply = new ApplyExpr(pos, dot, str);
+		Sequence s = context.sequence("inorder");
+		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(apply, 0); inSequence(s);
+			oneOf(v).visitApplyExpr(apply); inSequence(s);
+			oneOf(v).visitExpr(dot, 1); inSequence(s);
+			oneOf(v).visitMemberExpr(dot); inSequence(s);
+			oneOf(v).visitExpr(from, 0); inSequence(s);
+			oneOf(v).visitUnresolvedVar(from, 0); inSequence(s);
+			oneOf(v).visitExpr(fld, 0); inSequence(s);
+			oneOf(v).visitUnresolvedVar(fld, 0); inSequence(s);
+			oneOf(v).leaveMemberExpr(dot); inSequence(s);
+			oneOf(v).visitExpr(str, 0); inSequence(s);
+			oneOf(v).visitStringLiteral(str); inSequence(s);
+			oneOf(v).leaveApplyExpr(apply); inSequence(s);
+		}});
+		new Traverser(v).withMemberFields().visitExpr(apply, 0);
+	}
+
+	@Test
+	public void traverseTheDotOperatorWithoutField() {
+		UnresolvedVar from = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "m");
+		MemberExpr dot = new MemberExpr(pos, from, fld);
+		ApplyExpr apply = new ApplyExpr(pos, dot, str);
+		Sequence s = context.sequence("inorder");
+		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(apply, 0); inSequence(s);
+			oneOf(v).visitApplyExpr(apply); inSequence(s);
+			oneOf(v).visitExpr(dot, 1); inSequence(s);
+			oneOf(v).visitMemberExpr(dot); inSequence(s);
+			oneOf(v).visitExpr(from, 0); inSequence(s);
+			oneOf(v).visitUnresolvedVar(from, 0); inSequence(s);
+			oneOf(v).leaveMemberExpr(dot); inSequence(s);
+			oneOf(v).visitExpr(str, 0); inSequence(s);
+			oneOf(v).visitStringLiteral(str); inSequence(s);
+			oneOf(v).leaveApplyExpr(apply); inSequence(s);
+		}});
+		new Traverser(v).visitExpr(apply, 0);
 	}
 }

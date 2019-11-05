@@ -55,7 +55,7 @@ public class GuardTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void weCanHandleASimpleCorrectCase() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
+		FunctionChecker fc = new FunctionChecker(errors, sv, state);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -116,7 +116,7 @@ public class GuardTests {
 
 	@Test
 	public void theGuardTypeCanBeTrue() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
+		FunctionChecker fc = new FunctionChecker(errors, sv, state);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -130,7 +130,7 @@ public class GuardTests {
 
 	@Test
 	public void theGuardTypeCanBeFalse() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
+		FunctionChecker fc = new FunctionChecker(errors, sv, state);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -144,7 +144,7 @@ public class GuardTests {
 
 	@Test
 	public void itsAnErrorForTheGuardTypeToBeNumber() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state);
+		FunctionChecker fc = new FunctionChecker(errors, sv, state);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);

@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -215,6 +216,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
+	}
+
+	@Override
+	public void visitMemberExpr(MemberExpr expr) {
+	}
+
+	@Override
+	public void leaveMemberExpr(MemberExpr expr) {
 	}
 
 	@Override

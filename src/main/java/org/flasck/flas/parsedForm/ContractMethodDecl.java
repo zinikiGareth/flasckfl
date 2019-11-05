@@ -5,6 +5,8 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.tc3.Type;
 
 public class ContractMethodDecl implements Locatable, Comparable<ContractMethodDecl> {
 	public final InputPosition rkw;
@@ -30,6 +32,10 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 		int dc = dir.compareTo(o.dir);
 		if (dc != 0) return dc;
 		return name.compareTo(o.name);
+	}
+
+	public Type type() {
+		return LoadBuiltins.send;
 	}
 	
 	@Override

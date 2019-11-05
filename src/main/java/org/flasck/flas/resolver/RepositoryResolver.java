@@ -87,8 +87,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		RepositoryEntry defn = find(scope, var.var);
 		if (defn == null) {
 			errors.message(var.location, "cannot resolve '" + var.var + "'");
-//			System.out.println("Failed to resolve " + var.var + " in " + scope.uniqueName());
-//			repository.dump();
 			return;
 		}
 		var.bind(defn);
@@ -126,7 +124,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				TypedPattern p = (TypedPattern) a;
 				visitTypeReference(p.type);
 			}
-				
 		}
 	}
 	

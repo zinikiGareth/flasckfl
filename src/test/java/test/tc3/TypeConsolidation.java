@@ -39,7 +39,7 @@ public class TypeConsolidation {
 	
 	@Test
 	public void withNoArgsItsJustASimpleConstant() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
+		FunctionChecker fc = new FunctionChecker(errors, nv, state);
 		fc.result(new ExprResult(LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
@@ -51,7 +51,7 @@ public class TypeConsolidation {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void anArgAndAResultImpliesAnApply() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
+		FunctionChecker fc = new FunctionChecker(errors, nv, state);
 		fc.result(new ArgResult(LoadBuiltins.nil));
 		fc.result(new ExprResult(LoadBuiltins.number));
 		
@@ -64,7 +64,7 @@ public class TypeConsolidation {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void multipleIdenticallyTypedExpressionsCanBeConsolidatedInAContainer() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
+		FunctionChecker fc = new FunctionChecker(errors, nv, state);
 		fc.result(new ExprResult(LoadBuiltins.number));
 		fc.result(new ExprResult(LoadBuiltins.number));
 		
@@ -77,7 +77,7 @@ public class TypeConsolidation {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void multipleExpressionsCanBeConsolidatedInAContainer() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, nv, state);
+		FunctionChecker fc = new FunctionChecker(errors, nv, state);
 		fc.result(new ExprResult(LoadBuiltins.trueT));
 		fc.result(new ExprResult(LoadBuiltins.falseT));
 		

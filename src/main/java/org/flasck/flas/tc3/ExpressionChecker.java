@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
@@ -18,7 +19,6 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 
 public class ExpressionChecker extends LeafAdapter implements ResultAware {
@@ -45,15 +45,13 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 	}
 
-	private final RepositoryReader r;
 	private final NestedVisitor nv;
 	private final CurrentTCState state;
 	private final ErrorReporter errors;
 	private InputPosition guardPos;
 
-	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+	public ExpressionChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
-		this.r = repository;
 		this.state = state;
 		this.nv = nv;
 	}
@@ -110,7 +108,12 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
-		nv.push(new ApplyExpressionChecker(errors, r, state, nv));
+		nv.push(new ApplyExpressionChecker(errors, state, nv));
+	}
+	
+	@Override
+	public void visitMemberExpr(MemberExpr expr) {
+		nv.push(new MemberExpressionChecker(errors, state, nv));
 	}
 	
 	@Override

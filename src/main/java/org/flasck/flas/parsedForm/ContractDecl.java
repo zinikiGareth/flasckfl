@@ -69,4 +69,12 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 	public void dumpTo(PrintWriter pw) {
 		pw.println(toString());
 	}
+
+	public ContractMethodDecl getMethod(String mname) {
+		for (ContractMethodDecl m : methods) {
+			if (m.name.name.equals(mname))
+				return m;
+		}
+		return null;
+	}
 }
