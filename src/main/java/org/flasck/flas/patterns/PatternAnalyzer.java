@@ -48,6 +48,9 @@ public class PatternAnalyzer extends LeafAdapter {
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
 		hsiTree = new HSIArgsTree(meth.argCount());
+		nslot = 0;
+		current = null;
+//		hsiTree.consider(fi);
 	}
 
 	@Override

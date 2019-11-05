@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -28,21 +29,21 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		HSIPatternOptions opts;
 		UnresolvedVar var;
 		
-		public PO(VarPattern p, FunctionIntro fi) {
-			this(fi, p, p.name());
+		public PO(VarPattern p, FunctionIntro fi, ObjectMethod meth) {
+			this(fi, meth, p, p.name());
 			this.opts.addVar(p, fi);
 			this.var.bind(p);
 		}
 
-		public PO(TypedPattern p, FunctionIntro fi) {
-			this(fi, p, p.name());
+		public PO(TypedPattern p, FunctionIntro fi, ObjectMethod meth) {
+			this(fi, meth, p, p.name());
 			this.opts.addTyped(p, fi);
 			this.var.bind(p);
 		}
 
 		// for the merging case
-		public PO(PO o, FunctionIntro fi) {
-			this(fi, new VarPattern(o.p.location(), o.name), o.name);
+		public PO(PO o, FunctionIntro fi, ObjectMethod meth) {
+			this(fi, meth, new VarPattern(o.p.location(), o.name), o.name);
 			if (o.p instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o.p;
 				this.opts.addVarWithType(tp.type, tp.var, fi);
@@ -53,12 +54,16 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 			}
 		}
 
-		private PO(FunctionIntro fi, Pattern p, VarName name) {
+		private PO(FunctionIntro fi, ObjectMethod meth, Pattern p, VarName name) {
 			this.p = p;
 			this.name = name;
 			this.opts = new HSIPatternOptions();
+			if (fi != null) {
 			this.opts.includes(fi);
 			this.var = new UnresolvedVar(fi.location, this.name.var);
+			} else {
+				this.var = new UnresolvedVar(meth.location(), this.name.var);
+			}
 		}
 
 		@Override
@@ -75,23 +80,18 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	private Set<StandaloneDefn> deps = new HashSet<>(); 
 	
 	@Override
-	public void recordNestedVar(FunctionIntro fi, VarPattern vp) {
-		patterns.add(new PO(vp, fi));
+	public void recordNestedVar(FunctionIntro fi, ObjectMethod meth, VarPattern vp) {
+		patterns.add(new PO(vp, fi, meth));
 	}
 
 	@Override
-	public void recordNestedVar(FunctionIntro fi, TypedPattern tp) {
-		patterns.add(new PO(tp, fi));
+	public void recordNestedVar(FunctionIntro fi, ObjectMethod meth, TypedPattern tp) {
+		patterns.add(new PO(tp, fi, meth));
 	}
 
 	@Override
-	public void recordDependency(FunctionDefinition dependsOn) {
-		deps.add(dependsOn);
-	}
-
-	@Override
-	public void recordDependency(StandaloneMethod dependsOn) {
-		deps.add(dependsOn);
+	public void recordDependency(StandaloneDefn fn) {
+		deps.add(fn);
 	}
 
 	@Override
@@ -123,13 +123,13 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		
 		TreeSet<PO> ops = ((MappingStore)nestedVars).patterns;
 		for (PO o : ops) {
-			if (o.name.scope == sd.name())
+			if (sd.isMyName(o.name.scope))
 				continue;
 
 			if (sd instanceof FunctionDefinition) {
 				FunctionDefinition fn = (FunctionDefinition) sd;
 				for (FunctionIntro fi : fn.intros())
-					patterns.add(new PO(o, fi));
+					patterns.add(new PO(o, fi, null));
 			} else
 				throw new NotImplementedException();
 		}

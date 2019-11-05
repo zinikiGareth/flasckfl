@@ -61,18 +61,9 @@ public class DependencyOrdering {
 
 	@Test
 	public void aFunctionReferencingAMethodComesAfterIt() {
-//		FunctionDefinition[] deps = {};
 		FunctionName fname = FunctionName.standaloneMethod(pos, pkg, "m");
 		StandaloneMethod fn = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>()));
-//		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
-//		fn.intro(fi);
 		lifter.visitStandaloneMethod(fn);
-//		lifter.visitFunctionIntro(fn.intros().get(0));
-//		for (FunctionDefinition d : deps) {
-//			UnresolvedVar ref = new UnresolvedVar(pos, d.name().name);
-//			ref.bind(d);
-//			lifter.visitUnresolvedVar(ref, 0);
-//		}
 		lifter.leaveStandaloneMethod(fn);
 		
 		quick("f", fn);

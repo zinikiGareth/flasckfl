@@ -136,8 +136,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		else if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + meth.name().uniqueName());
 		else {
-			Type ty = buildApplyType(meth.location());
-			sv.result(ty);
+			sv.result(buildApplyType(meth.location()));
 		}
 	}
 

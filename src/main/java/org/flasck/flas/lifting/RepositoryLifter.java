@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -49,9 +50,16 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 
 	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
-		// does this need to do anything?
+		dependencies.recordFunction(meth);
+		ms = new MappingStore();
+		ma = new MappingAnalyzer(meth, ms, dependencies);
 	}
 
+	@Override
+	public void visitObjectMethod(ObjectMethod meth) {
+		ma.visitObjectMethod(meth);
+	}
+	
 	@Override
 	public void visitFunctionIntro(FunctionIntro fi) {
 		ma.visitFunctionIntro(fi);
@@ -78,7 +86,14 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	
 	@Override
 	public void leaveStandaloneMethod(StandaloneMethod meth) {
-		dull.add(meth);
+		if (ms.isInteresting()) {
+			meth.nestedVars(ms);
+			interesting.add(meth);
+		} else {
+			dull.add(meth);
+		}
+		ma = null;
+		ms = null;
 	}
 
 	// Resolve all fn-to-fn references

@@ -3,6 +3,7 @@ package org.flasck.flas.lifting;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -16,6 +17,7 @@ public class MappingAnalyzer {
 	private final VarDependencyMapper dependencies;
 	private FunctionName name;
 	private FunctionIntro fi;
+	private ObjectMethod meth;
 
 	public MappingAnalyzer(TypeBinder fn, MappingCollector c, VarDependencyMapper dependencies) {
 		this.fn = fn;
@@ -28,18 +30,23 @@ public class MappingAnalyzer {
 		name = fi.name();
 	}
 
+	public void visitObjectMethod(ObjectMethod meth) {
+		this.meth = meth;
+		name = meth.name();
+	}
+
 	public void visitUnresolvedVar(UnresolvedVar vr) {
 		RepositoryEntry defn = vr.defn();
 		if (defn instanceof VarPattern) {
 			VarPattern vp = (VarPattern) defn;
 			if (vp.name().scope != name) {
-				collector.recordNestedVar(fi, vp);
+				collector.recordNestedVar(fi, meth, vp);
 				dependencies.recordVarDependency(name, (FunctionName)vp.name().scope, collector);
 			}
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) defn;
 			if (tp.name().scope != name) {
-				collector.recordNestedVar(fi, tp);
+				collector.recordNestedVar(fi, meth, tp);
 			}
 		} else if (defn instanceof FunctionDefinition) {
 			if (defn != fn)

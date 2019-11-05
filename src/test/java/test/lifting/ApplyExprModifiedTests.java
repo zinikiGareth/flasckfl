@@ -36,7 +36,6 @@ public class ApplyExprModifiedTests {
 	public void aCallToANestedFunctionWithVarsGetsThosePassedIn() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
-//		FunctionDefinition ff = new FunctionDefinition(nameF, 1);
 		
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
@@ -46,8 +45,7 @@ public class ApplyExprModifiedTests {
 		fn.intro(fi);
 
 		MappingStore ms = new MappingStore();
-		ms.recordNestedVar(fi, vp);
-//		ms.recordDependency(ff, fn);
+		ms.recordNestedVar(fi, null, vp);
 		fn.nestedVars(ms);
 
 		UnresolvedVar fnCall = new UnresolvedVar(pos, "g");
@@ -66,7 +64,6 @@ public class ApplyExprModifiedTests {
 			oneOf(hsi).leaveApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"), ExprMatcher.string(sl.text))));
 		}});
 		Traverser traverser = new Traverser(hsi).withNestedPatterns();
-//		traverser.rememberCaller(ff);
 		traverser.visitApplyExpr(ae);
 	}
 	
@@ -81,7 +78,37 @@ public class ApplyExprModifiedTests {
 		fn.intro(fi);
 
 		MappingStore ms = new MappingStore();
-		ms.recordNestedVar(fi, vp);
+		ms.recordNestedVar(fi, null, vp);
+		fn.nestedVars(ms);
+
+		UnresolvedVar fnCall = new UnresolvedVar(pos, "g");
+		fnCall.bind(fn);
+		
+		context.checking(new Expectations() {{
+			oneOf(hsi).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))));
+			oneOf(hsi).visitExpr(fnCall, 1);
+			oneOf(hsi).visitUnresolvedVar(fnCall, 1);
+			oneOf(hsi).visitExpr(with(ExprMatcher.unresolved("x")), with(0));
+			oneOf(hsi).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("x")), with(0));
+			oneOf(hsi).leaveApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))));
+		}});
+		Traverser traverser = new Traverser(hsi).withNestedPatterns();
+		traverser.visitUnresolvedVar(fnCall, 0);
+	}
+	
+	
+	@Test
+	public void aCallToANestedStandaloneMethodWhichIsJustAVarBecomesAnAEWithNestedVars() {
+		FunctionName nameF = FunctionName.function(pos, pkg, "f");
+		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
+		
+		FunctionName nameG = FunctionName.function(pos, nameF, "g");
+		FunctionDefinition fn = new FunctionDefinition(nameG, 0);
+		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
+		fn.intro(fi);
+
+		MappingStore ms = new MappingStore();
+		ms.recordNestedVar(fi, null, vp);
 		fn.nestedVars(ms);
 
 		UnresolvedVar fnCall = new UnresolvedVar(pos, "g");

@@ -1,20 +1,20 @@
 
 // a standalone method can do a few things but not much
-	method adebug
-		<- Debug "hello"
+,.	method adebug
+,.		<- Debug "hello"
 		
 // a standalone method is just a function, so it can be assigned to another function
-	fdebug = adebug
+.	fdebug = adebug
 
 // it can take an argument
-	method ndebug msg
-		<- Debug msg
+.	method ndebug msg
+.		<- Debug msg
 	
 // and as far as I can see it can be embedded in another function
 
-.	f msg = showdebug
-.		method showdebug
-.			<- Debug msg
+	f msg = showdebug
+		method showdebug
+			<- Debug msg
 			
 // we need something with complex arguments too ...
 .	method k True (Cons {head: h, tail: t})

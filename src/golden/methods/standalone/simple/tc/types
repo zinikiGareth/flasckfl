@@ -1,3 +1,5 @@
 test.golden.adebug :: Debug
 test.golden.fdebug :: Debug
 test.golden.ndebug :: String->Debug
+test.golden.f :: String->Debug
+test.golden.f._1.showdebug :: String->Debug

@@ -46,7 +46,7 @@ public class InsertorTests {
 		fn.intro(fi);
 
 		MappingStore ms = new MappingStore();
-		ms.recordNestedVar(fi, vp);
+		ms.recordNestedVar(fi, null, vp);
 		fn.nestedVars(ms);
 
 		Traverser t = new Traverser(hsi).withNestedPatterns();
@@ -70,7 +70,7 @@ public class InsertorTests {
 		fn.intro(fi);
 
 		MappingStore ms = new MappingStore();
-		ms.recordNestedVar(fi, tp);
+		ms.recordNestedVar(fi, null, tp);
 		fn.nestedVars(ms);
 
 		Traverser t = new Traverser(hsi).withNestedPatterns();

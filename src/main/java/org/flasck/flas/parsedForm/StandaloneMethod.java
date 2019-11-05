@@ -4,15 +4,15 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
-public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn> {
+public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder {
 	public final ObjectMethod om;
-	private NestedVarReader nestedVars;
 
 	public StandaloneMethod(ObjectMethod om) {
 		this.om = om;
@@ -20,6 +20,11 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 
 	public FunctionName name() {
 		return om.name();
+	}
+
+	@Override
+	public boolean isMyName(NameOfThing other) {
+		return om.isMyName(other);
 	}
 
 	public int argCount() {
@@ -47,11 +52,11 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 	}
 
 	public void nestedVars(NestedVarReader nestedVars) {
-		this.nestedVars = nestedVars;
+		om.nestedVars(nestedVars);
 	}
 
 	public NestedVarReader nestedVars() {
-		return nestedVars;
+		return om.nestedVars();
 	}
 
 	public void conversion(List<FunctionIntro> convertedIntros) {

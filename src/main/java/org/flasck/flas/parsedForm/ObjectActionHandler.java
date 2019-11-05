@@ -8,8 +8,10 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -24,6 +26,7 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 	private HSITree hsiTree;
 	private Type type;
 	private List<FunctionIntro> convertedIntros;
+	private NestedVarReader nestedVars;
 
 	public ObjectActionHandler(InputPosition location, FunctionName name, List<Pattern> args) {
 		this.location = location;
@@ -40,14 +43,30 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 		return name;
 	}
 
+	public boolean isMyName(NameOfThing other) {
+		if (other == this.name)
+			return true;
+		return false;
+	}
+
 	public List<Pattern> args() {
 		return args;
 	}
 
 	public int argCount() {
+		if (nestedVars != null)
+			return args.size() + nestedVars.size();
 		return args().size();
 	}
 	
+	public void nestedVars(NestedVarReader nestedVars) {
+		this.nestedVars = nestedVars;
+	}
+
+	public NestedVarReader nestedVars() {
+		return nestedVars;
+	}
+
 	public void bindHsi(HSITree hsiTree) {
 		this.hsiTree = hsiTree;
 	}

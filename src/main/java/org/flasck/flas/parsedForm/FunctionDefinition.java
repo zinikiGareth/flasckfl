@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
@@ -36,6 +37,16 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 		return name;
 	}
 	
+	@Override
+	public boolean isMyName(NameOfThing other) {
+		if (other == this.name)
+			return true;
+		for (FunctionIntro fi : intros)
+			if (other == fi.name())
+				return true;
+		return false;
+	}
+
 	@Override
 	public InputPosition location() {
 		if (intros.isEmpty())

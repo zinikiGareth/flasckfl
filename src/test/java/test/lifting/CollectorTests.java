@@ -42,7 +42,7 @@ public class CollectorTests {
 		ma.visitFunctionIntro(fi);
 		
 		context.checking(new Expectations() {{
-			oneOf(c).recordNestedVar(fi, vp);
+			oneOf(c).recordNestedVar(fi, null, vp);
 			oneOf(dependencies).recordVarDependency(nameG, nameF, c);
 		}});
 		ma.visitUnresolvedVar(vr);
@@ -80,7 +80,7 @@ public class CollectorTests {
 		ma.visitFunctionIntro(fi);
 		
 		context.checking(new Expectations() {{
-			oneOf(c).recordNestedVar(fi, tp);
+			oneOf(c).recordNestedVar(fi, null, tp);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}
