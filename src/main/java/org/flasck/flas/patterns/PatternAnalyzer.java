@@ -83,7 +83,8 @@ public class PatternAnalyzer extends LeafAdapter {
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
 		HSITree nested = slot.requireCM(p.actual());
-		nested.consider(current);
+		if (current != null)
+			nested.consider(current);
 		new PatternAnalyzer(errors, repository, sv, nested, current);
 	}
 	

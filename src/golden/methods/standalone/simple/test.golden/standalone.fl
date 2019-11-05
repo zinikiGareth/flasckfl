@@ -17,9 +17,18 @@
 			<- Debug msg
 			
 // we need something with complex arguments too ...
-.	method k True (Cons {head: h, tail: t})
-.		<- Debug h
+	method k True (Cons {head: h, tail: t})
+		<- Debug h
 
+	contract Sample
+		up f (String msg)
+		
 // we can send to an argument, so this works and should typecheck in some way
-.	method svc
+.	method (Sample svc)
 .		<- Send svc "f" ["hello"]
+
+.	method (Sample svc)
+.		<- svc.f "hello"
+
+// standalone methods can't reference members because they have no state
+// standalone methods can't have assignment cases because they have no state
