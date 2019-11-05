@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.zinutils.collections.SetMap;

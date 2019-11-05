@@ -697,8 +697,8 @@ public class Traverser implements Visitor {
 	private NestedVarReader isFnNeedingNesting(Expr uv) {
 		if (uv instanceof UnresolvedVar) {
 			UnresolvedVar fn = (UnresolvedVar)uv;
-			if (fn.defn() instanceof FunctionDefinition)
-				return ((FunctionDefinition)fn.defn()).nestedVars();
+			if (fn.defn() instanceof StandaloneDefn)
+				return ((StandaloneDefn)fn.defn()).nestedVars();
 		}
 		return null;
 	}
