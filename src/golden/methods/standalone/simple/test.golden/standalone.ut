@@ -1,3 +1,15 @@
-.	test we can generate a Debug command
-.		assert (adebug)
-.			Debug "hello"
+	test we can generate a Debug command
+		assert (adebug)
+			Debug "hello"
+
+	test we can generate a Debug command through a function
+		assert (fdebug)
+			Debug "hello"
+
+	test we can generate a Debug command passing in an argument
+		assert (ndebug "we are here")
+			Debug "we are here"
+
+	test we can generate a Debug command passing in an argument through a nested function
+		assert (f "this is data")
+			Debug "this is data"
