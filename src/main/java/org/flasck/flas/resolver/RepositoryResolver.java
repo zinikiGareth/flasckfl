@@ -114,6 +114,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
+		scopeStack.add(0, scope);
 		scope = cd.name();
 	}
 	
@@ -124,23 +125,31 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
-		this.scope = null;
+		this.scope = scopeStack.remove(0);
 	}
 	
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
+		scopeStack.add(0, scope);
 		this.scope = e.name;
 	}
-	
+
+	@Override
+	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
+		scopeStack.add(0, scope);
+		this.scope = udd.name;
+	}
+
 	@Override
 	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
+		this.scope = scopeStack.remove(0);
 		if (udd.expr == null && !(udd.ofType.defn() instanceof ContractDecl) && udd.fields.isEmpty())
 			errors.message(udd.location(), "at least one field assignment must be specified");
 	}
 	
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
-		this.scope = null;
+		this.scope = scopeStack.remove(0);
 	}
 
 	private RepositoryEntry find(NameOfThing s, String var) {

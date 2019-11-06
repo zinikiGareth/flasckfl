@@ -21,11 +21,13 @@ import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDAUnitTestDataParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final boolean atTopLevel;
 	private final UnitDataNamer namer;
 	private final Consumer<UnitDataDeclaration> builder;
 
-	public TDAUnitTestDataParser(ErrorReporter errors, UnitDataNamer namer, Consumer<UnitDataDeclaration> builder) {
+	public TDAUnitTestDataParser(ErrorReporter errors, boolean atTopLevel, UnitDataNamer namer, Consumer<UnitDataDeclaration> builder) {
 		this.errors = errors;
+		this.atTopLevel = atTopLevel;
 		this.namer = namer;
 		this.builder = builder;
 	}
@@ -46,7 +48,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 		}
 		FunctionName fnName = namer.dataName(var.location, var.text);
 		if (!toks.hasMore()) {
-			UnitDataDeclaration data = new UnitDataDeclaration(pos, tr.get(0), fnName, null);
+			UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, null);
 			builder.accept(data);
 			return new TDAProcessFieldsParser(errors, data);
 		}
@@ -65,7 +67,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
-		UnitDataDeclaration data = new UnitDataDeclaration(pos, tr.get(0), fnName, exprs.get(0));
+		UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, exprs.get(0));
 		builder.accept(data);
 		return new NoNestingParser(errors);
 	}

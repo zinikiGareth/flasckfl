@@ -299,7 +299,7 @@ public class ResolverTests {
 			oneOf(errors).message(pos, "at least one field assignment must be specified");
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
-		UnitDataDeclaration udd = new UnitDataDeclaration(pos, tr, FunctionName.function(pos, pkg, "ut"), null);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), null);
 		Resolver r = new RepositoryResolver(errors, rr);
 		new Traverser(r).visitUnitTestStep(udd);
 	}
@@ -310,7 +310,7 @@ public class ResolverTests {
 			oneOf(rr).get("StructThing"); will(returnValue(LoadBuiltins.cons));
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
-		UnitDataDeclaration udd = new UnitDataDeclaration(pos, tr, FunctionName.function(pos, pkg, "ut"), null);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), null);
 		udd.fields.add(new Assignment(new UnresolvedVar(pos, "x"), new StringLiteral(pos, "hello")));
 		Resolver r = new RepositoryResolver(errors, rr);
 		new Traverser(r).visitUnitTestStep(udd);
@@ -322,7 +322,7 @@ public class ResolverTests {
 			oneOf(rr).get("AContract"); will(returnValue(cd));
 		}});
 		TypeReference tr = new TypeReference(pos, "AContract");
-		UnitDataDeclaration udd = new UnitDataDeclaration(pos, tr, FunctionName.function(pos, pkg, "ut"), null);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), null);
 		Resolver r = new RepositoryResolver(errors, rr);
 		new Traverser(r).visitUnitTestStep(udd);
 	}
@@ -333,7 +333,7 @@ public class ResolverTests {
 			oneOf(rr).get("StructThing"); will(returnValue(LoadBuiltins.cons));
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
-		UnitDataDeclaration udd = new UnitDataDeclaration(pos, tr, FunctionName.function(pos, pkg, "ut"), new StringLiteral(pos, "foo"));
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), new StringLiteral(pos, "foo"));
 		Resolver r = new RepositoryResolver(errors, rr);
 		new Traverser(r).visitUnitTestStep(udd);
 	}

@@ -207,7 +207,7 @@ public class UnitTestStepParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(namer).dataName(with(any(InputPosition.class)), with("x")); will(returnValue(FunctionName.function(pos, pkg, "x")));
 			oneOf(builder).data(with(any(UnitDataDeclaration.class)));
-			oneOf(topLevel).data(with(any(UnitDataDeclaration.class)));
+			oneOf(topLevel).nestedData(with(any(UnitDataDeclaration.class)));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("data Number x <- 86"));

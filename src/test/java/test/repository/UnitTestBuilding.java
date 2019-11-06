@@ -31,7 +31,7 @@ public class UnitTestBuilding {
 
 	@Test
 	public void addingAFieldToADataDecl() {
-		UnitDataDeclaration decl = new UnitDataDeclaration(pos, null, null, null);
+		UnitDataDeclaration decl = new UnitDataDeclaration(pos, false, null, null, null);
 		decl.field(new UnresolvedVar(pos, "x"), new StringLiteral(pos, "hello"));
 		assertEquals(1, decl.fields.size());
 		Assignment f = decl.fields.get(0);
@@ -60,7 +60,7 @@ public class UnitTestBuilding {
 	@Test
 	public void addingADataStep() {
 		UnitTestCase utc = new UnitTestCase(name, "this is a test");
-		UnitDataDeclaration udd = new UnitDataDeclaration(pos, new TypeReference(pos, "Unit"), FunctionName.function(pos, utc.name, "x"), new StringLiteral(pos, "expr"));
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, new TypeReference(pos, "Unit"), FunctionName.function(pos, utc.name, "x"), new StringLiteral(pos, "expr"));
 		utc.data(udd);
 		assertEquals(1, utc.steps.size());
 		assertEquals(udd, utc.steps.get(0));
@@ -70,7 +70,7 @@ public class UnitTestBuilding {
 	public void canAddMultipleSteps() {
 		UnitTestCase utc = new UnitTestCase(name, "this is a test");
 		utc.assertion(new StringLiteral(pos, "hello"), new StringLiteral(pos, "goodbye"));
-		UnitDataDeclaration udd = new UnitDataDeclaration(pos, new TypeReference(pos, "Unit"), FunctionName.function(pos, utc.name, "x"), new StringLiteral(pos, "expr"));
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, new TypeReference(pos, "Unit"), FunctionName.function(pos, utc.name, "x"), new StringLiteral(pos, "expr"));
 		utc.data(udd);
 		assertEquals(2, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestAssert);

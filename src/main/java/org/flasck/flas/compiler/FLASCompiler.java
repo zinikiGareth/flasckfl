@@ -22,6 +22,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.ut.ConsumeDefinitions;
 import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.Repository;
@@ -91,7 +92,7 @@ public class FLASCompiler {
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
 			UnitTestPackage utp = new UnitTestPackage(utfn);
 			repository.unitTestPackage(utp);
-			ParsingPhase parser = new ParsingPhase(errors, utfn, utp);
+			ParsingPhase parser = new ParsingPhase(errors, utfn, new ConsumeDefinitions(repository, utp));
 			parser.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
 			mark = errors.mark();

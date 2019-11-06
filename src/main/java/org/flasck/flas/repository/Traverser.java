@@ -142,7 +142,11 @@ public class Traverser implements Visitor {
 			visitUnionTypeDefn((UnionTypeDefn)e);
 		else if (e instanceof UnitTestPackage)
 			visitUnitTestPackage((UnitTestPackage)e);
-		else if (e instanceof VarPattern || e instanceof TypedPattern)
+		else if (e instanceof UnitDataDeclaration) {
+			UnitDataDeclaration udd = (UnitDataDeclaration) e;
+			if (udd.isTopLevel())
+				visitUnitDataDeclaration(udd);
+		} else if (e instanceof VarPattern || e instanceof TypedPattern)
 			; // do nothing: it is just in the repo for lookup purposes
 		else if (e instanceof CurryArgument)
 			; // do nothing; just for resolution

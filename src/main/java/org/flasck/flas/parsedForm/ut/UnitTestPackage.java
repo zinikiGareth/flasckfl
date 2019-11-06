@@ -6,10 +6,9 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
-import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 
-public class UnitTestPackage implements RepositoryEntry, UnitTestDefinitionConsumer {
+public class UnitTestPackage implements RepositoryEntry {
 	private final UnitTestFileName utfn;
 	private final List<UnitTestCase> tests = new ArrayList<>();
 
@@ -21,12 +20,10 @@ public class UnitTestPackage implements RepositoryEntry, UnitTestDefinitionConsu
 		return utfn;
 	}
 
-	@Override
 	public void testCase(UnitTestCase utc) {
 		tests.add(utc);
 	}
 
-	@Override
 	public void data(UnitDataDeclaration data) {
 	}
 

@@ -29,7 +29,7 @@ public class TDAUnitTestParser implements TDAParsing {
 		}
 		switch (tok.text) {
 		case "data": {
-			return new TDAUnitTestDataParser(errors, namer, dd -> builder.data(dd)).tryParsing(toks);
+			return new TDAUnitTestDataParser(errors, false, namer, dd -> builder.data(dd)).tryParsing(toks);
 		}
 		case "test": {
 			final String desc = toks.remainder().trim();
