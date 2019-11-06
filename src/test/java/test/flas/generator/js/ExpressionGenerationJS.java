@@ -1,6 +1,7 @@
 package test.flas.generator.js;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -21,6 +22,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -169,6 +171,34 @@ public class ExpressionGenerationJS {
 		hsi.consider(fi);
 		fn.bindHsi(hsi);
 		new Traverser(sv).withHSI().visitFunction(fn);
+	}
+
+	@Test
+	public void aStandaloneMethod() {
+		JSStorage jss = context.mock(JSStorage.class);
+		JSExpr nret = context.mock(JSExpr.class, "nret");
+		context.checking(new Expectations() {{
+			oneOf(jss).newFunction("test.repo", "f"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt");
+			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));
+			oneOf(meth).returnObject(nret);
+		}});
+		StackVisitor sv = new StackVisitor();
+		new JSGenerator(jss, sv);
+		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
+		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
+		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
+		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>());
+		om.sendMessage(new SendMessage(pos, expr));
+		StandaloneMethod sm = new StandaloneMethod(om);
+		FunctionIntro fi = new FunctionIntro(fnName, new ArrayList<>());
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		fi.functionCase(fcd);
+		om.conversion(Arrays.asList(fi));
+		HSIArgsTree hsi = new HSIArgsTree(0);
+		hsi.consider(fi);
+		om.bindHsi(hsi);
+		new Traverser(sv).withHSI().visitStandaloneMethod(sm);
 	}
 
 	@Test

@@ -47,6 +47,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	public ExprGeneratorJS(NestedVisitor nv, JSBlockCreator block) {
 		this.sv = nv;
+		if (block == null)
+			throw new NullPointerException("Cannot have a null block");
 		this.block = block;
 	}
 

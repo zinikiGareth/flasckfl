@@ -14,6 +14,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.patterns.HSITree;
+import org.flasck.flas.repository.FunctionHSICases;
 import org.flasck.flas.repository.HSICases;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
@@ -78,7 +79,9 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 
 	@Override
 	public HSICases hsiCases() {
-		throw new NotImplementedException();
+		if (convertedIntros == null)
+			throw new RuntimeException("Method has not been converted");
+		return new FunctionHSICases(convertedIntros);
 	}
 	
 	public List<Slot> slots() {
@@ -91,6 +94,10 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 
 	public void conversion(List<FunctionIntro> convertedIntros) {
 		this.convertedIntros = convertedIntros;
+	}
+
+	public boolean isConverted() {
+		return convertedIntros != null;
 	}
 	
 	public List<FunctionIntro> converted() {

@@ -15,6 +15,8 @@ public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 
 	public GuardGeneratorJS(NestedVisitor sv, JSBlockCreator block) {
 		this.sv = sv;
+		if (block == null)
+			throw new NullPointerException("Cannot have a null block");
 		this.block = block;
 		this.trueblock = block;
 	}

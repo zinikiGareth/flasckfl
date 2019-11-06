@@ -9,6 +9,7 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.LeafAdapter;
@@ -63,6 +64,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public JSGenerator(JSMethodCreator meth, JSExpr runner, NestedVisitor sv) {
 		this.sv = sv;
 		this.jse = null;
+		if (meth == null)
+			throw new RuntimeException("Meth cannot be null");
 		this.meth = meth;
 		this.block = meth;
 		this.runner = runner;
@@ -81,6 +84,21 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = jse.newFunction(pkg, fn.name().jsName().substring(pkg.length()+1));
 		this.meth.argument("_cxt");
 		for (int i=0;i<fn.argCount();i++)
+			this.meth.argument("_" + i);
+		this.block = meth;
+	}
+	
+	@Override
+	public void visitObjectMethod(ObjectMethod om) {
+		switchVars.clear();
+		if (!om.isConverted()) {
+			this.meth = null;
+			return;
+		}
+		String pkg = om.name().packageName().jsName();
+		this.meth = jse.newFunction(pkg, om.name().jsName().substring(pkg.length()+1));
+		this.meth.argument("_cxt");
+		for (int i=0;i<om.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
 	}
