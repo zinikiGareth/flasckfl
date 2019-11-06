@@ -28,6 +28,7 @@ import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
@@ -114,15 +115,6 @@ public class UnitTestTopLevelParsingTests {
 		assertTrue(nested instanceof NoNestingParser);
 		utp.tryParsing(line("y <- 'hello'"));
 		nested.scopeComplete(pos);
-		utp.scopeComplete(pos);
-	}
-
-	@Test
-	public void testThereMustBeAtLeastOneFieldAssignment() {
-		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "at least one field assignment must be specified");
-		}});
-		TDAProcessFieldsParser utp = new TDAProcessFieldsParser(tracker, udc);
 		utp.scopeComplete(pos);
 	}
 

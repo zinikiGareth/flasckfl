@@ -50,6 +50,8 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.patterns.HSICtorTree;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIOptions.IntroTypeVar;
@@ -788,11 +790,12 @@ public class Traverser implements Visitor {
 		for (UnitTestStep s : e.steps) {
 			visitUnitTestStep(s);
 		}
-		visitor.leaveUnitTest(e);
+		leaveUnitTest(e);
 	}
 
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
+		visitor.leaveUnitTest(e);
 	}
 
 	@Override
@@ -800,8 +803,36 @@ public class Traverser implements Visitor {
 		visitor.visitUnitTestStep(s);
 		if (s instanceof UnitTestAssert)
 			visitUnitTestAssert((UnitTestAssert) s);
+		else if (s instanceof UnitDataDeclaration)
+			visitUnitDataDeclaration((UnitDataDeclaration) s);
 		else
 			throw new NotImplementedException();
+	}
+
+	@Override
+	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
+		visitor.visitUnitDataDeclaration(udd);
+		visitTypeReference(udd.ofType);
+		if (udd.expr != null)
+			visitExpr(udd.expr, 0);
+		for (Assignment f : udd.fields)
+			visitUnitDataField(f);
+		leaveUnitDataDeclaration(udd);
+	}
+
+	@Override
+	public void visitUnitDataField(Assignment assign) {
+		visitor.visitUnitDataField(assign);
+		visitExpr(assign.value, 0);
+		leaveUnitDataField(assign);
+	}
+
+	public void leaveUnitDataField(Assignment assign) {
+		visitor.leaveUnitDataField(assign);
+	}
+
+	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
+		visitor.leaveUnitDataDeclaration(udd);
 	}
 
 	@Override

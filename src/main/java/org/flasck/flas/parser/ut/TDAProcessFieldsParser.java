@@ -19,7 +19,6 @@ import org.flasck.flas.tokenizers.VarNameToken;
 public class TDAProcessFieldsParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final UnitDataFieldConsumer data;
-	private boolean haveField = false;
 
 	public TDAProcessFieldsParser(ErrorReporter errors, UnitDataFieldConsumer data) {
 		this.errors = errors;
@@ -28,7 +27,6 @@ public class TDAProcessFieldsParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		haveField = true;
 		ValidIdentifierToken var = VarNameToken.from(toks);
 		if (var == null) {
 			errors.message(toks, "syntax error");
@@ -55,8 +53,10 @@ public class TDAProcessFieldsParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (!haveField)
-			errors.message(location, "at least one field assignment must be specified");
+		// while I fundamentally approve of this approach and message, there needs to be an exception for Contracts, which depends on knowing what type it resolves
+		// to, so this test needs to move elsewhere
+//		if (!haveField)
+//			errors.message(location, "at least one field assignment must be specified");
 	}
 
 }

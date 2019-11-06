@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
@@ -129,6 +130,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		this.scope = e.name;
+	}
+	
+	@Override
+	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
+		if (udd.expr == null && !(udd.ofType.defn() instanceof ContractDecl) && udd.fields.isEmpty())
+			errors.message(udd.location(), "at least one field assignment must be specified");
 	}
 	
 	@Override

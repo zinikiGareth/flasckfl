@@ -3,13 +3,15 @@ package org.flasck.flas.parser.ut;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 
-public class UnitDataDeclaration implements UnitDataFieldConsumer, UnitTestStep {
+public class UnitDataDeclaration implements UnitDataFieldConsumer, UnitTestStep, Locatable {
 	public static class Assignment {
 		public final UnresolvedVar field;
 		public final Expr value;
@@ -20,15 +22,21 @@ public class UnitDataDeclaration implements UnitDataFieldConsumer, UnitTestStep 
 		}
 	}
 
+	private final InputPosition pos;
 	public final FunctionName name;
 	public final TypeReference ofType;
 	public final Expr expr;
 	public final List<Assignment> fields = new ArrayList<>();
 
-	public UnitDataDeclaration(TypeReference ofType, FunctionName name, Expr expr) {
+	public UnitDataDeclaration(InputPosition pos, TypeReference ofType, FunctionName name, Expr expr) {
+		this.pos = pos;
 		this.ofType = ofType;
 		this.name = name;
 		this.expr = expr;
+	}
+	
+	public InputPosition location() {
+		return pos;
 	}
 	
 	@Override

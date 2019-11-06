@@ -32,6 +32,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		InputPosition pos = toks.realinfo();
 		List<TypeReference> tr = new ArrayList<>();
 		TDATypeReferenceParser parser = new TDATypeReferenceParser(errors, x -> tr.add(x));
 		if (parser.tryParsing(toks) == null) {
@@ -45,7 +46,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 		}
 		FunctionName fnName = namer.dataName(var.location, var.text);
 		if (!toks.hasMore()) {
-			UnitDataDeclaration data = new UnitDataDeclaration(tr.get(0), fnName, null);
+			UnitDataDeclaration data = new UnitDataDeclaration(pos, tr.get(0), fnName, null);
 			builder.accept(data);
 			return new TDAProcessFieldsParser(errors, data);
 		}
@@ -64,7 +65,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
-		UnitDataDeclaration data = new UnitDataDeclaration(tr.get(0), fnName, exprs.get(0));
+		UnitDataDeclaration data = new UnitDataDeclaration(pos, tr.get(0), fnName, exprs.get(0));
 		builder.accept(data);
 		return new NoNestingParser(errors);
 	}

@@ -39,6 +39,8 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
@@ -245,6 +247,22 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveMemberExpr(MemberExpr expr) {
 		top.leaveMemberExpr(expr);
+	}
+
+	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
+		top.visitUnitDataDeclaration(udd);
+	}
+
+	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
+		top.leaveUnitDataDeclaration(udd);
+	}
+
+	public void visitUnitDataField(Assignment assign) {
+		top.visitUnitDataField(assign);
+	}
+
+	public void leaveUnitDataField(Assignment assign) {
+		top.leaveUnitDataField(assign);
 	}
 
 	public void visitUnitTestStep(UnitTestStep s) {

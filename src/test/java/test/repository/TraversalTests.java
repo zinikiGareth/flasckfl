@@ -28,6 +28,8 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
@@ -250,12 +252,19 @@ public class TraversalTests {
 		UnitTestPackage utp = new UnitTestPackage(utfn);
 		UnitTestCase utc = new UnitTestCase(name, "do something");
 		utp.testCase(utc);
+		TypeReference tr = new TypeReference(pos, "StructThing");
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, tr, FunctionName.function(pos, pkg, "ut"), null);
+		utc.steps.add(udd);
 		UnitTestAssert uta = new UnitTestAssert(null, null);
 		utc.steps.add(uta);
 		r.addEntry(name, utp);
 		context.checking(new Expectations() {{
 			oneOf(v).visitUnitTestPackage(utp);
 			oneOf(v).visitUnitTest(utc);
+			oneOf(v).visitUnitTestStep(udd);
+			oneOf(v).visitUnitDataDeclaration(udd);
+			oneOf(v).visitTypeReference(tr);
+			oneOf(v).leaveUnitDataDeclaration(udd);
 			oneOf(v).visitUnitTestStep(uta);
 			oneOf(v).visitUnitTestAssert(uta);
 			oneOf(v).visitAssertExpr(true, null);
@@ -269,5 +278,45 @@ public class TraversalTests {
 			oneOf(v).leaveUnitTestPackage(utp);
 		}});
 		r.traverse(v);
+	}
+
+	@Test
+	public void traverseUnitTestDataDefinitionWithFieldDeclarations() {
+		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
+		UnitTestName name = new UnitTestName(utfn, 1);
+		UnitTestCase utc = new UnitTestCase(name, "do something");
+		TypeReference tr = new TypeReference(pos, "StructThing");
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, tr, FunctionName.function(pos, pkg, "ut"), null);
+		Assignment assign = new Assignment(new UnresolvedVar(pos, "x"), simpleExpr);
+		udd.fields.add(assign);
+		utc.steps.add(udd);
+		context.checking(new Expectations() {{
+			oneOf(v).visitUnitDataDeclaration(udd);
+			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitUnitDataField(assign);
+			oneOf(v).visitExpr(simpleExpr, 0);
+			oneOf(v).visitStringLiteral(simpleExpr);
+			oneOf(v).leaveUnitDataField(assign);
+			oneOf(v).leaveUnitDataDeclaration(udd);
+		}});
+		new Traverser(v).visitUnitDataDeclaration(udd);
+	}
+
+	@Test
+	public void traverseUnitTestDataDefinitionWithExor() {
+		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
+		UnitTestName name = new UnitTestName(utfn, 1);
+		UnitTestCase utc = new UnitTestCase(name, "do something");
+		TypeReference tr = new TypeReference(pos, "StructThing");
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, tr, FunctionName.function(pos, pkg, "ut"), simpleExpr);
+		utc.steps.add(udd);
+		context.checking(new Expectations() {{
+			oneOf(v).visitUnitDataDeclaration(udd);
+			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitExpr(simpleExpr, 0);
+			oneOf(v).visitStringLiteral(simpleExpr);
+			oneOf(v).leaveUnitDataDeclaration(udd);
+		}});
+		new Traverser(v).visitUnitDataDeclaration(udd);
 	}
 }
