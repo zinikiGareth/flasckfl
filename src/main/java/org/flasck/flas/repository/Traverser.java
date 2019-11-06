@@ -846,6 +846,19 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitContractMethod(ContractMethodDecl cmd) {
 		visitor.visitContractMethod(cmd);
+		for (Object a : cmd.args) {
+			if (a instanceof TypedPattern) {
+				TypedPattern p = (TypedPattern) a;
+				visitTypeReference(p.type);
+			}
+		}
+		leaveContractMethod(cmd);
+
+	}
+
+	@Override
+	public void leaveContractMethod(ContractMethodDecl cmd) {
+		visitor.leaveContractMethod(cmd);
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -21,6 +22,7 @@ import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -156,12 +158,29 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
 			oneOf(v).visitContractMethod(cmd);
+			oneOf(v).leaveContractMethod(cmd);
 			oneOf(v).leaveContractDecl(cd);
 		}});
 		r.traverse(v);
 	}
 
-	// TODO: method with arguments
+	@Test
+	public void traverseContractWithMethodsWithArguments() {
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contr"));
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
+		TypeReference tr = new TypeReference(pos, "HandlerType");
+		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cmd.name, "handler")));
+		cd.addMethod(cmd);
+		r.addEntry(cd.name(), cd);
+		context.checking(new Expectations() {{
+			oneOf(v).visitContractDecl(cd);
+			oneOf(v).visitContractMethod(cmd);
+			oneOf(v).visitTypeReference(tr);
+			oneOf(v).leaveContractMethod(cmd);
+			oneOf(v).leaveContractDecl(cd);
+		}});
+		r.traverse(v);
+	}
 	
 	@Test
 	public void exprDoesntVisitNull() {

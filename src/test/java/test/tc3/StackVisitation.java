@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -24,6 +25,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -403,12 +405,58 @@ public class StackVisitation {
 	@Test
 	public void leaveMemberExpressionCanFindAMethodInAValidContract() {
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
-		List<Object> args = new ArrayList<>();
-		cd.addMethod(new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args));
+		List<Pattern> args = new ArrayList<>();
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args);
+		cd.addMethod(cmd);
+		cmd.bindType();
 		
 		MemberExpressionChecker mec = new MemberExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(LoadBuiltins.send);
+		}});
+		UnresolvedVar from = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "m");
+		MemberExpr dot = new MemberExpr(pos, from, fld);
+		mec.result(new ExprResult(cd));
+		mec.leaveMemberExpr(dot);
+	}
+	
+	@Test
+	public void leaveMemberExpressionCannotFindAMethodThatDoesNotExist() {
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+		List<Pattern> args = new ArrayList<>();
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args);
+		cd.addMethod(cmd);
+		cmd.bindType();
+		
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, state, nv);
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "there is no method 'q' in test.repo.AContract");
+			oneOf(nv).result(with(any(ErrorType.class)));
+		}});
+		UnresolvedVar from = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "q");
+		MemberExpr dot = new MemberExpr(pos, from, fld);
+		mec.result(new ExprResult(cd));
+		mec.leaveMemberExpr(dot);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void leaveMemberExpressionCanHandleAnMethodWithArgumentsAndReturnSomethingThatLooksLikeAFunction() {
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+		List<Pattern> args = new ArrayList<>();
+		FunctionName mname = FunctionName.contractMethod(pos, cd.name(), "m");
+		TypedPattern argx = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, mname, "x"));
+		argx.type.bind(LoadBuiltins.string);
+		args.add(argx);
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args);
+		cd.addMethod(cmd);
+		cmd.bindType();
+		
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, state, nv);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.send))));
 		}});
 		UnresolvedVar from = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "m");

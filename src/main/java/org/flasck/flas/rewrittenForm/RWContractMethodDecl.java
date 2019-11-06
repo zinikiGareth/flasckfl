@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.types.FunctionType;
@@ -14,11 +15,11 @@ public class RWContractMethodDecl implements Locatable, Comparable<RWContractMet
 	public final boolean required;
 	public final ContractMethodDir dir;
 	public final String name;
-	public final List<Object> args;
+	public final List<Pattern> args;
 	public final FunctionType type;
 	public final RWTypedPattern handler;
 
-	public RWContractMethodDecl(InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Object> args, FunctionType type, RWTypedPattern handler) {
+	public RWContractMethodDecl(InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Pattern> args, FunctionType type, RWTypedPattern handler) {
 		this.pos = pos;
 		this.required = required;
 		this.dir = dir;

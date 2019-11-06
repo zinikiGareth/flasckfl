@@ -25,6 +25,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.AreaName;
@@ -920,15 +921,15 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private RWContractMethodDecl rewriteCMD(NamingContext cx, SolidName name, ContractMethodDecl cmd) {
-		List<Object> outargs = new ArrayList<Object>();
+		List<Pattern> outargs = new ArrayList<>();
 		List<RWTypedPattern> handlerOut = new ArrayList<>();
 		final FunctionType type = deriveType(cx, cmd.location(), cmd.args, cmd.name, outargs, handlerOut);
 		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, outargs, type, handlerOut.get(0));
 	}
 
-	private FunctionType deriveType(NamingContext cx, final InputPosition loc, final List<Object> inargs, final FunctionName cn, List<Object> outargs, List<RWTypedPattern> handlerOut) {
+	private FunctionType deriveType(NamingContext cx, final InputPosition loc, final List<Pattern> inargs, final FunctionName cn, List<Pattern> outargs, List<RWTypedPattern> handlerOut) {
 		List<Type> targs = new ArrayList<Type>(); 
-		for (Object o : inargs) {
+		for (Pattern o : inargs) {
 			if (outargs != null)
 				outargs.add(rewritePattern(cx, cn, o));
 			if (o instanceof VarPattern) {
@@ -1209,7 +1210,7 @@ public class Rewriter implements CodeGenRegistry {
 
 	private RWFunctionIntro rewriteFunctionIntro(NamingContext cx, FunctionIntro intro, NameOfThing csName, Map<String, LocalVar> vars) {
 		List<Object> args = new ArrayList<Object>();
-		for (Object o : intro.args) {
+		for (Pattern o : intro.args) {
 			args.add(rewritePattern(cx, csName, o));
 		}
 		return new RWFunctionIntro(intro.location, intro.name(), args, vars);
@@ -1302,7 +1303,8 @@ public class Rewriter implements CodeGenRegistry {
 		return new FunctionLiteral(d3f.location, d3f.fnName);
 	}
 
-	public Object rewritePattern(NamingContext cx, NameOfThing name, Object o) {
+	public Pattern rewritePattern(NamingContext cx, NameOfThing name, Pattern o) {
+		/*
 		try {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
@@ -1328,6 +1330,8 @@ public class Rewriter implements CodeGenRegistry {
 			errors.message(ex.location, "no such type: " + ex.name);
 			return null;
 		}
+		*/
+		return null;
 	}
 
 	public RWMethodMessage rewrite(NamingContext cx, MethodMessage mm) {

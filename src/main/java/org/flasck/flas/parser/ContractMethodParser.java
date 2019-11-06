@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
@@ -54,7 +55,7 @@ public class ContractMethodParser implements TDAParsing {
 		}
 		FunctionName fnName = FunctionName.contractDecl(name.location, cname, name.text);
 
-		List<Object> args = new ArrayList<>();
+		List<Pattern> args = new ArrayList<>();
 		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), x-> args.add(x), topLevel);
 		while (pp.tryParsing(toks) != null)
 			;

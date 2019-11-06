@@ -275,6 +275,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitContractMethod(cmd);
 	}
 
+	public void leaveContractMethod(ContractMethodDecl cmd) {
+		top.leaveContractMethod(cmd);
+	}
+
 	public void leaveContractDecl(ContractDecl cd) {
 		top.leaveContractDecl(cd);
 	}

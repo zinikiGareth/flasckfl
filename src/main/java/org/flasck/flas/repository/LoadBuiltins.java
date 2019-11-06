@@ -23,17 +23,17 @@ public class LoadBuiltins {
 	
 	// Type References used here ...
 	private static final TypeReference polyATR = new TypeReference(pos, "A");
-	private static final TypeReference anyTR = new TypeReference(pos, "Any");
-	private static final TypeReference contractTR = new TypeReference(pos, "Contract");
-	private static final TypeReference stringTR = new TypeReference(pos, "String");
-	private static final TypeReference falseTR = new TypeReference(pos, "False");
-	private static final TypeReference trueTR = new TypeReference(pos, "True"); 
-	private static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
-	private static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR);
-	private static final TypeReference listATR = new TypeReference(pos, "List", polyATR);
-	private static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
-	private static final TypeReference debugTR = new TypeReference(pos, "Debug");
-	private static final TypeReference sendTR = new TypeReference(pos, "Send");
+	public static final TypeReference anyTR = new TypeReference(pos, "Any");
+	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
+	public static final TypeReference stringTR = new TypeReference(pos, "String");
+	public static final TypeReference falseTR = new TypeReference(pos, "False");
+	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
+	public static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
+	public static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR);
+	public static final TypeReference listATR = new TypeReference(pos, "List", polyATR);
+	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
+	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
+	public static final TypeReference sendTR = new TypeReference(pos, "Send");
 	
 	// "Primitive" types
 	public static final Primitive any = new Primitive(pos, "Any");

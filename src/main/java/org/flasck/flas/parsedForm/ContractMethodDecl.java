@@ -1,11 +1,14 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Type;
 
 public class ContractMethodDecl implements Locatable, Comparable<ContractMethodDecl> {
@@ -15,9 +18,10 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	public final boolean required;
 	public final ContractMethodDir dir;
 	public final FunctionName name;
-	public final List<Object> args;
+	public final List<Pattern> args;
+	private Type type;
 
-	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Object> args) {
+	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Pattern> args) {
 		this.rkw = rkw;
 		this.dkw = dkw;
 		this.pos = pos;
@@ -34,8 +38,22 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 		return name.compareTo(o.name);
 	}
 
+	public void bindType() {
+		if (this.type != null)
+			throw new RuntimeException("Type already bound to " + this.type + " cannot rebind");
+		if (this.args.isEmpty())
+			this.type = LoadBuiltins.send;
+		else {
+			List<Type> types = new ArrayList<>();
+			for (Pattern p : this.args) {
+				types.add(((TypedPattern)p).type());
+			}
+			this.type = new Apply(types, LoadBuiltins.send);
+		}
+	}
+
 	public Type type() {
-		return LoadBuiltins.send;
+		return this.type;
 	}
 	
 	@Override

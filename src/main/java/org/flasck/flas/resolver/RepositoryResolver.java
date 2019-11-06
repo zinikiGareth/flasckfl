@@ -13,7 +13,6 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -118,13 +117,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
-	public void visitContractMethod(ContractMethodDecl cmd) {
-		for (Object a : cmd.args) {
-			if (a instanceof TypedPattern) {
-				TypedPattern p = (TypedPattern) a;
-				visitTypeReference(p.type);
-			}
-		}
+	public void leaveContractMethod(ContractMethodDecl cmd) {
+		cmd.bindType();
 	}
 	
 	@Override

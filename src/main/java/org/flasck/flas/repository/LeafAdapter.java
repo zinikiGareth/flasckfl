@@ -291,6 +291,12 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void leaveContractMethod(ContractMethodDecl cmd) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void leaveContractDecl(ContractDecl cd) {
 	}
 }

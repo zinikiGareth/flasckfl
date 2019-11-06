@@ -47,8 +47,13 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			ContractDecl cd = (ContractDecl) ty;
 			if (!(expr.fld instanceof UnresolvedVar))
 				throw new NotImplementedException("Cannot handle " + expr.fld);
-			ContractMethodDecl method = cd.getMethod(((UnresolvedVar)expr.fld).var);
-			nv.result(method.type());
+			UnresolvedVar fld = (UnresolvedVar)expr.fld;
+			ContractMethodDecl method = cd.getMethod(fld.var);
+			if (method == null) {
+				errors.message(fld.location(), "there is no method '" + fld.var + "' in " + cd.name().uniqueName());
+				nv.result(new ErrorType());
+			} else
+				nv.result(method.type());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
 	}

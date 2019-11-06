@@ -2,6 +2,7 @@ package test.resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,15 +34,20 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+
+import test.tc3.ApplyMatcher;
 
 public class ResolverTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -62,7 +68,7 @@ public class ResolverTests {
 	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
-	private final ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "ContractName"));
+	private final ContractDecl ht = new ContractDecl(pos, pos, new SolidName(pkg, "HandlerType"));
 
 	@Test
 	public void testWeCanResolveASimpleName() {
@@ -261,20 +267,22 @@ public class ResolverTests {
 		assertEquals(vy, y.defn());
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testWeCanResolveArgumentTypesInAContractMethod() {
 		RepositoryReader ry = context.mock(RepositoryReader.class);
 		context.checking(new Expectations() {{
-			oneOf(ry).get("test.repo.MyHandler"); will(returnValue(cd));
+			oneOf(ry).get("test.repo.HandlerType"); will(returnValue(ht));
 		}});
 		Resolver r = new RepositoryResolver(errors, ry);
 		r.currentScope(pkg);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
-		TypeReference tr = new TypeReference(pos, "MyHandler");
+		TypeReference tr = new TypeReference(pos, "HandlerType");
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, op.name(), "handler")));
 		new Traverser(r).visitContractMethod(cmd);
-		assertEquals(cd, tr.defn());
+		assertEquals(ht, tr.defn());
+		assertThat(cmd.type(), (Matcher)ApplyMatcher.type(Matchers.is(ht), Matchers.is(LoadBuiltins.send)));
 	}
 
 

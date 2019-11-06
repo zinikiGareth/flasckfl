@@ -5,3 +5,4 @@ test.golden.fdebug :: Debug
 test.golden.k :: True->Cons[String]->Debug
 test.golden.ndebug :: String->Debug
 test.golden.q :: test.golden.Sample->Send
+test.golden.r :: test.golden.Sample->Send
