@@ -15,6 +15,8 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.FunctionHSICases;
+import org.flasck.flas.repository.HSICases;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -49,7 +51,7 @@ public class HSIPatternOptions implements HSIOptions {
 			this.var = var;
 		}
 
-		public boolean containsAny(List<FunctionIntro> curr) {
+		public boolean containsAny(HSICases curr) {
 			for (FunctionIntro fi : intros)
 				if (curr.contains(fi))
 					return true;
@@ -121,7 +123,7 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public List<FunctionIntro> getDefaultIntros(List<FunctionIntro> intros) {
+	public List<FunctionIntro> getDefaultIntros(HSICases cases) {
 		ArrayList<FunctionIntro> ret = new ArrayList<>(all);
 		for (HSICtorTree ct : ctors.values())
 			ret.removeAll(ct.intros());
@@ -167,16 +169,16 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 	
 	@Override
-	public List<IntroVarName> vars(List<FunctionIntro> intros) {
+	public List<IntroVarName> vars(HSICases intros) {
 		List<IntroVarName> ret = new ArrayList<>();
 		addVars(ret, intros, vars);
 		addVars(ret, intros, types.values());
 		return ret;
 	}
 
-	private void addVars(List<IntroVarName> ret, List<FunctionIntro> intros, Collection<TV> list) {
+	private void addVars(List<IntroVarName> ret, HSICases intros, Collection<TV> list) {
 		for (TV v : list) {
-			for (FunctionIntro i : intros) {
+			for (FunctionIntro i : ((FunctionHSICases)intros).intros) {
 				if (v.intros.contains(i))
 					if (v.var != null)
 						ret.add(new IntroVarName(i, v.var));
@@ -185,12 +187,12 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public Set<Integer> numericConstants(ArrayList<FunctionIntro> intersect) {
+	public Set<Integer> numericConstants(HSICases intersect) {
 		return numericConstants;
 	}
 
 	@Override
-	public Set<String> stringConstants(ArrayList<FunctionIntro> intersect) {
+	public Set<String> stringConstants(HSICases intersect) {
 		return stringConstants;
 	}
 
@@ -235,7 +237,7 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public boolean hasSwitches(List<FunctionIntro> intros) {
+	public boolean hasSwitches(HSICases intros) {
 		for (HSITree c : this.ctors.values())
 			if (c.containsAny(intros))
 				return true;

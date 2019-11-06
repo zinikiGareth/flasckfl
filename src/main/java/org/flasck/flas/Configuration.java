@@ -15,7 +15,7 @@ public class Configuration {
 	private List<File> searchFlim = new ArrayList<>();
 	private File root;
 	public boolean doTypeCheck = true;
-	public boolean generateJS = false;
+	public boolean generateJS = true;
 	public boolean generateJVM = false;
 	public File writeFlim;
 	public File writeHSIE;

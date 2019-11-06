@@ -4,31 +4,35 @@
 		<- Debug "hello"
 		
 // a standalone method is just a function, so it can be assigned to another function
-	fdebug = adebug
+.	fdebug = adebug
 
 // it can take an argument
-	method ndebug msg
-		<- Debug msg
+.	method ndebug msg
+.		<- Debug msg
 	
 // and as far as I can see it can be embedded in another function
 
-	f msg = showdebug
-		method showdebug
-			<- Debug msg
+.	f msg = showdebug
+.		method showdebug
+.			<- Debug msg
 			
 // we need something with complex arguments too ...
-	method k True (Cons {head: h, tail: t})
-		<- Debug h
+.	method k True (Cons {head: h, tail: t})
+.		<- Debug h
 
-	contract Sample
-		up meth (String msg)
+.	contract Sample
+.		up meth (String msg)
 		
 // we can send to an argument, so this works and should typecheck in some way
-	method q (Sample svc)
-		<- Send svc "meth" ["hello"]
+.	method q (Sample svc)
+.		<- Send svc "meth" ["hello"]
 
-	method r (Sample svc)
-		<- svc.meth "hello"
+.	method r (Sample svc)
+.		<- svc.meth "hello"
 
+.	method double (Sample svc)
+.		<- Debug "sending hello"
+.		<- svc.meth "hello"
+	
 // standalone methods can't reference members because they have no state
 // standalone methods can't have assignment cases because they have no state

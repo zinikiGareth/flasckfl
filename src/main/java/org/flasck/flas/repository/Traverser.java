@@ -1,6 +1,7 @@
 package org.flasck.flas.repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -246,10 +247,9 @@ public class Traverser implements Visitor {
 
 	private void traverseFnOrMethod(LogicHolder sd) {
 		if (wantHSI) {
-			FunctionDefinition fn = (FunctionDefinition) sd;
-			List<Slot> slots = fn.slots();
+			List<Slot> slots = sd.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
-			visitHSI(new VarMapping(), slots, fn.intros());
+			visitHSI(new VarMapping(), slots, sd.hsiCases());
 		} else {
 			if (patternsTree)
 				visitPatternsInTreeOrder(sd);
@@ -334,7 +334,7 @@ public class Traverser implements Visitor {
 	public static class VarMapping {
 		private Map<FunctionIntro, List<SlotVar>> map = new HashMap<>();
 		
-		public VarMapping remember(Slot s, HSIOptions opts, List<FunctionIntro> intros) {
+		public VarMapping remember(Slot s, HSIOptions opts, HSICases intros) {
 			VarMapping ret = new VarMapping();
 			ret.map.putAll(map);
 			for (IntroVarName v : opts.vars(intros)) {
@@ -354,15 +354,18 @@ public class Traverser implements Visitor {
 		}
 	}
 
-	public void visitHSI(VarMapping vars, List<Slot> slots, List<FunctionIntro> intros) {
+	public void visitHSI(VarMapping vars, List<Slot> slots, HSICases intros) {
 		HSIVisitor hsi = (HSIVisitor) visitor;
 		if (slots.isEmpty()) {
-			if (intros.isEmpty())
+			if (intros.noRemainingCases())
 				hsi.errorNoCase();
-			else if (intros.size() == 1) {
-				FunctionIntro intro = intros.get(0);
-				vars.bindFor(hsi, intro);
-				handleInline(intro);
+			else if (intros.singleton()) {
+				if (intros.isFunction()) {
+					FunctionIntro intro = intros.onlyIntro();
+					vars.bindFor(hsi, intro);
+					handleInline(intro);
+				} else
+					throw new NotImplementedException("We need to handle object methods");
 			} else
 				throw new NotImplementedException("I think this is an error");
 		} else {
@@ -385,24 +388,22 @@ public class Traverser implements Visitor {
 						hsi.constructorField(s, fld, fieldSlot);
 						extended.add(fieldSlot);
 					}
-					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
-					intersect.retainAll(cm.intros());
-					visitHSI(vars, extended, intersect);
+//					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
+//					intersect.retainAll(cm.intros());
+					visitHSI(vars, extended, intros.retain(cm.intros()));
 				}
 				for (NamedType ty : opts.types()) {
 					String name = ty.name().uniqueName();
 					hsi.withConstructor(name);
-					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
-					intersect.retainAll(opts.getIntrosForType(ty));
+					HSICases intersect = intros.retain(opts.getIntrosForType(ty));
 					if ("Number".equals(name)) {
 						Set<Integer> numbers = opts.numericConstants(intersect);
 						if (!numbers.isEmpty()) {
 							for (int k : numbers) {
 								hsi.matchNumber(k);
-								ArrayList<FunctionIntro> forConst = new ArrayList<>(intersect);
-								forConst.retainAll(opts.getIntrosForType(ty));
+								HSICases forConst = intersect.retain(opts.getIntrosForType(ty));
 								visitHSI(vars, remaining, intersect);
-								intersect.removeAll(forConst);
+								intersect.remove(forConst);
 							}
 							hsi.matchDefault();
 						}
@@ -412,22 +413,20 @@ public class Traverser implements Visitor {
 						if (!strings.isEmpty()) {
 							for (String k : strings) {
 								hsi.matchString(k);
-								ArrayList<FunctionIntro> forConst = new ArrayList<>(intersect);
-								forConst.retainAll(opts.getIntrosForType(ty));
+								HSICases forConst = intersect.retain(opts.getIntrosForType(ty));
 								visitHSI(vars, remaining, intersect);
-								intersect.removeAll(forConst);
+								intersect.remove(forConst);
 							}
 							hsi.matchDefault();
 						}
 					}
-					if (intersect.isEmpty())
+					if (intersect.noRemainingCases())
 						hsi.errorNoCase();
 					else
 						visitHSI(vars, remaining, intersect);
 				}
 			}
-			ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
-			intersect.retainAll(opts.getDefaultIntros(intros));
+			HSICases intersect = intros.retain(opts.getDefaultIntros(intros));
 			if (wantSwitch)
 				hsi.defaultCase();
 			visitHSI(vars, remaining, intersect);
@@ -455,6 +454,8 @@ public class Traverser implements Visitor {
 	}
 
 	private void handleInline(FunctionIntro i) {
+		if (i == null)
+			return;
 		startInline(i);
 		visitFunctionCases(i);
 		endInline(i);

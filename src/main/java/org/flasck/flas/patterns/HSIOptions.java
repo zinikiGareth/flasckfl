@@ -1,6 +1,5 @@
 package org.flasck.flas.patterns;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +9,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.HSICases;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.NamedType;
@@ -57,15 +57,15 @@ public interface HSIOptions {
 	HSITree getCM(StructDefn constructor);
 	void includes(FunctionIntro current);
 	List<FunctionIntro> getIntrosForType(NamedType ty);
-	List<FunctionIntro> getDefaultIntros(List<FunctionIntro> intros);
+	List<FunctionIntro> getDefaultIntros(HSICases intros);
 	Type minimalType(CurrentTCState state, RepositoryReader repository);
 	Set<StructDefn> ctors();
 	List<IntroTypeVar> typedVars(NamedType ty);
 	List<IntroVarName> vars();
-	List<IntroVarName> vars(List<FunctionIntro> intros);
+	List<IntroVarName> vars(HSICases intros);
 	Set<NamedType> types();
-	Set<Integer> numericConstants(ArrayList<FunctionIntro> intersect);
-	Set<String> stringConstants(ArrayList<FunctionIntro> intersect);
-	boolean hasSwitches(List<FunctionIntro> intros);
+	Set<Integer> numericConstants(HSICases intersect);
+	Set<String> stringConstants(HSICases intersect);
+	boolean hasSwitches(HSICases intros);
 	int score();
 }

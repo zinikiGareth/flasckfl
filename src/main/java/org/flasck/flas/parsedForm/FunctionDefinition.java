@@ -12,6 +12,8 @@ import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.patterns.HSITree;
+import org.flasck.flas.repository.FunctionHSICases;
+import org.flasck.flas.repository.HSICases;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
@@ -70,6 +72,11 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 		return intros;
 	}
 	
+	@Override
+	public HSICases hsiCases() {
+		return new FunctionHSICases(intros);
+	}
+
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println(this.toString());

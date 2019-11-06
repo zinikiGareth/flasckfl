@@ -14,6 +14,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.patterns.HSITree;
+import org.flasck.flas.repository.HSICases;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
@@ -75,6 +76,11 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 		return hsiTree;
 	}
 
+	@Override
+	public HSICases hsiCases() {
+		throw new NotImplementedException();
+	}
+	
 	public List<Slot> slots() {
 		List<Slot> slots = new ArrayList<>();
 		for (int i=0;i<hsiTree.width();i++) {
