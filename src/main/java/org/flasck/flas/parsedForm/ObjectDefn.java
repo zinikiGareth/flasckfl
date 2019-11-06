@@ -12,8 +12,11 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectElementsConsumer, RepositoryEntry {
+public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType {
 	private StateDefinition state;
 	private final List<Template> templates = new ArrayList<>();
 	public final List<ObjectCtor> ctors = new ArrayList<>();
@@ -110,6 +113,26 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 		return ret;
 	}
 	
+	@Override
+	public String signature() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public int argCount() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public Type get(int pos) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public boolean incorporates(Type other) {
+		throw new NotImplementedException();
+	}
+
 	@Override
 	public String toString() {
 		return "ObjectDefinition[" + asString() + "]";

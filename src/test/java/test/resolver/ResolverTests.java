@@ -295,7 +295,7 @@ public class ResolverTests {
 	@Test
 	public void testThereMustBeAtLeastOneFieldAssignmentInAUTData() {
 		context.checking(new Expectations() {{
-			oneOf(rr).get("StructThing"); will(returnValue(LoadBuiltins.cons));
+			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(LoadBuiltins.cons));
 			oneOf(errors).message(pos, "at least one field assignment must be specified");
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
@@ -307,7 +307,7 @@ public class ResolverTests {
 	@Test
 	public void testOneAssignmentIsEnough() {
 		context.checking(new Expectations() {{
-			oneOf(rr).get("StructThing"); will(returnValue(LoadBuiltins.cons));
+			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(LoadBuiltins.cons));
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), null);
@@ -319,7 +319,8 @@ public class ResolverTests {
 	@Test
 	public void testContractsDoNotNeedOrWantFieldAssignmentsInAUTData() {
 		context.checking(new Expectations() {{
-			oneOf(rr).get("AContract"); will(returnValue(cd));
+			oneOf(rr).get("test.repo.ut.AContract"); will(returnValue(null));
+			oneOf(rr).get("test.repo.AContract"); will(returnValue(cd));
 		}});
 		TypeReference tr = new TypeReference(pos, "AContract");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), null);
@@ -330,7 +331,7 @@ public class ResolverTests {
 	@Test
 	public void noFieldsAreNeededIfThereIsAnAssignment() {
 		context.checking(new Expectations() {{
-			oneOf(rr).get("StructThing"); will(returnValue(LoadBuiltins.cons));
+			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(LoadBuiltins.cons));
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), new StringLiteral(pos, "foo"));

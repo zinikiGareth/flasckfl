@@ -65,6 +65,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2);
 	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2);
 	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1);
+	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2);
 
 	// This is a weird thing but it seems to fit best here
 	public static final CurryArgument ca = new CurryArgument(pos);
@@ -109,15 +110,10 @@ public class LoadBuiltins {
 		mul.bindType(new Apply(number, number, number));
 		div.bindType(new Apply(number, number, number));
 		length.bindType(new Apply(list, number));
+		concat.bindType(new Apply(string, string, string));
 	}
 	
 	public static void applyTo(Repository repository) {
-		// Types
-		new BuiltinRepositoryEntry("Card").loadInto(repository);
-		new BuiltinRepositoryEntry("Croset").loadInto(repository);
-		new BuiltinRepositoryEntry("Map").loadInto(repository);
-		new BuiltinRepositoryEntry("Type").loadInto(repository);
-		
 		repository.addEntry(any.name(), any);
 		repository.addEntry(contract.name(), contract);
 		repository.newStruct(error);
@@ -144,11 +140,25 @@ public class LoadBuiltins {
 		repository.functionDefn(mul);
 		repository.functionDefn(div);
 		repository.functionDefn(length);
-		
+		repository.functionDefn(concat);
+
+		// not yet thought through for backward compatibility
+		StructDefn card = new StructDefn(pos, FieldsType.STRUCT, null, "Card", false);
+		repository.newStruct(card);
+		StructDefn croset = new StructDefn(pos, FieldsType.STRUCT, null, "Croset", false);
+		repository.newStruct(croset);
+		StructDefn map = new StructDefn(pos, FieldsType.STRUCT, null, "Map", false);
+		repository.newStruct(map);
+		StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
+		repository.newStruct(type);
+
+
 		// dubious backward compatibility
-		
-		new BuiltinRepositoryEntry("Crokeys").loadInto(repository);
-		new BuiltinRepositoryEntry("Id").loadInto(repository);
+
+		StructDefn crokeys = new StructDefn(pos, FieldsType.STRUCT, null, "Crokeys", false);
+		repository.newStruct(crokeys);
+		StructDefn id = new StructDefn(pos, FieldsType.STRUCT, null, "Id", false);
+		repository.newStruct(id);
 	}
 
 }

@@ -57,7 +57,8 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		ma.visitObjectMethod(meth);
+		if (ma != null)
+			ma.visitObjectMethod(meth);
 	}
 	
 	@Override

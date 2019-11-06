@@ -35,7 +35,12 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 	}
 
 	public Type type() {
-		return (Type) type.defn();
+		try {
+			return (Type) type.defn();
+		} catch (ClassCastException ex) {
+			System.out.println("Error with bound defn of " + type.name());
+			throw ex;
+		}
 	}
 	
 	@Override

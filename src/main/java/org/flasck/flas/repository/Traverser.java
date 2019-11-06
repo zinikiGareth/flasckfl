@@ -121,8 +121,6 @@ public class Traverser implements Visitor {
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle null entries");
 		else if (e instanceof Primitive)
 			visitPrimitive((Primitive)e);
-		else if (e instanceof BuiltinRepositoryEntry)
-			; // do nothing for builtins
 		else if (e instanceof ContractDecl)
 			visitContractDecl((ContractDecl)e);
 		else if (e instanceof ObjectDefn)
@@ -478,7 +476,7 @@ public class Traverser implements Visitor {
 
 	// useful for unit testing
 	public void visitPatterns(PatternsHolder fn) {
-		if (wantNestedPatterns) {
+		if (wantNestedPatterns && currentFunction != null) {
 			NestedVarReader nv = currentFunction.nestedVars();
 			if (nv != null) {
 				for (Pattern p : nv.patterns())
