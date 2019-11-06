@@ -20,6 +20,8 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -185,6 +187,28 @@ public class ExpressionGenerationJS {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
 		fn.bind(new FunctionDefinition(fnName, 2));
+		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
+		JSExpr f = context.mock(JSExpr.class, "f");
+		JSExpr iv = context.mock(JSExpr.class, "iv");
+		JSExpr sv = context.mock(JSExpr.class, "sv");
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
+			oneOf(meth).literal("42"); will(returnValue(iv));
+			oneOf(meth).string("hello"); will(returnValue(sv));
+			oneOf(meth).closure(f, iv, sv);
+		}});
+		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		gen.visitExpr(ae, 0);
+	}
+
+	@Test
+	public void aStandaloneMethodApplication() {
+		UnresolvedVar fn = new UnresolvedVar(pos, "f");
+		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
+		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>());
+		fn.bind(new StandaloneMethod(om));
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		JSExpr f = context.mock(JSExpr.class, "f");
 		JSExpr iv = context.mock(JSExpr.class, "iv");

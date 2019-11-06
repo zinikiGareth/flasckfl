@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -116,6 +117,13 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				makeClosure(fn, 0, fn.argCount());
 			} else
 				stack.add(block.pushFunction(myName));
+		} else if (defn instanceof StandaloneMethod) {
+				if (nargs == 0) {
+					StandaloneMethod fn = (StandaloneMethod) defn;
+					stack.add(block.pushFunction(myName));
+					makeClosure(fn, 0, fn.argCount());
+				} else
+					stack.add(block.pushFunction(myName));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"

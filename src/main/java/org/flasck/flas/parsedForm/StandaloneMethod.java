@@ -13,7 +13,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder {
+public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder, WithTypeSignature {
 	public final ObjectMethod om;
 
 	public StandaloneMethod(ObjectMethod om) {
@@ -27,6 +27,11 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 	@Override
 	public boolean isMyName(NameOfThing other) {
 		return om.isMyName(other);
+	}
+
+	@Override
+	public String signature() {
+		throw new NotImplementedException();
 	}
 
 	public int argCount() {
