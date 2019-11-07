@@ -147,6 +147,10 @@ FLContext.prototype.field = function(obj, field) {
 	}
 }
 
+FLContext.prototype.mockContract = function(contract) {
+	return new MockContract(contract);
+}
+
 
 class _FLError extends Error {
 	constructor(msg) {

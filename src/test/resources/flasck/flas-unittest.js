@@ -20,3 +20,6 @@ window.runner.newContext = function() {
 	return new FLContext(this);
 }
 
+const MockContract = function(ctr) {
+	this.ctr = ctr;
+};

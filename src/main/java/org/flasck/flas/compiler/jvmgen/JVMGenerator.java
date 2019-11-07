@@ -347,7 +347,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
-		this.fcx = meth.avar(J.OBJECT, "cxt");
+		this.fcx = meth.avar(J.FLEVALCONTEXT, "cxt");
 		meth.assign((Var)this.fcx, meth.getField(this.runner, "cxt")).flush();
 		this.fs = new FunctionState(meth, (Var)fcx, null);
 	}

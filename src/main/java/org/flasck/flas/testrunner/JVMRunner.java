@@ -279,4 +279,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //		this.controller.handleEventOn(card, handler, ev);
 //		assertAllInvocationsCalled();
 	}
+	
+	public Object mockContract(Class<?> ctr) {
+		return new MockContract(ctr);
+	}
 }
