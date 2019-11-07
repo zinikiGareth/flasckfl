@@ -1,6 +1,7 @@
 package test.flas.generator.jvm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -18,6 +19,9 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -271,6 +275,50 @@ public class ExpressionGeneration {
 	}
 
 	@Test
+	public void aStandaloneMethod() {
+		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
+		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
+		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
+		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
+		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>());
+		om.sendMessage(new SendMessage(pos, expr));
+		StandaloneMethod sm = new StandaloneMethod(om);
+		FunctionIntro fi = new FunctionIntro(fnName, new ArrayList<>());
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, expr);
+		fi.functionCase(fcd);
+		om.conversion(Arrays.asList(fi));
+		HSIArgsTree hsi = new HSIArgsTree(0);
+		hsi.consider(fi);
+		om.bindHsi(hsi);
+		List<IExpr> argsList = new ArrayList<>();
+		IExpr arr = context.mock(IExpr.class, "arr");
+		IExpr x = context.mock(IExpr.class, "Ctor");
+		IExpr rv = context.mock(IExpr.class, "rv");
+		context.checking(new Expectations() {{
+			allowing(bcc).generateAssociatedSourceFile();
+			oneOf(meth).nextLocal(); will(returnValue(22));
+			oneOf(meth).nextLocal(); will(returnValue(23));
+		}});
+		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var args = new Var.AVar(meth, "JVMRunner", "runner");
+		context.checking(new Expectations() {{
+			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(bcc));
+			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
+			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
+			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", cxt, arr); will(returnValue(x));
+			oneOf(meth).returnObject(x); will(returnValue(rv));
+			oneOf(rv).flush();
+		}});
+		StackVisitor sv = new StackVisitor();
+		new JVMGenerator(bce, sv);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitStandaloneMethod(sm);
+	}
+
+	@Test
 	public void anOp() {
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("org.flasck.jvm.fl.FLEval$Plus");
@@ -328,6 +376,50 @@ public class ExpressionGeneration {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
 		fn.bind(new FunctionDefinition(fnName, 2));
+		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
+		IExpr f = context.mock(IExpr.class, "f");
+		IExpr fAsObj = context.mock(IExpr.class, "fAsObj");
+		IExpr dv = context.mock(IExpr.class, "dv");
+		IExpr iv = context.mock(IExpr.class, "iv");
+		IExpr biv = context.mock(IExpr.class, "biv");
+		IExpr cdv = context.mock(IExpr.class, "cdv");
+		IExpr nv = context.mock(IExpr.class, "nv");
+		IExpr strv = context.mock(IExpr.class, "strv");
+		IExpr aev = context.mock(IExpr.class, "aev");
+		IExpr args = context.mock(IExpr.class, "args");
+		List<IExpr> argsList = new ArrayList<>();
+		argsList.add(nv);
+		argsList.add(strv);
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		Var var = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v1");
+		IExpr assign = context.mock(IExpr.class, "assign");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
+			oneOf(meth).aNull(); will(returnValue(dv));
+			oneOf(meth).intConst(42); will(returnValue(iv));
+			oneOf(meth).box(iv); will(returnValue(biv));
+			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
+			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv); will(returnValue(nv));
+			oneOf(meth).stringConst("hello"); will(returnValue(strv));
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
+			oneOf(meth).as(f, "java.lang.Object"); will(returnValue(fAsObj));
+			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", fAsObj, args); will(returnValue(aev));
+			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
+			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
+			oneOf(block).add(assign);
+		}});
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv, block)).withHSI();
+		gen.visitExpr(ae, 0);
+	}
+
+	@Test
+	public void aStandaloneMethodApplication() {
+		UnresolvedVar fn = new UnresolvedVar(pos, "f");
+		FunctionName fnName = FunctionName.function(pos, pkg, "f");
+		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>());
+		fn.bind(new StandaloneMethod(om));
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		IExpr f = context.mock(IExpr.class, "f");
 		IExpr fAsObj = context.mock(IExpr.class, "fAsObj");

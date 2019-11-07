@@ -120,12 +120,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			} else
 				stack.add(block.pushFunction(myName));
 		} else if (defn instanceof StandaloneMethod) {
-				if (nargs == 0) {
-					StandaloneMethod fn = (StandaloneMethod) defn;
-					stack.add(block.pushFunction(myName));
-					makeClosure(fn, 0, fn.argCount());
-				} else
-					stack.add(block.pushFunction(myName));
+			if (nargs == 0) {
+				StandaloneMethod fn = (StandaloneMethod) defn;
+				stack.add(block.pushFunction(myName));
+				makeClosure(fn, 0, fn.argCount());
+			} else
+				stack.add(block.pushFunction(myName));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"

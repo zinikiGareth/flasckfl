@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -155,6 +156,13 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 		if (defn instanceof FunctionDefinition) {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
+				stack.add(meth.classConst(myName));
+				makeClosure(defn, 0, fn.argCount());
+			} else
+				stack.add(meth.classConst(myName));
+		} else if (defn instanceof StandaloneMethod) {
+			if (nargs == 0) {
+				StandaloneMethod fn = (StandaloneMethod) defn;
 				stack.add(meth.classConst(myName));
 				makeClosure(defn, 0, fn.argCount());
 			} else

@@ -16,7 +16,7 @@ public class Configuration {
 	private File root;
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
-	public boolean generateJVM = false;
+	public boolean generateJVM = true;
 	public File writeFlim;
 	public File writeHSIE;
 	public File writeJS;

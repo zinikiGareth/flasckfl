@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -109,6 +110,28 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void visitObjectMethod(ObjectMethod om) {
+		if (!om.isConverted()) {
+			this.clz = null;
+			this.meth = null;
+			return;
+		}
+		this.clz = bce.newClass(om.name().javaClassName());
+		this.clz.generateAssociatedSourceFile();
+		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
+		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
+		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
+		ann.returns(JavaType.object_);
+		meth = ann.done();
+		meth.lenientMode(leniency);
+		fcx = cxArg.getVar();
+		fargs = argsArg.getVar();
+		switchVars.clear();
+		fs = new FunctionState(meth, (Var)fcx, fargs);
+		currentBlock = new ArrayList<IExpr>();
+	}
+	
+	@Override
 	public void hsiArgs(List<Slot> slots) {
 		for (Slot slot : slots) {
 			ArgSlot s = (ArgSlot) slot;
@@ -178,6 +201,21 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.clz = null;
 		this.fcx = null;
 	}
+	
+	@Override
+	public void leaveObjectMethod(ObjectMethod om) {
+		if (meth == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
+		currentBlock.add(resultExpr);
+		makeBlock(meth, currentBlock).flush();
+		resultExpr = null;
+		this.meth = null;
+		this.clz = null;
+		this.fcx = null;
+	}
+
 	@Override
 	public void visitStructDefn(StructDefn sd) {
 		if (!sd.generate)
