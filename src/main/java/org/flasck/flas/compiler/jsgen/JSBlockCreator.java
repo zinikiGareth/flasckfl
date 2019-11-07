@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen;
 
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -28,6 +29,7 @@ public interface JSBlockCreator {
 	void returnObject(JSExpr jsExpr);
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
 	JSExpr boundVar(String var);
+	JSExpr mockContract(SolidName name);
 
 	void write(IndentWriter w);
 }

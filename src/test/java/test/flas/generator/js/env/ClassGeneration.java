@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.compiler.jsgen.JSBlock;
 import org.flasck.flas.compiler.jsgen.JSClass;
 import org.flasck.flas.compiler.jsgen.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.JSEnvironment;
@@ -298,5 +301,14 @@ public class ClassGeneration {
 		meth.xcurry(2, Arrays.asList(new XCArg(0, meth.pushFunction("f")), new XCArg(2, meth.string("hello"))));
 		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n", sw.toString());
+	}
+	
+	@Test
+	public void mockContractCallsTheRightMethod() {
+		JSBlock b = new JSMethod(null, "fred");
+		JSExpr mc = b.mockContract(new SolidName(new PackageName("org.fred"), "Ctr"));
+		assertEquals("v1", mc.asVar());
+		mc.write(new IndentWriter(new PrintWriter(sw)));
+		assertEquals("const v1 = _cxt.mockContract(org.fred.Ctr);\n", sw.toString());
 	}
 }

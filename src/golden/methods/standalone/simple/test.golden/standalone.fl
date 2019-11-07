@@ -20,12 +20,12 @@
 	method k True (Cons {head: h, tail: t})
 		<- Debug h
 
-.	contract Sample
-.		up meth (String msg)
+	contract Sample
+		up meth (String msg)
 		
 // we can send to an argument, so this works and should typecheck in some way
-.	method q (Sample svc)
-.		<- Send svc "meth" ["hello"]
+	method q (Sample svc)
+		<- Send svc "meth" ["hello"]
 
 .	method r (Sample svc)
 .		<- svc.meth "hello"

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -153,6 +154,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void errorNoCase() {
 		stmts.add(new JSError("no matching case"));
+	}
+
+	@Override
+	public JSExpr mockContract(SolidName name) {
+		JSMockContract ret = new JSMockContract(creating, name);
+		stmts.add(ret);
+		return ret;
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.WithTypeSignature;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -139,6 +140,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			stack.add(block.boundVar(((TypedPattern)defn).var.var));
 		} else if (defn instanceof CurryArgument) {
 			stack.add(new JSCurryArg());
+		} else if (defn instanceof UnitDataDeclaration) {
+			stack.add(block.string("hello"));
 		} else
 			throw new NotImplementedException("cannot generate fn for " + defn);
 	}

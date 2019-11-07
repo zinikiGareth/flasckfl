@@ -4,16 +4,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.zinutils.exceptions.NotImplementedException;
@@ -174,11 +178,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-//		if (stack.size() == 1) {
-//			block.returnObject(stack.remove(0));
-//		} else if (!stack.isEmpty()) {
-//			throw new RuntimeException("I was expecting a stack depth of 1, not " + stack.size());
-//		}
 		this.meth = null;
 	}
 	
@@ -192,6 +191,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		runner = meth.argument("runner");
 	}
 
+	
+	@Override
+	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
+		if (meth == null)
+			throw new RuntimeException("Global UDDs are not yet handled");
+		RepositoryEntry objty = udd.ofType.defn();
+		if (objty instanceof ContractDecl)
+			meth.mockContract((SolidName) objty.name());
+		else
+			throw new RuntimeException("not handled: " + objty);
+	}
+	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
 		new CaptureAssertionClauseVisitorJS(sv, this.block, this.runner);
@@ -204,13 +215,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
-//		if (stack.size() != 2) {
-//			throw new RuntimeException("I was expecting a stack depth of 2, not " + stack.size());
-//		}
-//		JSExpr lhs = stack.get(0);
-//		JSExpr rhs = stack.get(1);
-//		meth.assertable(runner, "assertSameValue", lhs, rhs);
-//		stack.clear();
 	}
 	
 	@Override

@@ -3,14 +3,20 @@ package test.flas.generator.jvm;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -21,12 +27,14 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.Var.AVar;
 
 public class UnitTestGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final MethodDefiner meth = context.mock(MethodDefiner.class);
-
+	private final PackageName pkg = new PackageName("test.something");
+	
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
@@ -41,17 +49,19 @@ public class UnitTestGeneration {
 		context.checking(new Expectations() {{
 			allowing(bcc).generateAssociatedSourceFile();
 			oneOf(meth).nextLocal(); will(returnValue(6));
+			oneOf(meth).nextLocal(); will(returnValue(7));
 		}});
 		Var arg = new Var.AVar(meth, "JVMRunner", "runner");
+		Var cxt = new Var.AVar(meth, "FLContext", "cxt");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.something._ut_package._ut4"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "void", "dotest"); will(returnValue(meth));
 			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
-			oneOf(meth).getField(arg, "cxt");
+			oneOf(meth).getField(arg, "cxt"); will(returnValue(cxt));
 		}});
 		StackVisitor sv = new StackVisitor();
 		JVMGenerator gen = new JVMGenerator(bce, sv);
-		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.something"), "_ut_package");
+		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitTestCase utc = new UnitTestCase(utn , "do something");
 		gen.visitUnitTest(utc);
@@ -62,6 +72,31 @@ public class UnitTestGeneration {
 		gen.leaveUnitTest(utc);
 	}
 	
+	@Test
+	public void weCanCreeateLocalUDDExpressions() {
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		IExpr runner = context.mock(IExpr.class, "runner");
+		IExpr cls = context.mock(IExpr.class, "cls");
+		IExpr call = context.mock(IExpr.class, "call");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(17));
+		}});
+		AVar v1 = new AVar(meth, J.OBJECT, "v1");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst("test.something.Ctr"); will(returnValue(cls));
+			oneOf(meth).callInterface(J.OBJECT, runner, "mockContract", cls); will(returnValue(call));
+			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
+			oneOf(meth).assign(v1, call);
+		}});
+		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner, null).stackVisitor());
+		TypeReference ctr = new TypeReference(pos, "Ctr");
+		ctr.bind(cd);
+		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
+		UnitTestName utn = new UnitTestName(utfn, 4);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), null);
+		gen.visitUnitDataDeclaration(udd);
+	}
+
 	@Test
 	public void weVisitAnAssertStep() {
 		NumericLiteral lhs = new NumericLiteral(pos, 42);

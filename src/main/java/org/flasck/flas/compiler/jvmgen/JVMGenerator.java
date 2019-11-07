@@ -21,8 +21,10 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
@@ -32,11 +34,11 @@ import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
-import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
 	private final ByteCodeStorage bce;
@@ -345,10 +347,24 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
-		this.fcx = meth.getField(this.runner, "cxt");
-//		this.fcx = meth.as(this.runner, J.FLEVALCONTEXT); // I'm not sure about this
+		this.fcx = meth.avar(J.OBJECT, "cxt");
+		meth.assign((Var)this.fcx, meth.getField(this.runner, "cxt")).flush();
+		this.fs = new FunctionState(meth, (Var)fcx, null);
 	}
 
+	@Override
+	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
+		if (meth == null)
+			throw new RuntimeException("Global UDDs are not yet handled");
+		RepositoryEntry objty = udd.ofType.defn();
+		if (objty instanceof ContractDecl) {
+			IExpr mc = meth.callVirtual(J.OBJECT, this.runner, "mockContract", meth.classConst(objty.name().javaName()));
+			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
+			meth.assign(v, mc).flush();
+		} else
+			throw new RuntimeException("not handled: " + objty);
+	}
+	
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
 		meth.returnVoid().flush();

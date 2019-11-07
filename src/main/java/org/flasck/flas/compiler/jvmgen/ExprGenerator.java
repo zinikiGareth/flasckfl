@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.WithTypeSignature;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -188,6 +189,8 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 			stack.add(var);
 		} else if (defn instanceof CurryArgument) {
 			stack.add(new JVMCurryArg());
+		} else if (defn instanceof UnitDataDeclaration) {
+			stack.add(meth.stringConst("hello"));
 		} else
 			throw new NotImplementedException();
 	}

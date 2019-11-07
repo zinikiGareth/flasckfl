@@ -251,4 +251,11 @@ Debug.prototype._compare = function() {
 
 const Send = function() {
 }
+Send.eval = function(_cxt, obj, meth, args) {
+	const s = new Send();
+	s.obj = obj;
+	s.meth = meth;
+	s.args = args;
+	return s;
+}
 

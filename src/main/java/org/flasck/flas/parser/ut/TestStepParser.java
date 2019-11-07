@@ -56,7 +56,7 @@ public class TestStepParser implements TDAParsing {
 			return new SingleExpressionParser(errors, ex -> { builder.assertion(test.get(0), ex); });
 		}
 		case "data": {
-			return new TDAUnitTestDataParser(errors, true, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }).tryParsing(toks);
+			return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }).tryParsing(toks);
 		}
 		case "event": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);
