@@ -27,6 +27,15 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
+	public void ensurePackageExists(String filePkg, String pkg) {
+		if (filePkg.equals(pkg))
+			return;
+		if (!pkg.startsWith(filePkg))
+			throw new RuntimeException(pkg + " is not in " + filePkg);
+		getPackage(filePkg).ensurePackage(pkg);
+	}
+
+	@Override
 	public JSClassCreator newClass(String pkg, String clz) {
 		JSFile inpkg = getPackage(pkg);
 		JSClass ret = new JSClass(pkg, clz);

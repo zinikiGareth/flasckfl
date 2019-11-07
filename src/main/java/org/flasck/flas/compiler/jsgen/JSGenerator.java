@@ -81,6 +81,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			return;
 		}
 		String pkg = fn.name().packageName().jsName();
+		jse.ensurePackageExists(pkg, fn.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, fn.name().jsName().substring(pkg.length()+1));
 		this.meth.argument("_cxt");
 		for (int i=0;i<fn.argCount();i++)
@@ -96,6 +97,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			return;
 		}
 		String pkg = om.name().packageName().jsName();
+		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, om.name().jsName().substring(pkg.length()+1));
 		this.meth.argument("_cxt");
 		for (int i=0;i<om.argCount();i++)

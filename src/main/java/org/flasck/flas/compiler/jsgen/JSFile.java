@@ -5,12 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSFile {
 	private final String pkg;
 	private final File file;
+	private final Set<String> packages = new TreeSet<>();
 	private final List<JSClass> classes = new ArrayList<>();
 	private final List<JSMethod> functions = new ArrayList<>();
 
@@ -21,6 +24,10 @@ public class JSFile {
 
 	public File file() {
 		return file;
+	}
+
+	public void ensurePackage(String nested) {
+		packages.add(nested);
 	}
 	
 	public void addClass(JSClass ret) {
@@ -43,8 +50,20 @@ public class JSFile {
 		declarePackages(iw);
 		for (JSClass c : classes)
 			c.writeTo(iw);
-		for (JSMethod f : functions)
+		for (JSMethod f : functions) {
+			declareContainingPackage(iw, f);
 			f.write(iw);
+		}
+	}
+
+	private void declareContainingPackage(IndentWriter iw, JSMethod f) {
+		String full = f.getPackage()+"."+f.getName();
+		int li = full.lastIndexOf('.');
+		full = full.substring(0, li);
+		if (packages.contains(full)) {
+			declarePackage(iw, full);
+			packages.remove(full);
+		}
 	}
 
 	private void declarePackages(IndentWriter iw) {
@@ -53,15 +72,18 @@ public class JSFile {
 		String[] pkgs = pkg.split("\\.");
 		String enclosing = "";
 		for (String s : pkgs) {
-			iw.print("if (typeof(");
-			iw.print(enclosing);
-			iw.print(s);
-			iw.print(") === 'undefined') ");
-			iw.print(enclosing);
-			iw.print(s);
-			iw.println(" = {};");
+			String full = enclosing + s;
+			declarePackage(iw, full);
 			enclosing = enclosing + s + ".";
 		}
+	}
+
+	private void declarePackage(IndentWriter iw, String full) {
+		iw.print("if (typeof(");
+		iw.print(full);
+		iw.print(") === 'undefined') ");
+		iw.print(full);
+		iw.println(" = {};");
 	}
 
 	public List<JSClass> classes() {

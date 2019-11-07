@@ -10,9 +10,9 @@
 		assert (ndebug "we are here")
 			Debug "we are here"
 
-.	test we can generate a Debug command passing in an argument through a nested function
-.		assert (f "this is data")
-.			Debug "this is data"
+	test we can generate a Debug command passing in an argument through a nested function
+		assert (f "this is data")
+			Debug "this is data"
 
 .	test we can create a Send on a contract
 .		data Sample svc

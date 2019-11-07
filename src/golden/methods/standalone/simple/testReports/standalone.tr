@@ -1,6 +1,8 @@
 JVM PASS we can generate a Debug command
 JVM PASS we can generate a Debug command through a function
 JVM PASS we can generate a Debug command passing in an argument
+JVM PASS we can generate a Debug command passing in an argument through a nested function
 JS PASS we can generate a Debug command
 JS PASS we can generate a Debug command through a function
 JS PASS we can generate a Debug command passing in an argument
+JS PASS we can generate a Debug command passing in an argument through a nested function
