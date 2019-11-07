@@ -4,7 +4,7 @@
 		<- Debug "hello"
 		
 // a standalone method is just a function, so it can be assigned to another function
-.	fdebug = adebug
+	fdebug = adebug
 
 // it can take an argument
 .	method ndebug msg

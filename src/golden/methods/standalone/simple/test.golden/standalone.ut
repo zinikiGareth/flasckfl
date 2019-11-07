@@ -2,9 +2,9 @@
 		assert (adebug)
 			Debug "hello"
 
-.	test we can generate a Debug command through a function
-.		assert (fdebug)
-.			Debug "hello"
+	test we can generate a Debug command through a function
+		assert (fdebug)
+			Debug "hello"
 
 .	test we can generate a Debug command passing in an argument
 .		assert (ndebug "we are here")
