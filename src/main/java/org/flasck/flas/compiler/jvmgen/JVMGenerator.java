@@ -175,7 +175,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void bind(Slot slot, String var) {
-		fs.bindVar(currentBlock, var, slot);
+		fs.bindVar(currentBlock, var, slot, switchVars.get(slot));
 	}
 
 	// This is needed here as well as HSIGenerator to handle the no-switch case

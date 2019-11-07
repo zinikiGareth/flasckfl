@@ -152,6 +152,7 @@ public class ExpressionGenerationJS {
 		JSStorage jss = context.mock(JSStorage.class);
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));
@@ -178,6 +179,7 @@ public class ExpressionGenerationJS {
 		JSStorage jss = context.mock(JSStorage.class);
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction("test.repo", "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));

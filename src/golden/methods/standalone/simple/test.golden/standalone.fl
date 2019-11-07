@@ -17,8 +17,8 @@
 			<- Debug msg
 			
 // we need something with complex arguments too ...
-.	method k True (Cons {head: h, tail: t})
-.		<- Debug h
+	method k True (Cons {head: h, tail: t})
+		<- Debug h
 
 .	contract Sample
 .		up meth (String msg)

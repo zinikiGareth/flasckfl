@@ -14,9 +14,6 @@ public abstract class HSIPatternTree implements HSITree {
 
 	@Override
 	public HSITree consider(FunctionIntro fi) {
-		if (fi == null) {
-			throw new NullPointerException("Cannot consider a null intro");
-		}
 		intros.add(fi);
 		return this;
 	}

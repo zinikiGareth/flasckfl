@@ -161,7 +161,7 @@ public class FunctionGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
 			
-			oneOf(meth).stringConst("no such case"); will(returnValue(nsc));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(nsc));
 			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
@@ -232,7 +232,7 @@ public class FunctionGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
 			
-			oneOf(meth).stringConst("no such case"); will(returnValue(nsc));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(nsc));
 			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
@@ -460,7 +460,7 @@ public class FunctionGeneration {
 		
 		IExpr numberNotConst = context.mock(IExpr.class, "numberNotConst");
 		context.checking(new Expectations() {{
-			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(numberNotConst));
@@ -471,7 +471,7 @@ public class FunctionGeneration {
 
 		IExpr notNumber = context.mock(IExpr.class, "notNumber");
 		context.checking(new Expectations() {{
-			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(notNumber));
@@ -542,7 +542,7 @@ public class FunctionGeneration {
 		
 		IExpr numberNotConst = context.mock(IExpr.class, "numberNotConst");
 		context.checking(new Expectations() {{
-			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(numberNotConst));
@@ -553,7 +553,7 @@ public class FunctionGeneration {
 
 		IExpr notNumber = context.mock(IExpr.class, "notNumber");
 		context.checking(new Expectations() {{
-			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(notNumber));
@@ -635,7 +635,7 @@ public class FunctionGeneration {
 		
 		IExpr nscInner = context.mock(IExpr.class, "nscInner");
 		context.checking(new Expectations() {{
-			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(nscInner));
@@ -654,7 +654,7 @@ public class FunctionGeneration {
 		
 		IExpr nscOuter = context.mock(IExpr.class, "nscOuter");
 		context.checking(new Expectations() {{
-			oneOf(meth).stringConst("no such case"); will(returnValue(dummy));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(nscOuter));
@@ -711,7 +711,7 @@ public class FunctionGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
 			
-			oneOf(meth).stringConst("no such case"); will(returnValue(nsc));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(nsc));
 			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
@@ -735,7 +735,7 @@ public class FunctionGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
 			
-			oneOf(meth).stringConst("no such case"); will(returnValue(nsc));
+			oneOf(meth).stringConst("no matching case"); will(returnValue(nsc));
 			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
 			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));

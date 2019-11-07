@@ -117,12 +117,12 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void errorNoCase() {
-		currentBlock.add(meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no such case")))));
+		currentBlock.add(meth.returnObject(meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, meth.arrayOf(J.OBJECT, meth.stringConst("no matching case")))));
 	}
 
 	@Override
 	public void bind(Slot slot, String var) {
-		state.bindVar(currentBlock, var, slot);
+		state.bindVar(currentBlock, var, slot, switchVars.get(slot));
 	}
 
 	@Override

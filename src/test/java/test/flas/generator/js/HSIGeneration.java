@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import org.flasck.flas.compiler.jsgen.ExtractField;
 import org.flasck.flas.compiler.jsgen.JSExpr;
@@ -27,13 +28,14 @@ public class HSIGeneration {
 	IndentWriter w = new IndentWriter(pw);
 
 	@Test
-	public void varsAreNamedAfterSlotID() {
+	public void varsAreNamedAccordingToSlotPosition() {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		JSExpr runner = context.mock(JSExpr.class);
 		JSGenerator gen = JSGenerator.forTests(meth, runner, null);
 		Slot slot = new ArgSlot(3, null);
+		gen.hsiArgs(Arrays.asList(slot));
 		context.checking(new Expectations() {{
-			oneOf(meth).bindVar("_3", "x");
+			oneOf(meth).bindVar("_0", "x");
 		}});
 		gen.bind(slot , "x");
 	}
@@ -88,7 +90,7 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.errorNoCase();
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError(_cxt, 'no matching case');\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n", sw.toString());
 	}
 	
 	@Test
@@ -98,7 +100,7 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError(_cxt, 'no default guard');\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n", sw.toString());
 	}
 	
 	@Test
@@ -106,6 +108,6 @@ public class HSIGeneration {
 		ExtractField ef = new ExtractField("_1", "_0", "head");
 		assertEquals("_1", ef.asVar());
 		ef.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("_1 = _cxt.field(_0, 'head');\n", sw.toString());
+		assertEquals("var _1 = _cxt.field(_0, 'head');\n", sw.toString());
 	}
 }

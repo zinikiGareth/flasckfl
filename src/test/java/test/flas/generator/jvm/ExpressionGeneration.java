@@ -130,7 +130,7 @@ public class ExpressionGeneration {
 			oneOf(sv).result(returnV);
 		}});
 		FunctionState state = new FunctionState(meth, cx, null);
-		state.bindVar(block, "p", new ArgSlot(1, null));
+		state.bindVar(block, "p", new ArgSlot(1, null), null);
 		Traverser gen = new Traverser(new ExprGenerator(state, sv, block)).withHSI();
 		gen.visitExpr(expr, 2);
 		gen.endInline(null);

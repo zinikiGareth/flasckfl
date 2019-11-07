@@ -14,6 +14,14 @@
 		assert (f "this is data")
 			Debug "this is data"
 
+	test we can generate a Debug command using pattern matching
+		assert (k True ["hello"])
+			Debug "hello"
+
+	test we fail to match False
+		assert (k False ["hello"])
+			Error "no matching case"
+
 .	test we can create a Send on a contract
 .		data Sample svc
 .		assert (q svc)

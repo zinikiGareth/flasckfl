@@ -50,7 +50,7 @@ public class PatternAnalyzer extends LeafAdapter {
 		hsiTree = new HSIArgsTree(meth.argCount());
 		nslot = 0;
 		current = null;
-//		hsiTree.consider(fi);
+		hsiTree.consider(null);
 	}
 
 	@Override
@@ -83,8 +83,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
 		HSITree nested = slot.requireCM(p.actual());
-		if (current != null)
-			nested.consider(current);
+		nested.consider(current);
 		new PatternAnalyzer(errors, repository, sv, nested, current);
 	}
 	

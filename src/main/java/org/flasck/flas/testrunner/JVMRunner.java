@@ -116,13 +116,30 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //		errors.clear();
 //	}
 
+	@SuppressWarnings("unchecked")
 	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
 		expected = FLEval.full(null, expected);
 		actual = FLEval.full(null, actual);
 		if (expected instanceof FLNumber) {
 			assertSameNumber((FLNumber)expected, actual);
+		} else if (expected instanceof List) {
+			if (!(actual instanceof List))
+				throw new AssertFailed(expected, actual);
+			List<?> e = (List<?>)expected;
+			List<?> a = (List<?>)actual;
+			if (e.size() != a.size())
+				throw new AssertFailed(expected, actual);
+			try {
+				for (int i=0;i<a.size();i++)
+					assertSameValue(expected, actual);
+			} catch (AssertFailed ex) {
+				throw new AssertFailed(expected, actual, ex);
+			}
 		} else if (expected.getClass().equals(actual.getClass())) {
-			; // need to recurse inside ...
+			@SuppressWarnings("rawtypes")
+			Comparable c = (Comparable<?>) expected;
+			if (c.compareTo(actual) != 0)
+				throw new AssertFailed(expected, actual);
 		} else
 			throw new AssertFailed(expected, actual);
 	}

@@ -45,6 +45,7 @@ public class FunctionGenerationJS {
 	public void aSimpleFunction() {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).literal("42"); will(returnValue(nret));
@@ -73,6 +74,7 @@ public class FunctionGenerationJS {
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
@@ -105,6 +107,7 @@ public class FunctionGenerationJS {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
 		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction("test.repo", "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
@@ -142,6 +145,7 @@ public class FunctionGenerationJS {
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		Sequence ordering = context.sequence("ordering");
 		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction("test.repo", "f"); will(returnValue(meth)); inSequence(ordering);
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
 			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
@@ -186,6 +190,7 @@ public class FunctionGenerationJS {
 		JSIfExpr consSwitch = new JSIfExpr(null, isCons, notCons);
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
@@ -610,6 +615,7 @@ public class FunctionGenerationJS {
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		context.checking(new Expectations() {{
+			exactly(2).of(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));

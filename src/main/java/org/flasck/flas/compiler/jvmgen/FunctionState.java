@@ -12,6 +12,7 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionState {
 	final MethodDefiner meth;
@@ -30,19 +31,20 @@ public class FunctionState {
 		return pfx + nextVar++;
 	}
 
-	public void bindVar(List<IExpr> block, String var, Slot s) {
+	public void bindVar(List<IExpr> block, String var, Slot s, IExpr from) {
+		IExpr in;
+		AVar avar;
 		if (s instanceof ArgSlot) {
 			int k = ((ArgSlot)s).argpos();
-			IExpr in = meth.arrayItem(J.OBJECT, fargs, k);
-			AVar avar = new Var.AVar(meth, J.OBJECT, "head_" + k);
-			block.add(meth.assign(avar, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
-			vars.put(var, avar);
+			in = meth.arrayItem(J.OBJECT, fargs, k);
+			avar = new Var.AVar(meth, J.OBJECT, "head_" + k);
 		} else if (s instanceof CMSlot) {
-			AVar avar = new Var.AVar(meth, J.OBJECT, "var_" + s.id());
-			vars.put(var, avar);
-			
-			// TODO do an isfield on something
-		}
+			in = from;
+			avar = new Var.AVar(meth, J.OBJECT, "var_" + s.id());
+		} else
+			throw new NotImplementedException();
+		block.add(meth.assign(avar, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
+		vars.put(var, avar);
 	}
 
 	public AVar boundVar(String var) {

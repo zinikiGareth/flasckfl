@@ -74,7 +74,8 @@ public class HSIPatternOptions implements HSIOptions {
 
 	@Override
 	public void includes(FunctionIntro fi) {
-		all.add(fi);
+		if (!all.contains(fi))
+			all.add(fi);
 	}
 	
 	@Override

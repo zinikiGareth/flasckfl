@@ -160,7 +160,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void bind(Slot slot, String var) {
-		this.block.bindVar("_" + slot.id(), var);
+		this.block.bindVar(switchVars.get(slot), var);
 	}
 
 	@Override

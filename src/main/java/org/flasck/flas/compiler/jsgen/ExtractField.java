@@ -20,6 +20,7 @@ public class ExtractField implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
+		w.print("var ");
 		w.print(asVar);
 		w.print(" = _cxt.field(");
 		w.print(fromVar);

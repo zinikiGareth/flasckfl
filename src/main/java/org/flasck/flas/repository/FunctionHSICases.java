@@ -37,6 +37,11 @@ public class FunctionHSICases implements HSICases {
 
 	@Override
 	public boolean contains(FunctionIntro fi) {
+		// it's the same hack
+		if (fi == null)
+			return true;
+		if (this.intros.size() == 1 && intros.get(0) == null)
+			return true;
 		return this.intros.contains(fi);
 	}
 

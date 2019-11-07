@@ -136,14 +136,15 @@ FLContext.prototype.compare = function(left, right) {
 }
 
 FLContext.prototype.field = function(obj, field) {
-// TODO: this probably involves backing documents ...
 	obj = this.full(obj);
 	if (field == "head" && Array.isArray(obj) && obj.length > 0)
 		return obj[0];
 	else if (field == "tail" && Array.isArray(obj) && obj.length > 0)
-		throw new Error("implement field(tail)");
-	else
+		return obj.slice(1);
+	else {
+// TODO: this probably involves backing documents ...
 		return obj[field];
+	}
 }
 
 
@@ -160,7 +161,9 @@ class _FLError extends Error {
 	}
 }
 
-var FLError = function(_cxt, msg) {
+const FLError = {
+}
+FLError.eval = function(_cxt, msg) {
 	return new _FLError(msg);
 }
 
