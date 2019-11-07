@@ -12,4 +12,5 @@ public interface JSStorage {
 	JSMethodCreator newFunction(String string, String string2);
 
 	Iterable<File> files();
+
 }

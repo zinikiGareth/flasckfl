@@ -53,11 +53,16 @@ public class UnitTestGeneration {
 		}});
 		Var arg = new Var.AVar(meth, "JVMRunner", "runner");
 		Var cxt = new Var.AVar(meth, "FLContext", "cxt");
+		IExpr gf = context.mock(IExpr.class, "gf");
+		IExpr acxt = context.mock(IExpr.class, "acxt");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.something._ut_package._ut4"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "void", "dotest"); will(returnValue(meth));
 			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
-			oneOf(meth).getField(arg, "cxt"); will(returnValue(cxt));
+			oneOf(meth).avar(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
+			oneOf(meth).getField(arg, "cxt"); will(returnValue(gf));
+			oneOf(meth).assign(cxt, gf); will(returnValue(acxt));
+			oneOf(acxt).flush();
 		}});
 		StackVisitor sv = new StackVisitor();
 		JVMGenerator gen = new JVMGenerator(bce, sv);
@@ -73,7 +78,7 @@ public class UnitTestGeneration {
 	}
 	
 	@Test
-	public void weCanCreeateLocalUDDExpressions() {
+	public void weCanCreateLocalUDDExpressions() {
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
 		IExpr runner = context.mock(IExpr.class, "runner");
 		IExpr cls = context.mock(IExpr.class, "cls");
@@ -84,7 +89,7 @@ public class UnitTestGeneration {
 		AVar v1 = new AVar(meth, J.OBJECT, "v1");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.something.Ctr"); will(returnValue(cls));
-			oneOf(meth).callInterface(J.OBJECT, runner, "mockContract", cls); will(returnValue(call));
+			oneOf(meth).callVirtual(J.OBJECT, runner, "mockContract", cls); will(returnValue(call));
 			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, call);
 		}});

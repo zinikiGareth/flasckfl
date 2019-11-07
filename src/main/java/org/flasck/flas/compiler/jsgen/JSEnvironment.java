@@ -38,7 +38,7 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public JSClassCreator newClass(String pkg, String clz) {
 		JSFile inpkg = getPackage(pkg);
-		JSClass ret = new JSClass(pkg, clz);
+		JSClass ret = new JSClass(clz);
 		inpkg.addClass(ret);
 		return ret;
 	}

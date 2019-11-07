@@ -180,7 +180,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		this.meth = null;
 	}
-	
+
+	@Override
+	public void visitContractDecl(ContractDecl cd) {
+		String pkg = ((SolidName)cd.name()).packageName().jsName();
+		jse.ensurePackageExists(pkg, cd.name().container().jsName());
+		/*JSClassCreator ctr = */jse.newClass(pkg, cd.name().jsName());
+	}
 
 	@Override
 	public void visitUnitTest(UnitTestCase e) {

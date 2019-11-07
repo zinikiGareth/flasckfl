@@ -66,7 +66,7 @@ public class ClassGeneration {
 	@Test
 	public void aClassCanCreateNewMethods() {
 		w = w.indent();
-		JSClass jsc = new JSClass("pkg.level", "Clz");
+		JSClass jsc = new JSClass("pkg.level.Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
 		meth.argument("_cxt");
 		assertNotNull(meth);
@@ -167,7 +167,7 @@ public class ClassGeneration {
 	@Test
 	public void aMethodWithOneArgumentGeneratesCorrectly() {
 		w = w.indent();
-		JSClass jsc = new JSClass("pkg", "Clz");
+		JSClass jsc = new JSClass("pkg.Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
 		meth.argument("_cxt");
 		assertNotNull(meth);
@@ -179,7 +179,7 @@ public class ClassGeneration {
 	@Test
 	public void aMethodWithArgumentsGeneratesCorrectly() {
 		w = w.indent();
-		JSClass jsc = new JSClass("pkg", "Clz");
+		JSClass jsc = new JSClass("pkg.Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
 		meth.argument("_cxt");
 		assertNotNull(meth);
@@ -229,7 +229,7 @@ public class ClassGeneration {
 	@Test
 	public void aMethodIncludesItsActions() {
 		w = w.indent();
-		JSClass jsc = new JSClass("pkg", "Clz");
+		JSClass jsc = new JSClass("pkg.Clz");
 		JSMethodCreator meth = jsc.createMethod("test");
 		meth.argument("_cxt");
 		assertNotNull(meth);
@@ -249,7 +249,7 @@ public class ClassGeneration {
 	@Test
 	public void aPackageIncludesItsClasses() {
 		JSFile f = new JSFile("test", null);
-		f.addClass(new JSClass("test", "Clazz"));
+		f.addClass(new JSClass("test.Clazz"));
 		f.writeTo(w);
 		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.Clazz = function() {\n}\n", sw.toString());
 	}
@@ -266,7 +266,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void aClassIncludesItsMethods() {
-		JSClass clz = new JSClass("test", "Clazz");
+		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f");
 		meth.argument("_cxt");
 		clz.writeTo(w);
@@ -275,7 +275,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void aClosureIsGeneratored() {
-		JSClass clz = new JSClass("test", "Clazz");
+		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f");
 		meth.argument("_cxt");
 		meth.closure(meth.pushFunction("f"), meth.string("hello"));
@@ -285,7 +285,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void aCurryIsGeneratored() {
-		JSClass clz = new JSClass("test", "Clazz");
+		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f");
 		meth.argument("_cxt");
 		meth.curry(2, meth.pushFunction("f"), meth.string("hello"));
@@ -295,7 +295,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void anExplicitCurryIsGeneratored() {
-		JSClass clz = new JSClass("test", "Clazz");
+		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f");
 		meth.argument("_cxt");
 		meth.xcurry(2, Arrays.asList(new XCArg(0, meth.pushFunction("f")), new XCArg(2, meth.string("hello"))));

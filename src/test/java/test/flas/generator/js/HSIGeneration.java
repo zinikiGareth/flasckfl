@@ -6,10 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 
-import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.ExtractField;
-import org.flasck.flas.compiler.jsgen.JSBlock;
 import org.flasck.flas.compiler.jsgen.JSExpr;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSIfExpr;
