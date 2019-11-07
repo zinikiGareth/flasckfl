@@ -7,8 +7,8 @@
 	fdebug = adebug
 
 // it can take an argument
-.	method ndebug msg
-.		<- Debug msg
+	method ndebug msg
+		<- Debug msg
 	
 // and as far as I can see it can be embedded in another function
 

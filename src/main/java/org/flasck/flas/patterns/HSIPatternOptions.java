@@ -57,6 +57,13 @@ public class HSIPatternOptions implements HSIOptions {
 					return true;
 			return false;
 		}
+
+		public boolean isCompatibleIntro(FunctionIntro i) {
+			// a semi-hack to deal with methods that store "null" instead of the real intro ...
+			if (intros.size() == 1 && intros.get(0) == null)
+				return true;
+			return intros.contains(i);
+		}
 	}
 	private List<FunctionIntro> all = new ArrayList<>();
 	private List<TV> vars = new ArrayList<>();
@@ -179,7 +186,7 @@ public class HSIPatternOptions implements HSIOptions {
 	private void addVars(List<IntroVarName> ret, HSICases intros, Collection<TV> list) {
 		for (TV v : list) {
 			for (FunctionIntro i : ((FunctionHSICases)intros).intros) {
-				if (v.intros.contains(i))
+				if (v.isCompatibleIntro(i))
 					if (v.var != null)
 						ret.add(new IntroVarName(i, v.var));
 			}

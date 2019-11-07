@@ -43,7 +43,14 @@ public class FunctionHSICases implements HSICases {
 	@Override
 	public HSICases retain(List<FunctionIntro> intros) {
 		List<FunctionIntro> intersect = new ArrayList<>(this.intros);
-		intersect.retainAll(intros);
+		// this is somewhat of a hack, but valid ... 
+		// basically, for methods, we can't provide the real intro at conversion time, we need to provide null
+		// so now, return "the thing" if we are asked to retain null
+		if (intros.size() == 1 && intros.get(0) == null) {
+			// it's a method ... all good
+		} else {
+			intersect.retainAll(intros);
+		}
 		return new FunctionHSICases(intersect);
 	}
 
