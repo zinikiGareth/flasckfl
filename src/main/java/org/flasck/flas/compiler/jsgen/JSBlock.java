@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
@@ -42,14 +43,14 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr structConst(String name) {
-		JSConstant stmt = new JSConstant(creating, name);
+		JSStruct stmt = new JSStruct(creating, name, new ArrayList<>());
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
-	public JSExpr callFunction(String meth, JSExpr... args) {
-		JSCallMethod stmt = new JSCallMethod(creating, null, meth, args);
+	public JSExpr structArgs(String name, JSExpr... args) {
+		JSStruct stmt = new JSStruct(creating, name, Arrays.asList(args));
 		stmts.add(stmt);
 		return stmt;
 	}

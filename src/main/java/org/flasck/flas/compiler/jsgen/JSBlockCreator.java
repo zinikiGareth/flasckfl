@@ -19,7 +19,7 @@ public interface JSBlockCreator {
 	JSIfExpr ifTrue(JSExpr ge);
 	void errorNoCase();
 	void errorNoDefaultGuard();
-	JSExpr callFunction(String string, JSExpr... args);
+	JSExpr structArgs(String string, JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr pushFunction(String meth);
 	JSExpr closure(JSExpr... args);

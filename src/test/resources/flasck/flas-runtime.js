@@ -129,8 +129,10 @@ FLContext.prototype.compare = function(left, right) {
 		return left.length === right.length;
 	} else if (left instanceof _FLError && right instanceof _FLError) {
 		return left.message === right.message;
+	} else if (left._compare) {
+		return left._compare(right);
 	} else
-		return false;
+		return left == right;
 }
 
 FLContext.prototype.field = function(obj, field) {
@@ -232,4 +234,18 @@ FLBuiltin.isEqual = function(_cxt, a, b) {
 	return _cxt.compare(a,b);
 }
 
+
+const Debug = function() {
+}
+Debug.eval = function(_cxt, msg) {
+	const d = new Debug();
+	d.msg = msg;
+	return d;
+}
+Debug.prototype._compare = function() {
+	return true;
+}
+
+const Send = function() {
+}
 

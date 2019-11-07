@@ -178,7 +178,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			String fn = defn.name().jsName();
 			if (fn.equals("Error"))
 				fn = "FLError";
-			stack.add(block.callFunction(fn, args));
+			stack.add(block.structArgs(fn, args));
 		} else {
 			JSExpr[] args = new JSExpr[depth+1];
 			List<XCArg> xcs = new ArrayList<>();

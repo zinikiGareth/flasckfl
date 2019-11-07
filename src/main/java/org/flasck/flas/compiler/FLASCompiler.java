@@ -20,6 +20,7 @@ import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
+import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.ConsumeDefinitions;
@@ -142,7 +143,10 @@ public class FLASCompiler {
 	}
 
 	public boolean convertMethods(ErrorMark mark) {
-		return false;
+		StackVisitor sv = new StackVisitor();
+		new MethodConvertor(sv);
+		repository.traverse(sv);
+		return mark.hasMoreNow();
 	}
 	
 	public boolean generateCode(ErrorMark mark, Configuration config) {

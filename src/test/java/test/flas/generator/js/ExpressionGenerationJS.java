@@ -296,7 +296,7 @@ public class ExpressionGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(meth).string("hello"); will(returnValue(s));
 			oneOf(meth).structConst("Nil"); will(returnValue(nil));
-			oneOf(meth).callFunction("Cons", s, nil); will(returnValue(cons));
+			oneOf(meth).structArgs("Cons", s, nil); will(returnValue(cons));
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
@@ -337,7 +337,7 @@ public class ExpressionGenerationJS {
 		JSExpr errjs = context.mock(JSExpr.class, "cons");
 		context.checking(new Expectations() {{
 			oneOf(meth).string("error message"); will(returnValue(s));
-			oneOf(meth).callFunction("FLError", s); will(returnValue(errjs));
+			oneOf(meth).structArgs("FLError", s); will(returnValue(errjs));
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
