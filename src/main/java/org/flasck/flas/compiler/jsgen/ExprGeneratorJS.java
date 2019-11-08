@@ -42,11 +42,13 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		}
 	}
 
+	private final JSFunctionState state;
 	private final NestedVisitor sv;
 	private final JSBlockCreator block;
 	private final List<JSExpr> stack = new ArrayList<>();
 
-	public ExprGeneratorJS(NestedVisitor nv, JSBlockCreator block) {
+	public ExprGeneratorJS(JSFunctionState state, NestedVisitor nv, JSBlockCreator block) {
+		this.state = state;
 		this.sv = nv;
 		if (block == null)
 			throw new NullPointerException("Cannot have a null block");
@@ -83,7 +85,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
-		sv.push(new ExprGeneratorJS(sv, block));
+		sv.push(new ExprGeneratorJS(state, sv, block));
 	}
 	
 	@Override
@@ -141,9 +143,13 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof CurryArgument) {
 			stack.add(new JSCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {
-			stack.add(block.string("hello"));
+			handleUnitTestData((UnitDataDeclaration) defn);
 		} else
 			throw new NotImplementedException("cannot generate fn for " + defn);
+	}
+
+	private void handleUnitTestData(UnitDataDeclaration udd) {
+		stack.add(state.resolveMock(udd));
 	}
 
 	@Override

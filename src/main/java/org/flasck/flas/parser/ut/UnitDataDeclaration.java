@@ -14,7 +14,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.repository.RepositoryEntry;
 
-public class UnitDataDeclaration implements UnitDataFieldConsumer, UnitTestStep, Locatable, RepositoryEntry {
+public class UnitDataDeclaration implements UnitDataFieldConsumer, UnitTestStep, Locatable, RepositoryEntry, Comparable<UnitDataDeclaration> {
 	public static class Assignment {
 		public final UnresolvedVar field;
 		public final Expr value;
@@ -66,5 +66,10 @@ public class UnitDataDeclaration implements UnitDataFieldConsumer, UnitTestStep,
 	@Override
 	public String toString() {
 		return "UnitData[" + name.uniqueName() + "]";
+	}
+
+	@Override
+	public int compareTo(UnitDataDeclaration o) {
+		return this.name.uniqueName().compareTo(o.name.uniqueName());
 	}
 }

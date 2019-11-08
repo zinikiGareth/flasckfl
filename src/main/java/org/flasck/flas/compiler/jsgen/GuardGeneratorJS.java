@@ -8,12 +8,14 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 
 public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
+	private final JSFunctionState state;
 	private final NestedVisitor sv;
 	private JSBlockCreator block;
 	private boolean isGuard, seenGuard;
 	private JSBlockCreator trueblock;
 
-	public GuardGeneratorJS(NestedVisitor sv, JSBlockCreator block) {
+	public GuardGeneratorJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator block) {
+		this.state = state;
 		this.sv = sv;
 		if (block == null)
 			throw new NullPointerException("Cannot have a null block");
@@ -25,14 +27,14 @@ public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 	public void visitGuard(FunctionCaseDefn c) {
 		isGuard = true;
 		seenGuard = true;
-		sv.push(new ExprGeneratorJS(sv, this.block));
+		sv.push(new ExprGeneratorJS(state, sv, this.block));
 	}
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
 		if (!seenGuard)
 			trueblock = block;
-		sv.push(new ExprGeneratorJS(sv, trueblock));
+		sv.push(new ExprGeneratorJS(state, sv, trueblock));
 		seenGuard = false;
 	}
 	

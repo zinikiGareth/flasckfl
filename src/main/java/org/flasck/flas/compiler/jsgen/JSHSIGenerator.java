@@ -19,13 +19,15 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 		private JSBlockCreator elseBlock;
 	}
 	
+	private final JSFunctionState state;
 	private final NestedVisitor sv;
 	private JSBlockCreator block;
 	private SwitchLevel currentLevel;
 	private final Map<Slot, String> switchVars;
 	private final List<SwitchLevel> switchStack = new ArrayList<>();
 
-	public JSHSIGenerator(NestedVisitor sv, Map<Slot, String> switchVars, Slot slot, JSBlockCreator block) {
+	public JSHSIGenerator(JSFunctionState state, NestedVisitor sv, Map<Slot, String> switchVars, Slot slot, JSBlockCreator block) {
+		this.state = state;
 		this.sv = sv;
 		this.block = block;
 		currentLevel = new SwitchLevel();
@@ -42,7 +44,7 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 
 	@Override
 	public void switchOn(Slot slot) {
-		sv.push(new JSHSIGenerator(sv, switchVars, slot, this.block));
+		sv.push(new JSHSIGenerator(state, sv, switchVars, slot, this.block));
 	}
 
 	@Override
@@ -117,7 +119,7 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new GuardGeneratorJS(sv, this.block));
+		sv.push(new GuardGeneratorJS(state, sv, this.block));
 	}
 
 	@Override

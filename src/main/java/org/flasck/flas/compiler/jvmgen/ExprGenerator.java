@@ -190,9 +190,13 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 		} else if (defn instanceof CurryArgument) {
 			stack.add(new JVMCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {
-			stack.add(meth.stringConst("hello"));
+			handleUnitTestData((UnitDataDeclaration) defn);
 		} else
 			throw new NotImplementedException();
+	}
+
+	private void handleUnitTestData(UnitDataDeclaration udd) {
+		stack.add(state.resolveMock(udd));
 	}
 
 	@Override

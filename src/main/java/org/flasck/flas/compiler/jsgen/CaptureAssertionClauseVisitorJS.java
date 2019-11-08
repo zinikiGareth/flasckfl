@@ -6,12 +6,14 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 
 public class CaptureAssertionClauseVisitorJS extends LeafAdapter implements ResultAware {
+	private final JSFunctionState state;
 	private NestedVisitor sv;
 	private JSBlockCreator block;
 	private JSExpr runner;
 	private JSExpr value;
 
-	public CaptureAssertionClauseVisitorJS(NestedVisitor sv, JSBlockCreator block, JSExpr runner) {
+	public CaptureAssertionClauseVisitorJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator block, JSExpr runner) {
+		this.state = state;
 		this.sv = sv;
 		this.block = block;
 		this.runner = runner;
@@ -20,7 +22,7 @@ public class CaptureAssertionClauseVisitorJS extends LeafAdapter implements Resu
 
 	@Override
 	public void visitAssertExpr(boolean isValue, Expr e) {
-		sv.push(new ExprGeneratorJS(sv, block));
+		sv.push(new ExprGeneratorJS(state, sv, block));
 	}
 
 

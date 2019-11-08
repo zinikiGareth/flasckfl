@@ -361,8 +361,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			IExpr mc = meth.callVirtual(J.OBJECT, this.runner, "mockContract", meth.classConst(objty.name().javaName()));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
-		} else
+			this.fs.addMock(udd, v);
+		} else {
+			// see comment in JSGenerator
 			throw new RuntimeException("not handled: " + objty);
+		}
+	}
+	
+	@Override
+	public void visitUnitTestAssert(UnitTestAssert a) {
+		new CaptureAssertionClauseVisitor(sv, this.fs, this.runner);
 	}
 	
 	@Override
@@ -370,11 +378,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.returnVoid().flush();
 		meth = null;
 		clz.generate();
-	}
-
-	@Override
-	public void visitUnitTestAssert(UnitTestAssert a) {
-		new CaptureAssertionClauseVisitor(sv, this.meth, this.runner, this.fcx);
 	}
 	
 	@Override
@@ -458,5 +461,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	public NestedVisitor stackVisitor() {
 		return sv;
+	}
+
+	public FunctionState state() {
+		return fs;
 	}
 }

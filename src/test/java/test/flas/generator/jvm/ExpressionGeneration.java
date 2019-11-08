@@ -10,12 +10,18 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.jsgen.ExprGeneratorJS;
+import org.flasck.flas.compiler.jsgen.JSExpr;
+import org.flasck.flas.compiler.jsgen.JSLiteral;
 import org.flasck.flas.compiler.jvmgen.ExprGenerator;
 import org.flasck.flas.compiler.jvmgen.FunctionState;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -159,6 +165,37 @@ public class ExpressionGeneration {
 		gen.visitExpr(expr, 2);
 	}
 
+	@Test
+	public void aVarBoundToAUDDBoundToAString() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		FunctionName nameX = FunctionName.function(pos, pkg, "p");
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, LoadBuiltins.stringTR, nameX, new StringLiteral(pos, "hello"));
+		expr.bind(udd);
+		IExpr cx = context.mock(IExpr.class, "cx");
+		context.checking(new Expectations() {{
+//			oneOf(state).resolveMock(udd); will(returnValue(sl));
+		}});
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv, block)).withHSI();
+		gen.visitExpr(expr, 0);
+	}
+	
+	@Test
+	public void aVarBoundToAUDDBoundToAContract() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		FunctionName nameX = FunctionName.function(pos, pkg, "p");
+		TypeReference ctr = new TypeReference(pos, "MyContract");
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "MyContract"));
+		ctr.bind(cd);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, nameX, null);
+		expr.bind(udd);
+		IExpr cx = context.mock(IExpr.class, "cx");
+		context.checking(new Expectations() {{
+//			oneOf(state).resolveMock(udd); will(returnValue(mc));
+		}});
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv, block)).withHSI();
+		gen.visitExpr(expr, 0);
+	}
+	
 	@Test
 	public void aVarWithNoArgsExpectingNoArgsBecomesAClosureByItself() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");

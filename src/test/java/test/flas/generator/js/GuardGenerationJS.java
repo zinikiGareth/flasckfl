@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.GuardGeneratorJS;
 import org.flasck.flas.compiler.jsgen.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.JSExpr;
+import org.flasck.flas.compiler.jsgen.JSFunctionState;
 import org.flasck.flas.compiler.jsgen.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -30,12 +31,13 @@ public class GuardGenerationJS {
 	private Visitor v = context.mock(Visitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
+	JSFunctionState state = context.mock(JSFunctionState.class);
 
 	@Test
 	public void aSingleGuard() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGeneratorJS(gen, meth));
+		gen.push(new GuardGeneratorJS(state, gen, meth));
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -77,7 +79,7 @@ public class GuardGenerationJS {
 	public void aSingleGuardWithDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGeneratorJS(gen, meth));
+		gen.push(new GuardGeneratorJS(state, gen, meth));
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -129,7 +131,7 @@ public class GuardGenerationJS {
 	public void twoGuardsNoDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGeneratorJS(gen, meth));
+		gen.push(new GuardGeneratorJS(state, gen, meth));
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);

@@ -57,6 +57,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSExpr runner;
 	private final Map<Slot, String> switchVars = new HashMap<>();
 	private NestedVisitor sv;
+	private JSFunctionState state;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -65,7 +66,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			sv.push(this);
 	}
 
-	public JSGenerator(JSMethodCreator meth, JSExpr runner, NestedVisitor sv) {
+	public JSGenerator(JSMethodCreator meth, JSExpr runner, NestedVisitor sv, JSFunctionState state) {
 		this.sv = sv;
 		this.jse = null;
 		if (meth == null)
@@ -75,6 +76,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.runner = runner;
 		if (sv != null)
 			sv.push(this);
+		this.state = state;
 	}
 
 	@Override
@@ -91,6 +93,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
+		this.state = new JSFunctionStateStore();
 	}
 	
 	@Override
@@ -107,6 +110,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<om.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
+		this.state = new JSFunctionStateStore();
 	}
 	
 	@Override
@@ -118,13 +122,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void switchOn(Slot slot) {
-		sv.push(new JSHSIGenerator(sv, switchVars, slot, this.block));
+		sv.push(new JSHSIGenerator(state, sv, switchVars, slot, this.block));
 	}
 
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new GuardGeneratorJS(sv, this.block));
+		sv.push(new GuardGeneratorJS(state, sv, this.block));
 	}
 
 	@Override
@@ -179,6 +183,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			return;
 		}
 		this.meth = null;
+		this.state = null;
+	}
+
+	@Override
+	public void leaveObjectMethod(ObjectMethod om) {
+		if (meth == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
+		this.meth = null;
+		this.state = null;
 	}
 
 	@Override
@@ -195,28 +210,36 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = meth;
 		/*JSExpr cxt = */meth.argument("_cxt");
 		runner = meth.argument("runner");
+		this.state = new JSFunctionStateStore();
 	}
 
-	
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		if (meth == null)
 			throw new RuntimeException("Global UDDs are not yet handled");
 		RepositoryEntry objty = udd.ofType.defn();
-		if (objty instanceof ContractDecl)
-			meth.mockContract((SolidName) objty.name());
-		else
+		if (objty instanceof ContractDecl) {
+			JSExpr mock = meth.mockContract((SolidName) objty.name());
+			state.addMock(udd, mock);
+		} else {
+			/* It seems to me that this requires us to traverse the whole of 
+			 * the inner expression.  I'm not quite sure what is the best way to handle that.
+			 * Another option on the traverser? A signal back to the traverser (how?) that
+			 * says "traverse this"?  Creating a subtraverser here?
+			 */
 			throw new RuntimeException("not handled: " + objty);
+		}
 	}
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-		new CaptureAssertionClauseVisitorJS(sv, this.block, this.runner);
+		new CaptureAssertionClauseVisitorJS(state, sv, this.block, this.runner);
 	}
 
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
 		meth = null;
+		state = null;
 	}
 
 	@Override
@@ -230,6 +253,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv) {
-		return new JSGenerator(meth, runner, nv);
+		return new JSGenerator(meth, runner, nv, null);
+	}
+
+	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv, JSFunctionState state) {
+		return new JSGenerator(meth, runner, nv, state);
 	}
 }

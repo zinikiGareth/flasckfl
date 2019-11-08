@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.CaptureAssertionClauseVisitorJS;
 import org.flasck.flas.compiler.jsgen.JSExpr;
+import org.flasck.flas.compiler.jsgen.JSFunctionState;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
@@ -18,10 +19,12 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -51,21 +54,44 @@ public class UnitTestGenerationJS {
 	}
 	
 	@Test
-	public void weCanCreeateLocalUDDExpressions() {
+	@Ignore // this test is not one I need right now and seems like it needs a lot of thinking
+	public void weCanCreateLocalUDDStringValues() {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		JSExpr runner = context.mock(JSExpr.class, "runner");
 		NestedVisitor nv = context.mock(NestedVisitor.class);
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		JSFunctionState state = context.mock(JSFunctionState.class);
+		JSExpr sl = context.mock(JSExpr.class, "literal");
+		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
+		UnitTestName utn = new UnitTestName(utfn, 4);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, LoadBuiltins.stringTR, FunctionName.function(pos, utn, "data"), new StringLiteral(pos, "hello"));
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(JSGenerator.class)));
-			oneOf(meth).mockContract(cd.name());
+			oneOf(meth).literal("hello"); will(returnValue(sl));
+			oneOf(state).addMock(udd, sl);
 		}});
-		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner, nv));
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner, nv, state));
+		gen.visitUnitDataDeclaration(udd);
+	}
+	
+	@Test
+	public void weCanCreateLocalUDDMMockContracts() {
+		JSMethodCreator meth = context.mock(JSMethodCreator.class);
+		JSExpr runner = context.mock(JSExpr.class, "runner");
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		JSFunctionState state = context.mock(JSFunctionState.class);
+		JSExpr mc = context.mock(JSExpr.class, "mockContract");
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
 		TypeReference ctr = new TypeReference(pos, "Ctr");
 		ctr.bind(cd);
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), null);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(JSGenerator.class)));
+			oneOf(meth).mockContract(cd.name()); will(returnValue(mc));
+			oneOf(state).addMock(udd, mc);
+		}});
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner, nv, state));
 		gen.visitUnitDataDeclaration(udd);
 	}
 	
@@ -91,13 +117,14 @@ public class UnitTestGenerationJS {
 		JSExpr runner = context.mock(JSExpr.class, "runner");
 		JSExpr la = context.mock(JSExpr.class, "la");
 		JSExpr ra = context.mock(JSExpr.class, "ra");
+		JSFunctionState state = context.mock(JSFunctionState.class);
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(CaptureAssertionClauseVisitorJS.class)));
 			oneOf(meth).assertable(runner, "assertSameValue", la, ra);
 			oneOf(nv).result(null);
 		}});
-		CaptureAssertionClauseVisitorJS capture = new CaptureAssertionClauseVisitorJS(nv, meth, runner);
+		CaptureAssertionClauseVisitorJS capture = new CaptureAssertionClauseVisitorJS(state, nv, meth, runner);
 		capture.result(la);
 		capture.result(ra);
 	}

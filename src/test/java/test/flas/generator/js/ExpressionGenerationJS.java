@@ -10,13 +10,17 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jsgen.ExprGeneratorJS;
 import org.flasck.flas.compiler.jsgen.JSExpr;
+import org.flasck.flas.compiler.jsgen.JSFunctionState;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
+import org.flasck.flas.compiler.jsgen.JSLiteral;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -31,6 +35,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -48,6 +53,7 @@ public class ExpressionGenerationJS {
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
+	private JSFunctionState state = context.mock(JSFunctionState.class);
 
 	@Test
 	public void aSimpleInteger() {
@@ -55,7 +61,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).literal("42");
 		}});
 		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -65,36 +71,36 @@ public class ExpressionGenerationJS {
 			oneOf(meth).string("hello");
 		}});
 		StringLiteral expr = new StringLiteral(pos, "hello");
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 0);
 	}
 
 	@Test
-	public void aVar() {
+	public void aVarBoundToAFunction() {
 		context.checking(new Expectations() {{
 			oneOf(meth).pushFunction("test.repo.x");
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		expr.bind(new FunctionDefinition(nameX, 0));
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 2);
 	}
 	
 	@Test
-	public void aFunctionArgument() {
+	public void aVarBoundToAFunctionArgument() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");
 		expr.bind(new VarPattern(pos, new VarName(pos, nameX, "p")));
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("p");
 		}});
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 2);
 	}
 	
 	@Test
-	public void aTypedFunctionArgument() {
+	public void aVarBoundToATypedFunctionArgument() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");
 		TypeReference string = new TypeReference(pos, "String");
@@ -103,8 +109,39 @@ public class ExpressionGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("p");
 		}});
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 2);
+	}
+	
+	@Test
+	public void aVarBoundToAUDDBoundToAString() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		FunctionName nameX = FunctionName.function(pos, pkg, "p");
+		JSLiteral sl = new JSLiteral("hello");
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, LoadBuiltins.stringTR, nameX, new StringLiteral(pos, "hello"));
+		expr.bind(udd);
+		context.checking(new Expectations() {{
+			oneOf(state).resolveMock(udd); will(returnValue(sl));
+		}});
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
+		gen.visitExpr(expr, 0);
+	}
+	
+	@Test
+	public void aVarBoundToAUDDBoundToAContract() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		FunctionName nameX = FunctionName.function(pos, pkg, "p");
+		TypeReference ctr = new TypeReference(pos, "MyContract");
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "MyContract"));
+		ctr.bind(cd);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, nameX, null);
+		expr.bind(udd);
+		JSExpr mc = context.mock(JSExpr.class, "mockContract");
+		context.checking(new Expectations() {{
+			oneOf(state).resolveMock(udd); will(returnValue(mc));
+		}});
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
+		gen.visitExpr(expr, 0);
 	}
 	
 	@Test
@@ -117,7 +154,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		expr.bind(new FunctionDefinition(nameX, 0));
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -131,7 +168,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		expr.bind(new FunctionDefinition(nameX, 2));
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -143,7 +180,7 @@ public class ExpressionGenerationJS {
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 0);
 	}
 
@@ -210,7 +247,7 @@ public class ExpressionGenerationJS {
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
 		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
-		Traverser gen = new Traverser(new ExprGeneratorJS(nv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, nv, meth));
 		gen.visitExpr(expr, 2);
 	}
 
@@ -231,7 +268,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).string("hello"); will(returnValue(sv));
 			oneOf(meth).closure(f, iv, sv);
 		}});
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -253,7 +290,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).string("hello"); will(returnValue(sv));
 			oneOf(meth).closure(f, iv, sv);
 		}});
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -277,7 +314,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
 			oneOf(meth).closure(f, v1);
 		}});
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -302,7 +339,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(ae, 0);
 	}
 	
@@ -324,7 +361,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(ae, 0);
 	}
 
@@ -343,7 +380,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(ae, 0);
 	}
 	
@@ -356,7 +393,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(expr, 0);
 	}
 	
@@ -373,7 +410,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(expr, 0);
 	}
 	
@@ -393,7 +430,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		Traverser gen = new Traverser(new ExprGeneratorJS(stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(expr, 0);
 	}
 }

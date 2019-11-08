@@ -1,5 +1,7 @@
 package test.flas.generator.jvm;
 
+import static org.junit.Assert.assertEquals;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -20,6 +22,7 @@ import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -78,7 +81,35 @@ public class UnitTestGeneration {
 	}
 	
 	@Test
-	public void weCanCreateLocalUDDExpressions() {
+	@Ignore
+	public void weCanCreateLocalUDStringValues() {
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		IExpr runner = context.mock(IExpr.class, "runner");
+		IExpr cls = context.mock(IExpr.class, "cls");
+		IExpr call = context.mock(IExpr.class, "call");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(17));
+		}});
+		AVar v1 = new AVar(meth, J.OBJECT, "v1");
+		context.checking(new Expectations() {{
+//			oneOf(meth).classConst("test.something.Ctr"); will(returnValue(cls));
+//			oneOf(meth).callVirtual(J.OBJECT, runner, "mockContract", cls); will(returnValue(call));
+//			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
+//			oneOf(meth).assign(v1, call);
+		}});
+		JVMGenerator jvm = JVMGenerator.forTests(meth, runner, null);
+		Traverser gen = new Traverser(jvm.stackVisitor());
+		TypeReference ctr = new TypeReference(pos, "Ctr");
+		ctr.bind(cd);
+		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
+		UnitTestName utn = new UnitTestName(utfn, 4);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), new StringLiteral(pos, "hello"));
+		gen.visitUnitDataDeclaration(udd);
+		assertEquals(v1, jvm.state().resolveMock(udd));
+	}
+
+	@Test
+	public void weCanCreateLocalUDDMockContracts() {
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
 		IExpr runner = context.mock(IExpr.class, "runner");
 		IExpr cls = context.mock(IExpr.class, "cls");
@@ -93,13 +124,15 @@ public class UnitTestGeneration {
 			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, call);
 		}});
-		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner, null).stackVisitor());
+		JVMGenerator jvm = JVMGenerator.forTests(meth, runner, null);
+		Traverser gen = new Traverser(jvm.stackVisitor());
 		TypeReference ctr = new TypeReference(pos, "Ctr");
 		ctr.bind(cd);
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), null);
 		gen.visitUnitDataDeclaration(udd);
+		assertEquals(v1, jvm.state().resolveMock(udd));
 	}
 
 	@Test
