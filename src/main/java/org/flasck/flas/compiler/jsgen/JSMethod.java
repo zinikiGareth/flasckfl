@@ -7,12 +7,14 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final String pkg;
+	private final boolean prototype;
 	private final String name;
 	private final List<JSVar> args = new ArrayList<>();
 	private int nextVar = 1;
 
-	public JSMethod(String pkg, String name) {
+	public JSMethod(String pkg, boolean prototype, String name) {
 		this.pkg = pkg;
+		this.prototype = prototype;
 		this.name = name;
 	}
 	
@@ -36,6 +38,8 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		w.println("");
 		w.print(pkg);
 		w.print(".");
+		if (prototype)
+			w.print("prototype.");
 		w.print(name);
 		w.print(" = function");
 		w.print("(");

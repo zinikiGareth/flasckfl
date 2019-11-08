@@ -200,7 +200,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public void visitContractDecl(ContractDecl cd) {
 		String pkg = ((SolidName)cd.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
-		/*JSClassCreator ctr = */jse.newClass(pkg, cd.name().jsName());
+		JSClassCreator ctr = jse.newClass(pkg, cd.name().jsName());
+		JSMethodCreator meth = ctr.createMethod("name", true);
+		meth.returnObject(new JSString(cd.name().uniqueName()));
 	}
 
 	@Override

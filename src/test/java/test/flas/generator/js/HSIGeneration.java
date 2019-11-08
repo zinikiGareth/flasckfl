@@ -42,7 +42,7 @@ public class HSIGeneration {
 	
 	@Test
 	public void headProducesAnEvalStatement() {
-		JSMethod meth = new JSMethod(null, "fred");
+		JSMethod meth = new JSMethod(null, false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.head("_0");
@@ -52,7 +52,7 @@ public class HSIGeneration {
 
 	@Test
 	public void ifCtorProducesAnIfWithTwoBlocks() {
-		JSMethod meth = new JSMethod(null, "fred");
+		JSMethod meth = new JSMethod(null, false, "fred");
 		meth.argument("_cxt");
 		JSIfExpr ifCtor = meth.ifCtor("_0", "Nil");
 		ifCtor.trueCase().returnObject(ifCtor.trueCase().string("hello"));
@@ -63,7 +63,7 @@ public class HSIGeneration {
 
 	@Test
 	public void ifConstProducesAnIfWithTwoBlocks() {
-		JSMethod meth = new JSMethod(null, "fred");
+		JSMethod meth = new JSMethod(null, false, "fred");
 		meth.argument("_cxt");
 		JSIfExpr ifConst = meth.ifConst("_0", "hello");
 		ifConst.trueCase().returnObject(ifConst.trueCase().string("hello"));
@@ -74,7 +74,7 @@ public class HSIGeneration {
 
 	@Test
 	public void ifTrueProducesAnIfWithTwoBlocks() {
-		JSMethod meth = new JSMethod(null, "fred");
+		JSMethod meth = new JSMethod(null, false, "fred");
 		meth.argument("_cxt");
 		JSIfExpr ifTrue = meth.ifTrue(new JSLiteral("true"));
 		ifTrue.trueCase().returnObject(ifTrue.trueCase().string("hello"));
@@ -85,7 +85,7 @@ public class HSIGeneration {
 
 	@Test
 	public void errorCreatesAnError() {
-		JSMethod meth = new JSMethod(null, "fred");
+		JSMethod meth = new JSMethod(null, false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoCase();
@@ -95,7 +95,7 @@ public class HSIGeneration {
 	
 	@Test
 	public void errorNoDefaultGuardCreatesAnError() {
-		JSMethod meth = new JSMethod(null, "fred");
+		JSMethod meth = new JSMethod(null, false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();

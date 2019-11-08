@@ -298,6 +298,9 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 		case "/":
 			inner = "Div";
 			break;
+		case "++":
+			inner = "Concat";
+			break;
 		case "[]":
 			return J.NIL;
 		default:

@@ -26,8 +26,8 @@ public class JSMockContract implements JSExpr {
 			var = meth.obtainNextVar();
 		w.print("const ");
 		w.print(var);
-		w.print(" = _cxt.mockContract(");
+		w.print(" = _cxt.mockContract(new ");
 		w.print(name.jsName()); // TODO: should this be JSPName or JSCName or something?
-		w.println(");");
+		w.println("());");
 	}
 }

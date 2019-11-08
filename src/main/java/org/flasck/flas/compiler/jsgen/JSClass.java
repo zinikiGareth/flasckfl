@@ -14,8 +14,8 @@ public class JSClass implements JSClassCreator {
 	}
 
 	@Override
-	public JSMethodCreator createMethod(String name) {
-		JSMethod meth = new JSMethod(this.name, name);
+	public JSMethodCreator createMethod(String name, boolean prototype) {
+		JSMethod meth = new JSMethod(this.name, prototype, name);
 		methods.add(meth);
 		return meth;
 	}

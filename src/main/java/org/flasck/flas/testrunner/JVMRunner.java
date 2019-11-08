@@ -18,6 +18,7 @@ import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
 import org.flasck.jvm.builtin.FLNumber;
 import org.flasck.jvm.container.FlasckService;
+import org.flasck.jvm.fl.FLComparable;
 import org.flasck.jvm.fl.FLEval;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -136,10 +137,14 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 				throw new AssertFailed(expected, actual, ex);
 			}
 		} else if (expected.getClass().equals(actual.getClass())) {
-			@SuppressWarnings("rawtypes")
-			Comparable c = (Comparable<?>) expected;
-			if (c.compareTo(actual) != 0)
-				throw new AssertFailed(expected, actual);
+			if (expected instanceof FLComparable) {
+				@SuppressWarnings("rawtypes")
+				FLComparable c = (FLComparable<?>) expected;
+				if (!c.equalTo(cxt, actual))
+					throw new AssertFailed(expected, actual);
+			} else
+				if (!expected.equals(actual))
+					throw new AssertFailed(expected, actual);
 		} else
 			throw new AssertFailed(expected, actual);
 	}

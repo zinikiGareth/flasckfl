@@ -12,16 +12,12 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.compiler.jsgen.ExprGeneratorJS;
-import org.flasck.flas.compiler.jsgen.JSExpr;
-import org.flasck.flas.compiler.jsgen.JSLiteral;
 import org.flasck.flas.compiler.jvmgen.ExprGenerator;
 import org.flasck.flas.compiler.jvmgen.FunctionState;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -35,6 +31,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -52,6 +49,7 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.bytecode.mock.VarMatcher;
 
 public class ExpressionGeneration {
@@ -173,9 +171,15 @@ public class ExpressionGeneration {
 		expr.bind(udd);
 		IExpr cx = context.mock(IExpr.class, "cx");
 		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(76));
+		}});
+		Var mock = new AVar(meth, J.OBJECT, "mock");
+		context.checking(new Expectations() {{
 //			oneOf(state).resolveMock(udd); will(returnValue(sl));
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv, block)).withHSI();
+		FunctionState fs = new FunctionState(meth, cx, null);
+		fs.addMock(udd, mock);
+		Traverser gen = new Traverser(new ExprGenerator(fs, sv, block)).withHSI();
 		gen.visitExpr(expr, 0);
 	}
 	
@@ -190,9 +194,15 @@ public class ExpressionGeneration {
 		expr.bind(udd);
 		IExpr cx = context.mock(IExpr.class, "cx");
 		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(76));
+		}});
+		Var mock = new AVar(meth, J.OBJECT, "mock");
+		context.checking(new Expectations() {{
 //			oneOf(state).resolveMock(udd); will(returnValue(mc));
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv, block)).withHSI();
+		FunctionState fs = new FunctionState(meth, cx, null);
+		fs.addMock(udd, mock);
+		Traverser gen = new Traverser(new ExprGenerator(fs, sv, block)).withHSI();
 		gen.visitExpr(expr, 0);
 	}
 	

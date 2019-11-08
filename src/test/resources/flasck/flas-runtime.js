@@ -103,6 +103,9 @@ FLContext.prototype.isTruthy = function(val) {
 }
 
 FLContext.prototype.isA = function(val, ty) {
+	if (val instanceof Object && 'areYouA' in val) {
+		return val.areYouA(ty);
+	}
 	switch (ty) {
 	case 'True':
 		return val === true;
@@ -130,7 +133,7 @@ FLContext.prototype.compare = function(left, right) {
 	} else if (left instanceof _FLError && right instanceof _FLError) {
 		return left.message === right.message;
 	} else if (left._compare) {
-		return left._compare(right);
+		return left._compare(this, right);
 	} else
 		return left == right;
 }
@@ -158,8 +161,8 @@ class _FLError extends Error {
     	this.name = "FLError";
 	}
 	
-	_compareTo(other) {
-		if (!other instanceof _FLError) return false;
+	_compare(cx, other) {
+		if (!(other instanceof _FLError)) return false;
 		if (other.message != this.message) return false;
 		return true;
 	}
@@ -235,6 +238,12 @@ FLBuiltin.div = function(_cxt, a, b) {
 	return a/b;
 }
 
+FLBuiltin.concat = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return a + b;
+}
+
 FLBuiltin.isEqual = function(_cxt, a, b) {
 	a = _cxt.full(a);
 	b = _cxt.full(b);
@@ -249,8 +258,11 @@ Debug.eval = function(_cxt, msg) {
 	d.msg = msg;
 	return d;
 }
-Debug.prototype._compare = function() {
-	return true;
+Debug.prototype._compare = function(cx, other) {
+	if (other instanceof Debug) {
+		return other.msg == this.msg;
+	} else
+		return false;
 }
 
 const Send = function() {
@@ -262,4 +274,11 @@ Send.eval = function(_cxt, obj, meth, args) {
 	s.args = args;
 	return s;
 }
+Send.prototype._compare = function(cx, other) {
+	if (other instanceof Send) {
+		return cx.compare(this.obj, other.obj) && cx.compare(this.meth, other.meth) && cx.compare(this.args, other.args);
+	} else
+		return false;
+}
+
 

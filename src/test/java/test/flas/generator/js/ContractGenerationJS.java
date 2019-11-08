@@ -1,11 +1,19 @@
 package test.flas.generator.js;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.compiler.jsgen.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
+import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
+import org.flasck.flas.compiler.jsgen.JSString;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
@@ -27,9 +35,13 @@ public class ContractGenerationJS {
 //		ByteCodeSink up = context.mock(ByteCodeSink.class, "up");
 //		ByteCodeSink down = context.mock(ByteCodeSink.class, "down");
 //		String pname = "test.repo.MyContract";
+		JSClassCreator clz = context.mock(JSClassCreator.class);
+		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newClass("test.repo", "test.repo.MyContract");
+			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
+			oneOf(clz).createMethod("name", true); will(returnValue(meth));
+			oneOf(meth).returnObject(with(any(JSString.class)));
 //			oneOf(bce).newClass(pname); will(returnValue(parent));
 //			allowing(parent).getCreatedName(); will(returnValue(pname));
 //
@@ -56,7 +68,6 @@ public class ContractGenerationJS {
 		new Traverser(gen).visitContractDecl(cd);
 	}
 
-	/*
 	@Test
 	public void contractMethodGetsGenerated() {
 //		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
@@ -65,12 +76,14 @@ public class ContractGenerationJS {
 //			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 //			oneOf(meth).argument("java.lang.Object", "_ih");
 		}});
-		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
+		StackVisitor gen = new StackVisitor();
+		new JSGenerator(jss, gen);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		new Traverser(gen).visitContractMethod(cmd);
 	}
 
+	/*
 	@Test
 	public void contractMethodMayHaveArguments() {
 //		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
