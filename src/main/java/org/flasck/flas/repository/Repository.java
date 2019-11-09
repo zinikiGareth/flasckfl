@@ -33,6 +33,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -112,6 +113,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitObjectDefn(ObjectDefn obj);
 		void visitStandaloneMethod(StandaloneMethod meth);
 		void visitObjectMethod(ObjectMethod meth);
+		void visitMessages(Messages messages);
 		void visitMessage(ActionMessage msg);
 		void visitAssignMessage(AssignMessage msg);
 		void visitAssignSlot(List<UnresolvedVar> slot);

@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LogicHolder;
+import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PatternsHolder;
@@ -266,12 +267,12 @@ public class Traverser implements Visitor {
 		} else if (fn instanceof ObjectMethod) {
 			if (!patternsTree)
 				visitPatterns((PatternsHolder)fn);
-			visitMessages(((ObjectMethod)fn).messages());
+			visitObjectsMessages(((ObjectMethod)fn).messages());
 		} else
 			throw new NotImplementedException();
 	}
 
-	private void visitMessages(List<ActionMessage> messages) {
+	private void visitObjectsMessages(List<ActionMessage> messages) {
 		for (ActionMessage msg : messages)
 			visitMessage(msg);
 	}
@@ -499,6 +500,13 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
+	public void visitMessages(Messages messages) {
+		visitor.visitMessages(messages);
+		for (Expr e : messages.exprs)
+			visitExpr(e, 0);
+	}
+
+	@Override
 	public void visitMessage(ActionMessage msg) {
 		visitor.visitMessage(msg);
 		if (msg instanceof AssignMessage)
@@ -672,6 +680,8 @@ public class Traverser implements Visitor {
 			visitUnresolvedOperator((UnresolvedOperator) expr, nargs);
 		else if (expr instanceof MemberExpr)
 			visitMemberExpr((MemberExpr)expr);
+		else if (expr instanceof Messages)
+			visitMessages((Messages)expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}

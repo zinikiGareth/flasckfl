@@ -1,9 +1,11 @@
 package test.repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -16,6 +18,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -226,6 +229,20 @@ public class TraversalTests {
 			oneOf(v).visitUnresolvedOperator(op, 2);
 		}});
 		t.visitExpr(op, 2);
+	}
+
+	@Test
+	public void exprVisitsMessages() {
+		Messages msgs = new Messages(pos, Arrays.asList(number, simpleExpr));
+		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(msgs, 0);
+			oneOf(v).visitMessages(msgs);
+			oneOf(v).visitExpr(number, 0);
+			oneOf(v).visitNumericLiteral(number);
+			oneOf(v).visitExpr(simpleExpr, 0);
+			oneOf(v).visitStringLiteral(simpleExpr);
+		}});
+		t.visitExpr(msgs, 0);
 	}
 
 	@Test

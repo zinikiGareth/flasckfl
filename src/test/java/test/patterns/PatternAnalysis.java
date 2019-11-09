@@ -20,12 +20,13 @@ import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
-import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -97,7 +98,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitStandaloneMethod(meth);
 
 		StackVisitor mc = new StackVisitor();
-		new MethodConvertor(mc);
+		new ConvertRepositoryMethods(mc);
 		new Traverser(mc).visitStandaloneMethod(meth);
 		
 		List<FunctionIntro> conv = meth.converted();
@@ -108,6 +109,8 @@ public class PatternAnalysis {
 		context.checking(new Expectations() {{
 			oneOf(hsi).startInline(intro);
 			oneOf(hsi).visitCase(case1);
+			oneOf(hsi).visitExpr(with(any(Messages.class)), with(0));
+			oneOf(hsi).visitMessages(with(any(Messages.class)));
 			oneOf(hsi).visitExpr(simpleExpr, 0);
 			oneOf(hsi).visitStringLiteral(simpleExpr);
 			oneOf(hsi).leaveCase(case1);

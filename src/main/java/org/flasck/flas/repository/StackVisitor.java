@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
@@ -311,6 +312,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitStandaloneMethod(StandaloneMethod meth) {
 		top.visitStandaloneMethod(meth);
+	}
+
+	public void visitMessages(Messages messages) {
+		top.visitMessages(messages);
 	}
 
 	public void visitMessage(ActionMessage msg) {

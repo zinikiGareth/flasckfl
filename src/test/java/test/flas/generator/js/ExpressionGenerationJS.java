@@ -436,6 +436,7 @@ public class ExpressionGenerationJS {
 		gen.visitExpr(expr, 0);
 	}
 	
+	// These tests need to be replaced with something about MakeSend
 	@Test
 	@Ignore
 	public void aDotOperator() {

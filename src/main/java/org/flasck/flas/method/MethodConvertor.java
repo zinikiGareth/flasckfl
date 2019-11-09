@@ -2,37 +2,43 @@ package org.flasck.flas.method;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.ResultAware;
 
-public class MethodConvertor extends LeafAdapter {
-	private FunctionName fname;
-	private ObjectMethod e;
+public class MethodConvertor extends LeafAdapter implements ResultAware {
+	private final NestedVisitor sv;
+	private final List<Expr> results = new ArrayList<>();
 
 	public MethodConvertor(NestedVisitor sv) {
-		sv.push(this);
+		this.sv = sv;
 	}
 
 	@Override
-	public void visitObjectMethod(ObjectMethod e) {
-		this.e = e;
-		fname = e.name();
+	public void visitMessage(ActionMessage msg) {
+		sv.push(new MessageConvertor(sv));
+	}
+	
+	@Override
+	public void result(Object r) {
+		results.add((Expr)r);
 	}
 
-	// I think this is a COMPLETE hack
 	@Override
-	public void visitSendMessage(SendMessage msg) {
-		// I actually claim the arguments are irrelevant because we just want the "case" really ...
-		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
-		// Obviously this should get wrapped up in "Send ..." unless it already is that
-		// Hopefully we will get some help from TC (which should already have been performed)
-		fi.functionCase(new FunctionCaseDefn(null, msg.expr));
-		e.conversion(Arrays.asList(fi));
+	public void leaveObjectMethod(ObjectMethod meth) {
+		List<FunctionIntro> convertedIntros = new ArrayList<FunctionIntro>();
+		meth.conversion(convertedIntros);
+		FunctionIntro fi = new FunctionIntro(meth.name(), new ArrayList<>());
+		fi.functionCase(new FunctionCaseDefn(null, new Messages(meth.location(), results)));
+		meth.conversion(Arrays.asList(fi));
+		sv.result(null);
 	}
 }
