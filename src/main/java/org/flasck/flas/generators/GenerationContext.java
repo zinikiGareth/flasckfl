@@ -2,7 +2,6 @@ package org.flasck.flas.generators;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.hsie.ClosureTraverser;
 import org.flasck.flas.hsie.HSIGenerator;
 import org.flasck.flas.vcode.hsieForm.ClosureHandler;
@@ -49,7 +48,6 @@ public interface GenerationContext<T> {
 
 	ByteCodeSink getSink();
 	Var getCxtArg();
-	VarHolder getVarHolder();
 	MethodDefiner getMethod();
 
 	void beginClosure();
