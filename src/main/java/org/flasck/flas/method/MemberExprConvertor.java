@@ -21,6 +21,6 @@ public class MemberExprConvertor extends LeafAdapter {
 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
-		nv.result(new MakeSend(0));
+		nv.result(new MakeSend(expr.location(), 0));
 	}
 }

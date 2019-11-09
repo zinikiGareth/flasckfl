@@ -121,6 +121,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitSendMessage(SendMessage msg);
 		void leaveSendMessage(SendMessage msg);
 		void leaveMessage(ActionMessage msg);
+		void leaveMessages(Messages msgs);
 		void leaveObjectMethod(ObjectMethod meth);
 		void leaveStandaloneMethod(StandaloneMethod meth);
 		void visitAssertExpr(boolean isValue, Expr e);

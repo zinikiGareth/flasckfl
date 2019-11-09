@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -241,6 +240,7 @@ public class TraversalTests {
 			oneOf(v).visitNumericLiteral(number);
 			oneOf(v).visitExpr(simpleExpr, 0);
 			oneOf(v).visitStringLiteral(simpleExpr);
+			oneOf(v).leaveMessages(msgs);
 		}});
 		t.visitExpr(msgs, 0);
 	}

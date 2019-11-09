@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -85,6 +86,11 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
+		sv.push(new ExprGeneratorJS(state, sv, block));
+	}
+	
+	@Override
+	public void visitMessages(Messages msgs) {
 		sv.push(new ExprGeneratorJS(state, sv, block));
 	}
 	
@@ -168,6 +174,15 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (stack.size() != 1)
 			throw new NotImplementedException();
 		sv.result(stack.remove(0));
+	}
+
+	@Override
+	public void leaveMessages(Messages msgs) {
+		JSExpr[] args = new JSExpr[stack.size()];
+		int k = stack.size();
+		for (int i=0;i<k;i++)
+			args[i] = stack.remove(0);
+		sv.result(block.makeArray(args));
 	}
 
 	private void makeClosure(WithTypeSignature defn, int depth, int expArgs) {

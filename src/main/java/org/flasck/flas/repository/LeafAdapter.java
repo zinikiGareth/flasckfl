@@ -114,6 +114,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void leaveMessages(Messages msgs) {
+	}
+
+	@Override
 	public void leaveMessage(ActionMessage msg) {
 	}
 

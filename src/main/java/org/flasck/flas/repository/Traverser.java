@@ -504,6 +504,12 @@ public class Traverser implements Visitor {
 		visitor.visitMessages(messages);
 		for (Expr e : messages.exprs)
 			visitExpr(e, 0);
+		leaveMessages(messages);
+	}
+
+	@Override
+	public void leaveMessages(Messages msgs) {
+		visitor.leaveMessages(msgs);
 	}
 
 	@Override

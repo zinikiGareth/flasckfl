@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -24,6 +25,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.ResultAware;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
@@ -31,7 +33,7 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ExprGenerator extends LeafAdapter implements HSIVisitor {
+public class ExprGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
 	public class XCArg {
 		public final int arg;
 		public final IExpr expr;
@@ -117,7 +119,17 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 			throw new RuntimeException("I think this is impossible, but obviously not");
 		sv.result(meth.returnObject(stack.remove(0)));
 	}
-
+	
+	@Override
+	public void visitApplyExpr(ApplyExpr expr) {
+		sv.push(new ExprGenerator(state, sv, currentBlock));
+	}
+	
+	@Override
+	public void visitMessages(Messages msgs) {
+		sv.push(new ExprGenerator(state, sv, currentBlock));
+	}
+	
 	@Override
 	public void visitNumericLiteral(NumericLiteral expr) {
 		Object val = expr.value();
@@ -201,22 +213,38 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
-		Object fn = expr.fn;
-		int expArgs = 0;
-		RepositoryEntry defn = null;
-		if (fn instanceof UnresolvedVar) {
-			defn = ((UnresolvedVar)fn).defn();
-			expArgs = ((WithTypeSignature)defn).argCount();
-		} else if (fn instanceof UnresolvedOperator) {
-			UnresolvedOperator op = (UnresolvedOperator) fn;
-			defn = op.defn();
-			expArgs = ((WithTypeSignature)defn).argCount();
+		if (!expr.args.isEmpty()) {
+			Object fn = expr.fn;
+			int expArgs = 0;
+			RepositoryEntry defn = null;
+			if (fn instanceof UnresolvedVar) {
+				defn = ((UnresolvedVar)fn).defn();
+				expArgs = ((WithTypeSignature)defn).argCount();
+			} else if (fn instanceof UnresolvedOperator) {
+				UnresolvedOperator op = (UnresolvedOperator) fn;
+				defn = op.defn();
+				expArgs = ((WithTypeSignature)defn).argCount();
+			}
+			makeClosure(defn, expr.args.size(), expArgs);
 		}
-		if (expr.args.isEmpty()) // then it's a spurious apply
-			return;
-		makeClosure(defn, expr.args.size(), expArgs);
+		if (stack.size() != 1)
+			throw new NotImplementedException();
+		sv.result(stack.remove(0));
 	}
 
+	@Override
+	public void leaveMessages(Messages msgs) {
+		List<IExpr> provided = new ArrayList<IExpr>();
+		int k = stack.size();
+		for (int i=0;i<k;i++)
+			provided.add(stack.remove(0));
+		IExpr args = meth.arrayOf(J.OBJECT, provided);
+		IExpr call = meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args);
+		Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
+		currentBlock.add(meth.assign(v, call));
+		sv.result(v);
+	}
+	
 	private void makeClosure(RepositoryEntry defn, int depth, int expArgs) {
 		List<IExpr> provided = new ArrayList<IExpr>();
 		int k = stack.size()-depth;
@@ -224,7 +252,10 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 			provided.add(stack.remove(k));
 		IExpr args = meth.arrayOf(J.OBJECT, provided);
 		if (defn.name().uniqueName().equals("Nil")) {
-			stack.add(meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args));
+			IExpr call = meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args);
+			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
+			currentBlock.add(meth.assign(v, call));
+			stack.add(v);
 		} else if (defn instanceof StructDefn && !provided.isEmpty()) {
 			// do the creation immediately
 			// Note that we didn't push anything onto the stack earlier ...
@@ -352,5 +383,10 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor {
 
 	@Override
 	public void endSwitch() {
+	}
+
+	@Override
+	public void result(Object r) {
+		stack.add((IExpr) r);
 	}
 }

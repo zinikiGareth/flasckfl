@@ -113,6 +113,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitMessages(with(any(Messages.class)));
 			oneOf(hsi).visitExpr(simpleExpr, 0);
 			oneOf(hsi).visitStringLiteral(simpleExpr);
+			oneOf(hsi).leaveMessages(with(any(Messages.class)));
 			oneOf(hsi).leaveCase(case1);
 			oneOf(hsi).endInline(intro);
 		}});

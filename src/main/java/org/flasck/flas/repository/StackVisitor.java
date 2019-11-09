@@ -318,6 +318,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitMessages(messages);
 	}
 
+	public void leaveMessages(Messages msgs) {
+		top.leaveMessages(msgs);
+	}
+
 	public void visitMessage(ActionMessage msg) {
 		top.visitMessage(msg);
 	}
