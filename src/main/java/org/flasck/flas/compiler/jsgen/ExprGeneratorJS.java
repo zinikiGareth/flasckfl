@@ -155,13 +155,16 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
 		Object fn = expr.fn;
-		WithTypeSignature defn = null;
-		if (fn instanceof UnresolvedVar)
-			defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
-		else if (fn instanceof UnresolvedOperator)
-			defn = (WithTypeSignature) ((UnresolvedOperator)fn).defn();
-		if (!expr.args.isEmpty()) // only if it's a real apply
+		if (!expr.args.isEmpty()) { // only if it's a real apply
+			WithTypeSignature defn;
+			if (fn instanceof UnresolvedVar)
+				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
+			else if (fn instanceof UnresolvedOperator)
+				defn = (WithTypeSignature) ((UnresolvedOperator)fn).defn();
+			else
+				throw new NotImplementedException("unknown operator type: " + fn.getClass());
 			makeClosure(defn, expr.args.size(), defn.argCount());
+		}
 		if (stack.size() != 1)
 			throw new NotImplementedException();
 		sv.result(stack.remove(0));

@@ -1,5 +1,7 @@
-package org.flasck.flas.blocker;
+package test.blocker;
 
+import org.flasck.flas.blocker.BlockConsumer;
+import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.errors.ErrorReporter;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;

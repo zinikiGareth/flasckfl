@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -44,6 +45,7 @@ import org.flasck.flas.repository.Traverser;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -432,5 +434,52 @@ public class ExpressionGenerationJS {
 		stackv.push(nv);
 		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(expr, 0);
+	}
+	
+	@Test
+	public void aDotOperator() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+//		FunctionName fnName = FunctionName.function(pos, pkg, "f");
+//		fn.bind(new FunctionDefinition(fnName, 2));
+//		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
+//		JSExpr f = context.mock(JSExpr.class, "f");
+//		JSExpr iv = context.mock(JSExpr.class, "iv");
+//		JSExpr sv = context.mock(JSExpr.class, "sv");
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		context.checking(new Expectations() {{
+//			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
+//			oneOf(meth).literal("42"); will(returnValue(iv));
+//			oneOf(meth).string("hello"); will(returnValue(sv));
+//			oneOf(meth).closure(f, iv, sv);
+		}});
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
+		gen.visitExpr(me, 0);
+	}
+	
+	@Test
+	@Ignore
+	public void applyingADotOperator() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+//		FunctionName fnName = FunctionName.function(pos, pkg, "f");
+//		fn.bind(new FunctionDefinition(fnName, 2));
+		ApplyExpr ae = new ApplyExpr(pos, me, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
+//		JSExpr f = context.mock(JSExpr.class, "f");
+//		JSExpr iv = context.mock(JSExpr.class, "iv");
+//		JSExpr sv = context.mock(JSExpr.class, "sv");
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		context.checking(new Expectations() {{
+//			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
+//			oneOf(meth).literal("42"); will(returnValue(iv));
+//			oneOf(meth).string("hello"); will(returnValue(sv));
+//			oneOf(meth).closure(f, iv, sv);
+		}});
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
+		gen.visitExpr(ae, 0);
 	}
 }

@@ -300,8 +300,10 @@ public class TDATemplateParsingTests {
 		assertEquals(0, binding.defaultBinding.events.size());
 		assertEquals(1, binding.defaultBinding.conditionalStylings.size());
 		TemplateStylingOption db = binding.defaultBinding.conditionalStylings.get(0);
-//		assertEquals("click", db.event);
-//		assertThat(db.expr, is(ExprMatcher.apply(ExprMatcher.unresolved("handle"), ExprMatcher.unresolved("x"))));
+		assertNotNull(db);
+		assertEquals("bsCy+/n5r7Rh-VjPK", ((StringLiteral)db.cond).text);
+		assertEquals(1, db.styles.size());
+		assertEquals("yhbLy_?e.7<sn", ((StringLiteral)db.styles.get(0)).text);
 	}
 
 	@Test

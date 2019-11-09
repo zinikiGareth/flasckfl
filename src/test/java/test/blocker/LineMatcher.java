@@ -1,4 +1,4 @@
-package org.flasck.flas.blocker;
+package test.blocker;
 
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.hamcrest.Description;

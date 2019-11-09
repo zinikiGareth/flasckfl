@@ -27,8 +27,8 @@
 	method q (Sample svc)
 		<- Send svc "meth" ["hello"]
 
-.	method r (Sample svc)
-.		<- svc.meth "hello"
+	method r (Sample svc)
+		<- svc.meth "hello"
 
 .	method double (Sample svc)
 .		<- Debug "sending hello"
