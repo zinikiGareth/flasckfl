@@ -9,13 +9,13 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.repository.LeafAdapter;
-import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.repository.NestedVisitor;
 
 public class MethodConvertor extends LeafAdapter {
 	private FunctionName fname;
 	private ObjectMethod e;
 
-	public MethodConvertor(StackVisitor sv) {
+	public MethodConvertor(NestedVisitor sv) {
 		sv.push(this);
 	}
 

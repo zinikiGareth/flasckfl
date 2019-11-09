@@ -437,6 +437,7 @@ public class ExpressionGenerationJS {
 	}
 	
 	@Test
+	@Ignore
 	public void aDotOperator() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		UnresolvedVar fld = new UnresolvedVar(pos, "fld");

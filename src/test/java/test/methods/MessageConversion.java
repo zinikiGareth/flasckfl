@@ -1,0 +1,100 @@
+package test.methods;
+
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.MemberExpr;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.method.MemberExprConvertor;
+import org.flasck.flas.method.MessageConvertor;
+import org.flasck.flas.parsedForm.MakeSend;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.Traverser;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
+import org.junit.Test;
+
+public class MessageConversion {
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	private NestedVisitor nv = context.mock(NestedVisitor.class);
+	private InputPosition pos = new InputPosition("-", 1, 0, null);
+//	private final PackageName pkg = new PackageName("test.repo");
+	
+	@Test
+	public void dotOperatorBecomesMkSend() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+		MakeSend mksend = new MakeSend(2);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(MemberExprConvertor.class)));
+			oneOf(nv).result(mksend);
+		}});
+		MessageConvertor mc = new MessageConvertor(nv);
+		mc.visitMemberExpr(me);
+		mc.result(mksend);
+	}
+
+	// Everything else here just asserts that it's a pass through
+	@Test
+	public void stringLiteralIsPassedThrough() {
+		StringLiteral sl = new StringLiteral(pos, "hello");
+		context.checking(new Expectations() {{
+			oneOf(nv).result(sl);
+		}});
+		MessageConvertor mc = new MessageConvertor(nv);
+		Traverser gen = new Traverser(mc);
+		gen.visitExpr(sl, 0);
+	}
+	
+	@Test
+	public void numericLiteralIsPassedThrough() {
+		NumericLiteral nl = new NumericLiteral(pos, "25", 2);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(nl);
+		}});
+		MessageConvertor mc = new MessageConvertor(nv);
+		Traverser gen = new Traverser(mc);
+		gen.visitExpr(nl, 0);
+	}
+
+	@Test
+	public void unresolvedVarIsPassedThroughWithoutComment() {
+		UnresolvedVar uv = new UnresolvedVar(pos, "data");
+		context.checking(new Expectations() {{
+			oneOf(nv).result(uv);
+		}});
+		MessageConvertor mc = new MessageConvertor(nv);
+		Traverser gen = new Traverser(mc);
+		gen.visitExpr(uv, 0);
+	}
+
+	@Test
+	public void unresolvedOpIsPassedThroughWithoutComment() {
+		UnresolvedOperator op = new UnresolvedOperator(pos, "++");
+		context.checking(new Expectations() {{
+			oneOf(nv).result(op);
+		}});
+		MessageConvertor mc = new MessageConvertor(nv);
+		Traverser gen = new Traverser(mc);
+		gen.visitExpr(op, 0);
+	}
+
+	@Test
+	public void applyExprPushesAnotherConvertor() {
+		UnresolvedVar f = new UnresolvedVar(pos, "from");
+		NumericLiteral nl = new NumericLiteral(pos, "85", 2);
+		ApplyExpr ae = new ApplyExpr(pos, f, nl);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(MessageConvertor.class)));
+			oneOf(nv).result(ae);
+		}});
+		MessageConvertor mc = new MessageConvertor(nv);
+		mc.visitApplyExpr(ae);
+		mc.result(ae);
+	}
+
+}
