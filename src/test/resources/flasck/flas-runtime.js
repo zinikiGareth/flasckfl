@@ -264,6 +264,9 @@ Debug.prototype._compare = function(cx, other) {
 	} else
 		return false;
 }
+Debug.prototype.toString = function() {
+	return "Debug[" + this.msg + "]";
+}
 
 const Send = function() {
 }

@@ -1,54 +1,50 @@
 package org.flasck.flas.method;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
-import org.flasck.flas.commonBase.NumericLiteral;
-import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
-import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class MessageConvertor extends LeafAdapter implements ResultAware {
 	private final NestedVisitor nv;
+	private final List<Object> stack = new ArrayList<>();
 
 	public MessageConvertor(NestedVisitor nv) {
 		this.nv = nv;
 	}
 
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
-		nv.push(new MemberExprConvertor(nv));
+	public void visitExpr(Expr expr, int nArgs) {
+		if (expr instanceof ApplyExpr)
+			nv.push(new MessageConvertor(nv));
+		else if (expr instanceof MemberExpr)
+			nv.push(new MemberExprConvertor(nv));
+		else
+			stack.add(expr);
 	}
 
-	@Override
-	public void visitStringLiteral(StringLiteral expr) {
-		nv.result(expr);
-	}
-	
-	@Override
-	public void visitNumericLiteral(NumericLiteral expr) {
-		nv.result(expr);
-	}
-	
-	@Override
-	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
-		nv.result(var);
-	}
-
-	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator var, int nargs) {
-		nv.result(var);
-	}
-
-	@Override
-	public void visitApplyExpr(ApplyExpr expr) {
-		nv.push(new MessageConvertor(nv));
-	}
-	
 	@Override
 	public void result(Object r) {
-		nv.result(r);
+		stack.add((Expr) r);
+	}
+	
+	@Override
+	public void leaveApplyExpr(ApplyExpr expr) {
+		Object op = stack.remove(0);
+		nv.result(new ApplyExpr(expr.location(), op, stack));
+	}
+
+	@Override
+	public void leaveMessage(ActionMessage msg) {
+		if (stack.size() != 1)
+			throw new NotImplementedException("should be 1");
+		nv.result(stack.remove(0));
 	}
 }

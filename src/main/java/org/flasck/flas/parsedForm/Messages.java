@@ -18,5 +18,4 @@ public class Messages implements Expr {
 	public InputPosition location() {
 		return location;
 	}
-
 }

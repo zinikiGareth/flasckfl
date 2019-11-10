@@ -32,7 +32,7 @@ public class MessageConversion {
 			oneOf(nv).push(with(any(MemberExprConvertor.class)));
 		}});
 		MessageConvertor mc = new MessageConvertor(nv);
-		mc.visitMemberExpr(me);
+		mc.visitExpr(me, 0);
 	}
 
 	// Everything else here just asserts that it's a pass through
@@ -45,6 +45,7 @@ public class MessageConversion {
 		MessageConvertor mc = new MessageConvertor(nv);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(sl, 0);
+		gen.leaveMessage(null);
 	}
 	
 	@Test
@@ -56,6 +57,7 @@ public class MessageConversion {
 		MessageConvertor mc = new MessageConvertor(nv);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(nl, 0);
+		gen.leaveMessage(null);
 	}
 
 	@Test
@@ -67,6 +69,7 @@ public class MessageConversion {
 		MessageConvertor mc = new MessageConvertor(nv);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(uv, 0);
+		gen.leaveMessage(null);
 	}
 
 	@Test
@@ -78,6 +81,7 @@ public class MessageConversion {
 		MessageConvertor mc = new MessageConvertor(nv);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(op, 0);
+		gen.leaveMessage(null);
 	}
 
 	@Test
@@ -87,11 +91,8 @@ public class MessageConversion {
 		ApplyExpr ae = new ApplyExpr(pos, f, nl);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(MessageConvertor.class)));
-			oneOf(nv).result(ae);
 		}});
 		MessageConvertor mc = new MessageConvertor(nv);
-		mc.visitApplyExpr(ae);
-		mc.result(ae);
+		mc.visitExpr(ae, 0);
 	}
-
 }

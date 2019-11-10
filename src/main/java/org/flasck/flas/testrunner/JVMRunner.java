@@ -132,7 +132,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 				throw new AssertFailed(expected, actual);
 			try {
 				for (int i=0;i<a.size();i++)
-					assertSameValue(expected, actual);
+					assertSameValue(e.get(i), a.get(i));
 			} catch (AssertFailed ex) {
 				throw new AssertFailed(expected, actual, ex);
 			}
