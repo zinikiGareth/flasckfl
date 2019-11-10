@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -48,7 +46,6 @@ import org.flasck.flas.repository.Traverser;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -465,7 +462,6 @@ public class ExpressionGenerationJS {
 		gen.visitExpr(me, 0);
 	}
 
-	// These tests need to be replaced with something about MakeSend
 	@Test
 	public void aDotOperator() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");

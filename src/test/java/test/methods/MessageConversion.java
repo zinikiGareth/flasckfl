@@ -7,7 +7,6 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.method.MemberExprConvertor;
 import org.flasck.flas.method.MessageConvertor;
-import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.NestedVisitor;

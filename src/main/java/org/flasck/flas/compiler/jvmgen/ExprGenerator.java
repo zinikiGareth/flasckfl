@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -170,14 +171,14 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor, ResultAwar
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				stack.add(meth.classConst(myName));
-				makeClosure(defn, 0, fn.argCount());
+				makeClosure(fn, 0, fn.argCount());
 			} else
 				stack.add(meth.classConst(myName));
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;
 				stack.add(meth.classConst(myName));
-				makeClosure(defn, 0, fn.argCount());
+				makeClosure(fn, 0, fn.argCount());
 			} else
 				stack.add(meth.classConst(myName));
 		} else if (defn instanceof StructDefn) {
@@ -216,15 +217,19 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor, ResultAwar
 		if (!expr.args.isEmpty()) {
 			Object fn = expr.fn;
 			int expArgs = 0;
-			RepositoryEntry defn = null;
+			WithTypeSignature defn = null;
 			if (fn instanceof UnresolvedVar) {
-				defn = ((UnresolvedVar)fn).defn();
+				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
 				expArgs = ((WithTypeSignature)defn).argCount();
 			} else if (fn instanceof UnresolvedOperator) {
 				UnresolvedOperator op = (UnresolvedOperator) fn;
-				defn = op.defn();
+				defn = (WithTypeSignature) op.defn();
 				expArgs = ((WithTypeSignature)defn).argCount();
-			}
+			} else if (fn instanceof MakeSend) {
+				defn = (MakeSend) fn;
+				expArgs = defn.argCount();
+			} else
+				throw new NotImplementedException("Cannot handle " + fn.getClass());
 			makeClosure(defn, expr.args.size(), expArgs);
 		}
 		if (stack.size() != 1)
@@ -245,13 +250,13 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor, ResultAwar
 		sv.result(v);
 	}
 	
-	private void makeClosure(RepositoryEntry defn, int depth, int expArgs) {
+	private void makeClosure(WithTypeSignature defn, int depth, int expArgs) {
 		List<IExpr> provided = new ArrayList<IExpr>();
 		int k = stack.size()-depth;
 		for (int i=0;i<depth;i++)
 			provided.add(stack.remove(k));
 		IExpr args = meth.arrayOf(J.OBJECT, provided);
-		if (defn.name().uniqueName().equals("Nil")) {
+		if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
 			IExpr call = meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));
@@ -278,6 +283,13 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor, ResultAwar
 		}
 	}
 
+	@Override
+	public void visitMakeSend(MakeSend expr) {
+		IExpr obj = stack.remove(stack.size()-1);
+		IExpr mksend = meth.callInterface(J.MAKESEND, fcx, "mksend", meth.classConst(expr.sendMeth.javaClassName()), obj, meth.intConst(expr.nargs));
+		stack.add(mksend);
+	}
+	
 	private List<XCArg> checkExtendedCurry(List<IExpr> provided) {
 		List<XCArg> ret = new ArrayList<>();
 		boolean needed = false;
