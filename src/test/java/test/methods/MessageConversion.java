@@ -24,18 +24,15 @@ public class MessageConversion {
 //	private final PackageName pkg = new PackageName("test.repo");
 	
 	@Test
-	public void dotOperatorBecomesMkSend() {
+	public void messageConvertorPushesMemberConvertor() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
 		MemberExpr me = new MemberExpr(pos, from, fld);
-		MakeSend mksend = new MakeSend(pos, 2);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(MemberExprConvertor.class)));
-			oneOf(nv).result(mksend);
 		}});
 		MessageConvertor mc = new MessageConvertor(nv);
 		mc.visitMemberExpr(me);
-		mc.result(mksend);
 	}
 
 	// Everything else here just asserts that it's a pass through

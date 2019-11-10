@@ -280,5 +280,8 @@ Send.prototype._compare = function(cx, other) {
 	} else
 		return false;
 }
+Send.prototype.toString = function() {
+	return "Send[" + "]";
+}
 
 

@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -167,6 +168,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
 			else if (fn instanceof UnresolvedOperator)
 				defn = (WithTypeSignature) ((UnresolvedOperator)fn).defn();
+			else if (fn instanceof MakeSend)
+				defn = (MakeSend) fn;
 			else
 				throw new NotImplementedException("unknown operator type: " + fn.getClass());
 			makeClosure(defn, expr.args.size(), defn.argCount());
@@ -186,7 +189,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	}
 
 	private void makeClosure(WithTypeSignature defn, int depth, int expArgs) {
-		if (defn.name().uniqueName().equals("Nil")) {
+		if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
 			JSExpr[] args = new JSExpr[depth];
 			int k = stack.size()-depth;
 			for (int i=0;i<depth;i++)
@@ -225,6 +228,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				call = block.closure(args);
 			stack.add(call);
 		}
+	}
+
+	@Override
+	public void visitMakeSend(MakeSend expr) {
+		JSExpr obj = stack.remove(stack.size()-1);
+		stack.add(block.makeSend(expr.sendMeth.jsName(), obj, expr.nargs));
 	}
 
 	private String handleBuiltinName(RepositoryEntry defn) {

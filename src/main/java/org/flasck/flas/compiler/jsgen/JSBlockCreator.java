@@ -30,6 +30,7 @@ public interface JSBlockCreator {
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
 	JSExpr boundVar(String var);
 	JSExpr mockContract(SolidName name);
+	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs);
 
 	void write(IndentWriter w);
 }

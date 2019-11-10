@@ -33,6 +33,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -124,6 +125,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveMessages(Messages msgs);
 		void leaveObjectMethod(ObjectMethod meth);
 		void leaveStandaloneMethod(StandaloneMethod meth);
+		void visitMakeSend(MakeSend expr);
 		void visitAssertExpr(boolean isValue, Expr e);
 		void leaveAssertExpr(boolean isValue, Expr e);
 		void visitConstPattern(ConstPattern p, boolean isNested);
@@ -291,6 +293,13 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.withNestedPatterns();
 		t.withFunctionsInDependencyGroups(groups);
 		t.withPatternsInTreeOrder();
+		t.doTraversal(this);
+	}
+
+	@Override
+	public void traverseWithMemberFields(Visitor visitor) {
+ 		Traverser t = new Traverser(visitor);
+		t.withMemberFields();
 		t.doTraversal(this);
 	}
 

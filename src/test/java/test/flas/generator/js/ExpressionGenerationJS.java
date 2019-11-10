@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -26,6 +27,7 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
@@ -465,48 +467,48 @@ public class ExpressionGenerationJS {
 
 	// These tests need to be replaced with something about MakeSend
 	@Test
-	@Ignore
 	public void aDotOperator() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
-		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
-		MemberExpr me = new MemberExpr(pos, from, fld);
-//		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-//		fn.bind(new FunctionDefinition(fnName, 2));
-//		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
-//		JSExpr f = context.mock(JSExpr.class, "f");
-//		JSExpr iv = context.mock(JSExpr.class, "iv");
-//		JSExpr sv = context.mock(JSExpr.class, "sv");
+		TypeReference ctr = new TypeReference(pos, "Ctr");
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		ctr.bind(cd);
+		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
+		from.bind(tp);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 0);
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
+		JSExpr fv = context.mock(JSExpr.class, "fv");
 		context.checking(new Expectations() {{
-//			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
-//			oneOf(meth).literal("42"); will(returnValue(iv));
-//			oneOf(meth).string("hello"); will(returnValue(sv));
-//			oneOf(meth).closure(f, iv, sv);
+			oneOf(meth).boundVar("from"); will(returnValue(fv));
+			oneOf(meth).makeSend("test.repo.Ctr.f", fv, 0);
 		}});
 		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
-		gen.visitExpr(me, 0);
+		gen.visitExpr(ms, 0);
 	}
 	
 	@Test
-	@Ignore
 	public void applyingADotOperator() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
-		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
-		MemberExpr me = new MemberExpr(pos, from, fld);
-//		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-//		fn.bind(new FunctionDefinition(fnName, 2));
-		ApplyExpr ae = new ApplyExpr(pos, me, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
-//		JSExpr f = context.mock(JSExpr.class, "f");
-//		JSExpr iv = context.mock(JSExpr.class, "iv");
-//		JSExpr sv = context.mock(JSExpr.class, "sv");
+		TypeReference ctr = new TypeReference(pos, "Ctr");
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		ctr.bind(cd);
+		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
+		from.bind(tp);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 2);
+		ApplyExpr ae = new ApplyExpr(pos, ms, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
+		JSExpr fv = context.mock(JSExpr.class, "fv");
+		JSExpr msi = context.mock(JSExpr.class, "msi");
+		JSExpr n1 = context.mock(JSExpr.class, "n1");
+		JSExpr s1 = context.mock(JSExpr.class, "s1");
 		context.checking(new Expectations() {{
-//			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
-//			oneOf(meth).literal("42"); will(returnValue(iv));
-//			oneOf(meth).string("hello"); will(returnValue(sv));
-//			oneOf(meth).closure(f, iv, sv);
+			oneOf(meth).boundVar("from"); will(returnValue(fv));
+			oneOf(meth).makeSend("test.repo.Ctr.f", fv, 2); will(returnValue(msi));
+			oneOf(meth).literal("42"); will(returnValue(n1));
+			oneOf(meth).string("hello"); will(returnValue(s1));
+			oneOf(meth).closure(msi, n1, s1); will(returnValue(res));
+			oneOf(nv).result(res);
 		}});
 		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
 		gen.visitExpr(ae, 0);

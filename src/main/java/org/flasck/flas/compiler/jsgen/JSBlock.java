@@ -92,6 +92,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr makeSend(String sendMeth, JSExpr obj, int nargs) {
+		JSMakeSend ma = new JSMakeSend(creating, sendMeth, obj, nargs);
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
 	public void assertable(JSExpr obj, String assertion, JSExpr... args) {
 		JSAssertion stmt = new JSAssertion(obj, assertion, args);
 		stmts.add(stmt);

@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -17,6 +18,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -231,6 +233,21 @@ public class TraversalTests {
 	}
 
 	@Test
+	public void exprVisitsMemberExpr() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(me, 0);
+			oneOf(v).visitMemberExpr(me);
+			oneOf(v).visitExpr(from, 0);
+			oneOf(v).visitUnresolvedVar(from, 0);
+			oneOf(v).leaveMemberExpr(me);
+		}});
+		t.visitExpr(me, 0);
+	}
+
+	@Test
 	public void exprVisitsMessages() {
 		Messages msgs = new Messages(pos, Arrays.asList(number, simpleExpr));
 		context.checking(new Expectations() {{
@@ -243,6 +260,18 @@ public class TraversalTests {
 			oneOf(v).leaveMessages(msgs);
 		}});
 		t.visitExpr(msgs, 0);
+	}
+
+	@Test
+	public void exprVisitsMakeSend() {
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, new SolidName(pkg, "Foo"), "f"), var, 2);
+		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(ms, 0);
+			oneOf(v).visitExpr(var, 0);
+			oneOf(v).visitUnresolvedVar(var, 0);
+			oneOf(v).visitMakeSend(ms);
+		}});
+		t.visitExpr(ms, 0);
 	}
 
 	@Test

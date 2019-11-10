@@ -145,7 +145,7 @@ public class FLASCompiler {
 	public boolean convertMethods(ErrorMark mark) {
 		StackVisitor sv = new StackVisitor();
 		new ConvertRepositoryMethods(sv);
-		repository.traverse(sv);
+		repository.traverseWithMemberFields(sv);
 		return mark.hasMoreNow();
 	}
 	

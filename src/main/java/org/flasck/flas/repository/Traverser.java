@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LogicHolder;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -688,6 +689,8 @@ public class Traverser implements Visitor {
 			visitMemberExpr((MemberExpr)expr);
 		else if (expr instanceof Messages)
 			visitMessages((Messages)expr);
+		else if (expr instanceof MakeSend)
+			visitMakeSend((MakeSend)expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
@@ -794,6 +797,12 @@ public class Traverser implements Visitor {
 		visitor.visitNumericLiteral(expr);
 	}
 
+	@Override
+	public void visitMakeSend(MakeSend expr) {
+		visitExpr(expr.obj, 0);
+		visitor.visitMakeSend(expr);
+	}
+	
 	@Override
 	public void visitUnitTestPackage(UnitTestPackage e) {
 		visitor.visitUnitTestPackage(e);
