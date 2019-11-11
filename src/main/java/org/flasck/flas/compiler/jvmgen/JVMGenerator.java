@@ -358,7 +358,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			throw new RuntimeException("Global UDDs are not yet handled");
 		RepositoryEntry objty = udd.ofType.defn();
 		if (objty instanceof ContractDecl) {
-			IExpr mc = meth.callVirtual(J.OBJECT, this.runner, "mockContract", meth.classConst(objty.name().javaName()));
+			// TODO: presumably this "$Up" is a hack and we need to be able to support $Down as well
+			IExpr mc = meth.callVirtual(J.OBJECT, this.runner, "mockContract", meth.classConst(objty.name().javaName() + "$Up"));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);

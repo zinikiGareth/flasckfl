@@ -26,6 +26,7 @@ public class LoadBuiltins {
 	public static final TypeReference anyTR = new TypeReference(pos, "Any");
 	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
 	public static final TypeReference stringTR = new TypeReference(pos, "String");
+	public static final TypeReference numberTR = new TypeReference(pos, "Number");
 	public static final TypeReference falseTR = new TypeReference(pos, "False");
 	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
 	public static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
@@ -75,6 +76,7 @@ public class LoadBuiltins {
 		anyTR.bind(any);
 		contractTR.bind(contract);
 		stringTR.bind(string);
+		numberTR.bind(number);
 		consATR.bind(cons);
 		listATR.bind(list);
 		listAnyTR.bind(listAny);

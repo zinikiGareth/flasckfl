@@ -286,7 +286,9 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor, ResultAwar
 	@Override
 	public void visitMakeSend(MakeSend expr) {
 		IExpr obj = stack.remove(stack.size()-1);
-		IExpr mksend = meth.callInterface(J.OBJECT, fcx, "mksend", meth.classConst(expr.sendMeth.inContext.javaClassName()), meth.stringConst(expr.sendMeth.name), obj, meth.intConst(expr.nargs));
+		// TODO: this should be on MakeSend as a MethodDir
+		String dir = "$Up";
+		IExpr mksend = meth.callInterface(J.OBJECT, fcx, "mksend", meth.classConst(expr.sendMeth.inContext.javaClassName() + dir), meth.stringConst(expr.sendMeth.name), obj, meth.intConst(expr.nargs));
 		stack.add(mksend);
 	}
 	

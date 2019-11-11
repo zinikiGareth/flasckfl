@@ -119,7 +119,7 @@ public class UnitTestGeneration {
 		}});
 		AVar v1 = new AVar(meth, J.OBJECT, "v1");
 		context.checking(new Expectations() {{
-			oneOf(meth).classConst("test.something.Ctr"); will(returnValue(cls));
+			oneOf(meth).classConst("test.something.Ctr$Up"); will(returnValue(cls));
 			oneOf(meth).callVirtual(J.OBJECT, runner, "mockContract", cls); will(returnValue(call));
 			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, call);

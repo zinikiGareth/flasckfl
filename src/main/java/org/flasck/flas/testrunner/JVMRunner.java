@@ -1,6 +1,7 @@
 package org.flasck.flas.testrunner;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,6 +19,7 @@ import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
 import org.flasck.jvm.builtin.FLNumber;
 import org.flasck.jvm.container.FlasckService;
+import org.flasck.jvm.fl.AreYouA;
 import org.flasck.jvm.fl.FLComparable;
 import org.flasck.jvm.fl.FLEval;
 import org.flasck.jvm.fl.FLMockEvalContext;
@@ -288,6 +290,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	}
 	
 	public Object mockContract(Class<?> ctr) {
-		return new MockContract(ctr);
+		Class<?>[] interfaces = new Class<?>[] { ctr, AreYouA.class };
+		return Proxy.newProxyInstance(loader, interfaces, new MockContract(ctr));
 	}
 }

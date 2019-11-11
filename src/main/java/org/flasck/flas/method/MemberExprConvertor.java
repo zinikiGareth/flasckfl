@@ -3,9 +3,8 @@ package org.flasck.flas.method;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -19,6 +18,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private Expr obj;
 	private ContractDecl cd;
 	private FunctionName sendMeth;
+	private ContractMethodDecl cmd;
 
 	public MemberExprConvertor(NestedVisitor nv) {
 		this.nv = nv;
@@ -30,8 +30,12 @@ public class MemberExprConvertor extends LeafAdapter {
 		if (obj == null) {
 			obj = var;
 			this.cd = resolveContract(var.defn());
-		} else if (sendMeth == null)
-			sendMeth = FunctionName.contractMethod(var.location(), cd.name(), var.var);
+		} else if (sendMeth == null) {
+			cmd = this.cd.getMethod(var.var);
+			if (cmd == null)
+				throw new NotImplementedException("there is no method " + var.var + " on " + cd.name().uniqueName()); // REAL USER ERROR
+			sendMeth = cmd.name;
+		}
 	}
 
 	private ContractDecl resolveContract(RepositoryEntry defn) {
@@ -44,8 +48,6 @@ public class MemberExprConvertor extends LeafAdapter {
 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
-		// TODO: this needs to be obtained from the type & method
-		int nargs = 0;
-		nv.result(new MakeSend(expr.location(), sendMeth, obj, nargs));
+		nv.result(new MakeSend(expr.location(), sendMeth, obj, cmd.args.size()));
 	}
 }
