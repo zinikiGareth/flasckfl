@@ -10,9 +10,9 @@
 		assert (ndebug "we are here")
 			[Debug "we are here"]
 
-.	test we can generate a Debug command passing in an argument through a nested function
-.		assert (f "this is data")
-.			[Debug "this is data"]
+	test we can generate a Debug command passing in an argument through a nested function
+		assert (f "this is data")
+			[Debug "this is data"]
 
 	test we can generate a Debug command using pattern matching
 		assert (k True ["hello"])
@@ -25,6 +25,11 @@
 	test we can create a Send on a contract
 		data Sample svc
 		assert (q svc)
+			[Send svc "meth" ["hello"]] 
+
+	test we can send directly on a contract
+		data Sample svc
+		assert (r svc)
 			[Send svc "meth" ["hello"]] 
 
 .	test we can do two things in one method

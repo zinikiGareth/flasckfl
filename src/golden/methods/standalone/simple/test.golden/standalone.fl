@@ -12,9 +12,9 @@
 	
 // and as far as I can see it can be embedded in another function
 
-.	f msg = showdebug
-.		method showdebug
-.			<- Debug msg
+	f msg = showdebug
+		method showdebug
+			<- Debug msg
 			
 // we need something with complex arguments too ...
 	method k True (Cons {head: h, tail: t})
@@ -27,8 +27,8 @@
 	method q (Sample svc)
 		<- Send svc "meth" ["hello"]
 
-.	method r (Sample svc)
-.		<- svc.meth "hello"
+	method r (Sample svc)
+		<- svc.meth "hello"
 
 .	method double (Sample svc)
 .		<- Debug "sending hello"

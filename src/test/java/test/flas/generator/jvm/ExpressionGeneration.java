@@ -775,7 +775,8 @@ public class ExpressionGeneration {
 		IExpr ai = context.mock(IExpr.class, "ai");
 		IExpr ass = context.mock(IExpr.class, "ass");
 		Var fargs = new AVar(meth, J.OBJECT, "v1");
-		IExpr sendmeth = context.mock(IExpr.class, "meth");
+		IExpr sendClz = context.mock(IExpr.class, "clz");
+		IExpr sendMeth = context.mock(IExpr.class, "meth");
 		IExpr i0 = context.mock(IExpr.class, "0");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
@@ -783,9 +784,10 @@ public class ExpressionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
-			oneOf(meth).classConst("test.repo.Ctr.PACKAGEFUNCTIONS$f"); will(returnValue(sendmeth));
+			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
+			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(0); will(returnValue(i0));
-			oneOf(meth).callInterface(with(J.MAKESEND), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendmeth), VarMatcher.local(23), Matchers.is(i0))));
+			oneOf(meth).callInterface(with(J.MAKESEND), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0))));
 		}});
 		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, fargs), sv, block)).withHSI();
 		gen.visitExpr(ms, 0);
@@ -813,7 +815,8 @@ public class ExpressionGeneration {
 		IExpr ass = context.mock(IExpr.class, "ass");
 		Var fargs = new AVar(meth, J.OBJECT, "fargs");
 		Var v1 = new AVar(meth, J.OBJECT, "v1");
-		IExpr sendmeth = context.mock(IExpr.class, "meth");
+		IExpr sendClz = context.mock(IExpr.class, "clz");
+		IExpr sendMeth = context.mock(IExpr.class, "meth");
 		IExpr i2 = context.mock(IExpr.class, "2");
 		IExpr msi = context.mock(IExpr.class, "msi");
 		IExpr n1 = context.mock(IExpr.class, "n1");
@@ -827,9 +830,10 @@ public class ExpressionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
-			oneOf(meth).classConst("test.repo.Ctr.PACKAGEFUNCTIONS$f"); will(returnValue(sendmeth));
+			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
+			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(2); will(returnValue(i2));
-			oneOf(meth).callInterface(with(J.MAKESEND), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendmeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));
+			oneOf(meth).callInterface(with(J.MAKESEND), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).intConst(42); will(returnValue(n1));
 			oneOf(meth).box(n1); will(returnValue(n1));

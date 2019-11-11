@@ -34,8 +34,6 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
-		List<FunctionIntro> convertedIntros = new ArrayList<FunctionIntro>();
-		meth.conversion(convertedIntros);
 		FunctionIntro fi = new FunctionIntro(meth.name(), new ArrayList<>());
 		fi.functionCase(new FunctionCaseDefn(null, new Messages(meth.location(), results)));
 		meth.conversion(Arrays.asList(fi));

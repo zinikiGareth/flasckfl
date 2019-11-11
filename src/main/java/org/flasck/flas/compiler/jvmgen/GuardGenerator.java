@@ -58,6 +58,11 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
+	public void leaveCase(FunctionCaseDefn c) {
+		throw new RuntimeException("This should not be called at this level");
+	}
+	
+	@Override
 	public void endInline(FunctionIntro fi) {
 		IExpr ret = null;
 		for (GE c : stack) {

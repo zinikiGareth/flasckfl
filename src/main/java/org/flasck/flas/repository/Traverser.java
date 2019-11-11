@@ -761,6 +761,7 @@ public class Traverser implements Visitor {
 				@SuppressWarnings({ "rawtypes", "unchecked" })
 				List<Object> args = (List)nv.vars();
 				ApplyExpr ae = new ApplyExpr(var.location, var, args);
+				visitor.visitExpr(ae, 0);
 				visitor.visitApplyExpr(ae);
 				visitor.visitExpr(var, args.size());
 				visitor.visitUnresolvedVar(var, args.size());

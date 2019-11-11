@@ -120,6 +120,7 @@ public class ApplyExprModifiedTests {
 		fnCall.bind(fn);
 		
 		context.checking(new Expectations() {{
+			oneOf(hsi).visitExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))), with(0));
 			oneOf(hsi).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))));
 			oneOf(hsi).visitExpr(fnCall, 1);
 			oneOf(hsi).visitUnresolvedVar(fnCall, 1);
@@ -148,6 +149,7 @@ public class ApplyExprModifiedTests {
 		fnCall.bind(sm);
 		
 		context.checking(new Expectations() {{
+			oneOf(hsi).visitExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))), with(0));
 			oneOf(hsi).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"))));
 			oneOf(hsi).visitExpr(fnCall, 1);
 			oneOf(hsi).visitUnresolvedVar(fnCall, 1);
