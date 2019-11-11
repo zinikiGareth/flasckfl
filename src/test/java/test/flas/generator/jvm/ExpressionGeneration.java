@@ -40,7 +40,6 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -787,7 +786,7 @@ public class ExpressionGeneration {
 			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(0); will(returnValue(i0));
-			oneOf(meth).callInterface(with(J.MAKESEND), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0))));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0))));
 		}});
 		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, fargs), sv, block)).withHSI();
 		gen.visitExpr(ms, 0);
@@ -833,7 +832,7 @@ public class ExpressionGeneration {
 			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(2); will(returnValue(i2));
-			oneOf(meth).callInterface(with(J.MAKESEND), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).intConst(42); will(returnValue(n1));
 			oneOf(meth).box(n1); will(returnValue(n1));

@@ -53,6 +53,10 @@ FLCurry.prototype.toString = function() {
 }
 
 
+const FLMakeSend = function(meth, obj, args) {
+}
+
+
 
 const FLContext = function(env) {
 }
@@ -83,6 +87,10 @@ FLContext.prototype.xcurry = function(reqd, ...args) {
 
 FLContext.prototype.array = function(...args) {
 	return args;
+}
+
+FLContext.prototype.mksend = function(meth, obj, cnt) {
+	return new FLMakeSend(meth, obj, cnt);
 }
 
 FLContext.prototype.head = function(obj) {

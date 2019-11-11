@@ -20,6 +20,7 @@ import org.flasck.jvm.builtin.FLNumber;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.fl.FLComparable;
 import org.flasck.jvm.fl.FLEval;
+import org.flasck.jvm.fl.FLMockEvalContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -119,8 +120,9 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@SuppressWarnings("unchecked")
 	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
-		expected = FLEval.full(null, expected);
-		actual = FLEval.full(null, actual);
+		FLEvalContext cx = new FLMockEvalContext();
+		expected = FLEval.full(cx, expected);
+		actual = FLEval.full(cx, actual);
 		if (expected instanceof FLNumber) {
 			assertSameNumber((FLNumber)expected, actual);
 		} else if (expected instanceof List) {
