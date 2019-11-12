@@ -3,6 +3,7 @@ package org.flasck.flas.parsedForm;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.Slot;
@@ -18,6 +19,8 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 
 	public StandaloneMethod(ObjectMethod om) {
 		this.om = om;
+		for (Pattern p : om.args())
+			p.isDefinedBy(this);
 	}
 
 	public FunctionName name() {

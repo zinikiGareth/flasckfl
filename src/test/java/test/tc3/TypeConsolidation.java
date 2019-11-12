@@ -10,7 +10,6 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
@@ -27,7 +26,6 @@ public class TypeConsolidation {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final NestedVisitor nv = context.mock(NestedVisitor.class);
-	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	FunctionDefinition f = new FunctionDefinition(FunctionName.function(pos, null, "f"), 0);
 	FunctionIntro fi = new FunctionIntro(f.name(), new ArrayList<Pattern>());

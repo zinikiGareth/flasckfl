@@ -8,7 +8,9 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.RepositoryReader;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -19,8 +21,10 @@ public class FunctionGroupTCState implements CurrentTCState {
 	int polyCount = 0;
 	private Set<UnifiableType> allUTs = new LinkedHashSet<>();
 	
-	public FunctionGroupTCState(RepositoryReader repository) {
+	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
+		for (StandaloneDefn x : grp.functions())
+			bindVarToUT(x.name().uniqueName(), createUT());
 	}
 
 	@Override

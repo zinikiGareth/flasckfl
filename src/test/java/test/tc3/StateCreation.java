@@ -3,7 +3,6 @@ package test.tc3;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.repository.LoadBuiltins;
-import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.FunctionChecker;
@@ -19,7 +18,6 @@ public class StateCreation {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final StackVisitor nv = new StackVisitor();
-	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Test
 	public void aSimpleNoArgConstructorSaysThisMustBeInTheArgType() {

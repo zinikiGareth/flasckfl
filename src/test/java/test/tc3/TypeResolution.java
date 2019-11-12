@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Repository;
@@ -32,20 +33,24 @@ public class TypeResolution {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final Repository repository = new Repository();
-	private CurrentTCState state = new FunctionGroupTCState(repository);
+	private final FunctionGroup grp = context.mock(FunctionGroup.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
-	private final GroupChecker gc = new GroupChecker(errors, repository, sv, state);
-	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private final InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
-	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
-	FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
+	private final FunctionName nameF = FunctionName.function(pos, pkg, "f");
+	private final FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
+	private CurrentTCState state;
+	private GroupChecker gc;
 
 	@Before
 	public void begin() {
 		LoadBuiltins.applyTo(repository);
 		context.checking(new Expectations() {{
 			allowing(sv);
+			allowing(grp).functions(); will(returnValue(Arrays.asList(fnF)));
 		}});
+		state = new FunctionGroupTCState(repository, grp);
+		gc = new GroupChecker(errors, repository, sv, state);
 	}
 
 	@Test

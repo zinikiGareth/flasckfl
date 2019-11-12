@@ -115,4 +115,8 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		} else
 			return value;
 	}
+	
+	public CurrentTCState testsWantToCheckState() {
+		return state;
+	}
 }

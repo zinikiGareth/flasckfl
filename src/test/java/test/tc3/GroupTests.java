@@ -49,9 +49,7 @@ public class GroupTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
-	private CurrentTCState state = new FunctionGroupTCState(repository);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
-	private final GroupChecker gc = new GroupChecker(errors, repository, sv, state);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
@@ -64,6 +62,8 @@ public class GroupTests {
 	FunctionIntro fiG1 = new FunctionIntro(nameG, args);
 	FunctionIntro fiG2 = new FunctionIntro(nameG, args);
 	private FunctionGroup grp = new DependencyGroup(fnF, fnG);
+	private CurrentTCState state = new FunctionGroupTCState(repository, grp);
+	private final GroupChecker gc = new GroupChecker(errors, repository, sv, state);
 
 	@Before
 	public void begin() {
@@ -74,7 +74,7 @@ public class GroupTests {
 			fnG.intro(fiG2);
 		}});
 	}
-
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void mutuallyRecursiveFunctionsAreAllDecidedAtTheEnd() {

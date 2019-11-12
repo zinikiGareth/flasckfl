@@ -171,4 +171,19 @@ public class ExpressionVisitation {
 		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.visitUnresolvedVar(uv, 0);
 	}
+	
+	@Test
+	public void aRecursiveFunctionCallAsksTheStateForItsType() {
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		UnifiableType ut = context.mock(UnifiableType.class);
+		context.checking(new Expectations() {{
+			oneOf(state).requireVarConstraints(null, "f"); will(returnValue(ut));
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(ut))));
+		}});
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
+		UnresolvedVar uv = new UnresolvedVar(pos, "f");
+		FunctionDefinition fnF = new FunctionDefinition(FunctionName.function(pos, null, "f"), 1);
+		uv.bind(fnF);
+		tc.visitUnresolvedVar(uv, 0);
+	}
 }
