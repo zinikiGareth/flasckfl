@@ -476,7 +476,7 @@ public class Traverser implements Visitor {
 			visitCase(c);
 	}
 
-	// useful for unit testing
+	// is public because this is a useful entry point for unit testing
 	public void visitPatterns(PatternsHolder fn) {
 		if (wantNestedPatterns && currentFunction != null) {
 			NestedVarReader nv = currentFunction.nestedVars();

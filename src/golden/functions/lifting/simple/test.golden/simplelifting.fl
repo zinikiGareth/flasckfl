@@ -1,13 +1,13 @@
 
 // simplest case
-	f (Number x) = g
-		g = x
+	f (Number n) = g
+		g = n
 
 // with another (direct) argument		
 	h x = j 3
 		j y = x + y
 
 // recursive (indented) case -- add to both l & m
-	k x = l
+	k val = l
 		l = m
-			m = x
+			m = val

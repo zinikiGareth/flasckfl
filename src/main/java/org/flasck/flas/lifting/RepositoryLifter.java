@@ -1,7 +1,6 @@
 package org.flasck.flas.lifting;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,13 +18,23 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
 
 public class RepositoryLifter extends LeafAdapter implements Lifter {
-	public class SizeComparator implements Comparator<Set<?>> {
+	public class LiftingGroup implements Comparable<LiftingGroup> {
+		private final Set<StandaloneDefn> members = new TreeSet<>();
+		private final String leader;
+
+		public LiftingGroup(Set<StandaloneDefn> members) {
+			this.members.addAll(members);
+			this.leader = this.members.iterator().next().name().uniqueName();
+		}
+		
 		@Override
-		public int compare(Set<?> o1, Set<?> o2) {
-			return Integer.compare(o1.size(), o2.size());
+		public int compareTo(LiftingGroup o) {
+			int ret = Integer.compare(members.size(), o.members.size());
+			if (ret != 0)
+				return ret;
+			return leader.compareTo(o.leader);
 		}
 	}
-
 	private LiftingDependencyMapper dependencies = new LiftingDependencyMapper();
 	private MappingStore ms;
 	private MappingAnalyzer ma;
@@ -117,33 +126,39 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 				if (nv.containsReferencesNotIn(processedFns)) {
 					continue;
 				}
-				processedFns.add(fn);
+				process(fn, processedFns);
 				done.add(fn);
-				handled = true;
-				for (StandaloneDefn r : nv.references()) {
-					nv.enhanceWith(fn, r.nestedVars());
-				}
 				ordering.add(new DependencyGroup(fn));
+				handled = true;
 			}
 			remainingFns.removeAll(done);
 			if (!handled) {
 				// if we can't make progress, you have to assume that some mutual recursion is at play ... try everything in turn ... then pick the least complex one
-				Set<Set<StandaloneDefn>> options = new TreeSet<>(new SizeComparator());
+				Set<LiftingGroup> options = new TreeSet<>();
 				for (StandaloneDefn fn : remainingFns) {
 					Set<StandaloneDefn> tc = buildTransitiveClosure(fn, processedFns);
 					if (tc != null)
-						options.add(tc);
+						options.add(new LiftingGroup(tc));
 				}
 				if (!options.isEmpty()) {
-					Set<StandaloneDefn> tc = options.iterator().next();
-					ordering.add(new DependencyGroup(tc));
-					processedFns.addAll(tc);
-					remainingFns.removeAll(tc);
+					LiftingGroup tc = options.iterator().next();
+					for (StandaloneDefn fn : tc.members)
+						process(fn, processedFns);
+					remainingFns.removeAll(tc.members);
+					ordering.add(new DependencyGroup(tc.members));
 				} else
 					throw new RuntimeException("Failed to make progress: " + remainingFns + " -- " + processedFns);
 			}
 		}
 		return new FunctionGroupOrdering(ordering);
+	}
+
+	private void process(StandaloneDefn fn, Set<StandaloneDefn> processedFns) {
+		processedFns.add(fn);
+		NestedVarReader nv = fn.nestedVars();
+		for (StandaloneDefn r : nv.references()) {
+			nv.enhanceWith(fn, r.nestedVars());
+		}
 	}
 
 	private Set<StandaloneDefn> buildTransitiveClosure(StandaloneDefn fn, Set<StandaloneDefn> resolved) {

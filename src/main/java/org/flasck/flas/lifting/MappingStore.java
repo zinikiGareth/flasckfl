@@ -20,7 +20,7 @@ import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.zinutils.exceptions.NotImplementedException;
 
-// This is a record per-function
+// This is a record for a single function
 public class MappingStore implements MappingCollector, NestedVarReader {
 	public class PO implements Comparable<PO> {
 		VarName name;

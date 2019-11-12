@@ -1,6 +1,7 @@
 package test.lifting;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import org.flasck.flas.blockForm.InputPosition;
@@ -88,26 +89,37 @@ public class InsertorTests {
 	@Test
 	public void middlemenAreAlsoEnhanced() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x"));
 		FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
-		tp.isDefinedBy(fnF);
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fnG = new FunctionDefinition(nameG, 0);
-		FunctionIntro fiG = new FunctionIntro(nameG, new ArrayList<>());
-		UnresolvedVar xr = new UnresolvedVar(pos, "x");
-		xr.bind(tp);
-		fiG.cases().add(new FunctionCaseDefn(null, xr));
-		fnG.intro(fiG);
 		FunctionName nameH = FunctionName.function(pos, nameG, "h");
 		FunctionDefinition fnH = new FunctionDefinition(nameH, 0);
-		FunctionIntro fiH = new FunctionIntro(nameH, new ArrayList<>());
-		fnH.intro(fiH);
+
+		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x"));
+		tp.isDefinedBy(fnF);
+
+		UnresolvedVar gr = new UnresolvedVar(pos, "g");
+		gr.bind(fnG);
+		FunctionIntro fiF = new FunctionIntro(nameF, new ArrayList<>());
+		fiF.cases().add(new FunctionCaseDefn(null, gr));
+		fnF.intro(fiF);
 
 		UnresolvedVar hr = new UnresolvedVar(pos, "h");
 		hr.bind(fnH);
-		
+		FunctionIntro fiG = new FunctionIntro(nameG, new ArrayList<>());
+		fiG.cases().add(new FunctionCaseDefn(null, hr));
+		fnG.intro(fiG);
+
+		UnresolvedVar xr = new UnresolvedVar(pos, "x");
+		xr.bind(tp);
+
+		FunctionIntro fiH = new FunctionIntro(nameH, new ArrayList<>());
+		fiG.cases().add(new FunctionCaseDefn(null, xr));
+		fnH.intro(fiH);
+
 		RepositoryLifter lifter = new RepositoryLifter();
 		lifter.visitFunction(fnF);
+		lifter.visitUnresolvedVar(gr, 0);
 		lifter.leaveFunction(fnF);
 		lifter.visitFunction(fnG);
 		lifter.visitFunctionIntro(fiG);
@@ -118,14 +130,13 @@ public class InsertorTests {
 		lifter.visitUnresolvedVar(xr, 0);
 		lifter.leaveFunction(fnH);
 		FunctionGroupOrdering ordering = lifter.resolve();
-		assertOrder(ordering, "test.foo.f", "test.foo.f.g.h", "test.foo.f.g");
+		assertOrder(ordering, "test.foo.f//test.foo.f.g//test.foo.f.g.h");
 		
 		Traverser t = new Traverser(hsi).withNestedPatterns();
 		t.rememberCaller(fnG);
 		context.checking(new Expectations() {{
 			oneOf(hsi).visitPattern(with(PatternMatcher.var("test.foo.f.x")), with(true));
 			oneOf(hsi).visitVarPattern((VarPattern) with(PatternMatcher.var("test.foo.f.x")), with(true));
-//			oneOf(hsi).visitVarPattern(vp, true);
 			oneOf(hsi).visitPatternVar(pos, xr.var);
 			oneOf(hsi).leavePattern(with(PatternMatcher.var("test.foo.f.x")), with(true));
 		}});
