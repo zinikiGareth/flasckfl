@@ -438,4 +438,9 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 	public void endArg(Slot s) {
 		tov.endArg(s);
 	}
+	
+	@Override
+	public String toString() {
+		return "StackVisitor" + stack;
+	}
 }

@@ -1,7 +1,7 @@
 test.golden.f :: Number->Number
-test.golden.f.g :: Number->Number
+test.golden.f._1.g :: Number->Number
 test.golden.h :: Number->Number
-test.golden.h.j :: Number->Number->Number
+test.golden.h._1.j :: Number->Number->Number
 test.golden.k :: A->A
-test.golden.k.l :: A->A
-test.golden.k.l.m :: A->A
+test.golden.k._1.l :: A->A
+test.golden.k._1.l._1.m :: A->A

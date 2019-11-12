@@ -30,9 +30,9 @@
 	method r (Sample svc)
 		<- svc.meth "hello"
 
-.	method double (Sample svc)
-.		<- Debug "sending hello"
-.		<- svc.meth "hello"
+	method double (Sample svc)
+		<- Debug "sending hello"
+		<- svc.meth "hello"
 	
 // standalone methods can't reference members because they have no state
 // standalone methods can't have assignment cases because they have no state

@@ -717,6 +717,9 @@ public class Traverser implements Visitor {
 				args.addAll(expr.args);
 				ae = new ApplyExpr(expr.location, fn, args);
 			}
+			
+			if (isNeedingEnhancement(expr, 0))
+				visitor.visitExpr(ae, 0);
 		}
 		
 		visitor.visitApplyExpr(ae);
@@ -922,5 +925,10 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
+	}
+	
+	@Override
+	public String toString() {
+		return "Traverser{" + visitor + "}";
 	}
 }
