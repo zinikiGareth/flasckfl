@@ -52,6 +52,10 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 		om.bindType(ty);
 	}
 	
+	public boolean hasType() {
+		return om.hasType();
+	}
+	
 	public Type type() {
 		return om.type();
 	}

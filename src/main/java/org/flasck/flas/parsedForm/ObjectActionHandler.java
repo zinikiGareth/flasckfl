@@ -112,6 +112,10 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 		this.type = ty;
 	}
 
+	public boolean hasType() {
+		return this.type != null;
+	}
+	
 	public Type type() {
 		if (this.type == null)
 			throw new RuntimeException("Type not bound");
