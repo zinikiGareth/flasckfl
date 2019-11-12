@@ -89,6 +89,8 @@ public class InsertorTests {
 	public void middlemenAreAlsoEnhanced() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x"));
+		FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
+		tp.isDefinedBy(fnF);
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
 		FunctionDefinition fnG = new FunctionDefinition(nameG, 0);
 		FunctionIntro fiG = new FunctionIntro(nameG, new ArrayList<>());
@@ -105,6 +107,8 @@ public class InsertorTests {
 		hr.bind(fnH);
 		
 		RepositoryLifter lifter = new RepositoryLifter();
+		lifter.visitFunction(fnF);
+		lifter.leaveFunction(fnF);
 		lifter.visitFunction(fnG);
 		lifter.visitFunctionIntro(fiG);
 		lifter.visitUnresolvedVar(hr, 0);
@@ -114,7 +118,7 @@ public class InsertorTests {
 		lifter.visitUnresolvedVar(xr, 0);
 		lifter.leaveFunction(fnH);
 		FunctionGroupOrdering ordering = lifter.resolve();
-		assertOrder(ordering, "test.foo.f.g.h", "test.foo.f.g");
+		assertOrder(ordering, "test.foo.f", "test.foo.f.g.h", "test.foo.f.g");
 		
 		Traverser t = new Traverser(hsi).withNestedPatterns();
 		t.rememberCaller(fnG);

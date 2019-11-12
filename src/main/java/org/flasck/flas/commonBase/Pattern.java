@@ -1,5 +1,8 @@
 package org.flasck.flas.commonBase;
 
-public interface Pattern extends Locatable {
+import org.flasck.flas.parsedForm.StandaloneDefn;
 
+public interface Pattern extends Locatable {
+	public void isDefinedBy(StandaloneDefn definedBy);
+	public StandaloneDefn definedBy();
 }

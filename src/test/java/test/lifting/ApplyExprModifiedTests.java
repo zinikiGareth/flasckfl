@@ -56,6 +56,7 @@ public class ApplyExprModifiedTests {
 		ApplyExpr ae = new ApplyExpr(pos, fnCall, sl);
 		
 		context.checking(new Expectations() {{
+			oneOf(hsi).visitExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"), ExprMatcher.string(sl.text))), with(0));
 			oneOf(hsi).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"), ExprMatcher.string(sl.text))));
 			oneOf(hsi).visitExpr(fnCall, 2);
 			oneOf(hsi).visitUnresolvedVar(fnCall, 2);
@@ -89,6 +90,7 @@ public class ApplyExprModifiedTests {
 		ApplyExpr ae = new ApplyExpr(pos, fnCall, sl);
 		
 		context.checking(new Expectations() {{
+			oneOf(hsi).visitExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"), ExprMatcher.string(sl.text))), with(0));
 			oneOf(hsi).visitApplyExpr((ApplyExpr) with(ExprMatcher.apply(ExprMatcher.unresolved("g"), ExprMatcher.unresolved("x"), ExprMatcher.string(sl.text))));
 			oneOf(hsi).visitExpr(fnCall, 2);
 			oneOf(hsi).visitUnresolvedVar(fnCall, 2);

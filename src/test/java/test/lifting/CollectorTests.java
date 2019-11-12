@@ -40,10 +40,13 @@ public class CollectorTests {
 		vr.bind(vp);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		ma.visitFunctionIntro(fi);
+		FunctionDefinition f = new FunctionDefinition(nameF, 1);
+		vp.isDefinedBy(f);
 		
 		context.checking(new Expectations() {{
 			oneOf(c).recordNestedVar(fi, null, vp);
 			oneOf(dependencies).recordVarDependency(nameG, nameF, c);
+			oneOf(c).recordDependency(f);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}
@@ -78,9 +81,12 @@ public class CollectorTests {
 		vr.bind(tp);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		ma.visitFunctionIntro(fi);
-		
+		FunctionDefinition f = new FunctionDefinition(nameF, 1);
+		tp.isDefinedBy(f);
+
 		context.checking(new Expectations() {{
 			oneOf(c).recordNestedVar(fi, null, tp);
+			oneOf(c).recordDependency(f);
 		}});
 		ma.visitUnresolvedVar(vr);
 	}

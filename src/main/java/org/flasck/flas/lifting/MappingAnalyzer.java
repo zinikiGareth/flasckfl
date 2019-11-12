@@ -42,11 +42,13 @@ public class MappingAnalyzer {
 			if (vp.name().scope != name) {
 				collector.recordNestedVar(fi, meth, vp);
 				dependencies.recordVarDependency(name, (FunctionName)vp.name().scope, collector);
+				collector.recordDependency(vp.definedBy());
 			}
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) defn;
 			if (tp.name().scope != name) {
 				collector.recordNestedVar(fi, meth, tp);
+				collector.recordDependency(tp.definedBy());
 			}
 		} else if (defn instanceof FunctionDefinition) {
 			if (defn != fn)

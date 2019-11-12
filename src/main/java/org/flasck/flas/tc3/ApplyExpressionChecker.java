@@ -44,10 +44,11 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		if (r == null) {
+		Type ty = ((ExprResult) r).type;
+		if (ty == null) {
 			throw new NullPointerException("Cannot handle null type");
 		}
-		results.add(instantiateFreshPolys(new TreeMap<>(), ((ExprResult) r).type));
+		results.add(instantiateFreshPolys(new TreeMap<>(), ty));
 	}
 
 	public Type instantiateFreshPolys(Map<PolyType, UnifiableType> uts, Type type) {

@@ -164,6 +164,7 @@ public class DependencyOrdering {
 		lifter.visitFunction(fnG);
 		lifter.visitFunctionIntro(fnG.intros().get(0));
 		VarPattern vp = new VarPattern(pos, new VarName(pos, fnF.name(), "x"));
+		vp.isDefinedBy(fnF);
 		UnresolvedVar ref = new UnresolvedVar(pos, vp.name().var);
 		ref.bind(vp);
 		lifter.visitUnresolvedVar(ref, 0);
@@ -182,6 +183,7 @@ public class DependencyOrdering {
 		lifter.visitFunction(fnG);
 		lifter.visitFunctionIntro(fnG.intros().get(0));
 		VarPattern vp = new VarPattern(pos, new VarName(pos, fnF.name(), "x"));
+		vp.isDefinedBy(fnF);
 		UnresolvedVar ref = new UnresolvedVar(pos, vp.name().var);
 		ref.bind(vp);
 		lifter.visitUnresolvedVar(ref, 0);

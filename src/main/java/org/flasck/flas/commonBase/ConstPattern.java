@@ -1,6 +1,7 @@
 package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.StandaloneDefn;
 
 public class ConstPattern implements Pattern {
 	public static final int INTEGER = 1;
@@ -10,6 +11,7 @@ public class ConstPattern implements Pattern {
 	public final int type;
 	public final String value;
 	public final InputPosition location;
+	private StandaloneDefn definedBy;
 
 	public ConstPattern(InputPosition loc, int type, String value) {
 		this.location = loc;
@@ -17,6 +19,14 @@ public class ConstPattern implements Pattern {
 		this.value = value;
 	}
 	
+	public StandaloneDefn definedBy() {
+		return definedBy;
+	}
+
+	public void isDefinedBy(StandaloneDefn definedBy) {
+		this.definedBy = definedBy;
+	}
+
 	@Override
 	public InputPosition location() {
 		return location;

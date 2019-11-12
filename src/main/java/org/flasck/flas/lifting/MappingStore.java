@@ -90,6 +90,8 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 
 	@Override
 	public void recordDependency(StandaloneDefn fn) {
+		if (fn == null)
+			throw new RuntimeException("Cannot depend on null function");
 		deps.add(fn);
 	}
 

@@ -139,9 +139,11 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
-			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
+			StructDefn sd = (StructDefn)defn;
+			if (nargs == 0 && sd.argCount() == 0) {
 				stack.add(block.structConst(myName));
-			}
+			} else if (!myName.equals("MakeArray") && sd.argCount() != nargs)
+				throw new RuntimeException("I think this should have failed typechecking ... or else is curried or something");
 			// TODO: I think we should do something here ...
 		} else if (defn instanceof VarPattern) {
 			stack.add(block.boundVar(((VarPattern)defn).var));

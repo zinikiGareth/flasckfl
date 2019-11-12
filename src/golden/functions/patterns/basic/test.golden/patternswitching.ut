@@ -7,11 +7,11 @@
 			Error "no matching case"
 
 	test that we can match Cons as a type
-		assert (a2 Cons)
+		assert (a2 (Cons "hello" Nil))
 			1
 			
 	test that we can match Cons as a constructor
-		assert (a3 Cons)
+		assert (a3 (Cons "hello" Nil))
 			6
 			
 	test that we can match True if present

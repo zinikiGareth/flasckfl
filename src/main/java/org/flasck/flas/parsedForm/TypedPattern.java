@@ -13,6 +13,7 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 	public final transient InputPosition typeLocation;
 	public final TypeReference type;
 	public final VarName var;
+	private StandaloneDefn definedBy;
 
 	public TypedPattern(InputPosition location, TypeReference type, VarName var) {
 		this.typeLocation = location;
@@ -29,6 +30,14 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 		return var;
 	}
 	
+	public StandaloneDefn definedBy() {
+		return definedBy;
+	}
+
+	public void isDefinedBy(StandaloneDefn definedBy) {
+		this.definedBy = definedBy;
+	}
+
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println(toString());

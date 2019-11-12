@@ -378,6 +378,7 @@ public class ExpressionGenerationJS {
 		StringLiteral lit = new StringLiteral(pos, "error message");
 		UnresolvedVar err = new UnresolvedVar(pos, "Error");
 		StructDefn errT = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
+		errT.addField(new StructField(pos, false, LoadBuiltins.stringTR, "msg"));
 		err.bind(errT);
 		ApplyExpr ae = new ApplyExpr(pos, err, lit);
 		JSExpr s = context.mock(JSExpr.class, "s");

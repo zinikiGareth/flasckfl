@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.ArgSlot;
@@ -33,6 +34,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	
 	public void intro(FunctionIntro next) {
 		this.intros.add(next);
+		attachMeToPatternVars(next);
 	}
 
 	public FunctionName name() {
@@ -124,5 +126,11 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	@Override
 	public int compareTo(StandaloneDefn o) {
 		return name().compareTo(o.name());
+	}
+
+	private void attachMeToPatternVars(FunctionIntro fi) {
+		for (Pattern p : fi.args) {
+			p.isDefinedBy(this);
+		}
 	}
 }

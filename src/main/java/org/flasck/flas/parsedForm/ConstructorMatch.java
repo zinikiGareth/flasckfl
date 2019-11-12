@@ -37,12 +37,21 @@ public class ConstructorMatch implements Pattern {
 	public final List<Field> args = new ArrayList<Field>();
 	public final InputPosition location;
 	private StructDefn defn;
+	private StandaloneDefn definedBy;
 
 	public ConstructorMatch(InputPosition loc, String ctor) {
 		if (loc == null)
 			System.out.println("null position cm1");
 		this.location = loc;
 		this.ctor = ctor;
+	}
+
+	public StandaloneDefn definedBy() {
+		return definedBy;
+	}
+
+	public void isDefinedBy(StandaloneDefn definedBy) {
+		this.definedBy = definedBy;
 	}
 
 	public ConstructorMatch bind(StructDefn defn) {
@@ -55,6 +64,7 @@ public class ConstructorMatch implements Pattern {
 			throw new NotImplementedException("Not resolved: " + ctor);
 		return defn;
 	}
+
 	@Override
 	public InputPosition location() {
 		return location;
