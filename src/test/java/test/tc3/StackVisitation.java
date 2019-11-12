@@ -83,7 +83,8 @@ public class StackVisitation {
 		Type ty = context.mock(Type.class);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
-			oneOf(state).resolveAll();
+			oneOf(state).resolveAll(false);
+			oneOf(state).resolveAll(true);
 			oneOf(state).bindVarPatternTypes();
 			oneOf(nv).result(null);
 		}});
@@ -115,7 +116,8 @@ public class StackVisitation {
 		gc.visitObjectMethod(om);
 		context.assertIsSatisfied();
 		context.checking(new Expectations() {{
-			oneOf(state).resolveAll();
+			oneOf(state).resolveAll(false);
+			oneOf(state).resolveAll(true);
 			oneOf(state).bindVarPatternTypes();
 			oneOf(nv).result(null);
 		}});

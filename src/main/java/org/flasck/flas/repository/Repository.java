@@ -256,7 +256,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		Set<Type> collect = new HashSet<Type>();
 		for (Type t : ms) {
 			if (t.equals(LoadBuiltins.any))
-				continue;
+				return t;
 			collect.add(t);
 		}
 		if (collect.isEmpty())

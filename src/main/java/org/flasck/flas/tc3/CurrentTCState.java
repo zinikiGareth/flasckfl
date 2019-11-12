@@ -11,7 +11,7 @@ public interface CurrentTCState {
 	PolyType nextPoly(InputPosition pos);
 	void argType(Type type);
 	void bindVarToUT(String name, UnifiableType ty);
-	void resolveAll();
+	void resolveAll(boolean hard);
 	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
 	void bindVarPatternTypes();
 }

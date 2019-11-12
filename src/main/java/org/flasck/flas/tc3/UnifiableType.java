@@ -48,4 +48,11 @@ public interface UnifiableType extends Type {
 	// When a function has polymorphic args, a UT is instantiated to handle that
 	// This is called when one of those is passed a variable
 	void isPassed(InputPosition loc, Type ai);
+
+	// When processing groups, it is necessary to introduce a function type variable in case the function is used
+	// At the end of processing, this needs to be resolved
+	void determinedType(Type value);
+
+	// During resolution, we may return a consolidated type which needs resolving and then rebinding
+	void rebind(Type consolidate);
 }

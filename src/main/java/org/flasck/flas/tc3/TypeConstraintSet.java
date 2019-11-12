@@ -20,9 +20,9 @@ import org.zinutils.exceptions.NotImplementedException;
 public class TypeConstraintSet implements UnifiableType {
 	public class UnifiableApplication {
 		private final List<Type> args;
-		private final UnifiableType ret;
+		private final Type ret;
 
-		public UnifiableApplication(List<Type> args, UnifiableType ret) {
+		public UnifiableApplication(List<Type> args, Type ret) {
 			this.args = args;
 			this.ret = ret;
 		}
@@ -101,6 +101,7 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		}
 		
+		List<Type> asApply = new ArrayList<>();
 		for (UnifiableApplication x : applications) {
 			// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
 			// and while it could possibly recurse, I don't think that can then refer back to us
@@ -109,14 +110,15 @@ public class TypeConstraintSet implements UnifiableType {
 			// But at least make sure you have a test case before doing that ...
 			List<Type> forApply = new ArrayList<>();
 			for (Type t : x.args) {
-				if (t instanceof UnifiableType)
-					forApply.add(((UnifiableType)t).resolve());
-				else
-					forApply.add(t);
+				forApply.add(tryResolving(t, hard));
 			}
-			forApply.add(x.ret.resolve());
-			tys.add(new Apply(forApply));
+			forApply.add(tryResolving(x.ret, hard));
+			asApply.add(new Apply(forApply));
 		}
+		if (asApply.size() == 1)
+			tys.add(asApply.get(0));
+		else if (asApply.size() > 1)
+			tys.add(new ConsolidateTypes(pos, asApply));
 		
 		tys.addAll(incorporatedBys);
 		
@@ -170,6 +172,17 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 		
 		return resolvedTo;
+	}
+
+	private Type tryResolving(Type t, boolean hard) {
+		if (t instanceof UnifiableType) {
+			Type ret = ((UnifiableType)t).resolve(hard);
+			if (ret != null)
+				return ret;
+			else
+				return t;
+		} else
+			return t;
 	}
 	
 	@Override
@@ -236,8 +249,21 @@ public class TypeConstraintSet implements UnifiableType {
 			if (ty instanceof UnifiableType)
 				((UnifiableType)ty).isUsed();
 		}
-		applications.add(new UnifiableApplication(args, ret));
+		addApplication(args, ret);
 		return ret;
+	}
+
+	private void addApplication(List<Type> args, Type ret) {
+		applications.add(new UnifiableApplication(args, ret));
+	}
+
+	@Override
+	public void determinedType(Type ofType) {
+		if (ofType instanceof Apply) {
+			Apply a = (Apply) ofType;
+			addApplication(a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));
+		} else
+			types.add(ofType);
 	}
 
 	@Override
@@ -249,6 +275,13 @@ public class TypeConstraintSet implements UnifiableType {
 	public void isPassed(InputPosition loc, Type ai) {
 		// This is the same implementation as "canBeType" - is that correct?
 		types.add(ai);
+	}
+
+	@Override
+	public void rebind(Type consolidate) {
+		if (resolvedTo == null)
+			throw new RuntimeException("I don't think it works like that");
+		this.resolvedTo = consolidate;
 	}
 
 	@Override

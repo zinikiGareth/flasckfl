@@ -3,6 +3,8 @@ package org.flasck.flas.parsedForm;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -14,7 +16,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder, WithTypeSignature {
+public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder, WithTypeSignature, Locatable {
 	public final ObjectMethod om;
 
 	public StandaloneMethod(ObjectMethod om) {
@@ -30,6 +32,11 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 	@Override
 	public boolean isMyName(NameOfThing other) {
 		return om.isMyName(other);
+	}
+
+	@Override
+	public InputPosition location() {
+		return om.location();
 	}
 
 	@Override

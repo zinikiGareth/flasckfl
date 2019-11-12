@@ -54,13 +54,28 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
+		// if we picked up anything based on the invocation of the method in this group, add that into the mix
+		for (Entry<TypeBinder, Type> m : memberTypes.entrySet()) {
+			String name = m.getKey().name().uniqueName();
+			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
+			ut.determinedType(m.getValue());
+		}
+		
 		// First go through and figure out what we can
 		for (Type ty : memberTypes.values()) {
 			consolidate(ty, false);
 		}
 		
 		// Then we can resolve all the UTs
-		state.resolveAll();
+		state.resolveAll(false);
+		
+		// We may need to re-consolidate UTs associated with functions
+		for (Entry<TypeBinder, Type> m : memberTypes.entrySet()) {
+			String name = m.getKey().name().uniqueName();
+			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
+			ut.rebind(consolidate(ut.resolve(false), false));
+		}
+		state.resolveAll(true);
 		
 		// Then we can bind the types
 		for (Entry<TypeBinder, Type> e : memberTypes.entrySet()) {
@@ -87,11 +102,15 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 					return null;
 				throw new RuntimeException("I can't figure out how this can come to pass");
 			}
-			Type ret = repository.findUnionWith(tys);
+			Type ret = unifyApply(tys);
+			if (ret == null)
+				ret = repository.findUnionWith(tys);
 			if (ret == null) {
+				state.resolveAll(true);
 				Set<String> sigs = new TreeSet<>();
-				for (Type t : tys)
+				for (Type t : tys) {
 					sigs.add(t.signature());
+				}
 				errors.message(ct.location(), "unable to unify " + String.join(", ", sigs));
 				return null;
 			}
@@ -116,6 +135,37 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			return value;
 	}
 	
+	private Type unifyApply(Set<Type> tys) {
+		int nargs = -1;
+		List<List<Type>> matrix = new ArrayList<>();
+		for (Type t : tys) {
+			if (t instanceof Apply) {
+				Apply apply = (Apply)t;
+				int ac = apply.argCount();
+				if (nargs == -1) {
+					for (int i=0;i<=ac;i++) {
+						List<Type> mt = new ArrayList<>();
+						mt.add(apply.get(i));
+						matrix.add(mt);
+					}
+					nargs = ac;
+				} else if (nargs == ac) {
+					for (int i=0;i<=ac;i++) {
+						matrix.get(i).add(apply.get(i));
+					}
+				} else
+					throw new RuntimeException("I think this may be legit with currying and all, but it's certainly not handled");
+			} else
+				return null;
+		}
+		
+		List<Type> res = new ArrayList<>();
+		for (List<Type> ts : matrix) {
+			res.add(consolidate(new ConsolidateTypes(null, ts), false));
+		}
+		return new Apply(res.subList(0, res.size()-1), res.get(res.size()-1));
+	}
+
 	public CurrentTCState testsWantToCheckState() {
 		return state;
 	}
