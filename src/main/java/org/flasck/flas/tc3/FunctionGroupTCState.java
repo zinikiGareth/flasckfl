@@ -40,6 +40,11 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	@Override
+	public Iterable<UnifiableType> unifiableTypes() {
+		return allUTs;
+	}
+	
+	@Override
 	public void bindVarToUT(String name, UnifiableType ty) {
 		if (!allUTs.contains(ty))
 			throw new NotImplementedException("Where did this come from?");
@@ -86,6 +91,13 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public void resolveAll(boolean hard) {
 		for (UnifiableType ut : allUTs) {
 			ut.resolve(hard);
+		}
+	}
+
+	@Override
+	public void enhanceAllMutualUTs() {
+		for (UnifiableType ut : allUTs) {
+			ut.enhance();
 		}
 	}
 }

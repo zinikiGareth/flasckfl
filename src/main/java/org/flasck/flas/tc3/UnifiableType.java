@@ -55,4 +55,8 @@ public interface UnifiableType extends Type {
 
 	// During resolution, we may return a consolidated type which needs resolving and then rebinding
 	void rebind(Type consolidate);
+
+	// Many UTs can end up being bound to the same thing
+	// Make sure all of them know about everything
+	void enhance();
 }

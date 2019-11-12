@@ -57,6 +57,25 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 	
 	@Override
+	public void enhance() {
+		while (true) {
+			List<TypeConstraintSet> refs = new ArrayList<>();
+			for (Type t : types) {
+				if (t instanceof TypeConstraintSet) {
+					TypeConstraintSet other = (TypeConstraintSet) t;
+					for (Type t2 : other.types) {
+						if (t2 instanceof TypeConstraintSet && !types.contains(t2))
+							refs.add((TypeConstraintSet) t2);
+					}
+				}
+			}
+			if (refs.isEmpty())
+				return;
+			types.addAll(refs);
+		}
+	}
+	
+	@Override
 	public Type resolve(boolean hard) {
 		if (resolvedTo != null)
 			return resolvedTo;
@@ -284,11 +303,26 @@ public class TypeConstraintSet implements UnifiableType {
 		this.resolvedTo = consolidate;
 	}
 
+	public String asTCS() {
+		return "TCS{" + id + "}";
+	}
+
+	public String debugInfo() {
+		StringBuilder ret = new StringBuilder();
+		if (this.isResolved()) {
+			ret.append("{");
+			ret.append(resolvedTo);
+			ret.append("}");
+		}
+		ret.append(types);
+		return ret.toString();
+	}
+	
 	@Override
 	public String toString() {
 		if (isResolved())
 			return signature();
 		else
-			return "TCS{" + id + "}";
+			return asTCS();
 	}
 }

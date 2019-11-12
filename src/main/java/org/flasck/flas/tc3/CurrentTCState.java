@@ -14,4 +14,6 @@ public interface CurrentTCState {
 	void resolveAll(boolean hard);
 	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
 	void bindVarPatternTypes();
+	Iterable<UnifiableType> unifiableTypes();
+	void enhanceAllMutualUTs();
 }

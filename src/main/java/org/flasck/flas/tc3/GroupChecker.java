@@ -75,6 +75,15 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
 			ut.rebind(consolidate(ut.resolve(false), false));
 		}
+		state.enhanceAllMutualUTs();
+		
+		/* For debugging of TCSs
+		for (UnifiableType ut : state.unifiableTypes()) {
+			TypeConstraintSet tcs = (TypeConstraintSet)ut;
+			System.out.println(tcs.asTCS() + "=> " + tcs.debugInfo());
+		}
+		*/
+
 		state.resolveAll(true);
 		
 		// Then we can bind the types
@@ -93,9 +102,18 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			Set<Type> tys = new HashSet<>();
 			for (Type t : ct.types)
 				tys.add(consolidate(t, haveResolvedUTs));
-			if (haveResolvedUTs) {
-				for (UnifiableType ut : ct.uts)
+			for (UnifiableType ut : ct.uts) {
+				if (haveResolvedUTs)
 					tys.add(ut.resolve());
+				else {
+					for (UnifiableType o : ct.uts) {
+						if (o != ut) {
+							ut.canBeType(o);
+							o.canBeType(ut);
+						}
+					}
+				}
+					
 			}
 			if (tys.isEmpty()) {
 				if (!haveResolvedUTs)
@@ -105,7 +123,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			Type ret = unifyApply(tys);
 			if (ret == null)
 				ret = repository.findUnionWith(tys);
-			if (ret == null) {
+			if (ret == null && haveResolvedUTs) {
 				state.resolveAll(true);
 				Set<String> sigs = new TreeSet<>();
 				for (Type t : tys) {
@@ -114,7 +132,8 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 				errors.message(ct.location(), "unable to unify " + String.join(", ", sigs));
 				return null;
 			}
-			ct.consolidatesTo(ret);
+			if (ret != null)
+				ct.consolidatesTo(ret);
 			return ret;
 		} else if (value instanceof UnifiableType && haveResolvedUTs) {
 			return ((UnifiableType)value).resolve();
@@ -159,11 +178,18 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 				return null;
 		}
 		
+		boolean fails = false;
 		List<Type> res = new ArrayList<>();
 		for (List<Type> ts : matrix) {
-			res.add(consolidate(new ConsolidateTypes(null, ts), false));
+			Type ty = consolidate(new ConsolidateTypes(null, ts), false);
+			if (ty == null)
+				fails = true;
+			res.add(ty);
 		}
-		return new Apply(res.subList(0, res.size()-1), res.get(res.size()-1));
+		if (fails)
+			return null;
+		else
+			return new Apply(res.subList(0, res.size()-1), res.get(res.size()-1));
 	}
 
 	public CurrentTCState testsWantToCheckState() {
