@@ -3,20 +3,14 @@ package org.flasck.flas.compiler.jsgen;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClosure implements JSExpr {
-	private final JSMethod meth;
 	private final JSExpr[] args;
-	private String var;
 
-	public JSClosure(JSMethod meth, JSExpr... args) {
-		this.meth = meth;
+	public JSClosure(JSExpr... args) {
 		this.args = args;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		if (var == null)
-			var = meth.obtainNextVar();
-		w.print("const " + var + " = ");
 		w.print("_cxt.closure(");
 		boolean isFirst = true;
 		for (JSExpr e : args) {
@@ -26,13 +20,11 @@ public class JSClosure implements JSExpr {
 				w.print(", ");
 			w.print(e.asVar());
 		}
-		w.println(");");
+		w.print(")");
 	}
 
 	@Override
 	public String asVar() {
-		if (var == null)
-			var = meth.obtainNextVar();
-		return var;
+		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
 	}
 }

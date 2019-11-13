@@ -6,22 +6,16 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSXCurry implements JSExpr {
-	private final JSMethod meth;
 	private final List<XCArg> args;
 	private final int required;
-	private String var;
 
-	public JSXCurry(JSMethod meth, int required, List<XCArg> posargs) {
-		this.meth = meth;
+	public JSXCurry(int required, List<XCArg> posargs) {
 		this.required = required;
 		this.args = posargs;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		if (var == null)
-			var = meth.obtainNextVar();
-		w.print("const " + var + " = ");
 		w.print("_cxt.xcurry(" + required);
 		for (XCArg e : args) {
 			w.print(", ");
@@ -29,13 +23,11 @@ public class JSXCurry implements JSExpr {
 			w.print(", ");
 			w.print(e.expr.asVar());
 		}
-		w.println(");");
+		w.print(")");
 	}
 
 	@Override
 	public String asVar() {
-		if (var == null)
-			var = meth.obtainNextVar();
-		return var;
+		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
 	}
 }

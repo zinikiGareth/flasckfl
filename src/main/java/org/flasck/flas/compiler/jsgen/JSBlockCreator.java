@@ -7,11 +7,22 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public interface JSBlockCreator {
+	// very simple and obvious things
 	JSExpr literal(String text);
 	JSExpr string(String string);
 	JSExpr newOf(SolidName clz);
 	JSExpr makeArray(JSExpr... args);
+	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
+	JSExpr pushFunction(String meth);
+	
+	// creating more complex things
 	JSExpr structConst(String name);
+	JSExpr mockContract(SolidName name);
+	JSExpr createObject(SolidName name);
+	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs);
+
+	// HSIE logic statements
+	JSExpr boundVar(String var);
 	void bindVar(String slot, String var);
 	void head(String var);
 	void field(String asVar, String fromVar, String field);
@@ -22,17 +33,12 @@ public interface JSBlockCreator {
 	void errorNoCase();
 	void errorNoDefaultGuard();
 	JSExpr structArgs(String string, JSExpr... args);
-	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
-	JSExpr pushFunction(String meth);
 	JSExpr closure(JSExpr... args);
 	JSExpr curry(int expArgs, JSExpr... args);
 	JSExpr xcurry(int expArgs, List<XCArg> posargs);
 	void returnObject(JSExpr jsExpr);
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
-	JSExpr boundVar(String var);
-	JSExpr mockContract(SolidName name);
-	JSExpr createObject(SolidName name);
-	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs);
 
+	// Send the block to disk
 	void write(IndentWriter w);
 }

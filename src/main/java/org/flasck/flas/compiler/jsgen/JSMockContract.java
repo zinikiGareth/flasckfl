@@ -4,30 +4,21 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMockContract implements JSExpr {
-	private final JSMethod meth;
-	private String var;
 	private final SolidName name;
 
-	public JSMockContract(JSMethod meth, SolidName name) {
-		this.meth = meth;
+	public JSMockContract(SolidName name) {
 		this.name = name;
 	}
 
 	@Override
 	public String asVar() {
-		if (var == null)
-			var = meth.obtainNextVar();
-		return var;
+		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		if (var == null)
-			var = meth.obtainNextVar();
-		w.print("const ");
-		w.print(var);
-		w.print(" = _cxt.mockContract(new ");
+		w.print("_cxt.mockContract(new ");
 		w.print(name.jsName()); // TODO: should this be JSPName or JSCName or something?
-		w.println("());");
+		w.print("())");
 	}
 }

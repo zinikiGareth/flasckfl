@@ -276,7 +276,7 @@ public class ClassGeneration {
 	}
 	
 	@Test
-	public void aClosureIsGeneratored() {
+	public void aClosureIsGenerated() {
 		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");

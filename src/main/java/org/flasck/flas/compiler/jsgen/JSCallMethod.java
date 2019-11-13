@@ -7,11 +7,8 @@ public class JSCallMethod implements JSExpr {
 	private final JSExpr obj;
 	private final String toCall;
 	private final JSExpr[] args;
-	private final JSMethod meth;
-	private String var;
 
-	public JSCallMethod(JSMethod meth, JSExpr obj, String toCall, JSExpr... args) {
-		this.meth = meth;
+	public JSCallMethod(JSExpr obj, String toCall, JSExpr... args) {
 		this.obj = obj;
 		this.toCall = toCall;
 		this.args = args;
@@ -19,9 +16,6 @@ public class JSCallMethod implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		if (var == null)
-			var = meth.obtainNextVar();
-		w.print("const " + var + " = ");
 		if (obj != null) {
 			obj.write(w);
 			w.print(".");
@@ -32,13 +26,11 @@ public class JSCallMethod implements JSExpr {
 			w.print(", ");
 			w.print(e.asVar());
 		}
-		w.println(");");
+		w.print(")");
 	}
 
 	@Override
 	public String asVar() {
-		if (var == null)
-			var = meth.obtainNextVar();
-		return var;
+		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
 	}
 }

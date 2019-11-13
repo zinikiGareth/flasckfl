@@ -32,7 +32,7 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr newOf(SolidName clz) {
-		JSNew ret = new JSNew(this.creating, clz);
+		JSLocal ret = new JSLocal(creating, new JSNew(clz));
 		stmts.add(ret);
 		return ret;
 	}
@@ -44,63 +44,63 @@ public class JSBlock implements JSBlockCreator {
 	
 	@Override
 	public JSExpr pushFunction(String meth) {
-		JSPushFunction stmt = new JSPushFunction(creating, meth);
+		JSLocal stmt = new JSLocal(creating, new JSPushFunction(meth));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
 	public JSExpr structConst(String name) {
-		JSStruct stmt = new JSStruct(creating, name, new ArrayList<>());
+		JSLocal stmt = new JSLocal(creating, new JSStruct(name, new ArrayList<>()));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
 	public JSExpr structArgs(String name, JSExpr... args) {
-		JSStruct stmt = new JSStruct(creating, name, Arrays.asList(args));
+		JSLocal stmt = new JSLocal(creating, new JSStruct(name, Arrays.asList(args)));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
 	public JSExpr callMethod(JSExpr obj, String meth, JSExpr... args) {
-		JSCallMethod stmt = new JSCallMethod(creating, obj, meth, args);
+		JSLocal stmt = new JSLocal(creating, new JSCallMethod(obj, meth, args));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
-	public JSClosure closure(JSExpr... args) {
-		JSClosure stmt = new JSClosure(creating, args);
+	public JSExpr closure(JSExpr... args) {
+		JSLocal stmt = new JSLocal(creating, new JSClosure(args));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
-	public JSCurry curry(int expArgs, JSExpr... args) {
-		JSCurry stmt = new JSCurry(creating, expArgs, args);
+	public JSLocal curry(int expArgs, JSExpr... args) {
+		JSLocal stmt = new JSLocal(creating, new JSCurry(expArgs, args));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
 	public JSExpr xcurry(int expArgs, List<XCArg> posargs) {
-		JSXCurry stmt = new JSXCurry(creating, expArgs, posargs);
+		JSLocal stmt = new JSLocal(creating, new JSXCurry(expArgs, posargs));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
 	public JSExpr makeArray(JSExpr... args) {
-		JSMakeArray ma = new JSMakeArray(creating, args);
+		JSLocal ma = new JSLocal(creating, new JSMakeArray(args));
 		stmts.add(ma);
 		return ma;
 	}
 
 	@Override
 	public JSExpr makeSend(String sendMeth, JSExpr obj, int nargs) {
-		JSMakeSend ma = new JSMakeSend(creating, sendMeth, obj, nargs);
+		JSLocal ma = new JSLocal(creating, new JSMakeSend(sendMeth, obj, nargs));
 		stmts.add(ma);
 		return ma;
 	}
@@ -172,14 +172,14 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr mockContract(SolidName name) {
-		JSMockContract ret = new JSMockContract(creating, name);
+		JSLocal ret = new JSLocal(creating, new JSMockContract(name));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
 	public JSExpr createObject(SolidName name) {
-		JSCreateObject ret = new JSCreateObject(creating, name);
+		JSLocal ret = new JSLocal(this.creating, new JSCreateObject(name));
 		stmts.add(ret);
 		return ret;
 	}
