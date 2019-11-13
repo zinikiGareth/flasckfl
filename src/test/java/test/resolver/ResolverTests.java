@@ -34,8 +34,6 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
-import org.flasck.flas.parser.ut.UnitDataDeclaration;
-import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryReader;

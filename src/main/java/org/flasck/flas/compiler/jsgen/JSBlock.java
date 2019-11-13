@@ -171,6 +171,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr createObject(SolidName name) {
+		JSCreateObject ret = new JSCreateObject(creating, name);
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
 	public void write(IndentWriter w) {
 		w.println("{");
 		IndentWriter iw = w.indent();

@@ -11,6 +11,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -223,11 +224,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		if (objty instanceof ContractDecl) {
 			JSExpr mock = meth.mockContract((SolidName) objty.name());
 			state.addMock(udd, mock);
+		} else if (objty instanceof ObjectDefn) {
+			JSExpr obj = meth.createObject((SolidName) objty.name());
+			state.addMock(udd, obj);
 		} else {
 			/* It seems to me that this requires us to traverse the whole of 
 			 * the inner expression.  I'm not quite sure what is the best way to handle that.
 			 * Another option on the traverser? A signal back to the traverser (how?) that
 			 * says "traverse this"?  Creating a subtraverser here?
+			 * 
+			 * Reviewing this today, I don't see why you wouldn't want to traverse it all the time
+			 * But probably have individual visit/leave combos for uddExpr and each uddField
+			 * All ended by leaveUDD
 			 */
 			throw new RuntimeException("not handled: " + objty);
 		}

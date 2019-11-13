@@ -38,6 +38,11 @@ public class LoadBuiltins {
 	
 	// "Primitive" types
 	public static final Primitive any = new Primitive(pos, "Any");
+	// TODO: I think we want subclasses of Any called "Entity", "Deal", "Offer", etc
+	// Not quite sure what etc. includes because I don't think "Primitive" and "Struct" hold any value
+	// Entity is obviously useful because we use it in Data Contracts
+	// Deal & Offer feel like they would come up in conversations about Commerce
+	// Countables, Currency and ValueStore need to go here too
 	public static final Primitive contract = new Primitive(pos, "Contract");
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 	public static final Primitive number = new Primitive(pos, "Number");

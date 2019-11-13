@@ -2,6 +2,8 @@ package test.flas.generator.jvm;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -12,6 +14,7 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -131,6 +134,31 @@ public class UnitTestGeneration {
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), null);
+		gen.visitUnitDataDeclaration(udd);
+		assertEquals(v1, jvm.state().resolveMock(udd));
+	}
+
+	@Test
+	public void weCanCreateLocalObjectsInUDDs() {
+		IExpr runner = context.mock(IExpr.class, "runner");
+		IExpr call = context.mock(IExpr.class, "call");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(17));
+		}});
+		AVar v1 = new AVar(meth, J.OBJECT, "v1");
+		context.checking(new Expectations() {{
+			oneOf(meth).callStatic("test.something.Obj", J.OBJECT, "eval", runner); will(returnValue(call));
+			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
+			oneOf(meth).assign(v1, call);
+		}});
+		JVMGenerator jvm = JVMGenerator.forTests(meth, runner, null);
+		Traverser gen = new Traverser(jvm.stackVisitor());
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), false, new ArrayList<>());
+		TypeReference tr = new TypeReference(pos, "Obj");
+		tr.bind(od);
+		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
+		UnitTestName utn = new UnitTestName(utfn, 4);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, utn, "data"), null);
 		gen.visitUnitDataDeclaration(udd);
 		assertEquals(v1, jvm.state().resolveMock(udd));
 	}

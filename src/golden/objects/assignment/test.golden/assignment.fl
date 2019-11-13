@@ -1,3 +1,6 @@
 	object Assignable
 		state
 			String s <- "hello"
+			
+.		method message (String msg)
+.			s <- msg

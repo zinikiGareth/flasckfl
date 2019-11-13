@@ -311,4 +311,13 @@ public class ClassGeneration {
 		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("const v1 = _cxt.mockContract(new org.fred.Ctr());\n", sw.toString());
 	}
+	
+	@Test
+	public void createObjectCallsTheRightMethod() {
+		JSBlock b = new JSMethod(null, false, "fred");
+		JSExpr mc = b.createObject(new SolidName(new PackageName("org.fred"), "MyObj"));
+		assertEquals("v1", mc.asVar());
+		mc.write(new IndentWriter(new PrintWriter(sw)));
+		assertEquals("const v1 = org.fred.MyObj.eval(_cxt);\n", sw.toString());
+	}
 }

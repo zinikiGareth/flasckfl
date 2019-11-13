@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -358,8 +359,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			throw new RuntimeException("Global UDDs are not yet handled");
 		RepositoryEntry objty = udd.ofType.defn();
 		if (objty instanceof ContractDecl) {
-			// TODO: presumably this "$Up" is a hack and we need to be able to support $Down as well
+			// TODO: presumably this "$Up" is a hack and we need to create $Down as well and store both in the mock contract
 			IExpr mc = meth.callVirtual(J.OBJECT, this.runner, "mockContract", meth.classConst(objty.name().javaName() + "$Up"));
+			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
+			meth.assign(v, mc).flush();
+			this.fs.addMock(udd, v);
+		} else if (objty instanceof ObjectDefn) {
+			IExpr mc = meth.callStatic(objty.name().javaName(), J.OBJECT, "eval", this.fcx);
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);

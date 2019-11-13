@@ -1,5 +1,7 @@
 package test.flas.generator.js;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -15,6 +17,7 @@ import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.JSStorage;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -74,7 +77,7 @@ public class UnitTestGenerationJS {
 	}
 	
 	@Test
-	public void weCanCreateLocalUDDMMockContracts() {
+	public void weCanCreateLocalUDDMockContracts() {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		JSExpr runner = context.mock(JSExpr.class, "runner");
 		NestedVisitor nv = context.mock(NestedVisitor.class);
@@ -90,6 +93,28 @@ public class UnitTestGenerationJS {
 			oneOf(nv).push(with(any(JSGenerator.class)));
 			oneOf(meth).mockContract(cd.name()); will(returnValue(mc));
 			oneOf(state).addMock(udd, mc);
+		}});
+		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner, nv, state));
+		gen.visitUnitDataDeclaration(udd);
+	}
+	
+	@Test
+	public void weCanCreateLocalObjectsInUDDs() {
+		JSMethodCreator meth = context.mock(JSMethodCreator.class);
+		JSExpr runner = context.mock(JSExpr.class, "runner");
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		JSFunctionState state = context.mock(JSFunctionState.class);
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), false, new ArrayList<>());
+		TypeReference tr = new TypeReference(pos, "Obj");
+		tr.bind(od);
+		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
+		UnitTestName utn = new UnitTestName(utfn, 4);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, utn, "data"), null);
+		JSExpr mo = context.mock(JSExpr.class, "mockObject");
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(JSGenerator.class)));
+			oneOf(meth).createObject(od.name()); will(returnValue(mo));
+			oneOf(state).addMock(udd, mo);
 		}});
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner, nv, state));
 		gen.visitUnitDataDeclaration(udd);
