@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -36,6 +37,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.Traverser;
@@ -99,6 +101,22 @@ public class TraversalTests {
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
+			oneOf(v).leaveObjectDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traverseObjectDefnWithFieldsVisitsTheState() {
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition sd = new StateDefinition(pos);
+		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "s");
+		sd.addField(sf);
+		s.defineState(sd);
+		r.addEntry(s.name(), s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitObjectDefn(s);
+			oneOf(v).visitStructField(sf);
 			oneOf(v).leaveObjectDefn(s);
 		}});
 		r.traverse(v);

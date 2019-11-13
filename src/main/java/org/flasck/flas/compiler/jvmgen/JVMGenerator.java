@@ -343,16 +343,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			return;
 		String clzName = od.name().javaName();
 		ByteCodeSink bcc = bce.newClass(clzName);
-		bcc.superclass(J.OBJECT);
+		bcc.superclass(J.FIELDS_CONTAINER_WRAPPER);
 		bcc.generateAssociatedSourceFile();
 		{ // ctor(cx)
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			/* PendingVar cx = */ gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			NewMethodDefiner ctor = gen.done();
-//			IExpr[] args = new IExpr[0];
-//			if (sd.type == FieldsDefn.FieldsType.ENTITY)
-//				args = new IExpr[] { cx.getVar(), ctor.as(ctor.aNull(), J.BACKING_DOCUMENT) };
-			ctor.callSuper("void", J.OBJECT, "<init>").flush();
+			ctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 			/* TODO: initialize fields
 			for (int i=0;i<sd.fields.size();i++) {
 				StructField fld = sd.fields.get(i);

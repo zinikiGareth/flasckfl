@@ -296,7 +296,7 @@ public class ClassGeneration {
 	}
 	
 	@Test
-	public void anExplicitCurryIsGeneratored() {
+	public void anExplicitCurryIsGenerated() {
 		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
@@ -331,5 +331,14 @@ public class ClassGeneration {
 		assertEquals("v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("const v1 = new test.repo.Obj();\n", sw.toString());
+	}
+	
+	@Test
+	public void weCanCreateANewJavascriptLevelObjectAndStoreItAsAField() {
+		SolidName sn = new SolidName(pkg, "Obj");
+		JSBlock b = new JSMethod(null, false, "fred");
+		JSExpr mc = b.fieldObject("state", sn.javaName());
+		mc.write(new IndentWriter(new PrintWriter(sw)));
+		assertEquals("this.state = new test.repo.Obj();\n", sw.toString());
 	}
 }

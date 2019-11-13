@@ -185,6 +185,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr fieldObject(String field, String clz) {
+		JSThis ret = new JSThis(field, new JSNew(clz));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
 	public void write(IndentWriter w) {
 		w.println("{");
 		IndentWriter iw = w.indent();

@@ -180,8 +180,6 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
 		visitor.visitUnionTypeDefn(ud);
-//		for (StructField f : s.fields)
-//			visitStructField(f);
 		leaveUnionTypeDefn(ud);
 	}
 	
@@ -193,6 +191,10 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitObjectDefn(ObjectDefn obj) {
 		visitor.visitObjectDefn(obj);
+		if (obj.state() != null) {
+			for (StructField f : obj.state().fields)
+				visitStructField(f);
+		}
 		leaveObjectDefn(obj);
 	}
 

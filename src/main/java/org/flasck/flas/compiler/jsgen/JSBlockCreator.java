@@ -20,6 +20,9 @@ public interface JSBlockCreator {
 	JSExpr mockContract(SolidName name);
 	JSExpr createObject(SolidName name);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs);
+	
+	// create an object of clz and store in a field
+	JSExpr fieldObject(String field, String clz);
 
 	// HSIE logic statements
 	JSExpr boundVar(String var);

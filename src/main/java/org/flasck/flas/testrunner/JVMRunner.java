@@ -26,6 +26,7 @@ import org.flasck.jvm.fl.FLMockEvalContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.ziniki.cbstore.json.FLConstructorServer;
 import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.UtilException;
@@ -44,7 +45,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl) {
 		super(config, repository);
 		this.loader = bcl;
-		this.cxt = null;
+		this.cxt = new FLConstructorServer();
 //		this.store = null;
 //		this.controller = null;
 	}

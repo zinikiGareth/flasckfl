@@ -4,9 +4,13 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSNew implements JSExpr {
-	private final SolidName clz;
+	private final String clz;
 
 	public JSNew(SolidName clz) {
+		this.clz = clz.jsName();
+	}
+
+	public JSNew(String clz) {
 		this.clz = clz;
 	}
 
@@ -18,7 +22,7 @@ public class JSNew implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("new ");
-		w.print(clz.jsName()); // TODO: should this be JSPName or JSCName or something?
+		w.print(clz);
 		w.print("()");
 	}
 

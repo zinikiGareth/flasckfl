@@ -296,3 +296,10 @@ Send.prototype.toString = function() {
 }
 
 
+const FieldsContainer = function() {
+}
+Debug.prototype.toString = function() {
+	return "Fields[" + this.msg + "]";
+}
+
+

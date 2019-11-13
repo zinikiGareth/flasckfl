@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.zinutils.bytecode.mock.IndentWriter;
 
+// I think this and JSCreateObject are basically the same
 public class JSStruct implements JSExpr {
 	private final String name;
 	private final List<JSExpr> args;

@@ -51,12 +51,18 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 	@Override
 	public ObjectDefn defineState(StateDefinition state) {
 		if (this.state != null) {
+			// TODO: write an "error" test that shows you can't define state twice and generates an appropriate error message
+			// I think we will need to pass in an ErrorReporter
 			throw new RuntimeException("Fix this case with a test");
 		}
 		this.state = state;
 		return this;
 	}
-
+	
+	public StateDefinition state() {
+		return state;
+	}
+	
 	@Override
 	public ObjectElementsConsumer addTemplate(Template template) {
 		this.templates.add(template);
