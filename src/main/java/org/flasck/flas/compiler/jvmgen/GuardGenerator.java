@@ -39,12 +39,13 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 		this.state = state;
 		this.sv = sv;
 		this.block = currentBlock;
+		sv.push(this);
 	}
 	
 	@Override
 	public void visitGuard(FunctionCaseDefn c) {
 		isGuard = true;
-		sv.push(new ExprGenerator(state, sv, testBlk != null ? testBlk : this.block));
+		new ExprGenerator(state, sv, testBlk != null ? testBlk : this.block);
 	}
 
 	@Override
@@ -54,12 +55,7 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 			blk = this.block;
 		else
 			nestedBlk = blk = new ArrayList<>();
-		sv.push(new ExprGenerator(state, sv, blk));
-	}
-	
-	@Override
-	public void leaveCase(FunctionCaseDefn c) {
-		throw new RuntimeException("This should not be called at this level");
+		new ExprGenerator(state, sv, blk);
 	}
 	
 	@Override
@@ -90,6 +86,7 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 			isGuard = false;
 			currentGuard = re;
 		} else {
+			re = state.meth.returnObject(re);
 			if (nestedBlk != null) {
 				nestedBlk.add(re);
 				re = JVMGenerator.makeBlock(state.meth, nestedBlk);

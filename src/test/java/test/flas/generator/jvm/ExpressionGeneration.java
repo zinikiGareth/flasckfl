@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.jvmgen.ApplyExprGenerator;
 import org.flasck.flas.compiler.jvmgen.ExprGenerator;
 import org.flasck.flas.compiler.jvmgen.FunctionState;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
@@ -80,32 +81,26 @@ public class ExpressionGeneration {
 		IExpr biv = context.mock(IExpr.class, "biv");
 		IExpr cdv = context.mock(IExpr.class, "cdv");
 		IExpr exprValue = context.mock(IExpr.class, "expr");
-		IExpr result = context.mock(IExpr.class, "result");
 		context.checking(new Expectations() {{
 			oneOf(meth).aNull(); will(returnValue(dv));
 			oneOf(meth).intConst(42); will(returnValue(iv));
 			oneOf(meth).box(iv); will(returnValue(biv));
 			oneOf(meth).castTo(dv, "java.lang.Double"); will(returnValue(cdv));
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv); will(returnValue(exprValue));
+			oneOf(nv).result(exprValue);
 		}});
 		ExprGenerator eg = new ExprGenerator(new FunctionState(meth, null, null), sv, block);
-		sv.push(eg);
 		Traverser gen = new Traverser(eg).withHSI();
 		gen.visitExpr(expr, 0);
-		context.assertIsSatisfied();
-		
-		context.checking(new Expectations() {{
-			oneOf(meth).returnObject(exprValue); will(returnValue(result));
-			oneOf(nv).result(result);
-		}});
-		gen.endInline(null);
 	}
 
 	@Test
 	public void aSimpleString() {
 		StringLiteral expr = new StringLiteral(pos, "hello");
+		IExpr sval = context.mock(IExpr.class, "sval");
 		context.checking(new Expectations() {{
-			oneOf(meth).stringConst("hello");
+			oneOf(meth).stringConst("hello"); will(returnValue(sval));
+			oneOf(nv).result(sval);
 		}});
 		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv, block)).withHSI();
 		gen.visitExpr(expr, 0);
@@ -116,8 +111,10 @@ public class ExpressionGeneration {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		expr.bind(new FunctionDefinition(nameX, 0));
+		IExpr ev = context.mock(IExpr.class, "ev");
 		context.checking(new Expectations() {{
-			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x");
+			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(ev));
+			oneOf(nv).result(ev);
 		}});
 		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv, block)).withHSI();
 		gen.visitExpr(expr, 2);
@@ -133,15 +130,13 @@ public class ExpressionGeneration {
 		IExpr args = context.mock(IExpr.class, "args");
 		IExpr head0 = context.mock(IExpr.class, "head0");
 		IExpr assign = context.mock(IExpr.class, "assign");
-		IExpr returnV = context.mock(IExpr.class, "return");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, ax, 1); will(returnValue(args));
 			oneOf(meth).nextLocal(); will(returnValue(18));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0)); will(returnValue(assign));
 			oneOf(block).add(assign);
-			oneOf(meth).returnObject(with(VarMatcher.local(18))); will(returnValue(returnV));
-			oneOf(nv).result(returnV);
+			oneOf(nv).result(with(VarMatcher.local(18)));
 		}});
 		FunctionState state = new FunctionState(meth, cx, null);
 		state.bindVar(block, "p", new ArgSlot(1, null), null);
@@ -149,7 +144,6 @@ public class ExpressionGeneration {
 		sv.push(eg);
 		Traverser gen = new Traverser(eg).withHSI();
 		gen.visitExpr(expr, 2);
-		gen.endInline(null);
 	}
 
 	@Test
@@ -170,6 +164,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0)); will(returnValue(assign));
 			oneOf(block).add(assign);
+			oneOf(nv).result(with(VarMatcher.local(18)));
 		}});
 		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv, block)).withHSI();
 		gen.visitExpr(expr, 2);
@@ -187,7 +182,7 @@ public class ExpressionGeneration {
 		}});
 		Var mock = new AVar(meth, J.OBJECT, "mock");
 		context.checking(new Expectations() {{
-//			oneOf(state).resolveMock(udd); will(returnValue(sl));
+			oneOf(nv).result(mock);
 		}});
 		FunctionState fs = new FunctionState(meth, cx, null);
 		fs.addMock(udd, mock);
@@ -210,7 +205,7 @@ public class ExpressionGeneration {
 		}});
 		Var mock = new AVar(meth, J.OBJECT, "mock");
 		context.checking(new Expectations() {{
-//			oneOf(state).resolveMock(udd); will(returnValue(mc));
+			oneOf(nv).result(mock);
 		}});
 		FunctionState fs = new FunctionState(meth, cx, null);
 		fs.addMock(udd, mock);
@@ -241,8 +236,10 @@ public class ExpressionGeneration {
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);
+			oneOf(nv).result(var);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv, block)).withHSI();
+		new ExprGenerator(new FunctionState(meth, null, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
 
@@ -271,8 +268,10 @@ public class ExpressionGeneration {
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);
+			oneOf(nv).result(var);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv, block)).withHSI();
+		new ExprGenerator(new FunctionState(meth, null, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
 
@@ -283,9 +282,11 @@ public class ExpressionGeneration {
 		IExpr fcx = context.mock(IExpr.class, "fcx");
 		List<IExpr> argsList = new ArrayList<>();
 		IExpr arr = context.mock(IExpr.class, "arr");
+		IExpr call = context.mock(IExpr.class, "call");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
-			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", fcx, arr);
+			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", fcx, arr); will(returnValue(call));
+			oneOf(nv).result(call);
 		}});
 		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv, block)).withHSI();
 		gen.visitExpr(expr, 0);
@@ -379,8 +380,10 @@ public class ExpressionGeneration {
 
 	@Test
 	public void anOp() {
+		IExpr ret = context.mock(IExpr.class);
 		context.checking(new Expectations() {{
-			oneOf(meth).classConst("org.flasck.jvm.fl.FLEval$Plus");
+			oneOf(meth).classConst("org.flasck.jvm.fl.FLEval$Plus"); will(returnValue(ret));
+			oneOf(nv).result(ret);
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
 		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
@@ -470,8 +473,9 @@ public class ExpressionGeneration {
 			oneOf(block).add(assign);
 			oneOf(nv).result(var);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv, block)).withHSI();
-		gen.visitExpr(ae, 0);
+		new ExprGenerator(new FunctionState(meth, null, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(ae);
 	}
 
 	@Test
@@ -515,8 +519,9 @@ public class ExpressionGeneration {
 			oneOf(block).add(assign);
 			oneOf(nv).result(var);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv, block)).withHSI();
-		gen.visitExpr(ae, 0);
+		new ExprGenerator(new FunctionState(meth, null, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(ae);
 	}
 
 	@Test
@@ -566,8 +571,9 @@ public class ExpressionGeneration {
 			
 			oneOf(nv).result(v2);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null), sv, block)).withHSI();
-		gen.visitExpr(ae, 0);
+		new ExprGenerator(new FunctionState(meth, null, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(ae);
 	}
 
 	@Test
@@ -599,8 +605,9 @@ public class ExpressionGeneration {
 			
 			oneOf(nv).result(nil);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv, block)).withHSI();
-		gen.visitExpr(ae, 0);
+		new ExprGenerator(new FunctionState(meth, fcx, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(ae);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -617,7 +624,6 @@ public class ExpressionGeneration {
 		}});
 		Var v1 = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v1");
 		context.assertIsSatisfied();
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		IExpr f = context.mock(IExpr.class, "f");
 		IExpr i1 = context.mock(IExpr.class, "i1");
 		IExpr bi1 = context.mock(IExpr.class, "bi1");
@@ -642,8 +648,9 @@ public class ExpressionGeneration {
 			oneOf(block).add(assign);
 			oneOf(nv).result(v1);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv, block)).withHSI();
-		gen.visitExpr(ae, 0);
+		new ExprGenerator(new FunctionState(meth, null, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(ae);
 	}
 
 	@Test
@@ -713,8 +720,9 @@ public class ExpressionGeneration {
 			oneOf(block).add(assign);
 			oneOf(nv).result(v1);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv, block)).withHSI();
-		gen.visitExpr(expr, 0);
+		new ExprGenerator(new FunctionState(meth, fcx, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(expr);
 	}
 
 	@Test
@@ -751,8 +759,9 @@ public class ExpressionGeneration {
 			oneOf(block).add(assign);
 			oneOf(nv).result(v1);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv, block)).withHSI();
-		gen.visitExpr(me, 0);
+		new ExprGenerator(new FunctionState(meth, fcx, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitMessages(me);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -788,7 +797,8 @@ public class ExpressionGeneration {
 			oneOf(meth).intConst(0); will(returnValue(i0));
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0))));
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, fargs), sv, block)).withHSI();
+		new ApplyExprGenerator(new FunctionState(meth, fcx, fargs), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(ms, 0);
 	}
 
@@ -847,7 +857,8 @@ public class ExpressionGeneration {
 			oneOf(block).add(ass2);
 			oneOf(nv).result(v1);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, fargs), sv, block)).withHSI();
-		gen.visitExpr(ae, 0);
+		new ExprGenerator(new FunctionState(meth, fcx, fargs), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(ae);
 	}
 }

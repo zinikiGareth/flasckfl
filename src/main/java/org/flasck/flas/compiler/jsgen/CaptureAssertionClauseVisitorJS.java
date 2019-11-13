@@ -24,7 +24,7 @@ public class CaptureAssertionClauseVisitorJS extends LeafAdapter implements Resu
 
 	@Override
 	public void visitAssertExpr(boolean isValue, Expr e) {
-		sv.push(new ExprGeneratorJS(state, sv, block));
+		new ExprGeneratorJS(state, sv, block);
 	}
 
 

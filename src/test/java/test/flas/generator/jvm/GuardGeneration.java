@@ -43,7 +43,7 @@ public class GuardGeneration {
 	public void aSingleGuard() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGenerator(new FunctionState(meth, fcx, null), gen, block));
+		new GuardGenerator(new FunctionState(meth, fcx, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -96,7 +96,7 @@ public class GuardGeneration {
 	public void aSingleGuardWithDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGenerator(new FunctionState(meth, fcx, null), gen, block));
+		new GuardGenerator(new FunctionState(meth, fcx, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -154,7 +154,7 @@ public class GuardGeneration {
 	public void aSingleGuardWithAComplexExpression() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGenerator(new FunctionState(meth, fcx, null), gen, block));
+		new GuardGenerator(new FunctionState(meth, fcx, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -232,7 +232,7 @@ public class GuardGeneration {
 	public void twoGuardsNoDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGenerator(new FunctionState(meth, fcx, null), gen, block));
+		new GuardGenerator(new FunctionState(meth, fcx, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -319,7 +319,7 @@ public class GuardGeneration {
 	public void twoGuardsWithSecondBeingAnExpression() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		gen.push(new GuardGenerator(new FunctionState(meth, fcx, null), gen, block));
+		new GuardGenerator(new FunctionState(meth, fcx, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -351,7 +351,6 @@ public class GuardGeneration {
 		AVar v2 = new AVar(meth, J.FLCLOSURE, "v2");
 		IExpr a1 = context.mock(IExpr.class, "a1");
 		IExpr t1 = context.mock(IExpr.class, "t1");
-		IExpr f1 = context.mock(IExpr.class, "f1");
 		IExpr len = context.mock(IExpr.class, "len");
 		IExpr aslen = context.mock(IExpr.class, "aslen");
 		IExpr lenclos = context.mock(IExpr.class, "lenclos");
@@ -434,6 +433,7 @@ public class GuardGeneration {
 		gen.visitGuard(fcd2);
 		gen.visitExpr(g2, 0);
 		gen.visitApplyExpr(g2);
+		gen.visitExpr(isEq, 2);
 		gen.visitUnresolvedOperator(isEq, 2);
 		gen.visitExpr(str, 0);
 		gen.visitStringLiteral(str);

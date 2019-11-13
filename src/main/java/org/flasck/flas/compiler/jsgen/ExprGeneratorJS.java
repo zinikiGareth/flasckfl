@@ -1,32 +1,22 @@
 package org.flasck.flas.compiler.jsgen;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.CurryArgument;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parsedForm.WithTypeSignature;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -38,7 +28,6 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	private final JSFunctionState state;
 	private final NestedVisitor sv;
 	private final JSBlockCreator block;
-	private final List<JSExpr> stack = new ArrayList<>();
 
 	public ExprGeneratorJS(JSFunctionState state, NestedVisitor nv, JSBlockCreator block) {
 		this.state = state;
@@ -46,62 +35,27 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (block == null)
 			throw new NullPointerException("Cannot have a null block");
 		this.block = block;
-	}
-
-	@Override
-	public void leaveGuard(FunctionCaseDefn c) {
-		if (stack.size() != 1)
-			throw new RuntimeException("I think this is impossible, but obviously not: " + stack.size());
-		sv.result(stack.remove(0));
-	}
-
-	@Override
-	public void leaveCase(FunctionCaseDefn c) {
-		if (stack.size() != 1)
-			throw new RuntimeException("I think this is impossible, but obviously not: " + stack.size());
-		sv.result(stack.remove(0));
-	}
-
-	@Override
-	public void endInline(FunctionIntro fi) {
-		if (stack.size() != 1)
-			throw new RuntimeException("I think this is impossible, but obviously not: " + stack.size());
-		sv.result(stack.remove(0));
-	}
-
-	@Override
-	public void leaveAssertExpr(boolean isValue, Expr e) {
-		if (stack.size() != 1)
-			throw new RuntimeException("I think this is impossible, but obviously not");
-		sv.result(stack.remove(0));
-	}
-
-	@Override
-	public void leaveStructField(StructField sf) {
-		if (stack.size() != 1)
-			throw new RuntimeException("I think this is impossible, but obviously not");
-		block.storeField(sf.name, stack.remove(0));
-		sv.result(null);
+		nv.push(this);
 	}
 
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
-		sv.push(new ExprGeneratorJS(state, sv, block));
+		new ApplyExprGeneratorJS(state, sv, block);
 	}
 	
 	@Override
 	public void visitMessages(Messages msgs) {
-		sv.push(new ExprGeneratorJS(state, sv, block));
+		new ApplyExprGeneratorJS(state, sv, block);
 	}
 	
 	@Override
 	public void visitNumericLiteral(NumericLiteral expr) {
-		stack.add(block.literal(expr.text));
+		sv.result(block.literal(expr.text));
 	}
 
 	@Override
 	public void visitStringLiteral(StringLiteral expr) {
-		stack.add(block.string(expr.text));
+		sv.result(block.string(expr.text));
 	}
 	
 	@Override
@@ -124,32 +78,31 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (defn instanceof FunctionDefinition) {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
-				stack.add(block.pushFunction(myName));
-				makeClosure(fn, 0, fn.argCount());
+				makeFunctionClosure(myName, fn.argCount());
 			} else
-				stack.add(block.pushFunction(myName));
+				sv.result(block.pushFunction(myName));
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;
-				stack.add(block.pushFunction(myName));
-				makeClosure(fn, 0, fn.argCount());
+				makeFunctionClosure(myName, fn.argCount());
 			} else
-				stack.add(block.pushFunction(myName));
+				sv.result(block.pushFunction(myName));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
 			StructDefn sd = (StructDefn)defn;
 			if (nargs == 0 && sd.argCount() == 0) {
-				stack.add(block.structConst(myName));
+				sv.result(block.structConst(myName));
 			} else if (!myName.equals("MakeArray") && sd.argCount() != nargs)
 				throw new RuntimeException("I think this should have failed typechecking ... or else is curried or something");
-			// TODO: I think we should do something here ...
+			else
+				sv.result(null);
 		} else if (defn instanceof VarPattern) {
-			stack.add(block.boundVar(((VarPattern)defn).var));
+			sv.result(block.boundVar(((VarPattern)defn).var));
 		} else if (defn instanceof TypedPattern) {
-			stack.add(block.boundVar(((TypedPattern)defn).var.var));
+			sv.result(block.boundVar(((TypedPattern)defn).var.var));
 		} else if (defn instanceof CurryArgument) {
-			stack.add(new JSCurryArg());
+			sv.result(new JSCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
 		} else
@@ -157,84 +110,15 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	}
 
 	private void handleUnitTestData(UnitDataDeclaration udd) {
-		stack.add(state.resolveMock(udd));
+		sv.result(state.resolveMock(udd));
 	}
 
-	@Override
-	public void leaveApplyExpr(ApplyExpr expr) {
-		Object fn = expr.fn;
-		if (!expr.args.isEmpty()) { // only if it's a real apply
-			WithTypeSignature defn;
-			if (fn instanceof UnresolvedVar)
-				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
-			else if (fn instanceof UnresolvedOperator)
-				defn = (WithTypeSignature) ((UnresolvedOperator)fn).defn();
-			else if (fn instanceof MakeSend)
-				defn = (MakeSend) fn;
-			else
-				throw new NotImplementedException("unknown operator type: " + fn.getClass());
-			makeClosure(defn, expr.args.size(), defn.argCount());
-		}
-		if (stack.size() != 1)
-			throw new NotImplementedException();
-		sv.result(stack.remove(0));
-	}
-
-	@Override
-	public void leaveMessages(Messages msgs) {
-		JSExpr[] args = new JSExpr[stack.size()];
-		int k = stack.size();
-		for (int i=0;i<k;i++)
-			args[i] = stack.remove(0);
-		sv.result(block.makeArray(args));
-	}
-
-	private void makeClosure(WithTypeSignature defn, int depth, int expArgs) {
-		if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
-			JSExpr[] args = new JSExpr[depth];
-			int k = stack.size()-depth;
-			for (int i=0;i<depth;i++)
-				args[i] = stack.remove(k);
-			if (depth == 0) // This is a hack because we don't actually push MakeArray above for some reason ...
-				stack.remove(k-1); // the "Nil" or "MakeArray" that was pushed
-			stack.add(block.makeArray(args));
-		} else if (defn instanceof StructDefn && depth > 0) {
-			// do the creation immediately
-			// Note that we didn't push anything onto the stack earlier ...
-			// TODO: I think we need to cover the currying case separately ...
-			JSExpr[] args = new JSExpr[depth];
-			int k = stack.size()-depth;
-			for (int i=0;i<depth;i++)
-				args[i] = stack.remove(k);
-			String fn = defn.name().jsName();
-			if (fn.equals("Error"))
-				fn = "FLError";
-			stack.add(block.structArgs(fn, args));
-		} else {
-			JSExpr[] args = new JSExpr[depth+1];
-			List<XCArg> xcs = new ArrayList<>();
-			int k = stack.size()-depth-1;
-			for (int i=0;i<=depth;i++) {
-				JSExpr arg = stack.remove(k);
-				if (!(arg instanceof JSCurryArg))
-					xcs.add(new XCArg(i, arg));
-				args[i] = arg;
-			}
-			JSExpr call;
-			if (xcs.size() < depth+1)
-				call = block.xcurry(expArgs, xcs);
-			else if (depth < expArgs)
-				call = block.curry(expArgs, args);
-			else
-				call = block.closure(args);
-			stack.add(call);
-		}
-	}
-
-	@Override
-	public void visitMakeSend(MakeSend expr) {
-		JSExpr obj = stack.remove(stack.size()-1);
-		stack.add(block.makeSend(expr.sendMeth.jsName(), obj, expr.nargs));
+	private void makeFunctionClosure(String func, int expArgs) {
+		JSExpr[] args = new JSExpr[] { block.pushFunction(func) };
+		if (expArgs > 0)
+			sv.result(block.curry(expArgs, args));
+		else
+			sv.result(block.closure(args));
 	}
 
 	private String handleBuiltinName(RepositoryEntry defn) {
@@ -276,6 +160,6 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
-		stack.add((JSExpr)r);
+		sv.result((JSExpr)r);
 	}
 }

@@ -43,6 +43,34 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
+	public static class XCArg {
+		public final int arg;
+		public final IExpr expr;
+	
+		public XCArg(int arg, IExpr expr) {
+			this.arg = arg;
+			this.expr = expr;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof XCArg))
+				return false;
+			XCArg o = (XCArg) obj;
+			return o.arg == arg && o.expr == expr;
+		}
+		
+		@Override
+		public int hashCode() {
+			return arg ^ expr.hashCode();
+		}
+		
+		@Override
+		public String toString() {
+			return arg + ":" + expr;
+		}
+	}
+
 	private final ByteCodeStorage bce;
 	private final StackVisitor sv;
 	private MethodDefiner meth;
@@ -182,7 +210,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new GuardGenerator(fs, sv, currentBlock));
+		new GuardGenerator(fs, sv, currentBlock);
 	}
 
 	@Override
@@ -397,7 +425,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void visitStructField(StructField sf) {
 		if (sf.init != null)
-			sv.push(new ExprGenerator(this.fs, sv, this.currentBlock));
+			new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
 	}
 
 	@Override

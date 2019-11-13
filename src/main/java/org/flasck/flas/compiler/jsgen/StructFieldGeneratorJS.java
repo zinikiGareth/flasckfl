@@ -1,0 +1,31 @@
+package org.flasck.flas.compiler.jsgen;
+
+import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
+import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.ResultAware;
+
+public class StructFieldGeneratorJS extends LeafAdapter implements ResultAware {
+	private final NestedVisitor sv;
+	private final String fieldName;
+	private JSBlockCreator currentBlock;
+
+	public StructFieldGeneratorJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator currentBlock, String fieldName) {
+		this.sv = sv;
+		this.currentBlock = currentBlock;
+		this.fieldName = fieldName;
+//		this.meth = state.meth;
+//		this.ret = state.evalRet;
+		sv.push(this);
+		new ExprGeneratorJS(state, sv, currentBlock);
+	}
+
+	@Override
+	public void result(Object r) {
+//		IExpr svar = meth.getField(ret, "state");
+//		sv.result(meth.callInterface("void", svar, "set", meth.stringConst(fieldName), (IExpr)r));
+		currentBlock.storeField(fieldName, (JSExpr) r);
+		sv.result(null);
+	}
+}

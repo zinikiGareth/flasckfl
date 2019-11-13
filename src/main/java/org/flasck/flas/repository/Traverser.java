@@ -884,17 +884,15 @@ public class Traverser implements Visitor {
 	public void visitUnitTestAssert(UnitTestAssert a) {
 		visitor.visitUnitTestAssert(a);
 		visitAssertExpr(true, a.value);
-		visitExpr(a.value, 0);
-		leaveAssertExpr(true, a.value);
 		visitAssertExpr(false, a.expr);
-		visitExpr(a.expr, 0);
-		leaveAssertExpr(false, a.expr);
 		postUnitTestAssert(a);
 	}
 
 	@Override
 	public void visitAssertExpr(boolean isValue, Expr e) {
 		visitor.visitAssertExpr(isValue, e);
+		visitExpr(e, 0);
+		leaveAssertExpr(isValue, e);
 	}
 
 	@Override

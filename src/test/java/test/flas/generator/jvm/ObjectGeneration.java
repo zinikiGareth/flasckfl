@@ -24,6 +24,7 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.JavaInfo.Access;
 
 public class ObjectGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -69,6 +70,7 @@ public class ObjectGeneration {
 		Var ecxt = new Var.AVar(eval, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		Var eret = new Var.AVar(eval, ename, "ret");
 		context.checking(new Expectations() {{ // eval
+			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(eval).avar(ename, "ret"); will(returnValue(eret));
@@ -128,6 +130,7 @@ public class ObjectGeneration {
 		IExpr setField = context.mock(IExpr.class, "setField");
 		Sequence flushes = context.sequence("flushes");
 		context.checking(new Expectations() {{ // eval
+			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(eval).avar(ename, "ret"); will(returnValue(eret));
@@ -135,7 +138,7 @@ public class ObjectGeneration {
 			oneOf(eval).assign(eret, mknew); will(returnValue(ass));
 			oneOf(ass).flush(); inSequence(flushes);
 			oneOf(eval).stringConst("hello"); will(returnValue(helloConst));
-			oneOf(eval).getField("state"); will(returnValue(state));
+			oneOf(eval).getField(eret, "state"); will(returnValue(state));
 			oneOf(eval).stringConst("s"); will(returnValue(sarg));
 			oneOf(eval).callInterface("void", state, "set", sarg, helloConst); will(returnValue(setField));
 			oneOf(setField).flush(); inSequence(flushes);

@@ -32,7 +32,7 @@ public class CaptureAssertionClauseVisitor extends LeafAdapter implements Visito
 
 	@Override
 	public void visitAssertExpr(boolean isValue, Expr e) {
-		sv.push(new ExprGenerator(fs, sv, block));
+		new ExprGenerator(fs, sv, block);
 	}
 
 	@Override

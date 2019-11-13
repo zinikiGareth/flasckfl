@@ -66,6 +66,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private final Map<Slot, String> switchVars = new HashMap<>();
 	private NestedVisitor sv;
 	private JSFunctionState state;
+	private JSExpr evalRet;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -113,20 +114,24 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
 		JSBlockCreator ctor = ctr.constructor();
 		ctor.fieldObject("state", "FieldsContainer");
-		JSMethodCreator meth = ctr.createMethod("eval", false);
-		meth.returnObject(meth.newOf(obj.name()));
+		this.meth = ctr.createMethod("eval", false);
+		this.evalRet = meth.newOf(obj.name());
 		this.block = meth;
 	}
 	
 	@Override
 	public void visitStructField(StructField sf) {
 		if (sf.init != null)
-			sv.push(new ExprGeneratorJS(state, sv, block));
+			new StructFieldGeneratorJS(state, sv, block, sf.name);
 	}
 
 	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
+		if (evalRet != null)
+			meth.returnObject(evalRet);
 		this.block = null;
+		this.evalRet = null;
+		this.meth = null;
 	}
 	
 	@Override

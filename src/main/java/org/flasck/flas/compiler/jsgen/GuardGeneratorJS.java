@@ -30,14 +30,14 @@ public class GuardGeneratorJS extends LeafAdapter implements ResultAware {
 	public void visitGuard(FunctionCaseDefn c) {
 		isGuard = true;
 		seenGuard = true;
-		sv.push(new ExprGeneratorJS(state, sv, this.block));
+		new ExprGeneratorJS(state, sv, this.block);
 	}
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
 		if (!seenGuard)
 			trueblock = block;
-		sv.push(new ExprGeneratorJS(state, sv, trueblock));
+		new ExprGeneratorJS(state, sv, trueblock);
 		seenGuard = false;
 	}
 	

@@ -152,7 +152,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new GuardGenerator(state, sv, currentBlock));
+		new GuardGenerator(state, sv, currentBlock);
 	}
 
 	@Override
