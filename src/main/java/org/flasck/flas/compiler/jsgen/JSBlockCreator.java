@@ -9,6 +9,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public interface JSBlockCreator {
 	JSExpr literal(String text);
 	JSExpr string(String string);
+	JSExpr newOf(SolidName clz);
 	JSExpr makeArray(JSExpr... args);
 	JSExpr structConst(String name);
 	void bindVar(String slot, String var);

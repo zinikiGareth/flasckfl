@@ -191,8 +191,13 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
-	public void visitObjectDefn(ObjectDefn e) {
-		visitor.visitObjectDefn(e);
+	public void visitObjectDefn(ObjectDefn obj) {
+		visitor.visitObjectDefn(obj);
+		leaveObjectDefn(obj);
+	}
+
+	public void leaveObjectDefn(ObjectDefn obj) {
+		visitor.leaveObjectDefn(obj);
 	}
 
 	@Override

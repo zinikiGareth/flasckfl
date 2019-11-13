@@ -98,6 +98,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 	
 	@Override
+	public void visitObjectDefn(ObjectDefn obj) {
+		if (!obj.generate)
+			return;
+		String pkg = ((SolidName)obj.name()).packageName().jsName();
+		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
+		JSMethodCreator meth = ctr.createMethod("eval", false);
+		meth.returnObject(meth.newOf(obj.name()));
+	}
+	
+	@Override
 	public void visitObjectMethod(ObjectMethod om) {
 		switchVars.clear();
 		if (!om.isConverted()) {

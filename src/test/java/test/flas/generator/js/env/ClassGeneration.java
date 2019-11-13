@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ClassGeneration {
+//	private InputPosition pos = new InputPosition("-", 1, 0, null);
+	private final PackageName pkg = new PackageName("test.repo");
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);
@@ -319,5 +321,15 @@ public class ClassGeneration {
 		assertEquals("v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("const v1 = org.fred.MyObj.eval(_cxt);\n", sw.toString());
+	}
+	
+	@Test
+	public void weCanCreateNewJavascriptLevelObjects() {
+		SolidName sn = new SolidName(pkg, "Obj");
+		JSBlock b = new JSMethod(null, false, "fred");
+		JSExpr mc = b.newOf(sn);
+		assertEquals("v1", mc.asVar());
+		mc.write(new IndentWriter(new PrintWriter(sw)));
+		assertEquals("const v1 = new test.repo.Obj();\n", sw.toString());
 	}
 }

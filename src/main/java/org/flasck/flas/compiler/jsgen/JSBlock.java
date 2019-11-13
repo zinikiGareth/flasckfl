@@ -31,6 +31,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr newOf(SolidName clz) {
+		JSNew ret = new JSNew(this.creating, clz);
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
 	public JSExpr boundVar(String var) {
 		return new JSBoundVar(var);
 	}

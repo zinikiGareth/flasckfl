@@ -99,6 +99,7 @@ public class TraversalTests {
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
+			oneOf(v).leaveObjectDefn(s);
 		}});
 		r.traverse(v);
 	}
@@ -112,6 +113,7 @@ public class TraversalTests {
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
+			oneOf(v).leaveObjectDefn(s);
 		}});
 		r.traverse(v);
 	}

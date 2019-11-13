@@ -311,6 +311,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitObjectDefn(e);
 	}
 
+	public void leaveObjectDefn(ObjectDefn obj) {
+		top.leaveObjectDefn(obj);
+	}
+
 	public void visitObjectMethod(ObjectMethod e) {
 		top.visitObjectMethod(e);
 	}

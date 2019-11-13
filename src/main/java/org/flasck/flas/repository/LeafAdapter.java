@@ -75,11 +75,15 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitObjectDefn(ObjectDefn e) {
+	public void visitObjectDefn(ObjectDefn obj) {
 	}
 
 	@Override
-	public void visitObjectMethod(ObjectMethod e) {
+	public void leaveObjectDefn(ObjectDefn obj) {
+	}
+
+	@Override
+	public void visitObjectMethod(ObjectMethod meth) {
 	}
 
 	@Override

@@ -338,6 +338,66 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void visitObjectDefn(ObjectDefn od) {
+		if (!od.generate)
+			return;
+		String clzName = od.name().javaName();
+		ByteCodeSink bcc = bce.newClass(clzName);
+		bcc.superclass(J.OBJECT);
+		bcc.generateAssociatedSourceFile();
+		{ // ctor(cx)
+			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			/* PendingVar cx = */ gen.argument(J.FLEVALCONTEXT, "cxt");
+			NewMethodDefiner ctor = gen.done();
+//			IExpr[] args = new IExpr[0];
+//			if (sd.type == FieldsDefn.FieldsType.ENTITY)
+//				args = new IExpr[] { cx.getVar(), ctor.as(ctor.aNull(), J.BACKING_DOCUMENT) };
+			ctor.callSuper("void", J.OBJECT, "<init>").flush();
+			/* TODO: initialize fields
+			for (int i=0;i<sd.fields.size();i++) {
+				StructField fld = sd.fields.get(i);
+				if (fld.name.equals("id"))
+					continue;
+				if (fld.init != null) {
+					final IExpr initVal = ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", ctor.as(ctor.myThis(), J.OBJECT), ctor.as(ctor.classConst(fld.init.javaNameAsNestedClass()), J.OBJECT), ctor.arrayOf(J.OBJECT, new ArrayList<>()));
+					if (sd.ty == FieldsDefn.FieldsType.STRUCT)
+						ctor.assign(ctor.getField(ctor.myThis(), fld.name), initVal).flush();
+					else
+						ctor.callSuper("void", J.FLAS_ENTITY, "closure", ctor.stringConst(fld.name), ctor.as(initVal, J.OBJECT)).flush();
+				}
+			}
+			*/
+			ctor.returnVoid().flush();
+		}
+		{ // eval(cx)
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+//			PendingVar pv = gen.argument("[java.lang.Object", "args");
+			gen.returns(J.OBJECT);
+			MethodDefiner meth = gen.done();
+//			Var v = pv.getVar();
+			Var ret = meth.avar(clzName, "ret");
+			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
+			/*
+			int ap = 0;
+			for (int i=0;i<od.fields.size();i++) {
+				RWStructField fld = od.fields.get(i);
+				if (fld.name.equals("id"))
+					continue;
+				if (fld.init != null)
+					continue;
+				final IExpr val = meth.arrayElt(v, meth.intConst(ap++));
+				if (od.ty == FieldsDefn.FieldsType.STRUCT)
+					meth.assign(meth.getField(ret, fld.name), val).flush();
+				else
+					meth.callVirtual("void", ret, "closure", meth.stringConst(fld.name), val).flush();
+			}
+			*/
+			meth.returnObject(ret).flush();
+		}
+	}
+
+	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		String clzName = e.name.javaName();
 		clz = bce.newClass(clzName);
