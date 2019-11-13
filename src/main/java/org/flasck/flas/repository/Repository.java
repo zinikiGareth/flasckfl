@@ -68,6 +68,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitPrimitive(Primitive p);
 		void visitStructDefn(StructDefn s);
 		void visitStructField(StructField sf);
+		void leaveStructField(StructField sf);
 		void leaveStructDefn(StructDefn s);
 		void visitUnionTypeDefn(UnionTypeDefn ud);
 		void leaveUnionTypeDefn(UnionTypeDefn ud);

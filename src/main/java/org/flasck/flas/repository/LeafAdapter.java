@@ -67,6 +67,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void leaveStructField(StructField sf) {
+	}
+
+	@Override
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
 	}
 

@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -53,7 +54,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private Var fargs;
 	private final Map<Slot, IExpr> switchVars = new HashMap<>();
 	private FunctionState fs;
-	private IExpr resultExpr;
 	private List<IExpr> currentBlock;
 	private static final boolean leniency = false;
 
@@ -85,9 +85,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void result(Object r) {
-		if (resultExpr != null)
-			throw new RuntimeException("More than one result expr at once");
-		resultExpr = (IExpr) r;
+		currentBlock.add((IExpr) r);
 	}
 
 	@Override
@@ -197,9 +195,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-		currentBlock.add(resultExpr);
 		makeBlock(meth, currentBlock).flush();
-		resultExpr = null;
+		currentBlock.clear();
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
@@ -211,9 +208,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-		currentBlock.add(resultExpr);
 		makeBlock(meth, currentBlock).flush();
-		resultExpr = null;
+		currentBlock.clear();
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
@@ -345,6 +341,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		ByteCodeSink bcc = bce.newClass(clzName);
 		bcc.superclass(J.FIELDS_CONTAINER_WRAPPER);
 		bcc.generateAssociatedSourceFile();
+		bcc.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		{ // ctor(cx)
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
@@ -375,6 +372,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 //			Var v = pv.getVar();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
+			this.fs = new FunctionState(meth, cx.getVar(), null);
+			this.meth = meth;
+			fs.evalRet = ret;
+			this.currentBlock = new ArrayList<IExpr>();
 			/*
 			int ap = 0;
 			for (int i=0;i<od.fields.size();i++) {
@@ -390,10 +391,23 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 					meth.callVirtual("void", ret, "closure", meth.stringConst(fld.name), val).flush();
 			}
 			*/
-			meth.returnObject(ret).flush();
 		}
 	}
+	
+	@Override
+	public void visitStructField(StructField sf) {
+		if (sf.init != null)
+			sv.push(new ExprGenerator(this.fs, sv, this.currentBlock));
+	}
 
+	@Override
+	public void leaveObjectDefn(ObjectDefn obj) {
+		if (this.currentBlock != null && !this.currentBlock.isEmpty())
+			makeBlock(meth, currentBlock).flush();
+		this.meth.returnObject(fs.evalRet).flush();
+		this.meth = null;
+	}
+	
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		String clzName = e.name.javaName();
@@ -408,6 +422,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.fcx = meth.avar(J.FLEVALCONTEXT, "cxt");
 		meth.assign((Var)this.fcx, meth.getField(this.runner, "cxt")).flush();
 		this.fs = new FunctionState(meth, (Var)fcx, null);
+		this.currentBlock = new ArrayList<>();
 	}
 
 	@Override
@@ -441,13 +456,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void leaveUnitTest(UnitTestCase e) {
 		meth.returnVoid().flush();
 		meth = null;
+		this.currentBlock = null;
 		clz.generate();
 	}
 	
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
-		resultExpr.flush();
-		resultExpr = null;
+		if (currentBlock.size() != 1)
+			throw new RuntimeException("Multiple result expressions");
+		currentBlock.get(0).flush();
+		currentBlock.clear();
 	}
 	
 	@Override

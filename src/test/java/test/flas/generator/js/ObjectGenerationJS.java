@@ -3,6 +3,7 @@ package test.flas.generator.js;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
@@ -56,7 +57,8 @@ public class ObjectGenerationJS {
 		JSClassCreator clz = context.mock(JSClassCreator.class);
 		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
 		JSMethodCreator eval = context.mock(JSMethodCreator.class);
-		JSExpr obj = context.mock(JSExpr.class);
+		JSExpr obj = context.mock(JSExpr.class, "obj");
+		JSExpr sl = context.mock(JSExpr.class, "sl");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
@@ -64,13 +66,15 @@ public class ObjectGenerationJS {
 			oneOf(ctorBlock).fieldObject("state", "FieldsContainer");
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
 			oneOf(eval).newOf(sn); will(returnValue(obj));
+			oneOf(eval).string("hello"); will(returnValue(sl));
+			oneOf(eval).storeField("s", sl);
 			oneOf(eval).returnObject(obj);
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		StateDefinition sd = new StateDefinition(pos);
-		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "s");
+		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);
 		od.defineState(sd);
 		new Traverser(gen).visitObjectDefn(od);

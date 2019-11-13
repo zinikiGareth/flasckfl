@@ -3,6 +3,7 @@ package org.flasck.flas.parsedForm;
 import java.util.Comparator;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.VarName;
 
@@ -18,14 +19,14 @@ public class StructField implements Locatable {
 	public final boolean accessor;
 	public final TypeReference type;
 	public final String name;
-	public final Object init;
+	public final Expr init;
 	private VarName myName;
 
 	public StructField(InputPosition loc, boolean accessor, TypeReference type, String name) {
 		this(loc, null, accessor, type, name, null);
 	}
 
-	public StructField(InputPosition loc, InputPosition assOp, boolean accessor, TypeReference type, String name, Object init) {
+	public StructField(InputPosition loc, InputPosition assOp, boolean accessor, TypeReference type, String name, Expr init) {
 		this.loc = loc;
 		this.assOp = assOp;
 		this.accessor = accessor;

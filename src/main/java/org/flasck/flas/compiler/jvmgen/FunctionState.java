@@ -23,6 +23,7 @@ public class FunctionState {
 	private int nextVar = 1;
 	private Map<String, AVar> vars = new HashMap<>();
 	private Map<UnitDataDeclaration, IExpr> mocks = new TreeMap<UnitDataDeclaration, IExpr>();
+	public Var evalRet;
 
 	public FunctionState(MethodDefiner meth, IExpr fcx, Var fargs) {
 		this.meth = meth;

@@ -29,10 +29,12 @@ import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
+import org.flasck.flas.compiler.jsgen.form.JSStoreField;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSBlock implements JSBlockCreator {
 	private final List<JSExpr> stmts = new ArrayList<>();
@@ -215,6 +217,11 @@ public class JSBlock implements JSBlockCreator {
 		JSThis ret = new JSThis(field, new JSNew(clz));
 		stmts.add(ret);
 		return ret;
+	}
+
+	@Override
+	public void storeField(String field, JSExpr expr) {
+		stmts.add(new JSStoreField(field, expr));
 	}
 
 	@Override

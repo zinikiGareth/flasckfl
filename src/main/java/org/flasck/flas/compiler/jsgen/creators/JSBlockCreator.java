@@ -3,7 +3,6 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
@@ -38,13 +37,18 @@ public interface JSBlockCreator {
 	JSIfExpr ifTrue(JSExpr ge);
 	void errorNoCase();
 	void errorNoDefaultGuard();
+
+	// main logic statements
+	void storeField(String field, JSExpr expr);
 	JSExpr structArgs(String string, JSExpr... args);
 	JSExpr closure(JSExpr... args);
 	JSExpr curry(int expArgs, JSExpr... args);
 	JSExpr xcurry(int expArgs, List<XCArg> posargs);
 	void returnObject(JSExpr jsExpr);
-	void assertable(JSExpr runner, String assertion, JSExpr... args);
 
+	// unit testing
+	void assertable(JSExpr runner, String assertion, JSExpr... args);
+	
 	// Send the block to disk
 	void write(IndentWriter w);
 }

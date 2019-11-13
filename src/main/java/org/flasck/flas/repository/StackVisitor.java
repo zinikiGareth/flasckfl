@@ -95,6 +95,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitStructField(sf);
 	}
 
+	public void leaveStructField(StructField sf) {
+		top.leaveStructField(sf);
+	}
+
 	public void leaveStructDefn(StructDefn s) {
 		top.leaveStructDefn(s);
 	}

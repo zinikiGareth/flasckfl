@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -114,6 +115,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		ctor.fieldObject("state", "FieldsContainer");
 		JSMethodCreator meth = ctr.createMethod("eval", false);
 		meth.returnObject(meth.newOf(obj.name()));
+		this.block = meth;
+	}
+	
+	@Override
+	public void visitStructField(StructField sf) {
+		if (sf.init != null)
+			sv.push(new ExprGeneratorJS(state, sv, block));
+	}
+
+	@Override
+	public void leaveObjectDefn(ObjectDefn obj) {
+		this.block = null;
 	}
 	
 	@Override

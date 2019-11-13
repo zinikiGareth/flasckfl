@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -73,6 +74,14 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (stack.size() != 1)
 			throw new RuntimeException("I think this is impossible, but obviously not");
 		sv.result(stack.remove(0));
+	}
+
+	@Override
+	public void leaveStructField(StructField sf) {
+		if (stack.size() != 1)
+			throw new RuntimeException("I think this is impossible, but obviously not");
+		block.storeField(sf.name, stack.remove(0));
+		sv.result(null);
 	}
 
 	@Override

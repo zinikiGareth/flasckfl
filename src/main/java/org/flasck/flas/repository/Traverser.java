@@ -170,6 +170,13 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitStructField(StructField sf) {
 		visitor.visitStructField(sf);
+		if (sf.init != null)
+			visitExpr(sf.init, 0);
+		leaveStructField(sf);
+	}
+
+	public void leaveStructField(StructField sf) {
+		visitor.leaveStructField(sf);
 	}
 
 	@Override

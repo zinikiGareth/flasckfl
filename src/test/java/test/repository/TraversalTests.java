@@ -90,6 +90,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).visitStructField(sf);
+			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveStructDefn(s);
 		}});
 		r.traverse(v);
@@ -117,6 +118,27 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).visitStructField(sf);
+			oneOf(v).leaveStructField(sf);
+			oneOf(v).leaveObjectDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traverseObjectDefnWithInitializerFieldsVisitsTheStateEvaluatingTheInitializers() {
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition sd = new StateDefinition(pos);
+		StringLiteral sl = new StringLiteral(pos, "hello");
+		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", sl);
+		sd.addField(sf);
+		s.defineState(sd);
+		r.addEntry(s.name(), s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitObjectDefn(s);
+			oneOf(v).visitStructField(sf);
+			oneOf(v).visitExpr(sl, 0);
+			oneOf(v).visitStringLiteral(sl);
+			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveObjectDefn(s);
 		}});
 		r.traverse(v);

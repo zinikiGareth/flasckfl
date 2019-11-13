@@ -341,4 +341,12 @@ public class ClassGeneration {
 		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("this.state = new test.repo.Obj();\n", sw.toString());
 	}
+	
+	@Test
+	public void weCanStoreValuesInTheFieldsContainer() {
+		JSBlock b = new JSMethod(null, false, "fred");
+		b.storeField("value", b.string("hello"));
+		b.write(new IndentWriter(new PrintWriter(sw)));
+		assertEquals("\nnull.fred = function() {\n  this.state.set('value', 'hello');\n}\n", sw.toString());
+	}
 }

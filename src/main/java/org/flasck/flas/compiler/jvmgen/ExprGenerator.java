@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -121,6 +122,14 @@ public class ExprGenerator extends LeafAdapter implements HSIVisitor, ResultAwar
 		sv.result(meth.returnObject(stack.remove(0)));
 	}
 	
+	@Override
+	public void leaveStructField(StructField sf) {
+		if (stack.size() != 1)
+			throw new RuntimeException("I think this is impossible, but obviously not");
+		IExpr svar = meth.getField(state.evalRet, "state");
+		sv.result(meth.callInterface("void", svar, "set", meth.stringConst(sf.name), stack.get(0)));
+	}
+
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
 		sv.push(new ExprGenerator(state, sv, currentBlock));
