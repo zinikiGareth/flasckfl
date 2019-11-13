@@ -52,6 +52,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import sun.text.normalizer.UTF16;
+
 public class StackVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -80,10 +82,17 @@ public class StackVisitation {
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		fi.bindTree(new HSIArgsTree(0));
 		fn.intro(fi);
-		Type ty = context.mock(Type.class);
+		Type ty = context.mock(Type.class, "ty");
+		Type xx = context.mock(Type.class, "xx");
+		UnifiableType utf = context.mock(UnifiableType.class, "utf");
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
+			allowing(state).requireVarConstraints(pos, "f"); will(returnValue(utf));
+			oneOf(utf).determinedType(ty);
 			oneOf(state).resolveAll(false);
+			oneOf(utf).resolve(false); will(returnValue(xx));
+			oneOf(utf).rebind(xx);
+			oneOf(state).enhanceAllMutualUTs();
 			oneOf(state).resolveAll(true);
 			oneOf(state).bindVarPatternTypes();
 			oneOf(nv).result(null);
@@ -115,8 +124,15 @@ public class StackVisitation {
 		GroupChecker gc = new GroupChecker(errors, repository, nv, state);
 		gc.visitObjectMethod(om);
 		context.assertIsSatisfied();
+		UnifiableType utm = context.mock(UnifiableType.class, "utm");
+		Type xx = context.mock(Type.class, "xx");
 		context.checking(new Expectations() {{
+			allowing(state).requireVarConstraints(pos, "meth"); will(returnValue(utm));
+			oneOf(utm).determinedType(ty);
 			oneOf(state).resolveAll(false);
+			oneOf(utm).resolve(false); will(returnValue(xx));
+			oneOf(utm).rebind(xx);
+			oneOf(state).enhanceAllMutualUTs();
 			oneOf(state).resolveAll(true);
 			oneOf(state).bindVarPatternTypes();
 			oneOf(nv).result(null);

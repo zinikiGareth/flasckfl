@@ -59,6 +59,7 @@ public class GroupConsolidation {
 	@Test
 	public void youCannotMakeAUnionOfNumberAndString() {
 		context.checking(new Expectations() {{
+			oneOf(state).resolveAll(true);
 			oneOf(errors).message(pos, "unable to unify Number, String");
 		}});
 		assertNull(gc.consolidate(new ConsolidateTypes(pos, LoadBuiltins.number, LoadBuiltins.string), true));

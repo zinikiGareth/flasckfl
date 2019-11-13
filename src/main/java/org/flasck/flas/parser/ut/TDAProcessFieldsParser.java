@@ -53,10 +53,6 @@ public class TDAProcessFieldsParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		// while I fundamentally approve of this approach and message, there needs to be an exception for Contracts, which depends on knowing what type it resolves
-		// to, so this test needs to move elsewhere
-//		if (!haveField)
-//			errors.message(location, "at least one field assignment must be specified");
 	}
 
 }

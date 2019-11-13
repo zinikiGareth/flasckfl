@@ -297,14 +297,14 @@ public class RepositoryTests {
 	}
 	
 	@Test
-	public void anyIsIgnoredWhenFindingAUnionInTheRepository() {
+	public void anyIsAllowedWhenFindingAUnionInTheRepositoryIfItIsOneOfTheInputs() {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.number);
 		ms.add(LoadBuiltins.any);
 		Type t = r.findUnionWith(ms);
-		assertEquals(LoadBuiltins.number, t);
+		assertEquals(LoadBuiltins.any, t);
 	}
 	
 	@Test

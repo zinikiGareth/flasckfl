@@ -26,6 +26,7 @@ import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -87,6 +88,9 @@ public class TypeResolution {
 	}
 
 	@Test
+	@Ignore
+	// when I wrote this test, it seemed like what I wanted, but I think now it's an irrelevance
+	// I think what happened in the interim is I took UTs more seriously and didn't just say "oh, resolve that to any"
 	public void anyIsBasicallyIgnoredWhenWeHaveSomethingElseInAConsolidatedType() {
 		gc.visitFunction(fnF);
 		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.any)));
@@ -100,6 +104,7 @@ public class TypeResolution {
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeType(LoadBuiltins.number);
 		gc.result(ut);
+		ut.resolve(true);
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
