@@ -1,0 +1,3 @@
+	object Assignable
+		state
+			String s <- "hello"

@@ -1,0 +1,11 @@
+	test the initial value is "hello"
+		data Assignable x
+		assert (x.s)
+			"hello"
+
+	test that we can make it goodbye
+		data Assignable x
+. somehow invoke a method
+		assert (x.s)
+			"hello"
+	

@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -143,8 +144,30 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
 		this.scope = scopeStack.remove(0);
-		if (udd.expr == null && !(udd.ofType.defn() instanceof ContractDecl) && udd.fields.isEmpty())
-			errors.message(udd.location(), "at least one field assignment must be specified");
+		checkValidityOfUDDConstruction(udd);
+	}
+
+	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {
+		RepositoryEntry defn = udd.ofType.defn();
+		if (defn == null)
+			throw new RuntimeException("the UDD type did not get resolved");
+		if (defn instanceof ContractDecl) {
+			if (udd.expr != null || !udd.fields.isEmpty()) {
+				errors.message(udd.location(), "a contract data declaration may not be initialized");
+			}
+		} else if (defn instanceof StructDefn) {
+			StructDefn sd = (StructDefn) defn;
+			if (udd.expr == null && udd.fields.isEmpty() && sd.argCount() != 0) {
+				errors.message(udd.location(), "either an expression or at least one field assignment must be specified for " + defn.name().uniqueName());
+			}
+		} else if (defn instanceof ObjectDefn) {
+			// I actually think all the combinations are OK
+			// nothing - create the default object
+			// assign - copy from another object (if it's the same type - should we be checking that or do we need to wait for typecheck?)
+			// fields - create the default object, then update
+			// assign + fields - copy from another object & then update fields
+		} else
+			throw new RuntimeException("udd not handled: " + defn.getClass());
 	}
 	
 	@Override
