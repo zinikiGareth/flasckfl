@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.compiler.jsgen.JSStorage;
+import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;

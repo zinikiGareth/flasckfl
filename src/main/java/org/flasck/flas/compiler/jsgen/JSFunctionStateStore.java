@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 
 public class JSFunctionStateStore implements JSFunctionState{

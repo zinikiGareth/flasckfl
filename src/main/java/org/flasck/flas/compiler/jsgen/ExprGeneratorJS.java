@@ -10,6 +10,9 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
+import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
+import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
+import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -28,22 +31,9 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
-import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
-	public static class JSCurryArg implements JSExpr {
-		@Override
-		public String asVar() {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void write(IndentWriter w) {
-			throw new NotImplementedException();
-		}
-	}
-
 	private final JSFunctionState state;
 	private final NestedVisitor sv;
 	private final JSBlockCreator block;

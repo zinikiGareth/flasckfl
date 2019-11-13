@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.flasck.flas.Configuration;
-import org.flasck.flas.compiler.jsgen.JSStorage;
+import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.testrunner.CommonTestRunner;
