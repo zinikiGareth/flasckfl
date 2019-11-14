@@ -67,7 +67,7 @@ public class ObjectGenerationJS {
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
 			oneOf(eval).newOf(sn); will(returnValue(obj));
 			oneOf(eval).string("hello"); will(returnValue(sl));
-			oneOf(eval).storeField("s", sl);
+			oneOf(eval).storeField(obj, "s", sl);
 			oneOf(eval).returnObject(obj);
 		}});
 		StackVisitor gen = new StackVisitor();

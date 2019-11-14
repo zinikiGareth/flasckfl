@@ -297,8 +297,14 @@ Send.prototype.toString = function() {
 
 
 const FieldsContainer = function() {
+	this.dict = {};
 }
-Debug.prototype.toString = function() {
+
+FieldsContainer.prototype.set = function(fld, val) {
+	this.dict[fld] = val;
+}
+
+FieldsContainer.prototype.toString = function() {
 	return "Fields[" + this.msg + "]";
 }
 

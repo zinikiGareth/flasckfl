@@ -345,8 +345,16 @@ public class ClassGeneration {
 	@Test
 	public void weCanStoreValuesInTheFieldsContainer() {
 		JSBlock b = new JSMethod(null, false, "fred");
-		b.storeField("value", b.string("hello"));
+		b.storeField(null, "value", b.string("hello"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("\nnull.fred = function() {\n  this.state.set('value', 'hello');\n}\n", sw.toString());
+	}
+	
+	@Test
+	public void weCanStoreValuesInAForeignFieldsContainer() {
+		JSBlock b = new JSMethod(null, false, "fred");
+		b.storeField(b.boundVar("x"), "value", b.string("hello"));
+		b.write(new IndentWriter(new PrintWriter(sw)));
+		assertEquals("\nnull.fred = function() {\n  x.state.set('value', 'hello');\n}\n", sw.toString());
 	}
 }

@@ -39,7 +39,7 @@ public interface JSBlockCreator {
 	void errorNoDefaultGuard();
 
 	// main logic statements
-	void storeField(String field, JSExpr expr);
+	void storeField(JSExpr inObj, String field, JSExpr value);
 	JSExpr structArgs(String string, JSExpr... args);
 	JSExpr closure(JSExpr... args);
 	JSExpr curry(int expArgs, JSExpr... args);

@@ -34,7 +34,6 @@ import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
 import org.zinutils.bytecode.mock.IndentWriter;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class JSBlock implements JSBlockCreator {
 	private final List<JSExpr> stmts = new ArrayList<>();
@@ -220,8 +219,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void storeField(String field, JSExpr expr) {
-		stmts.add(new JSStoreField(field, expr));
+	public void storeField(JSExpr inObj, String field, JSExpr value) {
+		stmts.add(new JSStoreField(inObj, field, value));
 	}
 
 	@Override

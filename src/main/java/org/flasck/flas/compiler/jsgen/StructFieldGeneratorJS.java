@@ -10,13 +10,14 @@ public class StructFieldGeneratorJS extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final String fieldName;
 	private JSBlockCreator currentBlock;
+	private JSExpr ret;
 
-	public StructFieldGeneratorJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator currentBlock, String fieldName) {
+	public StructFieldGeneratorJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator currentBlock, String fieldName, JSExpr evalRet) {
 		this.sv = sv;
 		this.currentBlock = currentBlock;
 		this.fieldName = fieldName;
 //		this.meth = state.meth;
-//		this.ret = state.evalRet;
+		this.ret = evalRet;
 		sv.push(this);
 		new ExprGeneratorJS(state, sv, currentBlock);
 	}
@@ -25,7 +26,7 @@ public class StructFieldGeneratorJS extends LeafAdapter implements ResultAware {
 	public void result(Object r) {
 //		IExpr svar = meth.getField(ret, "state");
 //		sv.result(meth.callInterface("void", svar, "set", meth.stringConst(fieldName), (IExpr)r));
-		currentBlock.storeField(fieldName, (JSExpr) r);
+		currentBlock.storeField(ret, fieldName, (JSExpr) r);
 		sv.result(null);
 	}
 }

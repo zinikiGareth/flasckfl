@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
@@ -27,6 +28,6 @@ public class StructFieldGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void result(Object r) {
 		IExpr svar = meth.getField(ret, "state");
-		sv.result(meth.callInterface("void", svar, "set", meth.stringConst(fieldName), (IExpr)r));
+		sv.result(meth.callInterface("void", svar, "set", meth.stringConst(fieldName), meth.as((IExpr)r, J.OBJECT)));
 	}
 }

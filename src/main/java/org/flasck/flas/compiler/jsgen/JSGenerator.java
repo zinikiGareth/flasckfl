@@ -122,7 +122,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitStructField(StructField sf) {
 		if (sf.init != null)
-			new StructFieldGeneratorJS(state, sv, block, sf.name);
+			new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
 	}
 
 	@Override

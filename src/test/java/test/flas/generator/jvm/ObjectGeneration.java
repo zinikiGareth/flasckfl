@@ -138,6 +138,7 @@ public class ObjectGeneration {
 			oneOf(eval).assign(eret, mknew); will(returnValue(ass));
 			oneOf(ass).flush(); inSequence(flushes);
 			oneOf(eval).stringConst("hello"); will(returnValue(helloConst));
+			oneOf(eval).as(helloConst, J.OBJECT); will(returnValue(helloConst));
 			oneOf(eval).getField(eret, "state"); will(returnValue(state));
 			oneOf(eval).stringConst("s"); will(returnValue(sarg));
 			oneOf(eval).callInterface("void", state, "set", sarg, helloConst); will(returnValue(setField));

@@ -4,20 +4,26 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSStoreField implements JSExpr {
 
+	private final JSExpr inObj;
 	private final String field;
-	private final JSExpr expr;
+	private final JSExpr value;
 
-	public JSStoreField(String field, JSExpr expr) {
+	public JSStoreField(JSExpr inObj, String field, JSExpr value) {
+		this.inObj = inObj;
 		this.field = field;
-		this.expr = expr;
+		this.value = value;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("this.state.set('");
+		if (inObj == null)
+			w.print("this");
+		else
+			w.print(inObj.asVar());
+		w.print(".state.set('");
 		w.print(field);
 		w.print("', ");
-		w.print(expr.asVar());
+		w.print(value.asVar());
 		w.println(");");
 	}
 
