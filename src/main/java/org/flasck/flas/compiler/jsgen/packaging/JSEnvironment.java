@@ -48,9 +48,9 @@ public class JSEnvironment implements JSStorage {
 	}
 	
 	@Override
-	public JSMethodCreator newFunction(String pkg, String name) {
+	public JSMethodCreator newFunction(String pkg, boolean isPrototype, String name) {
 		JSFile inpkg = getPackage(pkg);
-		JSMethod ret = new JSMethod(pkg, false, name);
+		JSMethod ret = new JSMethod(pkg, isPrototype, name);
 		inpkg.addFunction(ret);
 		return ret;
 	}

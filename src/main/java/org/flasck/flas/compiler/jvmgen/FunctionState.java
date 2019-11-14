@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;

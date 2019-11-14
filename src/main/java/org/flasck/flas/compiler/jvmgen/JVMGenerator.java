@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -26,7 +27,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.NamedType;
@@ -84,6 +84,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private final Map<Slot, IExpr> switchVars = new HashMap<>();
 	private FunctionState fs;
 	private List<IExpr> currentBlock;
+	private ByteCodeSink oaClz;
+	private ObjectAccessor currentOA;
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
@@ -124,9 +126,15 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			this.meth = null;
 			return;
 		}
-		this.clz = bce.newClass(fn.name().javaClassName());
-		this.clz.generateAssociatedSourceFile();
-		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
+		GenericAnnotator ann;
+		if (oaClz != null) {
+			this.clz = oaClz;
+			ann = GenericAnnotator.newMethod(clz, false, currentOA.name().name);
+		} else {
+			this.clz = bce.newClass(fn.name().javaClassName());
+			this.clz.generateAssociatedSourceFile();
+			ann = GenericAnnotator.newMethod(clz, true, "eval");
+		}
 		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
 		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
 		ann.returns(JavaType.object_);
@@ -159,6 +167,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		switchVars.clear();
 		fs = new FunctionState(meth, (Var)fcx, fargs);
 		currentBlock = new ArrayList<IExpr>();
+	}
+	
+	@Override
+	public void visitObjectAccessor(ObjectAccessor oa) {
+		this.currentOA = oa;
+		this.oaClz = bce.get(oa.name().container().javaName());
 	}
 	
 	@Override
@@ -229,6 +243,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
+	}
+	
+	@Override
+	public void leaveObjectAccessor(ObjectAccessor oa) {
+		this.oaClz = null;
 	}
 	
 	@Override

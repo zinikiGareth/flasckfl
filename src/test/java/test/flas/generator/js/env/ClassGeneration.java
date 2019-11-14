@@ -58,7 +58,7 @@ public class ClassGeneration {
 	@Test
 	public void creatingAFunctionIsPossible() {
 		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
-		JSMethodCreator meth = jse.newFunction("test.repo", "f");
+		JSMethodCreator meth = jse.newFunction("test.repo", false, "f");
 		assertNotNull(meth);
 		JSFile f = jse.getPackage("test.repo");
 		assertNotNull(f);
@@ -350,6 +350,14 @@ public class ClassGeneration {
 		assertEquals("\nnull.fred = function() {\n  this.state.set('value', 'hello');\n}\n", sw.toString());
 	}
 	
+	@Test
+	public void weCanLoadValuesFromTheFieldsContainer() {
+		JSBlock b = new JSMethod(null, false, "fred");
+		b.returnObject(b.loadField("value"));
+		b.write(new IndentWriter(new PrintWriter(sw)));
+		assertEquals("\nnull.fred = function() {\n  return this.state.get('value');\n}\n", sw.toString());
+	}
+
 	@Test
 	public void weCanStoreValuesInAForeignFieldsContainer() {
 		JSBlock b = new JSMethod(null, false, "fred");

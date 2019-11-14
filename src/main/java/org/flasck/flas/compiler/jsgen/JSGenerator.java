@@ -17,6 +17,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructField;
@@ -25,7 +26,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.NamedType;
@@ -68,6 +68,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private NestedVisitor sv;
 	private JSFunctionState state;
 	private JSExpr evalRet;
+	private ObjectAccessor currentOA;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -90,15 +91,25 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	@Override
+	public void visitObjectAccessor(ObjectAccessor oa) {
+		this.currentOA = oa;
+	}
+	
+	@Override
+	public void leaveObjectAccessor(ObjectAccessor oa) {
+		this.currentOA = null;
+	}
+	
+	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		switchVars.clear();
 		if (fn.intros().isEmpty()) {
 			this.meth = null;
 			return;
 		}
-		String pkg = fn.name().packageName().jsName();
+		String pkg = fn.name().packageName().jsName();;
 		jse.ensurePackageExists(pkg, fn.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, fn.name().jsName().substring(pkg.length()+1));
+		this.meth = jse.newFunction(pkg, currentOA != null, fn.name().jsName().substring(pkg.length()+1));
 		this.meth.argument("_cxt");
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
@@ -144,7 +155,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, om.name().jsName().substring(pkg.length()+1));
+		this.meth = jse.newFunction(pkg, currentOA != null, om.name().jsName().substring(pkg.length()+1));
 		this.meth.argument("_cxt");
 		for (int i=0;i<om.argCount();i++)
 			this.meth.argument("_" + i);
@@ -247,7 +258,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		UnitTestName clzName = e.name;
-		meth = jse.newFunction(clzName.container().jsName(), clzName.baseName());
+		meth = jse.newFunction(clzName.container().jsName(), currentOA != null, clzName.baseName());
 		this.block = meth;
 		/*JSExpr cxt = */meth.argument("_cxt");
 		runner = meth.argument("runner");

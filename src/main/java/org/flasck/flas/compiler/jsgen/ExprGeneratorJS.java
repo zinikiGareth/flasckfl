@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -101,6 +102,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.boundVar(((VarPattern)defn).var));
 		} else if (defn instanceof TypedPattern) {
 			sv.result(block.boundVar(((TypedPattern)defn).var.var));
+		} else if (defn instanceof StructField) {
+			sv.result(block.loadField(((StructField)defn).name));
 		} else if (defn instanceof CurryArgument) {
 			sv.result(new JSCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {

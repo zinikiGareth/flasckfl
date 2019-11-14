@@ -22,6 +22,7 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSHead;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
+import org.flasck.flas.compiler.jsgen.form.JSLoadField;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
 import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
@@ -221,6 +222,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void storeField(JSExpr inObj, String field, JSExpr value) {
 		stmts.add(new JSStoreField(inObj, field, value));
+	}
+
+	@Override
+	public JSLoadField loadField(String field) {
+		return new JSLoadField(field);
 	}
 
 	@Override

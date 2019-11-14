@@ -127,9 +127,7 @@ public class ExpressionGenerationJS {
 	public void aVarBoundToATypedFunctionArgument() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");
-		TypeReference string = new TypeReference(pos, "String");
-		string.bind(LoadBuiltins.string);
-		expr.bind(new TypedPattern(pos, string, new VarName(pos, nameX, "p")));
+		expr.bind(new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, nameX, "p")));
 		JSExpr r = context.mock(JSExpr.class, "r");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("p"); will(returnValue(r));
@@ -140,6 +138,24 @@ public class ExpressionGenerationJS {
 		new ExprGeneratorJS(state, stackv, meth);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 2);
+	}
+	
+	@Test
+	public void aVarBoundToAStructFieldInsideAnAccessor() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "x");
+		sf.fullName(new VarName(pos, pkg, "x"));
+		expr.bind(sf);
+		JSExpr r = context.mock(JSExpr.class, "r");
+		context.checking(new Expectations() {{
+			oneOf(meth).loadField("x"); will(returnValue(r));
+			oneOf(nv).result(r);
+		}});
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		new ExprGeneratorJS(state, stackv, meth);
+		Traverser gen = new Traverser(stackv).withHSI();
+		gen.visitExpr(expr, 0);
 	}
 	
 	@Test
@@ -241,7 +257,7 @@ public class ExpressionGenerationJS {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", "x"); will(returnValue(meth));
+			oneOf(jss).newFunction("test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
@@ -268,7 +284,7 @@ public class ExpressionGenerationJS {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", "f"); will(returnValue(meth));
+			oneOf(jss).newFunction("test.repo", false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);

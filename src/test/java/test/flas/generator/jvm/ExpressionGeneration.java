@@ -171,6 +171,26 @@ public class ExpressionGeneration {
 	}
 
 	@Test
+	public void aVarBoundToAStructFieldInsideAnAccessor() {
+		UnresolvedVar expr = new UnresolvedVar(pos, "p");
+		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "x");
+		sf.fullName(new VarName(pos, pkg, "x"));
+		expr.bind(sf);
+		IExpr cx = context.mock(IExpr.class, "cx");
+		IExpr state = context.mock(IExpr.class, "state");
+		IExpr sx = context.mock(IExpr.class, "sx");
+		IExpr fld = context.mock(IExpr.class, "fld");
+		context.checking(new Expectations() {{
+			oneOf(meth).getField("state"); will(returnValue(state));
+			oneOf(meth).stringConst("x"); will(returnValue(sx));
+			oneOf(meth).callInterface(J.OBJECT, state, "get", sx); will(returnValue(fld));
+			oneOf(nv).result(fld);
+		}});
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null), sv, block)).withHSI();
+		gen.visitExpr(expr, 0);
+	}
+
+	@Test
 	public void aVarBoundToAUDDBoundToAString() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");

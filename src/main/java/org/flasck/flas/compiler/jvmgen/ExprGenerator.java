@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -121,6 +122,10 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
 			currentBlock.add(meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
 			sv.result(var);
+		} else if (defn instanceof StructField) {
+			StructField sf = (StructField) defn;
+			IExpr ret = meth.callInterface(J.OBJECT, meth.getField("state"), "get", meth.stringConst(sf.name));
+			sv.result(ret);
 		} else if (defn instanceof CurryArgument) {
 			sv.result(new JVMCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {

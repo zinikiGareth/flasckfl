@@ -11,8 +11,7 @@ public interface JSStorage {
 
 	void ensurePackageExists(String filePkg, String pkg);
 
-	// Should we distinguish between methods and functions?
-	JSMethodCreator newFunction(String string, String string2);
+	JSMethodCreator newFunction(String pkg, boolean inPrototype, String name);
 
 	Iterable<File> files();
 
