@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.FunctionCaseDefnMatcher;
+
 public class TDAFunctionGuardedCaseParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errorsMock = context.mock(ErrorReporter.class);

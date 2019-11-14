@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import test.parsing.ExprMatcher;
+import flas.matchers.ExprMatcher;
 
 public class FunctionTraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

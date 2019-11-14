@@ -47,7 +47,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import test.tc3.ApplyMatcher;
+import flas.matchers.ApplyMatcher;
 
 public class ResolverTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

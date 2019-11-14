@@ -19,6 +19,9 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.ContractMethodMatcher;
+import flas.matchers.VarPatternMatcher;
+
 public class TDAContractMethodParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);

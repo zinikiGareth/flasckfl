@@ -20,8 +20,8 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.junit.Test;
 
-import test.parsing.ExprMatcher;
-import test.parsing.TypeReferenceMatcher;
+import flas.matchers.ExprMatcher;
+import flas.matchers.TypeReferenceMatcher;
 
 public class UnitTestBuilding {
 	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");

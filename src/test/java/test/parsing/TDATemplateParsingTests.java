@@ -28,7 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
-import test.flas.testrunner.StringLiteralMatcher;
+import flas.matchers.ExprMatcher;
+import flas.matchers.StringLiteralMatcher;
+import flas.matchers.TemplateBindingMatcher;
 
 public class TDATemplateParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

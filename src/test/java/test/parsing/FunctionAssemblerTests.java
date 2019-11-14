@@ -19,6 +19,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.FunctionDefinitionMatcher;
+
 public class FunctionAssemblerTests {
 	@Rule
 	public JUnitRuleMockery context = new JUnitRuleMockery();

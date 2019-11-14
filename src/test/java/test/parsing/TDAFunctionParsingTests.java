@@ -25,6 +25,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.TypedPatternMatcher;
+import flas.matchers.VarPatternMatcher;
 import test.flas.stories.TDAStoryTests;
 
 public class TDAFunctionParsingTests {

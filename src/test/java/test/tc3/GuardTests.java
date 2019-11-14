@@ -30,6 +30,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
+import flas.matchers.ApplyMatcher;
+
 // These are not really "unit" types because they are covering too much ground
 // To do what they purport to do, you need to cut into the pattern analyzer and see the type constraints that come out using visitInTheTCWay ...
 public class GuardTests {

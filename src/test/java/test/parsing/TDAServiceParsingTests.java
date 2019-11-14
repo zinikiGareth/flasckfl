@@ -28,6 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
+import flas.matchers.HandlerImplementsMatcher;
+import flas.matchers.ServiceDefnMatcher;
+
 public class TDAServiceParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);

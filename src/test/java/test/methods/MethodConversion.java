@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.method.AccessorConvertor;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.method.MessageConvertor;
 import org.flasck.flas.method.MethodConvertor;
@@ -45,10 +46,10 @@ public class MethodConversion {
 	}
 
 	@Test
-	public void weDelegateToLimitedMethodConvertorOnVisitFunction() {
+	public void weDelegateToAccessorConvertorOnVisitFunction() {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
-			oneOf(nv).push(with(any(MethodConvertor.class)));
+			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
 		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv);
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "meth"), 4);
@@ -56,10 +57,10 @@ public class MethodConversion {
 	}
 
 	@Test
-	public void weDelegateToLimitedMethodConvertorOnVisitUnitTestAssert() {
+	public void weDelegateToAccessorConvertorOnVisitUnitTestAssert() {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
-			oneOf(nv).push(with(any(MethodConvertor.class)));
+			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
 		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv);
 		UnitTestAssert e = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "hello"));

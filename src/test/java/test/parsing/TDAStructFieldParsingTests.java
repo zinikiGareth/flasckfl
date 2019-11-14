@@ -16,7 +16,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import test.flas.testrunner.StringLiteralMatcher;
+import flas.matchers.StringLiteralMatcher;
+import flas.matchers.StructFieldMatcher;
 
 public class TDAStructFieldParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

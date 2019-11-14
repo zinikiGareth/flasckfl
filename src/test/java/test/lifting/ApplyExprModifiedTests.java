@@ -26,7 +26,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import test.parsing.ExprMatcher;
+import flas.matchers.ExprMatcher;
 
 public class ApplyExprModifiedTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

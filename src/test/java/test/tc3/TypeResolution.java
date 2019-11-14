@@ -30,6 +30,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.ApplyMatcher;
+import flas.matchers.PolyTypeMatcher;
+
 public class TypeResolution {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);

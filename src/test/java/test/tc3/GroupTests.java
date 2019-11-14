@@ -45,6 +45,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
+import flas.matchers.ApplyMatcher;
+import flas.matchers.ConsolidatedTypeMatcher;
+
 public class GroupTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);

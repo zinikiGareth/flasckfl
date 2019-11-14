@@ -29,7 +29,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import test.parsing.PatternMatcher;
+import flas.matchers.PatternMatcher;
 
 public class InsertorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

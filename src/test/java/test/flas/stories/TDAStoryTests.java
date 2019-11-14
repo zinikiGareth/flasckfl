@@ -11,7 +11,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import test.parsing.TokenizableMatcher;
+import flas.matchers.TokenizableMatcher;
 
 /* This is testing that the whole nesting thing works
  * It is not a test of any parsers.  They are tested separately

@@ -27,6 +27,13 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.FunctionCaseMatcher;
+import flas.matchers.FunctionDefinitionMatcher;
+import flas.matchers.ObjectAccessorMatcher;
+import flas.matchers.ObjectCtorMatcher;
+import flas.matchers.ObjectMethodMatcher;
+import flas.matchers.PatternMatcher;
+
 public class TDAObjectElementParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);

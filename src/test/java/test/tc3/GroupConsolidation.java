@@ -27,6 +27,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.ApplyMatcher;
+import flas.matchers.PolyTypeMatcher;
+
 public class GroupConsolidation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");

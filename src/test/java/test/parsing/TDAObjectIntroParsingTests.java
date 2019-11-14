@@ -18,6 +18,10 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.HandlerImplementsMatcher;
+import flas.matchers.ObjectDefnMatcher;
+import flas.matchers.TokenizableMatcher;
+
 public class TDAObjectIntroParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);

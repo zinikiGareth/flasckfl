@@ -16,7 +16,7 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		sv.push(new MethodConvertor(sv));
+		sv.push(new AccessorConvertor());
 	}
 	
 	@Override
@@ -26,6 +26,6 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert e) {
-		sv.push(new MethodConvertor(sv));
+		sv.push(new AccessorConvertor());
 	}
 }

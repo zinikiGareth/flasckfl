@@ -32,6 +32,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.ApplyMatcher;
+
 public class MethodTests {
 	public interface RAV extends ResultAware, Visitor {	}
 
