@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -333,12 +334,26 @@ public class TraversalTests {
 	public void exprVisitsMakeSend() {
 		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, new SolidName(pkg, "Foo"), "f"), var, 2);
 		context.checking(new Expectations() {{
+			oneOf(v).visitMakeSend(ms);
 			oneOf(v).visitExpr(ms, 0);
 			oneOf(v).visitExpr(var, 0);
 			oneOf(v).visitUnresolvedVar(var, 0);
-			oneOf(v).visitMakeSend(ms);
+			oneOf(v).leaveMakeSend(ms);
 		}});
 		t.visitExpr(ms, 0);
+	}
+
+	@Test
+	public void exprVisitsMakeAcor() {
+		MakeAcor ma = new MakeAcor(pos, FunctionName.contractMethod(pos, new SolidName(pkg, "Foo"), "f"), var, 2);
+		context.checking(new Expectations() {{
+			oneOf(v).visitMakeAcor(ma);
+			oneOf(v).visitExpr(ma, 0);
+			oneOf(v).visitExpr(var, 0);
+			oneOf(v).visitUnresolvedVar(var, 0);
+			oneOf(v).leaveMakeAcor(ma);
+		}});
+		t.visitExpr(ma, 0);
 	}
 
 	@Test

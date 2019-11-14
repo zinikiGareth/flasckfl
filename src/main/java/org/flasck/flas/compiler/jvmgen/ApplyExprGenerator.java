@@ -103,7 +103,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void visitMakeSend(MakeSend expr) {
+	public void leaveMakeSend(MakeSend expr) {
 		IExpr obj = stack.remove(stack.size()-1);
 		// TODO: this should be on MakeSend as a MethodDir
 		String dir = "$Up";

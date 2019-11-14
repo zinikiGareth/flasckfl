@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -225,6 +226,18 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitMakeSend(MakeSend expr) {
 		top.visitMakeSend(expr);
+	}
+
+	public void leaveMakeSend(MakeSend expr) {
+		top.leaveMakeSend(expr);
+	}
+
+	public void visitMakeAcor(MakeAcor expr) {
+		top.visitMakeAcor(expr);
+	}
+	
+	public void leaveMakeAcor(MakeAcor expr) {
+		top.leaveMakeAcor(expr);
 	}
 
 	public void visitUnitTestPackage(UnitTestPackage e) {

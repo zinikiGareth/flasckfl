@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LogicHolder;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -705,6 +706,8 @@ public class Traverser implements Visitor {
 			visitMessages((Messages)expr);
 		else if (expr instanceof MakeSend)
 			visitMakeSend((MakeSend)expr);
+		else if (expr instanceof MakeAcor)
+			visitMakeAcor((MakeAcor)expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
@@ -829,10 +832,28 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitMakeSend(MakeSend expr) {
-		visitExpr(expr.obj, 0);
 		visitor.visitMakeSend(expr);
+		visitExpr(expr.obj, 0);
+		leaveMakeSend(expr);
 	}
 	
+	@Override
+	public void leaveMakeSend(MakeSend expr) {
+		visitor.leaveMakeSend(expr);
+	}
+	
+	@Override
+	public void visitMakeAcor(MakeAcor expr) {
+		visitor.visitMakeAcor(expr);
+		visitExpr(expr.obj, 0);
+		leaveMakeAcor(expr);
+	}
+
+	@Override
+	public void leaveMakeAcor(MakeAcor expr) {
+		visitor.leaveMakeAcor(expr);
+	}
+
 	@Override
 	public void visitUnitTestPackage(UnitTestPackage e) {
 		visitor.visitUnitTestPackage(e);

@@ -16,13 +16,12 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType {
+public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType {
 	private StateDefinition state;
 	private final List<Template> templates = new ArrayList<>();
 	public final List<ObjectCtor> ctors = new ArrayList<>();
 	public final List<ObjectAccessor> acors = new ArrayList<>();
 	public final List<ObjectMethod> methods = new ArrayList<>();
-	private final Scope innerScope;
 	protected final List<PolyType> polys;
 	private final Map<String, Integer> methodCases = new HashMap<>();
 	protected final InputPosition location;
@@ -36,18 +35,20 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable, ObjectEle
 		this.location = location;
 		this.generate = generate;
 		this.polys = polys;
-		this.innerScope = new Scope(tn);
 	}
 
 	public InputPosition location() {
 		return location;
 	}
 
-	@Override
-	public IScope innerScope() {
-		return innerScope;
+	public ObjectAccessor getAccessor(String called) {
+		for (ObjectAccessor ret : acors)
+			if (ret.name().name.equals(called))
+				return ret;
+		
+		return null;
 	}
-
+	
 	@Override
 	public ObjectDefn defineState(StateDefinition state) {
 		if (this.state != null) {

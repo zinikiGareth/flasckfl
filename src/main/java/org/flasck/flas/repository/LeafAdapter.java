@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -268,6 +269,18 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitMakeSend(MakeSend expr) {
+	}
+
+	@Override
+	public void leaveMakeSend(MakeSend expr) {
+	}
+
+	@Override
+	public void visitMakeAcor(MakeAcor expr) {
+	}
+	
+	@Override
+	public void leaveMakeAcor(MakeAcor expr) {
 	}
 
 	@Override

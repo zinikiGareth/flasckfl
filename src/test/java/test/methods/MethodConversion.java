@@ -11,6 +11,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.method.MessageConvertor;
 import org.flasck.flas.method.MethodConvertor;
@@ -29,6 +30,7 @@ public class MethodConversion {
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
+	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void weDelegateToFullMethodConvertorOnVisitObjectMethod() {
@@ -36,7 +38,7 @@ public class MethodConversion {
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
 			oneOf(nv).push(with(any(MethodConvertor.class)));
 		}});
-		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv);
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>());
 		mc.visitObjectMethod(om);
 	}

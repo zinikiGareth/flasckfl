@@ -144,9 +144,13 @@ public class FLASCompiler {
 
 	public boolean convertMethods(ErrorMark mark) {
 		StackVisitor sv = new StackVisitor();
-		new ConvertRepositoryMethods(sv);
+		new ConvertRepositoryMethods(sv, errors);
 		repository.traverseWithMemberFields(sv);
-		return mark.hasMoreNow();
+		if (errors.hasErrors()) {
+			errors.showFromMark(mark, errorWriter, 0);
+			return true;
+		} else
+			return false;
 	}
 	
 	public boolean generateCode(ErrorMark mark, Configuration config) {

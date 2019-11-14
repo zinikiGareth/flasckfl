@@ -16,6 +16,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
@@ -64,6 +65,7 @@ public class PatternAnalysis {
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 	final StackVisitor sv = new StackVisitor();
 	final PatternAnalyzer analyzer = new PatternAnalyzer(null, repo, sv);
+	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void analyzeFunctionWithNoArguments() {
@@ -98,7 +100,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitStandaloneMethod(meth);
 
 		StackVisitor mc = new StackVisitor();
-		new ConvertRepositoryMethods(mc);
+		new ConvertRepositoryMethods(mc, errors);
 		new Traverser(mc).visitStandaloneMethod(meth);
 		
 		List<FunctionIntro> conv = meth.converted();

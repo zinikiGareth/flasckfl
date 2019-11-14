@@ -1,6 +1,7 @@
 package test.methods;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -13,6 +14,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.method.AccessorConvertor;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -34,6 +36,7 @@ public class AccessorConversion {
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
+	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void weDelegateToAccessorConvertorOnVisitFunction() {
@@ -41,7 +44,7 @@ public class AccessorConversion {
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv);
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "meth"), 4);
 		mc.visitFunction(fn);
 	}
@@ -52,16 +55,21 @@ public class AccessorConversion {
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv);
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
 		UnitTestAssert e = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "hello"));
 		mc.visitUnitTestAssert(e);
 	}
 
 	@Test
 	public void weCanConvertASimpleFieldAccessorOnAUDD() {
-		AccessorConvertor ac = new AccessorConvertor();
-		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "ObjDefn"), true, new ArrayList<>());
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "acor"), 0);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(AccessorConvertor.class)));
+		}});
+		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		SolidName on = new SolidName(pkg, "ObjDefn");
+		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
+		FunctionName an = FunctionName.function(pos, on, "acor");
+		FunctionDefinition fn = new FunctionDefinition(an, 0);
 		ObjectAccessor acor = new ObjectAccessor(fn);
 		od.addAccessor(acor);
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
@@ -76,6 +84,35 @@ public class AccessorConversion {
 		assertNotNull(conv);
 		assertTrue(conv instanceof MakeAcor);
 		MakeAcor ma = (MakeAcor) conv;
+		assertEquals(0, ma.nargs);
+		assertEquals(an, ma.acorMeth);
 		assertEquals(from, ma.obj);
+	}
+
+	@Test
+	public void itsAnErrorForTheAccessorToNotHaveBeenDefined() {
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(AccessorConvertor.class)));
+		}});
+		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		SolidName on = new SolidName(pkg, "ObjDefn");
+		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
+		FunctionName an = FunctionName.function(pos, on, "acor");
+		FunctionDefinition fn = new FunctionDefinition(an, 0);
+		ObjectAccessor acor = new ObjectAccessor(fn);
+		od.addAccessor(acor);
+		TypeReference tr = new TypeReference(pos, "ObjDefn");
+		tr.bind(od);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "udd"), null);
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		from.bind(udd);
+		
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "there is no accessor 'notThere' on test.repo.ObjDefn");
+		}});
+		
+		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "notThere"));
+		ac.visitMemberExpr(expr);
+		assertFalse(expr.isConverted());
 	}
 }

@@ -33,6 +33,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
@@ -128,6 +129,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveObjectMethod(ObjectMethod meth);
 		void leaveStandaloneMethod(StandaloneMethod meth);
 		void visitMakeSend(MakeSend expr);
+		void leaveMakeSend(MakeSend expr);
+		void visitMakeAcor(MakeAcor expr);
+		void leaveMakeAcor(MakeAcor expr);
 		void visitAssertExpr(boolean isValue, Expr e);
 		void leaveAssertExpr(boolean isValue, Expr e);
 		void visitConstPattern(ConstPattern p, boolean isNested);
