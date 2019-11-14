@@ -29,6 +29,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
@@ -457,7 +458,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		if (meth == null)
 			throw new RuntimeException("Global UDDs are not yet handled");
-		RepositoryEntry objty = udd.ofType.defn();
+		NamedType objty = udd.ofType.defn();
 		if (objty instanceof ContractDecl) {
 			// TODO: presumably this "$Up" is a hack and we need to create $Down as well and store both in the mock contract
 			IExpr mc = meth.callVirtual(J.OBJECT, this.runner, "mockContract", meth.classConst(objty.name().javaName() + "$Up"));

@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -21,6 +22,8 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.Type;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final ErrorReporter errors;
@@ -84,6 +87,42 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
+	public void visitStructDefn(StructDefn sd) {
+		scopeStack.add(0, scope);
+		this.scope = sd.name();
+	}
+	
+	@Override
+	public void visitObjectDefn(ObjectDefn sd) {
+		scopeStack.add(0, scope);
+		this.scope = sd.name();
+	}
+	
+	@Override
+	public void visitStructField(StructField sf) {
+		String name = sf.type.name();
+		RepositoryEntry defn = find(scope, name);
+		if (defn == null) {
+			errors.message(sf.location(), "cannot find type '" + name + "'");
+			return;
+		} else if (!(defn instanceof Type)) {
+			errors.message(sf.location(), name + " is not a type defn");
+			return;
+		} else
+			sf.type.bind((NamedType) defn);
+	}
+	
+	@Override
+	public void leaveStructDefn(StructDefn sd) {
+		this.scope = scopeStack.remove(0);
+	}
+
+	@Override
+	public void leaveObjectDefn(ObjectDefn sd) {
+		this.scope = scopeStack.remove(0);
+	}
+
+	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = find(scope, var.var);
 		if (defn == null) {
@@ -109,8 +148,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (defn == null) {
 			errors.message(var.location(), "cannot resolve '" + var.name() + "'");
 			return;
+		} else if (!(defn instanceof NamedType)) {
+			errors.message(var.location(), defn.name().uniqueName() + " is not a type");
+			return;
 		}
-		var.bind(defn);
+		
+		var.bind((NamedType) defn);
 	}
 	
 	@Override
@@ -148,7 +191,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {
-		RepositoryEntry defn = udd.ofType.defn();
+		NamedType defn = udd.ofType.defn();
 		if (defn == null)
 			throw new RuntimeException("the UDD type did not get resolved");
 		if (defn instanceof ContractDecl) {

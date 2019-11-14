@@ -18,6 +18,7 @@ public class ConsumeStructFields implements StructFieldConsumer {
 	public void addField(StructField sf) {
 		sf.fullName(namer.nameVar(sf.loc, sf.name));
 		sd.addField(sf);
+		consumer.newStructField(sf);
 	}
 
 }

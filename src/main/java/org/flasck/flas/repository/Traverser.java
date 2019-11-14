@@ -39,6 +39,7 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PatternsHolder;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -151,9 +152,9 @@ public class Traverser implements Visitor {
 			UnitDataDeclaration udd = (UnitDataDeclaration) e;
 			if (udd.isTopLevel())
 				visitUnitDataDeclaration(udd);
-		} else if (e instanceof VarPattern || e instanceof TypedPattern)
-			; // do nothing: it is just in the repo for lookup purposes
-		else if (e instanceof CurryArgument)
+		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof StructField || e instanceof PolyType) {
+			; // do nothing: these are just in the repo for lookup purposes
+		} else if (e instanceof CurryArgument)
 			; // do nothing; just for resolution
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());

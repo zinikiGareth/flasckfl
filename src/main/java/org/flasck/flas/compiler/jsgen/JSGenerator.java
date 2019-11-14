@@ -28,6 +28,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
@@ -257,7 +258,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		if (meth == null)
 			throw new RuntimeException("Global UDDs are not yet handled");
-		RepositoryEntry objty = udd.ofType.defn();
+		NamedType objty = udd.ofType.defn();
 		if (objty instanceof ContractDecl) {
 			JSExpr mock = meth.mockContract((SolidName) objty.name());
 			state.addMock(udd, mock);

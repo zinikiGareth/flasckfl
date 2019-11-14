@@ -11,6 +11,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -127,6 +128,20 @@ public class ExpressionVisitation {
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		tc.result(tyPlus);
+	}
+
+	@Test
+	public void aStructFieldReturnsItsType() {
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		FunctionName func = FunctionName.function(pos, null, "f");
+		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "x");
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
+		}});
+		UnresolvedVar uv = new UnresolvedVar(pos, "x");
+		uv.bind(sf);
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
+		tc.visitUnresolvedVar(uv, 0);
 	}
 
 	@Test

@@ -1,21 +1,36 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class PolyType implements Locatable, Type, Comparable<PolyType> {
+public class PolyType implements RepositoryEntry, Locatable, NamedType, Comparable<PolyType> {
 	private InputPosition location;
-	private String name;
+	private String shortName;
+	private NameOfThing fullName;
 
 	public PolyType(InputPosition location, String name) {
 		this.location = location;
-		this.name = name;
+		this.shortName = name;
 	}
 
-	public String name() {
-		return name;
+	public void containedIn(NameOfThing container) {
+		this.fullName = new SolidName(container, shortName);
+	}
+	
+	public String shortName() {
+		return shortName;
+	}
+	
+	public NameOfThing name() {
+		return fullName;
 	}
 
 	public InputPosition location() {
@@ -24,12 +39,12 @@ public class PolyType implements Locatable, Type, Comparable<PolyType> {
 
 	@Override
 	public String toString() {
-		return name;
+		return shortName;
 	}
 
 	@Override
 	public String signature() {
-		return name;
+		return shortName;
 	}
 
 	@Override
@@ -50,6 +65,11 @@ public class PolyType implements Locatable, Type, Comparable<PolyType> {
 
 	@Override
 	public int compareTo(PolyType o) {
-		return this.name.compareTo(o.name);
+		return this.shortName.compareTo(o.shortName);
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println("PolyType[" + this.fullName.uniqueName() + "]");
 	}
 }

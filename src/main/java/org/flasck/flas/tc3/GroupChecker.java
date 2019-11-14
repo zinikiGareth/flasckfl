@@ -68,22 +68,24 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		
 		// Then we can resolve all the UTs
 		state.resolveAll(false);
-		
-		// We may need to re-consolidate UTs associated with functions
-		for (Entry<TypeBinder, Type> m : memberTypes.entrySet()) {
-			String name = m.getKey().name().uniqueName();
-			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
-			ut.rebind(consolidate(ut.resolve(false), false));
-		}
-		state.enhanceAllMutualUTs();
-		
+//		state.enhanceAllMutualUTs();
+
 		/* For debugging of TCSs
+		System.out.println(grp);
 		for (UnifiableType ut : state.unifiableTypes()) {
 			TypeConstraintSet tcs = (TypeConstraintSet)ut;
 			System.out.println(tcs.asTCS() + "=> " + tcs.debugInfo());
 		}
 		*/
 
+		// We may need to re-consolidate UTs associated with functions
+		for (Entry<TypeBinder, Type> m : memberTypes.entrySet()) {
+			String name = m.getKey().name().uniqueName();
+			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
+			ut.rebind(consolidate(ut.resolve(false), false));
+		}
+
+		state.enhanceAllMutualUTs();
 		state.resolveAll(true);
 		
 		// Then we can bind the types

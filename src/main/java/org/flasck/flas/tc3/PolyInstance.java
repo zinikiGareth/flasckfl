@@ -8,7 +8,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class PolyInstance implements Type, RepositoryEntry {
+public class PolyInstance implements NamedType, RepositoryEntry {
 	private final NamedType ty;
 	private final List<Type> polys;
 

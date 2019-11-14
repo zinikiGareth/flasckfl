@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class MemberExprConvertor extends LeafAdapter {
@@ -46,7 +47,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private ContractDecl resolveContract(RepositoryEntry defn) {
 		if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) defn;
-			RepositoryEntry dt = tp.type.defn();
+			NamedType dt = tp.type.defn();
 			if (dt instanceof ContractDecl)
 				return (ContractDecl) tp.type.defn();
 			else

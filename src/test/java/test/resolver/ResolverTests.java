@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -23,9 +24,14 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -68,7 +74,7 @@ public class ResolverTests {
 	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
-	private final ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+//	private final ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
 	private final ContractDecl ht = new ContractDecl(pos, pos, new SolidName(pkg, "HandlerType"));
 	private final RepositoryReader rr = context.mock(RepositoryReader.class);
 
@@ -230,6 +236,67 @@ public class ResolverTests {
 	}
 
 	@Test
+	public void weCanResolveATypeNameInAStructField() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Nested.String"); will(returnValue(null));
+			oneOf(rr).get("test.repo.String"); will(returnValue(null));
+			oneOf(rr).get("String"); will(returnValue(LoadBuiltins.string));
+		}});
+		SolidName str = new SolidName(pkg, "MyStruct");
+		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, str, true, new ArrayList<>());
+		StructField fld = new StructField(pos, false, LoadBuiltins.stringTR, "fld");
+		s.addField(fld);
+
+		Resolver r = new RepositoryResolver(errors, rr);
+		Traverser t = new Traverser(r);
+		r.currentScope(nested);
+		t.visitStructField(fld);
+		assertEquals(LoadBuiltins.string, fld.type.defn());
+	}
+
+	@Test
+	public void weCanResolveAPolyTypeNameInAStructField() {
+		PolyType pa = new PolyType(pos, "A");
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.MyStruct.A"); will(returnValue(pa));
+		}});
+		TypeReference pv = new TypeReference(pos, "A");
+		pv.bind(pa);
+		SolidName str = new SolidName(pkg, "MyStruct");
+		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, str, true, Arrays.asList(pa));
+		StructField fld = new StructField(pos, false, pv , "fld");
+		s.addField(fld);
+
+		Resolver r = new RepositoryResolver(errors, rr);
+		Traverser t = new Traverser(r);
+		r.currentScope(pkg);
+		t.visitStructDefn(s);
+		assertEquals(pa, fld.type.defn());
+	}
+
+	@Test
+	public void weCanResolveAPolyTypeNameInAnObjectStateDecl() {
+		PolyType pa = new PolyType(pos, "A");
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.MyObject.A"); will(returnValue(pa));
+		}});
+		TypeReference pv = new TypeReference(pos, "A");
+		pv.bind(pa);
+		SolidName str = new SolidName(pkg, "MyObject");
+		ObjectDefn od = new ObjectDefn(pos, pos, str, true, Arrays.asList(pa));
+		StateDefinition sd = new StateDefinition(pos);
+		StructField fld = new StructField(pos, false, pv , "fld");
+		sd.addField(fld);
+		od.defineState(sd);
+
+		Resolver r = new RepositoryResolver(errors, rr);
+		Traverser t = new Traverser(r);
+		r.currentScope(pkg);
+		t.visitObjectDefn(od);
+		assertEquals(pa, fld.type.defn());
+	}
+
+	@Test
 	public void testWeCanResolveTypeReferences() {
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Hello"); will(returnValue(type));
@@ -275,7 +342,7 @@ public class ResolverTests {
 	}
 
 	@Test
-	public void testWeDoNotYetTryToResolveMemberNames() {
+	public void testWeDoNotTryToResolveMemberNamesAtThisPhase() {
 		UnresolvedVar from = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "m");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
@@ -288,5 +355,32 @@ public class ResolverTests {
 		new Traverser(r).visitMemberExpr(dot);
 		assertEquals(vp, from.defn());
 		assertNull(fld.defn());
+	}
+
+	@Test
+	public void testAcorsCanGetHoldOfObjectStateVariables() {
+		SolidName obj = new SolidName(pkg, "MyObject");
+		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
+		StateDefinition state = new StateDefinition(pos);
+		StructField fld = new StructField(pos, false, LoadBuiltins.stringTR, "fld");
+		state.addField(fld);
+		s.defineState(state);
+		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2);
+		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
+		acorFn.intro(fi);
+		fi.functionCase(new FunctionCaseDefn(null, new UnresolvedVar(pos, "fld")));
+		ObjectAccessor oa = new ObjectAccessor(acorFn);
+		s.acors.add(oa);
+
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.MyObject.acor._1.fld"); will(returnValue(null));
+			oneOf(rr).get("test.repo.MyObject.acor.fld"); will(returnValue(null));
+			oneOf(rr).get("test.repo.MyObject.fld"); will(returnValue(fld));
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		r.currentScope(pkg);
+		new Traverser(r).visitObjectAccessor(oa);
+//		assertEquals(vp, from.defn());
+//		assertNull(fld.defn());
 	}
 }

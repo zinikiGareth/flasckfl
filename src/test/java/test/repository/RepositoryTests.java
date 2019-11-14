@@ -31,6 +31,7 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -48,6 +49,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
+import org.jmock.Expectations;
 import org.junit.Test;
 
 public class RepositoryTests {
@@ -185,6 +187,16 @@ public class RepositoryTests {
 	}
 
 	@Test
+	public void aPolyObjectDefnAddsItsVars() {
+		Repository r = new Repository();
+		PolyType pa = new PolyType(pos, "A");
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, Arrays.asList(pa));
+		r.newObject(od);
+		assertEquals(pa, r.get("test.repo.Obj.A"));
+	}
+
+
+	@Test
 	public void canAddAnObjectAcorToTheRepository() {
 		Repository r = new Repository();
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
@@ -220,6 +232,15 @@ public class RepositoryTests {
 	}
 
 	@Test
+	public void aPolyStructDefnAddsItsVars() {
+		Repository r = new Repository();
+		PolyType pa = new PolyType(pos, "A");
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructName"), true, Arrays.asList(pa));
+		r.newStruct(sd);
+		assertEquals(pa, r.get("test.repo.StructName.A"));
+	}
+
+	@Test
 	public void canAddAUnionDefnToTheRepository() {
 		Repository r = new Repository();
 		UnionTypeDefn ud = new UnionTypeDefn(pos, true, new SolidName(pkg, "MyUnion"), new ArrayList<>());
@@ -244,7 +265,7 @@ public class RepositoryTests {
 	}
 
 	@Test
-	public void structFieldsAreGivenNames() {
+	public void structFieldsAreGivenNamesAndAddedToTheRepo() {
 		Repository r = new Repository();
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "TheStruct"), true, new ArrayList<>());
 		ConsumeStructFields csf = new ConsumeStructFields(r, (loc, t) -> new VarName(loc, sd.name(), t), sd);
@@ -252,6 +273,7 @@ public class RepositoryTests {
 		final StructField sf = new StructField(pos, true, new TypeReference(pos, "A"), "x");
 		csf.addField(sf);
 		assertEquals("test.repo.TheStruct.x", sf.name().uniqueName());
+		assertEquals(sf, r.get("test.repo.TheStruct.x"));
 	}
 
 	@Test

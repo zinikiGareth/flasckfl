@@ -1180,7 +1180,7 @@ public class Rewriter implements CodeGenRegistry {
 		List<PolyVar> pts = new ArrayList<>();
 		if (polys != null)
 			for (PolyType r : polys)
-				pts.add(new PolyVar(r.location(), r.name()));
+				pts.add(new PolyVar(r.location(), r.shortName()));
 		return pts;
 	}
 

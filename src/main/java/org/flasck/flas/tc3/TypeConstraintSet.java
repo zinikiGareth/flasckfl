@@ -257,6 +257,8 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void canBeType(Type ofType) {
+		if (ofType == null)
+			throw new NotImplementedException("types cannot be null");
 		types.add(ofType);
 	}
 	
@@ -278,6 +280,8 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void determinedType(Type ofType) {
+		if (ofType == null)
+			throw new NotImplementedException("types cannot be null");
 		if (ofType instanceof Apply) {
 			Apply a = (Apply) ofType;
 			addApplication(a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));

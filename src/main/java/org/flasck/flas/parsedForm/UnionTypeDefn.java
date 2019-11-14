@@ -95,9 +95,9 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		if (!polys.isEmpty()) {
 			List<Type> bound = new ArrayList<>();
 			for (PolyType pt : this.polyvars) {
-				if (polys.contains(pt.name())) {
+				if (polys.contains(pt.shortName())) {
 					// TODO: I think we need to (recursively) unify these ...
-					bound.add(polys.get(pt.name()).iterator().next());
+					bound.add(polys.get(pt.shortName()).iterator().next());
 				} else
 					bound.add(LoadBuiltins.any);
 			}

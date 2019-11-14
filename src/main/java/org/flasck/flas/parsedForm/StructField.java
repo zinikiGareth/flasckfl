@@ -1,13 +1,15 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.Comparator;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class StructField implements Locatable {
+public class StructField implements Locatable, RepositoryEntry {
 	public static Comparator<StructField> nameComparator = new Comparator<StructField>() {
 		@Override
 		public int compare(StructField o1, StructField o2) {
@@ -54,5 +56,10 @@ public class StructField implements Locatable {
 	
 	public VarName name() {
 		return myName;
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println("StructField[" + myName.uniqueName() + "]");
 	}
 }

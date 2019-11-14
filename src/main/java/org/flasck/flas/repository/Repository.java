@@ -40,6 +40,7 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -205,7 +206,15 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public void newStruct(StructDefn sd) {
+		sd.completePolyNames();
 		addEntry(sd.name(), sd);
+		for (PolyType p : sd.polys())
+			addEntry(p.name(), p);
+	}
+
+	@Override
+	public void newStructField(StructField sf) {
+		addEntry(sf.name(), sf);
 	}
 
 	@Override
@@ -220,7 +229,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public void newObject(ObjectDefn od) {
+		od.completePolyNames();
 		addEntry(od.name(), od);
+		for (PolyType p : od.polys())
+			addEntry(p.name(), p);
 	}
 
 	@Override

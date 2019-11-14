@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -20,6 +21,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	public static class ExprResult {
@@ -95,6 +97,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		} else if (var.defn() instanceof TypedPattern) {
 			TypedPattern vp = (TypedPattern) var.defn();
 			announce((Type) vp.type.defn());
+		} else if (var.defn() instanceof StructField) {
+			StructField sf = (StructField) var.defn();
+			announce((Type) sf.type.defn());
 		} else if (var.defn() instanceof CurryArgument) {
 			announce((Type) new CurryArgumentType(((Locatable)var.defn()).location()));
 		} else
@@ -128,6 +133,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void announce(Type ty) {
+		if (ty == null)
+			throw new NotImplementedException("Cannot announce that a type is null");
 		if (guardPos != null)
 			nv.result(new GuardResult(guardPos, ty));
 		else

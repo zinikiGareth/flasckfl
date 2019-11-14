@@ -48,6 +48,11 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 		
 		return null;
 	}
+
+	public void completePolyNames() {
+		for (PolyType pa : polys)
+			pa.containedIn(name);
+	}
 	
 	@Override
 	public ObjectDefn defineState(StateDefinition state) {

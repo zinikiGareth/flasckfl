@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -91,11 +92,25 @@ public class TraversalTests {
 		StructDefn s = new StructDefn(pos, FieldsType.STRUCT, "foo.bar", "MyStruct", true);
 		StructField sf = new StructField(pos, false, new TypeReference(pos, "X", new ArrayList<>()), "x");
 		s.addField(sf);
+		sf.fullName(new VarName(sf.loc,s.name, sf.name));
 		r.addEntry(s.name(), s);
+		r.addEntry(sf.name(), sf);
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).visitStructField(sf);
 			oneOf(v).leaveStructField(sf);
+			oneOf(v).leaveStructDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traverserDoesNotVisitPolyTypes() {
+		PolyType pa = new PolyType(pos, "A");
+		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "MyStruct"), true, Arrays.asList(pa));
+		r.newStruct(s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitStructDefn(s);
 			oneOf(v).leaveStructDefn(s);
 		}});
 		r.traverse(v);
