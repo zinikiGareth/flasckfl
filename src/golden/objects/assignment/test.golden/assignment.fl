@@ -1,6 +1,8 @@
 	object Assignable
 		state
 			String s <- "hello"
-			
+
+		acor gets = s
+					
 .		method message (String msg)
 .			s <- msg

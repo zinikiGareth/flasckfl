@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -218,6 +219,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void newObject(ObjectDefn od) {
 		addEntry(od.name(), od);
+	}
+
+	@Override
+	public void newObjectAccessor(ObjectAccessor oa) {
+		addEntry(oa.name(), oa);
 	}
 
 	public void unitTestPackage(UnitTestPackage pkg) {

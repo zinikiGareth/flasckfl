@@ -1,8 +1,11 @@
 package org.flasck.flas.parsedForm;
 
-import org.flasck.flas.commonBase.names.FunctionName;
+import java.io.PrintWriter;
 
-public class ObjectAccessor {
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.repository.RepositoryEntry;
+
+public class ObjectAccessor implements RepositoryEntry {
 	private final FunctionDefinition fn;
 
 	public ObjectAccessor(FunctionDefinition fn) {
@@ -19,6 +22,11 @@ public class ObjectAccessor {
 
 	@Override
 	public String toString() {
-		return "Some ObjectAccessor";
+		return "ObjectAccessor[" + fn + "]";
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.print(toString());
 	}
 }

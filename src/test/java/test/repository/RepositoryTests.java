@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -181,6 +182,15 @@ public class RepositoryTests {
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
 		r.newObject(od);
 		assertEquals(od, r.get("test.repo.Obj"));
+	}
+
+	@Test
+	public void canAddAnObjectAcorToTheRepository() {
+		Repository r = new Repository();
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
+		ObjectAccessor oa = new ObjectAccessor(new FunctionDefinition(FunctionName.function(pos, od.name(), "acor"), 2));
+		r.newObjectAccessor(oa);
+		assertEquals(oa, r.get("test.repo.Obj.acor"));
 	}
 
 	@Test

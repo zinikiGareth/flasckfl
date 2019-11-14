@@ -1,6 +1,6 @@
 	test the initial value is "hello"
 		data Assignable x
-		assert (x.s)
+		assert (x.gets)
 			"hello"
 
 .	test that we can make it goodbye

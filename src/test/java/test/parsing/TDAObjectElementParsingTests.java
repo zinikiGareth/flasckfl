@@ -109,7 +109,7 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveAccessorMethods() { // Correct me if I'm wrong, but these are really functions, because they don't do state updates
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(topLevel).functionDefn(with(FunctionDefinitionMatcher.named("MyObject.myname")));
+			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
@@ -124,7 +124,7 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(topLevel).functionDefn(with(FunctionDefinitionMatcher.named("MyObject.myname")));
+			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 			oneOf(topLevel).argument(with(any(TypedPattern.class)));
 		}});
@@ -139,9 +139,9 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(topLevel).functionDefn(with(FunctionDefinitionMatcher.named("MyObject.myname")));
+			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
-			oneOf(topLevel).functionDefn(with(FunctionDefinitionMatcher.named("MyObject.othername")));
+			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
