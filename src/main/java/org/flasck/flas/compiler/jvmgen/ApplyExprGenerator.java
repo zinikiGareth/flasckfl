@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator.XCArg;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -45,74 +46,59 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
-		if (!expr.args.isEmpty()) {
+		if (expr.args.isEmpty()) { // if it's a single-arg apply, just return the value
+			if (stack.size() != 1)
+				throw new NotImplementedException("stack size is " + stack.size() + "; expected 1");
+			sv.result(stack.remove(0));
+		} else {
 			Object fn = expr.fn;
-			int expArgs = 0;
-			WithTypeSignature defn = null;
+			WithTypeSignature defn;
 			if (fn instanceof UnresolvedVar) {
 				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
-				expArgs = ((WithTypeSignature)defn).argCount();
 			} else if (fn instanceof UnresolvedOperator) {
 				UnresolvedOperator op = (UnresolvedOperator) fn;
 				defn = (WithTypeSignature) op.defn();
-				expArgs = ((WithTypeSignature)defn).argCount();
 			} else if (fn instanceof MakeSend) {
 				defn = (MakeSend) fn;
-				expArgs = defn.argCount();
 			} else
 				throw new NotImplementedException("Cannot handle " + fn.getClass());
-			makeClosure(defn, expr.args.size(), expArgs);
+			makeClosure(defn, defn.argCount());
 		}
-		if (stack.size() != 1)
-			throw new NotImplementedException("stack size is " + stack.size() + "; expected 1");
-		sv.result(stack.remove(0));
 	}
 
 	@Override
 	public void leaveMessages(Messages msgs) {
-		List<IExpr> provided = new ArrayList<IExpr>();
-		int k = stack.size();
-		for (int i=0;i<k;i++)
-			provided.add(stack.remove(0));
-		IExpr args = meth.arrayOf(J.OBJECT, provided);
+		IExpr args = meth.arrayOf(J.OBJECT, stack);
 		IExpr call = meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args);
 		Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 		currentBlock.add(meth.assign(v, call));
 		sv.result(v);
 	}
 	
-	private void makeClosure(WithTypeSignature defn, int depth, int expArgs) {
-		List<IExpr> provided = new ArrayList<IExpr>();
-		int k = stack.size()-depth;
-		for (int i=0;i<depth;i++)
-			provided.add(stack.remove(k));
-		IExpr args = meth.arrayOf(J.OBJECT, provided);
+	private void makeClosure(WithTypeSignature defn, int expArgs) {
+		IExpr fn = stack.remove(0);
+		IExpr args = meth.arrayOf(J.OBJECT, stack);
 		if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
-			stack.remove(0); // should be "null", I think
 			IExpr call = meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));
-			stack.add(v);
-		} else if (defn instanceof StructDefn && !provided.isEmpty()) {
-			stack.remove(0); // should be "null", I think
+			sv.result(v);
+		} else if (defn instanceof StructDefn && !stack.isEmpty()) {
 			// do the creation immediately
-			// Note that we didn't push anything onto the stack earlier ...
-			// TODO: I think we need to cover the currying case separately ...
 			IExpr ctor = meth.callStatic(defn.name().javaClassName(), J.OBJECT, "eval", fcx, args);
-			stack.add(ctor);
+			sv.result(ctor);
 		} else {
-			IExpr fn = stack.remove(stack.size()-1);
-			List<XCArg> xcs = checkExtendedCurry(provided);
+			List<XCArg> xcs = checkExtendedCurry(stack);
 			IExpr call;
 			if (xcs != null) {
 				call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "xcurry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), meth.arrayOf(J.OBJECT, asjvm(xcs)));
-			} else if (depth < expArgs)
+			} else if (stack.size() < expArgs)
 				call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
 			else
 				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));
-			stack.add(v);
+			sv.result(v);
 		}
 	}
 

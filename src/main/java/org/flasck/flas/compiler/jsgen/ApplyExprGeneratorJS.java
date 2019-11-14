@@ -41,8 +41,12 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
-		Object fn = expr.fn;
-		if (!expr.args.isEmpty()) { // only if it's a real apply
+		if (expr.args.isEmpty()) { // if it's a single-arg apply, just return the value
+			if (stack.size() != 1)
+				throw new NotImplementedException("stack should now have size 1");
+			sv.result(stack.remove(0));
+		} else {
+			Object fn = expr.fn;
 			WithTypeSignature defn;
 			if (fn instanceof UnresolvedVar)
 				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
@@ -52,61 +56,48 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				defn = (MakeSend) fn;
 			else
 				throw new NotImplementedException("unknown operator type: " + fn.getClass());
-			makeClosure(defn, expr.args.size(), defn.argCount());
+			makeClosure(defn, defn.argCount());
 		}
-		if (stack.size() != 1)
-			throw new NotImplementedException("stack should now have size 1");
-		sv.result(stack.remove(0));
 	}
 
 	@Override
 	public void leaveMessages(Messages msgs) {
-		JSExpr[] args = new JSExpr[stack.size()];
-		int k = stack.size();
-		for (int i=0;i<k;i++)
-			args[i] = stack.remove(0);
-		sv.result(block.makeArray(args));
+		sv.result(block.makeArray(stack.toArray(new JSExpr[stack.size()])));
 	}
 
-	private void makeClosure(WithTypeSignature defn, int depth, int expArgs) {
+	// TODO: I think in these first two cases we should also check for explicit currying
+	// There certainly isn't implicit currying on the first one which is an Array of unspecified length
+	private void makeClosure(WithTypeSignature defn, int expArgs) {
 		if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
 			stack.remove(0); // should be "null", I think
-			JSExpr[] args = new JSExpr[depth];
-			int k = stack.size()-depth;
-			for (int i=0;i<depth;i++)
-				args[i] = stack.remove(k);
-			stack.add(block.makeArray(args));
-		} else if (defn instanceof StructDefn && depth > 0) {
+			sv.result(block.makeArray(stack.toArray(new JSExpr[stack.size()])));
+		} else if (defn instanceof StructDefn && stack.size() > 1) {
 			// do the creation immediately
-			// Note that we didn't push anything onto the stack earlier ...
-			// TODO: I think we need to cover the currying case separately ...
 			stack.remove(0); // should be "null", I think
-			JSExpr[] args = new JSExpr[depth];
-			int k = stack.size()-depth;
-			for (int i=0;i<depth;i++)
-				args[i] = stack.remove(k);
 			String fn = defn.name().jsName();
 			if (fn.equals("Error"))
 				fn = "FLError";
-			stack.add(block.structArgs(fn, args));
+			sv.result(block.structArgs(fn, stack.toArray(new JSExpr[stack.size()])));
 		} else {
-			JSExpr[] args = new JSExpr[depth+1];
+			JSExpr[] args = new JSExpr[stack.size()];
 			List<XCArg> xcs = new ArrayList<>();
-			int k = stack.size()-depth-1;
-			for (int i=0;i<=depth;i++) {
-				JSExpr arg = stack.remove(k);
-				if (!(arg instanceof JSCurryArg))
-					xcs.add(new XCArg(i, arg));
-				args[i] = arg;
+			int k = 0;
+			boolean explicit = false;
+			for (JSExpr arg : stack) {
+				if (arg instanceof JSCurryArg)
+					explicit = true;
+				else
+					xcs.add(new XCArg(k, arg));
+				args[k++] = arg;
 			}
 			JSExpr call;
-			if (xcs.size() < depth+1)
+			if (explicit)
 				call = block.xcurry(expArgs, xcs);
-			else if (depth < expArgs)
+			else if (stack.size() < expArgs+1)
 				call = block.curry(expArgs, args);
 			else
 				call = block.closure(args);
-			stack.add(call);
+			sv.result(call);
 		}
 	}
 
