@@ -9,15 +9,18 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.method.MessageConvertor;
 import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.repository.NestedVisitor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -31,7 +34,7 @@ public class MethodConversion {
 	private final PackageName pkg = new PackageName("test.repo");
 
 	@Test
-	public void weDelegateToMethodConvertorOnVisitObjectMethod() {
+	public void weDelegateToFullMethodConvertorOnVisitObjectMethod() {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
 			oneOf(nv).push(with(any(MethodConvertor.class)));
@@ -39,6 +42,28 @@ public class MethodConversion {
 		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv);
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>());
 		mc.visitObjectMethod(om);
+	}
+
+	@Test
+	public void weDelegateToLimitedMethodConvertorOnVisitFunction() {
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
+			oneOf(nv).push(with(any(MethodConvertor.class)));
+		}});
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "meth"), 4);
+		mc.visitFunction(fn);
+	}
+
+	@Test
+	public void weDelegateToLimitedMethodConvertorOnVisitUnitTestAssert() {
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
+			oneOf(nv).push(with(any(MethodConvertor.class)));
+		}});
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv);
+		UnitTestAssert e = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "hello"));
+		mc.visitUnitTestAssert(e);
 	}
 
 	@Test
