@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
@@ -330,6 +331,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveObjectDefn(ObjectDefn obj) {
 		top.leaveObjectDefn(obj);
+	}
+
+	public void visitObjectAccessor(ObjectAccessor oa) {
+		top.visitObjectAccessor(oa);
+	}
+
+	public void leaveObjectAccessor(ObjectAccessor oa) {
+		top.leaveObjectAccessor(oa);
 	}
 
 	public void visitObjectMethod(ObjectMethod e) {

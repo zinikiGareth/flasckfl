@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
@@ -85,6 +86,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
+	}
+
+	@Override
+	public void visitObjectAccessor(ObjectAccessor oa) {
+	}
+
+	@Override
+	public void leaveObjectAccessor(ObjectAccessor oa) {
 	}
 
 	@Override

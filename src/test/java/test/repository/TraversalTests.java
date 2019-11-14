@@ -18,9 +18,12 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -152,10 +155,33 @@ public class TraversalTests {
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>());
 		s.methods.add(meth);
+		ObjectAccessor oa = new ObjectAccessor(new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2));
+		s.acors.add(oa);
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).leaveObjectDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traverseObjectAccessorFromTheRepository() {
+		SolidName obj = new SolidName(pkg, "MyObject");
+		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
+		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2);
+		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
+		acorFn.intro(fi);
+		ObjectAccessor oa = new ObjectAccessor(acorFn);
+		s.acors.add(oa);
+		r.addEntry(oa.name(), oa);
+		context.checking(new Expectations() {{
+			oneOf(v).visitObjectAccessor(oa);
+			oneOf(v).visitFunction(oa.function());
+			oneOf(v).visitFunctionIntro(fi);
+			oneOf(v).leaveFunctionIntro(fi);
+			oneOf(v).leaveFunction(oa.function());
+			oneOf(v).leaveObjectAccessor(oa);
 		}});
 		r.traverse(v);
 	}

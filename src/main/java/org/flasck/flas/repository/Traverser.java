@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PatternsHolder;
@@ -134,6 +135,9 @@ public class Traverser implements Visitor {
 		} else if (e instanceof ObjectMethod) {
 			if (functionOrder == null)
 				visitObjectMethod((ObjectMethod)e);
+		} else if (e instanceof ObjectAccessor) {
+			if (functionOrder == null)
+				visitObjectAccessor((ObjectAccessor)e);
 		} else if (e instanceof StandaloneMethod) {
 			if (functionOrder == null)
 				visitStandaloneMethod((StandaloneMethod)e);
@@ -208,6 +212,18 @@ public class Traverser implements Visitor {
 
 	public void leaveObjectDefn(ObjectDefn obj) {
 		visitor.leaveObjectDefn(obj);
+	}
+
+	@Override
+	public void visitObjectAccessor(ObjectAccessor oa) {
+		visitor.visitObjectAccessor(oa);
+		visitFunction(oa.function());
+		leaveObjectAccessor(oa);
+	}
+
+	@Override
+	public void leaveObjectAccessor(ObjectAccessor oa) {
+		visitor.leaveObjectAccessor(oa);
 	}
 
 	@Override
