@@ -685,7 +685,7 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitExpr(Expr expr, int nargs) {
-		if (!isNeedingEnhancement(expr, nargs))
+		if (!isNeedingEnhancement(expr, nargs) && !convertedMemberExpr(expr))
 			visitor.visitExpr(expr, nargs);
 		if (expr == null)
 			return;
@@ -719,6 +719,10 @@ public class Traverser implements Visitor {
 		return false;
 	}
 
+	private boolean convertedMemberExpr(Expr expr) {
+		return wantHSI && expr instanceof MemberExpr;
+	}
+	
 	public void visitApplyExpr(ApplyExpr expr) {
 		ApplyExpr ae = expr;
 		Expr fn = (Expr) expr.fn;
@@ -758,11 +762,19 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
-		visitor.visitMemberExpr(expr);
-		visitExpr(expr.from, 0);
-		if (visitMemberFields)
-			visitExpr(expr.fld, 0);
-		leaveMemberExpr(expr);
+		if (wantHSI) {
+			// generate the converted code
+			if (expr.isConverted())
+				visitExpr(expr.converted(), 0);
+			else
+				throw new NotImplementedException("You need to convert this expression");
+		} else {
+			visitor.visitMemberExpr(expr);
+			visitExpr(expr.from, 0);
+			if (visitMemberFields)
+				visitExpr(expr.fld, 0);
+			leaveMemberExpr(expr);
+		}
 	}
 
 	@Override

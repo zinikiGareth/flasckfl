@@ -1,12 +1,14 @@
 package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
 public class MemberExpr implements Expr {
 	public final InputPosition location;
 	public final Expr from;
 	public final Expr fld;
+	private Expr conversion;
 
 	public MemberExpr(InputPosition location, Expr from, Expr fld) {
 		if (location == null)
@@ -42,5 +44,19 @@ public class MemberExpr implements Expr {
 		ret.append(fld);
 		ret.append(")");
 		return ret.toString();
+	}
+
+	public void conversion(Expr expr) {
+		this.conversion = expr;		
+	}
+
+	public boolean isConverted() {
+		return this.conversion != null;
+	}
+
+	public Expr converted() {
+		if (conversion == null)
+			throw new NotImplementedException("there is no converted expression");
+		return conversion;
 	}
 }

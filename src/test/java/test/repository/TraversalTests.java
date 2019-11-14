@@ -46,6 +46,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -289,6 +290,30 @@ public class TraversalTests {
 		t.visitExpr(me, 0);
 	}
 
+	@Test(expected=NotImplementedException.class)
+	public void memberExprInHSIThrowsExceptionIfNotConverted() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+		context.checking(new Expectations() {{
+		}});
+		t.withHSI().visitExpr(me, 0);
+	}
+
+	@Test
+	public void convertedMemberExprInHSIVisitsThatInstead() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+		StringLiteral sl = new StringLiteral(pos, "hello");
+		me.conversion(sl);
+		context.checking(new Expectations() {{
+			oneOf(v).visitExpr(sl, 0);
+			oneOf(v).visitStringLiteral(sl);
+		}});
+		t.withHSI().visitExpr(me, 0);
+	}
+
 	@Test
 	public void exprVisitsMessages() {
 		Messages msgs = new Messages(pos, Arrays.asList(number, simpleExpr));
@@ -412,7 +437,7 @@ public class TraversalTests {
 	}
 
 	@Test
-	public void traverseUnitTestDataDefinitionWithExor() {
+	public void traverseUnitTestDataDefinitionWithExpr() {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
 		UnitTestName name = new UnitTestName(utfn, 1);
 		UnitTestCase utc = new UnitTestCase(name, "do something");
