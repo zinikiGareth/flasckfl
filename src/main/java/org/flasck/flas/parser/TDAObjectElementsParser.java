@@ -98,25 +98,8 @@ public class TDAObjectElementsParser implements TDAParsing {
 		case "acor": {
 			if (currParser != null)
 				currParser.scopeComplete(location);
-			FunctionAssembler fa = new FunctionAssembler(errors, topLevel);
-			FunctionIntroConsumer consumer = new FunctionIntroConsumer() {
-				@Override
-				public void functionIntro(FunctionIntro o) {
-					fa.functionIntro(o);
-					builder.addAccessor(new ObjectAccessor());
-				}
-
-				@Override
-				public void moveOn() {
-					fa.moveOn();
-				}
-
-				@Override
-				public int nextCaseNumber(FunctionName fname) {
-					return fa.nextCaseNumber(fname);
-				}
-			};
-			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), consumer, topLevel);
+			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, f -> builder.addAccessor(new ObjectAccessor(f))));
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel);
 			currParser = fcp;
 			return fcp.tryParsing(toks);
 		}

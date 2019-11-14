@@ -5,9 +5,9 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 public class ObjectAccessorMatcher extends TypeSafeMatcher<ObjectAccessor> {
-	private final FunctionCaseMatcher fn;
+	private final FunctionDefinitionMatcher fn;
 
-	private ObjectAccessorMatcher(FunctionCaseMatcher fn) {
+	private ObjectAccessorMatcher(FunctionDefinitionMatcher fn) {
 		this.fn = fn;
 	}
 
@@ -20,10 +20,10 @@ public class ObjectAccessorMatcher extends TypeSafeMatcher<ObjectAccessor> {
 
 	@Override
 	protected boolean matchesSafely(ObjectAccessor oa) {
-		return true;
+		return fn.matches(oa.function());
 	}
 
-	public static ObjectAccessorMatcher of(FunctionCaseMatcher fn) {
+	public static ObjectAccessorMatcher of(FunctionDefinitionMatcher fn) {
 		return new ObjectAccessorMatcher(fn);
 	}
 
