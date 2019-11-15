@@ -157,6 +157,9 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 	public boolean incorporates(Type other) {
 		if (this == other)
 			return true;
+		while (other instanceof PolyInstance) {
+			other = ((PolyInstance)other).struct();
+		}
 		for (TypeReference ty : cases)
 			if (ty.defn() == other)
 				return true;

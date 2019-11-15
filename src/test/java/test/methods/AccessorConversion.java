@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.method.AccessorConvertor;
 import org.flasck.flas.method.ConvertRepositoryMethods;
@@ -22,6 +23,7 @@ import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -58,6 +60,35 @@ public class AccessorConversion {
 		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
 		UnitTestAssert e = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "hello"));
 		mc.visitUnitTestAssert(e);
+	}
+
+	@Test
+	public void weCanConvertASimpleFieldAccessorOnATypedPattern() {
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(AccessorConvertor.class)));
+		}});
+		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		SolidName on = new SolidName(pkg, "ObjDefn");
+		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
+		FunctionName an = FunctionName.function(pos, on, "acor");
+		FunctionDefinition fn = new FunctionDefinition(an, 0);
+		ObjectAccessor acor = new ObjectAccessor(fn);
+		od.addAccessor(acor);
+		TypeReference tr = new TypeReference(pos, "ObjDefn");
+		tr.bind(od);
+		TypedPattern tp = new TypedPattern(pos, tr, new VarName(pos, acor.name(), "obj"));
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		from.bind(tp);
+		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "acor"));
+		ac.visitMemberExpr(expr);
+		assertTrue(expr.isConverted());
+		Expr conv = expr.converted();
+		assertNotNull(conv);
+		assertTrue(conv instanceof MakeAcor);
+		MakeAcor ma = (MakeAcor) conv;
+		assertEquals(0, ma.nargs);
+		assertEquals(an, ma.acorMeth);
+		assertEquals(from, ma.obj);
 	}
 
 	@Test
