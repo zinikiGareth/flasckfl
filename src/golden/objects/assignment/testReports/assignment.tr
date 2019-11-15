@@ -1,2 +1,4 @@
 JVM PASS the initial value is "hello"
+JVM PASS we can pass arguments to accessors
 JS PASS the initial value is "hello"
+JS PASS we can pass arguments to accessors

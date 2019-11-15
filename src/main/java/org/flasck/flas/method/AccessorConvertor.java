@@ -51,6 +51,6 @@ public class AccessorConvertor extends LeafAdapter {
 		if (acc == null)
 			errors.message(meth.location, "there is no accessor '" + meth.var + "' on " + od.name().uniqueName());
 		else
-			expr.conversion(new MakeAcor(null, acc.name(), expr.from, 0));
+			expr.conversion(new MakeAcor(null, acc.name(), expr.from, acc.function().argCount()));
 	}
 }

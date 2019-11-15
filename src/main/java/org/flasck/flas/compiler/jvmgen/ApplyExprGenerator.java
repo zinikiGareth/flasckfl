@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
-import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator.XCArg;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -60,6 +59,8 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 			} else if (fn instanceof UnresolvedOperator) {
 				UnresolvedOperator op = (UnresolvedOperator) fn;
 				defn = (WithTypeSignature) op.defn();
+			} else if (fn instanceof MakeSend) {
+				defn = (MakeSend) fn;
 			} else if (fn instanceof MemberExpr) {
 				fn = ((MemberExpr)fn).converted();
 				if (fn instanceof MakeSend)

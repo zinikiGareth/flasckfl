@@ -121,6 +121,35 @@ public class AccessorConversion {
 	}
 
 	@Test
+	public void anAccessorMayNeedArgs() {
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(AccessorConvertor.class)));
+		}});
+		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		SolidName on = new SolidName(pkg, "ObjDefn");
+		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
+		FunctionName an = FunctionName.function(pos, on, "acor");
+		FunctionDefinition fn = new FunctionDefinition(an, 3);
+		ObjectAccessor acor = new ObjectAccessor(fn);
+		od.addAccessor(acor);
+		TypeReference tr = new TypeReference(pos, "ObjDefn");
+		tr.bind(od);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "udd"), null);
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		from.bind(udd);
+		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "acor"));
+		ac.visitMemberExpr(expr);
+		assertTrue(expr.isConverted());
+		Expr conv = expr.converted();
+		assertNotNull(conv);
+		assertTrue(conv instanceof MakeAcor);
+		MakeAcor ma = (MakeAcor) conv;
+		assertEquals(3, ma.nargs);
+		assertEquals(an, ma.acorMeth);
+		assertEquals(from, ma.obj);
+	}
+	
+	@Test
 	public void itsAnErrorForTheAccessorToNotHaveBeenDefined() {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));

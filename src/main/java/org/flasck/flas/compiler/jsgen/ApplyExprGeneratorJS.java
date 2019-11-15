@@ -54,6 +54,8 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
 			else if (fn instanceof UnresolvedOperator)
 				defn = (WithTypeSignature) ((UnresolvedOperator)fn).defn();
+			else if (fn instanceof MakeSend)
+				defn = (MakeSend) fn;
 			else if (fn instanceof MemberExpr) {
 				fn = ((MemberExpr)fn).converted();
 				if (fn instanceof MakeSend)

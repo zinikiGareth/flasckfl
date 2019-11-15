@@ -268,6 +268,13 @@ FLBuiltin.concat = function(_cxt, a, b) {
 	return a + b;
 }
 
+FLBuiltin.strlen = function(_cxt, str) {
+	str = _cxt.head(str);
+	if (typeof(str) != "string")
+		throw new FLError("not a string");
+	return str.length;
+}
+
 FLBuiltin.isEqual = function(_cxt, a, b) {
 	a = _cxt.full(a);
 	b = _cxt.full(b);
