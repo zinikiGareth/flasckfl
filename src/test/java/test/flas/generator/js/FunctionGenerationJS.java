@@ -46,7 +46,7 @@ public class FunctionGenerationJS {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction("test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).literal("42"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
@@ -75,7 +75,7 @@ public class FunctionGenerationJS {
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction("test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
@@ -108,7 +108,7 @@ public class FunctionGenerationJS {
 		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", false, "f"); will(returnValue(meth));
+			oneOf(jss).newFunction("test.repo", "test.repo", false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 			oneOf(meth).bindVar("_0", "x");
@@ -146,7 +146,7 @@ public class FunctionGenerationJS {
 		Sequence ordering = context.sequence("ordering");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", false, "f"); will(returnValue(meth)); inSequence(ordering);
+			oneOf(jss).newFunction("test.repo", "test.repo", false, "f"); will(returnValue(meth)); inSequence(ordering);
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
 			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
 			oneOf(meth).argument("_1"); will(returnValue(slot1)); inSequence(ordering);
@@ -191,7 +191,7 @@ public class FunctionGenerationJS {
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction("test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
@@ -616,7 +616,7 @@ public class FunctionGenerationJS {
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		context.checking(new Expectations() {{
 			exactly(2).of(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction("test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
@@ -627,7 +627,7 @@ public class FunctionGenerationJS {
 			
 			oneOf(notNil).errorNoCase();
 
-			oneOf(jss).newFunction("test.repo", false, "y"); will(returnValue(meth));
+			oneOf(jss).newFunction("test.repo", "test.repo", false, "y"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 

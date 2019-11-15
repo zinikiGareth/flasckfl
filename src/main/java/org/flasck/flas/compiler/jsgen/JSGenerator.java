@@ -107,9 +107,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth = null;
 			return;
 		}
-		String pkg = fn.name().packageName().jsName();;
-		jse.ensurePackageExists(pkg, fn.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, currentOA != null, fn.name().jsName().substring(pkg.length()+1));
+		String pkg = fn.name().packageName().jsName();
+		String cxName = fn.name().inContext.jsName();
+		jse.ensurePackageExists(pkg, cxName);
+		if (currentOA == null)
+			this.meth = jse.newFunction(pkg, cxName, false, fn.name().name);
+		else
+			this.meth = jse.newFunction(pkg, cxName, true, fn.name().name);
+			
 		this.meth.argument("_cxt");
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
@@ -155,7 +160,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, currentOA != null, om.name().jsName().substring(pkg.length()+1));
+		this.meth = jse.newFunction(pkg, pkg, currentOA != null, om.name().jsName().substring(pkg.length()+1));
 		this.meth.argument("_cxt");
 		for (int i=0;i<om.argCount();i++)
 			this.meth.argument("_" + i);
@@ -258,7 +263,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		UnitTestName clzName = e.name;
-		meth = jse.newFunction(clzName.container().jsName(), currentOA != null, clzName.baseName());
+		if (currentOA != null)
+			throw new NotImplementedException("I don't think you can nest a unit test in an accessor");
+		String pkg = clzName.container().jsName();
+		this.meth = jse.newFunction(pkg, pkg, false, clzName.baseName());
 		this.block = meth;
 		/*JSExpr cxt = */meth.argument("_cxt");
 		runner = meth.argument("runner");

@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator.XCArg;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -109,6 +110,15 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 		String dir = "$Up";
 		IExpr mksend = meth.callInterface(J.OBJECT, fcx, "mksend", meth.classConst(expr.sendMeth.inContext.javaClassName() + dir), meth.stringConst(expr.sendMeth.name), obj, meth.intConst(expr.nargs));
 		stack.add(mksend);
+	}
+	
+	@Override
+	public void leaveMakeAcor(MakeAcor expr) {
+		if (stack.size() != 1)
+			throw new NotImplementedException(); // I don't understand this case
+		IExpr obj = stack.remove(0);
+		IExpr mkacor = meth.callInterface(J.OBJECT, fcx, "mkacor", meth.classConst(expr.acorMeth.inContext.javaClassName()), meth.stringConst(expr.acorMeth.name), obj, meth.intConst(expr.nargs));
+		sv.result(mkacor);
 	}
 	
 	private List<XCArg> checkExtendedCurry(List<IExpr> provided) {

@@ -11,7 +11,7 @@ public interface JSStorage {
 
 	void ensurePackageExists(String filePkg, String pkg);
 
-	JSMethodCreator newFunction(String pkg, boolean inPrototype, String name);
+	JSMethodCreator newFunction(String pkg, String cxt, boolean inPrototype, String name);
 
 	Iterable<File> files();
 

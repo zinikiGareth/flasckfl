@@ -6,6 +6,6 @@
 .	test that we can make it goodbye
 .		data Assignable x
 .		send x.message "goodbye"
-.		assert (x.s)
+.		assert (x.gets)
 .			"goodbye"
 	

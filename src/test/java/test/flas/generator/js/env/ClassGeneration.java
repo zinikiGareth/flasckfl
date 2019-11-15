@@ -58,7 +58,7 @@ public class ClassGeneration {
 	@Test
 	public void creatingAFunctionIsPossible() {
 		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
-		JSMethodCreator meth = jse.newFunction("test.repo", false, "f");
+		JSMethodCreator meth = jse.newFunction("test.repo", "test.repo", false, "f");
 		assertNotNull(meth);
 		JSFile f = jse.getPackage("test.repo");
 		assertNotNull(f);

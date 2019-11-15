@@ -10,6 +10,7 @@ import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -37,6 +38,11 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			throw new NullPointerException("Cannot have a null block");
 		this.block = block;
 		nv.push(this);
+	}
+	
+	@Override
+	public void visitMakeAcor(MakeAcor expr) {
+		new ApplyExprGeneratorJS(state, sv, block);
 	}
 
 	@Override

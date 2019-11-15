@@ -9,6 +9,7 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -107,6 +108,14 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 		stack.add(block.makeSend(expr.sendMeth.jsName(), obj, expr.nargs));
 	}
 
+	@Override
+	public void leaveMakeAcor(MakeAcor expr) {
+		if (stack.size() != 1)
+			throw new NotImplementedException(); // I don't think I understand this case, yet
+		JSExpr obj = stack.remove(0);
+		sv.result(block.makeAcor(expr.acorMeth.jsPName(), obj, expr.nargs));
+	}
+	
 	@Override
 	public void result(Object r) {
 		stack.add((JSExpr)r);

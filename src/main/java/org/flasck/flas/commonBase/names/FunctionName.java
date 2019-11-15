@@ -167,7 +167,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	}
 
 	public String jsPName() {
-		return inContext.jsUName() + ".prototype." + name;
+		return inContext.jsName() + ".prototype." + name;
 	}
 
 	public String javaNameAsNestedClass() {

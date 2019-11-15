@@ -24,6 +24,7 @@ import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSLoadField;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
+import org.flasck.flas.compiler.jsgen.form.JSMakeAcor;
 import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
@@ -129,6 +130,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr makeSend(String sendMeth, JSExpr obj, int nargs) {
 		JSLocal ma = new JSLocal(creating, new JSMakeSend(sendMeth, obj, nargs));
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
+	public JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs) {
+		JSLocal ma = new JSLocal(creating, new JSMakeAcor(acorMeth, obj, nargs));
 		stmts.add(ma);
 		return ma;
 	}

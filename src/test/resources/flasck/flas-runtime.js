@@ -1,4 +1,5 @@
-const FLClosure = function(fn, args) {
+const FLClosure = function(obj, fn, args) {
+	this.obj = obj;
 	this.fn = fn;
 	args.splice(0,0, null);
 	this.args = args;
@@ -6,7 +7,7 @@ const FLClosure = function(fn, args) {
 
 FLClosure.prototype.eval = function(_cxt) {
 	this.args[0] = _cxt;
-	this.val = this.fn.apply(null, this.args);
+	this.val = this.fn.apply(this.obj, this.args);
 	return this.val;
 }
 
@@ -20,7 +21,8 @@ FLClosure.prototype.toString = function() {
 }
 
 
-const FLCurry = function(fn, reqd, xcs) {
+const FLCurry = function(obj, fn, reqd, xcs) {
+	this.obj = obj;
 	this.fn = fn;
 	this.args = [null];
 	this.missing = [];
@@ -42,7 +44,7 @@ FLCurry.prototype.apply = function(_, args) {
 		this.args[m] = args[i];
 	}
 	if (this.missing.length == 0) {
-		return this.fn.apply(null, this.args);
+		return this.fn.apply(this.obj, this.args);
 	} else {
 		return this;
 	}
@@ -53,7 +55,10 @@ FLCurry.prototype.toString = function() {
 }
 
 
-const FLMakeSend = function(meth, obj, args) {
+
+// I think if nargs == 0, this wants to return a closure of meth on obj
+// if nargs > 0, it wants to return a curry
+const FLMakeSend = function(meth, obj, nargs) {
 }
 
 
@@ -62,7 +67,11 @@ const FLContext = function(env) {
 }
 
 FLContext.prototype.closure = function(fn, ...args) {
-	return new FLClosure(fn, args);
+	return new FLClosure(null, fn, args);
+}
+
+FLContext.prototype.oclosure = function(fn, obj, ...args) {
+	return new FLClosure(obj, fn, args);
 }
 
 FLContext.prototype.curry = function(reqd, fn, ...args) {
@@ -70,7 +79,7 @@ FLContext.prototype.curry = function(reqd, fn, ...args) {
 	for (var i=0;i<args.length;i++) {
 		xcs[i+1] = args[i];
 	}
-	return new FLCurry(fn, reqd, xcs);
+	return new FLCurry(null, fn, reqd, xcs);
 }
 
 FLContext.prototype.xcurry = function(reqd, ...args) {
@@ -82,7 +91,7 @@ FLContext.prototype.xcurry = function(reqd, ...args) {
 		else
 			xcs[args[i]] = args[i+1];
 	}
-	return new FLCurry(fn, reqd, xcs);
+	return new FLCurry(null, fn, reqd, xcs);
 }
 
 FLContext.prototype.array = function(...args) {
@@ -91,6 +100,13 @@ FLContext.prototype.array = function(...args) {
 
 FLContext.prototype.mksend = function(meth, obj, cnt) {
 	return new FLMakeSend(meth, obj, cnt);
+}
+
+FLContext.prototype.mkacor = function(meth, obj, cnt) {
+	if (cnt == 0)
+		return new FLClosure(obj, meth, []);
+	else
+		return new FLCurry(obj, meth, cnt, {});
 }
 
 FLContext.prototype.head = function(obj) {
@@ -302,6 +318,10 @@ const FieldsContainer = function() {
 
 FieldsContainer.prototype.set = function(fld, val) {
 	this.dict[fld] = val;
+}
+
+FieldsContainer.prototype.get = function(fld) {
+	return this.dict[fld];
 }
 
 FieldsContainer.prototype.toString = function() {
