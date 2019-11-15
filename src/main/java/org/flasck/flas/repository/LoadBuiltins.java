@@ -1,6 +1,8 @@
 package org.flasck.flas.repository;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -9,6 +11,7 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -20,6 +23,8 @@ import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
 	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
+
+	public static Set<StandaloneDefn> allFunctions = new TreeSet<>();
 	
 	// Type References used here ...
 	private static final TypeReference polyATR = new TypeReference(pos, "A");
@@ -71,6 +76,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2);
 	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2);
 	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1);
+	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1);
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2);
 
 	// This is a weird thing but it seems to fit best here
@@ -117,7 +123,17 @@ public class LoadBuiltins {
 		mul.bindType(new Apply(number, number, number));
 		div.bindType(new Apply(number, number, number));
 		length.bindType(new Apply(list, number));
+		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
+		
+		// add all current functions to list for dependency resolution
+		allFunctions.add(plus);
+		allFunctions.add(minus);
+		allFunctions.add(mul);
+		allFunctions.add(div);
+		allFunctions.add(length);
+		allFunctions.add(strlen);
+		allFunctions.add(concat);
 	}
 	
 	public static void applyTo(Repository repository) {
@@ -147,6 +163,7 @@ public class LoadBuiltins {
 		repository.functionDefn(mul);
 		repository.functionDefn(div);
 		repository.functionDefn(length);
+		repository.functionDefn(strlen);
 		repository.functionDefn(concat);
 
 		// not yet thought through for backward compatibility
@@ -167,5 +184,4 @@ public class LoadBuiltins {
 		StructDefn id = new StructDefn(pos, FieldsType.STRUCT, null, "Id", false);
 		repository.newStruct(id);
 	}
-
 }

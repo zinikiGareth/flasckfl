@@ -3,6 +3,7 @@
 			String s <- "hello"
 
 		acor gets = s
+		acor lengthPlus k = (strlen s) + k
 					
 .		method message (String msg)
 .			s <- msg

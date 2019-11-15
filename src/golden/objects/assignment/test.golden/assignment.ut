@@ -3,6 +3,11 @@
 		assert (x.gets)
 			"hello"
 
+	test we can pass arguments to accessors
+		data Assignable x
+		assert (x.lengthPlus 4)
+			9
+
 .	test that we can make it goodbye
 .		data Assignable x
 .		send x.message "goodbye"

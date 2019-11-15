@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 
 public class RepositoryLifter extends LeafAdapter implements Lifter {
@@ -116,7 +117,8 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		for (StandaloneDefn f : dull)
 			ordering.add(new DependencyGroup(f));
 
-		Set<StandaloneDefn> processedFns = new TreeSet<>(dull);
+		Set<StandaloneDefn> processedFns = new TreeSet<>(LoadBuiltins.allFunctions);
+		processedFns.addAll(dull);
 		Set<StandaloneDefn> remainingFns = new TreeSet<>(interesting);
 		while (!remainingFns.isEmpty()) {
 			boolean handled = false;
@@ -174,7 +176,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	private boolean checkFn(StandaloneDefn f, Set<StandaloneDefn> closure) {
 		for (StandaloneDefn g : closure) {
 			NestedVarReader nv = g.nestedVars();
-			if (nv.dependsOn(f))
+			if (nv != null && nv.dependsOn(f))
 				return true;
 		}
 		return false;
@@ -185,11 +187,13 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 			return;
 		closure.add(fn);
 		NestedVarReader nv = fn.nestedVars();
-		Set<StandaloneDefn> added = new TreeSet<>(nv.references());
-		added.removeAll(resolved);
-		added.removeAll(closure);
-		for (StandaloneDefn o : added) {
-			buildMaximalTransitiveClosure(o, resolved, closure);
+		if (nv != null) {
+			Set<StandaloneDefn> added = new TreeSet<>(nv.references());
+			added.removeAll(resolved);
+			added.removeAll(closure);
+			for (StandaloneDefn o : added) {
+				buildMaximalTransitiveClosure(o, resolved, closure);
+			}
 		}
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -22,8 +23,10 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -826,13 +829,16 @@ public class ExpressionGeneration {
 	@Test
 	public void applyingADotOperator() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
 		TypeReference ctr = new TypeReference(pos, "Ctr");
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
 		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 2);
-		ApplyExpr ae = new ApplyExpr(pos, ms, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
+		me.conversion(ms);
+		ApplyExpr ae = new ApplyExpr(pos, me, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
@@ -863,6 +869,110 @@ public class ExpressionGeneration {
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(2); will(returnValue(i2));
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));
+			oneOf(meth).aNull(); will(returnValue(n1));
+			oneOf(meth).intConst(42); will(returnValue(n1));
+			oneOf(meth).box(n1); will(returnValue(n1));
+			oneOf(meth).castTo(n1, "java.lang.Double"); will(returnValue(n1));
+			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", n1, n1); will(returnValue(n1));
+			oneOf(meth).stringConst("hello"); will(returnValue(shello));
+			oneOf(meth).arrayOf(J.OBJECT, Arrays.asList(n1, shello)); will(returnValue(args));
+			oneOf(meth).as(msi, J.OBJECT); will(returnValue(msi));
+			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", msi, args); will(returnValue(clos));
+			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
+			oneOf(meth).assign(v1, clos); will(returnValue(ass2));
+			oneOf(block).add(ass2);
+			oneOf(nv).result(v1);
+		}});
+		new ExprGenerator(new FunctionState(meth, fcx, fargs), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(ae);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void aDotOperatorAsAnAccessor() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+		TypeReference obj = new TypeReference(pos, "Ctr");
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
+		obj.bind(od);
+		TypedPattern tp = new TypedPattern(pos, obj, new VarName(pos, od.name(), "from"));
+		from.bind(tp);
+		MakeAcor ma = new MakeAcor(pos, FunctionName.contractMethod(pos, od.name(), "f"), from, 0);
+		me.conversion(ma);
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		IExpr fcx = context.mock(IExpr.class, "fcx");
+		IExpr ai = context.mock(IExpr.class, "ai");
+		IExpr ass = context.mock(IExpr.class, "ass");
+		Var fargs = new AVar(meth, J.OBJECT, "v1");
+		IExpr sendClz = context.mock(IExpr.class, "clz");
+		IExpr sendMeth = context.mock(IExpr.class, "meth");
+		IExpr i0 = context.mock(IExpr.class, "0");
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
+			oneOf(meth).nextLocal(); will(returnValue(23));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
+			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
+			oneOf(block).add(ass);
+			oneOf(meth).classConst("test.repo.Obj"); will(returnValue(sendClz));
+			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
+			oneOf(meth).intConst(0); will(returnValue(i0));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mkacor"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0))));
+		}});
+		new ApplyExprGenerator(new FunctionState(meth, fcx, fargs), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitExpr(me, 0);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void applyingADotOperatorAsAnAccessor() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+		TypeReference obj = new TypeReference(pos, "Obj");
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
+		obj.bind(od);
+		TypedPattern tp = new TypedPattern(pos, obj, new VarName(pos, od.name(), "from"));
+		from.bind(tp);
+		MakeAcor ma = new MakeAcor(pos, FunctionName.contractMethod(pos, od.name(), "f"), from, 2);
+		me.conversion(ma);
+		ApplyExpr ae = new ApplyExpr(pos, me, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+			oneOf(meth).nextLocal(); will(returnValue(27));
+		}});
+		IExpr fcx = context.mock(IExpr.class, "fcx");
+		IExpr ai = context.mock(IExpr.class, "ai");
+		IExpr ass = context.mock(IExpr.class, "ass");
+		Var fargs = new AVar(meth, J.OBJECT, "fargs");
+		Var v1 = new AVar(meth, J.OBJECT, "v1");
+		IExpr sendClz = context.mock(IExpr.class, "clz");
+		IExpr sendMeth = context.mock(IExpr.class, "meth");
+		IExpr i2 = context.mock(IExpr.class, "2");
+		IExpr msi = context.mock(IExpr.class, "msi");
+		IExpr n1 = context.mock(IExpr.class, "n1");
+		IExpr shello = context.mock(IExpr.class, "hello");
+		IExpr args = context.mock(IExpr.class, "args");
+		IExpr clos = context.mock(IExpr.class, "clos");
+		IExpr ass2 = context.mock(IExpr.class, "ass2");
+		context.checking(new Expectations() {{
+			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
+			oneOf(meth).nextLocal(); will(returnValue(23));
+			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
+			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
+			oneOf(block).add(ass);
+			oneOf(meth).classConst("test.repo.Obj"); will(returnValue(sendClz));
+			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
+			oneOf(meth).intConst(2); will(returnValue(i2));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mkacor"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).intConst(42); will(returnValue(n1));
 			oneOf(meth).box(n1); will(returnValue(n1));

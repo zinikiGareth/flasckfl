@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -41,6 +42,13 @@ public class DependencyOrdering {
 		lifter.leaveStandaloneMethod(meth);
 		
 		assertOrder("test.foo.m");
+	}
+
+	@Test
+	public void builtinsAreOKButJustIgnored() {
+		quick("f", LoadBuiltins.length);
+				
+		assertOrder("test.foo.f");
 	}
 
 	@Test

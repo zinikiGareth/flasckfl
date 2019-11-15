@@ -48,7 +48,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 	
 	@Override
 	public String toString() {
-		return name.uniqueName();
+		return name.uniqueName() + polyvars;
 	}
 
 	@Override
