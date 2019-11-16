@@ -14,13 +14,13 @@ import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
-import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -29,6 +29,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -70,6 +71,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSFunctionState state;
 	private JSExpr evalRet;
 	private ObjectAccessor currentOA;
+	private StructFieldHandler structFieldHandler;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -124,6 +126,25 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 	
 	@Override
+	public void visitStructDefn(StructDefn obj) {
+		if (!obj.generate)
+			return;
+		String pkg = ((SolidName)obj.name()).packageName().jsName();
+		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
+		JSBlockCreator ctor = ctr.constructor();
+		ctor.fieldObject("state", "FieldsContainer");
+		this.meth = ctr.createMethod("eval", false);
+		this.meth.argument("_cxt");
+		this.evalRet = meth.newOf(obj.name());
+		this.block = meth;
+		this.structFieldHandler = sf -> {
+			JSExpr arg = this.meth.argument(sf.name);
+			this.meth.storeField(this.evalRet, sf.name, arg);
+		};
+	}
+	
+	@Override
 	public void visitObjectDefn(ObjectDefn obj) {
 		if (!obj.generate)
 			return;
@@ -135,16 +156,29 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = ctr.createMethod("eval", false);
 		this.evalRet = meth.newOf(obj.name());
 		this.block = meth;
+		this.structFieldHandler = sf -> {
+			if (sf.init != null)
+				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
+		};
 	}
 	
 	@Override
 	public void visitStructField(StructField sf) {
-		if (sf.init != null)
-			new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
+		if (structFieldHandler != null)
+			structFieldHandler.visitStructField(sf);
 	}
 
 	@Override
-	public void leaveObjectDefn(AccessorHolder obj) {
+	public void leaveObjectDefn(ObjectDefn obj) {
+		if (evalRet != null)
+			meth.returnObject(evalRet);
+		this.block = null;
+		this.evalRet = null;
+		this.meth = null;
+	}
+	
+	@Override
+	public void leaveStructDefn(StructDefn obj) {
 		if (evalRet != null)
 			meth.returnObject(evalRet);
 		this.block = null;

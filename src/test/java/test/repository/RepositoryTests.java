@@ -49,7 +49,6 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
-import org.jmock.Expectations;
 import org.junit.Test;
 
 public class RepositoryTests {

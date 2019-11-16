@@ -37,7 +37,6 @@ public class ObjectGeneration {
 		ByteCodeSink eclz = context.mock(ByteCodeSink.class, "eclz");
 		SolidName sn = new SolidName(pkg, "Obj");
 		String ename = "test.repo.Obj";
-		context.assertIsSatisfied();
 		
 		IExpr mknew = context.mock(IExpr.class, "mknew");
 		IExpr ass = context.mock(IExpr.class, "ass");
@@ -92,7 +91,6 @@ public class ObjectGeneration {
 		ByteCodeSink eclz = context.mock(ByteCodeSink.class, "eclz");
 		SolidName sn = new SolidName(pkg, "Obj");
 		String ename = "test.repo.Obj";
-		context.assertIsSatisfied();
 		
 		IExpr mknew = context.mock(IExpr.class, "mknew");
 		IExpr ass = context.mock(IExpr.class, "ass");

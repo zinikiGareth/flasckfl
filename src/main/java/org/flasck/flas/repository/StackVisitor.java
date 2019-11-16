@@ -15,7 +15,6 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
-import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -338,7 +337,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitObjectDefn(e);
 	}
 
-	public void leaveObjectDefn(AccessorHolder obj) {
+	public void leaveObjectDefn(ObjectDefn obj) {
 		top.leaveObjectDefn(obj);
 	}
 

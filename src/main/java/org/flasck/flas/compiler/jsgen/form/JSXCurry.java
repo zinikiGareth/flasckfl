@@ -2,7 +2,6 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import java.util.List;
 
-import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.zinutils.bytecode.mock.IndentWriter;
 

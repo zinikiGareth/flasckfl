@@ -22,7 +22,6 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.hsi.HSIVisitor;
-import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -119,7 +118,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveContractMethod(ContractMethodDecl cmd);
 		void leaveContractDecl(ContractDecl cd);
 		void visitObjectDefn(ObjectDefn obj);
-		void leaveObjectDefn(AccessorHolder obj);
+		void leaveObjectDefn(ObjectDefn obj);
 		void visitObjectAccessor(ObjectAccessor oa);
 		void leaveObjectAccessor(ObjectAccessor oa);
 		void visitStandaloneMethod(StandaloneMethod meth);

@@ -21,7 +21,6 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.lifting.NestedVarReader;
-import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -227,7 +226,7 @@ public class Traverser implements Visitor {
 		leaveObjectDefn(obj);
 	}
 
-	public void leaveObjectDefn(AccessorHolder obj) {
+	public void leaveObjectDefn(ObjectDefn obj) {
 		visitor.leaveObjectDefn(obj);
 	}
 

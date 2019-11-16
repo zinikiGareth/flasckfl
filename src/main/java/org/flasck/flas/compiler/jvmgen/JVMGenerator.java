@@ -8,11 +8,9 @@ import java.util.Map;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
-import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
-import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
@@ -30,6 +28,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -87,6 +86,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private List<IExpr> currentBlock;
 	private ByteCodeSink oaClz;
 	private ObjectAccessor currentOA;
+	private StructFieldHandler structFieldHandler;
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
@@ -268,118 +268,35 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void visitStructDefn(StructDefn sd) {
 		if (!sd.generate)
 			return;
-		ByteCodeSink bcc = bce.newClass(sd.name().javaName());
+		String clzName = sd.name().javaName();
+		ByteCodeSink bcc = bce.newClass(clzName);
+		bcc.superclass(J.FIELDS_CONTAINER_WRAPPER);
 		bcc.generateAssociatedSourceFile();
-		/*
-		DroidStructFieldGenerator fg = new DroidStructFieldGenerator(bcc, Access.PUBLIC);
-		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
-			sd.visitFields(fg);
-		}
-		*/
-		String base = sd.type == FieldsDefn.FieldsType.STRUCT?J.FLAS_STRUCT:J.FLAS_ENTITY; 
-		bcc.superclass(base);
+		bcc.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "_cxt");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			NewMethodDefiner ctor = gen.done();
-			IExpr[] args = new IExpr[0];
-			if (sd.type == FieldsDefn.FieldsType.ENTITY)
-				args = new IExpr[] { cx.getVar(), ctor.as(ctor.aNull(), J.BACKING_DOCUMENT) };
-			ctor.callSuper("void", base, "<init>", args).flush();
-			/* TODO: initialize fields
-			for (int i=0;i<sd.fields.size();i++) {
-				StructField fld = sd.fields.get(i);
-				if (fld.name.equals("id"))
-					continue;
-				if (fld.init != null) {
-					final IExpr initVal = ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", ctor.as(ctor.myThis(), J.OBJECT), ctor.as(ctor.classConst(fld.init.javaNameAsNestedClass()), J.OBJECT), ctor.arrayOf(J.OBJECT, new ArrayList<>()));
-					if (sd.ty == FieldsDefn.FieldsType.STRUCT)
-						ctor.assign(ctor.getField(ctor.myThis(), fld.name), initVal).flush();
-					else
-						ctor.callSuper("void", J.FLAS_ENTITY, "closure", ctor.stringConst(fld.name), ctor.as(initVal, J.OBJECT)).flush();
-				}
-			}
-			*/
+			ctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
-		if (sd.type == FieldsDefn.FieldsType.ENTITY) {
-			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "_cxt");
-			PendingVar doc = gen.argument(J.BACKING_DOCUMENT, "doc");
-			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", base, "<init>", cx.getVar(), doc.getVar()).flush();
-			ctor.returnVoid().flush();
-		}
-		
-		/*
-		if (!sd.fields.isEmpty()) {
+		{ // eval(cx)
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
-			PendingVar pv = gen.argument("[java.lang.Object", "args");
-			gen.returns(sd.name());
-			MethodDefiner meth = gen.done();
-			Var v = pv.getVar();
-			Var ret = meth.avar(sd.name(), "ret");
-			meth.assign(ret, meth.makeNew(sd.name(), cx.getVar())).flush();
-			int ap = 0;
-			for (int i=0;i<sd.fields.size();i++) {
-				RWStructField fld = sd.fields.get(i);
-				if (fld.name.equals("id"))
-					continue;
-				if (fld.init != null)
-					continue;
-				final IExpr val = meth.arrayElt(v, meth.intConst(ap++));
-				if (sd.ty == FieldsDefn.FieldsType.STRUCT)
-					meth.assign(meth.getField(ret, fld.name), val).flush();
-				else
-					meth.callVirtual("void", ret, "closure", meth.stringConst(fld.name), val).flush();
-			}
-			meth.returnObject(ret).flush();
-		}
-		
-		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
-			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
-			gen.returns("void");
-			NewMethodDefiner dfe = gen.done();
-			DroidStructFieldInitializer fi = new DroidStructFieldInitializer(dfe, cx.getVar(), fg.fields);
-			sd.visitFields(fi);
-			dfe.returnVoid().flush();
-		}
-		
-		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "toWire");
-			gen.argument(J.WIREENCODER, "wire");
-			PendingVar pcx = gen.argument(J.ENTITYDECODINGCONTEXT, "cx");
 			gen.returns(J.OBJECT);
-			NewMethodDefiner meth = gen.done();
-			Var cx = pcx.getVar();
-			Var ret = meth.avar(J.JOBJ, "ret");
-			meth.assign(ret, meth.callInterface(J.JOBJ, cx, "jo")).flush();
-			meth.voidExpr(meth.callInterface(J.JOBJ, ret, "put", meth.stringConst("_struct"), meth.as(meth.stringConst(sd.name()), J.OBJECT))).flush();
-			meth.returnObject(ret).flush();
+			MethodDefiner meth = gen.done();
+			Var ret = meth.avar(clzName, "ret");
+			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
+			this.fs = new FunctionState(meth, cx.getVar(), null);
+			this.meth = meth;
+			fs.evalRet = ret;
+			this.currentBlock = new ArrayList<IExpr>();
+			this.structFieldHandler = sf -> {
+				Var arg = meth.argument(J.OBJECT, sf.name);
+				IExpr svar = meth.getField(ret, "state");
+				meth.callInterface("void", svar, "set", meth.stringConst(sf.name), arg).flush();
+			};
 		}
-		
-		if (sd.ty == FieldsDefn.FieldsType.STRUCT) {
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "fromWire");
-			PendingVar pcx = gen.argument(J.FLEVALCONTEXT, "cx");
-			gen.argument(J.JOBJ, "jo");
-			gen.returns(sd.name());
-			NewMethodDefiner meth = gen.done();
-			Var cx = pcx.getVar();
-			Var ret = meth.avar(J.OBJECT, "ret");
-			meth.assign(ret, meth.makeNew(sd.name(), cx)).flush();
-			meth.returnObject(ret).flush();
-		} else {
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "fromWire");
-			PendingVar pcx = gen.argument(J.FLEVALCONTEXT, "cx");
-			PendingVar wire = gen.argument(J.JDOC, "wire");
-			gen.returns(sd.name());
-			NewMethodDefiner meth = gen.done();
-			Var cx = pcx.getVar();
-			meth.returnObject(meth.makeNew(sd.name(), cx, meth.callStatic(J.BACKING_DOCUMENT, J.BACKING_DOCUMENT, "from", cx, wire.getVar()))).flush();
-		}
-		*/
 	}
 	
 	@Override
@@ -396,61 +313,46 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
-			/* TODO: initialize fields
-			for (int i=0;i<sd.fields.size();i++) {
-				StructField fld = sd.fields.get(i);
-				if (fld.name.equals("id"))
-					continue;
-				if (fld.init != null) {
-					final IExpr initVal = ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", ctor.as(ctor.myThis(), J.OBJECT), ctor.as(ctor.classConst(fld.init.javaNameAsNestedClass()), J.OBJECT), ctor.arrayOf(J.OBJECT, new ArrayList<>()));
-					if (sd.ty == FieldsDefn.FieldsType.STRUCT)
-						ctor.assign(ctor.getField(ctor.myThis(), fld.name), initVal).flush();
-					else
-						ctor.callSuper("void", J.FLAS_ENTITY, "closure", ctor.stringConst(fld.name), ctor.as(initVal, J.OBJECT)).flush();
-				}
-			}
-			*/
 			ctor.returnVoid().flush();
 		}
 		{ // eval(cx)
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
-//			PendingVar pv = gen.argument("[java.lang.Object", "args");
 			gen.returns(J.OBJECT);
 			MethodDefiner meth = gen.done();
-//			Var v = pv.getVar();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
 			this.fs = new FunctionState(meth, cx.getVar(), null);
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new ArrayList<IExpr>();
-			/*
-			int ap = 0;
-			for (int i=0;i<od.fields.size();i++) {
-				RWStructField fld = od.fields.get(i);
-				if (fld.name.equals("id"))
-					continue;
-				if (fld.init != null)
-					continue;
-				final IExpr val = meth.arrayElt(v, meth.intConst(ap++));
-				if (od.ty == FieldsDefn.FieldsType.STRUCT)
-					meth.assign(meth.getField(ret, fld.name), val).flush();
-				else
-					meth.callVirtual("void", ret, "closure", meth.stringConst(fld.name), val).flush();
-			}
-			*/
 		}
+		this.structFieldHandler = sf -> {
+			if (sf.init != null)
+				new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
+		};
 	}
 	
 	@Override
 	public void visitStructField(StructField sf) {
-		if (sf.init != null)
-			new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
+		if (structFieldHandler != null)
+			structFieldHandler.visitStructField(sf);
 	}
 
 	@Override
-	public void leaveObjectDefn(AccessorHolder obj) {
+	public void leaveObjectDefn(ObjectDefn obj) {
+		if (!obj.generate)
+			return;
+		if (this.currentBlock != null && !this.currentBlock.isEmpty())
+			makeBlock(meth, currentBlock).flush();
+		this.meth.returnObject(fs.evalRet).flush();
+		this.meth = null;
+	}
+	
+	@Override
+	public void leaveStructDefn(StructDefn sd) {
+		if (!sd.generate)
+			return;
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
 			makeBlock(meth, currentBlock).flush();
 		this.meth.returnObject(fs.evalRet).flush();
