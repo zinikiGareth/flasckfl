@@ -125,7 +125,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 		if (stack.size() != 1)
 			throw new NotImplementedException(); // I don't understand this case
 		IExpr obj = stack.remove(0);
-		IExpr mkacor = meth.callInterface(J.OBJECT, fcx, "mkacor", meth.classConst(expr.acorMeth.inContext.javaClassName()), meth.stringConst(expr.acorMeth.name), obj, meth.intConst(expr.nargs));
+		IExpr mkacor = meth.callInterface(J.OBJECT, fcx, "mkacor", meth.classConst(expr.acorMeth.inContext.javaClassName()), meth.stringConst(expr.acorMeth.name), meth.as(obj, J.OBJECT), meth.intConst(expr.nargs));
 		sv.result(mkacor);
 	}
 	

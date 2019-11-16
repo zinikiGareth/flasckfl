@@ -6,10 +6,9 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -24,9 +23,9 @@ import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
-import org.zinutils.bytecode.JavaInfo.Access;
 
 public class StructGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -153,5 +152,35 @@ public class StructGeneration {
 		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);
 		new Traverser(gen).visitStructDefn(sd);
+	}
+
+	@Test
+	public void fieldAccessorsAreCreatedAsNeeded() {
+		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
+		SolidName sn = new SolidName(pkg, "Struct");
+		String ename = "test.repo.Struct";
+		ByteCodeSink bcc = context.mock(ByteCodeSink.class, "bcc");
+		MethodDefiner acc = context.mock(MethodDefiner.class, "acc");
+		IExpr state = context.mock(IExpr.class, "state");
+		IExpr sarg = context.mock(IExpr.class, "sarg");
+		IExpr getField = context.mock(IExpr.class, "getField");
+		IExpr doret = context.mock(IExpr.class, "doret");
+		context.checking(new Expectations() {{ // eval
+			oneOf(bce).get(ename); will(returnValue(bcc));
+			oneOf(bcc).createMethod(false, J.OBJECT, "_field_s"); will(returnValue(acc));
+			oneOf(acc).argument(J.FLEVALCONTEXT, "cxt");
+			oneOf(acc).getField("state"); will(returnValue(state));
+			oneOf(acc).stringConst("s"); will(returnValue(sarg));
+			oneOf(acc).callInterface(J.OBJECT, state, "get", sarg); will(returnValue(getField));
+			oneOf(acc).returnObject(getField); will(returnValue(doret));
+			oneOf(doret).flush();
+		}});
+		StackVisitor gen = new StackVisitor();
+		new JVMGenerator(bce, gen);
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
+		StructField sf = new StructField(pos, pos, true, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
+		sf.fullName(new VarName(pos, sn, "s"));
+		sd.addField(sf);
+		new Traverser(gen).withHSI().visitEntry(sf);
 	}
 }

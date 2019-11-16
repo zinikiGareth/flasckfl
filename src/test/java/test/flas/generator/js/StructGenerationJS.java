@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
@@ -80,5 +81,25 @@ public class StructGenerationJS {
 		new Traverser(gen).visitStructDefn(sd);
 	}
 	
-	// accessors
+	@Test
+	public void fieldAccessorsAreCreatedAsNeeded() {
+		SolidName sn = new SolidName(pkg, "Struct");
+		JSMethodCreator sfacc = context.mock(JSMethodCreator.class);
+		JSExpr obj = context.mock(JSExpr.class, "obj");
+		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo.Struct");
+			oneOf(jss).newFunction("test.repo", "test.repo.Struct", true, "_field_s"); will(returnValue(sfacc));
+			oneOf(sfacc).argument("_cxt");
+			oneOf(sfacc).loadField("s"); will(returnValue(obj));
+			oneOf(sfacc).returnObject(obj);
+		}});
+		StackVisitor gen = new StackVisitor();
+		new JSGenerator(jss, gen);
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
+		StructField sf = new StructField(pos, pos, true, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
+		sf.fullName(new VarName(pos, sn, "s"));
+		sd.addField(sf);
+		new Traverser(gen).withHSI().visitEntry(sf);
+	}
+	
 }

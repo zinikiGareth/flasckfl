@@ -7,6 +7,7 @@ const FLClosure = function(obj, fn, args) {
 
 FLClosure.prototype.eval = function(_cxt) {
 	this.args[0] = _cxt;
+	this.obj = _cxt.full(this.obj);
 	this.val = this.fn.apply(this.obj, this.args);
 	return this.val;
 }

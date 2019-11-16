@@ -21,6 +21,12 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 		return scope;
 	}
 	
+	public PackageName packageName() {
+		if (scope == null)
+			return null;
+		else
+			return ((SolidName)scope).packageName();
+	}
 	@Override
 	public NameOfThing containingCard() {
 		return scope.containingCard();

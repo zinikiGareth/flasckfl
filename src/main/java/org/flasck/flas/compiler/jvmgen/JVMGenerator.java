@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
@@ -283,16 +285,19 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		{ // eval(cx)
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar pargs = gen.argument("[" + J.OBJECT, "args");
 			gen.returns(J.OBJECT);
 			MethodDefiner meth = gen.done();
+			Var args = pargs.getVar();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
 			this.fs = new FunctionState(meth, cx.getVar(), null);
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new ArrayList<IExpr>();
+			AtomicInteger ai = new AtomicInteger(0);
 			this.structFieldHandler = sf -> {
-				Var arg = meth.argument(J.OBJECT, sf.name);
+				IExpr arg = meth.arrayElt(args, meth.intConst(ai.getAndIncrement()));
 				IExpr svar = meth.getField(ret, "state");
 				meth.callInterface("void", svar, "set", meth.stringConst(sf.name), arg).flush();
 			};
@@ -358,7 +363,20 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.meth.returnObject(fs.evalRet).flush();
 		this.meth = null;
 	}
-	
+
+	@Override
+	public void visitStructFieldAccessor(StructField sf) {
+		String cxName = sf.name().container().javaName();
+		ByteCodeSink bcc = bce.get(cxName);
+		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_field_" + sf.name);
+		gen.argument(J.FLEVALCONTEXT, "cxt");
+		gen.argument("[" + J.OBJECT, "args");
+		gen.returns(J.OBJECT);
+		MethodDefiner meth = gen.done();
+		IExpr ret = meth.callInterface(J.OBJECT, meth.getField("state"), "get", meth.stringConst(sf.name));
+		meth.returnObject(ret).flush();
+	}
+
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		String clzName = e.name.javaName();

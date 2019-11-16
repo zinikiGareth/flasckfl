@@ -1,0 +1,4 @@
+JVM PASS s1 is hello
+JVM PASS s2 is world
+JS PASS s1 is hello
+JS PASS s2 is world

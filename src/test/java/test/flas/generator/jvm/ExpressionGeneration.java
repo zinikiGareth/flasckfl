@@ -913,16 +913,18 @@ public class ExpressionGeneration {
 		IExpr sendClz = context.mock(IExpr.class, "clz");
 		IExpr sendMeth = context.mock(IExpr.class, "meth");
 		IExpr i0 = context.mock(IExpr.class, "0");
+		IExpr headAs = context.mock(IExpr.class, "headAs");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
 			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
+			oneOf(meth).as(with(VarMatcher.local(23)), with(J.OBJECT)); will(returnValue(headAs));
 			oneOf(meth).classConst("test.repo.Obj"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(0); will(returnValue(i0));
-			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mkacor"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0))));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mkacor"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), Matchers.is(headAs), Matchers.is(i0))));
 		}});
 		new ApplyExprGenerator(new FunctionState(meth, fcx, fargs), sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
@@ -956,6 +958,7 @@ public class ExpressionGeneration {
 		Var v1 = new AVar(meth, J.OBJECT, "v1");
 		IExpr sendClz = context.mock(IExpr.class, "clz");
 		IExpr sendMeth = context.mock(IExpr.class, "meth");
+		IExpr headAs = context.mock(IExpr.class, "headAs");
 		IExpr i2 = context.mock(IExpr.class, "2");
 		IExpr msi = context.mock(IExpr.class, "msi");
 		IExpr n1 = context.mock(IExpr.class, "n1");
@@ -971,8 +974,9 @@ public class ExpressionGeneration {
 			oneOf(block).add(ass);
 			oneOf(meth).classConst("test.repo.Obj"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
+			oneOf(meth).as(with(VarMatcher.local(23)), with(J.OBJECT)); will(returnValue(headAs));
 			oneOf(meth).intConst(2); will(returnValue(i2));
-			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mkacor"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mkacor"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), Matchers.is(headAs), Matchers.is(i2)))); will(returnValue(msi));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).intConst(42); will(returnValue(n1));
 			oneOf(meth).box(n1); will(returnValue(n1));

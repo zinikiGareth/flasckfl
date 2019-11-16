@@ -169,6 +169,16 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	@Override
+	public void visitStructFieldAccessor(StructField sf) {
+		String pkg = sf.name().packageName().jsName();
+		String cxName = sf.name().container().jsName();
+		jse.ensurePackageExists(pkg, cxName);
+		JSMethodCreator meth = jse.newFunction(pkg, cxName, true, "_field_" + sf.name);
+		meth.argument("_cxt");
+		meth.returnObject(meth.loadField(sf.name));
+	}
+	
+	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
 		if (evalRet != null)
 			meth.returnObject(evalRet);

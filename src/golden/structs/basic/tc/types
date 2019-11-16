@@ -1,0 +1,2 @@
+test.golden.s1 :: test.golden.Basic
+test.golden.s2 :: test.golden.Basic
