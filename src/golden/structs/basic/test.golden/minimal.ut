@@ -6,6 +6,6 @@
 		assert s2.val
 			"world"
 			
-	test s3 is moose
-		assert s3.def
-			"moose"
+.	test s3 is moose
+.		assert s3.def
+.			"moose"

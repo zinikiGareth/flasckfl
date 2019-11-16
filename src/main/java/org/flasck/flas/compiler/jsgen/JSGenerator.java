@@ -14,6 +14,7 @@ import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -143,7 +144,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	@Override
-	public void leaveObjectDefn(ObjectDefn obj) {
+	public void leaveObjectDefn(AccessorHolder obj) {
 		if (evalRet != null)
 			meth.returnObject(evalRet);
 		this.block = null;

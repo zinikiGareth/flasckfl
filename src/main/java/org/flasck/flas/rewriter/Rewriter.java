@@ -40,6 +40,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.BuiltinOperation;
+import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -776,7 +777,7 @@ public class Rewriter implements CodeGenRegistry {
 			else if (val instanceof StructDefn || val instanceof UnionTypeDefn || val instanceof ContractDecl) {
 				// these all got sorted out already in the first two passes
 			} else if (val instanceof ObjectDefn) {
-				rewriteObject(cx, (ObjectDefn)val);
+				rewriteObject(cx, (AccessorHolder)val);
 			} else if (val instanceof HandlerImplements) {
 				rewriteHI(cx, (HandlerImplements)val, from);
 			} else if (val instanceof TupleMember) {
@@ -871,7 +872,7 @@ public class Rewriter implements CodeGenRegistry {
 		pass3(c2, null /*cd.fnScope*/);
 	}
 
-	private void rewriteObject(NamingContext cx, ObjectDefn od) {
+	private void rewriteObject(NamingContext cx, AccessorHolder od) {
 //		RWObjectDefn rw = objects.get(od.name().uniqueName());
 //		Object ret = cx.resolve(od.location(), "NilMap");
 //		final ObjectContext ox = new ObjectContext(cx, od, rw.polys());

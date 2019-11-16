@@ -16,7 +16,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType {
+public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder {
 	private StateDefinition state;
 	private final List<Template> templates = new ArrayList<>();
 	public final List<ObjectCtor> ctors = new ArrayList<>();
@@ -41,7 +41,8 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 		return location;
 	}
 
-	public ObjectAccessor getAccessor(String called) {
+	@Override
+	public FieldAccessor getAccessor(String called) {
 		for (ObjectAccessor ret : acors)
 			if (ret.name().name.equals(called))
 				return ret;

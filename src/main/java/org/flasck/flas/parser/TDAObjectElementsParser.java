@@ -48,7 +48,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}
 			StateDefinition state = new StateDefinition(toks.realinfo());
 			builder.defineState(state);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(topLevel, namer, state), FieldsType.STATE);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(topLevel, namer, state), FieldsType.STATE, false);
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);

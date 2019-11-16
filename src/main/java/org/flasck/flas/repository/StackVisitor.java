@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
+import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -103,6 +104,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveStructDefn(StructDefn s) {
 		top.leaveStructDefn(s);
+	}
+
+	public void visitStructFieldAccessor(StructField sf) {
+		top.visitStructFieldAccessor(sf);
+	}
+
+	public void leaveStructFieldAccessor(StructField sf) {
+		top.leaveStructFieldAccessor(sf);
 	}
 
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
@@ -329,7 +338,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitObjectDefn(e);
 	}
 
-	public void leaveObjectDefn(ObjectDefn obj) {
+	public void leaveObjectDefn(AccessorHolder obj) {
 		top.leaveObjectDefn(obj);
 	}
 

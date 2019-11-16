@@ -13,17 +13,17 @@ public class TDAStructFieldParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final StructFieldConsumer builder;
 	private final FieldsType fieldsType;
+	private final boolean createAsAccessors;
 
-	public TDAStructFieldParser(ErrorReporter errors, StructFieldConsumer builder, FieldsType fieldsType) {
+	public TDAStructFieldParser(ErrorReporter errors, StructFieldConsumer builder, FieldsType fieldsType, boolean createAsAccessors) {
 		this.errors = errors;
 		this.builder = builder;
 		this.fieldsType = fieldsType;
+		this.createAsAccessors = createAsAccessors;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		// TODO: figure accessor for object case
-		final boolean accessor = false;
 		TypeReference type = null;
 		if (fieldsType != FieldsType.WRAPS) {
 			type = (TypeReference) new TypeExprParser().tryParsing(toks);
@@ -47,7 +47,7 @@ public class TDAStructFieldParser implements TDAParsing {
 				errors.message(toks, "wraps fields must have initializers");
 				return new IgnoreNestedParser();
 			}
-			builder.addField(new StructField(field.location, accessor, type, field.text));
+			builder.addField(new StructField(field.location, createAsAccessors, type, field.text));
 			ret.noNest(errors);
 		} else {
 			if (fieldsType == FieldsType.ENVELOPE) {
@@ -68,7 +68,7 @@ public class TDAStructFieldParser implements TDAParsing {
 					ret.ignore();
 				} else {
 					ret.noNest(errors);
-					builder.addField(new StructField(field.location, assOp, accessor, ft, field.text, expr));
+					builder.addField(new StructField(field.location, assOp, createAsAccessors, ft, field.text, expr));
 				}
 			}).tryParsing(toks);
 			if (errors.hasErrors())

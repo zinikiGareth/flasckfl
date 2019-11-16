@@ -8,6 +8,7 @@ import java.util.Map;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -449,7 +450,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
-	public void leaveObjectDefn(ObjectDefn obj) {
+	public void leaveObjectDefn(AccessorHolder obj) {
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
 			makeBlock(meth, currentBlock).flush();
 		this.meth.returnObject(fs.evalRet).flush();

@@ -18,15 +18,19 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.method.AccessorConvertor;
 import org.flasck.flas.method.ConvertRepositoryMethods;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -117,6 +121,33 @@ public class AccessorConversion {
 		MakeAcor ma = (MakeAcor) conv;
 		assertEquals(0, ma.nargs);
 		assertEquals(an, ma.acorMeth);
+		assertEquals(from, ma.obj);
+	}
+
+	@Test
+	public void weCanConvertASimpleFieldAccessorOnAConstantAssumingItsAStruct() {
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(AccessorConvertor.class)));
+		}});
+		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		FunctionName an = FunctionName.function(pos, pkg, "f");
+		FunctionDefinition fn = new FunctionDefinition(an, 0);
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Struct"), true, new ArrayList<>());
+		StructField sf = new StructField(pos, true, LoadBuiltins.stringTR, "fld");
+		sf.fullName(new VarName(pos, sd.name(), "x"));
+		sd.addField(sf);
+		fn.bindType(sd);
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		from.bind(fn);
+		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "fld"));
+		ac.visitMemberExpr(expr);
+		assertTrue(expr.isConverted());
+		Expr conv = expr.converted();
+		assertNotNull(conv);
+		assertTrue(conv instanceof MakeAcor);
+		MakeAcor ma = (MakeAcor) conv;
+		assertEquals(0, ma.nargs);
+		assertEquals("test.repo.Struct._field_fld", ma.acorMeth.uniqueName());
 		assertEquals(from, ma.obj);
 	}
 

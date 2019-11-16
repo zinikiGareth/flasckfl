@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -118,7 +119,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
-	public void leaveObjectDefn(ObjectDefn sd) {
+	public void leaveObjectDefn(AccessorHolder sd) {
 		this.scope = scopeStack.remove(0);
 	}
 

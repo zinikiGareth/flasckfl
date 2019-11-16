@@ -21,6 +21,7 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.lifting.NestedVarReader;
+import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -152,7 +153,9 @@ public class Traverser implements Visitor {
 			UnitDataDeclaration udd = (UnitDataDeclaration) e;
 			if (udd.isTopLevel())
 				visitUnitDataDeclaration(udd);
-		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof StructField || e instanceof PolyType) {
+		} else if (e instanceof StructField) {
+			visitStructFieldAccessor((StructField) e);
+		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof CurryArgument)
 			; // do nothing; just for resolution
@@ -191,6 +194,19 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
+	public void visitStructFieldAccessor(StructField sf) {
+		if (wantHSI && sf.accessor) {
+			visitor.visitStructFieldAccessor(sf);
+			leaveStructFieldAccessor(sf);
+		}
+	}
+	
+	@Override
+	public void leaveStructFieldAccessor(StructField sf) {
+		visitor.leaveStructFieldAccessor(sf);
+	}
+	
+	@Override
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
 		visitor.visitUnionTypeDefn(ud);
 		leaveUnionTypeDefn(ud);
@@ -211,7 +227,7 @@ public class Traverser implements Visitor {
 		leaveObjectDefn(obj);
 	}
 
-	public void leaveObjectDefn(ObjectDefn obj) {
+	public void leaveObjectDefn(AccessorHolder obj) {
 		visitor.leaveObjectDefn(obj);
 	}
 

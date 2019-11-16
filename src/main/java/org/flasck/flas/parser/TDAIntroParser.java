@@ -112,7 +112,7 @@ public class TDAIntroParser implements TDAParsing {
 			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
 			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, namer.solidName(tn.text), true, polys);
 			consumer.newStruct(sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), ty);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), ty, true);
 		}
 		case "wraps": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -136,7 +136,7 @@ public class TDAIntroParser implements TDAParsing {
 			}
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, namer.solidName(tn.text), true, new ArrayList<>());
 			consumer.newStruct(sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), FieldsType.WRAPS);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), FieldsType.WRAPS, false);
 		}
 		case "union": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);

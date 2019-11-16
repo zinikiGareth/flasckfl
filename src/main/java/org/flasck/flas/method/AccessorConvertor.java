@@ -2,6 +2,8 @@ package org.flasck.flas.method;
 
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AccessorHolder;
+import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.ObjectAccessor;
@@ -38,19 +40,24 @@ public class AccessorConvertor extends LeafAdapter {
 	public void visitMemberExpr(MemberExpr expr) {
 		UnresolvedVar meth = (UnresolvedVar) expr.fld;
 		UnresolvedVar uv = (UnresolvedVar) expr.from;
-		ObjectDefn od;
+		AccessorHolder od;
 		if (uv.defn() instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) uv.defn();
 			od = (ObjectDefn) udd.ofType.defn();
 		} else if (uv.defn() instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)uv.defn();
 			od = (ObjectDefn) tp.type();
+		} else if (uv.defn() instanceof FunctionDefinition) {
+			FunctionDefinition fn = (FunctionDefinition) uv.defn();
+			if (fn.argCount() != 0)
+				throw new NotImplementedException("cannot extract object from " + uv.defn().getClass() + " with " + fn.argCount());
+			od = (AccessorHolder) fn.type();
 		} else
 			throw new NotImplementedException("cannot extract object from " + uv.defn().getClass());
-		ObjectAccessor acc = od.getAccessor(meth.var);
+		FieldAccessor acc = od.getAccessor(meth.var);
 		if (acc == null)
 			errors.message(meth.location, "there is no accessor '" + meth.var + "' on " + od.name().uniqueName());
 		else
-			expr.conversion(new MakeAcor(null, acc.name(), expr.from, acc.function().argCount()));
+			expr.conversion(acc.acor(expr.from));
 	}
 }

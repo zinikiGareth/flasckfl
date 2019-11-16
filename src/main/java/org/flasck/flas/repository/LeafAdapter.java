@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -73,6 +74,14 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitStructFieldAccessor(StructField sf) {
+	}
+
+	@Override
+	public void leaveStructFieldAccessor(StructField sf) {
+	}
+
+	@Override
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
 	}
 
@@ -85,7 +94,7 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void leaveObjectDefn(ObjectDefn obj) {
+	public void leaveObjectDefn(AccessorHolder obj) {
 	}
 
 	@Override

@@ -1,9 +1,13 @@
 	struct Basic
 		String val
-	
-	struct WithDefault
-		String def <- "moose"
+
+// I've gone backwards and forwards on this, but at the end of the day,
+// I just don't think it makes any sense to have "default" fields on a Struct
+// because then, realistically, you just can't change them.
+// It DOES make sense on OBJECTS and CARDS.	
+.	struct WithDefault
+.		String def <- "moose"
 		
 	s1 = Basic "hello"
 	s2 = Basic "world"
-	s3 = WithDefault
+.	s3 = WithDefault

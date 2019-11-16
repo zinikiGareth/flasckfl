@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -44,7 +45,6 @@ import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.tc3.Primitive;
 import org.jmock.Expectations;
@@ -63,7 +63,7 @@ public class TraversalTests {
 	final UnresolvedOperator op = new UnresolvedOperator(pos, "+");
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Repository r = new Repository();
-	final Visitor v = context.mock(Visitor.class);
+	final HSIVisitor v = context.mock(HSIVisitor.class);
 	final Traverser t = new Traverser(v);
 
 	@Test
@@ -102,6 +102,25 @@ public class TraversalTests {
 			oneOf(v).leaveStructDefn(s);
 		}});
 		r.traverse(v);
+	}
+
+	@Test
+	public void traverseStructDefnWithFieldAccessorVisitsTheFieldAsAnAccessor() {
+		StructDefn s = new StructDefn(pos, FieldsType.STRUCT, "foo.bar", "MyStruct", true);
+		StructField sf = new StructField(pos, true, new TypeReference(pos, "X", new ArrayList<>()), "x");
+		s.addField(sf);
+		sf.fullName(new VarName(sf.loc,s.name, sf.name));
+		r.addEntry(s.name(), s);
+		r.addEntry(sf.name(), sf);
+		context.checking(new Expectations() {{
+			oneOf(v).visitStructDefn(s);
+			oneOf(v).visitStructField(sf);
+			oneOf(v).leaveStructField(sf);
+			oneOf(v).leaveStructDefn(s);
+			oneOf(v).visitStructFieldAccessor(sf);
+			oneOf(v).leaveStructFieldAccessor(sf);
+		}});
+		r.traverseWithHSI(v);
 	}
 
 	@Test

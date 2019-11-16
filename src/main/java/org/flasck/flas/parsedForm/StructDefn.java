@@ -14,7 +14,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 
-public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType {
+public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType, AccessorHolder {
 	public static Comparator<StructDefn> nameComparator = new Comparator<StructDefn>() {
 		@Override
 		public int compare(StructDefn l, StructDefn r) {
@@ -94,6 +94,15 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 			sb.append(polys());
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public FieldAccessor getAccessor(String called) {
+		for (StructField sf : fields) {
+			if (sf.accessor && sf.name.equals(called))
+				return sf;
+		}
+		return null;
 	}
 
 	public List<PolyType> polys() {

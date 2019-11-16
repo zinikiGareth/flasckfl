@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -116,7 +117,7 @@ public class UnitDataDeclTypesTests {
 
 	@Test
 	public void aObjectCanBeInstantiatedWithoutAnyFuss() {
-		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), false, new ArrayList<>());
+		AccessorHolder od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), false, new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Nested.udd.Obj"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Nested.Obj"); will(returnValue(od));

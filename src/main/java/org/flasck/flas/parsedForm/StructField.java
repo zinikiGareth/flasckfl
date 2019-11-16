@@ -6,10 +6,11 @@ import java.util.Comparator;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.RepositoryEntry;
 
-public class StructField implements Locatable, RepositoryEntry {
+public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 	public static Comparator<StructField> nameComparator = new Comparator<StructField>() {
 		@Override
 		public int compare(StructField o1, StructField o2) {
@@ -40,6 +41,11 @@ public class StructField implements Locatable, RepositoryEntry {
 	@Override
 	public InputPosition location() {
 		return loc;
+	}
+
+	@Override
+	public Expr acor(Expr from) {
+		return new MakeAcor(from.location(), FunctionName.function(loc, myName.scope, "_field_" + name), from, 0);
 	}
 
 	@Override
