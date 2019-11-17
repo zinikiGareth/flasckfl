@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -21,5 +22,10 @@ public class TypeChecker extends LeafAdapter {
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
 		sv.push(new GroupChecker(errors, repository, sv, new FunctionGroupTCState(repository, grp)));
+	}
+	
+	@Override
+	public void visitUnitTestAssert(UnitTestAssert a) {
+		new UTAChecker(errors, repository, sv, a);
 	}
 }

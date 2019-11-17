@@ -279,7 +279,9 @@ public class StackVisitation {
 			oneOf(fnt).get(1); will(returnValue(nbr));
 			oneOf(nbr).incorporates(nbr); will(returnValue(true));
 			oneOf(nbr).incorporates(str); will(returnValue(false));
-			oneOf(errors).message(pos, "typing: nbr str");
+			oneOf(nbr).signature(); will(returnValue("nbr"));
+			oneOf(str).signature(); will(returnValue("str"));
+			oneOf(errors).message(pos, "function '+' was expecting nbr not str");
 			oneOf(nv).result(with(any(ErrorType.class)));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "+");

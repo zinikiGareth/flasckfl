@@ -1,0 +1,3 @@
+	test cannot apply ok to a string
+		assert (ok "hello")
+			7
