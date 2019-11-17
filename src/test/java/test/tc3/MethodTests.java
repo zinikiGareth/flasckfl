@@ -1,6 +1,7 @@
 package test.tc3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -22,9 +23,13 @@ import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
+import org.flasck.flas.tc3.MessageChecker;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.UnifiableType;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -33,6 +38,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ApplyMatcher;
+import flas.matchers.ExprResultMatcher;
 
 public class MethodTests {
 	public interface RAV extends ResultAware, Visitor {	}
@@ -102,6 +108,81 @@ public class MethodTests {
 		sv.leaveObjectMethod(meth);
 	}
 	
-	// Handle typing errors (duh!) - must always be a "Message"
-	// Consolidating different types 
+	// TODO: Consolidating different types (a method with a Debug and a Send)
+	
+	@Test
+	public void sendMessageIsFine() {
+		new MessageChecker(errors, state, sv);
+		context.checking(new Expectations() {{
+			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.send))));
+		}});
+		sv.result(new ExprResult(LoadBuiltins.send));
+	}
+
+	@Test
+	public void debugMessageIsFine() {
+		new MessageChecker(errors, state, sv);
+		context.checking(new Expectations() {{
+			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.debug))));
+		}});
+		sv.result(new ExprResult(LoadBuiltins.debug));
+	}
+
+	@Test
+	public void unionMessageIsFine() {
+		new MessageChecker(errors, state, sv);
+		context.checking(new Expectations() {{
+			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.message))));
+		}});
+		sv.result(new ExprResult(LoadBuiltins.message));
+	}
+
+	@Test
+	public void anEmptyListIsFine() {
+		new MessageChecker(errors, state, sv);
+		context.checking(new Expectations() {{
+			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
+		}});
+		sv.result(new ExprResult(LoadBuiltins.nil));
+	}
+
+	@Test
+	public void listOfDebugMessagesIsFine() {
+		new MessageChecker(errors, state, sv);
+		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.debug));
+		context.checking(new Expectations() {{
+			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
+		}});
+		sv.result(new ExprResult(pi));
+	}
+
+	@Test
+	public void consOfSendMessagesIsFine() {
+		new MessageChecker(errors, state, sv);
+		PolyInstance pi = new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.send));
+		context.checking(new Expectations() {{
+			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
+		}});
+		sv.result(new ExprResult(pi));
+	}
+
+	@Test
+	public void listOfMessagesIsFine() {
+		new MessageChecker(errors, state, sv);
+		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
+		context.checking(new Expectations() {{
+			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
+		}});
+		sv.result(new ExprResult(pi));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void aNumberIsNotFine() {
+		new MessageChecker(errors, state, sv);
+		context.checking(new Expectations() {{
+			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
+		}});
+		sv.result(new ExprResult(LoadBuiltins.number));
+	}
 }

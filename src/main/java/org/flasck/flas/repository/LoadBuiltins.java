@@ -95,6 +95,7 @@ public class LoadBuiltins {
 		trueTR.bind(trueT);
 		nilTR.bind(nil);
 		debugTR.bind(debug);
+		sendTR.bind(send);
 	
 		// add fields to structs
 		error.addField(new StructField(pos, false, stringTR, "message"));
