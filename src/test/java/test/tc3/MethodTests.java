@@ -15,9 +15,12 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.ResultAware;
@@ -112,7 +115,7 @@ public class MethodTests {
 	
 	@Test
 	public void sendMessageIsFine() {
-		new MessageChecker(errors, state, sv);
+		new MessageChecker(errors, state, sv, pos);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.send))));
 		}});
@@ -121,7 +124,7 @@ public class MethodTests {
 
 	@Test
 	public void debugMessageIsFine() {
-		new MessageChecker(errors, state, sv);
+		new MessageChecker(errors, state, sv, pos);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.debug))));
 		}});
@@ -130,7 +133,7 @@ public class MethodTests {
 
 	@Test
 	public void unionMessageIsFine() {
-		new MessageChecker(errors, state, sv);
+		new MessageChecker(errors, state, sv, pos);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.message))));
 		}});
@@ -139,7 +142,7 @@ public class MethodTests {
 
 	@Test
 	public void anEmptyListIsFine() {
-		new MessageChecker(errors, state, sv);
+		new MessageChecker(errors, state, sv, pos);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
 		}});
@@ -148,7 +151,7 @@ public class MethodTests {
 
 	@Test
 	public void listOfDebugMessagesIsFine() {
-		new MessageChecker(errors, state, sv);
+		new MessageChecker(errors, state, sv, pos);
 		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
@@ -158,7 +161,7 @@ public class MethodTests {
 
 	@Test
 	public void consOfSendMessagesIsFine() {
-		new MessageChecker(errors, state, sv);
+		new MessageChecker(errors, state, sv, pos);
 		PolyInstance pi = new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.send));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
@@ -168,7 +171,7 @@ public class MethodTests {
 
 	@Test
 	public void listOfMessagesIsFine() {
-		new MessageChecker(errors, state, sv);
+		new MessageChecker(errors, state, sv, pos);
 		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
@@ -179,10 +182,36 @@ public class MethodTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void aNumberIsNotFine() {
-		new MessageChecker(errors, state, sv);
+		new MessageChecker(errors, state, sv, pos);
 		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "Number cannot be a Message");
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
 		}});
 		sv.result(new ExprResult(LoadBuiltins.number));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void listOfNumbersIsNotFine() {
+		new MessageChecker(errors, state, sv, pos);
+		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "List[Number] cannot be a Message");
+			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
+		}});
+		sv.result(new ExprResult(pi));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void anyOtherPolyIsNotFine() {
+		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, "A")));
+		new MessageChecker(errors, state, sv, pos);
+		PolyInstance pi = new PolyInstance(sda, Arrays.asList(LoadBuiltins.message));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.Foo[Message] cannot be a Message");
+			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
+		}});
+		sv.result(new ExprResult(pi));
 	}
 }

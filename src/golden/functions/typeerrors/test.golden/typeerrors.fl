@@ -1,3 +1,10 @@
 	ok x = x + 3
 
 	f x = "hello" + 3
+	
+	struct Foo A
+	
+	method meth
+		<- "hello"
+		<- Foo
+		<- [42]

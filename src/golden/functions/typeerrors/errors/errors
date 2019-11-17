@@ -4,3 +4,9 @@ testerrors.u 11.0:     _ "hello"
                           value is of type String that cannot be the result of an expression of type Number
 typeerrors.f  3.6:    f x =  _ "hello" + 3
                           function '+' was expecting Number not String
+typeerrors.f  8.0:     _ <- "hello"
+                          String cannot be a Message
+typeerrors.f  9.0:     _ <- Foo
+                          test.golden.Foo cannot be a Message
+typeerrors.f 10.0:     _ <- [42]
+                          Cons[Number] cannot be a Message

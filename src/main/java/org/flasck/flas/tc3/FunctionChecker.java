@@ -93,7 +93,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void visitSendMessage(SendMessage sm) {
-		new MessageChecker(errors,state, sv);
+		new MessageChecker(errors,state, sv, sm.location());
 	}
 	
 	@Override

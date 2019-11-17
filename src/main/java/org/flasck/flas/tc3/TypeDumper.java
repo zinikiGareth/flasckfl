@@ -32,7 +32,7 @@ public class TypeDumper extends LeafAdapter {
 			return;
 		pw.print(om.name().uniqueName());
 		pw.print(" :: ");
-		if (om.type() == null)
+		if (!om.hasType() || om.type() == null)
 			pw.print("<<UNDEFINED>>");
 		else
 			pw.print(om.type().signature());

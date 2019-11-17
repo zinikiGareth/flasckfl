@@ -1,5 +1,6 @@
 package org.flasck.flas.tc3;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -9,9 +10,13 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 
 public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
+	private final ErrorReporter errors;
+	private InputPosition pos;
 
-	public MessageChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor sv) {
+	public MessageChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor sv, InputPosition pos) {
+		this.errors = errors;
 		this.sv = sv;
+		this.pos = pos;
 		sv.push(this);
 		sv.push(new ExpressionChecker(errors, state, sv));
 	}
@@ -26,23 +31,25 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 			return;
 		}
 		
+		Type check = t;
+		
 		// a poly list is fine (cons or list) as long as the type is
 		if (t instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) t;
 			NamedType nt = pi.struct();
 			if (nt == LoadBuiltins.cons || nt == LoadBuiltins.list)
-				t = pi.getPolys().get(0);
+				check = pi.getPolys().get(0);
 			else {
-				// TODO: message
+				errors.message(pos, t.signature() + " cannot be a Message");
 				sv.result(new ExprResult(new ErrorType()));
 				return;
 			}
 		}
-		if (LoadBuiltins.message.incorporates(t)) {
+		if (LoadBuiltins.message.incorporates(check)) {
 			sv.result(r);
 			return;
 		}
-		// TODO: message
+		errors.message(pos, t.signature() + " cannot be a Message");
 		sv.result(new ExprResult(new ErrorType()));
 	}
 
