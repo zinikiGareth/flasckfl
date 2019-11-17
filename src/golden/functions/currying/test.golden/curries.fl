@@ -3,3 +3,5 @@
 	
 	curry1 x = f x
 	curry2 a = _ - a
+	
+.	applied = curry1 3 2

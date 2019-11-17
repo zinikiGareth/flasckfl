@@ -255,6 +255,40 @@ public class ExpressionGenerationJS {
 	}
 
 	@Test
+	public void aStructConstructorWithNoArgsExpectingTwoArgsBecomesACurry() {
+		JSExpr cons = context.mock(JSExpr.class, "cons");
+		JSExpr curry = context.mock(JSExpr.class, "curry");
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("Cons"); will(returnValue(cons));
+			oneOf(meth).curry(2, cons); will(returnValue(curry));
+			oneOf(nv).result(curry);
+		}});
+		UnresolvedVar expr = new UnresolvedVar(pos, "Cons");
+		expr.bind(LoadBuiltins.cons);
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		new ExprGeneratorJS(state, stackv, meth);
+		Traverser gen = new Traverser(stackv).withHSI();
+		gen.visitExpr(expr, 0);
+	}
+
+	@Test
+	public void aStructConstructorWithOneArgExpectingTwoArgsIsPushedByExprGenerator() {
+		JSExpr cons = context.mock(JSExpr.class, "cons");
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("Cons"); will(returnValue(cons));
+			oneOf(nv).result(cons);
+		}});
+		UnresolvedVar expr = new UnresolvedVar(pos, "Cons");
+		expr.bind(LoadBuiltins.cons);
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		new ExprGeneratorJS(state, stackv, meth);
+		Traverser gen = new Traverser(stackv).withHSI();
+		gen.visitExpr(expr, 1);
+	}
+
+	@Test
 	public void aSimpleFunction() {
 		JSStorage jss = context.mock(JSStorage.class);
 		JSExpr nret = context.mock(JSExpr.class, "nret");
@@ -418,6 +452,27 @@ public class ExpressionGenerationJS {
 			oneOf(meth).structConst("Nil"); will(returnValue(nil));
 			oneOf(meth).structArgs("Cons", s, nil); will(returnValue(cons));
 			oneOf(nv).result(cons);
+		}});
+		StackVisitor stackv = new StackVisitor();
+		stackv.push(nv);
+		new ExprGeneratorJS(state, stackv, meth);
+		Traverser gen = new Traverser(stackv).withHSI();
+		gen.visitApplyExpr(ae);
+	}
+	
+	@Test
+	public void aConstructorApplicationWithInsufficientArgsBecomesACurry() {
+		UnresolvedVar fn = new UnresolvedVar(pos, "Cons");
+		fn.bind(LoadBuiltins.cons);
+		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"));
+		JSExpr s = context.mock(JSExpr.class, "s");
+		JSExpr cons = context.mock(JSExpr.class, "cons");
+		JSExpr curry = context.mock(JSExpr.class, "curry");
+		context.checking(new Expectations() {{
+			oneOf(meth).pushFunction("Cons"); will(returnValue(cons));
+			oneOf(meth).string("hello"); will(returnValue(s));
+			oneOf(meth).curry(2, cons, s); will(returnValue(curry));
+			oneOf(nv).result(curry);
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);

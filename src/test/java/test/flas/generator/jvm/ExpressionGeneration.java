@@ -316,6 +316,50 @@ public class ExpressionGeneration {
 	}
 
 	@Test
+	public void aStructConstructorWithNoArgsExpectingTwoArgsBecomesACurry() {
+		IExpr fcx = context.mock(IExpr.class, "fcx");
+		IExpr cons = context.mock(IExpr.class, "cons");
+		IExpr consAsObj = context.mock(IExpr.class, "consAsObj");
+		IExpr expArgs = context.mock(IExpr.class, "expArgs");
+		IExpr aev = context.mock(IExpr.class, "aev");
+		IExpr args = context.mock(IExpr.class, "args");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		Var var = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "var");
+		IExpr assign = context.mock(IExpr.class, "assign");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst(J.CONS); will(returnValue(cons));
+			oneOf(meth).intConst(2); will(returnValue(expArgs));
+			oneOf(meth).arrayOf("java.lang.Object"); will(returnValue(args));
+			oneOf(meth).as(cons, "java.lang.Object"); will(returnValue(consAsObj));
+			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLCurry", "curry", consAsObj, expArgs, args); will(returnValue(aev));
+			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
+			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
+			oneOf(block).add(assign);
+			oneOf(nv).result(var);
+		}});
+		UnresolvedVar expr = new UnresolvedVar(pos, "Cons");
+		expr.bind(LoadBuiltins.cons);
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv, block)).withHSI();
+		gen.visitExpr(expr, 0);
+	}
+
+	@Test
+	public void aStructConstructorWithOneArgExpectingTwoArgsIsPushedByExprGenerator() {
+		IExpr fcx = context.mock(IExpr.class, "fcx");
+		IExpr cons = context.mock(IExpr.class, "cons");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst(J.CONS); will(returnValue(cons));
+			oneOf(nv).result(cons);
+		}});
+		UnresolvedVar expr = new UnresolvedVar(pos, "Cons");
+		expr.bind(LoadBuiltins.cons);
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null), sv, block)).withHSI();
+		gen.visitExpr(expr, 1);
+	}
+
+	@Test
 	public void aFunctionRecognizesAStructConstructorWithNoArgsAndGeneratesTheStaticCall() {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
@@ -625,8 +669,43 @@ public class ExpressionGeneration {
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", fcx, nilArgs); will(returnValue(nil));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Cons", "java.lang.Object", "eval", fcx, args); will(returnValue(nil));
-			
 			oneOf(nv).result(nil);
+		}});
+		new ExprGenerator(new FunctionState(meth, fcx, null), sv, block);
+		Traverser gen = new Traverser(sv).withHSI();
+		gen.visitApplyExpr(ae);
+	}
+
+	@Test
+	public void aConstructorApplicationWithInsufficientArgsBecomesACurry() {
+		UnresolvedVar fn = new UnresolvedVar(pos, "Cons");
+		fn.bind(LoadBuiltins.cons);
+		IExpr fcx = context.mock(IExpr.class, "fcx");
+		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"));
+		IExpr shello = context.mock(IExpr.class, "shello");
+		List<IExpr> argsList = new ArrayList<>();
+		argsList.add(shello);
+		IExpr args = context.mock(IExpr.class, "args");
+		IExpr cons = context.mock(IExpr.class, "cons");
+		IExpr i2 = context.mock(IExpr.class, "i2");
+		IExpr curry = context.mock(IExpr.class, "curry");
+		IExpr ass = context.mock(IExpr.class, "ass");
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(22));
+		}});
+		Var v1 = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v1");
+		context.assertIsSatisfied();
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst(J.CONS); will(returnValue(cons));
+			oneOf(meth).stringConst("hello"); will(returnValue(shello));
+			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
+			oneOf(meth).as(cons, J.OBJECT); will(returnValue(cons));
+			oneOf(meth).intConst(2); will(returnValue(i2));
+			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCURRY, "curry", cons, i2, args); will(returnValue(curry));
+			oneOf(meth).avar(J.FLCURRY, "v1"); will(returnValue(v1));
+			oneOf(meth).assign(v1, curry); will(returnValue(ass));
+			oneOf(block).add(ass);
+			oneOf(nv).result(v1);
 		}});
 		new ExprGenerator(new FunctionState(meth, fcx, null), sv, block);
 		Traverser gen = new Traverser(sv).withHSI();

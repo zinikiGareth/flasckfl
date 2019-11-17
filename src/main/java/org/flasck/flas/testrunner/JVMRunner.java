@@ -17,10 +17,8 @@ import org.flasck.jdk.FlasckHandle;
 import org.flasck.jdk.ServiceProvider;
 import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
-import org.flasck.jvm.builtin.FLNumber;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.fl.AreYouA;
-import org.flasck.jvm.fl.FLComparable;
 import org.flasck.jvm.fl.FLEval;
 import org.flasck.jvm.fl.FLMockEvalContext;
 import org.jsoup.nodes.Document;
@@ -121,44 +119,11 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //		errors.clear();
 //	}
 
-	@SuppressWarnings("unchecked")
 	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
 		FLEvalContext cx = new FLMockEvalContext();
 		expected = FLEval.full(cx, expected);
 		actual = FLEval.full(cx, actual);
-		if (expected instanceof FLNumber) {
-			assertSameNumber((FLNumber)expected, actual);
-		} else if (expected instanceof List) {
-			if (!(actual instanceof List))
-				throw new AssertFailed(expected, actual);
-			List<?> e = (List<?>)expected;
-			List<?> a = (List<?>)actual;
-			if (e.size() != a.size())
-				throw new AssertFailed(expected, actual);
-			try {
-				for (int i=0;i<a.size();i++)
-					assertSameValue(e.get(i), a.get(i));
-			} catch (AssertFailed ex) {
-				throw new AssertFailed(expected, actual, ex);
-			}
-		} else if (expected.getClass().equals(actual.getClass())) {
-			if (expected instanceof FLComparable) {
-				@SuppressWarnings("rawtypes")
-				FLComparable c = (FLComparable<?>) expected;
-				if (!c.equalTo(cxt, actual))
-					throw new AssertFailed(expected, actual);
-			} else
-				if (!expected.equals(actual))
-					throw new AssertFailed(expected, actual);
-		} else
-			throw new AssertFailed(expected, actual);
-	}
-
-	private void assertSameNumber(FLNumber expected, Object actual) throws FlasTestException {
-		if (!(actual instanceof FLNumber))
-			throw new AssertFailed(expected, actual);
-		FLNumber an = (FLNumber) actual;
-		if (!expected.equals(an))
+		if (!cx.areEqual(expected, actual))
 			throw new AssertFailed(expected, actual);
 	}
 

@@ -111,12 +111,21 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
-			if (nargs == 0 && ((StructDefn)defn).argCount() == 0) {
+			StructDefn sd = (StructDefn)defn;
+			if (nargs == 0 && sd.argCount() == 0) {
 				List<IExpr> provided = new ArrayList<>();
 				IExpr args = meth.arrayOf(J.OBJECT, provided);
 				sv.result(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
-			} else
+			} else if (myName.equals(J.NIL) || sd.argCount() == nargs) {
 				sv.result(null);
+			} else if (nargs > 0) {
+				sv.result(meth.classConst(myName));
+			} else {
+				IExpr call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(meth.classConst(myName), "java.lang.Object"), meth.intConst(sd.argCount()), meth.arrayOf(J.OBJECT));
+				Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
+				currentBlock.add(meth.assign(v, call));
+				sv.result(v);
+			}
 		} else if (defn instanceof VarPattern) {
 			String v = ((VarPattern)defn).var;
 			AVar var = state.boundVar(v);

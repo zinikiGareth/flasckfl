@@ -94,8 +94,15 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 			sv.result(v);
 		} else if (defn instanceof StructDefn && !stack.isEmpty()) {
 			// do the creation immediately
-			IExpr ctor = meth.callStatic(defn.name().javaClassName(), J.OBJECT, "eval", fcx, args);
-			sv.result(ctor);
+			if (stack.size() == expArgs) {
+				IExpr ctor = meth.callStatic(defn.name().javaClassName(), J.OBJECT, "eval", fcx, args);
+				sv.result(ctor);
+			} else {
+				IExpr call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
+				Var v = meth.avar(J.FLCURRY, state.nextVar("v"));
+				currentBlock.add(meth.assign(v, call));
+				sv.result(v);
+			}
 		} else {
 			List<XCArg> xcs = checkExtendedCurry(stack);
 			IExpr call;

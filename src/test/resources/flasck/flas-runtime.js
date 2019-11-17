@@ -159,6 +159,8 @@ FLContext.prototype.compare = function(left, right) {
 		return left.message === right.message;
 	} else if (left._compare) {
 		return left._compare(this, right);
+	} else if (left.state && right.state && left.state instanceof FieldsContainer && right.state instanceof FieldsContainer) {
+		return left.state._compare(this, right.state);
 	} else
 		return left == right;
 }
@@ -330,6 +332,18 @@ FieldsContainer.prototype.set = function(fld, val) {
 
 FieldsContainer.prototype.get = function(fld) {
 	return this.dict[fld];
+}
+
+FieldsContainer.prototype._compare = function(cx, other) {
+	if (Object.keys(this.dict).length != Object.keys(other.dict).length)
+		return false;
+	for (var k in this.dict) {
+		if (!other.dict.hasOwnProperty(k))
+			return false;
+		else if (!cx.compare(this.dict[k], other.dict[k]))
+			return false;
+	}
+	return true;
 }
 
 FieldsContainer.prototype.toString = function() {

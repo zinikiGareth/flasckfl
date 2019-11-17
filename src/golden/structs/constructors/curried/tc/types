@@ -1,0 +1,3 @@
+test.golden.f0 :: test.golden.TwoVals
+test.golden.f1 :: String->test.golden.TwoVals
+test.golden.f2 :: String->String->test.golden.TwoVals

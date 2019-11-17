@@ -1,0 +1,13 @@
+	test that we can evaluate the thing with no args
+		assert (f0)
+			TwoVals "hello" "world"
+			
+.	test that we can evaluate the thing with one arg
+.		assert (f1 "world")
+.			TwoVals "hello" "world"
+
+
+I also want a case where the constructor is an argument to a HOF
+
+.		assert (hof TwoVals "hello")
+. where hof ctor s = (ctor s) "world"

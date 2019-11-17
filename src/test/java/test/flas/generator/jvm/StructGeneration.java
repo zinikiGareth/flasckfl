@@ -67,13 +67,16 @@ public class StructGeneration {
 		context.checking(new Expectations() {{
 			oneOf(eval).nextLocal(); will(returnValue(6));
 			oneOf(eval).nextLocal(); will(returnValue(7));
+			oneOf(eval).nextLocal(); will(returnValue(8));
 		}});
 		Var ecxt = new Var.AVar(eval, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		Var eret = new Var.AVar(eval, ename, "ret");
+		Var args = new Var.AVar(eval, "[" + J.OBJECT, "args");
 		context.checking(new Expectations() {{ // eval
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
+			oneOf(eval).argument("[" + J.OBJECT, "args"); will(returnValue(args));
 			oneOf(eval).avar(ename, "ret"); will(returnValue(eret));
 			oneOf(eval).makeNew(ename, ecxt); will(returnValue(mknew));
 			oneOf(eval).assign(eret, mknew); will(returnValue(ass));
@@ -125,8 +128,10 @@ public class StructGeneration {
 		}});
 		Var ecxt = new Var.AVar(eval, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		Var eret = new Var.AVar(eval, ename, "ret");
-		Var ps = new Var.AVar(eval, J.OBJECT, "s");
+		Var args = new Var.AVar(eval, "[" + J.OBJECT, "args");
+		IExpr i0 = context.mock(IExpr.class, "i0");
 		IExpr sarg = context.mock(IExpr.class, "sarg");
+		IExpr val = context.mock(IExpr.class, "val");
 		IExpr state = context.mock(IExpr.class, "state");
 		IExpr setField = context.mock(IExpr.class, "setField");
 		Sequence flushes = context.sequence("flushes");
@@ -134,14 +139,16 @@ public class StructGeneration {
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
-			oneOf(eval).argument(J.OBJECT, "s"); will(returnValue(ps));
+			oneOf(eval).argument("[" + J.OBJECT, "args"); will(returnValue(args));
 			oneOf(eval).avar(ename, "ret"); will(returnValue(eret));
 			oneOf(eval).makeNew(ename, ecxt); will(returnValue(mknew));
 			oneOf(eval).assign(eret, mknew); will(returnValue(ass));
 			oneOf(ass).flush(); inSequence(flushes);
+			oneOf(eval).intConst(0); will(returnValue(i0));
+			oneOf(eval).arrayElt(args, i0); will(returnValue(val));
 			oneOf(eval).getField(eret, "state"); will(returnValue(state));
 			oneOf(eval).stringConst("s"); will(returnValue(sarg));
-			oneOf(eval).callInterface("void", state, "set", sarg, ps); will(returnValue(setField));
+			oneOf(eval).callInterface("void", state, "set", sarg, val); will(returnValue(setField));
 			oneOf(setField).flush(); inSequence(flushes);
 			oneOf(eval).returnObject(eret); will(returnValue(doret));
 			oneOf(doret).flush(); inSequence(flushes);
@@ -169,6 +176,7 @@ public class StructGeneration {
 			oneOf(bce).get(ename); will(returnValue(bcc));
 			oneOf(bcc).createMethod(false, J.OBJECT, "_field_s"); will(returnValue(acc));
 			oneOf(acc).argument(J.FLEVALCONTEXT, "cxt");
+			oneOf(acc).argument("[" + J.OBJECT, "args");
 			oneOf(acc).getField("state"); will(returnValue(state));
 			oneOf(acc).stringConst("s"); will(returnValue(sarg));
 			oneOf(acc).callInterface(J.OBJECT, state, "get", sarg); will(returnValue(getField));

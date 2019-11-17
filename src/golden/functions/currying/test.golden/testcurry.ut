@@ -5,4 +5,12 @@
 	test currying with subtracting
 		assert (apply1 (curry2 2) 10)
 			8
-	
+
+.	test you don't need to apply it
+.		assert (curry1 4 12)
+.			16
+
+.	test you don't need to apply it in a function
+.		assert applied
+.			9
+			

@@ -80,15 +80,18 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 	// There certainly isn't implicit currying on the first one which is an Array of unspecified length
 	private void makeClosure(WithTypeSignature defn, int expArgs) {
 		if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
-			stack.remove(0); // should be "null", I think
+			stack.remove(0);
 			sv.result(block.makeArray(stack.toArray(new JSExpr[stack.size()])));
 		} else if (defn instanceof StructDefn && stack.size() > 1) {
 			// do the creation immediately
-			stack.remove(0); // should be "null", I think
 			String fn = defn.name().jsName();
 			if (fn.equals("Error"))
 				fn = "FLError";
-			sv.result(block.structArgs(fn, stack.toArray(new JSExpr[stack.size()])));
+			if (stack.size() == expArgs + 1) {
+				stack.remove(0); // we are supplying the op directly here ...
+				sv.result(block.structArgs(fn, stack.toArray(new JSExpr[stack.size()])));
+			} else
+				sv.result(block.curry(expArgs, stack.toArray(new JSExpr[stack.size()])));
 		} else {
 			JSExpr[] args = new JSExpr[stack.size()];
 			List<XCArg> xcs = new ArrayList<>();

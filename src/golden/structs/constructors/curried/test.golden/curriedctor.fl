@@ -1,4 +1,7 @@
-	struct Aval
-		String val
-		
-	f = Aval
+	struct TwoVals
+		String left
+		String right
+
+	f0 = TwoVals "hello" "world"		
+	f1 = TwoVals "hello"
+	f2 = TwoVals
