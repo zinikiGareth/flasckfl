@@ -106,7 +106,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 				UnifiableType ut = (UnifiableType) fi;
 				ut.isPassed(loc, ai);
 			} else if (!fi.incorporates(ai)) {
-				errors.message(loc, "typing: " + fi + " " + ai);
+				errors.message(loc, "function '" + expr.fn + "' was expecting " + fi.signature() + " not " + ai.signature());
 				nv.result(new ErrorType());
 				return;
 			}
