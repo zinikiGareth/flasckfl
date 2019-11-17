@@ -1,4 +1,6 @@
-testerrors.u  2.11:   assert (ok  _ "hello")
+testerrors.u  6.11:   assert (ok  _ "hello")
                           function 'ok' was expecting Number not String
+testerrors.u 11.0:     _ "hello"
+                          value is of type String that cannot be the result of an expression of type Number
 typeerrors.f  3.6:    f x =  _ "hello" + 3
                           function '+' was expecting Number not String

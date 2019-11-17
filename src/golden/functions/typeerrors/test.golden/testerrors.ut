@@ -1,3 +1,12 @@
+	test can use ok correctly
+		assert (ok 4)
+			7
+			
 	test cannot apply ok to a string
 		assert (ok "hello")
 			7
+			
+	test cannot compare number to a string
+		assert (ok 4)
+			"hello"
+		

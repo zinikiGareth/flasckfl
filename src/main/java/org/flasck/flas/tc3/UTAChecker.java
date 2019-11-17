@@ -18,7 +18,7 @@ public class UTAChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private ErrorReporter errors;
 	private RepositoryReader repository;
-	private List<ExprResult> results = new ArrayList<>();
+	private List<Type> results = new ArrayList<>();
 
 	public UTAChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, UnitTestAssert a) {
 		this.errors = errors;
@@ -34,16 +34,26 @@ public class UTAChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		results.add((ExprResult) r);
+		Type t = ((ExprResult)r).type;
+		results.add(t);
 	}
 	
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
 		if (results.size() != 2)
 			throw new NotImplementedException();
-		if (results.get(0) == null || results.get(1) == null) {// there were errors in the expressions, so don't cascade things
+		Type value = results.get(0);
+		Type expr = results.get(1);
+		if (value instanceof ErrorType || expr instanceof ErrorType) {// there were errors in the expressions, so don't cascade things
 			sv.result(null);
 			return;
+		}
+		if (value == expr)
+			; // fine
+		else if (expr.incorporates(value))
+			; // fine
+		else {
+			errors.message(a.value.location(), "value is of type " + value.signature() + " that cannot be the result of an expression of type " + expr.signature());
 		}
 		sv.result(null);
 	}
