@@ -302,9 +302,6 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void rebind(Type consolidate) {
-		// When adding cases for A->A it really does seem to work like that, but maybe I just didn't build the case correctly
-//		if (resolvedTo == null)
-//			throw new RuntimeException("I don't think it works like that");
 		this.resolvedTo = consolidate;
 	}
 

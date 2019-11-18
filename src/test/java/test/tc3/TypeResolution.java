@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.FunctionGroup;
@@ -130,11 +131,15 @@ public class TypeResolution {
 	@Test
 	public void ifWeHaveAUTInTheProcessingTypeWeConvertItToAPolyVarOnBind() {
 		gc.visitFunction(fnF);
-		UnifiableType fut = state.requireVarConstraints(pos, "test.repo.f");
-		fut.isReturned();
-		gc.result(fut);
+		UnifiableType utG = state.createUT(); // the argument
+		state.bindVarToUT("test.repo.x", utG);
+		utG.isReturned();
+		gc.result(new Apply(utG, utG));
 		gc.leaveFunctionGroup(null);
 		Type ty = fnF.type();
+		assertEquals("A->A", ty.signature());
+		assertTrue(ty instanceof Apply);
+		ty = ((Apply)ty).get(0);
 		assertTrue(ty instanceof PolyType);
 		assertEquals("A", ty.signature());
 	}

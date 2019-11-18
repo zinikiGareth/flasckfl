@@ -32,7 +32,7 @@ public class ConsolidateTypes implements Type, Locatable {
 
 	@Override
 	public String signature() {
-		throw new NotImplementedException();
+		throw new NotImplementedException(types + " -- " + uts);
 	}
 
 	@Override
