@@ -3,6 +3,8 @@ package org.flasck.flas.tc3;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class Apply implements Type, SignatureNeedsParensType {
 	public final List<Type> tys;
 
@@ -62,8 +64,29 @@ public class Apply implements Type, SignatureNeedsParensType {
 
 	@Override
 	public boolean incorporates(Type other) {
-		// TODO Auto-generated method stub
-		return false;
+		// TODO: there are incorrect assertions here ...
+		//  because UTs are infintely subtle (other may be a UT)
+		//  because of currying
+		InputPosition loc = new InputPosition("unknown", 1, 0, "unknown");
+		if (!(other instanceof Apply))
+			return false;
+		List<Type> otys = ((Apply)other).tys;
+		if (tys.size() != otys.size())
+			return false;
+		for (int i=0;i<tys.size();i++) {
+			Type fi = this.tys.get(i);
+			Type oi = otys.get(i);
+			if (oi instanceof UnifiableType) {
+				UnifiableType ut = (UnifiableType) oi;
+				ut.incorporatedBy(loc, fi);
+			} else if (fi instanceof UnifiableType) {
+				UnifiableType ut = (UnifiableType) fi;
+				ut.isPassed(loc, oi);
+			} else if (!fi.incorporates(oi)) {
+				return false;
+			}			
+		}
+		return true;
 	}
 
 	@Override
