@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -102,6 +103,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce((Type) sf.type.defn());
 		} else if (var.defn() instanceof CurryArgument) {
 			announce((Type) new CurryArgumentType(((Locatable)var.defn()).location()));
+		} else if (var.defn() instanceof UnitDataDeclaration) {
+			announce(((UnitDataDeclaration)var.defn()).ofType.defn());
 		} else
 			throw new RuntimeException("Cannot handle " + var.defn() + " of type " + var.defn().getClass());
 	}

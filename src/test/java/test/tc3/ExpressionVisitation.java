@@ -18,8 +18,10 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.CurryArgumentType;
 import org.flasck.flas.tc3.ExpressionChecker;
@@ -203,4 +205,18 @@ public class ExpressionVisitation {
 		uv.bind(fnF);
 		tc.visitUnresolvedVar(uv, 0);
 	}
+
+	@Test
+	public void aVarBoundToAUDDBoundToAStringReturnsString() {
+		NestedVisitor nv = context.mock(NestedVisitor.class);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
+		}});
+		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
+		UnresolvedVar xx = new UnresolvedVar(pos, "x");
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, LoadBuiltins.stringTR, FunctionName.function(pos, null, "udd"), new StringLiteral(pos, "hello"));
+		xx.bind(udd);
+		tc.visitUnresolvedVar(xx, 0);
+	}
+
 }
