@@ -223,7 +223,7 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public String signature() {
 		if (resolvedTo == null)
-			throw new NotImplementedException("Has not been resolved");
+			return "??";
 		return resolvedTo.signature();
 	}
 

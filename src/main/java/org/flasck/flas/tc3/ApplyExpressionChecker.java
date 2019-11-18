@@ -12,7 +12,11 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -67,6 +71,23 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			for (Type t : a.tys)
 				types.add(instantiateFreshPolys(uts, t));
 			return new Apply(types);
+		} else if (type instanceof PolyHolder && ((PolyHolder)type).hasPolys()) {
+			PolyHolder sd = (PolyHolder) type;
+			List<Type> polys = new ArrayList<>();
+			for (Type t : sd.polys())
+				polys.add(instantiateFreshPolys(uts, t));
+			PolyInstance pi = new PolyInstance(sd, polys);
+			if (type instanceof FieldsDefn) {
+				List<Type> types = new ArrayList<>();
+				for (StructField sf : ((FieldsDefn)type).fields)
+					types.add(instantiateFreshPolys(uts, sf.type.defn()));
+				if (types.isEmpty())
+					return pi;
+				else
+					return new Apply(types, pi);
+			} else {
+				return pi; 
+			}
 		} else
 			return type;
 	}
@@ -99,12 +120,6 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			Type fi = fn.get(pos);
 			if (ai instanceof CurryArgumentType) {
 				tocurry.add(fi);
-//			} else if (ai instanceof UnifiableType) {
-//				UnifiableType ut = (UnifiableType) ai;
-//				ut.incorporatedBy(loc, fi);
-//			} else if (fi instanceof UnifiableType) {
-//				UnifiableType ut = (UnifiableType) fi;
-//				ut.isPassed(loc, ai);
 			} else if (!fi.incorporates(loc, ai)) {
 				errors.message(loc, "function '" + expr.fn + "' was expecting " + fi.signature() + " not " + ai.signature());
 				nv.result(new ErrorType());

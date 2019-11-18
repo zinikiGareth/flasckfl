@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class StateDefinition extends FieldsDefn {
 
@@ -15,6 +17,26 @@ public class StateDefinition extends FieldsDefn {
 		super(null, loc, FieldsType.STATE, null, false, polys);
 	}
 	
+	@Override
+	public String signature() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public int argCount() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public Type get(int pos) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public boolean incorporates(InputPosition pos, Type other) {
+		throw new NotImplementedException();
+	}
+
 	public boolean hasMember(String text) {
 		for (StructField sf : fields)
 			if (sf.name.equals(text))

@@ -49,11 +49,16 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 
 	@Override
 	public Type get(int pos) {
-		throw new NotImplementedException();
+		if (pos == 0)
+			return this;
+		else
+			throw new NotImplementedException();
 	}
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
+		if (this.ty.incorporates(pos, other))
+			return true;
 		if (!(other instanceof PolyInstance))
 			return false;
 		PolyInstance o = (PolyInstance) other;

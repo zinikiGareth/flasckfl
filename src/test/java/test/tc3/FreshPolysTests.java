@@ -20,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ApplyMatcher;
+import flas.matchers.PolyInstanceMatcher;
 
 public class FreshPolysTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -73,5 +74,17 @@ public class FreshPolysTests {
 		}});
 		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new Apply(new PolyType(pos, "A"), new PolyType(pos, "B"), new PolyType(pos, "A"), new PolyType(pos, "B")));
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut1), Matchers.is(ut2), Matchers.is(ut1), Matchers.is(ut2)));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void weCanReplaceAPolyVarInsideAnStructDefn() {
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
+		UnifiableType ut = context.mock(UnifiableType.class);
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(null); will(returnValue(ut));
+		}});
+		Type t = aec.instantiateFreshPolys(new TreeMap<>(), LoadBuiltins.cons);
+		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(ut)), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(ut))));
 	}
 }

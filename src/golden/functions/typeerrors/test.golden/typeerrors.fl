@@ -2,7 +2,7 @@
 
 	f x = "hello" + 3
 	
-	struct Foo A
+	struct Foo
 	
 	method meth
 		<- "hello"

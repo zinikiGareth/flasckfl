@@ -1,5 +1,4 @@
 JVM PASS that we can have a simple constructor match
-JVM PASS anything else is an error because of typing
 JVM PASS that we can match Cons as a type
 JVM PASS that we can match Cons as a constructor
 JVM PASS that we can match True if present
@@ -7,7 +6,6 @@ JVM PASS that we can match False if present
 JVM PASS that we can match two arguments correctly
 JVM PASS that we can go the other way
 JVM PASS that when head is matched it picks the specific case
-JVM PASS that when head is not matched the default case applies
 JVM PASS the simple case of e
 JVM PASS False and Nil will be 3
 JVM PASS any False case will always be 3
@@ -19,7 +17,6 @@ JVM PASS if a variable is ignored, it's value is irrelevant
 JVM PASS if a variable is ignored, it's value is irrelevant part 2
 JVM PASS that we can pass any number to a function expecting numbers
 JS PASS that we can have a simple constructor match
-JS PASS anything else is an error because of typing
 JS PASS that we can match Cons as a type
 JS PASS that we can match Cons as a constructor
 JS PASS that we can match True if present
@@ -27,7 +24,6 @@ JS PASS that we can match False if present
 JS PASS that we can match two arguments correctly
 JS PASS that we can go the other way
 JS PASS that when head is matched it picks the specific case
-JS PASS that when head is not matched the default case applies
 JS PASS the simple case of e
 JS PASS False and Nil will be 3
 JS PASS any False case will always be 3

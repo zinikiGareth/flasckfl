@@ -19,7 +19,7 @@ import org.flasck.flas.tc3.Type;
 import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, NamedType {
+public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, PolyHolder {
 	public final transient boolean generate;
 	private final InputPosition location;
 	private final SolidName name;
@@ -41,6 +41,11 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		return name;
 	}
 	
+	@Override
+	public boolean hasPolys() {
+		return !polyvars.isEmpty();
+	}
+
 	public UnionTypeDefn addCase(TypeReference tr) {
 		this.cases.add(tr);
 		return this;

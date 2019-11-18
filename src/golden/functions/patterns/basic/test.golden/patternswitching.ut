@@ -1,10 +1,11 @@
 	test that we can have a simple constructor match
 		assert (a Nil)
 			0
-			
-	test anything else is an error because of typing
-		assert (a 3)
-			Error "no matching case"
+
+// while interesting, this is actually a type error			
+.	test anything else is an error because of typing
+.		assert (a 3)
+.			Error "no matching case"
 
 	test that we can match Cons as a type
 		assert (a2 (Cons "hello" Nil))
@@ -33,10 +34,11 @@
 	test that when head is matched it picks the specific case
 		assert (d3 [True])
 			2
-			 
-	test that when head is not matched the default case applies
-		assert (d3 [False])
-			1
+
+// again this is a type error			 
+.	test that when head is not matched the default case applies
+.		assert (d3 [False])
+.			1
 			 
 	test the simple case of e
 		assert (e True [])
