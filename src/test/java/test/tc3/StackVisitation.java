@@ -89,12 +89,10 @@ public class StackVisitation {
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 			allowing(state).requireVarConstraints(pos, "f"); will(returnValue(utf));
 			oneOf(utf).determinedType(ty);
-			oneOf(state).resolveAll(false);
-			oneOf(utf).resolve(false); will(returnValue(xx));
-			oneOf(utf).rebind(xx);
+			oneOf(state).resolveAll(errors, false);
 			oneOf(state).enhanceAllMutualUTs();
-			oneOf(state).resolveAll(true);
-			oneOf(state).bindVarPatternTypes();
+			oneOf(state).resolveAll(errors, true);
+			oneOf(state).bindVarPatternTypes(errors);
 			oneOf(nv).result(null);
 		}});
 		GroupChecker gc = new GroupChecker(errors, repository, nv, state);
@@ -125,16 +123,13 @@ public class StackVisitation {
 		gc.visitObjectMethod(om);
 		context.assertIsSatisfied();
 		UnifiableType utm = context.mock(UnifiableType.class, "utm");
-		Type xx = context.mock(Type.class, "xx");
 		context.checking(new Expectations() {{
 			allowing(state).requireVarConstraints(pos, "meth"); will(returnValue(utm));
 			oneOf(utm).determinedType(ty);
-			oneOf(state).resolveAll(false);
-			oneOf(utm).resolve(false); will(returnValue(xx));
-			oneOf(utm).rebind(xx);
+			oneOf(state).resolveAll(errors, false);
 			oneOf(state).enhanceAllMutualUTs();
-			oneOf(state).resolveAll(true);
-			oneOf(state).bindVarPatternTypes();
+			oneOf(state).resolveAll(errors, true);
+			oneOf(state).bindVarPatternTypes(errors);
 			oneOf(nv).result(null);
 		}});
 		gc.result(ty);
@@ -225,7 +220,7 @@ public class StackVisitation {
 		Type nbr = LoadBuiltins.number;
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "ut_A");
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(); will(returnValue(ut));
+			oneOf(state).createUT(null); will(returnValue(ut));
 			oneOf(nv).result(ut);
 		}});
 		UnresolvedVar f = new UnresolvedVar(pos, "f"); // A->A
@@ -237,7 +232,7 @@ public class StackVisitation {
 		aec.result(new ExprResult(pos, fnt));
 		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
-		assertEquals(LoadBuiltins.number, ut.resolve());
+		assertEquals(LoadBuiltins.number, ut.resolve(errors, true));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -360,7 +355,7 @@ public class StackVisitation {
 		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(any(UnifiableType.class)));
-			oneOf(state).createUT(); will(returnValue(result));
+			oneOf(state).createUT(pos); will(returnValue(result));
 		}});
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		fn.bind(funcVar);
@@ -381,7 +376,7 @@ public class StackVisitation {
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, fname, "x"));
 		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(); will(returnValue(result));
+			oneOf(state).createUT(pos); will(returnValue(result));
 			oneOf(utV).isUsed();
 			oneOf(nv).result(with(any(UnifiableType.class)));
 		}});

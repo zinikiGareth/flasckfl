@@ -1,6 +1,7 @@
 package test.tc3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -38,13 +39,6 @@ public class PatternsProduceTypes {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 	
-	@Before
-	public void begin() {
-		context.checking(new Expectations() {{
-			allowing(state);
-		}});
-	}
-
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aConstantPatternIsANumber() {
@@ -54,6 +48,7 @@ public class PatternsProduceTypes {
 		fn.intro(fi);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
+			oneOf(state).createUT(null);
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
 		Slot s = new ArgSlot(0, null);
@@ -68,6 +63,7 @@ public class PatternsProduceTypes {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number))));
 		}});
 		fc.leaveFunction(fn);
@@ -82,6 +78,7 @@ public class PatternsProduceTypes {
 		fn.intro(fi);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
+			oneOf(state).createUT(null);
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
 		Slot s = new ArgSlot(0, null);
@@ -95,6 +92,7 @@ public class PatternsProduceTypes {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.number))));
 		}});
 		fc.leaveFunction(fn);

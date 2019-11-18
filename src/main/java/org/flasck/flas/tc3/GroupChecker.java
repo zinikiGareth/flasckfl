@@ -2,13 +2,10 @@ package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
-
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -18,6 +15,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -55,152 +53,35 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
 		// if we picked up anything based on the invocation of the method in this group, add that into the mix
+//		System.out.println(grp);
+//		state.debugInfo();
+		
 		for (Entry<TypeBinder, Type> m : memberTypes.entrySet()) {
 			String name = m.getKey().name().uniqueName();
 			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
 			ut.determinedType(m.getValue());
 		}
-		
-		// First go through and figure out what we can
-		for (Type ty : memberTypes.values()) {
-			consolidate(ty, false);
-		}
+//		state.debugInfo();
 		
 		// Then we can resolve all the UTs
-		state.resolveAll(false);
-//		state.enhanceAllMutualUTs();
-
-		/* For debugging of TCSs
-		System.out.println(grp);
-		for (UnifiableType ut : state.unifiableTypes()) {
-			TypeConstraintSet tcs = (TypeConstraintSet)ut;
-			System.out.println(tcs.asTCS() + "=> " + tcs.debugInfo());
-		}
-		*/
-
-		// We may need to re-consolidate UTs associated with functions
-		for (Entry<TypeBinder, Type> m : memberTypes.entrySet()) {
-			String name = m.getKey().name().uniqueName();
-			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
-			ut.rebind(consolidate(ut.resolve(false), false));
-		}
-
+		state.resolveAll(errors, false);
+//		state.debugInfo();
 		state.enhanceAllMutualUTs();
-		state.resolveAll(true);
+//		state.debugInfo();
+		state.resolveAll(errors, true);
+//		state.debugInfo();
 		
 		// Then we can bind the types
 		for (Entry<TypeBinder, Type> e : memberTypes.entrySet()) {
-			e.getKey().bindType(cleanUTs(consolidate(e.getValue(), true)));
+			e.getKey().bindType(cleanUTs(e.getValue()));
 		}
-		state.bindVarPatternTypes();
+		state.bindVarPatternTypes(errors);
 		sv.result(null);
-	}
-
-	public Type consolidate(Type value, boolean haveResolvedUTs) {
-		if (value instanceof ConsolidateTypes) {
-			ConsolidateTypes ct = (ConsolidateTypes) value;
-			if (ct.isConsolidated())
-				return ct.consolidatedAs();
-			Set<Type> tys = new HashSet<>();
-			for (Type t : ct.types) {
-				Type tct = consolidate(t, haveResolvedUTs);
-				if (tct instanceof ErrorType)
-					return tct;
-				tys.add(tct);
-			}
-			for (UnifiableType ut : ct.uts) {
-				if (haveResolvedUTs)
-					tys.add(ut.resolve());
-				else {
-					for (UnifiableType o : ct.uts) {
-						if (o != ut) {
-							ut.canBeType(o);
-							o.canBeType(ut);
-						}
-					}
-				}
-					
-			}
-			if (tys.isEmpty()) {
-				if (!haveResolvedUTs)
-					return null;
-				throw new RuntimeException("I can't figure out how this can come to pass");
-			}
-			Type ret = unifyApply(tys);
-			if (ret == null)
-				ret = repository.findUnionWith(tys);
-			if (ret == null && haveResolvedUTs) {
-				state.resolveAll(true);
-				Set<String> sigs = new TreeSet<>();
-				for (Type t : tys) {
-					sigs.add(t.signature());
-				}
-				errors.message(ct.location(), "unable to unify " + String.join(", ", sigs));
-				return null;
-			}
-			if (ret != null)
-				ct.consolidatesTo(ret);
-			return ret;
-		} else if (value instanceof UnifiableType && haveResolvedUTs) {
-			return ((UnifiableType)value).resolve();
-		} else if (value instanceof Apply) {
-			Apply apply = (Apply)value;
-			List<Type> consolidated = new ArrayList<Type>();
-			for (Type t : apply.tys)
-				consolidated.add(consolidate(t, haveResolvedUTs));
-			return new Apply(consolidated);
-		} else if (value instanceof PolyInstance) {
-			PolyInstance pi = (PolyInstance) value;
-			List<Type> polys = new ArrayList<>();
-			for (Type t : pi.getPolys()) {
-				polys.add(consolidate(t, haveResolvedUTs));
-			}
-			return new PolyInstance(pi.struct(), polys);
-		} else
-			return value;
-	}
-	
-	private Type unifyApply(Set<Type> tys) {
-		int nargs = -1;
-		List<List<Type>> matrix = new ArrayList<>();
-		for (Type t : tys) {
-			if (t instanceof Apply) {
-				Apply apply = (Apply)t;
-				int ac = apply.argCount();
-				if (nargs == -1) {
-					for (int i=0;i<=ac;i++) {
-						List<Type> mt = new ArrayList<>();
-						mt.add(apply.get(i));
-						matrix.add(mt);
-					}
-					nargs = ac;
-				} else if (nargs == ac) {
-					for (int i=0;i<=ac;i++) {
-						matrix.get(i).add(apply.get(i));
-					}
-				} else
-					throw new RuntimeException("I think this may be legit with currying and all, but it's certainly not handled");
-			} else
-				return null;
-		}
-		
-		boolean fails = false;
-		List<Type> res = new ArrayList<>();
-		for (List<Type> ts : matrix) {
-			Type ty = consolidate(new ConsolidateTypes(null, ts), false);
-			if (ty == null)
-				fails = true;
-			res.add(ty);
-		}
-		if (fails)
-			return null;
-		else
-			return new Apply(res.subList(0, res.size()-1), res.get(res.size()-1));
 	}
 
 	private Type cleanUTs(Type ty) {
 		if (ty instanceof UnifiableType)
-			return ((UnifiableType)ty).resolve(true);
+			return cleanUTs(((UnifiableType)ty).resolve(errors, true));
 		else if (ty instanceof Apply) {
 			Apply a = (Apply) ty;
 			List<Type> tys = new ArrayList<>();

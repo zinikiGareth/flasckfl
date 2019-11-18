@@ -10,7 +10,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.FunctionGroup;
@@ -18,7 +17,6 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tc3.Apply;
-import org.flasck.flas.tc3.ConsolidateTypes;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
@@ -35,7 +33,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ApplyMatcher;
-import flas.matchers.PolyTypeMatcher;
+import flas.matchers.PolyInstanceMatcher;
+import flas.matchers.ResolvedUTMatcher;
 
 public class TypeResolution {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -72,7 +71,7 @@ public class TypeResolution {
 	@Test
 	public void multipleIdenticalTypesAreEasilyConsolidated() {
 		gc.visitFunction(fnF);
-		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)));
+		gc.result(state.consolidate(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -80,7 +79,7 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentParts() {
 		gc.visitFunction(fnF);
-		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.falseT, LoadBuiltins.trueT)));
+		gc.result(state.consolidate(pos, Arrays.asList(LoadBuiltins.falseT, LoadBuiltins.trueT)));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.bool, fnF.type());
 	}
@@ -89,9 +88,9 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentPolymorphicParts() {
 		gc.visitFunction(fnF);
-		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.nil, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any)))));
+		gc.result(state.consolidate(pos, Arrays.asList(LoadBuiltins.nil, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any)))));
 		gc.leaveFunctionGroup(null);
-		assertThat(fnF.type(), PolyTypeMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
+		assertThat(fnF.type(), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
 	}
 
 	@Test
@@ -100,7 +99,7 @@ public class TypeResolution {
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeType(LoadBuiltins.number);
 		gc.result(ut);
-		ut.resolve(true);
+		ut.resolve(errors, true);
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -110,7 +109,7 @@ public class TypeResolution {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
 		ut.canBeType(LoadBuiltins.number);
-		gc.result(new ConsolidateTypes(pos, Arrays.asList(ut, LoadBuiltins.number)));
+		gc.result(state.consolidate(pos, Arrays.asList(ut, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -119,19 +118,19 @@ public class TypeResolution {
 	@Test
 	public void ifWeHaveIdentifiedAFunctionAndHaveAnApplicationOfItWeCanDeduceTheCorrectType() {
 		gc.visitFunction(fnF);
-		UnifiableType utG = state.createUT(); // a function argument "f"
+		UnifiableType utG = state.createUT(pos); // a function argument "f"
 		UnifiableType result = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.string)); // (f String) :: ?result
 		result.canBeType(LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
 		gc.result(result);
 		gc.leaveFunctionGroup(null);
-		assertThat(utG.resolve(), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.nil)));
+		assertThat(utG.resolve(errors, true), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.nil)));
 		assertEquals(LoadBuiltins.nil, fnF.type());
 	}
 
 	@Test
 	public void ifWeHaveAUTInTheProcessingTypeWeConvertItToAPolyVarOnBind() {
 		gc.visitFunction(fnF);
-		UnifiableType utG = state.createUT(); // the argument
+		UnifiableType utG = state.createUT(pos); // the argument
 		state.bindVarToUT("test.repo.x", utG);
 		utG.isReturned();
 		gc.result(new Apply(utG, utG));
@@ -147,9 +146,9 @@ public class TypeResolution {
 	@Test
 	public void ifWeHaveAHOFWithAUTInTheProcessingTypeWeConvertItToAPolyVarOnBind() {
 		gc.visitFunction(fnF);
-		UnifiableType utG = state.createUT(); // a hof function argument utH->utI
-		UnifiableType utH = state.createUT(); 
-		UnifiableType utI = state.createUT();
+		UnifiableType utG = state.createUT(pos); // a hof function argument utH->utI
+		UnifiableType utH = state.createUT(pos); 
+		UnifiableType utI = state.createUT(pos);
 		utG.canBeType(new Apply(utH, utI));
 		utH.canBeType(utI);
 		utG.isReturned();

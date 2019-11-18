@@ -70,6 +70,7 @@ public class MethodTests {
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.debug)); will(returnValue(LoadBuiltins.debug));
 			oneOf(r).result(LoadBuiltins.debug);
 		}});
 		sv.leaveObjectMethod(meth);
@@ -95,7 +96,7 @@ public class MethodTests {
 		Slot s = context.mock(Slot.class);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(); will(returnValue(ut));
+			oneOf(state).createUT(null); will(returnValue(ut));
 		}});
 		sv.argSlot(s);
 		context.assertIsSatisfied();
@@ -106,6 +107,7 @@ public class MethodTests {
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.debug)); will(returnValue(LoadBuiltins.debug));
 			oneOf(r).result(with(ApplyMatcher.type(Matchers.is(ut), Matchers.is(LoadBuiltins.debug))));
 		}});
 		sv.leaveObjectMethod(meth);

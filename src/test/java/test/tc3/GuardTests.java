@@ -1,6 +1,7 @@
 package test.tc3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
@@ -43,13 +44,6 @@ public class GuardTests {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 	
-	@Before
-	public void begin() {
-		context.checking(new Expectations() {{
-			allowing(state);
-		}});
-	}
-
 	// Assume we have something like
 	//  | (2 == 3) = x
 	@SuppressWarnings("unchecked")
@@ -64,6 +58,7 @@ public class GuardTests {
 		FunctionCaseDefn fic1 = new FunctionCaseDefn(test, res);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
+			oneOf(state).createUT(null);
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
 		Slot s = new ArgSlot(0, null);
@@ -109,6 +104,7 @@ public class GuardTests {
 		fc.leaveCase(fic1);
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number))));
 		}});
 		fc.leaveFunction(fn);

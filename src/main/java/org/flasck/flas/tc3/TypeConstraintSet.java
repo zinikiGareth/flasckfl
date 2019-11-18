@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,8 +9,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -26,6 +29,10 @@ public class TypeConstraintSet implements UnifiableType {
 			this.args = args;
 			this.ret = ret;
 		}
+
+		public Type asApply() {
+			return new Apply(args, ret);
+		}
 	}
 
 	private final RepositoryReader repository;
@@ -38,7 +45,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final Set<UnifiableApplication> applications = new HashSet<>();
 	private Type resolvedTo;
 	private int usedOrReturned = 0;
-	private final Set<ConsolidateTypes> consolidations = new HashSet<>();
+//	private final Set<ConsolidateTypes> consolidations = new HashSet<>();
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id) {
 		repository = r;
@@ -52,17 +59,14 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 	
 	@Override
-	public Type resolve() {
-		return resolve(true);
-	}
-	
-	@Override
-	public void enhance() {
+	public boolean enhance() {
+		boolean any = false;
 		while (true) {
 			List<TypeConstraintSet> refs = new ArrayList<>();
 			for (Type t : types) {
 				if (t instanceof TypeConstraintSet) {
 					TypeConstraintSet other = (TypeConstraintSet) t;
+					other.canBeType(this);
 					for (Type t2 : other.types) {
 						if (t2 instanceof TypeConstraintSet && !types.contains(t2))
 							refs.add((TypeConstraintSet) t2);
@@ -70,13 +74,14 @@ public class TypeConstraintSet implements UnifiableType {
 				}
 			}
 			if (refs.isEmpty())
-				return;
+				return any;
+			any = true;
 			types.addAll(refs);
 		}
 	}
 	
 	@Override
-	public Type resolve(boolean hard) {
+	public Type resolve(ErrorReporter errors, boolean hard) {
 		if (resolvedTo != null)
 			return resolvedTo;
 		Set<Type> tys = new HashSet<Type>();
@@ -107,7 +112,7 @@ public class TypeConstraintSet implements UnifiableType {
 					PolyType pt = ty.findPoly(f.type);
 					if (pt == null)
 						continue;
-					polyMap.put(pt, stc.get(f).resolve());
+					polyMap.put(pt, stc.get(f).resolve(errors, true));
 				}
 				List<Type> polys = new ArrayList<>();
 				for (PolyType p : ty.polys()) {
@@ -120,47 +125,40 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		}
 		
-		List<Type> asApply = new ArrayList<>();
-		for (UnifiableApplication x : applications) {
-			// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
-			// and while it could possibly recurse, I don't think that can then refer back to us
-			// If we do run into that problem, we should probably throw a special "UnresolvedReferenceException" here and then catch that in the loop
-			// and then go around again
-			// But at least make sure you have a test case before doing that ...
-			List<Type> forApply = new ArrayList<>();
-			for (Type t : x.args) {
-				forApply.add(tryResolving(t, hard));
+		if (applications.size() == 1)
+			tys.add(applications.iterator().next().asApply());
+		else if (!applications.isEmpty()) {
+			List<List<Type>> args = new ArrayList<>();
+			List<Type> ret = new ArrayList<>();
+			for (UnifiableApplication x : applications) {
+				// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
+				// and while it could possibly recurse, I don't think that can then refer back to us
+				// If we do run into that problem, we should probably throw a special "UnresolvedReferenceException" here and then catch that in the loop
+				// and then go around again
+				// But at least make sure you have a test case before doing that ...
+				int k = 0;
+				for (Type t : x.args) {
+					if (args.size() == k)
+						args.add(new ArrayList<Type>());
+					args.get(k++).add(t);
+				}
+				ret.add(x.ret);
 			}
-			forApply.add(tryResolving(x.ret, hard));
-			asApply.add(new Apply(forApply));
+			List<Type> cargs = new ArrayList<>();
+			for (List<Type> a : args)
+				cargs.add(state.consolidate(pos, a));
+			tys.add(new Apply(cargs, state.consolidate(pos, ret)));
 		}
-		if (asApply.size() == 1)
-			tys.add(asApply.get(0));
-		else if (asApply.size() > 1)
-			tys.add(new ConsolidateTypes(pos, asApply));
 		
 		tys.addAll(incorporatedBys);
 		
 		List<UnifiableType> sameAs = new ArrayList<>();
-		for (ConsolidateTypes ct : consolidations) {
-			if (!ct.types.isEmpty())
-				tys.add(ct.consolidatedAs());
-			for (UnifiableType ut : ct.uts) {
-				if (ut == this)
-					continue;
-				if (ut.isResolved())
-					tys.add(ut.resolve());
-				else
-					sameAs.add(ut);
-			}
-		}
-		
 		HashSet<Type> all = new HashSet<Type>();
 		for (Type ty : tys) {
 			if (ty instanceof UnifiableType) {
 				UnifiableType ut = (UnifiableType) ty;
 				if (ut.isResolved())
-					all.add(ut.resolve());
+					all.add(ut.resolve(errors, true));
 				else
 					sameAs.add(ut);
 			} else
@@ -180,8 +178,11 @@ public class TypeConstraintSet implements UnifiableType {
 		else {
 			resolvedTo = repository.findUnionWith(all);
 			if (resolvedTo == null) {
-				// this is a legit type error
-				throw new NotImplementedException("This should be a legit cannot merge type error: cannot unify " + all);
+				TreeSet<String> msg = new TreeSet<>();
+				for (Type ty : all)
+					msg.add(ty.signature());
+				errors.message(pos, "unable to unify " + String.join(", ", msg));
+				return new ErrorType();
 			}
 		}
 
@@ -193,9 +194,9 @@ public class TypeConstraintSet implements UnifiableType {
 		return resolvedTo;
 	}
 
-	private Type tryResolving(Type t, boolean hard) {
+	private Type tryResolving(ErrorReporter errors, Type t, boolean hard) {
 		if (t instanceof UnifiableType) {
-			Type ret = ((UnifiableType)t).resolve(hard);
+			Type ret = ((UnifiableType)t).resolve(errors, hard);
 			if (ret != null)
 				return ret;
 			else
@@ -263,7 +264,7 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public UnifiableType canBeAppliedTo(List<Type> args) {
 		// Here we introduce a new variable that we will be able to constrain
-		UnifiableType ret = state.createUT();
+		UnifiableType ret = state.createUT(pos);
 		for (Type ty : args) {
 			if (ty instanceof UnifiableType)
 				((UnifiableType)ty).isUsed();
@@ -272,6 +273,12 @@ public class TypeConstraintSet implements UnifiableType {
 		return ret;
 	}
 
+	void consolidatedApplication(Apply a) {
+		List<Type> l = new ArrayList<>(a.tys);
+		Type ret = l.remove(l.size()-1);
+		addApplication(l, ret);
+	}
+	
 	private void addApplication(List<Type> args, Type ret) {
 		applications.add(new UnifiableApplication(args, ret));
 	}
@@ -287,11 +294,11 @@ public class TypeConstraintSet implements UnifiableType {
 			types.add(ofType);
 	}
 
-	@Override
-	public void consolidatesWith(ConsolidateTypes consolidateTypes) {
-		consolidations.add(consolidateTypes);
-	}
-	
+//	@Override
+//	public void consolidatesWith(ConsolidateTypes consolidateTypes) {
+//		consolidations.add(consolidateTypes);
+//	}
+//	
 	@Override
 	public void isPassed(InputPosition loc, Type ai) {
 		// This is the same implementation as "canBeType" - is that correct?

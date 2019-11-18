@@ -9,6 +9,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -36,6 +37,7 @@ public class PatternExtraction {
 	private final PackageName pkg = new PackageName("test.repo");
 	private final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
+	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void anUntypedVariable() {
@@ -44,7 +46,7 @@ public class PatternExtraction {
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.addVar(new VarPattern(pos, new VarName(pos, nameF, "x")), null);
-		Type ty = po.minimalType(state, r);
+		Type ty = po.minimalType(errors, state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.any, ty);
 	}
@@ -55,11 +57,11 @@ public class PatternExtraction {
 		PolyType pa = new PolyType(pos, "A");
 		context.checking(new Expectations() {{
 			oneOf(state).hasVar("test.repo.fred.x"); will(returnValue(xv));
-			oneOf(xv).resolve(); will(returnValue(pa));
+			oneOf(xv).resolve(errors, true); will(returnValue(pa));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.addVar(new VarPattern(pos, new VarName(pos, nameF, "x")), null);
-		Type ty = po.minimalType(state, r);
+		Type ty = po.minimalType(errors, state, r);
 		assertNotNull(ty);
 		assertEquals(pa, ty);
 	}
@@ -70,7 +72,7 @@ public class PatternExtraction {
 		TypeReference tr = new TypeReference(pos, "Number");
 		tr.bind(LoadBuiltins.number);
 		po.addTyped(new TypedPattern(pos, tr, new VarName(pos, nameF, "v")), null);
-		Type ty = po.minimalType(state, r);
+		Type ty = po.minimalType(errors, state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.number, ty);
 	}
@@ -81,7 +83,7 @@ public class PatternExtraction {
 		TypeReference tr = new TypeReference(pos, "Number");
 		tr.bind(LoadBuiltins.number);
 		po.addVarWithType(tr, new VarName(pos, nameF, "v"), null);
-		Type ty = po.minimalType(state, r);
+		Type ty = po.minimalType(errors, state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.number, ty);
 	}
@@ -95,7 +97,7 @@ public class PatternExtraction {
 		TypeReference a = new TypeReference(pos, "Any");
 		a.bind(LoadBuiltins.any);
 		po.addTyped(new TypedPattern(pos, a, new VarName(pos, nameF, "a")), null);
-		Type ty = po.minimalType(state, r);
+		Type ty = po.minimalType(errors, state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.any, ty);
 	}
@@ -104,7 +106,7 @@ public class PatternExtraction {
 	public void simplestCaseWithJustAConstructor() {
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.requireCM(LoadBuiltins.nil);
-		Type ty = po.minimalType(state, r);
+		Type ty = po.minimalType(errors, state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.nil, ty);
 	}
@@ -119,7 +121,7 @@ public class PatternExtraction {
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.requireCM(LoadBuiltins.trueT);
 		po.requireCM(LoadBuiltins.falseT);
-		Type ty = po.minimalType(state, r);
+		Type ty = po.minimalType(errors, state, r);
 		assertNotNull(ty);
 		assertEquals(LoadBuiltins.bool, ty);
 	}

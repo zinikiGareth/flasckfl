@@ -21,7 +21,6 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
-import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.CurryArgumentType;
 import org.flasck.flas.tc3.ExpressionChecker;

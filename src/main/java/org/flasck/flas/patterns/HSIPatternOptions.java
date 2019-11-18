@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -210,7 +211,7 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public Type minimalType(CurrentTCState state, RepositoryReader repository) {
+	public Type minimalType(ErrorReporter errors, CurrentTCState state, RepositoryReader repository) {
 		List<TV> vs = new ArrayList<>();
 		Map<NamedType, TV> ts = new TreeMap<>(NamedType.nameComparator);
 		ts.putAll(types);
@@ -232,7 +233,7 @@ public class HSIPatternOptions implements HSIOptions {
 			if (ut == null)
 				return LoadBuiltins.any;
 			else
-				return ut.resolve();
+				return ut.resolve(errors, true);
 		} else {
 			Set<Type> ms = new HashSet<>(ctors.keySet());
 			Type ut = repository.findUnionWith(ms);

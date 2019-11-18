@@ -1,46 +1,30 @@
 package flas.matchers;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.flasck.flas.tc3.NamedType;
-import org.flasck.flas.tc3.PolyInstance;
-import org.flasck.flas.tc3.Type;
+import org.flasck.flas.parsedForm.PolyType;
 import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class PolyTypeMatcher extends TypeSafeMatcher<Type>{
-	private final NamedType sd;
-	private final List<Matcher<Type>> asList;
+public class PolyTypeMatcher extends TypeSafeMatcher<PolyType> {
+	private final String name;
 
-	public PolyTypeMatcher(NamedType sd, List<Matcher<Type>> list) {
-		this.sd = sd;
-		this.asList = list;
+	public PolyTypeMatcher(String name) {
+		this.name = name;
 	}
 
 	@Override
 	public void describeTo(Description arg0) {
-		arg0.appendValue(sd.name().uniqueName());
-		arg0.appendValue(asList);
+		arg0.appendText("Poly[");
+		arg0.appendValue(name);
+		arg0.appendText("]");
 	}
 
 	@Override
-	protected boolean matchesSafely(Type arg0) {
-		if (!(arg0 instanceof PolyInstance))
-			return false;
-		PolyInstance pi = (PolyInstance) arg0;
-		List<Type> polys = pi.getPolys();
-		if (polys.size() != asList.size())
-			return false;
-		for (int i=0;i<polys.size();i++) {
-			if (!asList.get(i).matches(polys.get(i)))
-				return false;
-		}
-		return true;
+	protected boolean matchesSafely(PolyType ty) {
+		return ty.shortName().equals(name);
 	}
 
-	public static PolyTypeMatcher of(NamedType sd, @SuppressWarnings("unchecked") Matcher<Type>... args) {
-		return new PolyTypeMatcher(sd, Arrays.asList(args));
+	public static PolyTypeMatcher called(String name) {
+		return new PolyTypeMatcher(name);
 	}
+
 }

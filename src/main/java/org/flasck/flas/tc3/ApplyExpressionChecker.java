@@ -57,7 +57,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			if (uts.containsKey(pt))
 				return uts.get(pt);
 			else {
-				UnifiableType ret = state.createUT();
+				UnifiableType ret = state.createUT(null);
 				uts.put(pt, ret);
 				return ret;
 			}
@@ -129,7 +129,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(LoadBuiltins.nil);
 		} else {
 			results.remove(0); // remove the nil from the front
-			Type ty = FunctionChecker.consolidate(expr.location(), results);
+			Type ty = state.consolidate(expr.location(), results);
 			nv.result(new PolyInstance(LoadBuiltins.cons, Arrays.asList(ty)));
 		}
 	}

@@ -1,5 +1,7 @@
 package test.tc3;
 
+import java.util.Arrays;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -12,15 +14,13 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import flas.matchers.ConsolidatedTypeMatcher;
-import flas.matchers.PolyTypeMatcher;
+import flas.matchers.PolyInstanceMatcher;
 
 public class ListBuilding {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -48,7 +48,8 @@ public class ListBuilding {
 	public void consOfASingleArgumentReturnsAPolyInstanceWithThatType() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(PolyTypeMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.number))));
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.number))));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0);
@@ -60,12 +61,13 @@ public class ListBuilding {
 		aec.leaveApplyExpr(ae);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	@Test
 	public void consOfATwoStringsReturnsAPolyInstanceOfString() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(PolyTypeMatcher.of(LoadBuiltins.cons, (Matcher)ConsolidatedTypeMatcher.with(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.string)))));
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.string, LoadBuiltins.string)); will(returnValue(LoadBuiltins.string));
+			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.string))));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0);

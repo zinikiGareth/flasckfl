@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StructDefn;
 
 public interface UnifiableType extends Type {
@@ -12,8 +13,7 @@ public interface UnifiableType extends Type {
 	// Ultimately we need to come up with some description of what this type is
 	// It could be "Top" (Any), it could be a polymorphic var (eg A) or it could be a concrete type (such as Number)
 	// It could also be something more complex, such as List[A]
-	Type resolve(boolean b);
-	Type resolve();
+	Type resolve(ErrorReporter errors, boolean b);
 
 	// particularly for the pattern-matching case, but also if an expression is created which returns this type,
 	// say that this slot can be represented by a particular struct defn
@@ -41,9 +41,9 @@ public interface UnifiableType extends Type {
 	// able to be applied to these types
 	UnifiableType canBeAppliedTo(List<Type> results);
 
-	// When building a consolidated type, we need to handle UnifiableTypes separately
-	// and note here that this is part of that
-	void consolidatesWith(ConsolidateTypes consolidateTypes);
+//	// When building a consolidated type, we need to handle UnifiableTypes separately
+//	// and note here that this is part of that
+//	void consolidatesWith(ConsolidateTypes consolidateTypes);
 
 	// When a function has polymorphic args, a UT is instantiated to handle that
 	// This is called when one of those is passed a variable
@@ -58,5 +58,5 @@ public interface UnifiableType extends Type {
 
 	// Many UTs can end up being bound to the same thing
 	// Make sure all of them know about everything
-	void enhance();
+	boolean enhance();
 }

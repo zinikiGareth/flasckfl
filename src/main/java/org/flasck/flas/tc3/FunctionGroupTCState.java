@@ -1,12 +1,15 @@
 package org.flasck.flas.tc3;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -24,12 +27,12 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
 		for (StandaloneDefn x : grp.functions())
-			bindVarToUT(x.name().uniqueName(), createUT());
+			bindVarToUT(x.name().uniqueName(), createUT(x.location()));
 	}
 
 	@Override
-	public UnifiableType createUT() {
-		TypeConstraintSet ret = new TypeConstraintSet(repository, this, null, "ret_" + allUTs.size());
+	public UnifiableType createUT(InputPosition pos) {
+		TypeConstraintSet ret = new TypeConstraintSet(repository, this, pos, "ret_" + allUTs.size());
 		allUTs.add(ret);
 		return ret;
 	}
@@ -39,11 +42,6 @@ public class FunctionGroupTCState implements CurrentTCState {
 //		throw new NotImplementedException();
 	}
 
-	@Override
-	public Iterable<UnifiableType> unifiableTypes() {
-		return allUTs;
-	}
-	
 	@Override
 	public void bindVarToUT(String name, UnifiableType ty) {
 		if (!allUTs.contains(ty))
@@ -59,12 +57,12 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	@Override
-	public void bindVarPatternTypes() {
+	public void bindVarPatternTypes(ErrorReporter errors) {
 		for (Entry<VarPattern, UnifiableType> e : patts.entrySet()) {
 			UnifiableType ut = e.getValue();
 			if (!ut.isResolved())
 				throw new RuntimeException("Not yet resolved");
-			e.getKey().bindType(ut.resolve());
+			e.getKey().bindType(ut.resolve(errors, true));
 		}
 	}
 	
@@ -88,16 +86,66 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 	
 	@Override
-	public void resolveAll(boolean hard) {
-		for (UnifiableType ut : allUTs) {
-			ut.resolve(hard);
+	public void resolveAll(ErrorReporter errors, boolean hard) {
+		while (true) {
+			List<UnifiableType> list = new ArrayList<>(allUTs);
+			for (UnifiableType ut : list) {
+				ut.resolve(errors, hard);
+			}
+			if (list.size() == allUTs.size())
+				return;
 		}
 	}
 
 	@Override
 	public void enhanceAllMutualUTs() {
-		for (UnifiableType ut : allUTs) {
-			ut.enhance();
+		while (true) {
+			boolean again = false;
+			for (UnifiableType ut : allUTs) {
+				again |= ut.enhance();
+			}
+			if (!again)
+				return;
 		}
+	}
+
+	public Type consolidate(InputPosition pos, List<Type> types) {
+		// If there's just 1, that's easy
+		if (types.size() == 1)
+			return types.get(0);
+		
+		// If they appear to be all the same, no probs; if any of them is error, return that
+		Type ret = types.get(0);
+		boolean allMatch = true;
+		for (Type t : types) {
+			if (t instanceof ErrorType)
+				return t;
+			if (ret != t) {
+				allMatch = false;
+				break;
+			}
+		}
+		if (allMatch)
+			return ret;
+
+		// OK, create a new UT and attach them all
+		UnifiableType ut = createUT(pos);
+		for (Type t : types) {
+			if (t instanceof Apply) {
+				((TypeConstraintSet) ut).consolidatedApplication((Apply) t);
+			} else
+				ut.canBeType(t);
+		}
+		return ut;
+	}
+
+	@Override
+	public void debugInfo() {
+		System.out.println("------");
+		for (UnifiableType ut : allUTs) {
+			TypeConstraintSet tcs = (TypeConstraintSet)ut;
+			System.out.println(tcs.asTCS() + "=> " + tcs.debugInfo());
+		}
+		System.out.println("======");
 	}
 }

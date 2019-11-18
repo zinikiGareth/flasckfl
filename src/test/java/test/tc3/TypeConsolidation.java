@@ -1,6 +1,7 @@
 package test.tc3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
@@ -22,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ApplyMatcher;
-import flas.matchers.ConsolidatedTypeMatcher;
 
 public class TypeConsolidation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -44,6 +44,7 @@ public class TypeConsolidation {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
 			oneOf(nv).result(LoadBuiltins.number);
 		}});
 		fc.leaveFunction(f);
@@ -57,12 +58,12 @@ public class TypeConsolidation {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.nil), Matchers.is(LoadBuiltins.number))));
 		}});
 		fc.leaveFunction(f);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void multipleIdenticallyTypedExpressionsCanBeConsolidatedInAContainer() {
 		FunctionChecker fc = new FunctionChecker(errors, nv, state);
@@ -70,12 +71,12 @@ public class TypeConsolidation {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ConsolidatedTypeMatcher.with(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number))));
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(nv).result(LoadBuiltins.number);
 		}});
 		fc.leaveFunction(f);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void multipleExpressionsCanBeConsolidatedInAContainer() {
 		FunctionChecker fc = new FunctionChecker(errors, nv, state);
@@ -83,7 +84,8 @@ public class TypeConsolidation {
 		fc.result(new ExprResult(pos, LoadBuiltins.falseT));
 		
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(ConsolidatedTypeMatcher.with(Matchers.is(LoadBuiltins.trueT), Matchers.is(LoadBuiltins.falseT))));
+			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.trueT, LoadBuiltins.falseT)); will(returnValue(LoadBuiltins.bool));
+			oneOf(nv).result(LoadBuiltins.bool);
 		}});
 		fc.leaveFunction(f);
 	}

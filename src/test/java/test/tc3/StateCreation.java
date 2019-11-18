@@ -1,5 +1,6 @@
 package test.tc3;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -10,6 +11,7 @@ import org.flasck.flas.tc3.StructTypeConstraints;
 import org.flasck.flas.tc3.UnifiableType;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -18,6 +20,7 @@ public class StateCreation {
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final StackVisitor nv = new StackVisitor();
+	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 
 	@Test
 	public void aSimpleNoArgConstructorSaysThisMustBeInTheArgType() {
@@ -25,7 +28,7 @@ public class StateCreation {
 		nv.push(new FunctionChecker(errors, nv, state));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(); will(returnValue(arg));
+			oneOf(state).createUT(null); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 		context.checking(new Expectations() {{
@@ -42,7 +45,7 @@ public class StateCreation {
 		nv.push(new FunctionChecker(errors, nv, state));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(); will(returnValue(arg));
+			oneOf(state).createUT(null); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 
@@ -65,7 +68,7 @@ public class StateCreation {
 		nv.push(new FunctionChecker(errors, nv, state));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(); will(returnValue(arg));
+			oneOf(state).createUT(null); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 
@@ -80,6 +83,8 @@ public class StateCreation {
 		nv.matchConstructor(LoadBuiltins.falseT);
 	}
 
+	@Test
+	@Ignore
 	public void alternativeConstructorsCanBeOfferedForTheSameSlotAfterNesting() {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
 		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
@@ -87,7 +92,7 @@ public class StateCreation {
 		nv.push(new FunctionChecker(errors, nv, state));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(); will(returnValue(arg));
+			oneOf(state).createUT(null); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 

@@ -1,19 +1,23 @@
 package org.flasck.flas.tc3;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.VarPattern;
 
 public interface CurrentTCState {
-	UnifiableType createUT();
+	UnifiableType createUT(InputPosition pos);
 	UnifiableType requireVarConstraints(InputPosition pos, String var);
 	UnifiableType hasVar(String var);
 	PolyType nextPoly(InputPosition pos);
 	void argType(Type type);
 	void bindVarToUT(String name, UnifiableType ty);
-	void resolveAll(boolean hard);
+	void resolveAll(ErrorReporter errors, boolean hard);
 	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
-	void bindVarPatternTypes();
-	Iterable<UnifiableType> unifiableTypes();
+	void bindVarPatternTypes(ErrorReporter errors);
 	void enhanceAllMutualUTs();
+	Type consolidate(InputPosition location, List<Type> results);
+	void debugInfo();
 }

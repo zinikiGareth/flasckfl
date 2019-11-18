@@ -47,7 +47,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void argSlot(Slot s) {
-		UnifiableType currentArg = state.createUT();
+		UnifiableType currentArg = state.createUT(null);
 		sv.push(new SlotChecker(sv, state, currentArg));
 	}
 
@@ -138,18 +138,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 
 	private Type buildApplyType(InputPosition pos) {
-		Type result = consolidate(pos, resultTypes);
+		Type result = state.consolidate(pos, resultTypes);
 		if (argTypes.isEmpty())
 			return result;
 		else {
 			return new Apply(argTypes, result);
 		}
-	}
-
-	public static Type consolidate(InputPosition pos, List<Type> types) {
-		if (types.size() == 1)
-			return types.get(0);
-		
-		return new ConsolidateTypes(pos, types);
 	}
 }
