@@ -164,6 +164,21 @@ public class UTACheckerTests {
 		tc.postUnitTestAssert(uta);
 	}
 	
+	@Test
+	public void testUTAWillAlwaysAllowErrorValues() {
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(UTAChecker.class)));
+		}});
+		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
+		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		context.checking(new Expectations() {{
+			oneOf(sv).result(null);
+		}});
+		tc.result(new ExprResult(LoadBuiltins.error));
+		tc.result(new ExprResult(LoadBuiltins.number));
+		tc.postUnitTestAssert(uta);
+	}
+	
 	// The more I look at this one, the more I feel it *might* be reasonable
 	// You could choose to generate a value from a function that happened to offer a bigger type
 	// I think it would be OK as long as there is *some* overlap

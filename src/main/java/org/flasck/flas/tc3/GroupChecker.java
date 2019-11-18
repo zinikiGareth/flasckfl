@@ -90,7 +90,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		
 		// Then we can bind the types
 		for (Entry<TypeBinder, Type> e : memberTypes.entrySet()) {
-			e.getKey().bindType(consolidate(e.getValue(), true));
+			e.getKey().bindType(cleanUTs(consolidate(e.getValue(), true)));
 		}
 		state.bindVarPatternTypes();
 		sv.result(null);
@@ -196,6 +196,19 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 			return null;
 		else
 			return new Apply(res.subList(0, res.size()-1), res.get(res.size()-1));
+	}
+
+	private Type cleanUTs(Type ty) {
+		if (ty instanceof UnifiableType)
+			return ((UnifiableType)ty).resolve(true);
+		else if (ty instanceof Apply) {
+			Apply a = (Apply) ty;
+			List<Type> tys = new ArrayList<>();
+			for (Type t : a.tys)
+				tys.add(cleanUTs(t));
+			return new Apply(tys);
+		} else
+			return ty;
 	}
 
 	public CurrentTCState testsWantToCheckState() {

@@ -8,6 +8,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
@@ -52,6 +53,8 @@ public class UTAChecker extends LeafAdapter implements ResultAware {
 			; // fine
 		else if (expr.incorporates(value))
 			; // fine
+		else if (value == LoadBuiltins.error)
+			; // errors are always possible
 		else {
 			errors.message(a.value.location(), "value is of type " + value.signature() + " that cannot be the result of an expression of type " + expr.signature());
 		}

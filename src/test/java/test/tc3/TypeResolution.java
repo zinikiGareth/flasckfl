@@ -2,6 +2,7 @@ package test.tc3;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
@@ -10,15 +11,18 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.ConsolidateTypes;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matcher;
@@ -26,7 +30,6 @@ import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -91,17 +94,6 @@ public class TypeResolution {
 	}
 
 	@Test
-	@Ignore
-	// when I wrote this test, it seemed like what I wanted, but I think now it's an irrelevance
-	// I think what happened in the interim is I took UTs more seriously and didn't just say "oh, resolve that to any"
-	public void anyIsBasicallyIgnoredWhenWeHaveSomethingElseInAConsolidatedType() {
-		gc.visitFunction(fnF);
-		gc.result(new ConsolidateTypes(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.any)));
-		gc.leaveFunctionGroup(null);
-		assertThat(fnF.type(), Matchers.is(LoadBuiltins.number));
-	}
-
-	@Test
 	public void becauseWeResolveAllTheTypesAUnifiableTypeCanBecomeASimplePrimitiveWhichIsEasyToResolve() {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
@@ -133,5 +125,44 @@ public class TypeResolution {
 		gc.leaveFunctionGroup(null);
 		assertThat(utG.resolve(), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.nil)));
 		assertEquals(LoadBuiltins.nil, fnF.type());
+	}
+
+	@Test
+	public void ifWeHaveAUTInTheProcessingTypeWeConvertItToAPolyVarOnBind() {
+		gc.visitFunction(fnF);
+		UnifiableType fut = state.requireVarConstraints(pos, "test.repo.f");
+		fut.isReturned();
+		gc.result(fut);
+		gc.leaveFunctionGroup(null);
+		Type ty = fnF.type();
+		assertTrue(ty instanceof PolyType);
+		assertEquals("A", ty.signature());
+	}
+
+	@Test
+	public void ifWeHaveAHOFWithAUTInTheProcessingTypeWeConvertItToAPolyVarOnBind() {
+		gc.visitFunction(fnF);
+		UnifiableType utG = state.createUT(); // a hof function argument utH->utI
+		UnifiableType utH = state.createUT(); 
+		UnifiableType utI = state.createUT();
+		utG.canBeType(new Apply(utH, utI));
+		utH.canBeType(utI);
+		utG.isReturned();
+		gc.result(new Apply(utG, LoadBuiltins.number));
+		gc.leaveFunctionGroup(null);
+		Type ty = fnF.type();
+		assertEquals("(A->A)->Number", ty.signature());
+
+		// extract the hof
+		assertTrue(ty instanceof Apply);
+		ty = ((Apply)ty).get(0);
+		
+		// extract the input arg
+		assertTrue(ty instanceof Apply);
+		ty = ((Apply)ty).get(0);
+		
+		// check it ...
+		assertTrue(ty instanceof PolyType);
+		assertEquals("A", ty.signature());
 	}
 }
