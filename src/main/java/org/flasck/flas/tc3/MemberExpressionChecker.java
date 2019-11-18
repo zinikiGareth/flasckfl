@@ -8,6 +8,8 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -43,17 +45,25 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
 		Type ty = results.get(0);
+		if (!(expr.fld instanceof UnresolvedVar))
+			throw new NotImplementedException("Cannot handle " + expr.fld);
+		UnresolvedVar fld = (UnresolvedVar)expr.fld;
 		if (ty instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) ty;
-			if (!(expr.fld instanceof UnresolvedVar))
-				throw new NotImplementedException("Cannot handle " + expr.fld);
-			UnresolvedVar fld = (UnresolvedVar)expr.fld;
 			ContractMethodDecl method = cd.getMethod(fld.var);
 			if (method == null) {
 				errors.message(fld.location(), "there is no method '" + fld.var + "' in " + cd.name().uniqueName());
 				nv.result(new ErrorType());
 			} else
 				nv.result(method.type());
+		} else if (ty instanceof StructDefn) {
+			StructDefn sd = (StructDefn) ty;
+			StructField sf = sd.findField(fld.var);
+			if (sf == null) {
+				
+			} else {
+				nv.result(sf.type.defn());
+			}
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
 	}

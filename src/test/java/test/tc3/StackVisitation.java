@@ -423,6 +423,19 @@ public class StackVisitation {
 	}
 
 	@Test
+	public void leaveMemberExpressionCanFindAFieldInAStructDefn() {
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, state, nv);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(LoadBuiltins.polyA);
+		}});
+		UnresolvedVar from = new UnresolvedVar(pos, "l");
+		UnresolvedVar fld = new UnresolvedVar(pos, "head");
+		MemberExpr dot = new MemberExpr(pos, from, fld);
+		mec.result(new ExprResult(LoadBuiltins.cons));
+		mec.leaveMemberExpr(dot);
+	}
+	
+	@Test
 	public void leaveMemberExpressionCanFindAMethodInAValidContract() {
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
 		List<Pattern> args = new ArrayList<>();

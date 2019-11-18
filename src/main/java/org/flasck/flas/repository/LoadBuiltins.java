@@ -27,7 +27,7 @@ public class LoadBuiltins {
 	public static Set<StandaloneDefn> allFunctions = new TreeSet<>();
 	
 	// Type References used here ...
-	private static final TypeReference polyATR = new TypeReference(pos, "A");
+	public static final TypeReference polyATR = new TypeReference(pos, "A");
 	public static final TypeReference anyTR = new TypeReference(pos, "Any");
 	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
 	public static final TypeReference stringTR = new TypeReference(pos, "String");
@@ -42,6 +42,7 @@ public class LoadBuiltins {
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
 	
 	// "Primitive" types
+	public static final PolyType polyA = new PolyType(pos, "A"); 
 	public static final Primitive any = new Primitive(pos, "Any");
 	// TODO: I think we want subclasses of Any called "Entity", "Deal", "Offer", etc
 	// Not quite sure what etc. includes because I don't think "Primitive" and "Struct" hold any value
@@ -60,8 +61,8 @@ public class LoadBuiltins {
 
 	// Lists
 	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
-	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, new PolyType(pos, "A"));
-	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), new PolyType(pos, "A"));
+	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, polyA);
+	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), polyA);
 	public static final PolyInstance listAny = new PolyInstance(list, Arrays.asList(any));
 	
 	// Messages
@@ -84,6 +85,7 @@ public class LoadBuiltins {
 
 	static {
 		// bind TRs
+		polyATR.bind(polyA);
 		anyTR.bind(any);
 		contractTR.bind(contract);
 		stringTR.bind(string);

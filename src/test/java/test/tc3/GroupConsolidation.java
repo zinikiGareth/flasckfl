@@ -3,6 +3,7 @@ package test.tc3;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
@@ -15,6 +16,7 @@ import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.ConsolidateTypes;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
@@ -136,5 +138,11 @@ public class GroupConsolidation {
 		assertEquals(pa, r1);
 		assertEquals(pa, tcs2.resolve());
 		assertEquals(pa, gc.consolidate(ct, true));
+	}
+
+	@Test
+	public void consolidatingErrorWithAnythingIsError() {
+		ConsolidateTypes ct = new ConsolidateTypes(pos, new ErrorType(), LoadBuiltins.nil);
+		assertTrue(gc.consolidate(ct, true) instanceof ErrorType);
 	}
 }

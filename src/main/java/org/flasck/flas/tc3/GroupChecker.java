@@ -103,9 +103,10 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 				return ct.consolidatedAs();
 			Set<Type> tys = new HashSet<>();
 			for (Type t : ct.types) {
-//				if (t instanceof ErrorType)
-//					return t;
-				tys.add(consolidate(t, haveResolvedUTs));
+				Type tct = consolidate(t, haveResolvedUTs);
+				if (tct instanceof ErrorType)
+					return tct;
+				tys.add(tct);
 			}
 			for (UnifiableType ut : ct.uts) {
 				if (haveResolvedUTs)
