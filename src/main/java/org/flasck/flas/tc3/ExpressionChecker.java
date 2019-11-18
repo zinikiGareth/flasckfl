@@ -28,7 +28,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	public static class ExprResult {
 		public final Type type;
 		
-		public ExprResult(Type t) {
+		public ExprResult(InputPosition pos, Type t) {
 			this.type = t;
 		}
 	}
@@ -52,6 +52,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	private final CurrentTCState state;
 	private final ErrorReporter errors;
 	private InputPosition guardPos;
+	private InputPosition exprPos;
 
 	public ExpressionChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
@@ -66,81 +67,84 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitNumericLiteral(NumericLiteral number) {
-		announce(LoadBuiltins.number);
+		announce(number.location, LoadBuiltins.number);
 	}
 
 	@Override
 	public void visitStringLiteral(StringLiteral s) {
-		announce(LoadBuiltins.string);
+		announce(s.location(), LoadBuiltins.string);
 	}
 
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
+		InputPosition pos = var.location();
 		if (var == null || var.defn() == null)
 			throw new NullPointerException("undefined var: " + var);
 		if (var.defn() instanceof StructDefn) {
-			announce((Type) var.defn());
+			announce(pos, (Type) var.defn());
 		} else if (var.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) var.defn();
 			if (fn.type() != null)
-				announce(fn.type());
+				announce(pos, fn.type());
 			else
-				announce(state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
+				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
 		} else if (var.defn() instanceof StandaloneMethod) {
 			StandaloneMethod fn = (StandaloneMethod) var.defn();
 			if (fn.hasType())
-				announce(fn.type());
+				announce(pos, fn.type());
 			else
-				announce(state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
+				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
 		} else if (var.defn() instanceof VarPattern) {
 			VarPattern vp = (VarPattern) var.defn();
-			announce(state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
+			announce(pos, state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
 		} else if (var.defn() instanceof TypedPattern) {
 			TypedPattern vp = (TypedPattern) var.defn();
-			announce((Type) vp.type.defn());
+			announce(pos, (Type) vp.type.defn());
 		} else if (var.defn() instanceof StructField) {
 			StructField sf = (StructField) var.defn();
-			announce((Type) sf.type.defn());
+			announce(pos, (Type) sf.type.defn());
 		} else if (var.defn() instanceof CurryArgument) {
-			announce((Type) new CurryArgumentType(((Locatable)var.defn()).location()));
+			announce(pos, (Type) new CurryArgumentType(((Locatable)var.defn()).location()));
 		} else if (var.defn() instanceof UnitDataDeclaration) {
-			announce(((UnitDataDeclaration)var.defn()).ofType.defn());
+			announce(pos, ((UnitDataDeclaration)var.defn()).ofType.defn());
 		} else
 			throw new RuntimeException("Cannot handle " + var.defn() + " of type " + var.defn().getClass());
 	}
 	
 	@Override
-	public void visitUnresolvedOperator(UnresolvedOperator var, int nargs) {
-		if (var.defn() instanceof StructDefn) {
-			announce((Type) var.defn());
-		} else if (var.defn() instanceof FunctionDefinition) {
-			FunctionDefinition fn = (FunctionDefinition) var.defn();
-			announce(fn.type());
+	public void visitUnresolvedOperator(UnresolvedOperator op, int nargs) {
+		if (op.defn() instanceof StructDefn) {
+			announce(op.location(), (Type) op.defn());
+		} else if (op.defn() instanceof FunctionDefinition) {
+			FunctionDefinition fn = (FunctionDefinition) op.defn();
+			announce(op.location(), fn.type());
 		} else
-			throw new RuntimeException("Cannot handle " + var);
+			throw new RuntimeException("Cannot handle " + op);
 	}
 	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
+		this.exprPos = expr.location;
 		nv.push(new ApplyExpressionChecker(errors, state, nv));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
+		this.exprPos = expr.location;
 		nv.push(new MemberExpressionChecker(errors, state, nv));
 	}
 	
 	@Override
 	public void result(Object r) {
-		announce((Type)r);
+		announce(exprPos, (Type)r);
 	}
 
-	private void announce(Type ty) {
+	private void announce(InputPosition pos, Type ty) {
 		if (ty == null)
 			throw new NotImplementedException("Cannot announce that a type is null");
 		if (guardPos != null)
 			nv.result(new GuardResult(guardPos, ty));
 		else
-			nv.result(new ExprResult(ty));
+			nv.result(new ExprResult(pos, ty));
 	}
 }

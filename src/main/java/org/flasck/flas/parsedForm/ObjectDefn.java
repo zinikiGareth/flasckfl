@@ -142,7 +142,7 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		throw new NotImplementedException();
 	}
 

@@ -68,7 +68,7 @@ public class MethodTests {
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
 		sv.visitSendMessage(msg);
-		sv.result(new ExprResult(LoadBuiltins.debug));
+		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(r).result(LoadBuiltins.debug);
 		}});
@@ -104,7 +104,7 @@ public class MethodTests {
 		sv.leavePattern(tp, false);
 		sv.endArg(s);
 		sv.visitSendMessage(msg);
-		sv.result(new ExprResult(LoadBuiltins.debug));
+		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ApplyMatcher.type(Matchers.is(ut), Matchers.is(LoadBuiltins.debug))));
 		}});
@@ -119,7 +119,7 @@ public class MethodTests {
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.send))));
 		}});
-		sv.result(new ExprResult(LoadBuiltins.send));
+		sv.result(new ExprResult(pos, LoadBuiltins.send));
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class MethodTests {
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.debug))));
 		}});
-		sv.result(new ExprResult(LoadBuiltins.debug));
+		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 	}
 
 	@Test
@@ -137,7 +137,7 @@ public class MethodTests {
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.message))));
 		}});
-		sv.result(new ExprResult(LoadBuiltins.message));
+		sv.result(new ExprResult(pos, LoadBuiltins.message));
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class MethodTests {
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
 		}});
-		sv.result(new ExprResult(LoadBuiltins.nil));
+		sv.result(new ExprResult(pos, LoadBuiltins.nil));
 	}
 
 	@Test
@@ -156,7 +156,7 @@ public class MethodTests {
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
-		sv.result(new ExprResult(pi));
+		sv.result(new ExprResult(pos, pi));
 	}
 
 	@Test
@@ -166,7 +166,7 @@ public class MethodTests {
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
-		sv.result(new ExprResult(pi));
+		sv.result(new ExprResult(pos, pi));
 	}
 
 	@Test
@@ -176,7 +176,7 @@ public class MethodTests {
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
-		sv.result(new ExprResult(pi));
+		sv.result(new ExprResult(pos, pi));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -187,7 +187,7 @@ public class MethodTests {
 			oneOf(errors).message(pos, "Number cannot be a Message");
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
 		}});
-		sv.result(new ExprResult(LoadBuiltins.number));
+		sv.result(new ExprResult(pos, LoadBuiltins.number));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -199,7 +199,7 @@ public class MethodTests {
 			oneOf(errors).message(pos, "List[Number] cannot be a Message");
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
 		}});
-		sv.result(new ExprResult(pi));
+		sv.result(new ExprResult(pos, pi));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -212,6 +212,6 @@ public class MethodTests {
 			oneOf(errors).message(pos, "test.repo.Foo[Message] cannot be a Message");
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
 		}});
-		sv.result(new ExprResult(pi));
+		sv.result(new ExprResult(pos, pi));
 	}
 }

@@ -56,7 +56,7 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		throw new NotImplementedException();
 	}
 

@@ -39,29 +39,29 @@ public class TypeBehaviors {
 	@Test
 	public void numberIncorporatesNumber() {
 		Primitive number = new Primitive(pos, "Number");
-		assertTrue(number.incorporates(number));
+		assertTrue(number.incorporates(pos, number));
 	}
 
 	@Test
 	public void numberDoesNotIncorporateString() {
 		Primitive number = new Primitive(pos, "Number");
 		Primitive string = new Primitive(pos, "String");
-		assertFalse(number.incorporates(string));
+		assertFalse(number.incorporates(pos, string));
 	}
 
 	@Test
 	public void anyIncorporatesString() {
-		assertTrue(LoadBuiltins.any.incorporates(LoadBuiltins.string));
+		assertTrue(LoadBuiltins.any.incorporates(pos, LoadBuiltins.string));
 	}
 
 	@Test
 	public void contractIncorporatesAnArbitraryContract() {
-		assertTrue(LoadBuiltins.contract.incorporates(new ContractDecl(pos, pos, new SolidName(null, "Svc"))));
+		assertTrue(LoadBuiltins.contract.incorporates(pos, new ContractDecl(pos, pos, new SolidName(null, "Svc"))));
 	}
 
 	@Test
 	public void contractDoesNotIncorporateString() {
-		assertFalse(LoadBuiltins.contract.incorporates(LoadBuiltins.string));
+		assertFalse(LoadBuiltins.contract.incorporates(pos, LoadBuiltins.string));
 	}
 
 	@Test
@@ -84,21 +84,21 @@ public class TypeBehaviors {
 	
 	@Test
 	public void aStructCanIncorporateItself() {
-		assertTrue(LoadBuiltins.cons.incorporates(LoadBuiltins.cons));
+		assertTrue(LoadBuiltins.cons.incorporates(pos, LoadBuiltins.cons));
 	}
 
 	@Test
 	public void aStructCannotIncorporateNumber() {
-		assertFalse(LoadBuiltins.cons.incorporates(LoadBuiltins.number));
+		assertFalse(LoadBuiltins.cons.incorporates(pos, LoadBuiltins.number));
 	}
 
 	@Test
 	public void aUnionCanIncorporateItself() {
-		assertTrue(LoadBuiltins.list.incorporates(LoadBuiltins.list));
+		assertTrue(LoadBuiltins.list.incorporates(pos, LoadBuiltins.list));
 	}
 
 	@Test
 	public void aUnionCanIncorporateAMemberStruct() {
-		assertTrue(LoadBuiltins.list.incorporates(LoadBuiltins.cons));
+		assertTrue(LoadBuiltins.list.incorporates(pos, LoadBuiltins.cons));
 	}
 }

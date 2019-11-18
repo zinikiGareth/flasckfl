@@ -63,7 +63,7 @@ public class Apply implements Type, SignatureNeedsParensType {
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		// TODO: there are incorrect assertions here ...
 		//  because UTs are infintely subtle (other may be a UT)
 		//  because of currying
@@ -82,7 +82,7 @@ public class Apply implements Type, SignatureNeedsParensType {
 			} else if (fi instanceof UnifiableType) {
 				UnifiableType ut = (UnifiableType) fi;
 				ut.isPassed(loc, oi);
-			} else if (!fi.incorporates(oi)) {
+			} else if (!fi.incorporates(loc, oi)) {
 				return false;
 			}			
 		}

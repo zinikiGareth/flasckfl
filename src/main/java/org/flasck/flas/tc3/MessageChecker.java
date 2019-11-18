@@ -41,16 +41,16 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 				check = pi.getPolys().get(0);
 			else {
 				errors.message(pos, t.signature() + " cannot be a Message");
-				sv.result(new ExprResult(new ErrorType()));
+				sv.result(new ExprResult(pos, new ErrorType()));
 				return;
 			}
 		}
-		if (LoadBuiltins.message.incorporates(check)) {
+		if (LoadBuiltins.message.incorporates(pos, check)) {
 			sv.result(r);
 			return;
 		}
 		errors.message(pos, t.signature() + " cannot be a Message");
-		sv.result(new ExprResult(new ErrorType()));
+		sv.result(new ExprResult(pos, new ErrorType()));
 	}
 
 }

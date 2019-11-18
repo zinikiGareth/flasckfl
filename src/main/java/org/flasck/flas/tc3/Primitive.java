@@ -60,7 +60,11 @@ public class Primitive implements RepositoryEntry, NamedType, NamedThing {
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
+		if (other instanceof UnifiableType) {
+			((UnifiableType)other).incorporatedBy(pos, this);
+			return true;
+		}
 		if (other instanceof Primitive && ((Primitive)other).name().uniqueName().equals(name().uniqueName()))
 			return true;
 		if (this.name.uniqueName().equals("Any"))

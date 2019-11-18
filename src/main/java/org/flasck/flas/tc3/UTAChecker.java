@@ -53,7 +53,7 @@ public class UTAChecker extends LeafAdapter implements ResultAware {
 			; // fine
 		else if (expr instanceof UnifiableType)
 			((UnifiableType)expr).incorporatedBy(a.expr.location(), value);
-		else if (expr.incorporates(value))
+		else if (expr.incorporates(a.value.location(), value))
 			; // fine
 		else if (value == LoadBuiltins.error)
 			; // errors are always possible

@@ -76,6 +76,6 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 	}
 
 	public boolean incorporates(Type other) {
-		return type.incorporates(other);
+		return type.incorporates(this.varLoc, other);
 	}
 }

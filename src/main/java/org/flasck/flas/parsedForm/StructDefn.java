@@ -115,7 +115,7 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		return other == this;
 	}
 

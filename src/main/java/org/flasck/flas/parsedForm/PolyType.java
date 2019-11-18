@@ -58,7 +58,7 @@ public class PolyType implements RepositoryEntry, Locatable, NamedType, Comparab
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		// TODO Auto-generated method stub
 		return false;
 	}

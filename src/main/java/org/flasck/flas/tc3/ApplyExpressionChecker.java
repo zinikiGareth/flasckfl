@@ -99,13 +99,13 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			Type fi = fn.get(pos);
 			if (ai instanceof CurryArgumentType) {
 				tocurry.add(fi);
-			} else if (ai instanceof UnifiableType) {
-				UnifiableType ut = (UnifiableType) ai;
-				ut.incorporatedBy(loc, fi);
-			} else if (fi instanceof UnifiableType) {
-				UnifiableType ut = (UnifiableType) fi;
-				ut.isPassed(loc, ai);
-			} else if (!fi.incorporates(ai)) {
+//			} else if (ai instanceof UnifiableType) {
+//				UnifiableType ut = (UnifiableType) ai;
+//				ut.incorporatedBy(loc, fi);
+//			} else if (fi instanceof UnifiableType) {
+//				UnifiableType ut = (UnifiableType) fi;
+//				ut.isPassed(loc, ai);
+			} else if (!fi.incorporates(loc, ai)) {
 				errors.message(loc, "function '" + expr.fn + "' was expecting " + fi.signature() + " not " + ai.signature());
 				nv.result(new ErrorType());
 				return;

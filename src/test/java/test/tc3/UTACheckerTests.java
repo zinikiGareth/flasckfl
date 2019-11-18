@@ -65,9 +65,9 @@ public class UTACheckerTests {
 			oneOf(sv).result(null);
 		}});
 		tc.visitAssertExpr(false, uta.expr);
-		tc.result(new ExprResult(LoadBuiltins.string));
+		tc.result(new ExprResult(pos, LoadBuiltins.string));
 		tc.visitAssertExpr(true, uta.value);
-		tc.result(new ExprResult(LoadBuiltins.string));
+		tc.result(new ExprResult(pos, LoadBuiltins.string));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -81,8 +81,8 @@ public class UTACheckerTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(LoadBuiltins.number));
-		tc.result(new ExprResult(LoadBuiltins.number));
+		tc.result(new ExprResult(pos, LoadBuiltins.number));
+		tc.result(new ExprResult(pos, LoadBuiltins.number));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -97,8 +97,8 @@ public class UTACheckerTests {
 			oneOf(errors).message(pos, "value is of type Number that cannot be the result of an expression of type String");
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(LoadBuiltins.number));
-		tc.result(new ExprResult(LoadBuiltins.string));
+		tc.result(new ExprResult(pos, LoadBuiltins.number));
+		tc.result(new ExprResult(pos, LoadBuiltins.string));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -113,8 +113,8 @@ public class UTACheckerTests {
 			oneOf(errors).message(pos, "value is of type Nil that cannot be the result of an expression of type Cons");
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(LoadBuiltins.nil));
-		tc.result(new ExprResult(LoadBuiltins.cons));
+		tc.result(new ExprResult(pos, LoadBuiltins.nil));
+		tc.result(new ExprResult(pos, LoadBuiltins.cons));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -128,8 +128,8 @@ public class UTACheckerTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(LoadBuiltins.nil));
-		tc.result(new ExprResult(LoadBuiltins.list));
+		tc.result(new ExprResult(pos, LoadBuiltins.nil));
+		tc.result(new ExprResult(pos, LoadBuiltins.list));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -143,8 +143,8 @@ public class UTACheckerTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.number))));
-		tc.result(new ExprResult(new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number))));
+		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.number))));
+		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number))));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -159,8 +159,8 @@ public class UTACheckerTests {
 			oneOf(errors).message(pos, "value is of type Cons[Number] that cannot be the result of an expression of type Cons[String]");
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.number))));
-		tc.result(new ExprResult(new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.string))));
+		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.number))));
+		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.string))));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -174,8 +174,8 @@ public class UTACheckerTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(LoadBuiltins.error));
-		tc.result(new ExprResult(LoadBuiltins.number));
+		tc.result(new ExprResult(pos, LoadBuiltins.error));
+		tc.result(new ExprResult(pos, LoadBuiltins.number));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -193,8 +193,8 @@ public class UTACheckerTests {
 			oneOf(errors).message(pos, "value is of type List[Number] that cannot be the result of an expression of type Nil");
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number))));
-		tc.result(new ExprResult(LoadBuiltins.nil));
+		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number))));
+		tc.result(new ExprResult(pos, LoadBuiltins.nil));
 		tc.postUnitTestAssert(uta);
 	}
 }

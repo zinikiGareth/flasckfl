@@ -198,9 +198,9 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			allowing(fnt).argCount(); will(returnValue(2));
 			oneOf(fnt).get(0); will(returnValue(nbr));
-			oneOf(nbr).incorporates(nbr); will(returnValue(true));
+			oneOf(nbr).incorporates(pos, nbr); will(returnValue(true));
 			oneOf(fnt).get(1); will(returnValue(nbr));
-			oneOf(nbr).incorporates(nbr); will(returnValue(true));
+			oneOf(nbr).incorporates(pos, nbr); will(returnValue(true));
 			oneOf(fnt).get(2); will(returnValue(nbr));
 			oneOf(nv).result(nbr);
 		}});
@@ -211,9 +211,9 @@ public class StackVisitation {
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		NumericLiteral e2 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1, e2);
-		aec.result(new ExprResult(fnt));
-		aec.result(new ExprResult(nbr));
-		aec.result(new ExprResult(nbr));
+		aec.result(new ExprResult(pos, fnt));
+		aec.result(new ExprResult(pos, nbr));
+		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -234,8 +234,8 @@ public class StackVisitation {
 		f.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, f, e1);
-		aec.result(new ExprResult(fnt));
-		aec.result(new ExprResult(nbr));
+		aec.result(new ExprResult(pos, fnt));
+		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
 		assertEquals(LoadBuiltins.number, ut.resolve());
 	}
@@ -251,7 +251,7 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			allowing(fnt).argCount(); will(returnValue(2));
 			oneOf(fnt).get(0); will(returnValue(string));
-			oneOf(string).incorporates(string); will(returnValue(true));
+			oneOf(string).incorporates(pos, string); will(returnValue(true));
 			oneOf(fnt).get(1); will(returnValue(other));
 			oneOf(fnt).get(2); will(returnValue(nbr));
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(other), Matchers.is(nbr))));
@@ -262,8 +262,8 @@ public class StackVisitation {
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1);
-		aec.result(new ExprResult(fnt));
-		aec.result(new ExprResult(string));
+		aec.result(new ExprResult(pos, fnt));
+		aec.result(new ExprResult(pos, string));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -277,8 +277,8 @@ public class StackVisitation {
 			oneOf(fnt).argCount(); will(returnValue(2));
 			oneOf(fnt).get(0); will(returnValue(nbr));
 			oneOf(fnt).get(1); will(returnValue(nbr));
-			oneOf(nbr).incorporates(nbr); will(returnValue(true));
-			oneOf(nbr).incorporates(str); will(returnValue(false));
+			oneOf(nbr).incorporates(pos, nbr); will(returnValue(true));
+			oneOf(nbr).incorporates(pos, str); will(returnValue(false));
 			oneOf(nbr).signature(); will(returnValue("nbr"));
 			oneOf(str).signature(); will(returnValue("str"));
 			oneOf(errors).message(pos, "function '+' was expecting nbr not str");
@@ -291,9 +291,9 @@ public class StackVisitation {
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		StringLiteral e2 = new StringLiteral(pos, "hello");
 		ApplyExpr ae = new ApplyExpr(pos, op, e1, e2);
-		aec.result(new ExprResult(fnt));
-		aec.result(new ExprResult(nbr));
-		aec.result(new ExprResult(str));
+		aec.result(new ExprResult(pos, fnt));
+		aec.result(new ExprResult(pos, nbr));
+		aec.result(new ExprResult(pos, str));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -314,9 +314,9 @@ public class StackVisitation {
 		StringLiteral e2 = new StringLiteral(pos, "hello");
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1, e2);
-		aec.result(new ExprResult(fnt));
-		aec.result(new ExprResult(err));
-		aec.result(new ExprResult(nbr));
+		aec.result(new ExprResult(pos, fnt));
+		aec.result(new ExprResult(pos, err));
+		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -324,7 +324,7 @@ public class StackVisitation {
 	public void leaveApplyExpressionAttachesConstraintsToPolyVarHolders() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type fnt = context.mock(Type.class, "fn/2");
-		Type nbr = context.mock(Type.class, "nbr");
+		Type nbr = LoadBuiltins.number;
 		UnifiableType ut = context.mock(UnifiableType.class);
 		FunctionName func = FunctionName.function(pos, null, "f");
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
@@ -333,7 +333,6 @@ public class StackVisitation {
 			oneOf(fnt).get(0); will(returnValue(nbr));
 			oneOf(ut).incorporatedBy(pos, nbr);
 			oneOf(fnt).get(1); will(returnValue(nbr));
-			oneOf(nbr).incorporates(nbr); will(returnValue(true));
 			oneOf(fnt).get(2); will(returnValue(nbr));
 			oneOf(nv).result(nbr);
 		}});
@@ -345,9 +344,9 @@ public class StackVisitation {
 		uv.bind(funcVar);
 		NumericLiteral e2 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, uv, e2);
-		aec.result(new ExprResult(fnt));
-		aec.result(new ExprResult(ut));
-		aec.result(new ExprResult(nbr));
+		aec.result(new ExprResult(pos, fnt));
+		aec.result(new ExprResult(pos, ut));
+		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -367,8 +366,8 @@ public class StackVisitation {
 		fn.bind(funcVar);
 		NumericLiteral nl = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, fn, nl);
-		aec.result(new ExprResult(ut));
-		aec.result(new ExprResult(nbr));
+		aec.result(new ExprResult(pos, ut));
+		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -391,8 +390,8 @@ public class StackVisitation {
 		UnresolvedVar var = new UnresolvedVar(pos, "x");
 		var.bind(funcVar);
 		ApplyExpr ae = new ApplyExpr(pos, fn, var);
-		aec.result(new ExprResult(utF));
-		aec.result(new ExprResult(utV));
+		aec.result(new ExprResult(pos, utF));
+		aec.result(new ExprResult(pos, utV));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -406,7 +405,7 @@ public class StackVisitation {
 			allowing(fnt).argCount(); will(returnValue(2));
 			oneOf(fnt).get(0); will(returnValue(nbr));
 			oneOf(fnt).get(1); will(returnValue(nbr));
-			oneOf(nbr).incorporates(nbr); will(returnValue(true));
+			oneOf(nbr).incorporates(pos, nbr); will(returnValue(true));
 			oneOf(fnt).get(2); will(returnValue(nbr));
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(nbr), Matchers.is(nbr))));
 		}});
@@ -416,9 +415,9 @@ public class StackVisitation {
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, LoadBuiltins.ca, e1);
-		aec.result(new ExprResult(fnt));
-		aec.result(new ExprResult(new CurryArgumentType(pos)));
-		aec.result(new ExprResult(nbr));
+		aec.result(new ExprResult(pos, fnt));
+		aec.result(new ExprResult(pos, new CurryArgumentType(pos)));
+		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -431,7 +430,7 @@ public class StackVisitation {
 		UnresolvedVar from = new UnresolvedVar(pos, "l");
 		UnresolvedVar fld = new UnresolvedVar(pos, "head");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
-		mec.result(new ExprResult(LoadBuiltins.cons));
+		mec.result(new ExprResult(pos, LoadBuiltins.cons));
 		mec.leaveMemberExpr(dot);
 	}
 	
@@ -450,7 +449,7 @@ public class StackVisitation {
 		UnresolvedVar from = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "m");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
-		mec.result(new ExprResult(cd));
+		mec.result(new ExprResult(pos, cd));
 		mec.leaveMemberExpr(dot);
 	}
 	
@@ -470,7 +469,7 @@ public class StackVisitation {
 		UnresolvedVar from = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "q");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
-		mec.result(new ExprResult(cd));
+		mec.result(new ExprResult(pos, cd));
 		mec.leaveMemberExpr(dot);
 	}
 	
@@ -494,7 +493,7 @@ public class StackVisitation {
 		UnresolvedVar from = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "m");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
-		mec.result(new ExprResult(cd));
+		mec.result(new ExprResult(pos, cd));
 		mec.leaveMemberExpr(dot);
 	}
 	

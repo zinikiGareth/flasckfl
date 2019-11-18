@@ -39,7 +39,7 @@ public class ListBuilding {
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0);
 		op.bind(fn);
 		ApplyExpr ae = new ApplyExpr(pos, op);
-		aec.result(new ExprResult(LoadBuiltins.nil)); // the "operator" for any list is always Nil
+		aec.result(new ExprResult(pos, LoadBuiltins.nil)); // the "operator" for any list is always Nil
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -55,8 +55,8 @@ public class ListBuilding {
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1);
-		aec.result(new ExprResult(LoadBuiltins.nil)); // the "operator" for any list is always Nil
-		aec.result(new ExprResult(LoadBuiltins.number));
+		aec.result(new ExprResult(pos, LoadBuiltins.nil)); // the "operator" for any list is always Nil
+		aec.result(new ExprResult(pos, LoadBuiltins.number));
 		aec.leaveApplyExpr(ae);
 	}
 
@@ -72,9 +72,9 @@ public class ListBuilding {
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1);
-		aec.result(new ExprResult(LoadBuiltins.nil)); // the "operator" for any list is always Nil
-		aec.result(new ExprResult(LoadBuiltins.string));
-		aec.result(new ExprResult(LoadBuiltins.string));
+		aec.result(new ExprResult(pos, LoadBuiltins.nil)); // the "operator" for any list is always Nil
+		aec.result(new ExprResult(pos, LoadBuiltins.string));
+		aec.result(new ExprResult(pos, LoadBuiltins.string));
 		aec.leaveApplyExpr(ae);
 	}
 }

@@ -154,7 +154,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		if (this == other)
 			return true;
 		while (other instanceof PolyInstance) {

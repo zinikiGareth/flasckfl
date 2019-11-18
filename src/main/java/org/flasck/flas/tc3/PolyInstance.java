@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -52,11 +53,11 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		if (!(other instanceof PolyInstance))
 			return false;
 		PolyInstance o = (PolyInstance) other;
-		if (!this.ty.incorporates(o.ty))
+		if (!this.ty.incorporates(pos, o.ty))
 			return false;
 		for (int i=0;i<polys.size();i++)
 			if (polys.get(i) != LoadBuiltins.any && polys.get(i) != o.polys.get(i))

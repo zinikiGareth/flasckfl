@@ -1,5 +1,6 @@
 package org.flasck.flas.tc3;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ErrorType implements Type {
@@ -19,7 +20,7 @@ public class ErrorType implements Type {
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		return false;
 	}
 

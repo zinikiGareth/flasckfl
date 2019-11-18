@@ -32,7 +32,7 @@ public class CurryArgumentType implements Type, Locatable {
 	}
 
 	@Override
-	public boolean incorporates(Type other) {
+	public boolean incorporates(InputPosition pos, Type other) {
 		throw new NotImplementedException();
 	}
 }

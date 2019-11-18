@@ -41,7 +41,7 @@ public class TypeConsolidation {
 	@Test
 	public void withNoArgsItsJustASimpleConstant() {
 		FunctionChecker fc = new FunctionChecker(errors, nv, state);
-		fc.result(new ExprResult(LoadBuiltins.number));
+		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
 			oneOf(nv).result(LoadBuiltins.number);
@@ -54,7 +54,7 @@ public class TypeConsolidation {
 	public void anArgAndAResultImpliesAnApply() {
 		FunctionChecker fc = new FunctionChecker(errors, nv, state);
 		fc.result(new ArgResult(LoadBuiltins.nil));
-		fc.result(new ExprResult(LoadBuiltins.number));
+		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.nil), Matchers.is(LoadBuiltins.number))));
@@ -66,8 +66,8 @@ public class TypeConsolidation {
 	@Test
 	public void multipleIdenticallyTypedExpressionsCanBeConsolidatedInAContainer() {
 		FunctionChecker fc = new FunctionChecker(errors, nv, state);
-		fc.result(new ExprResult(LoadBuiltins.number));
-		fc.result(new ExprResult(LoadBuiltins.number));
+		fc.result(new ExprResult(pos, LoadBuiltins.number));
+		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ConsolidatedTypeMatcher.with(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number))));
@@ -79,8 +79,8 @@ public class TypeConsolidation {
 	@Test
 	public void multipleExpressionsCanBeConsolidatedInAContainer() {
 		FunctionChecker fc = new FunctionChecker(errors, nv, state);
-		fc.result(new ExprResult(LoadBuiltins.trueT));
-		fc.result(new ExprResult(LoadBuiltins.falseT));
+		fc.result(new ExprResult(pos, LoadBuiltins.trueT));
+		fc.result(new ExprResult(pos, LoadBuiltins.falseT));
 		
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ConsolidatedTypeMatcher.with(Matchers.is(LoadBuiltins.trueT), Matchers.is(LoadBuiltins.falseT))));

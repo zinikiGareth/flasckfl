@@ -114,7 +114,7 @@ public class GroupTests {
 		fcf.visitFunctionIntro(fiF1);
 		fcf.visitCase(null);
 		UnifiableType r1 = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.number));
-		fcf.result(new ExprResult(r1));
+		fcf.result(new ExprResult(pos, r1));
 		fcf.leaveFunctionIntro(fiF1);
 
 		context.checking(new Expectations() {{
@@ -122,7 +122,7 @@ public class GroupTests {
 		}});
 		fcf.visitFunctionIntro(fiF2);
 		fcf.visitCase(null);
-		fcf.result(new ExprResult(LoadBuiltins.string));
+		fcf.result(new ExprResult(pos, LoadBuiltins.string));
 		fcf.leaveFunctionIntro(fiF2);
 		
 		CaptureAction captureFType = new CaptureAction(null);
@@ -158,7 +158,7 @@ public class GroupTests {
 		fcg.visitFunctionIntro(fiG1);
 		fcg.visitCase(null);
 		UnifiableType r2 = utF.canBeAppliedTo(Arrays.asList(LoadBuiltins.string));
-		fcg.result(new ExprResult(r2));
+		fcg.result(new ExprResult(pos, r2));
 		fcg.leaveFunctionIntro(fiG1);
 
 		context.checking(new Expectations() {{
@@ -166,7 +166,7 @@ public class GroupTests {
 		}});
 		fcg.visitFunctionIntro(fiG1);
 		fcg.visitCase(null);
-		fcg.result(new ExprResult(LoadBuiltins.string));
+		fcg.result(new ExprResult(pos, LoadBuiltins.string));
 		fcg.leaveFunctionIntro(fiG1);
 
 		CaptureAction captureGType = new CaptureAction(null);
@@ -229,7 +229,7 @@ public class GroupTests {
 		fcf.visitCase(null);
 		UnifiableType r1 = fnArg.canBeAppliedTo(Arrays.asList(LoadBuiltins.number));
 		r1.canBeType(LoadBuiltins.string);
-		fcf.result(new ExprResult(r1));
+		fcf.result(new ExprResult(pos, r1));
 		fcf.leaveFunctionIntro(fiF2);
 		
 		CaptureAction captureFType = new CaptureAction(null);

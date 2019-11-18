@@ -65,7 +65,7 @@ public class PatternsProduceTypes {
 		fc.visitFunctionIntro(fi);
 		fc.visitCase(null);
 		context.assertIsSatisfied();
-		fc.result(new ExprResult(LoadBuiltins.number));
+		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number))));
@@ -92,7 +92,7 @@ public class PatternsProduceTypes {
 		}});
 		fc.visitFunctionIntro(fi);
 		fc.visitCase(null);
-		fc.result(new ExprResult(LoadBuiltins.number));
+		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.number))));
