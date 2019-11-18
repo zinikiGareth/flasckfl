@@ -8,6 +8,8 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.FieldAccessor;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -60,9 +62,17 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			StructDefn sd = (StructDefn) ty;
 			StructField sf = sd.findField(fld.var);
 			if (sf == null) {
-				
+				throw new NotImplementedException();
 			} else {
 				nv.result(sf.type.defn());
+			}
+		} else if (ty instanceof ObjectDefn) {
+			ObjectDefn sd = (ObjectDefn) ty;
+			FieldAccessor fa = sd.getAccessor(fld.var);
+			if (fa == null) {
+				throw new NotImplementedException();
+			} else {
+				nv.result(fa.type());
 			}
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);

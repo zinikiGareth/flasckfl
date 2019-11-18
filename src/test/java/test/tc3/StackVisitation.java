@@ -22,9 +22,12 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -491,7 +494,31 @@ public class StackVisitation {
 		mec.result(new ExprResult(pos, cd));
 		mec.leaveMemberExpr(dot);
 	}
+
+	@Test
+	public void leaveMemberExpressionCanFindAnAccessorInAnObjectDefn() {
+		SolidName on = new SolidName(pkg, "ObjDefn");
+		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
+		FunctionName an = FunctionName.function(pos, on, "acor");
+		FunctionDefinition fn = new FunctionDefinition(an, 0);
+		fn.bindType(LoadBuiltins.string);
+		ObjectAccessor acor = new ObjectAccessor(fn);
+		od.addAccessor(acor);
+		TypeReference tr = new TypeReference(pos, "ObjDefn");
+		tr.bind(od);
+		
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, state, nv);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(LoadBuiltins.string);
+		}});
+		UnresolvedVar from = new UnresolvedVar(pos, "obj");
+		UnresolvedVar fld = new UnresolvedVar(pos, "acor");
+		MemberExpr dot = new MemberExpr(pos, from, fld);
+		mec.result(new ExprResult(pos, od));
+		mec.leaveMemberExpr(dot);
+	}
 	
+
 	// I think there are a number of other cases.  I'm not sure how many of them I actually want to allow and how many I view as errors
 	// NOTE: the MemberExpr triples for "object vars", "object invocation" and "contract method invocation"; we definitely want to handle the object cases
 	// objects:

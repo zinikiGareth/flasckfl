@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -123,7 +124,8 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		else if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + fn.name().uniqueName());
 		else
-			sv.result(buildApplyType(fn.location()));
+			sv.result(buildApplyType(fn.location(), state.consolidate(fn.location(), resultTypes)));
+		;
 	}
 	
 	@Override
@@ -133,12 +135,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		else if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + meth.name().uniqueName());
 		else {
-			sv.result(buildApplyType(meth.location()));
+			sv.result(buildApplyType(meth.location(), new EnsureListMessage(meth.location(), state.consolidate(meth.location(), resultTypes))));
 		}
 	}
 
-	private Type buildApplyType(InputPosition pos) {
-		Type result = state.consolidate(pos, resultTypes);
+	private Type buildApplyType(InputPosition pos, Type result) {
 		if (argTypes.isEmpty())
 			return result;
 		else {

@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.Type;
 
 public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
 	private final FunctionDefinition fn;
@@ -17,6 +18,11 @@ public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
 		return fn.name();
 	}
 	
+	@Override
+	public Type type() {
+		return fn.type();
+	}
+
 	public FunctionDefinition function() {
 		return fn;
 	}

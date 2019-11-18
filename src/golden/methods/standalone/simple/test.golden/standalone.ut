@@ -18,9 +18,10 @@
 		assert (k True ["hello"])
 			[Debug "hello"]
 
-	test we fail to match False
-		assert (k False ["hello"])
-			Error "no matching case"
+// this fails on typechecking now
+.	test we fail to match False
+.		assert (k False ["hello"])
+.			Error "no matching case"
 
 	test we can create a Send on a contract
 		data Sample svc

@@ -26,6 +26,7 @@ import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.EnsureListMessage;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
@@ -42,6 +43,7 @@ import org.junit.Test;
 
 import flas.matchers.ApplyMatcher;
 import flas.matchers.ExprResultMatcher;
+import flas.matchers.PolyInstanceMatcher;
 
 public class MethodTests {
 	public interface RAV extends ResultAware, Visitor {	}
@@ -63,7 +65,7 @@ public class MethodTests {
 	}
 	
 	@Test
-	public void aSingleDebugMessageGivesTheStaticTypeDebug() {
+	public void aSingleDebugMessageGivesAListOfMessage() {
 		sv.push(new FunctionChecker(errors, sv, state));
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
@@ -71,7 +73,7 @@ public class MethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.debug)); will(returnValue(LoadBuiltins.debug));
-			oneOf(r).result(LoadBuiltins.debug);
+			oneOf(r).result(with(any(EnsureListMessage.class)));
 		}});
 		sv.leaveObjectMethod(meth);
 	}
@@ -85,7 +87,7 @@ public class MethodTests {
 		sv.leaveObjectMethod(meth);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanHandleArgumentTypes() {
 		sv.push(new FunctionChecker(errors, sv, state));
@@ -108,7 +110,7 @@ public class MethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.debug)); will(returnValue(LoadBuiltins.debug));
-			oneOf(r).result(with(ApplyMatcher.type(Matchers.is(ut), Matchers.is(LoadBuiltins.debug))));
+			oneOf(r).result(with(ApplyMatcher.type(Matchers.is(ut), (Matcher)Matchers.any(EnsureListMessage.class))));
 		}});
 		sv.leaveObjectMethod(meth);
 	}

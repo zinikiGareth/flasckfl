@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.Type;
 
 public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 	public static Comparator<StructField> nameComparator = new Comparator<StructField>() {
@@ -41,6 +42,11 @@ public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 	@Override
 	public InputPosition location() {
 		return loc;
+	}
+
+	@Override
+	public Type type() {
+		return type.defn();
 	}
 
 	@Override

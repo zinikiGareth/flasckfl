@@ -80,6 +80,8 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private Type cleanUTs(Type ty) {
+		if (ty instanceof EnsureListMessage)
+			((EnsureListMessage)ty).validate(errors);
 		if (ty instanceof UnifiableType)
 			return cleanUTs(((UnifiableType)ty).resolve(errors, true));
 		else if (ty instanceof Apply) {
