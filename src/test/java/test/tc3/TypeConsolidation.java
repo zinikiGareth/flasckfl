@@ -14,6 +14,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
+import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -46,7 +47,7 @@ public class TypeConsolidation {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number))); will(returnValue(new PosType(pos, LoadBuiltins.number)));
 			oneOf(nv).result(with(PosMatcher.type(Matchers.is(LoadBuiltins.number))));
 		}});
 		fc.leaveFunction(f);
@@ -60,7 +61,7 @@ public class TypeConsolidation {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number))); will(returnValue(new PosType(pos, LoadBuiltins.number)));
 			oneOf(nv).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.nil), Matchers.is(LoadBuiltins.number)))));
 		}});
 		fc.leaveFunction(f);
@@ -73,7 +74,7 @@ public class TypeConsolidation {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number), new PosType(pos, LoadBuiltins.number))); will(returnValue(new PosType(pos, LoadBuiltins.number)));
 			oneOf(nv).result(with(PosMatcher.type(Matchers.is(LoadBuiltins.number))));
 		}});
 		fc.leaveFunction(f);
@@ -86,7 +87,7 @@ public class TypeConsolidation {
 		fc.result(new ExprResult(pos, LoadBuiltins.falseT));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.trueT, LoadBuiltins.falseT)); will(returnValue(LoadBuiltins.bool));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.trueT), new PosType(pos, LoadBuiltins.falseT))); will(returnValue(new PosType(pos, LoadBuiltins.bool)));
 			oneOf(nv).result(with(PosMatcher.type(Matchers.is(LoadBuiltins.bool))));
 		}});
 		fc.leaveFunction(f);

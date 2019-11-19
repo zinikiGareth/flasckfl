@@ -26,7 +26,7 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final NestedVisitor nv;
-	private final List<Type> results = new ArrayList<>();
+	private final List<PosType> results = new ArrayList<>();
 	private final CurrentTCState state;
 
 	public ApplyExpressionChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor nv) {
@@ -47,48 +47,50 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		Type ty = ((ExprResult) r).type;
-		if (ty == null) {
+		ExprResult ty = (ExprResult) r;
+		if (ty == null || ty.type == null) {
 			throw new NullPointerException("Cannot handle null type");
 		}
 		results.add(instantiateFreshPolys(new TreeMap<>(), ty));
 	}
 
-	public Type instantiateFreshPolys(Map<PolyType, UnifiableType> uts, Type type) {
+	public PosType instantiateFreshPolys(Map<PolyType, UnifiableType> uts, PosType post) {
+		InputPosition pos = post.pos;
+		Type type = post.type;
 		if (type instanceof PolyType) {
 			PolyType pt = (PolyType) type;
 			if (uts.containsKey(pt))
-				return uts.get(pt);
+				return new PosType(pos, uts.get(pt));
 			else {
 				UnifiableType ret = state.createUT(null, "unknown");
 				uts.put(pt, ret);
-				return ret;
+				return new PosType(pos, ret);
 			}
 		} else if (type instanceof Apply) {
 			Apply a = (Apply) type;
 			List<Type> types = new ArrayList<>();
 			for (Type t : a.tys)
-				types.add(instantiateFreshPolys(uts, t));
-			return new Apply(types);
+				types.add(instantiateFreshPolys(uts, new PosType(pos, t)).type);
+			return new PosType(pos, new Apply(types));
 		} else if (type instanceof PolyHolder && ((PolyHolder)type).hasPolys()) {
 			PolyHolder sd = (PolyHolder) type;
 			List<Type> polys = new ArrayList<>();
 			for (Type t : sd.polys())
-				polys.add(instantiateFreshPolys(uts, t));
+				polys.add(instantiateFreshPolys(uts, new PosType(pos, t)).type);
 			PolyInstance pi = new PolyInstance(sd, polys);
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn)type).fields)
-					types.add(instantiateFreshPolys(uts, sf.type.defn()));
+					types.add(instantiateFreshPolys(uts, new PosType(pos, sf.type.defn())).type);
 				if (types.isEmpty())
-					return pi;
+					return new PosType(pos, pi);
 				else
-					return new Apply(types, pi);
+					return new PosType(pos, new Apply(types, pi));
 			} else {
-				return pi; 
+				return new PosType(pos, pi);
 			}
 		} else
-			return type;
+			return post;
 	}
 
 	@Override
@@ -100,7 +102,8 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		// TODO: we may need to explicitly handle the case where we have a "Send" constructor that wants to collapse a set of arguments into a list
 		// But if we return the right contract method type, it may all just go swimmingly
 		// And we will just have that concern in MethodConversion
-		Type fn = results.remove(0);
+		PosType pfn = results.remove(0);
+		Type fn = pfn.type;
 		if (fn instanceof UnifiableType) {
 			UnifiableType ut = (UnifiableType)fn;
 			nv.result(ut.canBeAppliedTo(expr.location(), results));
@@ -110,7 +113,8 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
 		while (!results.isEmpty()) {
-			Type ai = results.remove(0);
+			PosType pai = results.remove(0);
+			Type ai = pai.type;
 			if (ai instanceof ErrorType) {
 				nv.result(ai);
 				return;
@@ -143,8 +147,8 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(LoadBuiltins.nil);
 		} else {
 			results.remove(0); // remove the nil from the front
-			Type ty = state.consolidate(expr.location(), results);
-			nv.result(new PolyInstance(LoadBuiltins.cons, Arrays.asList(ty)));
+			PosType ty = state.consolidate(expr.location(), results);
+			nv.result(new PolyInstance(LoadBuiltins.cons, Arrays.asList(ty.type)));
 		}
 	}
 }

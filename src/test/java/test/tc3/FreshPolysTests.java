@@ -10,6 +10,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matcher;
@@ -34,7 +35,7 @@ public class FreshPolysTests {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
-		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new PolyType(pos, "A"));
+		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new PosType(pos, new PolyType(pos, "A"))).type;
 		assertEquals(ut, t);
 	}
 
@@ -46,7 +47,7 @@ public class FreshPolysTests {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
-		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new Apply(new PolyType(pos, "A"), LoadBuiltins.number));
+		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, "A"), LoadBuiltins.number))).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), Matchers.is(LoadBuiltins.number)));
 	}
 
@@ -58,7 +59,7 @@ public class FreshPolysTests {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
-		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new Apply(new PolyType(pos, "A"), new PolyType(pos, "A")));
+		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, "A"), new PolyType(pos, "A")))).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), Matchers.is(ut)));
 	}
 
@@ -72,7 +73,7 @@ public class FreshPolysTests {
 			oneOf(state).createUT(null, "unknown"); will(returnValue(ut1));
 			oneOf(state).createUT(null, "unknown"); will(returnValue(ut2));
 		}});
-		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new Apply(new PolyType(pos, "A"), new PolyType(pos, "B"), new PolyType(pos, "A"), new PolyType(pos, "B")));
+		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, "A"), new PolyType(pos, "B"), new PolyType(pos, "A"), new PolyType(pos, "B")))).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut1), Matchers.is(ut2), Matchers.is(ut1), Matchers.is(ut2)));
 	}
 
@@ -84,7 +85,7 @@ public class FreshPolysTests {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
-		Type t = aec.instantiateFreshPolys(new TreeMap<>(), LoadBuiltins.cons);
+		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new PosType(pos, LoadBuiltins.cons)).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(ut)), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(ut))));
 	}
 }

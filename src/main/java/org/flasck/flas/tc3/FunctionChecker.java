@@ -35,8 +35,8 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	private final ErrorReporter errors;
 	private final NestedVisitor sv;
-	private final List<Type> argTypes = new ArrayList<>();
-	private final List<Type> resultTypes = new ArrayList<>();
+	private final List<PosType> argTypes = new ArrayList<>();
+	private final List<PosType> resultTypes = new ArrayList<>();
 	private final CurrentTCState state;
 
 	public FunctionChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state) {
@@ -101,7 +101,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		if (!(r instanceof PosType))
 			throw new NotImplementedException("should be some kind of PosType");
 		if (r instanceof ArgResult)
-			argTypes.add(((ArgResult)r).type);
+			argTypes.add((ArgResult)r);
 		else if (r instanceof GuardResult) {
 			GuardResult gr = (GuardResult)r;
 			Type ret = gr.type;
@@ -115,7 +115,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			Type ret = exprResult.type;
 			if (ret instanceof UnifiableType)
 				((UnifiableType)ret).isReturned(exprResult.pos);
-			resultTypes.add(ret);
+			resultTypes.add(exprResult);
 		}
 	}
 	
@@ -127,7 +127,6 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			throw new RuntimeException("No types inferred for " + fn.name().uniqueName());
 		else
 			sv.result(buildApplyType(fn.location(), state.consolidate(fn.location(), resultTypes)));
-		;
 	}
 	
 	@Override
@@ -137,15 +136,19 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		else if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + meth.name().uniqueName());
 		else {
-			sv.result(buildApplyType(meth.location(), new EnsureListMessage(meth.location(), state.consolidate(meth.location(), resultTypes))));
+			PosType posty = state.consolidate(meth.location(), resultTypes);
+			sv.result(buildApplyType(meth.location(), new PosType(posty.pos, new EnsureListMessage(meth.location(), posty.type))));
 		}
 	}
 
-	private PosType buildApplyType(InputPosition pos, Type result) {
+	private PosType buildApplyType(InputPosition pos, PosType result) {
 		if (argTypes.isEmpty())
-			return new PosType(pos, result);
+			return result;
 		else {
-			return new PosType(pos, new Apply(argTypes, result));
+			List<Type> args = new ArrayList<>();
+			for (PosType p : argTypes)
+				args.add(p.type);
+			return new PosType(pos, new Apply(args, result.type));
 		}
 	}
 }

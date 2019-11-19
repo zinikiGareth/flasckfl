@@ -31,6 +31,7 @@ import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
+import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.SlotChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
@@ -227,7 +228,7 @@ public class GroupTests {
 		}});
 		fcf.visitFunctionIntro(fiF2);
 		fcf.visitCase(null);
-		UnifiableType r1 = fnArg.canBeAppliedTo(pos, Arrays.asList(LoadBuiltins.number));
+		UnifiableType r1 = fnArg.canBeAppliedTo(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number)));
 		r1.canBeType(pos, LoadBuiltins.string);
 		fcf.result(new ExprResult(pos, r1));
 		fcf.leaveFunctionIntro(fiF2);

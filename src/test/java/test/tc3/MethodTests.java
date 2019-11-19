@@ -32,6 +32,7 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.MessageChecker;
 import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -73,7 +74,7 @@ public class MethodTests {
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.debug)); will(returnValue(LoadBuiltins.debug));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
 			oneOf(r).result(with(PosMatcher.type((Matcher)any(EnsureListMessage.class))));
 		}});
 		sv.leaveObjectMethod(meth);
@@ -110,7 +111,7 @@ public class MethodTests {
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.debug)); will(returnValue(LoadBuiltins.debug));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
 			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(ut), (Matcher)Matchers.any(EnsureListMessage.class)))));
 		}});
 		sv.leaveObjectMethod(meth);

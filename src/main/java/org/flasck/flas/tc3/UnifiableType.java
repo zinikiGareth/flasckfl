@@ -39,7 +39,7 @@ public interface UnifiableType extends Type {
 
 	// We conclude that this is being used in a function application and as such must be a function
 	// able to be applied to these types
-	UnifiableType canBeAppliedTo(InputPosition pos, List<Type> results);
+	UnifiableType canBeAppliedTo(InputPosition pos, List<PosType> results);
 
 	// When a function has polymorphic args, a UT is instantiated to handle that
 	// This is called when one of those is passed a variable

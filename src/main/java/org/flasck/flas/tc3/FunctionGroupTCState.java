@@ -104,18 +104,19 @@ public class FunctionGroupTCState implements CurrentTCState {
 		}
 	}
 
-	public Type consolidate(InputPosition pos, List<Type> types) {
+	@Override
+	public PosType consolidate(InputPosition pos, List<PosType> types) {
 		// If there's just 1, that's easy
 		if (types.size() == 1)
 			return types.get(0);
 		
 		// If they appear to be all the same, no probs; if any of them is error, return that
-		Type ret = types.get(0);
+		PosType ret = types.get(0);
 		boolean allMatch = true;
-		for (Type t : types) {
-			if (t instanceof ErrorType)
+		for (PosType t : types) {
+			if (t.type instanceof ErrorType)
 				return t;
-			if (ret != t) {
+			if (ret.type != t.type) {
 				allMatch = false;
 				break;
 			}
@@ -125,13 +126,13 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 		// OK, create a new UT and attach them all
 		UnifiableType ut = createUT(pos, "consolidating " + types);
-		for (Type t : types) {
-			if (t instanceof Apply) {
-				((TypeConstraintSet) ut).consolidatedApplication((Apply) t);
+		for (PosType t : types) {
+			if (t.type instanceof Apply) {
+				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);
 			} else
-				ut.canBeType(pos, t);
+				ut.canBeType(t.pos, t.type);
 		}
-		return ut;
+		return new PosType(pos, ut);
 	}
 
 	@Override

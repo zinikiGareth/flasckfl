@@ -53,6 +53,7 @@ import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -67,6 +68,13 @@ public class StackVisitation {
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 
+	@Before
+	public void begin() {
+		context.checking(new Expectations() {{
+			allowing(state).debugInfo();
+		}});
+	}
+	
 	@Test
 	public void whenWeVisitAFunctionWePushAFunctionChecker() {
 		FunctionName name = FunctionName.function(pos, null, "f");

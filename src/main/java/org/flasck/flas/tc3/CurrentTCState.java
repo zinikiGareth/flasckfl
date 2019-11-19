@@ -17,6 +17,6 @@ public interface CurrentTCState {
 	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
 	void bindVarPatternTypes(ErrorReporter errors);
 	void enhanceAllMutualUTs();
-	Type consolidate(InputPosition location, List<Type> results);
+	PosType consolidate(InputPosition location, List<PosType> results);
 	void debugInfo();
 }

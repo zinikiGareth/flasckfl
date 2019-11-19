@@ -152,8 +152,8 @@ public class TypeConstraintSet implements UnifiableType {
 		if (applications.size() == 1)
 			tys.add(applications.iterator().next().asApply());
 		else if (!applications.isEmpty()) {
-			List<List<Type>> args = new ArrayList<>();
-			List<Type> ret = new ArrayList<>();
+			List<List<PosType>> args = new ArrayList<>();
+			List<PosType> ret = new ArrayList<>();
 			for (UnifiableApplication x : applications) {
 				// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
 				// and while it could possibly recurse, I don't think that can then refer back to us
@@ -163,15 +163,15 @@ public class TypeConstraintSet implements UnifiableType {
 				int k = 0;
 				for (Type t : x.args) {
 					if (args.size() == k)
-						args.add(new ArrayList<Type>());
-					args.get(k++).add(t);
+						args.add(new ArrayList<PosType>());
+					args.get(k++).add(new PosType(pos, t));
 				}
-				ret.add(x.ret);
+				ret.add(new PosType(pos, x.ret));
 			}
 			List<Type> cargs = new ArrayList<>();
-			for (List<Type> a : args)
-				cargs.add(state.consolidate(pos, a));
-			tys.add(new Apply(cargs, state.consolidate(pos, ret)));
+			for (List<PosType> a : args)
+				cargs.add(state.consolidate(pos, a).type);
+			tys.add(new Apply(cargs, state.consolidate(pos, ret).type));
 		}
 		
 		tys.addAll(incorporatedBys);
@@ -298,14 +298,16 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 	
 	@Override
-	public UnifiableType canBeAppliedTo(InputPosition pos, List<Type> args) {
+	public UnifiableType canBeAppliedTo(InputPosition pos, List<PosType> args) {
 		// Here we introduce a new variable that we will be able to constrain
 		UnifiableType ret = state.createUT(pos, "unknown");
-		for (Type ty : args) {
-			if (ty instanceof UnifiableType)
-				((UnifiableType)ty).isUsed(pos);
+		List<Type> targs = new ArrayList<>();
+		for (PosType ty : args) {
+			targs.add(ty.type);
+			if (ty.type instanceof UnifiableType)
+				((UnifiableType)ty.type).isUsed(ty.pos);
 		}
-		addApplication(pos, args, ret);
+		addApplication(pos, targs, ret);
 		return ret;
 	}
 

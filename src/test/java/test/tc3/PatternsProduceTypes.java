@@ -17,6 +17,7 @@ import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
+import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.flasck.flas.tc3.SlotChecker;
 import org.hamcrest.Matcher;
@@ -64,7 +65,7 @@ public class PatternsProduceTypes {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number))); will(returnValue(new PosType(pos, LoadBuiltins.number)));
 			oneOf(sv).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number)))));
 		}});
 		fc.leaveFunction(fn);
@@ -93,7 +94,7 @@ public class PatternsProduceTypes {
 		fc.result(new ExprResult(pos, LoadBuiltins.number));
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number))); will(returnValue(new PosType(pos, LoadBuiltins.number)));
 			oneOf(sv).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.number)))));
 		}});
 		fc.leaveFunction(fn);

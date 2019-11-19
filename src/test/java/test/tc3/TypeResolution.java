@@ -72,7 +72,7 @@ public class TypeResolution {
 	@Test
 	public void multipleIdenticalTypesAreEasilyConsolidated() {
 		gc.visitFunction(fnF);
-		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number), new PosType(pos, LoadBuiltins.number))));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -80,7 +80,7 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentParts() {
 		gc.visitFunction(fnF);
-		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(LoadBuiltins.falseT, LoadBuiltins.trueT))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.falseT), new PosType(pos, LoadBuiltins.trueT))));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.bool, fnF.type());
 	}
@@ -89,7 +89,7 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentPolymorphicParts() {
 		gc.visitFunction(fnF);
-		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(LoadBuiltins.nil, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any))))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.nil), new PosType(pos, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any))))));
 		gc.leaveFunctionGroup(null);
 		assertThat(fnF.type(), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
 	}
@@ -110,7 +110,7 @@ public class TypeResolution {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		ut.canBeType(pos, LoadBuiltins.number);
-		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(ut, LoadBuiltins.number))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, ut), new PosType(pos, LoadBuiltins.number))));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -120,7 +120,7 @@ public class TypeResolution {
 	public void ifWeHaveIdentifiedAFunctionAndHaveAnApplicationOfItWeCanDeduceTheCorrectType() {
 		gc.visitFunction(fnF);
 		UnifiableType utG = state.createUT(pos, "unknown"); // a function argument "f"
-		UnifiableType result = utG.canBeAppliedTo(pos, Arrays.asList(LoadBuiltins.string)); // (f String) :: ?result
+		UnifiableType result = utG.canBeAppliedTo(pos, Arrays.asList(new PosType(pos, LoadBuiltins.string))); // (f String) :: ?result
 		result.canBeType(pos, LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
 		gc.result(new PosType(pos, result));
 		gc.leaveFunctionGroup(null);

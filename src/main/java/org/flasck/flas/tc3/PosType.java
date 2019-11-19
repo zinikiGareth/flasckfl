@@ -17,4 +17,17 @@ public class PosType implements Locatable {
 	public InputPosition location() {
 		return pos;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof PosType)
+			return type.equals(((PosType)obj).type);
+		else
+			return super.equals(obj);
+	}
+	
+	@Override
+	public String toString() {
+		return pos + " ==> " + type;
+	}
 }

@@ -106,7 +106,7 @@ public class GuardTests {
 		fc.leaveCase(fic1);
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(state).consolidate(pos, Arrays.asList(new ExprResult(pos, LoadBuiltins.number))); will(returnValue(new ExprResult(pos, LoadBuiltins.number)));
 			oneOf(sv).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number)))));
 		}});
 		fc.leaveFunction(fn);

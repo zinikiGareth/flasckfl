@@ -13,6 +13,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -48,7 +49,7 @@ public class ListBuilding {
 	public void consOfASingleArgumentReturnsAPolyInstanceWithThatType() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number))); will(returnValue(new PosType(pos, LoadBuiltins.number)));
 			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.number))));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
@@ -66,7 +67,7 @@ public class ListBuilding {
 	public void consOfATwoStringsReturnsAPolyInstanceOfString() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.string, LoadBuiltins.string)); will(returnValue(LoadBuiltins.string));
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.string), new PosType(pos, LoadBuiltins.string))); will(returnValue(new PosType(pos, LoadBuiltins.string)));
 			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.string))));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
