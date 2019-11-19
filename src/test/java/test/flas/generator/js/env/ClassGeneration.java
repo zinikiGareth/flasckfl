@@ -67,13 +67,12 @@ public class ClassGeneration {
 
 	@Test
 	public void aClassCanCreateNewMethods() {
-		w = w.indent();
 		JSClass jsc = new JSClass("pkg.level.Clz");
 		JSMethodCreator meth = jsc.createMethod("test", false);
 		meth.argument("_cxt");
 		assertNotNull(meth);
 		meth.write(w);
-		assertEquals("\n  pkg.level.Clz.test = function(_cxt) {\n  }\n", sw.toString());
+		assertEquals("\npkg.level.Clz.test = function(_cxt) {\n}\n\npkg.level.Clz.test.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
 	@Test
@@ -153,7 +152,7 @@ public class ClassGeneration {
 		JSExpr obj = new JSVar("runner");
 		meth.assertable(obj, "isSame", obj, new JSLiteral("true"));
 		meth.write(w);
-		assertEquals("\n  pkg.fred = function(_cxt) {\n    runner.isSame(_cxt, runner, true);\n  }\n", sw.toString());
+		assertEquals("\n  pkg.fred = function(_cxt) {\n    runner.isSame(_cxt, runner, true);\n  }\n\n  pkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
 	@Test
@@ -163,7 +162,7 @@ public class ClassGeneration {
 		fn.argument("_cxt");
 		fn.returnObject(new JSString("hello"));
 		fn.write(w);
-		assertEquals("\n  pkg.fred = function(_cxt) {\n    return 'hello';\n  }\n", sw.toString());
+		assertEquals("\n  pkg.fred = function(_cxt) {\n    return 'hello';\n  }\n\n  pkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
 	@Test
@@ -175,7 +174,7 @@ public class ClassGeneration {
 		assertNotNull(meth);
 		meth.argument("arg1");
 		meth.write(w);
-		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n  }\n\n  pkg.Clz.test.nfargs = function() { return 1; }\n", sw.toString());
 	}
 
 	@Test
@@ -188,7 +187,7 @@ public class ClassGeneration {
 		meth.argument("arg1");
 		meth.argument("arg2");
 		meth.write(w);
-		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1, arg2) {\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1, arg2) {\n  }\n\n  pkg.Clz.test.nfargs = function() { return 2; }\n", sw.toString());
 	}
 
 	
@@ -238,7 +237,7 @@ public class ClassGeneration {
 		JSExpr obj = meth.argument("arg1");
 		meth.callMethod(obj, "mymethod", obj);
 		meth.write(w);
-		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n    const v1 = arg1.mymethod(_cxt, arg1);\n  }\n", sw.toString());
+		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n    const v1 = arg1.mymethod(_cxt, arg1);\n  }\n\n  pkg.Clz.test.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test
@@ -263,7 +262,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		f.addFunction(meth);
 		f.writeTo(w);
-		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.f = function(_cxt) {\n}\n", sw.toString());
+		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.f = function(_cxt) {\n}\n\ntest.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -272,7 +271,7 @@ public class ClassGeneration {
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n}\n", sw.toString());
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -282,7 +281,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.closure(meth.pushFunction("f"), meth.string("hello"));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n", sw.toString());
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -292,7 +291,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.curry(2, meth.pushFunction("f"), meth.string("hello"));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n", sw.toString());
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -302,7 +301,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.xcurry(2, Arrays.asList(new XCArg(0, meth.pushFunction("f")), new XCArg(2, meth.string("hello"))));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n", sw.toString());
+		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -344,25 +343,28 @@ public class ClassGeneration {
 	
 	@Test
 	public void weCanStoreValuesInTheFieldsContainer() {
-		JSBlock b = new JSMethod(null, false, "fred");
+		JSMethod b = new JSMethod(null, false, "fred");
+		b.argument("cxt");
 		b.storeField(null, "value", b.string("hello"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("\nnull.fred = function() {\n  this.state.set('value', 'hello');\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(cxt) {\n  this.state.set('value', 'hello');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
 	public void weCanLoadValuesFromTheFieldsContainer() {
-		JSBlock b = new JSMethod(null, false, "fred");
+		JSMethod b = new JSMethod(null, false, "fred");
+		b.argument("cxt");
 		b.returnObject(b.loadField("value"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("\nnull.fred = function() {\n  return this.state.get('value');\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(cxt) {\n  return this.state.get('value');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
 	@Test
 	public void weCanStoreValuesInAForeignFieldsContainer() {
-		JSBlock b = new JSMethod(null, false, "fred");
+		JSMethod b = new JSMethod(null, false, "fred");
+		b.argument("cxt");
 		b.storeField(b.boundVar("x"), "value", b.string("hello"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("\nnull.fred = function() {\n  x.state.set('value', 'hello');\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(cxt) {\n  x.state.set('value', 'hello');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 }

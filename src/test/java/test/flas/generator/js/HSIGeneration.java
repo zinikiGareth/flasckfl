@@ -47,7 +47,7 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.head("_0");
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 
 	@Test
@@ -90,7 +90,7 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.errorNoCase();
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test
@@ -100,7 +100,7 @@ public class HSIGeneration {
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n", sw.toString());
+		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test

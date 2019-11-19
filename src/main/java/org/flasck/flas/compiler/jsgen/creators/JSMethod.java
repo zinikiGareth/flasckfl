@@ -56,6 +56,15 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		w.print(") ");
 		super.write(w);
 		w.println("");
+		w.println("");
+		w.print(pkg);
+		w.print(".");
+		if (prototype)
+			w.print("prototype.");
+		w.print(name);
+		w.print(".nfargs = function() { return ");
+		w.print(Integer.toString(args.size() - 1)); // -1 for context
+		w.println("; }");
 	}
 
 	public String obtainNextVar() {
