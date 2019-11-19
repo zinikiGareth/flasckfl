@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
@@ -19,6 +20,11 @@ public class TypeChecker extends LeafAdapter {
 		sv.push(this);
 	}
 
+	@Override
+	public void visitObjectDefn(ObjectDefn obj) {
+		new ObjectDefnChecker(errors, repository, sv, obj);
+	}
+	
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
 		sv.push(new GroupChecker(errors, sv, new FunctionGroupTCState(repository, grp)));

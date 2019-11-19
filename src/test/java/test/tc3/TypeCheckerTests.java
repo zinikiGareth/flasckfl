@@ -7,15 +7,18 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.GroupChecker;
+import org.flasck.flas.tc3.ObjectDefnChecker;
 import org.flasck.flas.tc3.TypeChecker;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -52,6 +55,19 @@ public class TypeCheckerTests {
 		}});
 	}
 	
+	@Test
+	public void visitObjectDefnPushesANewChecker() {
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(TypeChecker.class)));
+		}});
+		TypeChecker tc = new TypeChecker(errors, repository, sv);
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), false, new ArrayList<>());
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(ObjectDefnChecker.class)));
+		}});
+		tc.visitObjectDefn(od);
+	}
+
 	@Test
 	public void visitGroupIntroducesUTsForItsFunctions() {
 		CaptureAction gc = new CaptureAction(null);

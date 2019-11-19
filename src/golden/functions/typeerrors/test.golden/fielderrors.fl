@@ -1,0 +1,4 @@
+	object Something
+		state
+			String s <- 42
+			Number n <- "hello"

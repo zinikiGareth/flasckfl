@@ -2,6 +2,10 @@ caseerrors.f  2.9:    | True =  _ "hello"
                           cannot unify types: can be String
 caseerrors.f  3.10:   | False =  _ 42
                           cannot unify types: can be Number
+fielderrors.  3.12:   String s <-  _ 42
+                          cannot initialize s from Number
+fielderrors.  4.12:   Number n <-  _ "hello"
+                          cannot initialize n from String
 fnerrors.fl:  3.6:    f x =  _ "hello" + 3
                           function '+' was expecting Number not String
 guarderrors.  2.2:    |  _ 42 = "hello"
