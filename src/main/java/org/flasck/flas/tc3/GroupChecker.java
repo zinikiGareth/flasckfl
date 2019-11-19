@@ -50,8 +50,8 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	public void leaveFunctionGroup(FunctionGroup grp) {
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 
-		System.out.println(grp);
-		state.debugInfo();
+//		System.out.println(grp);
+//		state.debugInfo();
 		
 		// if we picked up anything based on the invocation of the method in this group, add that into the mix
 		for (Entry<TypeBinder, PosType> m : memberTypes.entrySet()) {
@@ -65,9 +65,9 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		state.resolveAll(errors, false);
 //		state.debugInfo();
 		state.enhanceAllMutualUTs();
-		state.debugInfo();
+//		state.debugInfo();
 		state.resolveAll(errors, true);
-		state.debugInfo();
+//		state.debugInfo();
 		
 		// Then we can bind the types
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {

@@ -38,16 +38,18 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	public class UnifiableApplication {
+		private final InputPosition pos;
 		private final List<Type> args;
 		private final Type ret;
 
-		public UnifiableApplication(List<Type> args, Type ret) {
+		public UnifiableApplication(InputPosition pos, List<Type> args, Type ret) {
+			this.pos = pos;
 			this.args = args;
 			this.ret = ret;
 		}
 
-		public Type asApply() {
-			return new Apply(args, ret);
+		public PosType asApply() {
+			return new PosType(pos, new Apply(args, ret));
 		}
 	}
 
@@ -55,7 +57,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final CurrentTCState state;
 	private final InputPosition pos;
 	private final String id;
-	private final Set<Type> incorporatedBys = new HashSet<>();
+	private final Set<PosType> incorporatedBys = new HashSet<>();
 	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
 	private final Set<PosType> types = new HashSet<>();
 	private final Set<UnifiableApplication> applications = new HashSet<>();
@@ -69,12 +71,12 @@ public class TypeConstraintSet implements UnifiableType {
 		this.pos = pos;
 		this.id = id;
 		comments.add(new Comment(pos, "created because " + motive, null));
-		try {
-			if (motive == null || motive.contentEquals("unknown"))
-				throw new RuntimeException(pos + " " + id + " " + motive);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+//		try {
+//			if (motive == null || motive.contentEquals("unknown"))
+//				throw new RuntimeException(pos + " " + id + " " + motive);
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//		}
 	}
 
 	public boolean isResolved() {
@@ -115,7 +117,7 @@ public class TypeConstraintSet implements UnifiableType {
 	public Type resolve(ErrorReporter errors, boolean hard) {
 		if (resolvedTo != null)
 			return resolvedTo;
-		Set<Type> tys = new HashSet<Type>();
+		Set<PosType> tys = new HashSet<>();
 		for (PosType pt : types) {
 			Type t = pt.type;
 			if (t instanceof StructDefn && ((StructDefn)t).hasPolys()) {
@@ -126,9 +128,9 @@ public class TypeConstraintSet implements UnifiableType {
 				for (PolyType p : sd.polys()) {
 					polys.add(LoadBuiltins.any);
 				}
-				tys.add(new PolyInstance(sd, polys));
+				tys.add(new PosType(pt.pos, new PolyInstance(sd, polys)));
 			} else
-				tys.add(t);
+				tys.add(pt);
 		}
 
 		// We have been explicitly told that these are true, usually through pattern matching
@@ -136,7 +138,7 @@ public class TypeConstraintSet implements UnifiableType {
 		for (Entry<StructDefn, StructTypeConstraints> e : ctors.entrySet()) {
 			StructDefn ty = e.getKey();
 			if (!ty.hasPolys())
-				tys.add(ty);
+				tys.add(new PosType(pos, ty));
 			else {
 				StructTypeConstraints stc = ctors.get(ty);
 				Map<PolyType, Type> polyMap = new HashMap<>();
@@ -153,13 +155,14 @@ public class TypeConstraintSet implements UnifiableType {
 					else
 						polys.add(LoadBuiltins.any);
 				}
-				tys.add(new PolyInstance(ty, polys));
+				tys.add(new PosType(pos, new PolyInstance(ty, polys)));
 			}
 		}
 		
-		if (applications.size() == 1)
-			tys.add(applications.iterator().next().asApply());
-		else if (!applications.isEmpty()) {
+		if (applications.size() == 1) {
+			UnifiableApplication ua = applications.iterator().next();
+			tys.add(ua.asApply());
+		} else if (!applications.isEmpty()) {
 			List<List<PosType>> args = new ArrayList<>();
 			List<PosType> ret = new ArrayList<>();
 			for (UnifiableApplication x : applications) {
@@ -172,26 +175,28 @@ public class TypeConstraintSet implements UnifiableType {
 				for (Type t : x.args) {
 					if (args.size() == k)
 						args.add(new ArrayList<PosType>());
-					args.get(k++).add(new PosType(pos, t));
+					args.get(k++).add(new PosType(x.pos, t));
 				}
-				ret.add(new PosType(pos, x.ret));
+				ret.add(new PosType(x.pos, x.ret));
 			}
 			List<Type> cargs = new ArrayList<>();
 			for (List<PosType> a : args)
 				cargs.add(state.consolidate(pos, a).type);
-			tys.add(new Apply(cargs, state.consolidate(pos, ret).type));
+			PosType rt = state.consolidate(pos, ret);
+			tys.add(new PosType(rt.pos, new Apply(cargs, rt.type)));
 		}
 		
 		tys.addAll(incorporatedBys);
 		
 		List<UnifiableType> sameAs = new ArrayList<>();
-		HashSet<Type> all = new HashSet<Type>();
-		for (Type ty : tys) {
-			if (ty instanceof UnifiableType) {
-				UnifiableType ut = (UnifiableType) ty;
-				if (ut.isResolved())
-					all.add(ut.resolve(errors, true));
-				else
+		HashSet<PosType> all = new HashSet<>();
+		for (PosType ty : tys) {
+			if (ty.type instanceof UnifiableType) {
+				TypeConstraintSet ut = (TypeConstraintSet) ty.type;
+				if (ut.isResolved()) {
+					Type res = ut.resolve(errors, true);
+					all.add(new PosType(ut.pos, res));
+				} else
 					sameAs.add(ut);
 			} else
 				all.add(ty);
@@ -206,16 +211,19 @@ public class TypeConstraintSet implements UnifiableType {
 			else
 				resolvedTo = LoadBuiltins.any;
 		} else if (all.size() == 1)
-			resolvedTo = all.iterator().next();
+			resolvedTo = all.iterator().next().type;
 		else {
-			resolvedTo = repository.findUnionWith(all);
+			Set<Type> alltys = new HashSet<>();
+			for (PosType pt : all)
+				alltys.add(pt.type);
+			resolvedTo = repository.findUnionWith(alltys);
 			if (resolvedTo == null) {
 				TreeSet<String> msg = new TreeSet<>();
-				for (Type ty : all)
+				for (Type ty : alltys)
 					msg.add(ty.signature());
 				for (Comment c : comments)
 					if (c.type != null && !(c.type instanceof UnifiableType)) {
-						System.out.println("cannot unify: " + asTCS());
+//						System.out.println("cannot unify: " + asTCS());
 						errors.message(c.pos, "cannot unify types: " + c.msg + " " + c.type.signature());
 					}
 				return new ErrorType();
@@ -251,7 +259,7 @@ public class TypeConstraintSet implements UnifiableType {
 //				ex.printStackTrace();
 //			}
 //		}
-		incorporatedBys.add(incorporator);
+		incorporatedBys.add(new PosType(pos, incorporator));
 		String t;
 		if (incorporator instanceof TypeConstraintSet)
 			t = ((TypeConstraintSet)incorporator).id;
@@ -329,7 +337,7 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 	
 	private void addApplication(InputPosition pos, List<Type> args, Type ret) {
-		applications.add(new UnifiableApplication(args, ret));
+		applications.add(new UnifiableApplication(pos, args, ret));
 		comments.add(new Comment(pos, "application " + args + " ==> " + ret, ret));
 	}
 
@@ -339,7 +347,7 @@ public class TypeConstraintSet implements UnifiableType {
 			throw new NotImplementedException("types cannot be null");
 		if (ofType.type instanceof Apply) {
 			Apply a = (Apply) ofType.type;
-			addApplication(pos, a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));
+			addApplication(ofType.pos, a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));
 		} else
 			types.add(ofType);
 	}

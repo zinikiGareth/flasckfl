@@ -66,7 +66,7 @@ public class ConstraintUnification {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		StructTypeConstraints stc = ut.canBeStruct(pos, LoadBuiltins.cons);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "unknown"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "unknown")));
+			oneOf(state).createUT(pos, "field head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "field head")));
 		}});
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		assertThat(ut.resolve(errors, true), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
@@ -78,7 +78,7 @@ public class ConstraintUnification {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		StructTypeConstraints stc = ut.canBeStruct(pos, LoadBuiltins.cons);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "unknown"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "unknown")));
+			oneOf(state).createUT(pos, "field head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "field head")));
 		}});
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.canBeStruct(pos, LoadBuiltins.falseT);
@@ -91,7 +91,7 @@ public class ConstraintUnification {
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		StructTypeConstraints stc = ut.canBeStruct(pos, LoadBuiltins.cons);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "unknown"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "unknown")));
+			oneOf(state).createUT(pos, "field head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "field head")));
 		}});
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.isReturned(pos);

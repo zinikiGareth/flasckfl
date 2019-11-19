@@ -117,9 +117,10 @@ public class FunctionGroupTCState implements CurrentTCState {
 		for (PosType t : types) {
 			if (t.type instanceof ErrorType)
 				return t;
+			if (!(t.type instanceof UnifiableType))
+				pos = ret.pos;
 			if (ret.type != t.type) {
 				allMatch = false;
-				break;
 			}
 		}
 		if (allMatch)
