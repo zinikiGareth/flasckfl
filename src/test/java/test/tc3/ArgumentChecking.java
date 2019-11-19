@@ -23,7 +23,7 @@ public class ArgumentChecking {
 	@Test
 	public void aNoArgConstructorIsHandled() {
 		context.checking(new Expectations() {{
-			oneOf(ut).canBeStruct(LoadBuiltins.nil);
+			oneOf(ut).canBeStruct(null, LoadBuiltins.nil);
 		}});
 		tc.matchConstructor(LoadBuiltins.nil);
 	}
@@ -31,7 +31,7 @@ public class ArgumentChecking {
 	@Test
 	public void aMultiArgConstructorIsHandled() {
 		context.checking(new Expectations() {{
-			oneOf(ut).canBeStruct(LoadBuiltins.cons);
+			oneOf(ut).canBeStruct(null, LoadBuiltins.cons);
 		}});
 		tc.matchConstructor(LoadBuiltins.cons);
 	}
@@ -39,7 +39,7 @@ public class ArgumentChecking {
 	@Test
 	public void aFieldEntersANewLevel() {
 		context.checking(new Expectations() {{
-			oneOf(ut).canBeStruct(LoadBuiltins.cons);
+			oneOf(ut).canBeStruct(null, LoadBuiltins.cons);
 			oneOf(nv).push(with(any(SlotChecker.class)));
 		}});
 		tc.matchConstructor(LoadBuiltins.cons);
@@ -49,7 +49,7 @@ public class ArgumentChecking {
 	@Test
 	public void aTypeConstraintIsHandled() {
 		context.checking(new Expectations() {{
-			oneOf(ut).canBeType(LoadBuiltins.string);
+			oneOf(ut).canBeType(pos, LoadBuiltins.string);
 		}});
 		// TODO: we will ultimately need the var and intro in a map that identifies the UT to pull back when typechecking
 		tc.matchType(LoadBuiltins.string, new VarName(pos, null, "x"), null);

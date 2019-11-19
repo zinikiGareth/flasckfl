@@ -98,7 +98,7 @@ public class TypeResolution {
 	public void becauseWeResolveAllTheTypesAUnifiableTypeCanBecomeASimplePrimitiveWhichIsEasyToResolve() {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
-		ut.canBeType(LoadBuiltins.number);
+		ut.canBeType(pos, LoadBuiltins.number);
 		gc.result(new PosType(pos, ut));
 		ut.resolve(errors, true);
 		gc.leaveFunctionGroup(null);
@@ -109,7 +109,7 @@ public class TypeResolution {
 	public void weCanObviouslyHaveAUnifiableTypeOfNumberResolveWithNumberItself() {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
-		ut.canBeType(LoadBuiltins.number);
+		ut.canBeType(pos, LoadBuiltins.number);
 		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(ut, LoadBuiltins.number))));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
@@ -120,8 +120,8 @@ public class TypeResolution {
 	public void ifWeHaveIdentifiedAFunctionAndHaveAnApplicationOfItWeCanDeduceTheCorrectType() {
 		gc.visitFunction(fnF);
 		UnifiableType utG = state.createUT(pos, "unknown"); // a function argument "f"
-		UnifiableType result = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.string)); // (f String) :: ?result
-		result.canBeType(LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
+		UnifiableType result = utG.canBeAppliedTo(pos, Arrays.asList(LoadBuiltins.string)); // (f String) :: ?result
+		result.canBeType(pos, LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
 		gc.result(new PosType(pos, result));
 		gc.leaveFunctionGroup(null);
 		assertThat(utG.resolve(errors, true), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.nil)));
@@ -133,7 +133,7 @@ public class TypeResolution {
 		gc.visitFunction(fnF);
 		UnifiableType utG = state.createUT(pos, "unknown"); // the argument
 		state.bindVarToUT("test.repo.x", utG);
-		utG.isReturned();
+		utG.isReturned(pos);
 		gc.result(new PosType(pos, new Apply(utG, utG)));
 		gc.leaveFunctionGroup(null);
 		Type ty = fnF.type();
@@ -150,9 +150,9 @@ public class TypeResolution {
 		UnifiableType utG = state.createUT(pos, "unknown"); // a hof function argument utH->utI
 		UnifiableType utH = state.createUT(pos, "unknown"); 
 		UnifiableType utI = state.createUT(pos, "unknown");
-		utG.canBeType(new Apply(utH, utI));
-		utH.canBeType(utI);
-		utG.isReturned();
+		utG.canBeType(pos, new Apply(utH, utI));
+		utH.canBeType(pos, utI);
+		utG.isReturned(pos);
 		gc.result(new PosType(pos, new Apply(utG, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
 		Type ty = fnF.type();

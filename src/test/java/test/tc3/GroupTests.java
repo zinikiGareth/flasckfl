@@ -227,8 +227,8 @@ public class GroupTests {
 		}});
 		fcf.visitFunctionIntro(fiF2);
 		fcf.visitCase(null);
-		UnifiableType r1 = fnArg.canBeAppliedTo(Arrays.asList(LoadBuiltins.number));
-		r1.canBeType(LoadBuiltins.string);
+		UnifiableType r1 = fnArg.canBeAppliedTo(pos, Arrays.asList(LoadBuiltins.number));
+		r1.canBeType(pos, LoadBuiltins.string);
 		fcf.result(new ExprResult(pos, r1));
 		fcf.leaveFunctionIntro(fiF2);
 		

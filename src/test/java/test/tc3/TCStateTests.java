@@ -168,7 +168,7 @@ public class TCStateTests {
 	@Test
 	public void aUnionOfATypeAndAResolvedTCSDoesTheRightThing() {
 		UnifiableType tcs = state.createUT(pos, "unknown");
-		tcs.isReturned(); // fake it to have been used in multiple places
+		tcs.isReturned(pos); // fake it to have been used in multiple places
 		Type ct = state.consolidate(pos, Arrays.asList(tcs, LoadBuiltins.number));
 		state.resolveAll(errors, false);
 		state.resolveAll(errors, true);
@@ -180,8 +180,8 @@ public class TCStateTests {
 	public void consolidatingTwoUTsMeansTheyWillResolveToTheSamePoly() {
 		UnifiableType tcs1 = state.createUT(pos, "unknown");
 		UnifiableType tcs2 = state.createUT(pos, "unknown");
-		tcs1.isReturned();
-		tcs2.isUsed();
+		tcs1.isReturned(pos);
+		tcs2.isUsed(pos);
 		UnifiableType ct = (UnifiableType) state.consolidate(pos, Arrays.asList(tcs1, tcs2));
 		state.resolveAll(errors, false);
 		state.enhanceAllMutualUTs();

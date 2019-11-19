@@ -87,7 +87,7 @@ public class TypeConstraintSet implements UnifiableType {
 				if (t instanceof TypeConstraintSet) {
 					TypeConstraintSet other = (TypeConstraintSet) t;
 					if (!other.types.contains(this)) {
-						other.canBeType(this);
+						other.canBeType(pos, this);
 						again = true;
 					}
 					for (Type t2 : other.types) {
@@ -220,12 +220,12 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	@Override
-	public void isReturned() {
+	public void isReturned(InputPosition pos) {
 		usedOrReturned++;
 	}
 
 	@Override
-	public void isUsed() {
+	public void isUsed(InputPosition pos) {
 		usedOrReturned++;
 	}
 
@@ -279,26 +279,26 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	@Override
-	public StructTypeConstraints canBeStruct(StructDefn sd) {
+	public StructTypeConstraints canBeStruct(InputPosition pos, StructDefn sd) {
 		if (!ctors.containsKey(sd))
 			ctors.put(sd, new StructFieldConstraints(repository, sd));
 		return ctors.get(sd);
 	}
 
 	@Override
-	public void canBeType(Type ofType) {
+	public void canBeType(InputPosition pos, Type ofType) {
 		if (ofType == null)
 			throw new NotImplementedException("types cannot be null");
 		types.add(ofType);
 	}
 	
 	@Override
-	public UnifiableType canBeAppliedTo(List<Type> args) {
+	public UnifiableType canBeAppliedTo(InputPosition pos, List<Type> args) {
 		// Here we introduce a new variable that we will be able to constrain
 		UnifiableType ret = state.createUT(pos, "unknown");
 		for (Type ty : args) {
 			if (ty instanceof UnifiableType)
-				((UnifiableType)ty).isUsed();
+				((UnifiableType)ty).isUsed(pos);
 		}
 		addApplication(args, ret);
 		return ret;

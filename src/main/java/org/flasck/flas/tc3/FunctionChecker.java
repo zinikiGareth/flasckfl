@@ -25,11 +25,11 @@ import org.flasck.flas.tc3.ExpressionChecker.GuardResult;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrderVisitor {
-	public static class ArgResult {
-		public final Type type;
-		
+	public static class ArgResult extends PosType {
+		// We just can't know a position for this, because it's a slot that can map to many
+		// We need to capture them later
 		public ArgResult(Type t) {
-			this.type = t;
+			super(null, t);
 		}
 	}
 
@@ -98,6 +98,8 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void result(Object r) {
+		if (!(r instanceof PosType))
+			throw new NotImplementedException("should be some kind of PosType");
 		if (r instanceof ArgResult)
 			argTypes.add(((ArgResult)r).type);
 		else if (r instanceof GuardResult) {
@@ -109,9 +111,10 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			// There will be an expression as well, so push another checker ...
 			sv.push(new ExpressionChecker(errors, state, sv));
 		} else {
-			Type ret = ((ExprResult)r).type;
+			ExprResult exprResult = (ExprResult)r;
+			Type ret = exprResult.type;
 			if (ret instanceof UnifiableType)
-				((UnifiableType)ret).isReturned();
+				((UnifiableType)ret).isReturned(exprResult.pos);
 			resultTypes.add(ret);
 		}
 	}

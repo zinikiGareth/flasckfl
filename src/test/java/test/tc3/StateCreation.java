@@ -32,7 +32,7 @@ public class StateCreation {
 		}});
 		nv.argSlot(new ArgSlot(0, null));
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(LoadBuiltins.nil);
+			oneOf(arg).canBeStruct(null, LoadBuiltins.nil);
 		}});
 		nv.matchConstructor(LoadBuiltins.nil);
 	}
@@ -50,14 +50,14 @@ public class StateCreation {
 		nv.argSlot(new ArgSlot(0, null));
 
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(LoadBuiltins.cons); will(returnValue(cons));
+			oneOf(arg).canBeStruct(null, LoadBuiltins.cons); will(returnValue(cons));
 			oneOf(cons).field(state, null, LoadBuiltins.cons.findField("head")); will(returnValue(head));
 		}});
 		nv.matchConstructor(LoadBuiltins.cons);
 		nv.matchField(LoadBuiltins.cons.findField("head"));
 
 		context.checking(new Expectations() {{
-			oneOf(head).canBeStruct(LoadBuiltins.nil);
+			oneOf(head).canBeStruct(null, LoadBuiltins.nil);
 		}});
 		nv.matchConstructor(LoadBuiltins.nil);
 	}
@@ -73,12 +73,12 @@ public class StateCreation {
 		nv.argSlot(new ArgSlot(0, null));
 
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(LoadBuiltins.trueT);
+			oneOf(arg).canBeStruct(null, LoadBuiltins.trueT);
 		}});
 		nv.matchConstructor(LoadBuiltins.trueT);
 
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(LoadBuiltins.falseT);
+			oneOf(arg).canBeStruct(null, LoadBuiltins.falseT);
 		}});
 		nv.matchConstructor(LoadBuiltins.falseT);
 	}
@@ -97,19 +97,19 @@ public class StateCreation {
 		nv.argSlot(new ArgSlot(0, null));
 
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(LoadBuiltins.cons); will(returnValue(cons));
+			oneOf(arg).canBeStruct(pos, LoadBuiltins.cons); will(returnValue(cons));
 			oneOf(cons).field(state, null, LoadBuiltins.cons.findField("head")); will(returnValue(head));
 		}});
 		nv.matchConstructor(LoadBuiltins.cons);
 		nv.matchField(LoadBuiltins.cons.findField("head"));
 
 		context.checking(new Expectations() {{
-			oneOf(head).canBeStruct(LoadBuiltins.nil);
+			oneOf(head).canBeStruct(pos, LoadBuiltins.nil);
 		}});
 		nv.matchConstructor(LoadBuiltins.nil);
 
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(LoadBuiltins.nil);
+			oneOf(arg).canBeStruct(pos, LoadBuiltins.nil);
 		}});
 		nv.matchConstructor(LoadBuiltins.nil);
 	}

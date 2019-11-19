@@ -380,7 +380,7 @@ public class StackVisitation {
 		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(pos, "unknown"); will(returnValue(result));
-			oneOf(utV).isUsed();
+			oneOf(utV).isUsed(pos);
 			oneOf(nv).result(with(any(UnifiableType.class)));
 		}});
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");

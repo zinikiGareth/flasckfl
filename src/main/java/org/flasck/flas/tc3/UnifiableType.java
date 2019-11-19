@@ -18,10 +18,10 @@ public interface UnifiableType extends Type {
 	// particularly for the pattern-matching case, but also if an expression is created which returns this type,
 	// say that this slot can be represented by a particular struct defn
 	// In this case, we allow the struct defn to be further constrained on its fields
-	StructTypeConstraints canBeStruct(StructDefn sd);
+	StructTypeConstraints canBeStruct(InputPosition pos, StructDefn sd);
 
 	// We can represent the notion that a variable is typed in an argument
-	void canBeType(Type ofType);
+	void canBeType(InputPosition pos, Type ofType);
 
 	// This makes the statement that whatever the ultimate type is, it cannot be "bigger than" or "different to" incorporator
 	// e.g. if it is incorporated by List, it can be Nil, Cons or List, but it cannot be Number
@@ -31,15 +31,15 @@ public interface UnifiableType extends Type {
 	// This says that the value is returned from a sub-expression
 	// Anyway, the upshot is that it is almost undoubtedly used more than once (it must have come from somewhere)
 	// and thus needs to be polymorphic
-	void isReturned();
+	void isReturned(InputPosition pos);
 
 	// The value is used as an argument in an expression where the function is also an unknown
 	// This causes the two to be bound together, requiring a polymorphic variable
-	void isUsed();
+	void isUsed(InputPosition pos);
 
 	// We conclude that this is being used in a function application and as such must be a function
 	// able to be applied to these types
-	UnifiableType canBeAppliedTo(List<Type> results);
+	UnifiableType canBeAppliedTo(InputPosition pos, List<Type> results);
 
 	// When a function has polymorphic args, a UT is instantiated to handle that
 	// This is called when one of those is passed a variable

@@ -103,7 +103,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		Type fn = results.remove(0);
 		if (fn instanceof UnifiableType) {
 			UnifiableType ut = (UnifiableType)fn;
-			nv.result(ut.canBeAppliedTo(results));
+			nv.result(ut.canBeAppliedTo(expr.location(), results));
 			return;
 		} else if (fn.argCount() < results.size())
 			throw new RuntimeException("should be an error: " + fn + " expects: " + fn.argCount() + " has: " + results.size());
