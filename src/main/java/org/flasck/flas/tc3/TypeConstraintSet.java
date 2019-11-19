@@ -57,7 +57,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final String id;
 	private final Set<Type> incorporatedBys = new HashSet<>();
 	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
-	private final Set<Type> types = new HashSet<>();
+	private final Set<PosType> types = new HashSet<>();
 	private final Set<UnifiableApplication> applications = new HashSet<>();
 	private Type resolvedTo;
 	private int usedOrReturned = 0;
@@ -85,17 +85,21 @@ public class TypeConstraintSet implements UnifiableType {
 	public boolean enhance() {
 		boolean again = false;
 		while (true) {
-			List<Type> refs = new ArrayList<>();
-			for (Type t : types) {
+			List<PosType> refs = new ArrayList<>();
+			for (PosType pt : types) {
+				Type t = pt.type;
 				if (t instanceof TypeConstraintSet) {
 					TypeConstraintSet other = (TypeConstraintSet) t;
-					if (!other.types.contains(this)) {
+					boolean needsMe = true;
+					for (PosType t2 : other.types) {
+						if (t2.type == this) {
+							needsMe = false;
+						} else if (!types.contains(t2))
+							refs.add(t2);
+					}
+					if (needsMe) {
 						other.canBeType(pos, this);
 						again = true;
-					}
-					for (Type t2 : other.types) {
-						if (t2 != this && !types.contains(t2))
-							refs.add(t2);
 					}
 				}
 			}
@@ -112,7 +116,8 @@ public class TypeConstraintSet implements UnifiableType {
 		if (resolvedTo != null)
 			return resolvedTo;
 		Set<Type> tys = new HashSet<Type>();
-		for (Type t : types) {
+		for (PosType pt : types) {
+			Type t = pt.type;
 			if (t instanceof StructDefn && ((StructDefn)t).hasPolys()) {
 				StructDefn sd = (StructDefn) t;
 				List<Type> polys = new ArrayList<>();
@@ -300,7 +305,7 @@ public class TypeConstraintSet implements UnifiableType {
 		comments.add(new Comment(pos, "can be", ofType));
 		if (ofType == null)
 			throw new NotImplementedException("types cannot be null");
-		types.add(ofType);
+		types.add(new PosType(pos, ofType));
 	}
 	
 	@Override
@@ -336,14 +341,14 @@ public class TypeConstraintSet implements UnifiableType {
 			Apply a = (Apply) ofType.type;
 			addApplication(pos, a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));
 		} else
-			types.add(ofType.type);
+			types.add(ofType);
 	}
 
 	@Override
 	public void isPassed(InputPosition loc, Type ai) {
 		comments.add(new Comment(pos, "isPassed " + ai, ai));
 		// This is the same implementation as "canBeType" - is that correct?
-		types.add(ai);
+		types.add(new PosType(loc, ai));
 	}
 
 	public String asTCS() {

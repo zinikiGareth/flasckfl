@@ -65,7 +65,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		state.resolveAll(errors, false);
 //		state.debugInfo();
 		state.enhanceAllMutualUTs();
-//		state.debugInfo();
+		state.debugInfo();
 		state.resolveAll(errors, true);
 		state.debugInfo();
 		
