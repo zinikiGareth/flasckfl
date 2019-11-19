@@ -25,26 +25,15 @@ import org.flasck.flas.repository.ResultAware;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExpressionChecker extends LeafAdapter implements ResultAware {
-	public static class ExprResult {
-		public final Type type;
-		
+	public static class ExprResult extends PosType {
 		public ExprResult(InputPosition pos, Type t) {
-			this.type = t;
+			super(pos, t);
 		}
 	}
 
-	public static class GuardResult implements Locatable {
-		public final Type type;
-		private final InputPosition pos;
-		
+	public static class GuardResult extends PosType {
 		public GuardResult(InputPosition pos, Type t) {
-			this.pos = pos;
-			this.type = t;
-		}
-
-		@Override
-		public InputPosition location() {
-			return pos;
+			super(pos, t);
 		}
 	}
 
