@@ -98,7 +98,7 @@ public class MethodTests {
 		Slot s = context.mock(Slot.class);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null); will(returnValue(ut));
+			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
 		sv.argSlot(s);
 		context.assertIsSatisfied();

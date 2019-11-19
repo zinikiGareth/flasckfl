@@ -1,7 +1,6 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -48,7 +47,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void argSlot(Slot s) {
-		UnifiableType currentArg = state.createUT(null);
+		UnifiableType currentArg = state.createUT(null, "unknown");
 		sv.push(new SlotChecker(sv, state, currentArg));
 	}
 

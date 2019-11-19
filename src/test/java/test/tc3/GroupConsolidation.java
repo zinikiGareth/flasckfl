@@ -18,7 +18,7 @@ public class GroupConsolidation {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final NestedVisitor nv = context.mock(NestedVisitor.class);
 	private final Repository repository = new Repository();
-	private final GroupChecker gc = new GroupChecker(errors, repository, nv, state);
+	private final GroupChecker gc = new GroupChecker(errors, nv, state);
 	
 	@Before
 	public void init() {

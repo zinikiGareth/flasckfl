@@ -1,0 +1,3 @@
+	stringNumber
+		| True = "hello"
+		| False = 42

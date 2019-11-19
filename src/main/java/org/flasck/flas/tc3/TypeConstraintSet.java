@@ -1,7 +1,6 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +20,21 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TypeConstraintSet implements UnifiableType {
+	public class Comment {
+		private final InputPosition pos;
+		private final String msg;
+
+		public Comment(InputPosition pos, String msg) {
+			this.pos = pos;
+			this.msg = msg;
+		}
+		
+		@Override
+		public String toString() {
+			return pos + " - " + msg;
+		}
+	}
+
 	public class UnifiableApplication {
 		private final List<Type> args;
 		private final Type ret;
@@ -45,13 +59,19 @@ public class TypeConstraintSet implements UnifiableType {
 	private final Set<UnifiableApplication> applications = new HashSet<>();
 	private Type resolvedTo;
 	private int usedOrReturned = 0;
-//	private final Set<ConsolidateTypes> consolidations = new HashSet<>();
+	private final List<Comment> comments = new ArrayList<>();
 	
-	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id) {
+	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
 		repository = r;
 		this.state = state;
 		this.pos = pos;
 		this.id = id;
+		comments.add(new Comment(pos, "created because " + motive));
+//		try {
+//			throw new RuntimeException(id + " " + motive);
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//		}
 	}
 
 	public boolean isResolved() {
@@ -60,22 +80,26 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	@Override
 	public boolean enhance() {
-		boolean any = false;
+		boolean again = false;
 		while (true) {
-			List<TypeConstraintSet> refs = new ArrayList<>();
+			List<Type> refs = new ArrayList<>();
 			for (Type t : types) {
 				if (t instanceof TypeConstraintSet) {
 					TypeConstraintSet other = (TypeConstraintSet) t;
-					other.canBeType(this);
+					if (!other.types.contains(this)) {
+						other.canBeType(this);
+						again = true;
+					}
 					for (Type t2 : other.types) {
-						if (t2 instanceof TypeConstraintSet && !types.contains(t2))
-							refs.add((TypeConstraintSet) t2);
+						if (t2 != this && !types.contains(t2))
+							refs.add(t2);
 					}
 				}
 			}
 			if (refs.isEmpty())
-				return any;
-			any = true;
+				return again;
+			again = true;
+//			System.out.println("Adding " + refs + " to " + asTCS());
 			types.addAll(refs);
 		}
 	}
@@ -181,6 +205,7 @@ public class TypeConstraintSet implements UnifiableType {
 				TreeSet<String> msg = new TreeSet<>();
 				for (Type ty : all)
 					msg.add(ty.signature());
+//				System.out.println("Unify: " + debugInfo());
 				errors.message(pos, "unable to unify " + String.join(", ", msg));
 				return new ErrorType();
 			}
@@ -188,23 +213,12 @@ public class TypeConstraintSet implements UnifiableType {
 
 		for (UnifiableType ut : sameAs) {
 			if (!ut.isResolved())
-				ut.incorporatedBy(null, resolvedTo);
+				ut.incorporatedBy(this.pos, resolvedTo);
 		}
 		
 		return resolvedTo;
 	}
 
-	private Type tryResolving(ErrorReporter errors, Type t, boolean hard) {
-		if (t instanceof UnifiableType) {
-			Type ret = ((UnifiableType)t).resolve(errors, hard);
-			if (ret != null)
-				return ret;
-			else
-				return t;
-		} else
-			return t;
-	}
-	
 	@Override
 	public void isReturned() {
 		usedOrReturned++;
@@ -217,13 +231,30 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void incorporatedBy(InputPosition pos, Type incorporator) {
+//		if (pos == null) {
+//			try {
+//				throw new RuntimeException(incorporator.toString());
+//			} catch (Exception ex) {
+//				ex.printStackTrace();
+//			}
+//		}
 		incorporatedBys.add(incorporator);
+		String t;
+		if (incorporator instanceof TypeConstraintSet)
+			t = ((TypeConstraintSet)incorporator).id;
+		else if (incorporator instanceof PolyType)
+			t = ((PolyType)incorporator).shortName();
+		else if (incorporator instanceof NamedType)
+			t = ((NamedType)incorporator).name().uniqueName();
+		else
+			t = incorporator.signature();
+		comments.add(new Comment(pos, "incorporated by " + t));
 	}
 
 	@Override
 	public String signature() {
 		if (resolvedTo == null)
-			return "??";
+			return asTCS();
 		return resolvedTo.signature();
 	}
 
@@ -264,7 +295,7 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public UnifiableType canBeAppliedTo(List<Type> args) {
 		// Here we introduce a new variable that we will be able to constrain
-		UnifiableType ret = state.createUT(pos);
+		UnifiableType ret = state.createUT(pos, "unknown");
 		for (Type ty : args) {
 			if (ty instanceof UnifiableType)
 				((UnifiableType)ty).isUsed();
@@ -294,34 +325,28 @@ public class TypeConstraintSet implements UnifiableType {
 			types.add(ofType);
 	}
 
-//	@Override
-//	public void consolidatesWith(ConsolidateTypes consolidateTypes) {
-//		consolidations.add(consolidateTypes);
-//	}
-//	
 	@Override
 	public void isPassed(InputPosition loc, Type ai) {
 		// This is the same implementation as "canBeType" - is that correct?
 		types.add(ai);
 	}
 
-	@Override
-	public void rebind(Type consolidate) {
-		this.resolvedTo = consolidate;
-	}
-
 	public String asTCS() {
-		return "TCS{" + id + "}";
+		return "TCS{" + (pos == null? "NULL":pos.inFile()) + ":" + id + "}";
 	}
 
 	public String debugInfo() {
 		StringBuilder ret = new StringBuilder();
+		ret.append(asTCS());
+		ret.append(" => ");
 		if (this.isResolved()) {
 			ret.append("{");
 			ret.append(resolvedTo);
 			ret.append("}");
 		}
 		ret.append(types);
+		ret.append(" // ");
+		ret.append(comments);
 		return ret.toString();
 	}
 	

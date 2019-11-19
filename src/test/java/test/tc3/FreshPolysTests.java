@@ -32,7 +32,7 @@ public class FreshPolysTests {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null); will(returnValue(ut));
+			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
 		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new PolyType(pos, "A"));
 		assertEquals(ut, t);
@@ -44,7 +44,7 @@ public class FreshPolysTests {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null); will(returnValue(ut));
+			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
 		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new Apply(new PolyType(pos, "A"), LoadBuiltins.number));
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), Matchers.is(LoadBuiltins.number)));
@@ -56,7 +56,7 @@ public class FreshPolysTests {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null); will(returnValue(ut));
+			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
 		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new Apply(new PolyType(pos, "A"), new PolyType(pos, "A")));
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), Matchers.is(ut)));
@@ -69,8 +69,8 @@ public class FreshPolysTests {
 		UnifiableType ut1 = context.mock(UnifiableType.class, "ut1");
 		UnifiableType ut2 = context.mock(UnifiableType.class, "ut2");
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null); will(returnValue(ut1));
-			oneOf(state).createUT(null); will(returnValue(ut2));
+			oneOf(state).createUT(null, "unknown"); will(returnValue(ut1));
+			oneOf(state).createUT(null, "unknown"); will(returnValue(ut2));
 		}});
 		Type t = aec.instantiateFreshPolys(new TreeMap<>(), new Apply(new PolyType(pos, "A"), new PolyType(pos, "B"), new PolyType(pos, "A"), new PolyType(pos, "B")));
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut1), Matchers.is(ut2), Matchers.is(ut1), Matchers.is(ut2)));
@@ -82,7 +82,7 @@ public class FreshPolysTests {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null); will(returnValue(ut));
+			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 		}});
 		Type t = aec.instantiateFreshPolys(new TreeMap<>(), LoadBuiltins.cons);
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(ut)), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(ut))));

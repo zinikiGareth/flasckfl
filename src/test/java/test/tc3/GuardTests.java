@@ -23,12 +23,10 @@ import org.flasck.flas.tc3.ExpressionChecker.GuardResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.flasck.flas.tc3.SlotChecker;
-import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
@@ -60,7 +58,7 @@ public class GuardTests {
 		FunctionCaseDefn fic1 = new FunctionCaseDefn(test, res);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null);
+			oneOf(state).createUT(null, "unknown");
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
 		Slot s = new ArgSlot(0, null);

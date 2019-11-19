@@ -48,7 +48,7 @@ public class PatternsProduceTypes {
 		fn.intro(fi);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null);
+			oneOf(state).createUT(null, "unknown");
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
 		Slot s = new ArgSlot(0, null);
@@ -78,7 +78,7 @@ public class PatternsProduceTypes {
 		fn.intro(fi);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null);
+			oneOf(state).createUT(null, "unknown");
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
 		Slot s = new ArgSlot(0, null);

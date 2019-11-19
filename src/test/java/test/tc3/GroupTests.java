@@ -64,7 +64,7 @@ public class GroupTests {
 	FunctionIntro fiG2 = new FunctionIntro(nameG, args);
 	private FunctionGroup grp = new DependencyGroup(fnF, fnG);
 	private CurrentTCState state = new FunctionGroupTCState(repository, grp);
-	private final GroupChecker gc = new GroupChecker(errors, repository, sv, state);
+	private final GroupChecker gc = new GroupChecker(errors, sv, state);
 
 	@Before
 	public void begin() {
@@ -198,7 +198,7 @@ public class GroupTests {
 	@Test
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void aVarPatternHasItsTypeBoundEvenIfItsAFunction() {
-		UnifiableType fnArg = state.createUT(pos);
+		UnifiableType fnArg = state.createUT(pos, "unknown");
 		
 		CaptureAction captureFCF = new CaptureAction(null);
 		context.checking(new Expectations() {{

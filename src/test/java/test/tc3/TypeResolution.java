@@ -57,7 +57,7 @@ public class TypeResolution {
 			allowing(grp).functions(); will(returnValue(Arrays.asList(fnF)));
 		}});
 		state = new FunctionGroupTCState(repository, grp);
-		gc = new GroupChecker(errors, repository, sv, state);
+		gc = new GroupChecker(errors, sv, state);
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class TypeResolution {
 	@Test
 	public void becauseWeResolveAllTheTypesAUnifiableTypeCanBecomeASimplePrimitiveWhichIsEasyToResolve() {
 		gc.visitFunction(fnF);
-		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		ut.canBeType(LoadBuiltins.number);
 		gc.result(ut);
 		ut.resolve(errors, true);
@@ -107,7 +107,7 @@ public class TypeResolution {
 	@Test
 	public void weCanObviouslyHaveAUnifiableTypeOfNumberResolveWithNumberItself() {
 		gc.visitFunction(fnF);
-		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs");
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		ut.canBeType(LoadBuiltins.number);
 		gc.result(state.consolidate(pos, Arrays.asList(ut, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
@@ -118,7 +118,7 @@ public class TypeResolution {
 	@Test
 	public void ifWeHaveIdentifiedAFunctionAndHaveAnApplicationOfItWeCanDeduceTheCorrectType() {
 		gc.visitFunction(fnF);
-		UnifiableType utG = state.createUT(pos); // a function argument "f"
+		UnifiableType utG = state.createUT(pos, "unknown"); // a function argument "f"
 		UnifiableType result = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.string)); // (f String) :: ?result
 		result.canBeType(LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
 		gc.result(result);
@@ -130,7 +130,7 @@ public class TypeResolution {
 	@Test
 	public void ifWeHaveAUTInTheProcessingTypeWeConvertItToAPolyVarOnBind() {
 		gc.visitFunction(fnF);
-		UnifiableType utG = state.createUT(pos); // the argument
+		UnifiableType utG = state.createUT(pos, "unknown"); // the argument
 		state.bindVarToUT("test.repo.x", utG);
 		utG.isReturned();
 		gc.result(new Apply(utG, utG));
@@ -146,9 +146,9 @@ public class TypeResolution {
 	@Test
 	public void ifWeHaveAHOFWithAUTInTheProcessingTypeWeConvertItToAPolyVarOnBind() {
 		gc.visitFunction(fnF);
-		UnifiableType utG = state.createUT(pos); // a hof function argument utH->utI
-		UnifiableType utH = state.createUT(pos); 
-		UnifiableType utI = state.createUT(pos);
+		UnifiableType utG = state.createUT(pos, "unknown"); // a hof function argument utH->utI
+		UnifiableType utH = state.createUT(pos, "unknown"); 
+		UnifiableType utI = state.createUT(pos, "unknown");
 		utG.canBeType(new Apply(utH, utI));
 		utH.canBeType(utI);
 		utG.isReturned();

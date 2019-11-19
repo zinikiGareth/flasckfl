@@ -27,19 +27,14 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
 		for (StandaloneDefn x : grp.functions())
-			bindVarToUT(x.name().uniqueName(), createUT(x.location()));
+			bindVarToUT(x.name().uniqueName(), createUT(x.location(), "introducing " + x.name().uniqueName()));
 	}
 
 	@Override
-	public UnifiableType createUT(InputPosition pos) {
-		TypeConstraintSet ret = new TypeConstraintSet(repository, this, pos, "ret_" + allUTs.size());
+	public UnifiableType createUT(InputPosition pos, String motive) {
+		TypeConstraintSet ret = new TypeConstraintSet(repository, this, pos, "ret_" + allUTs.size(), motive);
 		allUTs.add(ret);
 		return ret;
-	}
-
-	@Override
-	public void argType(Type ty) {
-//		throw new NotImplementedException();
 	}
 
 	@Override
@@ -129,7 +124,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			return ret;
 
 		// OK, create a new UT and attach them all
-		UnifiableType ut = createUT(pos);
+		UnifiableType ut = createUT(pos, "consolidating " + types);
 		for (Type t : types) {
 			if (t instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication((Apply) t);
@@ -144,7 +139,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		System.out.println("------");
 		for (UnifiableType ut : allUTs) {
 			TypeConstraintSet tcs = (TypeConstraintSet)ut;
-			System.out.println(tcs.asTCS() + "=> " + tcs.debugInfo());
+			System.out.println(tcs.debugInfo());
 		}
 		System.out.println("======");
 	}

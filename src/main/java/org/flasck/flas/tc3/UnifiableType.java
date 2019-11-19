@@ -41,10 +41,6 @@ public interface UnifiableType extends Type {
 	// able to be applied to these types
 	UnifiableType canBeAppliedTo(List<Type> results);
 
-//	// When building a consolidated type, we need to handle UnifiableTypes separately
-//	// and note here that this is part of that
-//	void consolidatesWith(ConsolidateTypes consolidateTypes);
-
 	// When a function has polymorphic args, a UT is instantiated to handle that
 	// This is called when one of those is passed a variable
 	void isPassed(InputPosition loc, Type ai);
@@ -52,9 +48,6 @@ public interface UnifiableType extends Type {
 	// When processing groups, it is necessary to introduce a function type variable in case the function is used
 	// At the end of processing, this needs to be resolved
 	void determinedType(Type value);
-
-	// During resolution, we may return a consolidated type which needs resolving and then rebinding
-	void rebind(Type consolidate);
 
 	// Many UTs can end up being bound to the same thing
 	// Make sure all of them know about everything

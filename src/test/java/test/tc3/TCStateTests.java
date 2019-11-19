@@ -152,14 +152,14 @@ public class TCStateTests {
 	
 	@Test
 	public void aTCSWithNothingDoingReturnsAny() {
-		Type ut = state.consolidate(pos, Arrays.asList(state.createUT(pos)));
+		Type ut = state.consolidate(pos, Arrays.asList(state.createUT(pos, "unknown")));
 		state.resolveAll(errors, true);
 		assertThat(ut, ResolvedUTMatcher.with(LoadBuiltins.any));
 	}
 	
 	@Test
 	public void aUnionOfATypeAndAnEmptyTCSDoesTheRightThing() {
-		Type c1 = state.consolidate(pos, Arrays.asList(state.createUT(pos), LoadBuiltins.number));
+		Type c1 = state.consolidate(pos, Arrays.asList(state.createUT(pos, "unknown"), LoadBuiltins.number));
 		state.resolveAll(errors, false);
 		state.resolveAll(errors, true);
 		assertThat(c1, ResolvedUTMatcher.with(LoadBuiltins.number));
@@ -167,7 +167,7 @@ public class TCStateTests {
 
 	@Test
 	public void aUnionOfATypeAndAResolvedTCSDoesTheRightThing() {
-		UnifiableType tcs = state.createUT(pos);
+		UnifiableType tcs = state.createUT(pos, "unknown");
 		tcs.isReturned(); // fake it to have been used in multiple places
 		Type ct = state.consolidate(pos, Arrays.asList(tcs, LoadBuiltins.number));
 		state.resolveAll(errors, false);
@@ -178,8 +178,8 @@ public class TCStateTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void consolidatingTwoUTsMeansTheyWillResolveToTheSamePoly() {
-		UnifiableType tcs1 = state.createUT(pos);
-		UnifiableType tcs2 = state.createUT(pos);
+		UnifiableType tcs1 = state.createUT(pos, "unknown");
+		UnifiableType tcs2 = state.createUT(pos, "unknown");
 		tcs1.isReturned();
 		tcs2.isUsed();
 		UnifiableType ct = (UnifiableType) state.consolidate(pos, Arrays.asList(tcs1, tcs2));

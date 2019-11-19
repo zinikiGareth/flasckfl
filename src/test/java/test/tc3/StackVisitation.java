@@ -74,7 +74,7 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
-		GroupChecker gc = new GroupChecker(errors, repository, nv, null);
+		GroupChecker gc = new GroupChecker(errors, nv, null);
 		gc.visitFunction(new FunctionDefinition(name, 0));
 	}
 
@@ -97,7 +97,7 @@ public class StackVisitation {
 			oneOf(state).bindVarPatternTypes(errors);
 			oneOf(nv).result(null);
 		}});
-		GroupChecker gc = new GroupChecker(errors, repository, nv, state);
+		GroupChecker gc = new GroupChecker(errors, nv, state);
 		gc.visitFunction(fn);
 		gc.result(ty);
 		gc.leaveFunctionIntro(fi);
@@ -121,7 +121,7 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
-		GroupChecker gc = new GroupChecker(errors, repository, nv, state);
+		GroupChecker gc = new GroupChecker(errors, nv, state);
 		gc.visitObjectMethod(om);
 		context.assertIsSatisfied();
 		UnifiableType utm = context.mock(UnifiableType.class, "utm");
@@ -220,9 +220,9 @@ public class StackVisitation {
 		PolyType pt = new PolyType(pos, "A");
 		Type fnt = new Apply(pt, pt);
 		Type nbr = LoadBuiltins.number;
-		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "ut_A");
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "ut_A", "unknown");
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null); will(returnValue(ut));
+			oneOf(state).createUT(null, "unknown"); will(returnValue(ut));
 			oneOf(nv).result(ut);
 		}});
 		UnresolvedVar f = new UnresolvedVar(pos, "f"); // A->A
@@ -351,13 +351,13 @@ public class StackVisitation {
 	public void leaveApplyExpressionCanHandleUnifiableTypesAsFunctionsProducingApplications() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
 		Type nbr = context.mock(Type.class, "nbr");
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs");
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		FunctionName func = FunctionName.function(pos, null, "f");
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
 		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(any(UnifiableType.class)));
-			oneOf(state).createUT(pos); will(returnValue(result));
+			oneOf(state).createUT(pos, "unknown"); will(returnValue(result));
 		}});
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		fn.bind(funcVar);
@@ -371,14 +371,14 @@ public class StackVisitation {
 	@Test
 	public void aUnifiableTypeCanBeAppliedToAUnifiableTypeWhichCreatesABond() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
-		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "func");
+		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "func", "unknown");
 		UnifiableType utV = context.mock(UnifiableType.class);
 		FunctionName fname = FunctionName.function(pos, null, "f");
 		VarPattern func = new VarPattern(pos, new VarName(pos, fname, "f"));
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, fname, "x"));
 		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos); will(returnValue(result));
+			oneOf(state).createUT(pos, "unknown"); will(returnValue(result));
 			oneOf(utV).isUsed();
 			oneOf(nv).result(with(any(UnifiableType.class)));
 		}});

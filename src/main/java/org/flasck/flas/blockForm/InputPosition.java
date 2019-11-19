@@ -82,4 +82,8 @@ public class InputPosition implements Comparable<InputPosition> {
 	public boolean isFake() {
 		return isFakeToken;
 	}
+
+	public String inFile() {
+		return Integer.toString(lineNo) + ":" + Integer.toString(off);
+	}
 }

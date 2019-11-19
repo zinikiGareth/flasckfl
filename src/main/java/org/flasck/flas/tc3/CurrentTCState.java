@@ -8,11 +8,10 @@ import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.VarPattern;
 
 public interface CurrentTCState {
-	UnifiableType createUT(InputPosition pos);
+	UnifiableType createUT(InputPosition pos, String motive);
 	UnifiableType requireVarConstraints(InputPosition pos, String var);
 	UnifiableType hasVar(String var);
 	PolyType nextPoly(InputPosition pos);
-	void argType(Type type);
 	void bindVarToUT(String name, UnifiableType ty);
 	void resolveAll(ErrorReporter errors, boolean hard);
 	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
