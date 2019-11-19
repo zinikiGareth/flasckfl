@@ -1,5 +1,7 @@
-caseerrors.f  1.0:     _ stringNumber
-                          unable to unify Number, String
+caseerrors.f  2.9:    | True =  _ "hello"
+                          cannot unify types: can be String
+caseerrors.f  3.10:   | False =  _ 42
+                          cannot unify types: can be Number
 fnerrors.fl:  3.6:    f x =  _ "hello" + 3
                           function '+' was expecting Number not String
 guarderrors.  2.2:    |  _ 42 = "hello"

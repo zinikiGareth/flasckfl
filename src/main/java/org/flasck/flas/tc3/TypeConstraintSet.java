@@ -23,10 +23,12 @@ public class TypeConstraintSet implements UnifiableType {
 	public class Comment {
 		private final InputPosition pos;
 		private final String msg;
+		private final Type type;
 
-		public Comment(InputPosition pos, String msg) {
+		public Comment(InputPosition pos, String msg, Type type) {
 			this.pos = pos;
 			this.msg = msg;
+			this.type = type;
 		}
 		
 		@Override
@@ -66,7 +68,7 @@ public class TypeConstraintSet implements UnifiableType {
 		this.state = state;
 		this.pos = pos;
 		this.id = id;
-		comments.add(new Comment(pos, "created because " + motive));
+		comments.add(new Comment(pos, "created because " + motive, null));
 //		try {
 //			throw new RuntimeException(id + " " + motive);
 //		} catch (Exception ex) {
@@ -206,7 +208,9 @@ public class TypeConstraintSet implements UnifiableType {
 				for (Type ty : all)
 					msg.add(ty.signature());
 //				System.out.println("Unify: " + debugInfo());
-				errors.message(pos, "unable to unify " + String.join(", ", msg));
+				for (Comment c : comments)
+					if (c.type != null && !(c.type instanceof UnifiableType))
+						errors.message(c.pos, "cannot unify types: " + c.msg + " " + c.type.signature());
 				return new ErrorType();
 			}
 		}
@@ -221,13 +225,13 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void isReturned(InputPosition pos) {
-		comments.add(new Comment(pos, "returned"));
+		comments.add(new Comment(pos, "returned", null));
 		usedOrReturned++;
 	}
 
 	@Override
 	public void isUsed(InputPosition pos) {
-		comments.add(new Comment(pos, "used"));
+		comments.add(new Comment(pos, "used", null));
 		usedOrReturned++;
 	}
 
@@ -250,7 +254,7 @@ public class TypeConstraintSet implements UnifiableType {
 			t = ((NamedType)incorporator).name().uniqueName();
 		else
 			t = incorporator.signature();
-		comments.add(new Comment(pos, "incorporated by " + t));
+		comments.add(new Comment(pos, "incorporated by " + t, incorporator));
 	}
 
 	@Override
@@ -276,14 +280,14 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		comments.add(new Comment(pos, "incorporates " + other));
+		comments.add(new Comment(pos, "incorporates " + other, other));
 		this.isPassed(pos, other);
 		return true;
 	}
 
 	@Override
 	public StructTypeConstraints canBeStruct(InputPosition pos, StructDefn sd) {
-		comments.add(new Comment(pos, "can be struct " + sd));
+		comments.add(new Comment(pos, "can be struct " + sd, sd));
 		if (!ctors.containsKey(sd))
 			ctors.put(sd, new StructFieldConstraints(repository, sd));
 		return ctors.get(sd);
@@ -291,7 +295,7 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void canBeType(InputPosition pos, Type ofType) {
-		comments.add(new Comment(pos, "can be type " + ofType));
+		comments.add(new Comment(pos, "can be", ofType));
 		if (ofType == null)
 			throw new NotImplementedException("types cannot be null");
 		types.add(ofType);
@@ -319,7 +323,7 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	private void addApplication(InputPosition pos, List<Type> args, Type ret) {
 		applications.add(new UnifiableApplication(args, ret));
-		comments.add(new Comment(pos, "application " + args + " ==> " + ret));
+		comments.add(new Comment(pos, "application " + args + " ==> " + ret, ret));
 	}
 
 	@Override
@@ -335,7 +339,7 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void isPassed(InputPosition loc, Type ai) {
-		comments.add(new Comment(pos, "isPassed " + ai));
+		comments.add(new Comment(pos, "isPassed " + ai, ai));
 		// This is the same implementation as "canBeType" - is that correct?
 		types.add(ai);
 	}
