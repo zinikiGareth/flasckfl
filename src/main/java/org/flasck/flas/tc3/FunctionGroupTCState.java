@@ -112,6 +112,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		
 		// If they appear to be all the same, no probs; if any of them is error, return that
 		PosType ret = types.get(0);
+		pos = ret.pos;
 		boolean allMatch = true;
 		for (PosType t : types) {
 			if (t.type instanceof ErrorType)

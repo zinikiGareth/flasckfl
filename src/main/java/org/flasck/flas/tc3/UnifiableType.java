@@ -47,7 +47,7 @@ public interface UnifiableType extends Type {
 
 	// When processing groups, it is necessary to introduce a function type variable in case the function is used
 	// At the end of processing, this needs to be resolved
-	void determinedType(Type value);
+	void determinedType(PosType value);
 
 	// Many UTs can end up being bound to the same thing
 	// Make sure all of them know about everything

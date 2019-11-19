@@ -47,7 +47,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void argSlot(Slot s) {
-		UnifiableType currentArg = state.createUT(null, "unknown");
+		UnifiableType currentArg = state.createUT(null, "slot " + s);
 		sv.push(new SlotChecker(sv, state, currentArg));
 	}
 

@@ -29,4 +29,9 @@ public class ArgSlot implements Slot {
 	public String id() {
 		return Integer.toString(argPos);
 	}
+	
+	@Override
+	public String toString() {
+		return "ArgSlot[" + argPos + "]";
+	}
 }

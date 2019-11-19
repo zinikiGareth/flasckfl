@@ -62,7 +62,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			if (uts.containsKey(pt))
 				return new PosType(pos, uts.get(pt));
 			else {
-				UnifiableType ret = state.createUT(null, "unknown");
+				UnifiableType ret = state.createUT(null, "instantiating " + pt.shortName());
 				uts.put(pt, ret);
 				return new PosType(pos, ret);
 			}

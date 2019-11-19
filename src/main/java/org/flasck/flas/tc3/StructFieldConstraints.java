@@ -22,7 +22,7 @@ public class StructFieldConstraints implements StructTypeConstraints {
 		if (!sd.fields.contains(fld))
 			throw new RuntimeException("Field is not part of struct: " + fld);
 		if (!fields.containsKey(fld))
-			fields.put(fld, state.createUT(pos, "unknown"));
+			fields.put(fld, state.createUT(pos, "field " + fld.name));
 		return fields.get(fld);
 	}
 

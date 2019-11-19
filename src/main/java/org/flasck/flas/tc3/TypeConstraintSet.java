@@ -69,11 +69,12 @@ public class TypeConstraintSet implements UnifiableType {
 		this.pos = pos;
 		this.id = id;
 		comments.add(new Comment(pos, "created because " + motive, null));
-//		try {
-//			throw new RuntimeException(id + " " + motive);
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//		}
+		try {
+			if (motive == null || motive.contentEquals("unknown"))
+				throw new RuntimeException(pos + " " + id + " " + motive);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	public boolean isResolved() {
@@ -207,10 +208,11 @@ public class TypeConstraintSet implements UnifiableType {
 				TreeSet<String> msg = new TreeSet<>();
 				for (Type ty : all)
 					msg.add(ty.signature());
-//				System.out.println("Unify: " + debugInfo());
 				for (Comment c : comments)
-					if (c.type != null && !(c.type instanceof UnifiableType))
+					if (c.type != null && !(c.type instanceof UnifiableType)) {
+						System.out.println("cannot unify: " + asTCS());
 						errors.message(c.pos, "cannot unify types: " + c.msg + " " + c.type.signature());
+					}
 				return new ErrorType();
 			}
 		}
@@ -304,7 +306,7 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public UnifiableType canBeAppliedTo(InputPosition pos, List<PosType> args) {
 		// Here we introduce a new variable that we will be able to constrain
-		UnifiableType ret = state.createUT(pos, "unknown");
+		UnifiableType ret = state.createUT(pos, "return value when applied to " + args);
 		List<Type> targs = new ArrayList<>();
 		for (PosType ty : args) {
 			targs.add(ty.type);
@@ -327,14 +329,14 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	@Override
-	public void determinedType(Type ofType) {
-		if (ofType == null)
+	public void determinedType(PosType ofType) {
+		if (ofType == null || ofType.type == null)
 			throw new NotImplementedException("types cannot be null");
-		if (ofType instanceof Apply) {
-			Apply a = (Apply) ofType;
+		if (ofType.type instanceof Apply) {
+			Apply a = (Apply) ofType.type;
 			addApplication(pos, a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));
 		} else
-			types.add(ofType);
+			types.add(ofType.type);
 	}
 
 	@Override

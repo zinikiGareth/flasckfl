@@ -25,4 +25,9 @@ public class CMSlot implements Slot {
 	public String id() {
 		return id;
 	}
+	
+	@Override
+	public String toString() {
+		return "CMSlot[" + id + "]";
+	}
 }

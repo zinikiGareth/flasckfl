@@ -99,7 +99,7 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 			allowing(state).requireVarConstraints(pos, "f"); will(returnValue(utf));
-			oneOf(utf).determinedType(ty);
+			oneOf(utf).determinedType(new PosType(pos, ty));
 			oneOf(state).resolveAll(errors, false);
 			oneOf(state).enhanceAllMutualUTs();
 			oneOf(state).resolveAll(errors, true);
@@ -136,7 +136,7 @@ public class StackVisitation {
 		UnifiableType utm = context.mock(UnifiableType.class, "utm");
 		context.checking(new Expectations() {{
 			allowing(state).requireVarConstraints(pos, "meth"); will(returnValue(utm));
-			oneOf(utm).determinedType(ty);
+			oneOf(utm).determinedType(new PosType(pos, ty));
 			oneOf(state).resolveAll(errors, false);
 			oneOf(state).enhanceAllMutualUTs();
 			oneOf(state).resolveAll(errors, true);
