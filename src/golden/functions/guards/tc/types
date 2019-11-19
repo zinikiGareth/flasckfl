@@ -1,2 +1,3 @@
 test.golden.guard :: Number->Number
 test.golden.guard2 :: Number->Number
+test.golden.inferbool :: Boolean->String

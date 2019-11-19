@@ -23,6 +23,8 @@ import org.flasck.flas.tc3.ExpressionChecker.GuardResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.flasck.flas.tc3.SlotChecker;
+import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -136,6 +138,22 @@ public class GuardTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
 		fc.result(new GuardResult(pos, LoadBuiltins.falseT));
+	}
+
+	@Test
+	public void theGuardTypeCanBeAUTForNowButWeDemandItIsBoolean() {
+		FunctionChecker fc = new FunctionChecker(errors, sv, state);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
+		fn.intro(fi);
+		fc.visitFunction(fn);
+
+		UnifiableType ut = context.mock(UnifiableType.class);
+		context.checking(new Expectations() {{
+			oneOf(ut).incorporatedBy(pos, LoadBuiltins.bool);
+			oneOf(sv).push(with(any(ExpressionChecker.class)));
+		}});
+		fc.result(new GuardResult(pos, ut));
 	}
 
 	@Test

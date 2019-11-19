@@ -104,7 +104,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		else if (r instanceof GuardResult) {
 			GuardResult gr = (GuardResult)r;
 			Type ret = gr.type;
-			if (!ret.equals(LoadBuiltins.bool) && !ret.equals(LoadBuiltins.trueT) && !ret.equals(LoadBuiltins.falseT))
+			if (!LoadBuiltins.bool.incorporates(gr.location(), ret))
 				errors.message(gr.location(), "guards must be booleans");
 			
 			// There will be an expression as well, so push another checker ...

@@ -16,6 +16,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.UnifiableType;
 import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -162,12 +163,17 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 	public boolean incorporates(InputPosition pos, Type other) {
 		if (this == other)
 			return true;
+		if (other instanceof UnifiableType) {
+			((UnifiableType)other).incorporatedBy(pos, this);
+			return true;
+		}
 		while (other instanceof PolyInstance) {
 			other = ((PolyInstance)other).struct();
 		}
 		for (TypeReference ty : cases)
 			if (ty.defn() == other)
 				return true;
+		// TODO: should we check the poly vars?
 		return false;
 	}
 }

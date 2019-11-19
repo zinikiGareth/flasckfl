@@ -1,0 +1,3 @@
+	ok x = x + 3
+
+	f x = "hello" + 3

@@ -86,7 +86,6 @@ public class StackVisitation {
 		fi.bindTree(new HSIArgsTree(0));
 		fn.intro(fi);
 		Type ty = context.mock(Type.class, "ty");
-		Type xx = context.mock(Type.class, "xx");
 		UnifiableType utf = context.mock(UnifiableType.class, "utf");
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
