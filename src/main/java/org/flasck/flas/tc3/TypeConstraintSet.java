@@ -221,11 +221,13 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void isReturned(InputPosition pos) {
+		comments.add(new Comment(pos, "returned"));
 		usedOrReturned++;
 	}
 
 	@Override
 	public void isUsed(InputPosition pos) {
+		comments.add(new Comment(pos, "used"));
 		usedOrReturned++;
 	}
 
@@ -274,12 +276,14 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
+		comments.add(new Comment(pos, "incorporates " + other));
 		this.isPassed(pos, other);
 		return true;
 	}
 
 	@Override
 	public StructTypeConstraints canBeStruct(InputPosition pos, StructDefn sd) {
+		comments.add(new Comment(pos, "can be struct " + sd));
 		if (!ctors.containsKey(sd))
 			ctors.put(sd, new StructFieldConstraints(repository, sd));
 		return ctors.get(sd);
@@ -287,6 +291,7 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void canBeType(InputPosition pos, Type ofType) {
+		comments.add(new Comment(pos, "can be type " + ofType));
 		if (ofType == null)
 			throw new NotImplementedException("types cannot be null");
 		types.add(ofType);
@@ -300,18 +305,19 @@ public class TypeConstraintSet implements UnifiableType {
 			if (ty instanceof UnifiableType)
 				((UnifiableType)ty).isUsed(pos);
 		}
-		addApplication(args, ret);
+		addApplication(pos, args, ret);
 		return ret;
 	}
 
 	void consolidatedApplication(Apply a) {
 		List<Type> l = new ArrayList<>(a.tys);
 		Type ret = l.remove(l.size()-1);
-		addApplication(l, ret);
+		addApplication(pos, l, ret);
 	}
 	
-	private void addApplication(List<Type> args, Type ret) {
+	private void addApplication(InputPosition pos, List<Type> args, Type ret) {
 		applications.add(new UnifiableApplication(args, ret));
+		comments.add(new Comment(pos, "application " + args + " ==> " + ret));
 	}
 
 	@Override
@@ -320,13 +326,14 @@ public class TypeConstraintSet implements UnifiableType {
 			throw new NotImplementedException("types cannot be null");
 		if (ofType instanceof Apply) {
 			Apply a = (Apply) ofType;
-			addApplication(a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));
+			addApplication(pos, a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));
 		} else
 			types.add(ofType);
 	}
 
 	@Override
 	public void isPassed(InputPosition loc, Type ai) {
+		comments.add(new Comment(pos, "isPassed " + ai));
 		// This is the same implementation as "canBeType" - is that correct?
 		types.add(ai);
 	}
