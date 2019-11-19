@@ -14,13 +14,13 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.ResultAware;
@@ -43,7 +43,7 @@ import org.junit.Test;
 
 import flas.matchers.ApplyMatcher;
 import flas.matchers.ExprResultMatcher;
-import flas.matchers.PolyInstanceMatcher;
+import flas.matchers.PosMatcher;
 
 public class MethodTests {
 	public interface RAV extends ResultAware, Visitor {	}
@@ -64,6 +64,7 @@ public class MethodTests {
 		sv.push(r);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aSingleDebugMessageGivesAListOfMessage() {
 		sv.push(new FunctionChecker(errors, sv, state));
@@ -73,7 +74,7 @@ public class MethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.debug)); will(returnValue(LoadBuiltins.debug));
-			oneOf(r).result(with(any(EnsureListMessage.class)));
+			oneOf(r).result(with(PosMatcher.type((Matcher)any(EnsureListMessage.class))));
 		}});
 		sv.leaveObjectMethod(meth);
 	}
@@ -110,7 +111,7 @@ public class MethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.debug)); will(returnValue(LoadBuiltins.debug));
-			oneOf(r).result(with(ApplyMatcher.type(Matchers.is(ut), (Matcher)Matchers.any(EnsureListMessage.class))));
+			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(ut), (Matcher)Matchers.any(EnsureListMessage.class)))));
 		}});
 		sv.leaveObjectMethod(meth);
 	}

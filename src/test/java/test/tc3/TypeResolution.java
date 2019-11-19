@@ -21,6 +21,7 @@ import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
@@ -63,7 +64,7 @@ public class TypeResolution {
 	@Test
 	public void aSimplePrimitiveIsEasyToResolve() {
 		gc.visitFunction(fnF);
-		gc.result(LoadBuiltins.number);
+		gc.result(new PosType(pos, LoadBuiltins.number));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -71,7 +72,7 @@ public class TypeResolution {
 	@Test
 	public void multipleIdenticalTypesAreEasilyConsolidated() {
 		gc.visitFunction(fnF);
-		gc.result(state.consolidate(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)));
+		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number))));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -79,7 +80,7 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentParts() {
 		gc.visitFunction(fnF);
-		gc.result(state.consolidate(pos, Arrays.asList(LoadBuiltins.falseT, LoadBuiltins.trueT)));
+		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(LoadBuiltins.falseT, LoadBuiltins.trueT))));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.bool, fnF.type());
 	}
@@ -88,7 +89,7 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentPolymorphicParts() {
 		gc.visitFunction(fnF);
-		gc.result(state.consolidate(pos, Arrays.asList(LoadBuiltins.nil, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any)))));
+		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(LoadBuiltins.nil, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any))))));
 		gc.leaveFunctionGroup(null);
 		assertThat(fnF.type(), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
 	}
@@ -98,7 +99,7 @@ public class TypeResolution {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		ut.canBeType(LoadBuiltins.number);
-		gc.result(ut);
+		gc.result(new PosType(pos, ut));
 		ut.resolve(errors, true);
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
@@ -109,7 +110,7 @@ public class TypeResolution {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		ut.canBeType(LoadBuiltins.number);
-		gc.result(state.consolidate(pos, Arrays.asList(ut, LoadBuiltins.number)));
+		gc.result(new PosType(pos, state.consolidate(pos, Arrays.asList(ut, LoadBuiltins.number))));
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -121,7 +122,7 @@ public class TypeResolution {
 		UnifiableType utG = state.createUT(pos, "unknown"); // a function argument "f"
 		UnifiableType result = utG.canBeAppliedTo(Arrays.asList(LoadBuiltins.string)); // (f String) :: ?result
 		result.canBeType(LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
-		gc.result(result);
+		gc.result(new PosType(pos, result));
 		gc.leaveFunctionGroup(null);
 		assertThat(utG.resolve(errors, true), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.nil)));
 		assertEquals(LoadBuiltins.nil, fnF.type());
@@ -133,7 +134,7 @@ public class TypeResolution {
 		UnifiableType utG = state.createUT(pos, "unknown"); // the argument
 		state.bindVarToUT("test.repo.x", utG);
 		utG.isReturned();
-		gc.result(new Apply(utG, utG));
+		gc.result(new PosType(pos, new Apply(utG, utG)));
 		gc.leaveFunctionGroup(null);
 		Type ty = fnF.type();
 		assertEquals("A->A", ty.signature());
@@ -152,7 +153,7 @@ public class TypeResolution {
 		utG.canBeType(new Apply(utH, utI));
 		utH.canBeType(utI);
 		utG.isReturned();
-		gc.result(new Apply(utG, LoadBuiltins.number));
+		gc.result(new PosType(pos, new Apply(utG, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
 		Type ty = fnF.type();
 		assertEquals("(A->A)->Number", ty.signature());

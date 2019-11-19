@@ -19,14 +19,15 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.flasck.flas.tc3.SlotChecker;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ApplyMatcher;
+import flas.matchers.PosMatcher;
 
 // These are not really "unit" types because they are covering too much ground
 // To do what they purport to do, you need to cut into the pattern analyzer and see the type constraints that come out using visitInTheTCWay ...
@@ -39,7 +40,7 @@ public class PatternsProduceTypes {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aConstantPatternIsANumber() {
 		FunctionChecker fc = new FunctionChecker(errors, sv, state);
@@ -64,12 +65,12 @@ public class PatternsProduceTypes {
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
-			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number))));
+			oneOf(sv).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.number)))));
 		}});
 		fc.leaveFunction(fn);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aStringConstantPatternIsAString() {
 		FunctionChecker fc = new FunctionChecker(errors, sv, state);
@@ -93,7 +94,7 @@ public class PatternsProduceTypes {
 		fc.leaveFunctionIntro(fi);
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
-			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.number))));
+			oneOf(sv).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.number)))));
 		}});
 		fc.leaveFunction(fn);
 	}

@@ -15,6 +15,7 @@ import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -23,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ApplyMatcher;
+import flas.matchers.PosMatcher;
 
 public class TypeConsolidation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -45,12 +47,12 @@ public class TypeConsolidation {
 		
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
-			oneOf(nv).result(LoadBuiltins.number);
+			oneOf(nv).result(with(PosMatcher.type(Matchers.is(LoadBuiltins.number))));
 		}});
 		fc.leaveFunction(f);
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void anArgAndAResultImpliesAnApply() {
 		FunctionChecker fc = new FunctionChecker(errors, nv, state);
@@ -59,7 +61,7 @@ public class TypeConsolidation {
 		
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
-			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.nil), Matchers.is(LoadBuiltins.number))));
+			oneOf(nv).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.nil), Matchers.is(LoadBuiltins.number)))));
 		}});
 		fc.leaveFunction(f);
 	}
@@ -72,7 +74,7 @@ public class TypeConsolidation {
 		
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.number, LoadBuiltins.number)); will(returnValue(LoadBuiltins.number));
-			oneOf(nv).result(LoadBuiltins.number);
+			oneOf(nv).result(with(PosMatcher.type(Matchers.is(LoadBuiltins.number))));
 		}});
 		fc.leaveFunction(f);
 	}
@@ -85,7 +87,7 @@ public class TypeConsolidation {
 		
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(LoadBuiltins.trueT, LoadBuiltins.falseT)); will(returnValue(LoadBuiltins.bool));
-			oneOf(nv).result(LoadBuiltins.bool);
+			oneOf(nv).result(with(PosMatcher.type(Matchers.is(LoadBuiltins.bool))));
 		}});
 		fc.leaveFunction(f);
 	}

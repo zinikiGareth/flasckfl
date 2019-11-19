@@ -75,12 +75,16 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		}
 		SetMap<String, Type> polys = new SetMap<String, Type>();
 		for (Type t : members) {
+			if (t == this)
+				continue;
 			NamedType sd;
-			if (t instanceof StructDefn || t instanceof UnionTypeDefn)
-				sd = (StructDefn) t;
-			else if (t instanceof PolyInstance) {
+			if (t instanceof StructDefn || t instanceof UnionTypeDefn) {
+				sd = (NamedType) t;
+			} else if (t instanceof PolyInstance) {
 				PolyInstance pi = (PolyInstance)t;
 				sd = pi.struct();
+				if (sd == this)
+					continue;
 				TypeReference mine = findCase(sd.name().uniqueName());
 				if (mine == null)
 					return null;

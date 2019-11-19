@@ -20,7 +20,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private CurrentTCState state;
 	private TypeBinder currentFunction;
-	private final Map<TypeBinder, Type> memberTypes = new HashMap<>(); 
+	private final Map<TypeBinder, PosType> memberTypes = new HashMap<>(); 
 
 	public GroupChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state) {
 		this.errors = errors;
@@ -42,7 +42,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
-		memberTypes.put(currentFunction, (Type)r);
+		memberTypes.put(currentFunction, (PosType)r);
 		this.currentFunction = null;
 	}
 
@@ -50,14 +50,14 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	public void leaveFunctionGroup(FunctionGroup grp) {
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 
-		System.out.println(grp);
-		state.debugInfo();
+//		System.out.println(grp);
+//		state.debugInfo();
 		
 		// if we picked up anything based on the invocation of the method in this group, add that into the mix
-		for (Entry<TypeBinder, Type> m : memberTypes.entrySet()) {
+		for (Entry<TypeBinder, PosType> m : memberTypes.entrySet()) {
 			String name = m.getKey().name().uniqueName();
 			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
-			ut.determinedType(m.getValue());
+			ut.determinedType(m.getValue().type);
 		}
 //		state.debugInfo();
 
@@ -67,11 +67,11 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		state.enhanceAllMutualUTs();
 //		state.debugInfo();
 		state.resolveAll(errors, true);
-		state.debugInfo();
+//		state.debugInfo();
 		
 		// Then we can bind the types
-		for (Entry<TypeBinder, Type> e : memberTypes.entrySet()) {
-			e.getKey().bindType(cleanUTs(e.getValue()));
+		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
+			e.getKey().bindType(cleanUTs(e.getValue().type));
 		}
 		state.bindVarPatternTypes(errors);
 		sv.result(null);

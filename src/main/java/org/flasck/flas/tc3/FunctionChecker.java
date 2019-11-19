@@ -138,11 +138,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		}
 	}
 
-	private Type buildApplyType(InputPosition pos, Type result) {
+	private PosType buildApplyType(InputPosition pos, Type result) {
 		if (argTypes.isEmpty())
-			return result;
+			return new PosType(pos, result);
 		else {
-			return new Apply(argTypes, result);
+			return new PosType(pos, new Apply(argTypes, result));
 		}
 	}
 }

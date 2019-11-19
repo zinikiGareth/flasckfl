@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;
+import flas.matchers.PosMatcher;
 import flas.matchers.ResolvedUTMatcher;
 
 public class GroupTests {
@@ -233,9 +234,7 @@ public class GroupTests {
 		
 		CaptureAction captureFType = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(sv).result(with(ApplyMatcher.type(Matchers.is(fnArg), 
-							Matchers.is(r1)
-			))); will(captureFType);
+			oneOf(sv).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(fnArg), Matchers.is(r1))))); will(captureFType);
 		}});
 		fcf.leaveFunction(fnF);
 		context.assertIsSatisfied();

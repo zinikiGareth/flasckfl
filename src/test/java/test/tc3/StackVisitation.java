@@ -46,6 +46,7 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.MemberExpressionChecker;
+import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
@@ -99,7 +100,7 @@ public class StackVisitation {
 		}});
 		GroupChecker gc = new GroupChecker(errors, nv, state);
 		gc.visitFunction(fn);
-		gc.result(ty);
+		gc.result(new PosType(pos, ty));
 		gc.leaveFunctionIntro(fi);
 		gc.leaveFunction(fn);
 		gc.leaveFunctionGroup(null);
@@ -134,7 +135,7 @@ public class StackVisitation {
 			oneOf(state).bindVarPatternTypes(errors);
 			oneOf(nv).result(null);
 		}});
-		gc.result(ty);
+		gc.result(new PosType(pos, ty));
 		gc.leaveObjectMethod(om);
 		gc.leaveFunctionGroup(null);
 		assertEquals(ty, om.type());
