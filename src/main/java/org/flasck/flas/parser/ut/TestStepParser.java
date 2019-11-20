@@ -55,6 +55,34 @@ public class TestStepParser implements TDAParsing {
 			}
 			return new SingleExpressionParser(errors, ex -> { builder.assertion(test.get(0), ex); });
 		}
+		case "contract": {
+			ValidIdentifierToken tok = VarNameToken.from(toks);
+			if (tok == null) {
+				errors.message(toks, "contract requires a card variable to send the event to");
+				return new IgnoreNestedParser();
+			}
+			TypeNameToken evname = TypeNameToken.qualified(toks);
+			if (evname == null) {
+				errors.message(toks, "contract requires an event type");
+				return new IgnoreNestedParser();
+			}
+			List<Expr> eventObj = new ArrayList<>();
+			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
+			expr.tryParsing(toks);
+			if (errors.hasErrors()){
+				return new IgnoreNestedParser();
+			}
+			if (eventObj.isEmpty()) {
+				errors.message(toks, "missing arguments");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "garbage at end of line");
+				return new IgnoreNestedParser();
+			}
+			builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
+			return new NoNestingParser(errors);
+		}
 		case "data": {
 			return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }).tryParsing(toks);
 		}
@@ -74,17 +102,7 @@ public class TestStepParser implements TDAParsing {
 			builder.event(new UnresolvedVar(tok.location, tok.text), new StringLiteral(evname.location, evname.text), eventObj.get(0));
 			return new NoNestingParser(errors);
 		}
-		case "send": {
-			ValidIdentifierToken tok = VarNameToken.from(toks);
-			if (tok == null) {
-				errors.message(toks, "send requires a card variable to send the event to");
-				return new IgnoreNestedParser();
-			}
-			TypeNameToken evname = TypeNameToken.qualified(toks);
-			if (evname == null) {
-				errors.message(toks, "send requires an event type");
-				return new IgnoreNestedParser();
-			}
+		case "invoke": {
 			List<Expr> eventObj = new ArrayList<>();
 			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
 			expr.tryParsing(toks);
@@ -92,14 +110,10 @@ public class TestStepParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			if (eventObj.isEmpty()) {
-				errors.message(toks, "missing arguments");
+				errors.message(toks, "missing expression");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
-				errors.message(toks, "garbage at end of line");
-				return new IgnoreNestedParser();
-			}
-			builder.send(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
+			builder.invokeObjectMethod(eventObj.get(0));
 			return new NoNestingParser(errors);
 		}
 		case "template": {

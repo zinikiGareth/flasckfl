@@ -37,7 +37,12 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void send(UnresolvedVar card, TypeReference contract, Expr invocation) {
+	public void invokeObjectMethod(Expr expr) {
+		this.steps.add(new UnitTestInvoke(expr));
+	}
+
+	@Override
+	public void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation) {
 		this.steps.add(new UnitTestSend(card, contract, invocation));
 	}
 

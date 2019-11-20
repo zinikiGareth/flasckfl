@@ -5,6 +5,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -15,6 +17,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
@@ -93,9 +96,20 @@ public class UnitTestBuilding {
 	}
 
 	@Test
-	public void addingASendStep() {
+	public void addingAnInvokeStep() {
 		UnitTestCase utc = new UnitTestCase(name, "this is a test");
-		utc.send(new UnresolvedVar(pos, "x"), new TypeReference(pos, "ContractName"), new UnresolvedVar(pos, "method"));
+		ApplyExpr expr = new ApplyExpr(pos, new MemberExpr(pos, new UnresolvedVar(pos, "obj"), new UnresolvedVar(pos, "meth")), new StringLiteral(pos, "hello"));
+		utc.invokeObjectMethod(expr);
+		assertEquals(1, utc.steps.size());
+		assertTrue(utc.steps.get(0) instanceof UnitTestInvoke);
+		UnitTestInvoke invoke = (UnitTestInvoke) utc.steps.get(0);
+		assertEquals(expr, invoke.expr);
+	}
+
+	@Test
+	public void addingAContractStep() {
+		UnitTestCase utc = new UnitTestCase(name, "this is a test");
+		utc.sendOnContract(new UnresolvedVar(pos, "x"), new TypeReference(pos, "ContractName"), new UnresolvedVar(pos, "method"));
 		assertEquals(1, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestSend);
 		UnitTestSend ev = (UnitTestSend) utc.steps.get(0);

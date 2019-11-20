@@ -7,8 +7,9 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 
 public interface UnitTestStepConsumer {
 	void assertion(Expr expr, Expr value);
-	void event(UnresolvedVar card, StringLiteral name, Expr event);
-	void send(UnresolvedVar card, TypeReference contract, Expr invocation);
 	void data(UnitDataDeclaration dd);
+	void event(UnresolvedVar card, StringLiteral name, Expr event);
+	void invokeObjectMethod(Expr expr);
+	void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation);
 	void template();
 }

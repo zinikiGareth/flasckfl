@@ -56,9 +56,6 @@
   <lex token='DOCWORD' pattern='[a-zA-Z_0-9]+'>
     <p>Words that can appear in the documentation of a test case.</p>
   </lex>
-  <lex token='DOSEND' pattern='send'>
-  	<p>The <tt>send</tt> keyword is used in tests to send a message to a contract.</p>
-  </lex>
   <lex token='ENTITY' pattern='entity'>
   	<p>The <tt>entity</tt> keyword introduces an entity definition.</p>
   </lex>
@@ -1372,7 +1369,7 @@
         <li>on the behaviour of a card event handler.</li>
         </ul>
         <p>In order to make all these cases easy, the unit test language allows values and messages to be easily defined and has special syntax for isolating and testing message outputs and template orchestration, independent of the actual template HTML provided.</p>
-        <p>The <tt>send</tt> action simulates a UI input event and dispatches it to the card.  The first argument is a variable which is a reference to the card to receive the event.  The expression will probably construct an event, but it could also be a reference to a data object.</p>
+        <p>The <tt>event</tt> action simulates a UI input event and dispatches it to the card.  The first argument is a variable which is a reference to the card to receive the event.  The second is the name of an event handler. The expression will probably construct an event, but it could also be a reference to a data object.</p>
         <p>The <tt>invoke</tt> action invokes a method on an object.  This is just described as an "expression" but the semantics are that it must be a valid object method invocation.</p>
         <p>The <tt>contract</tt> action is supposed to invoke a method in a contract on a card.  The first argument is a data variable which is a reference to the card to receive the event.  The second argument is the name of the contract which will have the event.  The third var is the name of the method to invoke on the contract.  The expressions are the data elements to send.</p>
         <p>We still need to handle expectations.</p>
@@ -1396,7 +1393,6 @@
     <or>
       <ref production='unit-data-declaration' />
       <ref production='unit-event-action' />
-      <ref production='unit-send-action' />
       <ref production='unit-invoke-action' />
       <ref production='unit-contract-action' />
       <ref production='unit-test-assert' />
@@ -1413,15 +1409,6 @@
       <ref production='expression' /> <!-- the event object -->
     </seq>
   </production>
-  <production name='unit-send-action'>
-    <section title='Unit Tests' />
-    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
-    <seq>
-      <token type='DOSEND' />
-      <token type='var-name' /> <!--  the card to receive the UI event -->
-      <ref production='expression' /> <!-- a UI event object -->
-    </seq>
-  </production>
   <production name='unit-invoke-action'>
     <section title='Unit Tests' />
     <!--  tested by='test.parsing.ut.UnitTestStepParsingTests' /-->
@@ -1432,7 +1419,7 @@
   </production>
   <production name='unit-contract-action'>
     <section title='Unit Tests' />
-    <!--  tested by='test.parsing.ut.UnitTestStepParsingTests' / -->
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
       <token type='CONTRACT' />
       <token type='var-name' /> <!--  the card, object or service to receive the action -->

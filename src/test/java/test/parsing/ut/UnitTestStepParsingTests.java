@@ -154,32 +154,32 @@ public class UnitTestStepParsingTests {
 	}
 	
 	@Test
-	public void testWeCanHandleASendStep() {
+	public void testWeCanHandleAContractStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).send((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.apply(ExprMatcher.unresolved("method"), ExprMatcher.unresolved("true"), ExprMatcher.number(86), ExprMatcher.string("hello"))));
+			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.apply(ExprMatcher.unresolved("method"), ExprMatcher.unresolved("true"), ExprMatcher.number(86), ExprMatcher.string("hello"))));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
-		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("send card SomeContract method true 86 'hello'"));
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("contract card SomeContract method true 86 'hello'"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}
 	
 	@Test
-	public void testWeCanHandleASendStepWithNoArgumentsToTheMethod() {
+	public void testWeCanHandleAContractStepWithNoArgumentsToTheMethod() {
 		context.checking(new Expectations() {{
-			oneOf(builder).send((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.unresolved("method")));
+			oneOf(builder).sendOnContract((UnresolvedVar)with(ExprMatcher.unresolved("card")), (TypeReference) with(TypeReferenceMatcher.type("SomeContract")), with(ExprMatcher.unresolved("method")));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
-		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("send card SomeContract method"));
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("contract card SomeContract method"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}
 	
 	@Test
-	public void testASendStepNeedsEverything() {
-		final Tokenizable toks = UnitTestTopLevelParsingTests.line("send card SomeContract");
+	public void testAContractStepNeedsEverything() {
+		final Tokenizable toks = UnitTestTopLevelParsingTests.line("contract card SomeContract");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "missing arguments");
 		}});
@@ -189,7 +189,19 @@ public class UnitTestStepParsingTests {
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}
-	
+
+	@Test
+	public void testWeCanHandleAnInvokeStep() {
+		context.checking(new Expectations() {{
+			oneOf(builder).invokeObjectMethod(with(ExprMatcher.apply(ExprMatcher.member(ExprMatcher.unresolved("obj"), ExprMatcher.unresolved("meth")), ExprMatcher.string("hello"))));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("invoke obj.meth 'hello'"));
+		assertTrue(nested instanceof NoNestingParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+
 	@Test
 	public void testWeCanHandleATemplateStep() {
 		context.checking(new Expectations() {{
