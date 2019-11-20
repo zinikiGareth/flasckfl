@@ -36,7 +36,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		sv.push(new FunctionChecker(errors, sv, state, null));
+		sv.push(new FunctionChecker(errors, sv, state, meth));
 		this.currentFunction = meth;
 	}
 

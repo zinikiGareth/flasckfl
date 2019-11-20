@@ -34,6 +34,9 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitAssignSlot(List<UnresolvedVar> slots) {
+		if (rhsType.type instanceof ErrorType)
+			return;
+
 		Type container = inMeth.getObject();
 		String curr = null;
 		String var = null;
@@ -45,22 +48,30 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 				StateDefinition state = type.state();
 				if (state == null) {
 					errors.message(pos, type.name().uniqueName() + " does not have state");
+					rhsType = new ExprResult(rhsType.pos, new ErrorType());
 					return;
 				}
 				var = slot.var;
 				StructField fld = state.findField(var);
 				if (fld == null) {
 					errors.message(slot.location(), "there is no field " + var + " in " + type.name().uniqueName());
+					rhsType = new ExprResult(rhsType.pos, new ErrorType());
 					return;
 				}
 				container = fld.type();
 			} else {
 				errors.message(slot.location, "field " + var + " in " + curr + " is not a container");
+				rhsType = new ExprResult(rhsType.pos, new ErrorType());
 				return;
 			}
 		}
-		if (!(rhsType.type instanceof ErrorType))
-			rhsType = new ExprResult(rhsType.pos, LoadBuiltins.message);
+		
+		if (!(container.incorporates(rhsType.pos, rhsType.type))) {
+			errors.message(rhsType.pos, "the field " + var + " in " + curr + " is of type " + container.signature() + ", not " + rhsType.type.signature());
+			rhsType = new ExprResult(rhsType.pos, new ErrorType());
+			return;
+		}
+		rhsType = new ExprResult(rhsType.pos, LoadBuiltins.message);
 	}
 	
 	@Override
@@ -76,6 +87,12 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private void check() {
 		Type check = rhsType.type;
 
+		// don't cascade errors
+		if (check instanceof ErrorType) {
+			sv.result(rhsType);
+			return;
+		}
+		
 		// an empty list is fine
 		if (check == LoadBuiltins.nil) {
 			sv.result(rhsType);

@@ -33,7 +33,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	public void visitObjectMethod(ObjectMethod meth) {
 		if (meth.messages().isEmpty())
 			return;
-		sv.push(new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), null));
+		sv.push(new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), meth));
 		this.currentMethod = meth;
 	}
 

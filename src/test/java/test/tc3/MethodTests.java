@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -186,6 +187,46 @@ public class MethodTests {
 			oneOf(errors).message(pos, "there is no field x in test.repo.MyObject");
 		}});
 		sv.visitAssignSlot(msg.slot);
+	}
+
+	@Test
+	public void errorsAreSuppressedIfTheExprWasAlreadyBad() {
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition os = new StateDefinition(pos);
+		os.addField(new StructField(pos, false, LoadBuiltins.stringTR, "s"));
+		s.defineState(os);
+		s.addMethod(meth);
+		UnresolvedVar var = new UnresolvedVar(pos, "x");
+		Expr sl = new StringLiteral(pos, "hello");
+		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
+		meth.assignMessage(msg);
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		sv.visitAssignMessage(msg);
+		sv.result(new ExprResult(pos, new ErrorType()));
+		context.checking(new Expectations() {{
+		}});
+		sv.visitAssignSlot(msg.slot);
+	}
+
+	@Test
+	public void theFieldMustHaveTheRightType() {
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition os = new StateDefinition(pos);
+		os.addField(new StructField(pos, false, LoadBuiltins.stringTR, "s"));
+		s.defineState(os);
+		s.addMethod(meth);
+		UnresolvedVar var = new UnresolvedVar(pos, "s");
+		Expr nl = new NumericLiteral(pos, "42", 2);
+		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), nl);
+		meth.assignMessage(msg);
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		sv.visitAssignMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.number));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "the field s in test.repo.MyObject is of type String, not Number");
+		}});
+		sv.visitAssignSlot(msg.slot);
+		sv.leaveMessage(msg);
 	}
 
 	@Test
