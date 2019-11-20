@@ -34,7 +34,6 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;

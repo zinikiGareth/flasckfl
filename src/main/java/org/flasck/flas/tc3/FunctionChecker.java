@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -94,6 +95,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	@Override
 	public void visitSendMessage(SendMessage sm) {
 		new MessageChecker(errors,state, sv, sm.location());
+	}
+	
+	@Override
+	public void visitAssignMessage(AssignMessage assign) {
+		new MessageChecker(errors,state, sv, assign.location());
 	}
 	
 	@Override

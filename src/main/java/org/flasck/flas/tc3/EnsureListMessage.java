@@ -54,4 +54,13 @@ public class EnsureListMessage implements Type {
 		return lm.incorporates(pos, other);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof EnsureListMessage;
+	}
+	
+	@Override
+	public String toString() {
+		return pos + " " + lm;
+	}
 }

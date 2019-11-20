@@ -5,5 +5,5 @@
 		acor gets = s
 		acor lengthPlus k = (strlen s) + k
 					
-.		method message (String msg)
-.			s <- msg
+		method message (String msg)
+			s <- msg

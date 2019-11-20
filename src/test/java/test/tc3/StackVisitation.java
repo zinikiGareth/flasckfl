@@ -17,6 +17,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -48,6 +49,7 @@ import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.MemberExpressionChecker;
 import org.flasck.flas.tc3.PosType;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.TypeChecker;
 import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matchers;
@@ -85,6 +87,19 @@ public class StackVisitation {
 		}});
 		GroupChecker gc = new GroupChecker(errors, nv, null);
 		gc.visitFunction(new FunctionDefinition(name, 0));
+	}
+
+	@Test
+	public void whenWeVisitAnObjectMethodWePushAFunctionChecker() {
+		SolidName obj = new SolidName(pkg, "MyObject");
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>());
+		meth.assignMessage(new AssignMessage(pos, new ArrayList<UnresolvedVar>(), new StringLiteral(pos, "hello")));
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(TypeChecker.class)));
+			oneOf(nv).push(with(any(FunctionChecker.class)));
+		}});
+		TypeChecker gc = new TypeChecker(errors, repository, nv);
+		gc.visitObjectMethod(meth);
 	}
 
 	@Test
@@ -147,6 +162,22 @@ public class StackVisitation {
 		gc.leaveObjectMethod(om);
 		gc.leaveFunctionGroup(null);
 		assertEquals(ty, om.type());
+	}
+
+	@Test
+	public void weBindTheTypeAfterVisitingAnObjectMethod() {
+		SolidName obj = new SolidName(pkg, "MyObject");
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>());
+		meth.assignMessage(new AssignMessage(pos, new ArrayList<UnresolvedVar>(), new StringLiteral(pos, "hello")));
+		Type ty = context.mock(Type.class);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(TypeChecker.class)));
+			oneOf(nv).push(with(any(FunctionChecker.class)));
+		}});
+		TypeChecker gc = new TypeChecker(errors, repository, nv);
+		gc.visitObjectMethod(meth);
+		gc.result(new PosType(pos, ty));
+		assertEquals(ty, meth.type());
 	}
 
 	@Test

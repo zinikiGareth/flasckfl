@@ -134,8 +134,7 @@ public class Traverser implements Visitor {
 			if (functionOrder == null)
 				visitFunction((FunctionDefinition)e);
 		} else if (e instanceof ObjectMethod) {
-			if (functionOrder == null)
-				visitObjectMethod((ObjectMethod)e);
+			visitObjectMethod((ObjectMethod)e);
 		} else if (e instanceof ObjectAccessor) {
 			if (functionOrder == null)
 				visitObjectAccessor((ObjectAccessor)e);

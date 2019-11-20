@@ -57,6 +57,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 	
 	@Override
 	public void push(Visitor v) {
+//		System.out.println("Pushing " + v.getClass().getName());
 		stack.add(0, v);
 		setTop(v);
 	}
@@ -75,6 +76,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	@Override
 	public void result(Object r) {
+//		System.out.println("Returning " + r + " from " + stack.get(0).getClass().getName());
 		stack.remove(0);
 		setTop(stack.get(0));
 		if (this.top instanceof ResultAware)

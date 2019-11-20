@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -14,6 +15,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
@@ -21,6 +23,7 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.ResultAware;
@@ -73,6 +76,7 @@ public class MethodTests {
 		meth.sendMessage(msg);
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
+		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
 			oneOf(r).result(with(PosMatcher.type((Matcher)any(EnsureListMessage.class))));
@@ -83,6 +87,7 @@ public class MethodTests {
 	@Test
 	public void noMessagesNullType() {
 		sv.push(new FunctionChecker(errors, sv, state));
+		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(null);
 		}});
@@ -110,6 +115,7 @@ public class MethodTests {
 		sv.endArg(s);
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
+		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
 			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(ut), (Matcher)Matchers.any(EnsureListMessage.class)))));
@@ -120,12 +126,31 @@ public class MethodTests {
 	// TODO: Consolidating different types (a method with a Debug and a Send)
 	
 	@Test
+	public void weCanHandleAnAssignMessage() {
+		UnresolvedVar var = new UnresolvedVar(pos, "x");
+		Expr sl = new StringLiteral(pos, "hello");
+		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
+		meth.assignMessage(msg);
+		sv.push(new FunctionChecker(errors, sv, state));
+		sv.visitAssignMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.string));
+		sv.visitAssignSlot(msg.slot);
+		sv.leaveMessage(msg);
+		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.message))); will(returnValue(new PosType(pos, LoadBuiltins.message)));
+			oneOf(r).result(new PosType(pos, new EnsureListMessage(pos, LoadBuiltins.message)));
+		}});
+		sv.leaveObjectMethod(meth);
+	}
+
+	@Test
 	public void sendMessageIsFine() {
 		new MessageChecker(errors, state, sv, pos);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.send))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.send));
+		sv.leaveMessage(null);
 	}
 
 	@Test
@@ -135,6 +160,7 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.debug))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
+		sv.leaveMessage(null);
 	}
 
 	@Test
@@ -144,6 +170,7 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.message))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.message));
+		sv.leaveMessage(null);
 	}
 
 	@Test
@@ -153,6 +180,7 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.nil));
+		sv.leaveMessage(null);
 	}
 
 	@Test
@@ -163,6 +191,7 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
 		sv.result(new ExprResult(pos, pi));
+		sv.leaveMessage(null);
 	}
 
 	@Test
@@ -173,6 +202,7 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
 		sv.result(new ExprResult(pos, pi));
+		sv.leaveMessage(null);
 	}
 
 	@Test
@@ -183,6 +213,7 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
 		sv.result(new ExprResult(pos, pi));
+		sv.leaveMessage(null);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -194,6 +225,7 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.number));
+		sv.leaveMessage(null);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -206,6 +238,7 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
 		}});
 		sv.result(new ExprResult(pos, pi));
+		sv.leaveMessage(null);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -219,5 +252,6 @@ public class MethodTests {
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
 		}});
 		sv.result(new ExprResult(pos, pi));
+		sv.leaveMessage(null);
 	}
 }
