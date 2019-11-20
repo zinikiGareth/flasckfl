@@ -13,7 +13,6 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
-import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
@@ -44,7 +43,6 @@ public abstract class BaseRunnerTests {
 	// TODO: defining bce here feels out of place and should be in the JVMRunnerTest
 	// But it is "part of" the CompileResult.  Why?
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
-	CompileResult prior;
 	FLASCompiler sc = new FLASCompiler(null, null, new PrintWriter(System.out));
 	String pkg = "test.runner";
 	Scope mainScope = Scope.topScope(pkg);

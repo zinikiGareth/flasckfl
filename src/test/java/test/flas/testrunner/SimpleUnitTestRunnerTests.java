@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.Scope;
@@ -25,7 +24,6 @@ public class SimpleUnitTestRunnerTests {
 	ErrorResult errors = new ErrorResult();
 	Rewriter rw = new Rewriter(errors, null);
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
-	CompileResult prior;
 	private UnitTestResultHandler resultHandler = context.mock(UnitTestResultHandler.class);
 	private TestRunner runner = context.mock(TestRunner.class);
 	
