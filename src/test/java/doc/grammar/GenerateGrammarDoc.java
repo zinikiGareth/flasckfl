@@ -11,15 +11,14 @@ import org.junit.Test;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.xml.XML;
 
-// Can we do anything to make this a "real" testcase, i.e. that the parser matches the spec?
-// e.g. generate random valid documents & check they pass?
-// mutate them to invalid documents & check they error?
 public class GenerateGrammarDoc {
 	final File srcDir = new File("src/test/resources/gh-grammar");
 
 	@Test
 	public void generateAllTheGrammarPages() throws FileNotFoundException {
 		String gd = System.getenv("FLAS_GRAMMAR_DIR");
+		if (gd == null)
+			gd = System.getProperty("org.ziniki.flas_grammar_dir");
 		if (gd == null) {
 			System.out.println("There is no env var FLAS_GRAMMAR_DIR to store the output");
 			return;

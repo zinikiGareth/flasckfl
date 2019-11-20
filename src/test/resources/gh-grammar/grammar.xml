@@ -33,6 +33,7 @@
   </lex>
   <lex token='CONTRACT' pattern='contract'>
   	<p>The <tt>contract</tt> keyword introduces a contract declaration.</p>
+  	<p>It is also used in unit tests to invoke a contract method on a card or service.</p>
   </lex>
   <lex token='CRB' pattern='\)'>
   	<p>A closing round bracket delimits the end of an expression or pattern.</p>
@@ -84,6 +85,9 @@
   </lex>
   <lex token='IMPLEMENTS' pattern='implements'>
   	<p>The <tt>implements</tt> keyword introduces a contract implementation in a card.</p>
+  </lex>
+  <lex token='INVOKE' pattern='invoke'>
+  	<p>The <tt>invoke</tt> keyword is used in unit tests to invoke a method on an object.</p>
   </lex>
   <lex token='METHOD' pattern='method'>
   	<p>The <tt>method</tt> keyword introduces a standalone method definition.</p>
@@ -1368,6 +1372,10 @@
         <li>on the behaviour of a card event handler.</li>
         </ul>
         <p>In order to make all these cases easy, the unit test language allows values and messages to be easily defined and has special syntax for isolating and testing message outputs and template orchestration, independent of the actual template HTML provided.</p>
+        <p>The <tt>send</tt> action simulates a UI input event and dispatches it to the card.  The first argument is a variable which is a reference to the card to receive the event.  The expression will probably construct an event, but it could also be a reference to a data object.</p>
+        <p>The <tt>invoke</tt> action invokes a method on an object.  This is just described as an "expression" but the semantics are that it must be a valid object method invocation.</p>
+        <p>The <tt>contract</tt> action is supposed to invoke a method in a contract on a card.  The first argument is a data variable which is a reference to the card to receive the event.  The second argument is the name of the contract which will have the event.  The third var is the name of the method to invoke on the contract.  The expressions are the data elements to send.</p>
+        <p>We still need to handle expectations.</p>
       </description>
     </section>
     <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
@@ -1389,6 +1397,8 @@
       <ref production='unit-data-declaration' />
       <ref production='unit-event-action' />
       <ref production='unit-send-action' />
+      <ref production='unit-invoke-action' />
+      <ref production='unit-contract-action' />
       <ref production='unit-test-assert' />
       <ref production='unit-test-template' />
     </or>
@@ -1408,6 +1418,23 @@
     <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
       <token type='DOSEND' />
+      <token type='var-name' /> <!--  the card to receive the UI event -->
+      <ref production='expression' /> <!-- a UI event object -->
+    </seq>
+  </production>
+  <production name='unit-invoke-action'>
+    <section title='Unit Tests' />
+    <!--  tested by='test.parsing.ut.UnitTestStepParsingTests' /-->
+    <seq>
+      <token type='INVOKE' />
+      <ref production='expression' /> <!-- I think it's just an expression with a dot in it -->
+    </seq>
+  </production>
+  <production name='unit-contract-action'>
+    <section title='Unit Tests' />
+    <!--  tested by='test.parsing.ut.UnitTestStepParsingTests' / -->
+    <seq>
+      <token type='CONTRACT' />
       <token type='var-name' /> <!--  the card, object or service to receive the action -->
       <token type='type-name' /> <!-- the contract name -->
       <token type='var-name' /> <!--  the contract method -->

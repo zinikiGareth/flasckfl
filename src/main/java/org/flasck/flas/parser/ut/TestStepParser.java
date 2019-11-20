@@ -76,15 +76,27 @@ public class TestStepParser implements TDAParsing {
 		}
 		case "send": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);
+			if (tok == null) {
+				errors.message(toks, "send requires a card variable to send the event to");
+				return new IgnoreNestedParser();
+			}
 			TypeNameToken evname = TypeNameToken.qualified(toks);
+			if (evname == null) {
+				errors.message(toks, "send requires an event type");
+				return new IgnoreNestedParser();
+			}
 			List<Expr> eventObj = new ArrayList<>();
 			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
 			expr.tryParsing(toks);
 			if (errors.hasErrors()){
 				return new IgnoreNestedParser();
 			}
-			if (tok == null || evname == null || eventObj.isEmpty()) {
+			if (eventObj.isEmpty()) {
 				errors.message(toks, "missing arguments");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "garbage at end of line");
 				return new IgnoreNestedParser();
 			}
 			builder.send(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));

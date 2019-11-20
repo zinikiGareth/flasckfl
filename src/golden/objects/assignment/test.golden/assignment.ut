@@ -8,9 +8,9 @@
 		assert (x.lengthPlus 4)
 			9
 
-.	test that we can make it goodbye
-.		data Assignable x
-.		send x.message "goodbye"
-.		assert (x.gets)
-.			"goodbye"
+	test that we can make it goodbye
+		data Assignable x
+		invoke x.message "goodbye"
+		assert (x.gets)
+			"goodbye"
 	
