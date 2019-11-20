@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
@@ -73,6 +74,7 @@ public class StructGeneration {
 		Var eret = new Var.AVar(eval, ename, "ret");
 		Var args = new Var.AVar(eval, "[" + J.OBJECT, "args");
 		context.checking(new Expectations() {{ // eval
+			oneOf(eclz).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
@@ -137,6 +139,7 @@ public class StructGeneration {
 		Sequence flushes = context.sequence("flushes");
 		context.checking(new Expectations() {{ // eval
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+			oneOf(eclz).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(eval).argument("[" + J.OBJECT, "args"); will(returnValue(args));

@@ -53,8 +53,10 @@ import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.bytecode.mock.VarMatcher;
 
@@ -387,6 +389,7 @@ public class ExpressionGeneration {
 		Var args = new Var.AVar(meth, "JVMRunner", "runner");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
@@ -431,6 +434,7 @@ public class ExpressionGeneration {
 		Var args = new Var.AVar(meth, "JVMRunner", "runner");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(bcc));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
@@ -484,8 +488,10 @@ public class ExpressionGeneration {
 		}});
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "JVMRunner", "runner");
+		context.assertIsSatisfied();
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));

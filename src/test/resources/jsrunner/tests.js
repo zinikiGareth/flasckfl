@@ -6,6 +6,7 @@ test.flas.testrunner.samples = {};
 f = function() {
 	return 42;
 }
+f.nfargs = function() { return 0 };
 
 test.flas.testrunner.samples._ut12 = function(_cxt, runner) {
 	runner.assertSameValue(_cxt, 42, 42);

@@ -34,9 +34,11 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
+import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
@@ -135,6 +137,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else {
 			this.clz = bce.newClass(fn.name().javaClassName());
 			this.clz.generateAssociatedSourceFile();
+			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
+			fi.constValue(fn.argCount());
 			ann = GenericAnnotator.newMethod(clz, true, "eval");
 		}
 		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
@@ -158,6 +162,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		this.clz = bce.newClass(om.name().javaClassName());
 		this.clz.generateAssociatedSourceFile();
+		IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
+		fi.constValue(om.argCount());
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
 		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
 		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
@@ -273,6 +279,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		ByteCodeSink bcc = bce.newClass(clzName);
 		bcc.superclass(J.FIELDS_CONTAINER_WRAPPER);
 		bcc.generateAssociatedSourceFile();
+		bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs").constValue(sd.argCount());
 		bcc.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);

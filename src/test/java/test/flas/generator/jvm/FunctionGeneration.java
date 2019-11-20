@@ -33,6 +33,7 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.mock.VarMatcher;
 import org.zinutils.support.jmock.CaptureAction;
 
@@ -68,6 +69,7 @@ public class FunctionGeneration {
 		IExpr ass1 = context.mock(IExpr.class, "ass1");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
@@ -100,6 +102,7 @@ public class FunctionGeneration {
 		Var args = new Var.AVar(meth, "JVMRunner", "runner");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
@@ -151,6 +154,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 
@@ -217,6 +221,7 @@ public class FunctionGeneration {
 		IExpr blk1 = context.mock(IExpr.class, "blk1");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
@@ -700,6 +705,7 @@ public class FunctionGeneration {
 		IExpr blk2 = context.mock(IExpr.class, "blk2");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
@@ -724,6 +730,7 @@ public class FunctionGeneration {
 			oneOf(blk1).flush();
 
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$y"); will(returnValue(bcc));
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
