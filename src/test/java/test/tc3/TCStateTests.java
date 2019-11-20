@@ -103,8 +103,8 @@ public class TCStateTests {
 	@Test
 	public void youCannotMakeAUnionOfNumberAndString() {
 		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "cannot unify types: can be Number");
-			oneOf(errors).message(pos, "cannot unify types: can be String");
+			oneOf(errors).message(pos, "cannot unify types: same as Number");
+			oneOf(errors).message(pos, "cannot unify types: same as String");
 		}});
 		Type ut = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number), new PosType(pos, LoadBuiltins.string))).type;
 		assertTrue(ut instanceof TypeConstraintSet);

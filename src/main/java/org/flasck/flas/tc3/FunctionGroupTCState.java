@@ -132,7 +132,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);
 			} else
-				ut.canBeType(t.pos, t.type);
+				ut.sameAs(t.pos, t.type);
 		}
 		return new PosType(pos, ut);
 	}

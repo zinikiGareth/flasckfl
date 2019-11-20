@@ -20,7 +20,7 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TypeConstraintSet implements UnifiableType {
-	public class Comment {
+	public class Comment implements Comparable<Comment>{
 		private final InputPosition pos;
 		private final String msg;
 		private final Type type;
@@ -33,7 +33,24 @@ public class TypeConstraintSet implements UnifiableType {
 		
 		@Override
 		public String toString() {
-			return pos + " - " + msg;
+			return pos + " - " + msg + (type != null?" " + type:"");
+		}
+
+		@Override
+		public int compareTo(Comment o) {
+			int ret;
+			if (pos != null) {
+				ret = pos.compareTo(o.pos);
+				if (ret != 0)
+					return ret;
+			}
+			ret = msg.compareTo(o.msg);
+			if (ret != 0)
+				return ret;
+			if (type == null)
+				return 0;
+			ret = type.signature().compareTo(o.type.signature());
+			return ret;
 		}
 	}
 
@@ -63,14 +80,14 @@ public class TypeConstraintSet implements UnifiableType {
 	private final Set<UnifiableApplication> applications = new HashSet<>();
 	private Type resolvedTo;
 	private int usedOrReturned = 0;
-	private final List<Comment> comments = new ArrayList<>();
+	private final TreeSet<Comment> comments = new TreeSet<>();
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
 		repository = r;
 		this.state = state;
 		this.pos = pos;
 		this.id = id;
-		comments.add(new Comment(pos, "created because " + motive, null));
+		comments.add(new Comment(pos, id + " created because " + motive, null));
 //		try {
 //			if (motive == null || motive.contentEquals("unknown"))
 //				throw new RuntimeException(pos + " " + id + " " + motive);
@@ -100,7 +117,7 @@ public class TypeConstraintSet implements UnifiableType {
 							refs.add(t2);
 					}
 					if (needsMe) {
-						other.canBeType(pos, this);
+						other.sameAs(pos, this);
 						again = true;
 					}
 				}
@@ -110,6 +127,10 @@ public class TypeConstraintSet implements UnifiableType {
 			again = true;
 //			System.out.println("Adding " + refs + " to " + asTCS());
 			types.addAll(refs);
+			for (PosType t : refs) {
+				if (t.type instanceof TypeConstraintSet)
+					this.comments.addAll(((TypeConstraintSet)t.type).comments);
+			}
 		}
 	}
 	
@@ -218,6 +239,7 @@ public class TypeConstraintSet implements UnifiableType {
 				alltys.add(pt.type);
 			resolvedTo = repository.findUnionWith(alltys);
 			if (resolvedTo == null) {
+				System.out.println("Cannot resolve " + asTCS() + " " + comments);
 				TreeSet<String> msg = new TreeSet<>();
 				for (Type ty : alltys)
 					msg.add(ty.signature());
@@ -226,7 +248,7 @@ public class TypeConstraintSet implements UnifiableType {
 //						System.out.println("cannot unify: " + asTCS());
 						errors.message(c.pos, "cannot unify types: " + c.msg + " " + c.type.signature());
 					}
-				return new ErrorType();
+				resolvedTo = new ErrorType();
 			}
 		}
 
@@ -269,7 +291,7 @@ public class TypeConstraintSet implements UnifiableType {
 			t = ((NamedType)incorporator).name().uniqueName();
 		else
 			t = incorporator.signature();
-		comments.add(new Comment(pos, "incorporated by " + t, incorporator));
+		comments.add(new Comment(pos, "incorporated by ", incorporator));
 	}
 
 	@Override
@@ -309,6 +331,17 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	@Override
+	public void sameAs(InputPosition pos, Type ofType) {
+		comments.add(new Comment(pos, "same as", ofType));
+		if (ofType == null)
+			throw new NotImplementedException("types cannot be null");
+		types.add(new PosType(pos, ofType));
+		if (ofType instanceof TypeConstraintSet)
+			this.comments.addAll(((TypeConstraintSet)ofType).comments);
+
+	}
+
+	@Override
 	public void canBeType(InputPosition pos, Type ofType) {
 		comments.add(new Comment(pos, "can be", ofType));
 		if (ofType == null)
@@ -319,7 +352,7 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public UnifiableType canBeAppliedTo(InputPosition pos, List<PosType> args) {
 		// Here we introduce a new variable that we will be able to constrain
-		UnifiableType ret = state.createUT(pos, "return value when applied to " + args);
+		UnifiableType ret = state.createUT(pos, "return value when " + asTCS() + " applied to " + args);
 		List<Type> targs = new ArrayList<>();
 		for (PosType ty : args) {
 			targs.add(ty.type);
@@ -381,7 +414,7 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public String toString() {
 		if (isResolved())
-			return signature();
+			return id + ":" + signature();
 		else
 			return asTCS();
 	}

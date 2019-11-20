@@ -58,7 +58,11 @@ public class InputPosition implements Comparable<InputPosition> {
 	}
 	@Override
 	public int compareTo(InputPosition o) {
-		int ret = file.compareTo(o.file);
+		if (o == null)
+			return -1;
+		int ret = 0;
+		if (file != null)
+			ret = file.compareTo(o.file);
 		if (ret == 0)
 			ret = Integer.compare(lineNo, o.lineNo);
 		if (ret == 0)

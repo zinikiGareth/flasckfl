@@ -24,4 +24,8 @@ public class ErrorType implements Type {
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return "<<ERROR>>";
+	}
 }

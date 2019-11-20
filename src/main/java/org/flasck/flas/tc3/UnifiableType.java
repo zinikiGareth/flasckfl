@@ -52,4 +52,7 @@ public interface UnifiableType extends Type {
 	// Many UTs can end up being bound to the same thing
 	// Make sure all of them know about everything
 	boolean enhance();
+
+	// Copy the knowledge from another UnifiableType
+	void sameAs(InputPosition pos, Type type);
 }
