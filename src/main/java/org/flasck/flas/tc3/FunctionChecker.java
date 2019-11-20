@@ -39,11 +39,13 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final List<PosType> argTypes = new ArrayList<>();
 	private final List<PosType> resultTypes = new ArrayList<>();
 	private final CurrentTCState state;
+	private final ObjectMethod inMeth;
 
-	public FunctionChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state) {
+	public FunctionChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state, ObjectMethod inMeth) {
 		this.errors = errors;
 		this.sv = sv;
 		this.state = state;
+		this.inMeth = inMeth;
 	}
 	
 	@Override
@@ -94,12 +96,12 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void visitSendMessage(SendMessage sm) {
-		new MessageChecker(errors,state, sv, sm.location());
+		new MessageChecker(errors,state, sv, sm.location(), inMeth);
 	}
 	
 	@Override
 	public void visitAssignMessage(AssignMessage assign) {
-		new MessageChecker(errors,state, sv, assign.location());
+		new MessageChecker(errors,state, sv, assign.location(), inMeth);
 	}
 	
 	@Override

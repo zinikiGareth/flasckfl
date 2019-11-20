@@ -16,11 +16,14 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AssignMessage;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -71,7 +74,7 @@ public class MethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aSingleDebugMessageGivesAListOfMessage() {
-		sv.push(new FunctionChecker(errors, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state, null));
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
 		sv.visitSendMessage(msg);
@@ -86,7 +89,7 @@ public class MethodTests {
 
 	@Test
 	public void noMessagesNullType() {
-		sv.push(new FunctionChecker(errors, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state, null));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(null);
@@ -97,7 +100,7 @@ public class MethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanHandleArgumentTypes() {
-		sv.push(new FunctionChecker(errors, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state, null));
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "String"), new VarName(pos, meth.name(), "str"));
 		args.add(tp);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
@@ -127,11 +130,16 @@ public class MethodTests {
 	
 	@Test
 	public void weCanHandleAnAssignMessage() {
-		UnresolvedVar var = new UnresolvedVar(pos, "x");
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition os = new StateDefinition(pos);
+		os.addField(new StructField(pos, false, LoadBuiltins.stringTR, "s"));
+		s.defineState(os);
+		s.addMethod(meth);
+		UnresolvedVar var = new UnresolvedVar(pos, "s");
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state));
+		sv.push(new FunctionChecker(errors, sv, state, meth));
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		sv.visitAssignSlot(msg.slot);
@@ -144,8 +152,116 @@ public class MethodTests {
 	}
 
 	@Test
+	public void theObjectMustHaveState() {
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		s.addMethod(meth);
+		UnresolvedVar var = new UnresolvedVar(pos, "x");
+		Expr sl = new StringLiteral(pos, "hello");
+		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
+		meth.assignMessage(msg);
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		sv.visitAssignMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.string));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.MyObject does not have state");
+		}});
+		sv.visitAssignSlot(msg.slot);
+	}
+
+	@Test
+	public void theObjectMustHaveTheLeadVariable() {
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition os = new StateDefinition(pos);
+		os.addField(new StructField(pos, false, LoadBuiltins.stringTR, "s"));
+		s.defineState(os);
+		s.addMethod(meth);
+		UnresolvedVar var = new UnresolvedVar(pos, "x");
+		Expr sl = new StringLiteral(pos, "hello");
+		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
+		meth.assignMessage(msg);
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		sv.visitAssignMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.string));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "there is no field x in test.repo.MyObject");
+		}});
+		sv.visitAssignSlot(msg.slot);
+	}
+
+	@Test
+	public void forNestedPathsTheLeadVariableMustReferToACompoundThing() {
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition os = new StateDefinition(pos);
+		os.addField(new StructField(pos, false, LoadBuiltins.stringTR, "s"));
+		s.defineState(os);
+		s.addMethod(meth);
+		UnresolvedVar lead = new UnresolvedVar(pos, "s");
+		UnresolvedVar second = new UnresolvedVar(pos, "x");
+		Expr sl = new StringLiteral(pos, "hello");
+		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
+		meth.assignMessage(msg);
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		sv.visitAssignMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.string));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "field s in test.repo.MyObject is not a container");
+		}});
+		sv.visitAssignSlot(msg.slot);
+	}
+
+	@Test
+	public void aNestedObjectMustHaveState() {
+		ObjectDefn nestedObj = new ObjectDefn(pos, pos, new SolidName(pkg, "NestedObject"), true, new ArrayList<>());
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition os = new StateDefinition(pos);
+		TypeReference tr = new TypeReference(pos, "NestedObject");
+		tr.bind(nestedObj);
+		os.addField(new StructField(pos, false, tr, "obj"));
+		s.defineState(os);
+		s.addMethod(meth);
+		UnresolvedVar lead = new UnresolvedVar(pos, "obj");
+		UnresolvedVar second = new UnresolvedVar(pos, "x");
+		Expr sl = new StringLiteral(pos, "hello");
+		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
+		meth.assignMessage(msg);
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		sv.visitAssignMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.string));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.NestedObject does not have state");
+		}});
+		sv.visitAssignSlot(msg.slot);
+	}
+
+	@Test
+	public void aNestedPathMustExist() {
+		ObjectDefn nestedObj = new ObjectDefn(pos, pos, new SolidName(pkg, "NestedObject"), true, new ArrayList<>());
+		StateDefinition nos = new StateDefinition(pos);
+		nestedObj.defineState(nos);
+		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
+		StateDefinition os = new StateDefinition(pos);
+		TypeReference tr = new TypeReference(pos, "NestedObject");
+		tr.bind(nestedObj);
+		os.addField(new StructField(pos, false, tr, "obj"));
+		s.defineState(os);
+		s.addMethod(meth);
+		UnresolvedVar lead = new UnresolvedVar(pos, "obj");
+		UnresolvedVar second = new UnresolvedVar(pos, "x");
+		Expr sl = new StringLiteral(pos, "hello");
+		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
+		meth.assignMessage(msg);
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		sv.visitAssignMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.string));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "there is no field x in test.repo.NestedObject");
+		}});
+		sv.visitAssignSlot(msg.slot);
+	}
+	
+	@Test
 	public void sendMessageIsFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.send))));
 		}});
@@ -155,7 +271,7 @@ public class MethodTests {
 
 	@Test
 	public void debugMessageIsFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.debug))));
 		}});
@@ -165,7 +281,7 @@ public class MethodTests {
 
 	@Test
 	public void unionMessageIsFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.message))));
 		}});
@@ -175,7 +291,7 @@ public class MethodTests {
 
 	@Test
 	public void anEmptyListIsFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
 		}});
@@ -185,7 +301,7 @@ public class MethodTests {
 
 	@Test
 	public void listOfDebugMessagesIsFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
@@ -196,7 +312,7 @@ public class MethodTests {
 
 	@Test
 	public void consOfSendMessagesIsFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		PolyInstance pi = new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.send));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
@@ -207,7 +323,7 @@ public class MethodTests {
 
 	@Test
 	public void listOfMessagesIsFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
@@ -219,7 +335,7 @@ public class MethodTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void aNumberIsNotFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "Number cannot be a Message");
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
@@ -231,7 +347,7 @@ public class MethodTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void listOfNumbersIsNotFine() {
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number));
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "List[Number] cannot be a Message");
@@ -245,7 +361,7 @@ public class MethodTests {
 	@Test
 	public void anyOtherPolyIsNotFine() {
 		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, "A")));
-		new MessageChecker(errors, state, sv, pos);
+		new MessageChecker(errors, state, sv, pos, meth);
 		PolyInstance pi = new PolyInstance(sda, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "test.repo.Foo[Message] cannot be a Message");

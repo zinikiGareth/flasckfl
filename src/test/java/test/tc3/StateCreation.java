@@ -25,7 +25,7 @@ public class StateCreation {
 	@Test
 	public void aSimpleNoArgConstructorSaysThisMustBeInTheArgType() {
 		UnifiableType arg = context.mock(UnifiableType.class);
-		nv.push(new FunctionChecker(errors, nv, state));
+		nv.push(new FunctionChecker(errors, nv, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
@@ -42,7 +42,7 @@ public class StateCreation {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
 		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
 		UnifiableType head = context.mock(UnifiableType.class, "head");
-		nv.push(new FunctionChecker(errors, nv, state));
+		nv.push(new FunctionChecker(errors, nv, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
@@ -65,7 +65,7 @@ public class StateCreation {
 	@Test
 	public void alternativeConstructorsCanBeOfferedForTheSameSlot() {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
-		nv.push(new FunctionChecker(errors, nv, state));
+		nv.push(new FunctionChecker(errors, nv, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
@@ -89,7 +89,7 @@ public class StateCreation {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
 		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
 		UnifiableType head = context.mock(UnifiableType.class, "head");
-		nv.push(new FunctionChecker(errors, nv, state));
+		nv.push(new FunctionChecker(errors, nv, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "unknown"); will(returnValue(arg));

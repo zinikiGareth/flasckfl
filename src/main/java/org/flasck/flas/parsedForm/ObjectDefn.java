@@ -89,6 +89,7 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 
 	public void addMethod(ObjectMethod m) {
 		methods.add(m);
+		m.bindToObject(this);
 	}
 
 	public SolidName name() {

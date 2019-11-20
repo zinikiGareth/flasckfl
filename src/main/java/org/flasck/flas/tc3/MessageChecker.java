@@ -5,6 +5,10 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -16,18 +20,45 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final ErrorReporter errors;
 	private final InputPosition pos;
+	private final ObjectMethod inMeth;
 	private ExprResult rhsType;
 
-	public MessageChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor sv, InputPosition pos) {
+	public MessageChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor sv, InputPosition pos, ObjectMethod meth) {
 		this.errors = errors;
 		this.sv = sv;
 		this.pos = pos;
+		this.inMeth = meth;
 		sv.push(this);
 		sv.push(new ExpressionChecker(errors, state, sv));
 	}
 
 	@Override
-	public void visitAssignSlot(List<UnresolvedVar> slot) {
+	public void visitAssignSlot(List<UnresolvedVar> slots) {
+		Type container = inMeth.getObject();
+		String curr = null;
+		String var = null;
+		for (int i=0;i<slots.size();i++) {
+			UnresolvedVar slot = slots.get(i);
+			if (container instanceof ObjectDefn) {
+				ObjectDefn type = (ObjectDefn)container;
+				curr = type.name().uniqueName();
+				StateDefinition state = type.state();
+				if (state == null) {
+					errors.message(pos, type.name().uniqueName() + " does not have state");
+					return;
+				}
+				var = slot.var;
+				StructField fld = state.findField(var);
+				if (fld == null) {
+					errors.message(slot.location(), "there is no field " + var + " in " + type.name().uniqueName());
+					return;
+				}
+				container = fld.type();
+			} else {
+				errors.message(slot.location, "field " + var + " in " + curr + " is not a container");
+				return;
+			}
+		}
 		if (!(rhsType.type instanceof ErrorType))
 			rhsType = new ExprResult(rhsType.pos, LoadBuiltins.message);
 	}

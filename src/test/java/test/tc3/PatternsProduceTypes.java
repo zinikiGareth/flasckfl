@@ -44,7 +44,7 @@ public class PatternsProduceTypes {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aConstantPatternIsANumber() {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state);
+		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -74,7 +74,7 @@ public class PatternsProduceTypes {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aStringConstantPatternIsAString() {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state);
+		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
