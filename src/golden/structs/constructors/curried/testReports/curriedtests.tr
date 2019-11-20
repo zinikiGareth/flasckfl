@@ -1,2 +1,4 @@
 JVM PASS that we can evaluate the thing with no args
+JVM PASS that we can evaluate the thing with one arg
 JS PASS that we can evaluate the thing with no args
+JS PASS that we can evaluate the thing with one arg

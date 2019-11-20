@@ -103,9 +103,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			} else if (myName.equals("MakeArray") || sd.argCount() == nargs) {
 				sv.result(null); // MakeArray does not exist
 			} else if (nargs > 0) {
-				sv.result(block.pushFunction(myName));
+				sv.result(block.pushConstructor(myName));
 			} else {
-				sv.result(block.curry(sd.argCount(), block.pushFunction(myName)));
+				sv.result(block.curry(sd.argCount(), block.pushConstructor(myName)));
 			}
 		} else if (defn instanceof VarPattern) {
 			sv.result(block.boundVar(((VarPattern)defn).var));

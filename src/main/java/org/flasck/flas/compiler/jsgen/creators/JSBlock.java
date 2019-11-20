@@ -29,6 +29,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
+import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
 import org.flasck.flas.compiler.jsgen.form.JSStoreField;
@@ -74,6 +75,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr pushFunction(String meth) {
 		JSLocal stmt = new JSLocal(creating, new JSPushFunction(meth));
+		stmts.add(stmt);
+		return stmt;
+	}
+
+	@Override
+	public JSExpr pushConstructor(String clz) {
+		JSLocal stmt = new JSLocal(creating, new JSPushConstructor(clz));
 		stmts.add(stmt);
 		return stmt;
 	}

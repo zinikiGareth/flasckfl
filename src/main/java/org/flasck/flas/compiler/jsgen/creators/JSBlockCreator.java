@@ -16,6 +16,7 @@ public interface JSBlockCreator {
 	JSExpr makeArray(JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr pushFunction(String meth);
+	JSExpr pushConstructor(String clz);
 	
 	// creating more complex things
 	JSExpr structConst(String name);
