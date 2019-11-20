@@ -15,7 +15,6 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
-import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;

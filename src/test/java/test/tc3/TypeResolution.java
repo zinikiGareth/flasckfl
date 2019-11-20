@@ -55,6 +55,7 @@ public class TypeResolution {
 		LoadBuiltins.applyTo(repository);
 		context.checking(new Expectations() {{
 			allowing(sv);
+			allowing(grp).isEmpty(); will(returnValue(false));
 			allowing(grp).functions(); will(returnValue(Arrays.asList(fnF)));
 		}});
 		state = new FunctionGroupTCState(repository, grp);

@@ -70,6 +70,10 @@ public class MethodTests {
 	@Before
 	public void init() {
 		sv.push(r);
+		context.checking(new Expectations() {{
+			allowing(state).resolveAll(errors, true);
+			allowing(state).hasGroup(); will(returnValue(false));
+		}});
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

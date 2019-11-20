@@ -19,4 +19,5 @@ public interface CurrentTCState {
 	void enhanceAllMutualUTs();
 	PosType consolidate(InputPosition location, List<PosType> results);
 	void debugInfo();
+	boolean hasGroup();
 }

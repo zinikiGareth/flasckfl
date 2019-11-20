@@ -23,13 +23,20 @@ public class FunctionGroupTCState implements CurrentTCState {
 	private final Map<VarPattern, UnifiableType> patts = new TreeMap<>(VarPattern.comparator);
 	int polyCount = 0;
 	private Set<UnifiableType> allUTs = new LinkedHashSet<>();
+	private final boolean hasGroup;
 	
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
 		for (StandaloneDefn x : grp.functions())
 			bindVarToUT(x.name().uniqueName(), createUT(x.location(), "introducing " + x.name().uniqueName()));
+		this.hasGroup = !grp.isEmpty();
 	}
 
+	@Override
+	public boolean hasGroup() {
+		return hasGroup;
+	}
+	
 	@Override
 	public UnifiableType createUT(InputPosition pos, String motive) {
 		TypeConstraintSet ret = new TypeConstraintSet(repository, this, pos, "ret_" + allUTs.size(), motive);

@@ -19,12 +19,14 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final ErrorReporter errors;
+	private final CurrentTCState state;
 	private final InputPosition pos;
 	private final ObjectMethod inMeth;
 	private ExprResult rhsType;
 
 	public MessageChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor sv, InputPosition pos, ObjectMethod meth) {
 		this.errors = errors;
+		this.state = state;
 		this.sv = sv;
 		this.pos = pos;
 		this.inMeth = meth;
@@ -85,6 +87,9 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void check() {
+		if (!state.hasGroup())
+			state.resolveAll(errors, true);
+		
 		Type check = rhsType.type;
 
 		// don't cascade errors

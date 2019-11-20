@@ -1,2 +1,3 @@
 test.golden.Assignable.gets :: String
 test.golden.Assignable.lengthPlus :: Number->Number
+test.golden.Assignable.message :: String->List[Message]

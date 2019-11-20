@@ -20,6 +20,11 @@ public class DependencyGroup implements FunctionGroup {
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return functions.isEmpty();
+	}
+
+	@Override
 	public Iterable<StandaloneDefn> functions() {
 		return functions;
 	}
