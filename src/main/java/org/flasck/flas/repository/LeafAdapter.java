@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -353,6 +354,14 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitUnitTestInvoke(UnitTestInvoke uti) {
+	}
+
+	@Override
+	public void leaveUnitTestInvoke(UnitTestInvoke uti) {
+	}
+
+	@Override
 	public void visitContractDecl(ContractDecl cd) {
 	}
 
@@ -362,8 +371,6 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveContractMethod(ContractMethodDecl cmd) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

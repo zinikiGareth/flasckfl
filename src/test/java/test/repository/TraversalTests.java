@@ -39,6 +39,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
@@ -542,5 +543,24 @@ public class TraversalTests {
 			oneOf(v).leaveUnitDataDeclaration(udd);
 		}});
 		new Traverser(v).visitUnitDataDeclaration(udd);
+	}
+
+	@Test
+	public void traverseUnitTestInvokeExpr() {
+		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
+		UnitTestName name = new UnitTestName(utfn, 1);
+		UnitTestCase utc = new UnitTestCase(name, "do something");
+		UnitTestInvoke uti = new UnitTestInvoke(simpleExpr);
+		utc.steps.add(uti);
+		context.checking(new Expectations() {{
+			oneOf(v).visitUnitTest(utc);
+			oneOf(v).visitUnitTestStep(uti);
+			oneOf(v).visitUnitTestInvoke(uti);
+			oneOf(v).visitExpr(simpleExpr, 0);
+			oneOf(v).visitStringLiteral(simpleExpr);
+			oneOf(v).leaveUnitTestInvoke(uti);
+			oneOf(v).leaveUnitTest(utc);
+		}});
+		new Traverser(v).visitUnitTest(utc);
 	}
 }
