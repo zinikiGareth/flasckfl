@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -346,6 +347,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
 		new CaptureAssertionClauseVisitorJS(state, sv, this.block, this.runner);
+	}
+
+	@Override
+	public void visitUnitTestInvoke(UnitTestInvoke uti) {
+		new DoInvocationGeneratorJS(state, sv, this.block, this.runner);
 	}
 
 	@Override

@@ -193,6 +193,13 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	}
 
 	@Override
+	public void invoke(FLEvalContext cx, Object expr) throws Exception {
+		expr = FLEval.full(cx, expr);
+//		if (!cdefns.containsKey(cardVar))
+//			throw new UtilException("there is no card '" + cardVar + "'");
+	}
+	
+	@Override
 	public void send(InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");

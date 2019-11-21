@@ -25,7 +25,9 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.ui4j.UI4JWrapperElement;
+import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.InternalHandle;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import io.webfolder.ui4j.api.browser.BrowserEngine;
@@ -257,6 +259,11 @@ public class JSRunner extends CommonTestRunner {
 //			choke.set(true);
 //		});
 //		waitForChoke(choke);
+	}
+
+	@Override
+	public void invoke(FLEvalContext cx, Object sendExpr) throws Exception {
+		throw new NotImplementedException();
 	}
 
 	@Override

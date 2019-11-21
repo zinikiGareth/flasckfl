@@ -2,10 +2,10 @@ package org.flasck.flas.method;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -26,6 +26,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private ObjectDefn od;
 	private FunctionName sendMeth;
 	private int expargs;
+	private ContractMethodDir dir = ContractMethodDir.NONE;
 
 	public MemberExprConvertor(NestedVisitor nv) {
 		this.nv = nv;
@@ -41,6 +42,7 @@ public class MemberExprConvertor extends LeafAdapter {
 				ContractMethodDecl cmd = this.cd.getMethod(var.var);
 				if (cmd == null)
 					throw new NotImplementedException("there is no method " + var.var + " on " + cd.name().uniqueName()); // REAL USER ERROR
+				dir = cmd.dir;
 				sendMeth = cmd.name;
 				expargs = cmd.args.size();
 			} else if (od != null) {
@@ -79,7 +81,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
 		if (sendMeth != null)
-			nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs));
+			nv.result(new MakeSend(expr.location(), dir, sendMeth, obj, expargs));
 		else
 			throw new NotImplementedException("Need to implement the field case");
 	}

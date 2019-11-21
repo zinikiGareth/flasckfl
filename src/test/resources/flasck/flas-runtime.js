@@ -69,9 +69,31 @@ FLCurry.prototype.toString = function() {
 
 
 
-// I think if nargs == 0, this wants to return a closure of meth on obj
-// if nargs > 0, it wants to return a curry
-const FLMakeSend = function(meth, obj, nargs) {
+const FLMakeSend = function(meth, obj, nargs, /* optional */ args) {
+	this.meth = meth;
+	this.obj = obj;
+	this.nargs = nargs;
+	if (args)
+		this.current = args;
+	else
+		this.current = [];
+}
+
+FLMakeSend.prototype.apply = function(cx, args) {
+	var all = this.current.slice();
+	for (var i=1;i<args.length;i++)
+		all.push(args[i]);
+	if (all.length = this.nargs) {
+		return Send.eval(cx, this.obj, this.meth, all);
+	} else {
+		return new FLMakeSend(this.meth, this.obj, this.nargs, all);
+	}
+}
+
+FLMakeSend.prototype.nfargs = function() { return this.nargs; }
+
+FLMakeSend.prototype.toString = function() {
+	return "MakeSend[" + this.nargs + "]";
 }
 
 
@@ -112,7 +134,10 @@ FLContext.prototype.array = function(...args) {
 }
 
 FLContext.prototype.mksend = function(meth, obj, cnt) {
-	return new FLMakeSend(meth, obj, cnt);
+	if (cnt == 0)
+		return Send.eval(this, obj, meth, []);
+	else
+		return new FLMakeSend(meth, obj, cnt);
 }
 
 FLContext.prototype.mkacor = function(meth, obj, cnt) {

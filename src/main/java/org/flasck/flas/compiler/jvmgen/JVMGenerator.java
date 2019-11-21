@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -424,6 +425,19 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
 		new CaptureAssertionClauseVisitor(sv, this.fs, this.runner);
+	}
+	
+	@Override
+	public void visitUnitTestInvoke(UnitTestInvoke uti) {
+		new DoInvocationGenerator(sv, this.fs, this.runner);
+	}
+	
+	@Override
+	public void leaveUnitTestInvoke(UnitTestInvoke uti) {
+		if (currentBlock.size() != 1)
+			throw new RuntimeException("Multiple result expressions");
+		currentBlock.get(0).flush();
+		currentBlock.clear();
 	}
 	
 	@Override

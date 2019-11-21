@@ -121,8 +121,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveMakeSend(MakeSend expr) {
 		IExpr obj = stack.remove(stack.size()-1);
-		// TODO: this should be on MakeSend as a MethodDir
-		String dir = "$Up";
+		String dir = expr.dir.javaSubclass();
 		IExpr mksend = meth.callInterface(J.OBJECT, fcx, "mksend", meth.classConst(expr.sendMeth.inContext.javaClassName() + dir), meth.stringConst(expr.sendMeth.name), obj, meth.intConst(expr.nargs));
 		stack.add(mksend);
 	}
