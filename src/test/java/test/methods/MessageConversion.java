@@ -1,5 +1,8 @@
 package test.methods;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.MemberExpr;
@@ -9,6 +12,7 @@ import org.flasck.flas.method.MemberExprConvertor;
 import org.flasck.flas.method.MessageConvertor;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
@@ -34,6 +38,21 @@ public class MessageConversion {
 		mc.visitExpr(me, 0);
 	}
 
+	@Test
+	public void conversionIsStoredOnUTIOnLeave() {
+		StringLiteral sl = new StringLiteral(pos, "hello");
+		context.checking(new Expectations() {{
+			oneOf(nv).result(null);
+		}});
+		UnitTestInvoke uti = new UnitTestInvoke(sl);
+		MessageConvertor mc = new MessageConvertor(nv);
+		Traverser gen = new Traverser(mc);
+		gen.visitExpr(sl, 0);
+		gen.leaveUnitTestInvoke(uti);
+		assertTrue(uti.isConverted());
+		assertEquals(sl, uti.converted());
+	}
+	
 	// Everything else here just asserts that it's a pass through
 	@Test
 	public void stringLiteralIsPassedThrough() {

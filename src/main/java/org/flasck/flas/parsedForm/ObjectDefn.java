@@ -50,6 +50,14 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 		return null;
 	}
 
+
+	public ObjectMethod getMethod(String called) {
+		for (ObjectMethod ret : methods)
+			if (ret.name().name.equals(called))
+				return ret;
+		
+		return null;
+	}
 	public void completePolyNames() {
 		for (PolyType pa : polys)
 			pa.containedIn(name);

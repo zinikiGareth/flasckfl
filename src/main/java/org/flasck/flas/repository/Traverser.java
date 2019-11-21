@@ -975,7 +975,15 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitUnitTestInvoke(UnitTestInvoke uti) {
 		visitor.visitUnitTestInvoke(uti);
-		visitExpr(uti.expr, 0);
+		if (wantHSI) {
+			// generate the converted code
+			if (uti.isConverted())
+				visitExpr(uti.converted(), 0);
+			else
+				throw new NotImplementedException("You need to convert this UTI");
+		} else {
+			visitExpr(uti.expr, 0);
+		}
 		leaveUnitTestInvoke(uti);
 	}
 

@@ -6,9 +6,13 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.MakeSend;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -19,8 +23,9 @@ public class MemberExprConvertor extends LeafAdapter {
 	private NestedVisitor nv;
 	private Expr obj;
 	private ContractDecl cd;
+	private ObjectDefn od;
 	private FunctionName sendMeth;
-	private ContractMethodDecl cmd;
+	private int expargs;
 
 	public MemberExprConvertor(NestedVisitor nv) {
 		this.nv = nv;
@@ -30,37 +35,52 @@ public class MemberExprConvertor extends LeafAdapter {
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		if (obj == null) {
 			obj = var;
-			// TODO: this just "assumes" the method case; we also need to consider the field case
-			this.cd = resolveContract(var.defn());
+			figureDestinationType(var.defn());
 		} else if (sendMeth == null) {
 			if (cd != null) {
-				cmd = this.cd.getMethod(var.var);
+				ContractMethodDecl cmd = this.cd.getMethod(var.var);
 				if (cmd == null)
 					throw new NotImplementedException("there is no method " + var.var + " on " + cd.name().uniqueName()); // REAL USER ERROR
 				sendMeth = cmd.name;
+				expargs = cmd.args.size();
+			} else if (od != null) {
+				FieldAccessor acor = this.od.getAccessor(var.var);
+				if (acor != null)
+					throw new NotImplementedException("I don't think I've handled that case yet but it is valid");
+				ObjectMethod om = this.od.getMethod(var.var);
+				if (om == null)
+					throw new NotImplementedException("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
+				sendMeth = om.name();
+				expargs = om.argCount();
 			} else {
-				sendMeth = FunctionName.contractMethod(var.location(), null, "handle_the_field_case");
+				throw new NotImplementedException("Need to implement the field case");
 			}
-		}
+		} else
+			throw new NotImplementedException("Too many arguments to MemberExpr");
 	}
 
-	private ContractDecl resolveContract(RepositoryEntry defn) {
+	private void figureDestinationType(RepositoryEntry defn) {
+		NamedType dt;
 		if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) defn;
-			NamedType dt = tp.type.defn();
-			if (dt instanceof ContractDecl)
-				return (ContractDecl) tp.type.defn();
-			else
-				return null;
+			dt = tp.type.defn();
+		} else if (defn instanceof UnitDataDeclaration) {
+			dt = ((UnitDataDeclaration)defn).ofType.defn();
 		} else
-			throw new NotImplementedException("cannot handle svc of type " + (defn == null ? "NULL" : defn.getClass()));
+			throw new NotImplementedException("cannot handle svc var of type " + (defn == null ? "NULL" : defn.getClass()));
+		if (dt instanceof ContractDecl)
+			this.cd = (ContractDecl) dt;
+		else if (dt instanceof ObjectDefn)
+			this.od = (ObjectDefn) dt;
+		else
+			throw new NotImplementedException("cannot handle svc defn of type " + (dt == null ? "NULL" : dt.getClass()));
 	}
 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
-		if (cmd != null)
-			nv.result(new MakeSend(expr.location(), sendMeth, obj, cmd.args.size()));
+		if (sendMeth != null)
+			nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs));
 		else
-			nv.result(new StringLiteral(expr.location(), "need_to_implement_field_case"));
+			throw new NotImplementedException("Need to implement the field case");
 	}
 }

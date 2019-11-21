@@ -14,9 +14,12 @@ import org.flasck.flas.method.MemberExprConvertor;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Traverser;
@@ -71,6 +74,27 @@ public class MemberExprConversion {
 		MemberExpr me = new MemberExpr(pos, from, fld);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "Ctr"), "fred"), ExprMatcher.unresolved("from"), 2)));
+		}});
+		MemberExprConvertor mc = new MemberExprConvertor(nv);
+		Traverser gen = new Traverser(mc).withMemberFields();
+		gen.visitExpr(me, 0);
+	}
+
+	@Test
+	public void dotOperatorCanHandleUDD() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		TypeReference ctr = new TypeReference(pos, "ObjectDefn");
+		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "ObjectDefn"), true, new ArrayList<>());
+		ctr.bind(od);
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, pkg, "udd"), null);
+		List<Pattern> args = new ArrayList<>();
+		FunctionName fred = FunctionName.objectMethod(pos, od.name(), "fred");
+		od.addMethod(new ObjectMethod(pos, fred, args));
+		from.bind(udd);
+		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(MakeSendMatcher.sending(fred, ExprMatcher.unresolved("from"), 0)));
 		}});
 		MemberExprConvertor mc = new MemberExprConvertor(nv);
 		Traverser gen = new Traverser(mc).withMemberFields();

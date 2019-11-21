@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.parsedForm.ActionMessage;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
@@ -46,5 +47,13 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		if (stack.size() != 1)
 			throw new NotImplementedException("should be 1");
 		nv.result(stack.remove(0));
+	}
+	
+	@Override
+	public void leaveUnitTestInvoke(UnitTestInvoke uti) {
+		if (stack.size() != 1)
+			throw new NotImplementedException("should be 1");
+		uti.conversion((Expr) stack.remove(0));
+		nv.result(null);
 	}
 }

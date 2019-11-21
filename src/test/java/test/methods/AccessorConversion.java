@@ -18,6 +18,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.method.AccessorConvertor;
 import org.flasck.flas.method.ConvertRepositoryMethods;
+import org.flasck.flas.method.MessageConvertor;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -29,6 +30,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -64,6 +66,17 @@ public class AccessorConversion {
 		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
 		UnitTestAssert e = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "hello"));
 		mc.visitUnitTestAssert(e);
+	}
+
+	@Test
+	public void weDelegateToMessageConvertorOnVisitUnitTestInvoke() {
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
+			oneOf(nv).push(with(any(MessageConvertor.class)));
+		}});
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
+		UnitTestInvoke e = new UnitTestInvoke(new StringLiteral(pos, "hello"));
+		mc.visitUnitTestInvoke(e);
 	}
 
 	@Test
