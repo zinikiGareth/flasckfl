@@ -25,7 +25,18 @@ window.runner.assertSameValue = function(_cxt, e, a) {
 }
 window.runner.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
-	console.log(inv);
+	handleMessages(_cxt, inv);
+}
+handleMessages = function(_cxt, msg) {
+	if (msg instanceof Array) {
+		for (var i=0;i<msg.length;i++) {
+			handleMessages(_cxt, msg[i]);
+		}
+	} else if (msg) {
+		var ret = msg.dispatch(_cxt);
+		if (ret)
+			handleMessages(_cxt, ret);
+	}
 }
 window.runner.newContext = function() {
 	return new FLContext(this);

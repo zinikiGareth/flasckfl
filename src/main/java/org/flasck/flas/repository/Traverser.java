@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -740,6 +741,8 @@ public class Traverser implements Visitor {
 			visitMakeSend((MakeSend)expr);
 		else if (expr instanceof MakeAcor)
 			visitMakeAcor((MakeAcor)expr);
+		else if (expr instanceof CurrentContainer)
+			visitCurrentContainer((CurrentContainer)expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
@@ -886,6 +889,10 @@ public class Traverser implements Visitor {
 		visitor.leaveMakeAcor(expr);
 	}
 
+	@Override
+	public void visitCurrentContainer(CurrentContainer expr) {
+		visitor.visitCurrentContainer(expr);
+	}
 	@Override
 	public void visitUnitTestPackage(UnitTestPackage e) {
 		visitor.visitUnitTestPackage(e);

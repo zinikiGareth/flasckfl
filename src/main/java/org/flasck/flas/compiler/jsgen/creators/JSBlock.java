@@ -34,7 +34,7 @@ import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
 import org.flasck.flas.compiler.jsgen.form.JSStoreField;
 import org.flasck.flas.compiler.jsgen.form.JSString;
-import org.flasck.flas.compiler.jsgen.form.JSThis;
+import org.flasck.flas.compiler.jsgen.form.JSSetField;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -230,7 +230,7 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr fieldObject(String field, String clz) {
-		JSThis ret = new JSThis(field, new JSNew(clz));
+		JSSetField ret = new JSSetField(field, new JSNew(clz));
 		stmts.add(ret);
 		return ret;
 	}

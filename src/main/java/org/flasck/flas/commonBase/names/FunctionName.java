@@ -130,11 +130,11 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	@Override
 	public String javaClassName() {
 		if (inContext == null) {
-			String bi = bimap .get(name);
+			String bi = bimap.get(name);
 			if (bi == null)
 				bi = name;
 			return J.BUILTINPKG+".PACKAGEFUNCTIONS$"+bi;
-		} else if (inContext.containingCard() != null)
+		} else if (inContext.containingCard() != null || codeType.hasThis())
 			return inContext.uniqueName()+"$"+name;
 		else
 			return inContext.uniqueName()+".PACKAGEFUNCTIONS$"+name;

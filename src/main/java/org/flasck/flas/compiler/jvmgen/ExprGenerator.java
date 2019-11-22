@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -58,6 +59,11 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitMakeAcor(MakeAcor expr) {
 		new ApplyExprGenerator(state, sv, currentBlock);
+	}
+	
+	@Override
+	public void visitCurrentContainer(CurrentContainer expr) {
+		sv.result(state.container);
 	}
 	
 	@Override

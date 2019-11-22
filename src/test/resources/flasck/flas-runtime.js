@@ -370,8 +370,28 @@ Send.prototype._compare = function(cx, other) {
 	} else
 		return false;
 }
+Send.prototype.dispatch = function(cx) {
+	var args = this.args.slice();
+	args.splice(0, 0, cx);
+	var ret = this.meth.apply(this.obj, args);
+	return ret;
+}
 Send.prototype.toString = function() {
 	return "Send[" + "]";
+}
+
+const Assign = function() {
+}
+Assign.eval = function(_cxt, obj, slot, expr) {
+	const s = new Assign();
+	s.obj = obj;
+	s.slot = slot;
+	s.expr = expr;
+	return s;
+}
+Assign.prototype.dispatch = function(cx) {
+	this.obj.state.set(this.slot, this.expr);
+	return null;
 }
 
 

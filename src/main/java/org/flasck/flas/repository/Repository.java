@@ -28,6 +28,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -139,6 +140,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveMakeSend(MakeSend expr);
 		void visitMakeAcor(MakeAcor expr);
 		void leaveMakeAcor(MakeAcor expr);
+		void visitCurrentContainer(CurrentContainer expr);
 		void visitAssertExpr(boolean isValue, Expr e);
 		void leaveAssertExpr(boolean isValue, Expr e);
 		void visitConstPattern(ConstPattern p, boolean isNested);

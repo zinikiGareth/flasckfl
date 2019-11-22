@@ -158,6 +158,10 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			return this == CONTRACT || this == SERVICE || this == HANDLER || this == AREA;
 		}
 		
+		public boolean hasThis() { // may well be more
+			return this == OBJECT;
+		}
+		
 		public abstract <T> CodeGenerator<T> generator();
 	}
 

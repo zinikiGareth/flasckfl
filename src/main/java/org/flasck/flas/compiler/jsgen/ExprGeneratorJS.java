@@ -8,6 +8,8 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSThis;
+import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -45,6 +47,11 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		new ApplyExprGeneratorJS(state, sv, block);
 	}
 
+	@Override
+	public void visitCurrentContainer(CurrentContainer expr) {
+		sv.result(new JSThis());
+	}
+	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
 		new ApplyExprGeneratorJS(state, sv, block);

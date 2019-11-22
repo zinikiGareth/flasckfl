@@ -2,6 +2,7 @@ package org.flasck.flas.testrunner;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,6 +18,7 @@ import org.flasck.jdk.FlasckHandle;
 import org.flasck.jdk.ServiceProvider;
 import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
+import org.flasck.jvm.builtin.Message;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.fl.AreYouA;
 import org.flasck.jvm.fl.FLEval;
@@ -195,10 +197,22 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	@Override
 	public void invoke(FLEvalContext cx, Object expr) throws Exception {
 		expr = FLEval.full(cx, expr);
-//		if (!cdefns.containsKey(cardVar))
-//			throw new UtilException("there is no card '" + cardVar + "'");
+		handleMessages(cx, expr);
 	}
 	
+	@SuppressWarnings("unchecked")
+	private void handleMessages(FLEvalContext cx, Object expr) {
+		if (expr instanceof Iterable) {
+			for (Object o : ((Iterable<Object>)expr)) {
+				handleMessages(cx, o);
+			}
+		} else if (expr instanceof Message) {
+			Object ret = ((Message)expr).dispatch(cx);
+			if (ret != null)
+				handleMessages(cx, ret);
+		}
+	}
+
 	@Override
 	public void send(InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
 		if (!cdefns.containsKey(cardVar))

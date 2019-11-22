@@ -40,6 +40,7 @@ public class LoadBuiltins {
 	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
 	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
+	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
 	
 	// "Primitive" types
 	public static final PolyType polyA = new PolyType(pos, "A"); 
@@ -68,6 +69,7 @@ public class LoadBuiltins {
 	// Messages
 	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
 	public static final StructDefn send = new StructDefn(pos, FieldsType.STRUCT, null, "Send", false);
+	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
 	
 	// Builtin operators
@@ -98,6 +100,7 @@ public class LoadBuiltins {
 		nilTR.bind(nil);
 		debugTR.bind(debug);
 		sendTR.bind(send);
+		assignTR.bind(assign);
 	
 		// add fields to structs
 		error.addField(new StructField(pos, false, stringTR, "message"));
@@ -107,6 +110,9 @@ public class LoadBuiltins {
 		send.addField(new StructField(pos, false, contractTR, "sendto"));
 		send.addField(new StructField(pos, false, stringTR, "meth"));
 		send.addField(new StructField(pos, false, listAnyTR, "args"));
+		assign.addField(new StructField(pos, false, anyTR, "on"));
+		assign.addField(new StructField(pos, false, stringTR, "fld"));
+		assign.addField(new StructField(pos, false, anyTR, "value"));
 
 		// add cases to unions
 		bool.addCase(falseTR);
@@ -114,6 +120,7 @@ public class LoadBuiltins {
 		list.addCase(nilTR);
 		list.addCase(consATR);
 		message.addCase(debugTR);
+		message.addCase(assignTR);
 		message.addCase(sendTR);
 		
 		// specify function types

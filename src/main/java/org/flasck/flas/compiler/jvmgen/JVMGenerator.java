@@ -149,7 +149,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, fargs);
+		fs = new FunctionState(meth, (Var)fcx, null, fargs);
 		currentBlock = new ArrayList<IExpr>();
 	}
 	
@@ -166,6 +166,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fi.constValue(om.argCount());
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
 		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
+		PendingVar myThis = null;
+		if (om.name().codeType.hasThis())
+			myThis = ann.argument(J.OBJECT, "obj");
 		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
 		ann.returns(JavaType.object_);
 		meth = ann.done();
@@ -173,7 +176,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, fargs);
+		fs = new FunctionState(meth, (Var)fcx, myThis.getVar(), fargs);
 		currentBlock = new ArrayList<IExpr>();
 	}
 	
@@ -297,7 +300,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			Var args = pargs.getVar();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
-			this.fs = new FunctionState(meth, cx.getVar(), null);
+			this.fs = new FunctionState(meth, cx.getVar(), null, null);
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new ArrayList<IExpr>();
@@ -333,7 +336,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			MethodDefiner meth = gen.done();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
-			this.fs = new FunctionState(meth, cx.getVar(), null);
+			this.fs = new FunctionState(meth, cx.getVar(), null, null);
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new ArrayList<IExpr>();
@@ -396,7 +399,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.runner = runner.getVar();
 		this.fcx = meth.avar(J.FLEVALCONTEXT, "cxt");
 		meth.assign((Var)this.fcx, meth.getField(this.runner, "cxt")).flush();
-		this.fs = new FunctionState(meth, (Var)fcx, null);
+		this.fs = new FunctionState(meth, (Var)fcx, null, null);
 		this.currentBlock = new ArrayList<>();
 	}
 
@@ -521,7 +524,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner, Var args) {
 		JVMGenerator ret = new JVMGenerator(meth, runner, args);
-		ret.fs = new FunctionState(meth, runner, args);
+		ret.fs = new FunctionState(meth, runner, null, args);
 		return ret;
 	}
 

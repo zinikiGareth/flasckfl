@@ -19,15 +19,17 @@ import org.zinutils.exceptions.NotImplementedException;
 public class FunctionState {
 	final MethodDefiner meth;
 	final IExpr fcx;
+	final IExpr container;
 	final Var fargs;
 	private int nextVar = 1;
 	private Map<String, AVar> vars = new HashMap<>();
 	private Map<UnitDataDeclaration, IExpr> mocks = new TreeMap<UnitDataDeclaration, IExpr>();
 	public Var evalRet;
 
-	public FunctionState(MethodDefiner meth, IExpr fcx, Var fargs) {
+	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs) {
 		this.meth = meth;
 		this.fcx = fcx;
+		this.container = container;
 		this.fargs = fargs;
 	}
 

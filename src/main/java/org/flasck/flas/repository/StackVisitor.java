@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -282,6 +283,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveMemberExpr(MemberExpr expr) {
 		top.leaveMemberExpr(expr);
+	}
+
+	public void visitCurrentContainer(CurrentContainer expr) {
+		top.visitCurrentContainer(expr);
 	}
 
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
