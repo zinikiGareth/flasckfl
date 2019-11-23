@@ -176,7 +176,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, myThis.getVar(), fargs);
+		fs = new FunctionState(meth, (Var)fcx, (myThis == null ? null : myThis.getVar()), fargs);
 		currentBlock = new ArrayList<IExpr>();
 	}
 	

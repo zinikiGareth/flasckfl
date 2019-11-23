@@ -165,6 +165,7 @@ public class LoadBuiltins {
 		
 		repository.newStruct(debug);
 		repository.newStruct(send);
+		repository.newStruct(assign);
 		repository.newUnion(message);
 
 		repository.functionDefn(isEqual);

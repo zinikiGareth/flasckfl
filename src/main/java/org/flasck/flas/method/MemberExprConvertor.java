@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -24,6 +25,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private Expr obj;
 	private ContractDecl cd;
 	private ObjectDefn od;
+	private StructDefn sd;
 	private FunctionName sendMeth;
 	private int expargs;
 	private ContractMethodDir dir = ContractMethodDir.NONE;
@@ -54,6 +56,12 @@ public class MemberExprConvertor extends LeafAdapter {
 					throw new NotImplementedException("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
 				sendMeth = om.name();
 				expargs = om.argCount();
+			} else if (sd != null) {
+				FieldAccessor acor = this.sd.getAccessor(var.var);
+				if (acor == null)
+					throw new NotImplementedException("There is no acor " + var.var);
+				sendMeth = FunctionName.function(var.location(), this.sd.name(), var.var);
+				expargs = 0;
 			} else {
 				throw new NotImplementedException("Need to implement the field case");
 			}
@@ -74,6 +82,8 @@ public class MemberExprConvertor extends LeafAdapter {
 			this.cd = (ContractDecl) dt;
 		else if (dt instanceof ObjectDefn)
 			this.od = (ObjectDefn) dt;
+		else if (dt instanceof StructDefn)
+			this.sd = (StructDefn) dt;
 		else
 			throw new NotImplementedException("cannot handle svc defn of type " + (dt == null ? "NULL" : dt.getClass()));
 	}

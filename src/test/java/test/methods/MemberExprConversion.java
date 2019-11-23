@@ -14,8 +14,11 @@ import org.flasck.flas.method.MemberExprConvertor;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -95,6 +98,25 @@ public class MemberExprConversion {
 		MemberExpr me = new MemberExpr(pos, from, fld);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(fred, ExprMatcher.unresolved("from"), 0)));
+		}});
+		MemberExprConvertor mc = new MemberExprConvertor(nv);
+		Traverser gen = new Traverser(mc).withMemberFields();
+		gen.visitExpr(me, 0);
+	}
+
+	@Test
+	public void dotOperatorCanHandleStruct() {
+		UnresolvedVar from = new UnresolvedVar(pos, "from");
+		TypeReference tr = new TypeReference(pos, "StructDefn");
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructDefn"), true, new ArrayList<>());
+		sd.addField(new StructField(pos, pos, true, LoadBuiltins.stringTR, "fred", null));
+		tr.bind(sd);
+		TypedPattern tp = new TypedPattern(pos, tr, new VarName(pos, sd.name(), "from"));
+		from.bind(tp);
+		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
+		MemberExpr me = new MemberExpr(pos, from, fld);
+		context.checking(new Expectations() {{
+			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "StructDefn"), "fred"), ExprMatcher.unresolved("from"), 0)));
 		}});
 		MemberExprConvertor mc = new MemberExprConvertor(nv);
 		Traverser gen = new Traverser(mc).withMemberFields();

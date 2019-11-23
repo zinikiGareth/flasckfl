@@ -33,6 +33,7 @@
 	method double (Sample svc)
 		<- Debug "sending hello"
 		<- svc.meth "hello"
+		<- Assign "on" "fld" "value"
 	
 // standalone methods can't reference members because they have no state
 // standalone methods can't have assignment cases because they have no state

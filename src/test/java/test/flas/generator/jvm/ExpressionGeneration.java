@@ -430,9 +430,11 @@ public class ExpressionGeneration {
 			allowing(bcc).generateAssociatedSourceFile();
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
+			oneOf(meth).nextLocal(); will(returnValue(24));
 		}});
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "JVMRunner", "runner");
+		Var myThis = new Var.AVar(meth, J.OBJECT, "myThis");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");

@@ -36,5 +36,5 @@
 	test we can do two things in one method
 		data Sample svc
 		assert (double svc)
-			[Debug "sending hello", Send svc "meth" ["hello"]] 
+			[Debug "sending hello", Send svc "meth" ["hello"], Assign "on" "fld" "value"] 
 			
