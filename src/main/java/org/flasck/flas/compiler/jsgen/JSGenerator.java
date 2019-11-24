@@ -304,6 +304,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator ctr = jse.newClass(pkg, cd.name().jsName());
 		JSMethodCreator meth = ctr.createMethod("name", true);
 		meth.returnObject(new JSString(cd.name().uniqueName()));
+		JSClassCreator ctrDown = jse.newClass(pkg, cd.name().jsName() + ".Down");
+		JSMethodCreator downName = ctrDown.createMethod("name", true);
+		downName.returnObject(new JSString(cd.name().uniqueName() + ".Down"));
+		JSClassCreator ctrUp = jse.newClass(pkg, cd.name().jsName() + ".Up");
+		JSMethodCreator upName = ctrUp.createMethod("name", true);
+		upName.returnObject(new JSString(cd.name().uniqueName() + ".Up"));
 	}
 
 	@Override

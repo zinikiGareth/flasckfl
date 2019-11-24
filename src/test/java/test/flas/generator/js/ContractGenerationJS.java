@@ -30,36 +30,23 @@ public class ContractGenerationJS {
 	// TODO: contract generation is a work in progress
 	@Test
 	public void simpleContractDeclarationForcesThreeClassesToBeGenerated() {
-//		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-//		ByteCodeSink parent = context.mock(ByteCodeSink.class, "parent");
-//		ByteCodeSink up = context.mock(ByteCodeSink.class, "up");
-//		ByteCodeSink down = context.mock(ByteCodeSink.class, "down");
-//		String pname = "test.repo.MyContract";
-		JSClassCreator clz = context.mock(JSClassCreator.class);
-		JSMethodCreator meth = context.mock(JSMethodCreator.class);
+		JSClassCreator clz = context.mock(JSClassCreator.class, "clz");
+		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
+		JSClassCreator clzDown = context.mock(JSClassCreator.class, "clzDown");
+		JSMethodCreator methDown = context.mock(JSMethodCreator.class, "methDown");
+		JSClassCreator clzUp = context.mock(JSClassCreator.class, "clzUp");
+		JSMethodCreator methUp = context.mock(JSMethodCreator.class, "methUp");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));
-//			oneOf(bce).newClass(pname); will(returnValue(parent));
-//			allowing(parent).getCreatedName(); will(returnValue(pname));
-//
-//			oneOf(bce).newClass("test.repo.MyContract$Up"); will(returnValue(up));
-//			allowing(up).generateAssociatedSourceFile();
-//			allowing(down).generateAssociatedSourceFile();
-//
-//			oneOf(bce).newClass("test.repo.MyContract$Down"); will(returnValue(down));
-//			
-//			oneOf(parent).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Up");
-//			oneOf(up).makeInterface();
-//			oneOf(up).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Up");
-//			oneOf(up).implementsInterface("org.ziniki.ziwsh.UpContract");
-//			
-//			oneOf(parent).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Down");
-//			oneOf(down).makeInterface();
-//			oneOf(down).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Down");
-//			oneOf(down).implementsInterface("org.ziniki.ziwsh.UpContract");
+			oneOf(jss).newClass("test.repo", "test.repo.MyContract.Down"); will(returnValue(clzDown));
+			oneOf(clzDown).createMethod("name", true); will(returnValue(methDown));
+			oneOf(methDown).returnObject(with(any(JSString.class)));
+			oneOf(jss).newClass("test.repo", "test.repo.MyContract.Up"); will(returnValue(clzUp));
+			oneOf(clzUp).createMethod("name", true); will(returnValue(methUp));
+			oneOf(methUp).returnObject(with(any(JSString.class)));
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
