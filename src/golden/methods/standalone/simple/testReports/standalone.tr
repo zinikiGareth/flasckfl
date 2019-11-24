@@ -5,6 +5,7 @@ JVM PASS we can generate a Debug command passing in an argument through a nested
 JVM PASS we can generate a Debug command using pattern matching
 JVM PASS we can create a Send on a contract
 JVM PASS we can send directly on a contract
+JVM PASS we can send to a card
 JVM PASS we can do two things in one method
 JS PASS we can generate a Debug command
 JS PASS we can generate a Debug command through a function
@@ -13,4 +14,5 @@ JS PASS we can generate a Debug command passing in an argument through a nested 
 JS PASS we can generate a Debug command using pattern matching
 JS PASS we can create a Send on a contract
 JS PASS we can send directly on a contract
+JS PASS we can send to a card
 JS PASS we can do two things in one method

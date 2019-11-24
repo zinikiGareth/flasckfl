@@ -139,9 +139,10 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				throw new RuntimeException("Could not find " + v);
 			sv.result(var);
 		} else if (defn instanceof TypedPattern) {
-			IExpr in = meth.arrayItem(J.OBJECT, state.fargs, 0);
-			AVar var = new Var.AVar(meth, J.OBJECT, "head_0");
-			currentBlock.add(meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
+			String v = ((TypedPattern)defn).var.var;
+			AVar var = state.boundVar(v);
+			if (var == null)
+				throw new RuntimeException("Could not find " + v);
 			sv.result(var);
 		} else if (defn instanceof StructField) {
 			StructField sf = (StructField) defn;

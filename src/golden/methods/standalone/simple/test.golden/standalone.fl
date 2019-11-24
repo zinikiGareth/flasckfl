@@ -22,6 +22,7 @@
 
 	contract Sample
 		up meth (String msg)
+		down card (String data)
 		
 // we can send to an argument, so this works and should typecheck in some way
 	method q (Sample svc)
@@ -29,6 +30,9 @@
 
 	method r (Sample svc)
 		<- svc.meth "hello"
+
+	method s (Sample svc) (String msg)
+		<- svc.card msg
 
 	method double (Sample svc)
 		<- Debug "sending hello"
