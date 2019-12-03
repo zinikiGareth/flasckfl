@@ -56,6 +56,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		super(builder, figureClasses());
 	}
 	
+	public GoldenCGRunner(Class<?> klass) throws InitializationError, IOException, ErrorResultException {
+		super(klass, figureClasses());
+	}
+	
 	private static Class<?>[] figureClasses() throws IOException, ErrorResultException {
 		ByteCodeEnvironment bce = new ByteCodeEnvironment();
 		CGHClassLoaderImpl cl = new CGHClassLoaderImpl();
