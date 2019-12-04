@@ -2,7 +2,6 @@ package org.flasck.flas.testrunner;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
