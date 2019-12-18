@@ -98,6 +98,7 @@ FLMakeSend.prototype.toString = function() {
 
 
 
+/* istanbul ignore next */
 const FLContext = function(env) {
 }
 
@@ -192,7 +193,7 @@ FLContext.prototype.compare = function(left, right) {
 	} else if (Array.isArray(left) && Array.isArray(right)) {
 		// not good enough
 		return left.length === right.length;
-	} else if (left instanceof _FLError && right instanceof _FLError) {
+	} else if (left instanceof FLError && right instanceof FLError) {
 		return left.message === right.message;
 	} else if (left._compare) {
 		return left._compare(this, right);
@@ -219,26 +220,25 @@ FLContext.prototype.mockContract = function(contract) {
 }
 
 
-class _FLError extends Error {
+class FLError extends Error {
 	constructor(msg) {
     	super(msg);
     	this.name = "FLError";
 	}
 	
 	_compare(cx, other) {
-		if (!(other instanceof _FLError)) return false;
+		if (!(other instanceof FLError)) return false;
 		if (other.message != this.message) return false;
 		return true;
 	}
 }
 
-const FLError = {
-}
 FLError.eval = function(_cxt, msg) {
-	return new _FLError(msg);
+	return new FLError(msg);
 }
 
 
+/* istanbul ignore next */
 const Nil = function() {
 }
 
@@ -246,6 +246,7 @@ Nil.eval = function(_cxt) {
 	return [];
 }
 
+/* istanbul ignore next */
 const Cons = function() {
 }
 
@@ -254,6 +255,8 @@ Cons.eval = function(_cxt, hd, tl) {
 }
 
 
+
+/* istanbul ignore next */
 const True = function() {
 }
 
@@ -261,6 +264,7 @@ True.eval = function(_cxt) {
 	return true;
 }
 
+/* istanbul ignore next */
 const False = function() {
 }
 
@@ -268,13 +272,14 @@ False.eval = function(_cxt) {
 	return false;
 }
 
+/* istanbul ignore next */
 const FLBuiltin = function() {
 }
 
 FLBuiltin.arr_length = function(_cxt, arr) {
 	arr = _cxt.head(arr);
 	if (!Array.isArray(arr))
-		throw new FLError("not an array");
+		return FLError.eval(_cxt, "not an array");
 	return arr.length;
 }
 
@@ -323,7 +328,7 @@ FLBuiltin.concat.nfargs = function() { return 2; }
 FLBuiltin.strlen = function(_cxt, str) {
 	str = _cxt.head(str);
 	if (typeof(str) != "string")
-		throw new FLError("not a string");
+		return FLError.eval(_cxt, "not a string");
 	return str.length;
 }
 
