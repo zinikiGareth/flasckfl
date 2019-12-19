@@ -2,10 +2,13 @@ package org.flasck.flas.compiler.jsgen.packaging;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
@@ -53,6 +56,12 @@ public class JSEnvironment implements JSStorage {
 		JSMethod ret = new JSMethod(cxt, isPrototype, name);
 		inpkg.addFunction(ret);
 		return ret;
+	}
+
+	@Override
+	public void methodList(SolidName name, List<FunctionName> methods) {
+		JSFile inpkg = getPackage(name.container().uniqueName());
+		inpkg.methodList(name, methods);
 	}
 
 	public JSFile getPackage(String pkg) {

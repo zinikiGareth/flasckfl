@@ -44,6 +44,7 @@ public class ObjectGenerationJS {
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
 			oneOf(eval).newOf(sn); will(returnValue(obj));
 			oneOf(eval).returnObject(obj);
+			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
@@ -69,6 +70,7 @@ public class ObjectGenerationJS {
 			oneOf(eval).string("hello"); will(returnValue(sl));
 			oneOf(eval).storeField(obj, "s", sl);
 			oneOf(eval).returnObject(obj);
+			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);

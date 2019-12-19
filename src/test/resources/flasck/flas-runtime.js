@@ -134,6 +134,10 @@ FLContext.prototype.array = function(...args) {
 	return args;
 }
 
+FLContext.prototype.error = function(msg) {
+	return FLError.eval(this, msg);
+}
+
 FLContext.prototype.mksend = function(meth, obj, cnt) {
 	if (cnt == 0)
 		return Send.eval(this, obj, meth, []);
@@ -157,6 +161,10 @@ FLContext.prototype.head = function(obj) {
 FLContext.prototype.full = function(obj) {
 	while (obj instanceof FLClosure)
 		obj = obj.eval(this);
+	if (Array.isArray(obj)) {
+		for (var i=0;i<obj.length;i++)
+			obj[i] = this.full(obj[i]);
+	}
 	return obj;
 }
 
@@ -191,8 +199,13 @@ FLContext.prototype.compare = function(left, right) {
 	if (typeof(left) === 'number' || typeof(left) === 'string') {
 		return left === right;
 	} else if (Array.isArray(left) && Array.isArray(right)) {
-		// not good enough
-		return left.length === right.length;
+		if (left.length !== right.length)
+			return false;
+		for (var i=0;i<left.length;i++) {
+			if (!this.compare(left[i], right[i]))
+				return false;
+		}
+		return true;
 	} else if (left instanceof FLError && right instanceof FLError) {
 		return left.message === right.message;
 	} else if (left._compare) {
@@ -205,13 +218,21 @@ FLContext.prototype.compare = function(left, right) {
 
 FLContext.prototype.field = function(obj, field) {
 	obj = this.full(obj);
-	if (field == "head" && Array.isArray(obj) && obj.length > 0)
-		return obj[0];
-	else if (field == "tail" && Array.isArray(obj) && obj.length > 0)
-		return obj.slice(1);
-	else {
-// TODO: this probably involves backing documents ...
-		return obj[field];
+	if (Array.isArray(obj)) {
+		if (field == 'head') {
+			if (obj.length > 0)
+				return obj[0];
+			else
+				return this.error('head(nil)');
+		} else if (field == 'tail') {
+			if (obj.length > 0)
+				return obj.slice(1);
+			else
+				return this.error('tail(nil)');
+		} else
+			return this.error('no function "' + field + "'");
+	} else {
+		throw new Error("NotImplemented - field of backing document");
 	}
 }
 
@@ -279,7 +300,7 @@ const FLBuiltin = function() {
 FLBuiltin.arr_length = function(_cxt, arr) {
 	arr = _cxt.head(arr);
 	if (!Array.isArray(arr))
-		return FLError.eval(_cxt, "not an array");
+		return _cxt.error("not an array");
 	return arr.length;
 }
 
@@ -328,7 +349,7 @@ FLBuiltin.concat.nfargs = function() { return 2; }
 FLBuiltin.strlen = function(_cxt, str) {
 	str = _cxt.head(str);
 	if (typeof(str) != "string")
-		return FLError.eval(_cxt, "not a string");
+		return _cxt.error("not a string");
 	return str.length;
 }
 
@@ -378,7 +399,7 @@ Send.prototype._compare = function(cx, other) {
 Send.prototype.dispatch = function(cx) {
 	var args = this.args.slice();
 	args.splice(0, 0, cx);
-	var ret = this.meth.apply(this.obj, args);
+	var ret = this.obj.methods()[this.meth].apply(this.obj, args);
 	return ret;
 }
 Send.prototype.toString = function() {
@@ -394,9 +415,18 @@ Assign.eval = function(_cxt, obj, slot, expr) {
 	s.expr = expr;
 	return s;
 }
+Assign.prototype._compare = function(cx, other) {
+	if (other instanceof Assign) {
+		return cx.compare(this.obj, other.obj) && cx.compare(this.slot, other.slot) && cx.compare(this.expr, other.expr);
+	} else
+		return false;
+}
 Assign.prototype.dispatch = function(cx) {
 	this.obj.state.set(this.slot, this.expr);
 	return null;
+}
+Assign.prototype.toString = function() {
+	return "Assign[" + "]";
 }
 
 

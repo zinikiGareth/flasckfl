@@ -616,7 +616,7 @@ public class ExpressionGenerationJS {
 		JSExpr fv = context.mock(JSExpr.class, "fv");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("from"); will(returnValue(fv));
-			oneOf(meth).makeSend("test.repo.Ctr.f", fv, 0);
+			oneOf(meth).makeSend("f", fv, 0);
 		}});
 		new ApplyExprGeneratorJS(state, stackv, meth);
 		Traverser gen = new Traverser(stackv).withHSI();
@@ -644,7 +644,7 @@ public class ExpressionGenerationJS {
 		JSExpr s1 = context.mock(JSExpr.class, "s1");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("from"); will(returnValue(fv));
-			oneOf(meth).makeSend("test.repo.Ctr.f", fv, 2); will(returnValue(msi));
+			oneOf(meth).makeSend("f", fv, 2); will(returnValue(msi));
 			oneOf(meth).literal("42"); will(returnValue(n1));
 			oneOf(meth).string("hello"); will(returnValue(s1));
 			oneOf(meth).closure(msi, n1, s1); will(returnValue(res));

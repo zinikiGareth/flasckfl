@@ -17,7 +17,7 @@ public class JSMakeSend implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("_cxt.mksend(");
-		w.print(sendMeth);
+		w.print(new JSString(sendMeth).asVar());
 		w.print(",");
 		w.print(obj.asVar());
 		w.print(",");

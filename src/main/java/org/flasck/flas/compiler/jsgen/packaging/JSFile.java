@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -18,6 +20,7 @@ public class JSFile {
 	private final Set<String> packages = new TreeSet<>();
 	private final List<JSClass> classes = new ArrayList<>();
 	private final List<JSMethod> functions = new ArrayList<>();
+	private final List<MethodList> methodLists = new ArrayList<>();
 
 	public JSFile(String pkg, File file) {
 		this.pkg = pkg;
@@ -40,6 +43,10 @@ public class JSFile {
 		functions.add(jsMethod);
 	}
 
+	public void methodList(SolidName name, List<FunctionName> methods) {
+		methodLists.add(new MethodList(name, methods));
+	}
+
 	// untested
 	public void write() throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(file);
@@ -56,6 +63,8 @@ public class JSFile {
 			declareContainingPackage(iw, f);
 			f.write(iw);
 		}
+		for (MethodList m : methodLists)
+			m.write(iw);
 	}
 
 	private void declareContainingPackage(IndentWriter iw, JSMethod f) {

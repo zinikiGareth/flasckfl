@@ -1,9 +1,11 @@
 package org.flasck.flas.compiler.jsgen;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
@@ -73,6 +75,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSExpr evalRet;
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
+	private final List<FunctionName> methods = new ArrayList<>();
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -181,11 +184,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
+		jse.methodList(obj.name(), methods);
 		if (evalRet != null)
 			meth.returnObject(evalRet);
 		this.block = null;
 		this.evalRet = null;
 		this.meth = null;
+		this.methods.clear();
 	}
 	
 	@Override
@@ -207,6 +212,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, pkg, currentOA != null, om.name().jsName().substring(pkg.length()+1));
+		this.methods.add(om.name());
 		this.meth.argument("_cxt");
 		for (int i=0;i<om.argCount();i++)
 			this.meth.argument("_" + i);

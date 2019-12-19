@@ -118,7 +118,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveMakeSend(MakeSend expr) {
 		JSExpr obj = stack.remove(stack.size()-1);
-		stack.add(block.makeSend(expr.sendMeth.jsName(), obj, expr.nargs));
+		stack.add(block.makeSend(expr.sendMeth.name, obj, expr.nargs));
 	}
 
 	@Override
