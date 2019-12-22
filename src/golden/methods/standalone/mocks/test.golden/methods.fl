@@ -1,0 +1,9 @@
+	contract SendTo
+		up meth (String msg)
+		down card (String data)
+		
+	method sendUp (SendTo svc)
+		<- svc.meth "hello"
+
+	method sendDown (SendTo svc) (String msg)
+		<- svc.card msg

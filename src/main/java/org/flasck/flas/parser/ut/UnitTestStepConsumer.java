@@ -11,5 +11,6 @@ public interface UnitTestStepConsumer {
 	void event(UnresolvedVar card, StringLiteral name, Expr event);
 	void invokeObjectMethod(Expr expr);
 	void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation);
+	void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr... args);
 	void template();
 }

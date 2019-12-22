@@ -71,6 +71,9 @@
   <lex token='EVENT' pattern='event'>
   	<p>The <tt>event</tt> keyword introduces an event handler.</p>
   </lex>
+  <lex token='EXPECT' pattern='expect'>
+  	<p>The <tt>expect</tt> keyword introduces a mock expectation.</p>
+  </lex>
   <lex token='FALSE' pattern='false'>
   	<p>The boolean literal <tt>false</tt>.</p>
   </lex>
@@ -1372,8 +1375,10 @@
         <p>The <tt>event</tt> action simulates a UI input event and dispatches it to the card.  The first argument is a variable which is a reference to the card to receive the event.  The second is the name of an event handler. The expression will probably construct an event, but it could also be a reference to a data object.</p>
         <p>The <tt>invoke</tt> action invokes a method on an object.  This is just described as an "expression" but the semantics are that it must be a valid object method invocation.</p>
         <p>The <tt>contract</tt> action is supposed to invoke a method in a contract on a card.  The first argument is a data variable which is a reference to the card to receive the event.  The second argument is the name of the contract which will have the event.  The third var is the name of the method to invoke on the contract.  The expressions are the data elements to send.</p>
-        <p>Expectations should be available on invoke, event and contract.  They should take the form of a nested block where each nested line is an expression.  These expressions hould be of the form contract.method &lt;args&gt;.
-           In these expressions you can specify an _ to say that you don't care what goes there and you can specify a function name which says that it is a matcher which takes one arg and returns a boolean.
+        <p>The <tt>expect</tt> action allows expectations to be defined.  This specifies a contract, a method and the arguments that are expected.</p>
+        <p>Notes: Expectations should be available on invoke, event and contract. 
+           In these expressions you should be able to specify an _ to say that you don't care what goes there or specify a function name which says that it is a matcher which takes one arg and returns a boolean.
+           These functions should be nested within the expect block.
            If the pattern matches and true is returned, it's OK. If the patterns don't match and Error is returned, or the function explicitly returns false, the match fails.
            Obviously, we expect exactly all of the expectations to happen.
         </p>
@@ -1400,6 +1405,7 @@
       <ref production='unit-invoke-action' />
       <ref production='unit-contract-action' />
       <ref production='unit-test-assert' />
+      <ref production='unit-test-expect' />
       <ref production='unit-test-template' />
     </or>
   </production>
@@ -1443,6 +1449,19 @@
       <indent-one>
     	    <ref production='expression' />
       </indent-one>
+    </seq>
+  </production>
+  <production name='unit-test-expect'>
+    <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
+    <seq>
+      <token type='EXPECT' />
+      <token type='var-name' />
+      <token type='var-name' />
+      <many>
+    	    <ref production='expression' />
+      </many>
+      <!-- should have an indent block that enables matching functions to be defined  -->
     </seq>
   </production>
   <production name='unit-test-template'>

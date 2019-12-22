@@ -11,8 +11,10 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
+import org.flasck.flas.parser.TDAExprParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -115,6 +117,27 @@ public class TestStepParser implements TDAParsing {
 			}
 			builder.invokeObjectMethod(eventObj.get(0));
 			return new NoNestingParser(errors);
+		}
+		case "expect": {
+			ValidIdentifierToken svc = VarNameToken.from(toks);
+			if (svc == null) {
+				errors.message(toks, "missing contract");
+				return new IgnoreNestedParser();
+			}
+			ValidIdentifierToken meth = VarNameToken.from(toks);
+			if (meth == null) {
+				errors.message(toks, "missing method");
+				return new IgnoreNestedParser();
+			}
+			List<Expr> args = new ArrayList<>();
+//			TDAExprParser expr = new TDAExprParser(errors, new TDAExpressionParser.Builder(x -> args.add(x)));
+			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> args.add(x), false);
+			expr.tryParsing(toks);
+			if (errors.hasErrors()){
+				return new IgnoreNestedParser();
+			}
+			builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]));
+			return new TDAMultiParser(errors);
 		}
 		case "template": {
 			builder.template();

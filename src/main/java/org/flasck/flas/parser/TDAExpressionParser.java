@@ -8,7 +8,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAExpressionParser implements TDAParsing {
-	public class Builder implements ExprTermConsumer {
+	public static class Builder implements ExprTermConsumer {
 		private final Consumer<Expr> handler;
 
 		public Builder(Consumer<Expr> handler) {
@@ -34,7 +34,11 @@ public class TDAExpressionParser implements TDAParsing {
 	private final TDAExprParser parser;
 
 	public TDAExpressionParser(ErrorReporter errors, Consumer<Expr> exprHandler) {
-		this.parser = new TDAExprParser(errors, new TDAStackReducer(errors, new Builder(exprHandler)));
+		this(errors, exprHandler, true);
+	}
+
+	public TDAExpressionParser(ErrorReporter errors, Consumer<Expr> exprHandler, boolean reduceToOne) {
+		this.parser = new TDAExprParser(errors, new TDAStackReducer(errors, new Builder(exprHandler), reduceToOne));
 	}
 
 	@Override

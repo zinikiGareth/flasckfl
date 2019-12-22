@@ -36,8 +36,12 @@ public class TDAStackReducer implements ExprTermConsumer {
 	private InputPosition lineStart;
 
 	public TDAStackReducer(ErrorReporter errors, ExprTermConsumer builder) {
+		this(errors, builder, true);
+	}
+
+	public TDAStackReducer(ErrorReporter errors, ExprTermConsumer builder, boolean reduceToOne) {
 		this.errors = errors;
-		this.stack.add(new TDAExprReducer(errors, builder));
+		this.stack.add(new TDAExprReducer(errors, builder, reduceToOne));
 		mark = errors.mark();
 	}
 

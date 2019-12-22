@@ -340,9 +340,11 @@ public class SentenceProducer {
 			case "ENTITY":
 			case "ENVELOPE":
 			case "EVENT":
+			case "EXPECT":
 			case "FALSE":
 			case "HANDLER":
 			case "IMPLEMENTS":
+			case "INVOKE":
 			case "METHOD":
 			case "OBJECT":
 			case "OFFER":

@@ -32,10 +32,12 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private final List<OpPrec> ops = new ArrayList<>();
 	private DotOperator haveDot;
 	private boolean haveErrors;
+	private boolean reduceToOne;
 
-	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder) {
+	public TDAExprReducer(ErrorReporter errors, ExprTermConsumer builder, boolean reduceToOne) {
 		this.errors = errors;
 		this.builder = builder;
+		this.reduceToOne = reduceToOne;
 	}
 
 	@Override
@@ -97,9 +99,14 @@ public class TDAExprReducer implements ExprTermConsumer {
 			haveErrors = true;
 		}
 		if (!haveErrors && !terms.isEmpty()) {
-			Expr r = reduce(0, terms.size());
-			if (r != null)
-				builder.term(r);
+			if (reduceToOne) {
+				Expr r = reduce(0, terms.size());
+				if (r != null)
+					builder.term(r);
+			} else {
+				for (Expr t : terms)
+					builder.term(t);
+			}
 		}
 		builder.done();
 	}

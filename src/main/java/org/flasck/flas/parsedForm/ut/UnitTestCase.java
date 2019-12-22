@@ -47,6 +47,12 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
+	public void expect(UnresolvedVar ctr, UnresolvedVar meth, Object... args) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void template() {
 	}
 

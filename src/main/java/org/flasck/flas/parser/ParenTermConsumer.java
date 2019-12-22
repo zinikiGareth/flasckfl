@@ -92,7 +92,7 @@ public class ParenTermConsumer implements ExprTermConsumer {
 			expectingColon = true;
 		} else
 			throw new RuntimeException("invalid open paren");
-		curr = new TDAExprReducer(errors, closer);
+		curr = new TDAExprReducer(errors, closer, true);
 	}
 	
 	@Override

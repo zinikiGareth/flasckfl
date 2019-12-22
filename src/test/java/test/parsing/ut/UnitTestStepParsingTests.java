@@ -19,7 +19,9 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
+import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -111,6 +113,22 @@ public class UnitTestStepParsingTests {
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("event card click (ClickEvent { x: 42, y: 31 })"));
 		assertTrue(nested instanceof NoNestingParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanHandleAnExpectationStep() {
+		context.checking(new Expectations() {{
+			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
+					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
+					(Expr[])with(Matchers.array(ExprMatcher.number(22),
+							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello')"));
+		assertTrue(nested instanceof TDAMultiParser);
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}
