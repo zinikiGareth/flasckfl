@@ -53,6 +53,14 @@ MockContract.prototype.areYouA = function(ty) {
 MockContract.prototype.expect = function(meth, args) {
 	if (!this.expected[meth])
 		this.expected[meth] = [];
+	if (!this.ctr[meth] || !this.ctr[meth].nfargs) {
+		throw new Error(this.ctr.name() + " does not have a method " + meth);
+	}
+	const expArgs = this.ctr[meth].nfargs();
+	if (args.length != expArgs) {
+		throw new Error(this.ctr.name() + "." + meth + " expects " + expArgs + " parameters, not " + args.length);
+	}
+
 	const exp = new Expectation(args);
 	this.expected[meth].push(exp);
 	return exp;
