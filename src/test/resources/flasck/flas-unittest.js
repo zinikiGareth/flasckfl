@@ -1,33 +1,17 @@
-// TODO: this should be in something different from runner, I think
-// Probably we should have a "runner" module, and then something that imports all that and binds it onto Window
-// Or use the same "export" technique we do elsewhere ...
-// But console.log is JUST for the Java case
-/*
-window.console = {};
-window.console.log = function() {
-	var ret = '';
-	var sep = '';
-	for (var i=0;i<arguments.length;i++) {
-		ret += sep + arguments[i];
-		sep = ' ';
-	}
-	callJava.log(ret);
-};
-*/
 
-window.runner = {};
-window.runner.assertSameValue = function(_cxt, e, a) {
+const UTRunner = {};
+UTRunner.assertSameValue = function(_cxt, e, a) {
 	e = _cxt.full(e);
 	a = _cxt.full(a);
 	if (!_cxt.compare(e, a)) {
 		throw new Error("NSV" + "\n  expected: " + e + "\n  actual:   " + a);
 	}
 }
-window.runner.invoke = function(_cxt, inv) {
+UTRunner.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
 	handleMessages(_cxt, inv);
 }
-handleMessages = function(_cxt, msg) {
+const handleMessages = function(_cxt, msg) {
 	if (msg instanceof Array) {
 		for (var i=0;i<msg.length;i++) {
 			handleMessages(_cxt, msg[i]);
@@ -38,16 +22,61 @@ handleMessages = function(_cxt, msg) {
 			handleMessages(_cxt, ret);
 	}
 }
-window.runner.newContext = function() {
+UTRunner.newContext = function(logger) {
+	if (logger) {
+		this.logger = logger;
+	}
 	return new FLContext(this);
+}
+
+	window.runner = UTRunner;
+
+const Expectation = function(args) {
+	this.args = args;
+	this.allowed = 1;
+	this.invoked = 0;
+}
+
+Expectation.prototype.allow = function(n) {
+	this.allowed = n;
 }
 
 const MockContract = function(ctr) {
 	this.ctr = ctr;
+	this.expected = {};
 };
 
 MockContract.prototype.areYouA = function(ty) {
 	return this.ctr.name() == ty;
+}
+
+MockContract.prototype.expect = function(meth, args) {
+	if (!this.expected[meth])
+		this.expected[meth] = [];
+	const exp = new Expectation(args);
+	this.expected[meth].push(exp);
+	return exp;
+}
+
+MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
+	if (!this.expected[meth])
+		throw new Error("There are no expectations on " + this.ctr.name() + " for " + meth);
+	const exp = this.expected[meth];
+	var matched = null;
+	for (var i=0;i<exp.length;i++) {
+		if (_cxt.compare(exp[i].args, args)) {
+			matched = exp[i];
+			break;
+		}
+	}
+	if (!matched) {
+		throw new Error("Unexpected invocation: " + this.ctr.name() + "." + meth + " " + args);
+	}
+	matched.invoked++;
+	if (matched.invoked > matched.allowed) {
+		throw new Error(this.ctr.name() + "." + meth + " " + args + " already invoked (allowed=" + matched.allowed +"; actual=" + matched.invoked +")");
+	}
+	console.log("Have invocation of", meth, "with", args);
 }
 
 

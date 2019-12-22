@@ -1,4 +1,5 @@
 const FLClosure = function(obj, fn, args) {
+	/* istanbul ignore if */
 	if (!fn)
 		throw new Error("must define a function");
 	this.obj = obj;
@@ -85,7 +86,7 @@ FLMakeSend.prototype.apply = function(cx, args) {
 	var all = this.current.slice();
 	for (var i=1;i<args.length;i++)
 		all.push(args[i]);
-	if (all.length = this.nargs) {
+	if (all.length == this.nargs) {
 		return Send.eval(cx, this.obj, this.meth, all);
 	} else {
 		return new FLMakeSend(this.meth, this.obj, this.nargs, all);
@@ -100,8 +101,12 @@ FLMakeSend.prototype.toString = function() {
 
 
 
-/* istanbul ignore next */
 const FLContext = function(env) {
+	this.env = env;
+}
+
+FLContext.prototype.log = function(...args) {
+	this.env.logger.log.apply(this.env.logger, args);
 }
 
 FLContext.prototype.closure = function(fn, ...args) {
@@ -159,8 +164,11 @@ FLContext.prototype.mkacor = function(meth, obj, cnt) {
 	if (cnt == 0)
 		return this.oclosure(meth, obj);
 	else
-		// return new FLCurry(obj, meth, cnt, {});
 		return this.ocurry(cnt, meth, obj);
+}
+
+FLContext.prototype.fields = function() {
+	return new FieldsContainer();
 }
 
 FLContext.prototype.head = function(obj) {
@@ -243,7 +251,9 @@ FLContext.prototype.field = function(obj, field) {
 		} else
 			return this.error('no function "' + field + "'");
 	} else {
-		throw new Error("NotImplemented - field of backing document");
+		// assume it's a fields document with a state object
+		// This is possibly a bogus assumption
+		return obj.state.get(field);
 	}
 }
 
@@ -283,7 +293,9 @@ const Cons = function() {
 }
 
 Cons.eval = function(_cxt, hd, tl) {
-	return ["NotImplemented"];
+	var cp = tl.slice(0);
+	cp.splice(0, 0, hd);
+	return cp;
 }
 
 
@@ -375,6 +387,7 @@ FLBuiltin.isEqual = function(_cxt, a, b) {
 FLBuiltin.isEqual.nfargs = function() { return 2; }
 
 
+
 const Debug = function() {
 }
 Debug.eval = function(_cxt, msg) {
@@ -387,6 +400,10 @@ Debug.prototype._compare = function(cx, other) {
 		return other.msg == this.msg;
 	} else
 		return false;
+}
+Debug.prototype.dispatch = function(cx) {
+	cx.log(this.msg);
+	return null;
 }
 Debug.prototype.toString = function() {
 	return "Debug[" + this.msg + "]";
@@ -410,8 +427,17 @@ Send.prototype._compare = function(cx, other) {
 Send.prototype.dispatch = function(cx) {
 	var args = this.args.slice();
 	args.splice(0, 0, cx);
-	var ret = this.obj.methods()[this.meth].apply(this.obj, args);
-	return ret;
+	if (this.obj instanceof MockContract) {
+		// TODO: specifying MockContract is obviously over-precise
+		// We need to cater for actual contract implementations when we have them (ie some kind of ZiWSH proxy)
+		// But the code is possibly sufficiently different that we want to keep the cases separate - not sure
+		this.obj.serviceMethod(cx, this.meth, this.args);
+		return [];
+	} else {
+		// assume it is an object with declared methods
+		var ret = this.obj.methods()[this.meth].apply(this.obj, args);
+		return ret;
+	}
 }
 Send.prototype.toString = function() {
 	return "Send[" + "]";
@@ -466,7 +492,7 @@ FieldsContainer.prototype._compare = function(cx, other) {
 }
 
 FieldsContainer.prototype.toString = function() {
-	return "Fields[" + this.msg + "]";
+	return "Fields[" + Object.keys(this.dict).length + "]";
 }
 
 
