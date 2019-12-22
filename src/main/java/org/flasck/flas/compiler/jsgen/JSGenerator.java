@@ -137,7 +137,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, obj.name().container().jsName());
 		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
 		JSBlockCreator ctor = ctr.constructor();
-		ctor.fieldObject("state", "FieldsContainer");
+		ctor.stateField();
 		this.meth = ctr.createMethod("eval", false);
 		this.meth.argument("_cxt");
 		this.evalRet = meth.newOf(obj.name());
@@ -156,8 +156,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, obj.name().container().jsName());
 		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
 		JSBlockCreator ctor = ctr.constructor();
-		ctor.fieldObject("state", "FieldsContainer");
+		ctor.stateField();
 		this.meth = ctr.createMethod("eval", false);
+		this.meth.argument("_cxt");
 		this.evalRet = meth.newOf(obj.name());
 		this.block = meth;
 		this.structFieldHandler = sf -> {

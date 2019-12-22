@@ -23,7 +23,7 @@ public class JSNew implements JSExpr {
 	public void write(IndentWriter w) {
 		w.print("new ");
 		w.print(clz);
-		w.print("()");
+		w.print("(_cxt)");
 	}
 
 }

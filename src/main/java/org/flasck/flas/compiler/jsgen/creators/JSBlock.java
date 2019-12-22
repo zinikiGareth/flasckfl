@@ -29,6 +29,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
+import org.flasck.flas.compiler.jsgen.form.JSNewState;
 import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
@@ -233,6 +234,12 @@ public class JSBlock implements JSBlockCreator {
 		JSSetField ret = new JSSetField(field, new JSNew(clz));
 		stmts.add(ret);
 		return ret;
+	}
+
+	@Override
+	public void stateField() {
+		JSSetField ret = new JSSetField("state", new JSNewState());
+		stmts.add(ret);
 	}
 
 	@Override

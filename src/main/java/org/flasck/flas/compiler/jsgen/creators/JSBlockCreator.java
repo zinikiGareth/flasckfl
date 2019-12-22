@@ -27,6 +27,7 @@ public interface JSBlockCreator {
 	
 	// create an object of clz and store in a field
 	JSExpr fieldObject(String field, String clz);
+	void stateField();
 
 	// HSIE logic statements
 	JSExpr boundVar(String var);

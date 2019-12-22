@@ -8,7 +8,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class JSClass implements JSClassCreator {
 	private final String name;
 	private final List<JSMethod> methods = new ArrayList<>();
-	private final JSBlock block = JSBlock.classMethod(this);
+	private final JSBlock ctorBlock = JSBlock.classMethod(this);
 	
 	public JSClass(String fullName) {
 		this.name = fullName;
@@ -23,14 +23,14 @@ public class JSClass implements JSClassCreator {
 
 	@Override
 	public JSBlockCreator constructor() {
-		return block;
+		return ctorBlock;
 	}
 
 	public void writeTo(IndentWriter iw) {
 		iw.println("");
 		iw.print(name);
-		iw.print(" = function() ");
-		block.write(iw);
+		iw.print(" = function(_cxt) ");
+		ctorBlock.write(iw);
 		iw.println("");
 		for (JSMethod m : methods)
 			m.write(iw);
