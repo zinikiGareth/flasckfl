@@ -20,6 +20,7 @@ import org.flasck.jvm.J;
 import org.flasck.jvm.builtin.Message;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.fl.AreYouA;
+import org.flasck.jvm.fl.FLError;
 import org.flasck.jvm.fl.FLEval;
 import org.flasck.jvm.fl.FLMockEvalContext;
 import org.jsoup.nodes.Document;
@@ -65,7 +66,11 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		try {
 			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
 			try {
-				Reflection.callStatic(tc, "dotest", this);
+				Object result = Reflection.callStatic(tc, "dotest", this);
+				if (result instanceof FLError)
+					throw (Throwable)result;
+				if (cxt.getError() != null)
+					throw cxt.getError();
 				pw.println("JVM PASS " + utc.description);
 			} catch (WrappedException ex) {
 				Throwable e2 = ex.unwrap();

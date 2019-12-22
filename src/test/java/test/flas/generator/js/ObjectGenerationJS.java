@@ -40,8 +40,9 @@ public class ObjectGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
-			oneOf(ctorBlock).fieldObject("state", "FieldsContainer");
+			oneOf(ctorBlock).stateField();
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
+			oneOf(eval).argument("_cxt");
 			oneOf(eval).newOf(sn); will(returnValue(obj));
 			oneOf(eval).returnObject(obj);
 			oneOf(jss).methodList(sn, new ArrayList<>());
@@ -64,8 +65,9 @@ public class ObjectGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
-			oneOf(ctorBlock).fieldObject("state", "FieldsContainer");
+			oneOf(ctorBlock).stateField();
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
+			oneOf(eval).argument("_cxt");
 			oneOf(eval).newOf(sn); will(returnValue(obj));
 			oneOf(eval).string("hello"); will(returnValue(sl));
 			oneOf(eval).storeField(obj, "s", sl);

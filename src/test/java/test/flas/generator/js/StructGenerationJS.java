@@ -41,7 +41,7 @@ public class StructGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
-			oneOf(ctorBlock).fieldObject("state", "FieldsContainer");
+			oneOf(ctorBlock).stateField();
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
 			oneOf(eval).argument("_cxt");
 			oneOf(eval).newOf(sn); will(returnValue(obj));
@@ -65,7 +65,7 @@ public class StructGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
-			oneOf(ctorBlock).fieldObject("state", "FieldsContainer");
+			oneOf(ctorBlock).stateField();
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
 			oneOf(eval).argument("_cxt");
 			oneOf(eval).argument("s"); will(returnValue(parmS));

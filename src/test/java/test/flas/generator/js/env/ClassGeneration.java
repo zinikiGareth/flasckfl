@@ -252,7 +252,7 @@ public class ClassGeneration {
 		JSFile f = new JSFile("test", null);
 		f.addClass(new JSClass("test.Clazz"));
 		f.writeTo(w);
-		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.Clazz = function() {\n}\n", sw.toString());
+		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.Clazz = function(_cxt) {\n}\n", sw.toString());
 	}
 	
 	@Test
@@ -271,7 +271,7 @@ public class ClassGeneration {
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
+		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -281,7 +281,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.closure(meth.pushFunction("f"), meth.string("hello"));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
+		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -291,7 +291,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.curry(2, meth.pushFunction("f"), meth.string("hello"));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
+		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -301,7 +301,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		meth.xcurry(2, Arrays.asList(new XCArg(0, meth.pushFunction("f")), new XCArg(2, meth.string("hello"))));
 		clz.writeTo(w);
-		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
+		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
 	@Test
@@ -329,7 +329,7 @@ public class ClassGeneration {
 		JSExpr mc = b.newOf(sn);
 		assertEquals("v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("const v1 = new test.repo.Obj();\n", sw.toString());
+		assertEquals("const v1 = new test.repo.Obj(_cxt);\n", sw.toString());
 	}
 	
 	@Test
@@ -338,7 +338,7 @@ public class ClassGeneration {
 		JSBlock b = new JSMethod(null, false, "fred");
 		JSExpr mc = b.fieldObject("state", sn.javaName());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("this.state = new test.repo.Obj();\n", sw.toString());
+		assertEquals("this.state = new test.repo.Obj(_cxt);\n", sw.toString());
 	}
 	
 	@Test
