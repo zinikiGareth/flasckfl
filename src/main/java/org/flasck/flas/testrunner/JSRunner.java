@@ -30,6 +30,7 @@ import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
+
 import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
 import io.webfolder.ui4j.api.browser.Page;
@@ -129,7 +130,7 @@ public class JSRunner extends CommonTestRunner {
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
 			try {
-				page.executeScript(utc.name.jsName() + "(new FLContext(window.runner), window.runner)");
+				page.executeScript(utc.name.jsName() + "(window.runner.newContext(window.JavaLogger), window.runner)");
 				pw.println("JS PASS " + utc.description);
 				cdl.countDown();
 			} catch (Throwable t) {
@@ -180,8 +181,10 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<html>");
 			pw.println("<head>");
 			// probably wants to be config :-)
+			final String logfile = System.getProperty("user.dir") + "/src/test/resources/flasck/javalogger.js";
 			final String jsfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js";
 			final String utfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-unittest.js";
+			pw.println("<script src='file:" + logfile + "' type='text/javascript'></script>");
 			pw.println("<script src='file:" + jsfile + "' type='text/javascript'></script>");
 			pw.println("<script src='file:" + utfile + "' type='text/javascript'></script>");
 			for (File f : jse.files())
