@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -144,9 +145,17 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void visitTypeReference(TypeReference var) {
-		final RepositoryEntry defn = find(scope, var.name());
+		String tn = var.name();
+		if (tn.endsWith(".Up") || tn.endsWith(".Down")) {
+			final RepositoryEntry defn = find(scope, tn.substring(0, tn.lastIndexOf(".")));
+			if (defn != null && defn instanceof ContractDecl) {
+				var.bind(new ContractDeclDir((ContractDecl)defn, tn.substring(tn.lastIndexOf(".")+1)));
+				return;
+			}
+		}
+		final RepositoryEntry defn = find(scope, tn);
 		if (defn == null) {
-			errors.message(var.location(), "cannot resolve '" + var.name() + "'");
+			errors.message(var.location(), "cannot resolve '" + tn + "'");
 			return;
 		} else if (!(defn instanceof NamedType)) {
 			errors.message(var.location(), defn.name().uniqueName() + " is not a type");
@@ -192,9 +201,13 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {
 		NamedType defn = udd.ofType.defn();
-		if (defn == null)
-			throw new RuntimeException("the UDD type did not get resolved");
-		if (defn instanceof ContractDecl) {
+		if (defn == null) {
+			if (!errors.hasErrors())
+				throw new RuntimeException("the UDD type did not get resolved");
+			else
+				return;
+		}
+		if (defn instanceof ContractDeclDir) {
 			if (udd.expr != null || !udd.fields.isEmpty()) {
 				errors.message(udd.location(), "a contract data declaration may not be initialized");
 			}

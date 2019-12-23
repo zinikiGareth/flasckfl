@@ -17,6 +17,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
@@ -338,7 +339,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		if (meth == null)
 			throw new RuntimeException("Global UDDs are not yet handled");
 		NamedType objty = udd.ofType.defn();
-		if (objty instanceof ContractDecl) {
+		if (objty instanceof ContractDeclDir) {
 			JSExpr mock = meth.mockContract((SolidName) objty.name());
 			state.addMock(udd, mock);
 		} else if (objty instanceof ObjectDefn) {

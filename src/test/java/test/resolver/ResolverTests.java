@@ -3,6 +3,7 @@ package test.resolver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -74,7 +76,7 @@ public class ResolverTests {
 	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
-//	private final ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+	private final ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
 	private final ContractDecl ht = new ContractDecl(pos, pos, new SolidName(pkg, "HandlerType"));
 	private final RepositoryReader rr = context.mock(RepositoryReader.class);
 
@@ -306,6 +308,20 @@ public class ResolverTests {
 		final TypeReference ty = new TypeReference(pos, "Hello");
 		r.visitTypeReference(ty);
 		assertEquals(type, ty.defn());
+	}
+
+	@Test
+	public void testWeCanResolveContractDirections() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Contract"); will(returnValue(cd));
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		r.currentScope(pkg);
+		final TypeReference ty = new TypeReference(pos, "Contract.Down");
+		r.visitTypeReference(ty);
+		assertTrue(ty.defn() instanceof ContractDeclDir);
+		ContractDeclDir cdd = (ContractDeclDir) ty.defn();
+		assertEquals(cd, cdd.decl);
 	}
 
 	@Test
