@@ -19,6 +19,7 @@ import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
 import org.flasck.jvm.builtin.Message;
 import org.flasck.jvm.container.FlasckService;
+import org.flasck.jvm.container.MockContract;
 import org.flasck.jvm.fl.AreYouA;
 import org.flasck.jvm.fl.FLError;
 import org.flasck.jvm.fl.FLEval;

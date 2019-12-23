@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.method.MemberExprConvertor;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -43,11 +44,11 @@ public class MemberExprConversion {
 	@Test
 	public void dotOperatorBecomesMkSend() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
-		TypeReference ctr = new TypeReference(pos, "Ctr");
+		TypeReference ctr = new TypeReference(pos, "Ctr.Up");
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
 		List<Pattern> args = new ArrayList<>();
 		cd.addMethod(new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "fred"), args));
-		ctr.bind(cd);
+		ctr.bind(new ContractDeclDir(cd, "Up"));
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
@@ -63,14 +64,14 @@ public class MemberExprConversion {
 	@Test
 	public void dotOperatorBecomesMkSendExpectingMoreArgs() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
-		TypeReference ctr = new TypeReference(pos, "Ctr");
+		TypeReference ctr = new TypeReference(pos, "Ctr.Down");
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
 		List<Pattern> args = new ArrayList<>();
 		FunctionName fn = FunctionName.contractMethod(pos, cd.name(), "fred");
 		args.add(new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, fn, "x")));
 		args.add(new TypedPattern(pos, LoadBuiltins.numberTR, new VarName(pos, fn, "y")));
 		cd.addMethod(new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, fn, args));
-		ctr.bind(cd);
+		ctr.bind(new ContractDeclDir(cd, "Down"));
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");

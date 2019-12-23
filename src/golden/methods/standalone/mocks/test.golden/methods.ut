@@ -1,6 +1,5 @@
 
 	test we can send directly on a contract
-// oddly, this seems to pass on JVM if we have ".Down" ???
 		data SendTo.Up svc
 		expect svc meth "hello" 
 		invoke (sendUp svc)

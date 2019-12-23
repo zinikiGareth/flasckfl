@@ -25,16 +25,16 @@
 		down card (String data)
 		
 // we can send to an argument, so this works and should typecheck in some way
-	method q (Sample svc)
+	method q (Sample.Up svc)
 		<- Send svc "meth" ["hello"]
 
-	method r (Sample svc)
+	method r (Sample.Up svc)
 		<- svc.meth "hello"
 
-	method s (Sample svc) (String msg)
+	method s (Sample.Down svc) (String msg)
 		<- svc.card msg
 
-	method double (Sample svc)
+	method double (Sample.Up svc)
 		<- Debug "sending hello"
 		<- svc.meth "hello"
 		<- Assign "on" "fld" "value"

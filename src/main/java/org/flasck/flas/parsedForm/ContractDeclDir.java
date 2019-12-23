@@ -22,7 +22,7 @@ public class ContractDeclDir implements NamedType {
 
 	@Override
 	public String signature() {
-		throw new NotImplementedException();
+		return name().uniqueName();
 	}
 
 	@Override
@@ -37,6 +37,6 @@ public class ContractDeclDir implements NamedType {
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		throw new NotImplementedException();
+		return signature().equals(other.signature());
 	}
 }

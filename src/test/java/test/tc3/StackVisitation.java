@@ -19,6 +19,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -486,7 +487,7 @@ public class StackVisitation {
 		UnresolvedVar from = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "m");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
-		mec.result(new ExprResult(pos, cd));
+		mec.result(new ExprResult(pos, new ContractDeclDir(cd, "Up")));
 		mec.leaveMemberExpr(dot);
 	}
 	
@@ -506,7 +507,7 @@ public class StackVisitation {
 		UnresolvedVar from = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "q");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
-		mec.result(new ExprResult(pos, cd));
+		mec.result(new ExprResult(pos, new ContractDeclDir(cd, "Down")));
 		mec.leaveMemberExpr(dot);
 	}
 	
@@ -530,7 +531,7 @@ public class StackVisitation {
 		UnresolvedVar from = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "m");
 		MemberExpr dot = new MemberExpr(pos, from, fld);
-		mec.result(new ExprResult(pos, cd));
+		mec.result(new ExprResult(pos, new ContractDeclDir(cd, "Down")));
 		mec.leaveMemberExpr(dot);
 	}
 
