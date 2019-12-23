@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
-import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;

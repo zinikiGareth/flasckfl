@@ -151,9 +151,10 @@ public class Traverser implements Visitor {
 		else if (e instanceof UnitTestPackage)
 			visitUnitTestPackage((UnitTestPackage)e);
 		else if (e instanceof UnitDataDeclaration) {
-			UnitDataDeclaration udd = (UnitDataDeclaration) e;
-			if (udd.isTopLevel())
-				visitUnitDataDeclaration(udd);
+			; // even top level ones are in a package ...
+//			UnitDataDeclaration udd = (UnitDataDeclaration) e;
+//			if (udd.isTopLevel())
+//				visitUnitDataDeclaration(udd);
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType) {

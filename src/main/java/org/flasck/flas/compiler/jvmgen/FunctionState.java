@@ -1,13 +1,16 @@
 package org.flasck.flas.compiler.jvmgen;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
@@ -25,12 +28,17 @@ public class FunctionState {
 	private Map<String, AVar> vars = new HashMap<>();
 	private Map<UnitDataDeclaration, IExpr> mocks = new TreeMap<UnitDataDeclaration, IExpr>();
 	public Var evalRet;
+	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
+	private final IExpr runner;
 
-	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs) {
+	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs, IExpr runner, Set<UnitDataDeclaration> globalMocks) {
 		this.meth = meth;
 		this.fcx = fcx;
 		this.container = container;
 		this.fargs = fargs;
+		this.runner = runner;
+		if (globalMocks != null)
+			this.globalMocks.addAll(globalMocks);
 	}
 
 	public String nextVar(String pfx) {
@@ -62,8 +70,16 @@ public class FunctionState {
 	}
 
 	public IExpr resolveMock(UnitDataDeclaration udd) {
-		if (!mocks.containsKey(udd))
+		if (mocks.containsKey(udd))
+			return mocks.get(udd);
+		else if (globalMocks.contains(udd)) {
+			ContractDeclDir cdd = (ContractDeclDir)udd.ofType.defn();
+			IExpr mc = meth.callVirtual(J.OBJECT, runner, "mockContract", meth.classConst(cdd.name().javaClassName()));
+			Var v = meth.avar(J.OBJECT, nextVar("v"));
+			meth.assign(v, mc).flush();
+			mocks.put(udd, v);
+			return v;
+		} else
 			throw new NotImplementedException("There is no mock for " + udd);
-		return mocks.get(udd);
 	}
 }

@@ -2,8 +2,10 @@ package org.flasck.flas.compiler.jvmgen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.hsi.ArgSlot;
@@ -91,6 +93,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ByteCodeSink oaClz;
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
+	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
@@ -150,7 +153,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, null, fargs);
+		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner, globalMocks );
 		currentBlock = new ArrayList<IExpr>();
 	}
 	
@@ -177,7 +180,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, (myThis == null ? null : myThis.getVar()), fargs);
+		fs = new FunctionState(meth, (Var)fcx, (myThis == null ? null : myThis.getVar()), fargs, runner, globalMocks);
 		currentBlock = new ArrayList<IExpr>();
 	}
 	
@@ -301,7 +304,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			Var args = pargs.getVar();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
-			this.fs = new FunctionState(meth, cx.getVar(), null, null);
+			this.fs = new FunctionState(meth, cx.getVar(), null, null, runner, globalMocks);
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new ArrayList<IExpr>();
@@ -337,7 +340,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			MethodDefiner meth = gen.done();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
-			this.fs = new FunctionState(meth, cx.getVar(), null, null);
+			this.fs = new FunctionState(meth, cx.getVar(), null, null, runner, globalMocks);
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new ArrayList<IExpr>();
@@ -400,14 +403,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.runner = runner.getVar();
 		this.fcx = meth.avar(J.FLEVALCONTEXT, "cxt");
 		meth.assign((Var)this.fcx, meth.getField(this.runner, "cxt")).flush();
-		this.fs = new FunctionState(meth, (Var)fcx, null, null);
+		this.fs = new FunctionState(meth, (Var)fcx, null, null, runner.getVar(), globalMocks);
 		this.currentBlock = new ArrayList<>();
 	}
 
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
-		if (meth == null)
-			throw new RuntimeException("Global UDDs are not yet handled");
+		if (meth == null || fs == null) {
+			globalMocks.add(udd);
+			return;
+		}
 		NamedType objty = udd.ofType.defn();
 		if (objty instanceof ContractDeclDir) {
 			ContractDeclDir cdd = (ContractDeclDir)objty;
@@ -525,7 +530,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner, Var args) {
 		JVMGenerator ret = new JVMGenerator(meth, runner, args);
-		ret.fs = new FunctionState(meth, runner, null, args);
+		ret.fs = new FunctionState(meth, runner, null, args, runner, null);
 		return ret;
 	}
 

@@ -18,6 +18,7 @@ import org.flasck.flas.compiler.jsgen.ExprGeneratorJS;
 import org.flasck.flas.compiler.jsgen.JSFunctionState;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
+import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
@@ -170,7 +171,7 @@ public class ExpressionGenerationJS {
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, LoadBuiltins.stringTR, nameX, new StringLiteral(pos, "hello"));
 		expr.bind(udd);
 		context.checking(new Expectations() {{
-			oneOf(state).resolveMock(null, udd); will(returnValue(sl));
+			oneOf(state).resolveMock(with(any(JSMethodCreator.class)), with(udd)); will(returnValue(sl));
 			oneOf(nv).result(sl);
 		}});
 		StackVisitor stackv = new StackVisitor();
@@ -191,7 +192,7 @@ public class ExpressionGenerationJS {
 		expr.bind(udd);
 		JSExpr mc = context.mock(JSExpr.class, "mockContract");
 		context.checking(new Expectations() {{
-			oneOf(state).resolveMock(null, udd); will(returnValue(mc));
+			oneOf(state).resolveMock(with(any(JSBlockCreator.class)), with(udd)); will(returnValue(mc));
 			oneOf(nv).result(mc);
 		}});
 		StackVisitor stackv = new StackVisitor();
