@@ -1005,6 +1005,9 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitUnitTestExpect(UnitTestExpect ute) {
 		visitor.visitUnitTestExpect(ute);
+		visitUnresolvedVar(ute.ctr, 0);
+		for (Expr e : ute.args)
+			visitExpr(e, 0);
 		leaveUnitTestExpect(ute);
 	}
 

@@ -18,6 +18,7 @@ import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSCurry;
 import org.flasck.flas.compiler.jsgen.form.JSError;
 import org.flasck.flas.compiler.jsgen.form.JSEval;
+import org.flasck.flas.compiler.jsgen.form.JSExpectation;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSHead;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
@@ -153,6 +154,12 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void assertable(JSExpr obj, String assertion, JSExpr... args) {
 		JSAssertion stmt = new JSAssertion(obj, assertion, args);
+		stmts.add(stmt);
+	}
+
+	@Override
+	public void expect(JSExpr obj, String assertion, List<JSExpr> args) {
+		JSExpectation stmt = new JSExpectation(obj, assertion, args);
 		stmts.add(stmt);
 	}
 

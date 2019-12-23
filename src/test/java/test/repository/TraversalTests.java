@@ -56,6 +56,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.exceptions.NotImplementedException;
 
+import flas.matchers.ExprMatcher;
+
 public class TraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -483,6 +485,9 @@ public class TraversalTests {
 			oneOf(v).leaveAssertExpr(false, null);
 			oneOf(v).postUnitTestAssert(uta);
 			oneOf(v).visitUnitTestStep(ute);
+			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("ctr")), with(0));
+			oneOf(v).visitExpr(with(ExprMatcher.string("hello")), with(0));
+			oneOf(v).visitStringLiteral((StringLiteral) with(ExprMatcher.string("hello")));
 			oneOf(v).visitUnitTestExpect(ute);
 			oneOf(v).leaveUnitTestExpect(ute);
 			oneOf(v).leaveUnitTest(utc);
