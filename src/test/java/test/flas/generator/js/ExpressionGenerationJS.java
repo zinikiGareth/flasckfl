@@ -170,7 +170,7 @@ public class ExpressionGenerationJS {
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, LoadBuiltins.stringTR, nameX, new StringLiteral(pos, "hello"));
 		expr.bind(udd);
 		context.checking(new Expectations() {{
-			oneOf(state).resolveMock(udd); will(returnValue(sl));
+			oneOf(state).resolveMock(null, udd); will(returnValue(sl));
 			oneOf(nv).result(sl);
 		}});
 		StackVisitor stackv = new StackVisitor();
@@ -191,7 +191,7 @@ public class ExpressionGenerationJS {
 		expr.bind(udd);
 		JSExpr mc = context.mock(JSExpr.class, "mockContract");
 		context.checking(new Expectations() {{
-			oneOf(state).resolveMock(udd); will(returnValue(mc));
+			oneOf(state).resolveMock(null, udd); will(returnValue(mc));
 			oneOf(nv).result(mc);
 		}});
 		StackVisitor stackv = new StackVisitor();

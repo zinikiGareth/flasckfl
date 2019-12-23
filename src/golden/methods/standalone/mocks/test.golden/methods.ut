@@ -1,6 +1,6 @@
+	data SendTo.Up svc
 
 	test we can send directly on a contract
-		data SendTo.Up svc
 		expect svc meth "hello" 
 		invoke (sendUp svc)
 			

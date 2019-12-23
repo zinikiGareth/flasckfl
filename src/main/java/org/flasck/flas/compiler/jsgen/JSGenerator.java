@@ -2,10 +2,11 @@ package org.flasck.flas.compiler.jsgen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -83,6 +84,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private final List<FunctionName> methods = new ArrayList<>();
 	private JSClassCreator ctrDown;
 	private JSClassCreator ctrUp;
+	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -133,7 +135,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
-		this.state = new JSFunctionStateStore();
+		this.state = new JSFunctionStateStore(globalMocks);
 	}
 	
 	@Override
@@ -225,7 +227,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<om.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
-		this.state = new JSFunctionStateStore();
+		this.state = new JSFunctionStateStore(globalMocks);
 	}
 	
 	@Override
@@ -356,13 +358,15 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = meth;
 		/*JSExpr cxt = */meth.argument("_cxt");
 		runner = meth.argument("runner");
-		this.state = new JSFunctionStateStore();
+		this.state = new JSFunctionStateStore(globalMocks);
 	}
 
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
-		if (meth == null)
-			throw new RuntimeException("Global UDDs are not yet handled");
+		if (meth == null) {
+			globalMocks.add(udd);
+			return;
+		}
 		NamedType objty = udd.ofType.defn();
 		if (objty instanceof ContractDeclDir) {
 			JSExpr mock = meth.mockContract((SolidName) objty.name());

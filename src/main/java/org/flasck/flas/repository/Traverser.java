@@ -897,6 +897,8 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitUnitTestPackage(UnitTestPackage e) {
 		visitor.visitUnitTestPackage(e);
+		for (UnitDataDeclaration udd : e.decls())
+			visitUnitDataDeclaration(udd);
 		for (UnitTestCase c : e.tests())
 			visitUnitTest(c);
 		visitor.leaveUnitTestPackage(e);

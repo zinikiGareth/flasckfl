@@ -129,7 +129,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	}
 
 	private void handleUnitTestData(UnitDataDeclaration udd) {
-		sv.result(state.resolveMock(udd));
+		sv.result(state.resolveMock(block, udd));
 	}
 
 	private void makeFunctionClosure(String func, int expArgs) {

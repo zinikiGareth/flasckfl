@@ -29,6 +29,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 	
 	@Override
+	public String jsName() {
+		return pkg +"." + name;
+	}
+	
+	@Override
 	public JSExpr argument(String name) {
 		JSVar ret = new JSVar(name);
 		args.add(ret);
