@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -129,8 +130,8 @@ public class UnitTestGeneration {
 		}});
 		JVMGenerator jvm = JVMGenerator.forTests(meth, runner, null);
 		Traverser gen = new Traverser(jvm.stackVisitor());
-		TypeReference ctr = new TypeReference(pos, "Ctr");
-		ctr.bind(cd);
+		TypeReference ctr = new TypeReference(pos, "Ctr.Up");
+		ctr.bind(new ContractDeclDir(cd, "Up"));
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), null);

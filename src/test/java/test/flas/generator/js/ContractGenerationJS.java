@@ -57,17 +57,32 @@ public class ContractGenerationJS {
 
 	@Test
 	public void contractMethodGetsGenerated() {
-//		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		JSClassCreator clz = context.mock(JSClassCreator.class, "clz");
+		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
+		JSClassCreator clzDown = context.mock(JSClassCreator.class, "clzDown");
+		JSMethodCreator methDown = context.mock(JSMethodCreator.class, "methDown");
+		JSClassCreator clzUp = context.mock(JSClassCreator.class, "clzUp");
+		JSMethodCreator methUp = context.mock(JSMethodCreator.class, "methUp");
 		context.checking(new Expectations() {{
-//			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
-//			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
-//			oneOf(meth).argument("java.lang.Object", "_ih");
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
+			oneOf(clz).createMethod("name", true); will(returnValue(meth));
+			oneOf(meth).returnObject(with(any(JSString.class)));
+			oneOf(jss).newClass("test.repo", "test.repo.MyContract.Down"); will(returnValue(clzDown));
+			oneOf(clzDown).createMethod("name", true); will(returnValue(methDown));
+			oneOf(methDown).returnObject(with(any(JSString.class)));
+			oneOf(jss).newClass("test.repo", "test.repo.MyContract.Up"); will(returnValue(clzUp));
+			oneOf(clzUp).createMethod("name", true); will(returnValue(methUp));
+			oneOf(methUp).returnObject(with(any(JSString.class)));
+			oneOf(clzDown).createMethod("m", true);
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
 		SolidName cname = new SolidName(pkg, "MyContract");
+		ContractDecl cd = new ContractDecl(pos, pos, cname);
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
-		new Traverser(gen).visitContractMethod(cmd);
+		cd.methods.add(cmd);
+		new Traverser(gen).visitContractDecl(cd);
 	}
 
 	/*

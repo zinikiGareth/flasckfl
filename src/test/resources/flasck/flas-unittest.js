@@ -12,7 +12,9 @@ UTRunner.invoke = function(_cxt, inv) {
 	handleMessages(_cxt, inv);
 }
 const handleMessages = function(_cxt, msg) {
-	if (msg instanceof Array) {
+	if (msg instanceof FLError)
+		return msg;
+	else if (msg instanceof Array) {
 		for (var i=0;i<msg.length;i++) {
 			handleMessages(_cxt, msg[i]);
 		}

@@ -105,4 +105,18 @@ public class SolidName implements NameOfThing, Comparable<SolidName> {
 		throw new RuntimeException("No PackageName found");
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof SolidName && uniqueName().equals(((SolidName) obj).uniqueName());
+	}
+	
+	@Override
+	public int hashCode() {
+		return uniqueName().hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return uniqueName();
+	}
 }

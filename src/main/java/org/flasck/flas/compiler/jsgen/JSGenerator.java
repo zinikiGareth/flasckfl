@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -18,6 +19,8 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
@@ -78,6 +81,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
 	private final List<FunctionName> methods = new ArrayList<>();
+	private JSClassCreator ctrDown;
+	private JSClassCreator ctrUp;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -313,12 +318,32 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator ctr = jse.newClass(pkg, cd.name().jsName());
 		JSMethodCreator meth = ctr.createMethod("name", true);
 		meth.returnObject(new JSString(cd.name().uniqueName()));
-		JSClassCreator ctrDown = jse.newClass(pkg, cd.name().jsName() + ".Down");
+		ctrDown = jse.newClass(pkg, cd.name().jsName() + ".Down");
 		JSMethodCreator downName = ctrDown.createMethod("name", true);
 		downName.returnObject(new JSString(cd.name().uniqueName() + ".Down"));
-		JSClassCreator ctrUp = jse.newClass(pkg, cd.name().jsName() + ".Up");
+		ctrUp = jse.newClass(pkg, cd.name().jsName() + ".Up");
 		JSMethodCreator upName = ctrUp.createMethod("name", true);
 		upName.returnObject(new JSString(cd.name().uniqueName() + ".Up"));
+	}
+
+	@Override
+	public void visitContractMethod(ContractMethodDecl cmd) {
+		JSClassCreator clz;
+		if (cmd.dir == ContractMethodDir.DOWN)
+			clz = ctrDown;
+		else
+			clz = ctrUp;
+		JSMethodCreator meth = clz.createMethod(cmd.name.name, true);
+		meth.argument("_cxt");
+		for (int k=0;k<cmd.args.size();k++) {
+			meth.argument("_" + k);
+		}
+		meth.returnObject(new JSString("interface method for " + cmd.name.uniqueName()));
+	}
+	
+	@Override
+	public void leaveContractDecl(ContractDecl cd) {
+		ctrUp = ctrDown = null;
 	}
 
 	@Override

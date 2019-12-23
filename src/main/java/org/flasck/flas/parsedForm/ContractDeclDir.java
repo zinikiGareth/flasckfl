@@ -1,7 +1,6 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
@@ -17,7 +16,7 @@ public class ContractDeclDir implements NamedType {
 	}
 
 	@Override
-	public NameOfThing name() {
+	public SolidName name() {
 		return new SolidName(decl.name(), dir);
 	}
 

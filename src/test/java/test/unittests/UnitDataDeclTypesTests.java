@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -73,11 +74,12 @@ public class UnitDataDeclTypesTests {
 	@Test
 	public void aContractCanBeInstantiatedWithoutAnyFuss() {
 		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contract"));
+		ContractDeclDir cdd = new ContractDeclDir(cd, "Up");
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Nested.udd.Contract"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Nested.Contract"); will(returnValue(cd));
 		}});
-		TypeReference ctr = new TypeReference(pos, "Contract");
+		TypeReference ctr = new TypeReference(pos, "Contract.Up");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), null);
 		r.visitUnitDataDeclaration(udd);
 		r.visitTypeReference(ctr);
@@ -92,7 +94,7 @@ public class UnitDataDeclTypesTests {
 			oneOf(rr).get("test.repo.Nested.Contract"); will(returnValue(cd));
 			oneOf(errors).message(pos, "a contract data declaration may not be initialized");
 		}});
-		TypeReference ctr = new TypeReference(pos, "Contract");
+		TypeReference ctr = new TypeReference(pos, "Contract.Up");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), new StringLiteral(pos, "hello"));
 		r.visitUnitDataDeclaration(udd);
 		r.visitTypeReference(ctr);
@@ -107,7 +109,7 @@ public class UnitDataDeclTypesTests {
 			oneOf(rr).get("test.repo.Nested.Contract"); will(returnValue(cd));
 			oneOf(errors).message(pos, "a contract data declaration may not be initialized");
 		}});
-		TypeReference ctr = new TypeReference(pos, "Contract");
+		TypeReference ctr = new TypeReference(pos, "Contract.Up");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), null);
 		udd.field(new UnresolvedVar(pos, "x"), new StringLiteral(pos, "hello"));
 		r.visitUnitDataDeclaration(udd);
