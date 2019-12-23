@@ -57,6 +57,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -152,6 +153,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveUnitDataField(Assignment assign);
 		void visitUnitTestInvoke(UnitTestInvoke uti);
 		void leaveUnitTestInvoke(UnitTestInvoke uti);
+		void visitUnitTestExpect(UnitTestExpect s);
+		void leaveUnitTestExpect(UnitTestExpect ute);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();

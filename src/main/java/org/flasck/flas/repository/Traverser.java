@@ -54,6 +54,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -924,6 +925,8 @@ public class Traverser implements Visitor {
 			visitUnitTestInvoke((UnitTestInvoke) s);
 		else if (s instanceof UnitDataDeclaration)
 			visitUnitDataDeclaration((UnitDataDeclaration) s);
+		else if (s instanceof UnitTestExpect)
+			visitUnitTestExpect((UnitTestExpect) s);
 		else
 			throw new NotImplementedException("cannot handle " + s.getClass());
 	}
@@ -997,6 +1000,17 @@ public class Traverser implements Visitor {
 	@Override
 	public void leaveUnitTestInvoke(UnitTestInvoke uti) {
 		visitor.leaveUnitTestInvoke(uti);
+	}
+
+	@Override
+	public void visitUnitTestExpect(UnitTestExpect ute) {
+		visitor.visitUnitTestExpect(ute);
+		leaveUnitTestExpect(ute);
+	}
+
+	@Override
+	public void leaveUnitTestExpect(UnitTestExpect ute) {
+		visitor.leaveUnitTestExpect(ute);
 	}
 
 	@Override

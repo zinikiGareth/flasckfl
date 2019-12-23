@@ -39,6 +39,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -461,6 +462,8 @@ public class TraversalTests {
 		utc.steps.add(udd);
 		UnitTestAssert uta = new UnitTestAssert(null, null);
 		utc.steps.add(uta);
+		UnitTestExpect ute = new UnitTestExpect(new UnresolvedVar(pos, "ctr"), new UnresolvedVar(pos, "meth"), new StringLiteral(pos, "hello"));
+		utc.steps.add(ute);
 		r.newTestData(udd);
 		r.addEntry(name, utp);
 		context.checking(new Expectations() {{
@@ -479,6 +482,9 @@ public class TraversalTests {
 			oneOf(v).visitExpr(null, 0);
 			oneOf(v).leaveAssertExpr(false, null);
 			oneOf(v).postUnitTestAssert(uta);
+			oneOf(v).visitUnitTestStep(ute);
+			oneOf(v).visitUnitTestExpect(ute);
+			oneOf(v).leaveUnitTestExpect(ute);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);
 		}});
