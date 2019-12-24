@@ -24,7 +24,6 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
-import org.flasck.ui4j.UI4JWrapperElement;
 import org.ziniki.ziwsh.json.FLEvalContext;
 import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.NotImplementedException;
@@ -326,7 +325,7 @@ public class JSRunner extends CommonTestRunner {
 	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
 		logger.info("Matching " + selector);
 //		System.out.println(page.getDocument().getBody().getOuterHTML());
-		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new UI4JWrapperElement(page, e)).collect(Collectors.toList()));
+//		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new UI4JWrapperElement(page, e)).collect(Collectors.toList()));
 		assertNoErrors();
 	}
 

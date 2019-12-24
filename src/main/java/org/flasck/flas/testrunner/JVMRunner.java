@@ -3,9 +3,6 @@ package org.flasck.flas.testrunner;
 import java.io.PrintWriter;
 import java.lang.reflect.Proxy;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
@@ -13,9 +10,6 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
-import org.flasck.jdk.FlasckHandle;
-import org.flasck.jdk.ServiceProvider;
-import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.J;
 import org.flasck.jvm.builtin.Message;
 import org.flasck.jvm.container.FlasckService;
@@ -34,13 +28,13 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
-public class JVMRunner extends CommonTestRunner implements ServiceProvider {
+public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ {
 	public final FLEvalContext cxt;
 //	private final EntityStore store;
 //	private final JDKFlasckController controller;
 	// TODO: I don't think this needs to be a special thing in the modern world
 	private final ClassLoader loader;
-	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
+//	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
 	private Document document;
 
 	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl) {
@@ -167,8 +161,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void createCardAs(CardName cardType, String bindVar) {
-		if (cards.containsKey(bindVar))
-			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
+//		if (cards.containsKey(bindVar))
+//			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 
 //		ScopeEntry se = compiledScope.get(cardType.cardName);
 //		if (se == null)
@@ -254,12 +248,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
-		matcher.match(selector, document.select(selector).stream().map(e -> new JSoupWrapperElement(e)).collect(Collectors.toList()));
-	}
-
-	@Override
-	public FlasckService getService(String name) {
-		return new MockService(name, errors, invocations, expectations);
+//		matcher.match(selector, document.select(selector).stream().map(e -> new JSoupWrapperElement(e)).collect(Collectors.toList()));
 	}
 
 	@Override
