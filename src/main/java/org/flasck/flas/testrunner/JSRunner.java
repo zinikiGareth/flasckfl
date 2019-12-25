@@ -70,6 +70,7 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 
+	/*
 	// Because of a bug in JDK8 (https://bugs.openjdk.java.net/browse/JDK-8088751), it's not possible
 	// to have the MockService directly implement both process methods and share that with JS/Webkit
 	// Thus we have a wrapper here to deal with the impedance mismatch
@@ -85,6 +86,7 @@ public class JSRunner extends CommonTestRunner {
 			wraps.process(msg);
 		}
 	}
+	*/
 	
 	private final JSStorage jse;
 	private final JSJavaBridge st = new JSJavaBridge();
