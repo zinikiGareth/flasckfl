@@ -3,7 +3,7 @@ package org.flasck.flas.testrunner;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.CardName;
-import org.ziniki.ziwsh.json.FLEvalContext;
+import org.flasck.jvm.FLEvalContext;
 import org.ziniki.ziwsh.model.InternalHandle;
 
 public interface TestRunner {

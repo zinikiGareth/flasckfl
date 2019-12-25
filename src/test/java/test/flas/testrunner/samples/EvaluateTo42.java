@@ -1,7 +1,7 @@
 package test.flas.testrunner.samples;
 
+import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLNumber;
-import org.ziniki.ziwsh.json.FLEvalContext;
 
 public class EvaluateTo42 {
 	public static final int nfargs = 0;

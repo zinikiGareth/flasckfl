@@ -60,7 +60,7 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(23));
 		}});
 		Var args = new Var.AVar(meth, "JVMRunner", "runner");
-		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var cxt = new Var.AVar(meth, J.FLEVALCONTEXT, "cxt");
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv);
 		Slot slot = new ArgSlot(3, null);
@@ -71,7 +71,7 @@ public class FunctionGeneration {
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 3); will(returnValue(arg0));
@@ -98,13 +98,13 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
 		}});
-		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var cxt = new Var.AVar(meth, J.FLEVALCONTEXT, "cxt");
 		Var args = new Var.AVar(meth, "JVMRunner", "runner");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 
 			oneOf(meth).intConst(42); will(returnValue(iret));
@@ -146,7 +146,7 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
 		}});
-		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var cxt = new Var.AVar(meth, J.FLEVALCONTEXT, "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
 		IExpr arg0 = context.mock(IExpr.class, "arg0");
 		IExpr ass1 = context.mock(IExpr.class, "ass1");
@@ -155,7 +155,7 @@ public class FunctionGeneration {
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 
 			oneOf(meth).nextLocal(); will(returnValue(25));
@@ -214,7 +214,7 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
 		}});
-		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var cxt = new Var.AVar(meth, J.FLEVALCONTEXT, "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
 		IExpr arg0 = context.mock(IExpr.class, "arg0");
 		IExpr ass1 = context.mock(IExpr.class, "ass1");
@@ -223,7 +223,7 @@ public class FunctionGeneration {
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 
 			oneOf(meth).nextLocal(); will(returnValue(25));
@@ -696,7 +696,7 @@ public class FunctionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(23));
 		}});
-		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
+		Var cxt = new Var.AVar(meth, J.FLEVALCONTEXT, "cxt");
 		Var args = new Var.AVar(meth, "[Object", "args");
 		IExpr arg0 = context.mock(IExpr.class, "arg0");
 		IExpr ass1 = context.mock(IExpr.class, "ass1");
@@ -707,7 +707,7 @@ public class FunctionGeneration {
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 
 			oneOf(meth).nextLocal(); will(returnValue(25));
@@ -732,7 +732,7 @@ public class FunctionGeneration {
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$y"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 			
 			oneOf(meth).nextLocal(); will(returnValue(25));

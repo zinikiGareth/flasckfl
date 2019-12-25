@@ -395,7 +395,7 @@ public class ExpressionGeneration {
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
 			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", cxt, arr); will(returnValue(x));
@@ -442,7 +442,7 @@ public class ExpressionGeneration {
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
 			oneOf(meth).callStatic("test.repo.Ctor", "java.lang.Object", "eval", cxt, arr); will(returnValue(x));
@@ -499,7 +499,7 @@ public class ExpressionGeneration {
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(bcc).createMethod(true, "java.lang.Object", "eval"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "cxt"); will(returnValue(cxt));
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(arr));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", cxt, arr); will(returnValue(x));

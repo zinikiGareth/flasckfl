@@ -82,7 +82,7 @@ public class ContractGeneration {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(meth).argument("java.lang.Object", "_ih");
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
@@ -96,7 +96,7 @@ public class ContractGeneration {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(meth).argument("java.lang.Object", "hello");
 			oneOf(meth).argument("java.lang.Object", "_ih");
 		}});
@@ -112,7 +112,7 @@ public class ContractGeneration {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(meth).argument("java.lang.Object", "handler");
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
@@ -130,7 +130,7 @@ public class ContractGeneration {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
-			oneOf(meth).argument("org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(meth).argument("java.lang.Object", "a1");
 			oneOf(meth).argument("java.lang.Object", "_ih");
 		}});

@@ -22,7 +22,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
-import org.ziniki.ziwsh.json.FLEvalContext;
+import org.flasck.jvm.FLEvalContext;
 import org.ziniki.ziwsh.model.InternalHandle;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
