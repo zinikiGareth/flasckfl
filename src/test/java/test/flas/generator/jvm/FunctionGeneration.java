@@ -167,7 +167,7 @@ public class FunctionGeneration {
 			
 			oneOf(meth).stringConst("no matching case"); will(returnValue(nsc));
 			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
 			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
@@ -239,7 +239,7 @@ public class FunctionGeneration {
 			
 			oneOf(meth).stringConst("no matching case"); will(returnValue(nsc));
 			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
 			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
@@ -467,7 +467,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(numberNotConst));
 		}});
 		sv.matchDefault();
@@ -478,7 +478,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(notNumber));
 		}});
 		sv.defaultCase();
@@ -549,7 +549,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(numberNotConst));
 		}});
 		sv.matchDefault();
@@ -560,7 +560,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(notNumber));
 		}});
 		sv.defaultCase();
@@ -642,7 +642,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(nscInner));
 		}});
 		sv.defaultCase();
@@ -661,7 +661,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("no matching case"); will(returnValue(dummy));
 			oneOf(meth).arrayOf(J.OBJECT, dummy); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, dummy); will(returnValue(dummy));
 			oneOf(meth).returnObject(dummy); will(returnValue(nscOuter));
 		}});
 		sv.defaultCase();
@@ -719,7 +719,7 @@ public class FunctionGeneration {
 			
 			oneOf(meth).stringConst("no matching case"); will(returnValue(nsc));
 			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
 			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
@@ -744,7 +744,7 @@ public class FunctionGeneration {
 			
 			oneOf(meth).stringConst("no matching case"); will(returnValue(nsc));
 			oneOf(meth).arrayOf(J.OBJECT, nsc); will (returnValue(ansc));
-			oneOf(meth).callStatic(J.ERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
+			oneOf(meth).callStatic(J.FLERROR, J.OBJECT, "eval", cxt, ansc); will(returnValue(eNSC));
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
 			oneOf(meth).stringConst("Nil"); will(returnValue(nil));

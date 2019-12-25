@@ -67,7 +67,7 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 					ret = c.expr;
 					continue;
 				} else {
-					ret = state.meth.returnObject(state.meth.callStatic(J.ERROR, J.OBJECT, "eval", state.fcx, state.meth.arrayOf(J.OBJECT, state.meth.stringConst("no default guard"))));
+					ret = state.meth.returnObject(state.meth.callStatic(J.FLERROR, J.OBJECT, "eval", state.fcx, state.meth.arrayOf(J.OBJECT, state.meth.stringConst("no default guard"))));
 				}
 			}
 			ret = state.meth.ifBoolean(state.meth.callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", state.fcx, state.meth.as(c.guard, J.OBJECT)), c.expr, ret);

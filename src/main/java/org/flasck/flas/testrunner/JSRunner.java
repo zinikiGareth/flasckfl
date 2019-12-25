@@ -16,8 +16,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
 import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;

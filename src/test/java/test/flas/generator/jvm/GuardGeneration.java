@@ -73,7 +73,7 @@ public class GuardGeneration {
 			oneOf(meth).returnObject(e1); will(returnValue(ro1));
 			oneOf(meth).stringConst("no default guard"); will(returnValue(s));
 			oneOf(meth).arrayOf(J.OBJECT, s); will(returnValue(a2));
-			oneOf(meth).callStatic("org.flasck.jvm.builtin.Error", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
 			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
@@ -204,7 +204,7 @@ public class GuardGeneration {
 			oneOf(meth).block(assignV1, ro1); will(returnValue(blk));
 			oneOf(meth).stringConst("no default guard"); will(returnValue(s));
 			oneOf(meth).arrayOf(J.OBJECT, s); will(returnValue(a2));
-			oneOf(meth).callStatic("org.flasck.jvm.builtin.Error", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
 			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
@@ -294,7 +294,7 @@ public class GuardGeneration {
 			oneOf(meth).returnObject(e2); will(returnValue(ro2));
 			oneOf(meth).stringConst("no default guard"); will(returnValue(ndg));
 			oneOf(meth).arrayOf(J.OBJECT, ndg); will(returnValue(a3));
-			oneOf(meth).callStatic("org.flasck.jvm.builtin.Error", J.OBJECT, "eval", fcx, a3); will(returnValue(err));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a3); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			oneOf(meth).as(f1, J.OBJECT); will(returnValue(of1));
 			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, of1); will(returnValue(isf));
@@ -405,7 +405,7 @@ public class GuardGeneration {
 			
 			oneOf(meth).stringConst("no default guard"); will(returnValue(s));
 			oneOf(meth).arrayOf(J.OBJECT, s); will(returnValue(a2));
-			oneOf(meth).callStatic("org.flasck.jvm.builtin.Error", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
+			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			
 			oneOf(meth).as(v1, J.OBJECT); will(returnValue(ov1));
