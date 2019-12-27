@@ -16,7 +16,6 @@ import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.builtin.Message;
 import org.flasck.jvm.container.MockContract;
 import org.flasck.jvm.fl.AreYouA;
-import org.flasck.jvm.fl.FLEval;
 import org.flasck.jvm.fl.FLMockEvalContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -121,8 +120,8 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 
 	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
 		FLEvalContext cx = new FLMockEvalContext();
-		expected = FLEval.full(cx, expected);
-		actual = FLEval.full(cx, actual);
+		expected = cx.full(expected);
+		actual = cx.full(actual);
 		if (!cx.areEqual(expected, actual))
 			throw new AssertFailed(expected, actual);
 	}
@@ -194,7 +193,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 
 	@Override
 	public void invoke(FLEvalContext cx, Object expr) throws Exception {
-		expr = FLEval.full(cx, expr);
+		expr = cx.full(expr);
 		handleMessages(cx, expr);
 	}
 	
@@ -223,12 +222,11 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 			argVals = new Object[0];
 		else {
 			argVals = new Object[args.size()];
-			Class<?> fleval = Class.forName(J.FLEVAL, false, loader);
 			int cnt = 0;
 			for (int i : args) {
 				Class<?> clz = Class.forName(testPkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);
 				Object o = Reflection.callStatic(clz, "eval", cxt, new Object[] { new Object[] {} });
-				o = Reflection.callStatic(fleval, "full", cxt, o);
+				o = Reflection.call(cxt, "full", o);
 				argVals[cnt++] = o;
 			}
 		}
