@@ -172,14 +172,13 @@ FLContext.prototype.fields = function() {
 }
 
 FLContext.prototype.head = function(obj) {
-	if (obj instanceof FLClosure)
+	while (obj instanceof FLClosure)
 		obj = obj.eval(this);
 	return obj;
 }
 
 FLContext.prototype.full = function(obj) {
-	while (obj instanceof FLClosure)
-		obj = obj.eval(this);
+	obj = this.head(obj);
 	if (Array.isArray(obj)) {
 		for (var i=0;i<obj.length;i++)
 			obj[i] = this.full(obj[i]);
