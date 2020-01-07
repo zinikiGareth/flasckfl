@@ -61,12 +61,12 @@ public class ContractGeneration {
 			oneOf(parent).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Up");
 			oneOf(up).makeInterface();
 			oneOf(up).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Up");
-			oneOf(up).implementsInterface("org.ziniki.ziwsh.UpContract");
+			oneOf(up).implementsInterface("org.ziniki.ziwsh.intf.UpContract");
 			
 			oneOf(parent).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Down");
 			oneOf(down).makeInterface();
 			oneOf(down).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Down");
-			oneOf(down).implementsInterface("org.ziniki.ziwsh.UpContract");
+			oneOf(down).implementsInterface("org.ziniki.ziwsh.intf.DownContract");
 			
 		}});
 		StackVisitor sv = new StackVisitor();

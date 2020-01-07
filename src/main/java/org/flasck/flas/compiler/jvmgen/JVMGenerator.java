@@ -484,7 +484,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		downClz.generateAssociatedSourceFile();
 		downClz.makeInterface();
 		downClz.addInnerClassReference(Access.PUBLICSTATICINTERFACE, clz.getCreatedName(), "Down");
-		downClz.implementsInterface(J.UP_CONTRACT);
+		downClz.implementsInterface(J.DOWN_CONTRACT);
 	}
 
 	@Override

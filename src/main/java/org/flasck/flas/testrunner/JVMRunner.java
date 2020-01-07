@@ -11,7 +11,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
-import org.flasck.jvm.J;
 import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.builtin.Message;
 import org.flasck.jvm.container.MockContract;
