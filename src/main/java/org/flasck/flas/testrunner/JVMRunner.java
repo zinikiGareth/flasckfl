@@ -37,7 +37,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl) {
 		super(config, repository);
 		this.loader = bcl;
-		this.cxt = new FLConstructorServer();
+		this.cxt = new FLConstructorServer(bcl);
 //		this.store = null;
 //		this.controller = null;
 	}
@@ -121,7 +121,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 		FLEvalContext cx = new FLMockEvalContext();
 		expected = cx.full(expected);
 		actual = cx.full(actual);
-		if (!cx.areEqual(expected, actual))
+		if (!cx.compare(expected, actual))
 			throw new AssertFailed(expected, actual);
 	}
 
@@ -266,8 +266,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 //		assertAllInvocationsCalled();
 	}
 	
-	public Object mockContract(Class<?> ctr) {
-		Class<?>[] interfaces = new Class<?>[] { ctr, AreYouA.class };
-		return Proxy.newProxyInstance(loader, interfaces, new MockContract(ctr));
+	public <T> T mockContract(Class<T> ctr) {
+		return cxt.mockContract(ctr);
 	}
 }

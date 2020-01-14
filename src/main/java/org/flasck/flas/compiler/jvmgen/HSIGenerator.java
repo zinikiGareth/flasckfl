@@ -134,7 +134,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			if (c.ctor == null)
 				ret = blk;
 			else
-				ret = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isA", state.fcx, myVar, meth.stringConst(c.ctor)), blk, ret);
+				ret = meth.ifBoolean(meth.callInterface(J.BOOLEANP.getActual(), state.fcx, "isA", myVar, meth.stringConst(c.ctor)), blk, ret);
 		}
 		sv.result(ret);
 	}
@@ -143,9 +143,9 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		for (ConstBlock b : constants) {
 			IExpr tmp = JVMGenerator.makeBlock(meth, b.block);
 			if (b.val != null)
-				blk = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isConst", state.fcx, myVar, meth.intConst(b.val)), tmp, blk);
+				blk = meth.ifBoolean(meth.callInterface(J.BOOLEANP.getActual(), state.fcx, "isConst", myVar, meth.intConst(b.val)), tmp, blk);
 			else
-				blk = meth.ifBoolean(meth.callStatic(J.FLEVAL, JavaType.boolean_, "isConst", state.fcx, myVar, meth.stringConst(b.str)), tmp, blk);
+				blk = meth.ifBoolean(meth.callInterface(J.BOOLEANP.getActual(), state.fcx, "isConst", myVar, meth.stringConst(b.str)), tmp, blk);
 		}
 		return blk;
 	}
@@ -166,7 +166,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			throw new NullPointerException("No expr for slot " + slot);
 		if (!(e instanceof AVar)) {
 			AVar var = new Var.AVar(meth, J.OBJECT, state.nextVar("s"));
-			IExpr assign = meth.assign(var, meth.callStatic(J.FLEVAL, J.OBJECT, "head", state.fcx, e));
+			IExpr assign = meth.assign(var, meth.callInterface(J.OBJECT, state.fcx, "head", e));
 			currentBlock.add(assign);
 			e = var;
 			switchVars.put(slot, e);

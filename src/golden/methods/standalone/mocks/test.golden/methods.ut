@@ -3,4 +3,3 @@
 	test we can send directly on a contract
 		expect svc meth "hello" 
 		invoke (sendUp svc)
-			

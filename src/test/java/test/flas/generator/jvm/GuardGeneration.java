@@ -194,10 +194,11 @@ public class GuardGeneration {
 			oneOf(meth).arrayOf(J.OBJECT, new ArrayList<>()); will(returnValue(a1));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.True", J.OBJECT, "eval", fcx, a1); will(returnValue(t1));
 			oneOf(meth).classConst(J.BUILTINPKG+".PACKAGEFUNCTIONS$length"); will(returnValue(len));
+			oneOf(meth).makeNew(J.CALLEVAL, len); will(returnValue(len));
 			oneOf(meth).stringConst("hello"); will(returnValue(e1));
 			oneOf(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(e1))); will(returnValue(a3));
-			oneOf(meth).as(len, J.OBJECT); will(returnValue(aslen));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", aslen, a3); will(returnValue(lenclos));
+			oneOf(meth).as(len, J.APPLICABLE); will(returnValue(aslen));
+			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", aslen, a3); will(returnValue(lenclos));
 			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, lenclos); will(returnValue(assignV1));
 			oneOf(meth).returnObject(v1); will(returnValue(ro1));
@@ -385,19 +386,21 @@ public class GuardGeneration {
 			oneOf(meth).returnObject(e1); will(returnValue(ro1));
 			
 			oneOf(meth).classConst(J.FLEVAL+"$IsEqual"); will(returnValue(ise));
+			oneOf(meth).makeNew(J.CALLEVAL, ise); will(returnValue(ise));
 			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
 			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
 			oneOf(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(e2, e2))); will(returnValue(a4));
-			oneOf(meth).as(ise, J.OBJECT); will(returnValue(asise));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", asise, a4); will(returnValue(iseclos));
+			oneOf(meth).as(ise, J.APPLICABLE); will(returnValue(asise));
+			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", asise, a4); will(returnValue(iseclos));
 			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, iseclos); will(returnValue(assignV1));
 			
 			oneOf(meth).classConst(J.BUILTINPKG+".PACKAGEFUNCTIONS$length"); will(returnValue(len));
+			oneOf(meth).makeNew(J.CALLEVAL, len); will(returnValue(len));
 			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
 			oneOf(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(e2))); will(returnValue(a3));
-			oneOf(meth).as(len, J.OBJECT); will(returnValue(aslen));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", aslen, a3); will(returnValue(lenclos));
+			oneOf(meth).as(len, J.APPLICABLE); will(returnValue(aslen));
+			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", aslen, a3); will(returnValue(lenclos));
 			oneOf(meth).avar(J.FLCLOSURE, "v2"); will(returnValue(v2));
 			oneOf(meth).assign(v2, lenclos); will(returnValue(assignV2));
 			oneOf(meth).returnObject(v2); will(returnValue(ro2));

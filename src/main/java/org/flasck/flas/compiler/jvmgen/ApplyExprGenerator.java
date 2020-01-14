@@ -18,7 +18,10 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.jvm.J;
+import org.flasck.jvm.fl.Applicable;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.MakeNewExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
@@ -78,7 +81,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveMessages(Messages msgs) {
 		IExpr args = meth.arrayOf(J.OBJECT, stack);
-		IExpr call = meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args);
+		IExpr call = meth.callInterface("java.util.List", fcx, "array", args);
 		Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 		currentBlock.add(meth.assign(v, call));
 		sv.result(v);
@@ -86,9 +89,11 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 	
 	private void makeClosure(WithTypeSignature defn, int expArgs) {
 		IExpr fn = stack.remove(0);
+//		if (!(fn instanceof MakeNewExpr))
+//			throw new NotImplementedException("not applicable; is " + fn.getClass());
 		IExpr args = meth.arrayOf(J.OBJECT, stack);
 		if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
-			IExpr call = meth.callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args);
+			IExpr call = meth.callInterface("java.util.List", fcx, "array", args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));
 			sv.result(v);
@@ -111,7 +116,8 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 			} else if (stack.size() < expArgs)
 				call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
 			else
-				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
+				call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
+//				call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, J.APPLICABLE), args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));
 			sv.result(v);
@@ -170,6 +176,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
+		System.out.println("result is " + r);
 		stack.add((IExpr) r);
 	}
 }

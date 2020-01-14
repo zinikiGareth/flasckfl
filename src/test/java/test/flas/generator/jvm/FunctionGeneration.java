@@ -75,7 +75,7 @@ public class FunctionGeneration {
 			oneOf(meth).argument("[java.lang.Object", "args"); will(returnValue(args));
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 3); will(returnValue(arg0));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", arg0); will(returnValue(head));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass1));
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "x");
@@ -160,7 +160,7 @@ public class FunctionGeneration {
 
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(arg0));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", arg0); will(returnValue(head));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass1));
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
@@ -171,7 +171,7 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
 			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
-			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
+			oneOf(meth).callInterface(with(JavaType.boolean_.toString()), with(cxt), with("isA"), with(Matchers.array(VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
 			
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
 			oneOf(meth).block(ass1, doif); will(returnValue(blk1));
@@ -228,7 +228,7 @@ public class FunctionGeneration {
 
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(arg0));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", arg0); will(returnValue(head));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass1));
 			
 			oneOf(meth).stringConst("goodbye"); will(returnValue(gret));
@@ -243,10 +243,10 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
 			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
-			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
+			oneOf(meth).callInterface(with(JavaType.boolean_.toString()), with(cxt), with("isA"), with(Matchers.array(VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
 			
 			oneOf(meth).stringConst("Cons"); will(returnValue(cons));
-			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(cons)))); will(returnValue(isACons));
+			oneOf(meth).callInterface(with(JavaType.boolean_.toString()), with(cxt), with("isA"), with(Matchers.array(VarMatcher.local(25), Matchers.is(cons)))); will(returnValue(isACons));
 			
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
 			oneOf(meth).ifBoolean(isACons, gr, doif); will(returnValue(doif2));
@@ -300,7 +300,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
 			oneOf(meth).nextLocal(); will(returnValue(25));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
@@ -323,7 +323,7 @@ public class FunctionGeneration {
 		CaptureAction captureHead1 = new CaptureAction(ass2);
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(27));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(27)), with(dummy)); will(captureHead1);
 		}});
 		sv.switchOn(cm1);
@@ -349,7 +349,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
 			oneOf(meth).nextLocal(); will(returnValue(25));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
@@ -404,7 +404,7 @@ public class FunctionGeneration {
 		IExpr ifExpr = context.mock(IExpr.class, "ifExpr");
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("Nil"); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), cxt, "isA",head0, dummy); will(returnValue(dummy));
 			oneOf(meth).ifBoolean(dummy, nilExpr, elseExpr); will(returnValue(ifExpr));
 		}});
 		sv.endSwitch();
@@ -436,7 +436,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
 			oneOf(meth).nextLocal(); will(returnValue(25));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
@@ -490,10 +490,10 @@ public class FunctionGeneration {
 		IExpr is42 = context.mock(IExpr.class, "is42");
 		context.checking(new Expectations() {{
 			oneOf(meth).intConst(42); will(returnValue(i42));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isConst", cxt, head0, i42); will(returnValue(is42));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), cxt, "isConst", head0, i42); will(returnValue(is42));
 			oneOf(meth).ifBoolean(is42, stmt, numberNotConst); will(returnValue(numberBranch));
 			oneOf(meth).stringConst("Number"); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), cxt, "isA", head0, dummy); will(returnValue(dummy));
 			oneOf(meth).ifBoolean(dummy, numberBranch, notNumber); will(returnValue(dummy));
 		}});
 		sv.endSwitch();
@@ -518,7 +518,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
 			oneOf(meth).nextLocal(); will(returnValue(25));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
 		}});
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
@@ -572,10 +572,10 @@ public class FunctionGeneration {
 		IExpr is42 = context.mock(IExpr.class, "is42");
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("hello"); will(returnValue(shello));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isConst", cxt, head0, shello); will(returnValue(is42));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), cxt, "isConst", head0, shello); will(returnValue(is42));
 			oneOf(meth).ifBoolean(is42, stmt, numberNotConst); will(returnValue(numberBranch));
 			oneOf(meth).stringConst("Number"); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), cxt, "isA", head0, dummy); will(returnValue(dummy));
 			oneOf(meth).ifBoolean(dummy, numberBranch, notNumber); will(returnValue(dummy));
 		}});
 		sv.endSwitch();
@@ -599,7 +599,7 @@ public class FunctionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(dummy));
 			oneOf(meth).nextLocal(); will(returnValue(25));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(dummy)); will(captureHead0);
 			oneOf(meth).arrayItem(J.OBJECT, args, 1); will(returnValue(dummy));
 		}});
@@ -615,7 +615,7 @@ public class FunctionGeneration {
 		CaptureAction captureHead1 = new CaptureAction(ass2);
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(26));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", dummy); will(returnValue(dummy));
 			oneOf(meth).assign(with(VarMatcher.local(26)), with(dummy)); will(captureHead1);
 		}});
 		sv.switchOn(a1);
@@ -652,7 +652,7 @@ public class FunctionGeneration {
 		IExpr innerIf = context.mock(IExpr.class, "innerIf");
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("Nil"); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head1, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), cxt, "isA", head1, dummy); will(returnValue(dummy));
 			oneOf(meth).ifBoolean(dummy, jvmExpr, nscInner); will(returnValue(innerIf));
 		}});
 		sv.endSwitch();
@@ -672,7 +672,7 @@ public class FunctionGeneration {
 		IExpr blk1 = context.mock(IExpr.class, "blk1");
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("Nil"); will(returnValue(dummy));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isA", cxt, head0, dummy); will(returnValue(dummy));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), cxt, "isA", head0, dummy); will(returnValue(dummy));
 			oneOf(meth).block(ass2, innerIf); will(returnValue(blk1));
 			oneOf(meth).ifBoolean(dummy, blk1, nscOuter); will(returnValue(ifExpr));
 		}});
@@ -712,7 +712,7 @@ public class FunctionGeneration {
 
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(arg0));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", arg0); will(returnValue(head));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass1));
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
@@ -723,7 +723,7 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
 			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
-			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
+			oneOf(meth).callInterface(with(JavaType.boolean_.toString()), with(cxt), with("isA"), with(Matchers.array(VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
 			
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
 			oneOf(meth).block(ass1, doif); will(returnValue(blk1));
@@ -737,7 +737,7 @@ public class FunctionGeneration {
 			
 			oneOf(meth).nextLocal(); will(returnValue(25));
 			oneOf(meth).arrayItem(J.OBJECT, args, 0); will(returnValue(arg0));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cxt, arg0); will(returnValue(head));
+			oneOf(meth).callInterface(J.OBJECT, cxt, "head", arg0); will(returnValue(head));
 			oneOf(meth).assign(with(VarMatcher.local(25)), with(head)); will(returnValue(ass2));
 			oneOf(meth).stringConst("hello"); will(returnValue(sret));
 			oneOf(meth).returnObject(sret); will(returnValue(re));
@@ -748,7 +748,7 @@ public class FunctionGeneration {
 			oneOf(meth).returnObject(eNSC); will(returnValue(rerr));
 			
 			oneOf(meth).stringConst("Nil"); will(returnValue(nil));
-			oneOf(meth).callStatic(with(J.FLEVAL), with(JavaType.boolean_), with("isA"), with(Matchers.array(Matchers.is(cxt), VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
+			oneOf(meth).callInterface(with(JavaType.boolean_.toString()), with(cxt), with("isA"), with(Matchers.array(VarMatcher.local(25), Matchers.is(nil)))); will(returnValue(isA));
 			
 			oneOf(meth).ifBoolean(isA, re, rerr); will(returnValue(doif));
 			oneOf(meth).block(ass2, doif); will(returnValue(blk2));

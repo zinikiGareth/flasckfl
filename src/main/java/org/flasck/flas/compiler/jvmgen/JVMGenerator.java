@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.flasck.flas.compiler.jsgen.DoExpectationGeneratorJS;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -27,6 +28,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -124,7 +126,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void result(Object r) {
-		currentBlock.add((IExpr) r);
+		if (r != null)
+			currentBlock.add((IExpr) r);
 	}
 
 	@Override
@@ -437,6 +440,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void visitUnitTestExpect(UnitTestExpect ute) {
+		new DoExpectationGenerator(sv, this.fs, this.runner, this.currentBlock);
+	}
+
+	@Override
 	public void visitUnitTestInvoke(UnitTestInvoke uti) {
 		new DoInvocationGenerator(sv, this.fs, this.runner);
 	}
@@ -517,6 +525,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		if (type == null || !(type.defn() instanceof ContractDecl))
 			meth.argument(J.OBJECT, "_ih");
+		IFieldInfo fi = in.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + cmd.name.name);
+		fi.constValue(cmd.args.size());
 	}
 
 	public static IExpr makeBlock(MethodDefiner meth, List<IExpr> block) {

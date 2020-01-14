@@ -70,6 +70,7 @@ public class ExpressionGeneration {
 	private final StackVisitor sv = new StackVisitor();
 	@SuppressWarnings("unchecked")
 	private final List<IExpr> block = context.mock(List.class, "block");
+	private final IExpr fcx = context.mock(IExpr.class, "fcx");
 	
 	@Before
 	public void setup() {
@@ -118,11 +119,13 @@ public class ExpressionGeneration {
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		expr.bind(new FunctionDefinition(nameX, 0));
 		IExpr ev = context.mock(IExpr.class, "ev");
+		IExpr mnf = context.mock(IExpr.class, "mnf");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(ev));
-			oneOf(nv).result(ev);
+			oneOf(meth).makeNew(J.CALLEVAL, ev); will(returnValue(mnf));
+			oneOf(nv).result(mnf);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null, null, null, null), sv, block)).withHSI();
+		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, fcx, null, null, null, null), sv, block)).withHSI();
 		gen.visitExpr(expr, 2);
 	}
 
@@ -132,19 +135,18 @@ public class ExpressionGeneration {
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");
 		expr.bind(new VarPattern(pos, new VarName(pos, nameX, "p")));
 		Var ax = null;
-		IExpr cx = context.mock(IExpr.class, "cx");
 		IExpr args = context.mock(IExpr.class, "args");
 		IExpr head0 = context.mock(IExpr.class, "head0");
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, ax, 1); will(returnValue(args));
 			oneOf(meth).nextLocal(); will(returnValue(18));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
+			oneOf(meth).callInterface(J.OBJECT, fcx, "head", args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0)); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(with(VarMatcher.local(18)));
 		}});
-		FunctionState state = new FunctionState(meth, cx, null, null, null, null);
+		FunctionState state = new FunctionState(meth, fcx, null, null, null, null);
 		state.bindVar(block, "p", new ArgSlot(1, null), null);
 		ExprGenerator eg = new ExprGenerator(state, sv, block);
 		sv.push(eg);
@@ -160,19 +162,18 @@ public class ExpressionGeneration {
 		string.bind(LoadBuiltins.string);
 		expr.bind(new TypedPattern(pos, string, new VarName(pos, nameX, "p")));
 		Var ax = null;
-		IExpr cx = context.mock(IExpr.class, "cx");
 		IExpr args = context.mock(IExpr.class, "args");
 		IExpr head0 = context.mock(IExpr.class, "head0");
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, ax, 0); will(returnValue(args));
 			oneOf(meth).nextLocal(); will(returnValue(18));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", cx, args); will(returnValue(head0));
+			oneOf(meth).callInterface(J.OBJECT, fcx, "head", args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0)); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(with(VarMatcher.local(18)));
 		}});
-		FunctionState state = new FunctionState(meth, cx, null, null, null, null);
+		FunctionState state = new FunctionState(meth, fcx, null, null, null, null);
 		state.bindVar(block, "p", new ArgSlot(0, null), null);
 		ExprGenerator eg = new ExprGenerator(state, sv, block);
 		Traverser gen = new Traverser(eg).withHSI();
@@ -248,6 +249,7 @@ public class ExpressionGeneration {
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		expr.bind(new FunctionDefinition(nameX, 0));
 		IExpr x = context.mock(IExpr.class, "x");
+		IExpr mnf = context.mock(IExpr.class, "mnf");
 		IExpr xAsObj = context.mock(IExpr.class, "xAsObj");
 		IExpr aev = context.mock(IExpr.class, "aev");
 		IExpr args = context.mock(IExpr.class, "args");
@@ -259,15 +261,16 @@ public class ExpressionGeneration {
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(x));
+			oneOf(meth).makeNew(J.CALLEVAL, x); will(returnValue(mnf));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).as(x, "java.lang.Object"); will(returnValue(xAsObj));
-			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", xAsObj, args); will(returnValue(aev));
+			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(xAsObj));
+			oneOf(meth).callInterface("org.flasck.jvm.fl.FLClosure", fcx, "closure", xAsObj, args); will(returnValue(aev));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(var);
 		}});
-		new ExprGenerator(new FunctionState(meth, null, null, null, null, null), sv, block);
+		new ExprGenerator(new FunctionState(meth, fcx, null, null, null, null), sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -278,6 +281,7 @@ public class ExpressionGeneration {
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		expr.bind(new FunctionDefinition(nameX, 2));
 		IExpr x = context.mock(IExpr.class, "x");
+		IExpr mnf = context.mock(IExpr.class, "mnf");
 		IExpr xAsObj = context.mock(IExpr.class, "xAsObj");
 		IExpr expArgs = context.mock(IExpr.class, "expArgs");
 		IExpr aev = context.mock(IExpr.class, "aev");
@@ -290,16 +294,17 @@ public class ExpressionGeneration {
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(x));
+			oneOf(meth).makeNew(J.CALLEVAL, x); will(returnValue(mnf));
 			oneOf(meth).intConst(2); will(returnValue(expArgs));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).as(x, "java.lang.Object"); will(returnValue(xAsObj));
+			oneOf(meth).as(mnf, "java.lang.Object"); will(returnValue(xAsObj));
 			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLCurry", "curry", xAsObj, expArgs, args); will(returnValue(aev));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(var);
 		}});
-		new ExprGenerator(new FunctionState(meth, null, null, null, null, null), sv, block);
+		new ExprGenerator(new FunctionState(meth, fcx, null, null, null, null), sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -308,7 +313,6 @@ public class ExpressionGeneration {
 	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		List<IExpr> argsList = new ArrayList<>();
 		IExpr arr = context.mock(IExpr.class, "arr");
 		IExpr call = context.mock(IExpr.class, "call");
@@ -323,7 +327,6 @@ public class ExpressionGeneration {
 
 	@Test
 	public void aStructConstructorWithNoArgsExpectingTwoArgsBecomesACurry() {
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		IExpr cons = context.mock(IExpr.class, "cons");
 		IExpr consAsObj = context.mock(IExpr.class, "consAsObj");
 		IExpr expArgs = context.mock(IExpr.class, "expArgs");
@@ -353,7 +356,6 @@ public class ExpressionGeneration {
 
 	@Test
 	public void aStructConstructorWithOneArgExpectingTwoArgsIsPushedByExprGenerator() {
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		IExpr cons = context.mock(IExpr.class, "cons");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst(J.CONS); will(returnValue(cons));
@@ -437,7 +439,7 @@ public class ExpressionGeneration {
 		}});
 		Var cxt = new Var.AVar(meth, "org.ziniki.ziwsh.json.FLEvalContext", "cxt");
 		Var args = new Var.AVar(meth, "JVMnull", "null");
-		Var myThis = new Var.AVar(meth, J.OBJECT, "myThis");
+		new Var.AVar(meth, J.OBJECT, "myThis");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(bcc));
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
@@ -457,10 +459,12 @@ public class ExpressionGeneration {
 
 	@Test
 	public void anOp() {
-		IExpr ret = context.mock(IExpr.class);
+		IExpr f = context.mock(IExpr.class, "f");
+		IExpr mnf = context.mock(IExpr.class, "mnf");
 		context.checking(new Expectations() {{
-			oneOf(meth).classConst("org.flasck.jvm.fl.FLEval$Plus"); will(returnValue(ret));
-			oneOf(nv).result(ret);
+			oneOf(meth).classConst("org.flasck.jvm.builtin.PACKAGEFUNCTIONS$Plus"); will(returnValue(f));
+			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
+			oneOf(nv).result(mnf);
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
 		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
@@ -519,6 +523,7 @@ public class ExpressionGeneration {
 		fn.bind(new FunctionDefinition(fnName, 2));
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		IExpr f = context.mock(IExpr.class, "f");
+		IExpr mnf = context.mock(IExpr.class, "mnf");
 		IExpr fAsObj = context.mock(IExpr.class, "fAsObj");
 		IExpr dv = context.mock(IExpr.class, "dv");
 		IExpr iv = context.mock(IExpr.class, "iv");
@@ -538,6 +543,7 @@ public class ExpressionGeneration {
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
+			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
 			oneOf(meth).aNull(); will(returnValue(dv));
 			oneOf(meth).intConst(42); will(returnValue(iv));
 			oneOf(meth).box(iv); will(returnValue(biv));
@@ -545,14 +551,14 @@ public class ExpressionGeneration {
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv); will(returnValue(num));
 			oneOf(meth).stringConst("hello"); will(returnValue(strv));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).as(f, "java.lang.Object"); will(returnValue(fAsObj));
-			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", fAsObj, args); will(returnValue(aev));
+			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(fAsObj));
+			oneOf(meth).callInterface("org.flasck.jvm.fl.FLClosure", fcx, "closure", fAsObj, args); will(returnValue(aev));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(var);
 		}});
-		new ExprGenerator(new FunctionState(meth, null, null, null, null, null), sv, block);
+		new ExprGenerator(new FunctionState(meth, fcx, null, null, null, null), sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -565,6 +571,7 @@ public class ExpressionGeneration {
 		fn.bind(new StandaloneMethod(om));
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		IExpr f = context.mock(IExpr.class, "f");
+		IExpr mnf = context.mock(IExpr.class, "mnf");
 		IExpr fAsObj = context.mock(IExpr.class, "fAsObj");
 		IExpr dv = context.mock(IExpr.class, "dv");
 		IExpr iv = context.mock(IExpr.class, "iv");
@@ -584,6 +591,7 @@ public class ExpressionGeneration {
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
+			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
 			oneOf(meth).aNull(); will(returnValue(dv));
 			oneOf(meth).intConst(42); will(returnValue(iv));
 			oneOf(meth).box(iv); will(returnValue(biv));
@@ -591,14 +599,14 @@ public class ExpressionGeneration {
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", biv, cdv); will(returnValue(num));
 			oneOf(meth).stringConst("hello"); will(returnValue(strv));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).as(f, "java.lang.Object"); will(returnValue(fAsObj));
-			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", fAsObj, args); will(returnValue(aev));
+			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(fAsObj));
+			oneOf(meth).callInterface("org.flasck.jvm.fl.FLClosure", fcx, "closure", fAsObj, args); will(returnValue(aev));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(var);
 		}});
-		new ExprGenerator(new FunctionState(meth, null, null, null, null, null), sv, block);
+		new ExprGenerator(new FunctionState(meth, fcx, null, null, null, null), sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -613,8 +621,10 @@ public class ExpressionGeneration {
 		var.bind(new FunctionDefinition(varName, 0));
 		ApplyExpr ae = new ApplyExpr(pos, fn, var);
 		IExpr f = context.mock(IExpr.class, "f");
+		IExpr mnf = context.mock(IExpr.class, "mnf");
 		IExpr fAsObj = context.mock(IExpr.class, "fAsObj");
 		IExpr x = context.mock(IExpr.class, "x");
+		IExpr mnx = context.mock(IExpr.class, "mnx");
 		IExpr xAsObj = context.mock(IExpr.class, "xAsObj");
 		List<IExpr> xArgsList  = new ArrayList<>();
 		IExpr xargs = context.mock(IExpr.class, "xargs");
@@ -633,24 +643,26 @@ public class ExpressionGeneration {
 		IExpr assignae = context.mock(IExpr.class, "assignae");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
+			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$x"); will(returnValue(x));
-			oneOf(meth).as(x, "java.lang.Object"); will(returnValue(xAsObj));
+			oneOf(meth).makeNew(J.CALLEVAL, x); will(returnValue(mnx));
+			oneOf(meth).as(mnx, J.APPLICABLE); will(returnValue(xAsObj));
 			oneOf(meth).arrayOf("java.lang.Object", xArgsList); will(returnValue(xargs));
-			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", xAsObj, xargs); will(returnValue(xae));
+			oneOf(meth).callInterface("org.flasck.jvm.fl.FLClosure", fcx, "closure", xAsObj, xargs); will(returnValue(xae));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(v1));
 			oneOf(meth).assign(with(any(Var.class)), with(xae)); will(returnValue(assignx));
 			oneOf(block).add(assignx);
 
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).as(f, "java.lang.Object"); will(returnValue(fAsObj));
-			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLClosure", "simple", fAsObj, args); will(returnValue(aev));
+			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(fAsObj));
+			oneOf(meth).callInterface("org.flasck.jvm.fl.FLClosure", fcx, "closure", fAsObj, args); will(returnValue(aev));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v2"); will(returnValue(v2));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assignae));
 			oneOf(block).add(assignae);
 			
 			oneOf(nv).result(v2);
 		}});
-		new ExprGenerator(new FunctionState(meth, null, null, null, null, null), sv, block);
+		new ExprGenerator(new FunctionState(meth, fcx, null, null, null, null), sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -665,7 +677,6 @@ public class ExpressionGeneration {
 		consT.addField(new StructField(pos, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
 		fn.bind(consT);
 		nilOp.bind(nilT);
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"), nilOp);
 		IExpr shello = context.mock(IExpr.class, "shello");
 		List<IExpr> emptyList = new ArrayList<>();
@@ -692,7 +703,6 @@ public class ExpressionGeneration {
 	public void aConstructorApplicationWithInsufficientArgsBecomesACurry() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "Cons");
 		fn.bind(LoadBuiltins.cons);
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"));
 		IExpr shello = context.mock(IExpr.class, "shello");
 		List<IExpr> argsList = new ArrayList<>();
@@ -739,6 +749,7 @@ public class ExpressionGeneration {
 		Var v1 = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v1");
 		context.assertIsSatisfied();
 		IExpr f = context.mock(IExpr.class, "f");
+		IExpr mnf = context.mock(IExpr.class, "mnf");
 		IExpr i1 = context.mock(IExpr.class, "i1");
 		IExpr bi1 = context.mock(IExpr.class, "bi1");
 		IExpr i2 = context.mock(IExpr.class, "i2");
@@ -749,14 +760,15 @@ public class ExpressionGeneration {
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
+			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
 			oneOf(meth).stringConst("hello"); will(returnValue(str));
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(bogus));
-			oneOf(meth).as(f, J.OBJECT); will(returnValue(f));
+			oneOf(meth).as(mnf, J.OBJECT); will(returnValue(mnf));
 			oneOf(meth).intConst(2); will(returnValue(i2));
 			oneOf(meth).intConst(1); will(returnValue(i1));
 			oneOf(meth).box(i1); will(returnValue(bi1));
 			oneOf(meth).arrayOf(with(J.OBJECT), (List)with(Matchers.contains(bi1, str))); will(returnValue(args));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCURRY, "xcurry", f, i2, args); will(returnValue(xc));
+			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCURRY, "xcurry", mnf, i2, args); will(returnValue(xc));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, xc); will(returnValue(assign));
 			oneOf(block).add(assign);
@@ -790,7 +802,6 @@ public class ExpressionGeneration {
 
 	@Test
 	public void anEmptyListIsNil() {
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
 		op.bind(LoadBuiltins.nil);
 		ApplyExpr expr = new ApplyExpr(pos, op);
@@ -807,7 +818,6 @@ public class ExpressionGeneration {
 	
 	@Test
 	public void aSingletonListUsesMakeArray() {
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
 		op.bind(LoadBuiltins.nil);
 		NumericLiteral nl = new NumericLiteral(pos, "42", 2);
@@ -828,7 +838,7 @@ public class ExpressionGeneration {
 			oneOf(meth).castTo(i1, "java.lang.Double"); will(returnValue(i1));
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", i1, i1); will(returnValue(i1));
 			oneOf(meth).arrayOf(J.OBJECT, Arrays.asList(i1)); will(returnValue(args));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args); will(returnValue(clos));
+			oneOf(meth).callInterface("java.util.List", fcx, "array", args); will(returnValue(clos));
 			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, clos); will(returnValue(assign));
 			oneOf(block).add(assign);
@@ -841,7 +851,6 @@ public class ExpressionGeneration {
 
 	@Test
 	public void messagesPushesNestedExprGeneratorAndThenCollectsAList() {
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		NumericLiteral msg1 = new NumericLiteral(pos, "42", 2);
 		NumericLiteral msg2 = new NumericLiteral(pos, "84", 2);
 		Messages me = new Messages(pos, Arrays.asList(msg1, msg2));
@@ -867,7 +876,7 @@ public class ExpressionGeneration {
 			oneOf(meth).castTo(i2, "java.lang.Double"); will(returnValue(i2));
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", i2, i2); will(returnValue(i2));
 			oneOf(meth).arrayOf(J.OBJECT, Arrays.asList(i1, i2)); will(returnValue(args));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "makeArray", fcx, args); will(returnValue(clos));
+			oneOf(meth).callInterface("java.util.List", fcx, "array", args); will(returnValue(clos));
 			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, clos); will(returnValue(assign));
 			oneOf(block).add(assign);
@@ -893,7 +902,6 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));
 		}});
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		IExpr ai = context.mock(IExpr.class, "ai");
 		IExpr ass = context.mock(IExpr.class, "ass");
 		Var fargs = new AVar(meth, J.OBJECT, "v1");
@@ -903,7 +911,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
+			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
 			oneOf(meth).classConst("test.repo.Ctr$Up"); will(returnValue(sendClz));
@@ -938,7 +946,6 @@ public class ExpressionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(27));
 		}});
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		IExpr ai = context.mock(IExpr.class, "ai");
 		IExpr ass = context.mock(IExpr.class, "ass");
 		Var fargs = new AVar(meth, J.OBJECT, "fargs");
@@ -955,7 +962,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
+			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
 			oneOf(meth).classConst("test.repo.Ctr$Up"); will(returnValue(sendClz));
@@ -969,8 +976,8 @@ public class ExpressionGeneration {
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", n1, n1); will(returnValue(n1));
 			oneOf(meth).stringConst("hello"); will(returnValue(shello));
 			oneOf(meth).arrayOf(J.OBJECT, Arrays.asList(n1, shello)); will(returnValue(args));
-			oneOf(meth).as(msi, J.OBJECT); will(returnValue(msi));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", msi, args); will(returnValue(clos));
+			oneOf(meth).as(msi, J.APPLICABLE); will(returnValue(msi));
+			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", msi, args); will(returnValue(clos));
 			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, clos); will(returnValue(ass2));
 			oneOf(block).add(ass2);
@@ -1001,7 +1008,6 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));
 		}});
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		IExpr ai = context.mock(IExpr.class, "ai");
 		IExpr ass = context.mock(IExpr.class, "ass");
 		Var fargs = new AVar(meth, J.OBJECT, "v1");
@@ -1012,7 +1018,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
+			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
 			oneOf(meth).as(with(VarMatcher.local(23)), with(J.OBJECT)); will(returnValue(headAs));
@@ -1048,7 +1054,6 @@ public class ExpressionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(22));
 			oneOf(meth).nextLocal(); will(returnValue(27));
 		}});
-		IExpr fcx = context.mock(IExpr.class, "fcx");
 		IExpr ai = context.mock(IExpr.class, "ai");
 		IExpr ass = context.mock(IExpr.class, "ass");
 		Var fargs = new AVar(meth, J.OBJECT, "fargs");
@@ -1066,7 +1071,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).callStatic(J.FLEVAL, J.OBJECT, "head", fcx, ai); will(returnValue(ai));
+			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
 			oneOf(meth).classConst("test.repo.Obj"); will(returnValue(sendClz));
@@ -1081,8 +1086,8 @@ public class ExpressionGeneration {
 			oneOf(meth).makeNew("org.flasck.jvm.builtin.FLNumber", n1, n1); will(returnValue(n1));
 			oneOf(meth).stringConst("hello"); will(returnValue(shello));
 			oneOf(meth).arrayOf(J.OBJECT, Arrays.asList(n1, shello)); will(returnValue(args));
-			oneOf(meth).as(msi, J.OBJECT); will(returnValue(msi));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", msi, args); will(returnValue(clos));
+			oneOf(meth).as(msi, J.APPLICABLE); will(returnValue(msi));
+			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", msi, args); will(returnValue(clos));
 			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, clos); will(returnValue(ass2));
 			oneOf(block).add(ass2);

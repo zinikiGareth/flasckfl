@@ -107,13 +107,13 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				makeFunctionClosure(myName, fn.argCount());
 			} else
-				sv.result(meth.classConst(myName));
+				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;
 				makeFunctionClosure(myName, fn.argCount());
 			} else
-				sv.result(meth.classConst(myName));
+				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
@@ -161,13 +161,13 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	}
 
 	private void makeFunctionClosure(String name, int expArgs) {
-		IExpr fn = meth.classConst(name);
+		IExpr fn = meth.makeNew(J.CALLEVAL, meth.classConst(name));
 		IExpr args = meth.arrayOf(J.OBJECT, new ArrayList<IExpr>());
 		IExpr call;
 		if (expArgs > 0)
 			call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
 		else
-			call = meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(fn, "java.lang.Object"), args);
+			call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
 		Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 		currentBlock.add(meth.assign(v, call));
 		sv.result(v);

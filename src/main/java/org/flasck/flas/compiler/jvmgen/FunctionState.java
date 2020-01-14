@@ -57,7 +57,7 @@ public class FunctionState {
 			avar = new Var.AVar(meth, J.OBJECT, "var_" + s.id());
 		} else
 			throw new NotImplementedException();
-		block.add(meth.assign(avar, meth.callStatic(J.FLEVAL, J.OBJECT, "head", fcx, in)));
+		block.add(meth.assign(avar, meth.callInterface(J.OBJECT, fcx, "head", in)));
 		vars.put(var, avar);
 	}
 

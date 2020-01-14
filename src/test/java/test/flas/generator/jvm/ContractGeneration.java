@@ -25,7 +25,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
+import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 
 public class ContractGeneration {
@@ -80,10 +82,13 @@ public class ContractGeneration {
 	@Test
 	public void contractMethodGetsGenerated() {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		IFieldInfo fi = context.mock(IFieldInfo.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
 			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(meth).argument("java.lang.Object", "_ih");
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
+			oneOf(fi).constValue(0);
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
@@ -94,11 +99,14 @@ public class ContractGeneration {
 	@Test
 	public void contractMethodMayHaveArguments() {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		IFieldInfo fi = context.mock(IFieldInfo.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
 			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(meth).argument("java.lang.Object", "hello");
 			oneOf(meth).argument("java.lang.Object", "_ih");
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
+			oneOf(fi).constValue(1);
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
@@ -110,10 +118,13 @@ public class ContractGeneration {
 	@Test
 	public void contractMethodMayHaveArgumentsButDeclaredHandlerImpliesNoIH() {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		IFieldInfo fi = context.mock(IFieldInfo.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
 			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(meth).argument("java.lang.Object", "handler");
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
+			oneOf(fi).constValue(1);
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
@@ -128,11 +139,14 @@ public class ContractGeneration {
 	@Test
 	public void contractMethodWithComplexPatternArgumentsJustGetBoringNames() {
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
+		IFieldInfo fi = context.mock(IFieldInfo.class);
 		context.checking(new Expectations() {{
 			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
 			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(meth).argument("java.lang.Object", "a1");
 			oneOf(meth).argument("java.lang.Object", "_ih");
+			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
+			oneOf(fi).constValue(1);
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
