@@ -1,7 +1,6 @@
 package org.flasck.flas.testrunner;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Proxy;
 import java.util.List;
 
 import org.flasck.flas.Configuration;
@@ -12,11 +11,8 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLError;
-import org.flasck.jvm.builtin.Message;
 import org.flasck.jvm.container.FLEvalContextFactory;
 import org.flasck.jvm.container.JvmDispatcher;
-import org.flasck.jvm.container.MockContract;
-import org.flasck.jvm.fl.AreYouA;
 import org.flasck.jvm.fl.FLMockEvalContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
