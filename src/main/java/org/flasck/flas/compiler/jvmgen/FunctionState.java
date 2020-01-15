@@ -74,7 +74,7 @@ public class FunctionState {
 			return mocks.get(udd);
 		else if (globalMocks.contains(udd)) {
 			ContractDeclDir cdd = (ContractDeclDir)udd.ofType.defn();
-			IExpr mc = meth.callVirtual(J.OBJECT, runner, "mockContract", meth.classConst(cdd.name().javaClassName()));
+			IExpr mc = meth.callInterface(J.OBJECT, fcx, "mockContract", meth.classConst(cdd.name().javaClassName()));
 			Var v = meth.avar(J.OBJECT, nextVar("v"));
 			meth.assign(v, mc).flush();
 			mocks.put(udd, v);

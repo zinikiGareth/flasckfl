@@ -83,7 +83,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void constructorField(Slot parent, String field, Slot slot) {
 		AVar var = getSwitchVar(parent);
-		switchVars.put(slot, meth.callStatic(J.FLEVAL, J.OBJECT, "field", state.fcx, var, meth.stringConst(field)));
+		switchVars.put(slot, meth.callInterface(J.OBJECT, state.fcx, "field", var, meth.stringConst(field)));
 	}
 
 	// TODO: what does a switch look like in JVM bytecodes?  Can I be bothered?

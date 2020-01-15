@@ -13,7 +13,7 @@ public interface TestRunner {
 	void assertCorrectValue(int exprId) throws Exception;
 	void createCardAs(CardName cardType, String bindVar) throws Exception;
 	void invoke(FLEvalContext cx, Object sendExpr) throws Exception;
-	void send(InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception;
+	void send(FLEvalContext cx, InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception;
 	void event(String cardVar, String methodName) throws Exception;
 	void match(HTMLMatcher matcher, String selector) throws NotMatched;
 	void expect(String cardVar, String ctr, String method, List<Integer> chkargs);

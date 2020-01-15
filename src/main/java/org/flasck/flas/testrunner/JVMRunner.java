@@ -13,6 +13,8 @@ import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.builtin.Message;
+import org.flasck.jvm.container.FLEvalContextFactory;
+import org.flasck.jvm.container.JvmDispatcher;
 import org.flasck.jvm.container.MockContract;
 import org.flasck.jvm.fl.AreYouA;
 import org.flasck.jvm.fl.FLMockEvalContext;
@@ -25,21 +27,26 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
-public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ {
-	public final FLEvalContext cxt;
+public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ implements FLEvalContextFactory {
 //	private final EntityStore store;
 //	private final JDKFlasckController controller;
 	// TODO: I don't think this needs to be a special thing in the modern world
 	private final ClassLoader loader;
 //	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
 	private Document document;
+	private final JvmDispatcher dispatcher;
 
 	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl) {
 		super(config, repository);
 		this.loader = bcl;
-		this.cxt = new FLConstructorServer(bcl);
+		this.dispatcher = new JvmDispatcher(this);
 //		this.store = null;
 //		this.controller = null;
+	}
+	
+	@Override
+	public FLEvalContext create() {
+		return new FLConstructorServer(loader);
 	}
 
 	@Override
@@ -56,9 +63,10 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	@Override
 	public void runit(PrintWriter pw, UnitTestCase utc) {
 		try {
+			FLEvalContext cxt = create();
 			Class<?> tc = Class.forName(utc.name.javaName(), false, loader);
 			try {
-				Object result = Reflection.callStatic(tc, "dotest", this);
+				Object result = Reflection.callStatic(tc, "dotest", this, cxt);
 				if (result instanceof FLError)
 					throw (Throwable)result;
 				if (cxt.getError() != null)
@@ -193,24 +201,11 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	@Override
 	public void invoke(FLEvalContext cx, Object expr) throws Exception {
 		expr = cx.full(expr);
-		handleMessages(cx, expr);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void handleMessages(FLEvalContext cx, Object expr) {
-		if (expr instanceof Iterable) {
-			for (Object o : ((Iterable<Object>)expr)) {
-				handleMessages(cx, o);
-			}
-		} else if (expr instanceof Message) {
-			Object ret = ((Message)expr).dispatch(cx);
-			if (ret != null)
-				handleMessages(cx, ret);
-		}
+		dispatcher.invoke(cx, expr);
 	}
 
 	@Override
-	public void send(InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
+	public void send(FLEvalContext cxt, InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
@@ -266,7 +261,8 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 //		assertAllInvocationsCalled();
 	}
 	
-	public <T> T mockContract(Class<T> ctr) {
-		return cxt.mockContract(ctr);
-	}
+	// can we get rid of this and just use the other one directly?
+//	public <T> T mockContract(Class<T> ctr) {
+//		return cxt.mockContract(ctr);
+//	}
 }

@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -96,6 +97,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
+	private boolean isStandalone;
 	private static final boolean leniency = false;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
@@ -167,14 +169,27 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			this.meth = null;
 			return;
 		}
-		this.clz = bce.newClass(om.name().javaClassName());
-		this.clz.generateAssociatedSourceFile();
-		IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
-		fi.constValue(om.argCount());
-		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
+		GenericAnnotator ann;
+		boolean wantObj, haveThis;
+		if (isStandalone) {
+			this.clz = bce.newClass(om.name().javaClassName());
+			this.clz.generateAssociatedSourceFile();
+			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
+			fi.constValue(om.argCount());
+			ann = GenericAnnotator.newMethod(clz, true, "eval");
+			wantObj = om.name().codeType.hasThis();
+			haveThis = false;
+		} else {
+			this.clz = bce.get(om.getObject().name().javaName());
+			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + om.name().name);
+			fi.constValue(om.argCount());
+			ann = GenericAnnotator.newMethod(clz, false, om.name().name);
+			wantObj = false; // because we already have "this"
+			haveThis = true;
+		}
 		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
 		PendingVar myThis = null;
-		if (om.name().codeType.hasThis())
+		if (wantObj)
 			myThis = ann.argument(J.OBJECT, "obj");
 		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
 		ann.returns(JavaType.object_);
@@ -183,8 +198,25 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, (myThis == null ? null : myThis.getVar()), fargs, runner, globalMocks);
+		IExpr thisVar;
+		if (myThis != null)
+			thisVar = myThis.getVar();
+		else if (haveThis)
+			thisVar = meth.myThis();
+		else
+			thisVar = null;
+		fs = new FunctionState(meth, (Var)fcx, thisVar, fargs, runner, globalMocks);
 		currentBlock = new ArrayList<IExpr>();
+	}
+	
+	@Override
+	public void visitStandaloneMethod(StandaloneMethod meth) {
+		this.isStandalone = true;
+	}
+	
+	@Override
+	public void leaveStandaloneMethod(StandaloneMethod meth) {
+		this.isStandalone = false;
 	}
 	
 	@Override
@@ -400,13 +432,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		clz.generateAssociatedSourceFile();
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "dotest");
 		PendingVar runner = ann.argument("org.flasck.flas.testrunner.JVMRunner", "runner");
+		PendingVar pcx = ann.argument(J.FLEVALCONTEXT, "cxt");
 		ann.returns(JavaType.void_);
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
-		this.fcx = meth.avar(J.FLEVALCONTEXT, "cxt");
-		meth.assign((Var)this.fcx, meth.getField(this.runner, "cxt")).flush();
-		this.fs = new FunctionState(meth, (Var)fcx, null, null, runner.getVar(), globalMocks);
+		this.fcx = pcx.getVar();
+		this.fs = new FunctionState(meth, fcx, null, null, runner.getVar(), globalMocks);
 		this.currentBlock = new ArrayList<>();
 	}
 
@@ -419,7 +451,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		NamedType objty = udd.ofType.defn();
 		if (objty instanceof ContractDeclDir) {
 			ContractDeclDir cdd = (ContractDeclDir)objty;
-			IExpr mc = meth.callVirtual(J.OBJECT, this.runner, "mockContract", meth.classConst(cdd.name().javaClassName()));
+			IExpr mc = meth.callInterface(J.OBJECT, fcx, "mockContract", meth.classConst(cdd.name().javaClassName()));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);

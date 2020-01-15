@@ -274,7 +274,7 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
-	public void send(InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> posns) {
+	public void send(FLEvalContext cx, InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> posns) {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 

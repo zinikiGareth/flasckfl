@@ -297,8 +297,8 @@ public class ExpressionGeneration {
 			oneOf(meth).makeNew(J.CALLEVAL, x); will(returnValue(mnf));
 			oneOf(meth).intConst(2); will(returnValue(expArgs));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).as(mnf, "java.lang.Object"); will(returnValue(xAsObj));
-			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLCurry", "curry", xAsObj, expArgs, args); will(returnValue(aev));
+			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(xAsObj));
+			oneOf(meth).callInterface("org.flasck.jvm.fl.FLCurry", fcx, "curry", expArgs, xAsObj, args); will(returnValue(aev));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);
@@ -341,8 +341,8 @@ public class ExpressionGeneration {
 			oneOf(meth).classConst(J.CONS); will(returnValue(cons));
 			oneOf(meth).intConst(2); will(returnValue(expArgs));
 			oneOf(meth).arrayOf("java.lang.Object"); will(returnValue(args));
-			oneOf(meth).as(cons, "java.lang.Object"); will(returnValue(consAsObj));
-			oneOf(meth).callStatic("org.flasck.jvm.fl.FLClosure", "org.flasck.jvm.fl.FLCurry", "curry", consAsObj, expArgs, args); will(returnValue(aev));
+			oneOf(meth).as(cons, J.APPLICABLE); will(returnValue(consAsObj));
+			oneOf(meth).callInterface("org.flasck.jvm.fl.FLCurry", fcx, "curry", expArgs, consAsObj, args); will(returnValue(aev));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
 			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
 			oneOf(block).add(assign);
@@ -721,9 +721,10 @@ public class ExpressionGeneration {
 			oneOf(meth).classConst(J.CONS); will(returnValue(cons));
 			oneOf(meth).stringConst("hello"); will(returnValue(shello));
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
-			oneOf(meth).as(cons, J.OBJECT); will(returnValue(cons));
+			oneOf(meth).makeNew(J.CALLEVAL, cons); will(returnValue(cons));
+			oneOf(meth).as(cons, J.APPLICABLE); will(returnValue(cons));
 			oneOf(meth).intConst(2); will(returnValue(i2));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCURRY, "curry", cons, i2, args); will(returnValue(curry));
+			oneOf(meth).callInterface(J.FLCURRY, fcx, "curry", i2, cons, args); will(returnValue(curry));
 			oneOf(meth).avar(J.FLCURRY, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, curry); will(returnValue(ass));
 			oneOf(block).add(ass);
@@ -763,18 +764,18 @@ public class ExpressionGeneration {
 			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
 			oneOf(meth).stringConst("hello"); will(returnValue(str));
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(bogus));
-			oneOf(meth).as(mnf, J.OBJECT); will(returnValue(mnf));
+			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(mnf));
 			oneOf(meth).intConst(2); will(returnValue(i2));
 			oneOf(meth).intConst(1); will(returnValue(i1));
 			oneOf(meth).box(i1); will(returnValue(bi1));
 			oneOf(meth).arrayOf(with(J.OBJECT), (List)with(Matchers.contains(bi1, str))); will(returnValue(args));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCURRY, "xcurry", mnf, i2, args); will(returnValue(xc));
+			oneOf(meth).callInterface(J.FLCURRY, fcx, "xcurry", i2, mnf, args); will(returnValue(xc));
 			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, xc); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(v1);
 		}});
-		new ExprGenerator(new FunctionState(meth, null, null, null, null, null), sv, block);
+		new ExprGenerator(new FunctionState(meth, fcx, null, null, null, null), sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitApplyExpr(ae);
 	}

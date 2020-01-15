@@ -56,20 +56,13 @@ public class UnitTestGeneration {
 		context.checking(new Expectations() {{
 			allowing(bcc).generateAssociatedSourceFile();
 			oneOf(meth).nextLocal(); will(returnValue(6));
-			oneOf(meth).nextLocal(); will(returnValue(7));
 		}});
 		Var arg = new Var.AVar(meth, "JVMRunner", "runner");
-		Var cxt = new Var.AVar(meth, "FLContext", "cxt");
-		IExpr gf = context.mock(IExpr.class, "gf");
-		IExpr acxt = context.mock(IExpr.class, "acxt");
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.something._ut_package._ut4"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "void", "dotest"); will(returnValue(meth));
 			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
-			oneOf(meth).avar(J.FLEVALCONTEXT, "cxt"); will(returnValue(cxt));
-			oneOf(meth).getField(arg, "cxt"); will(returnValue(gf));
-			oneOf(meth).assign(cxt, gf); will(returnValue(acxt));
-			oneOf(acxt).flush();
+			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(arg));
 		}});
 		StackVisitor sv = new StackVisitor();
 		JVMGenerator gen = new JVMGenerator(bce, sv);
@@ -118,17 +111,18 @@ public class UnitTestGeneration {
 		IExpr runner = context.mock(IExpr.class, "runner");
 		IExpr cls = context.mock(IExpr.class, "cls");
 		IExpr call = context.mock(IExpr.class, "call");
+		IExpr fcx = context.mock(IExpr.class, "fcx");
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(17));
 		}});
 		AVar v1 = new AVar(meth, J.OBJECT, "v1");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.something.Ctr$Up"); will(returnValue(cls));
-			oneOf(meth).callVirtual(J.OBJECT, runner, "mockContract", cls); will(returnValue(call));
+			oneOf(meth).callInterface(J.OBJECT, fcx, "mockContract", cls); will(returnValue(call));
 			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, call);
 		}});
-		JVMGenerator jvm = JVMGenerator.forTests(meth, runner, null);
+		JVMGenerator jvm = JVMGenerator.forTests(meth, fcx, null);
 		Traverser gen = new Traverser(jvm.stackVisitor());
 		TypeReference ctr = new TypeReference(pos, "Ctr.Up");
 		ctr.bind(new ContractDeclDir(cd, "Up"));

@@ -127,7 +127,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			} else if (nargs > 0) {
 				sv.result(meth.classConst(myName));
 			} else {
-				IExpr call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(meth.classConst(myName), "java.lang.Object"), meth.intConst(sd.argCount()), meth.arrayOf(J.OBJECT));
+				IExpr call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(sd.argCount()), meth.as(meth.classConst(myName), J.APPLICABLE), meth.arrayOf(J.OBJECT));
 				Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 				currentBlock.add(meth.assign(v, call));
 				sv.result(v);
@@ -165,7 +165,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		IExpr args = meth.arrayOf(J.OBJECT, new ArrayList<IExpr>());
 		IExpr call;
 		if (expArgs > 0)
-			call = meth.callStatic(J.FLCLOSURE, J.FLCURRY, "curry", meth.as(fn, "java.lang.Object"), meth.intConst(expArgs), args);
+			call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
 		else
 			call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
 		Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));

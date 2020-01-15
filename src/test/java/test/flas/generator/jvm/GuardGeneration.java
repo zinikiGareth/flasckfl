@@ -76,7 +76,7 @@ public class GuardGeneration {
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", ot1); will(returnValue(ist));
 			oneOf(meth).ifBoolean(ist, ro1, rerr);
 		}});
 		
@@ -128,7 +128,7 @@ public class GuardGeneration {
 			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
 			oneOf(meth).returnObject(e2); will(returnValue(ro2));
 			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", ot1); will(returnValue(ist));
 			oneOf(meth).ifBoolean(ist, ro1, ro2);
 		}});
 		
@@ -208,7 +208,7 @@ public class GuardGeneration {
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", ot1); will(returnValue(ist));
 			oneOf(meth).ifBoolean(ist, blk, rerr);
 		}});
 		
@@ -298,10 +298,10 @@ public class GuardGeneration {
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a3); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			oneOf(meth).as(f1, J.OBJECT); will(returnValue(of1));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, of1); will(returnValue(isf));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", of1); will(returnValue(isf));
 			oneOf(meth).ifBoolean(isf, ro2, rerr); will(returnValue(if1));
 			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", ot1); will(returnValue(ist));
 			oneOf(meth).ifBoolean(ist, ro1, if1); will(returnValue(if2));
 		}});
 		gen.visitCase(fcd2);
@@ -412,12 +412,12 @@ public class GuardGeneration {
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			
 			oneOf(meth).as(v1, J.OBJECT); will(returnValue(ov1));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ov1); will(returnValue(isg));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", ov1); will(returnValue(isg));
 			oneOf(meth).ifBoolean(isg, blk1, rerr); will(returnValue(if1));
 			oneOf(meth).block(assignV1, if1); will(returnValue(blk2));
 			
 			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
-			oneOf(meth).callStatic(J.FLEVAL, JavaType.boolean_, "isTruthy", fcx, ot1); will(returnValue(ist));
+			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", ot1); will(returnValue(ist));
 			oneOf(meth).ifBoolean(ist, ro1, blk2);
 		}});
 		
