@@ -48,7 +48,7 @@ public class Main {
 //		compiler.scanWebZips();
 		LoadBuiltins.applyTo(repository);
 		for (File input : config.inputs)
-			mark = compiler.processInput(config, repository, input, mark);
+			mark = compiler.processInput(mark, input);
 
 		if (config.dumprepo != null) {
 			try {
@@ -88,8 +88,8 @@ public class Main {
 			return true;
 
 		// This is to do with Android
-		if (compiler.getBuilder() != null)
-			compiler.getBuilder().build();
+//		if (compiler.getBuilder() != null)
+//			compiler.getBuilder().build();
 		
 		return errors.hasErrors();
 	}

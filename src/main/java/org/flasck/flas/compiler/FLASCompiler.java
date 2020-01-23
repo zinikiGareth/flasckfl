@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -51,7 +50,7 @@ public class FLASCompiler {
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final PrintWriter errorWriter;
-	private final DroidBuilder builder = new DroidBuilder();
+//	private final DroidBuilder builder = new DroidBuilder();
 
 	public FLASCompiler(ErrorReporter errors, Repository repository, PrintWriter errorWriter) {
 		this.errors = errors;
@@ -59,7 +58,7 @@ public class FLASCompiler {
 		this.errorWriter = errorWriter;
 	}
 	
-	public ErrorMark processInput(Configuration config, Repository repository, File input, ErrorMark mark) {
+	public ErrorMark processInput(ErrorMark mark, File input) {
 		try {
 			mark = parse(mark, input);
 		} catch (Throwable ex) {
@@ -245,9 +244,9 @@ public class FLASCompiler {
 		}
 	}
 
-	public DroidBuilder getBuilder() {
-		return builder;
-	}
+//	public DroidBuilder getBuilder() {
+//		return builder;
+//	}
 
 	public void reportException(Throwable ex) {
 		errors.reportException(ex);
