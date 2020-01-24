@@ -18,7 +18,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.ziniki.cbstore.json.FLConstructorServer;
-import org.ziniki.ziwsh.model.InternalHandle;
+import org.ziniki.ziwsh.intf.IdempotentHandler;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
@@ -201,7 +201,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	}
 
 	@Override
-	public void send(FLEvalContext cxt, InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
+	public void send(FLEvalContext cxt, IdempotentHandler ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 

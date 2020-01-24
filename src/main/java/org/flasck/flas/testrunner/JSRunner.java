@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.flasck.flas.Configuration;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
@@ -23,7 +24,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
-import org.ziniki.ziwsh.model.InternalHandle;
+import org.ziniki.ziwsh.intf.IdempotentHandler;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
@@ -274,7 +275,7 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
-	public void send(FLEvalContext cx, InternalHandle ih, String cardVar, String contractName, String methodName, List<Integer> posns) {
+	public void send(FLEvalContext cx, IdempotentHandler ih, String cardVar, String contractName, String methodName, List<Integer> posns) {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 

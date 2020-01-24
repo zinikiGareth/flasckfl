@@ -3,8 +3,8 @@ package org.flasck.flas.testrunner;
 import java.util.List;
 
 import org.flasck.jvm.FLEvalContext;
-import org.ziniki.ziwsh.model.InternalHandle;
-import org.ziniki.ziwsh.model.TrivialIdempotentHandler;
+import org.ziniki.ziwsh.intf.IdempotentHandler;
+import org.ziniki.ziwsh.json.JsonConstruction;
 
 public class SendStep implements TestStep {
 	private final String cardVar;
@@ -28,7 +28,14 @@ public class SendStep implements TestStep {
 	public void run(TestRunner runner) throws Exception {
 		for (Expectation e : expects)
 			runner.expect(cardVar, e.contract, e.method, (List)e.args);
-		InternalHandle ih = new TrivialIdempotentHandler();
+		IdempotentHandler ih = new IdempotentHandler() {
+			@Override
+			public void success(JsonConstruction cx) {
+			}
+			@Override
+			public void failure(JsonConstruction cx, Object error) {
+			}
+		};
 		runner.send(cx, ih, cardVar, contractName, methodName, args);
 	}
 
