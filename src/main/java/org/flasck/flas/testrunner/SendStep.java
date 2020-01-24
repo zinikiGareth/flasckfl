@@ -3,8 +3,8 @@ package org.flasck.flas.testrunner;
 import java.util.List;
 
 import org.flasck.jvm.FLEvalContext;
+import org.ziniki.ziwsh.intf.EvalContext;
 import org.ziniki.ziwsh.intf.IdempotentHandler;
-import org.ziniki.ziwsh.json.JsonConstruction;
 
 public class SendStep implements TestStep {
 	private final String cardVar;
@@ -30,10 +30,10 @@ public class SendStep implements TestStep {
 			runner.expect(cardVar, e.contract, e.method, (List)e.args);
 		IdempotentHandler ih = new IdempotentHandler() {
 			@Override
-			public void success(JsonConstruction cx) {
+			public void success(EvalContext cx) {
 			}
 			@Override
-			public void failure(JsonConstruction cx, Object error) {
+			public void failure(EvalContext cx, Object error) {
 			}
 		};
 		runner.send(cx, ih, cardVar, contractName, methodName, args);
