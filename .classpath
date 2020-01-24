@@ -15,7 +15,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Testing"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/UI4J"/>
-	<classpathentry kind="src" path="/cbjson"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JSOUP"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/HTTP"/>
 	<classpathentry kind="src" path="/ziwsh-intf"/>

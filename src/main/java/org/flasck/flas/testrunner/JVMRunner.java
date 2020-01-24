@@ -17,11 +17,12 @@ import org.flasck.jvm.fl.FLMockEvalContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.ziniki.cbstore.json.FLConstructorServer;
 import org.ziniki.ziwsh.intf.IdempotentHandler;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
+
+import test.eval.FLEvalTest;
 
 public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ implements FLEvalContextFactory {
 //	private final EntityStore store;
@@ -42,7 +43,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	
 	@Override
 	public FLEvalContext create() {
-		return new FLConstructorServer(loader);
+		return new FLEvalTest(loader);
 	}
 
 	@Override
