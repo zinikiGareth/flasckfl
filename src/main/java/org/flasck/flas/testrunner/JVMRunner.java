@@ -14,6 +14,7 @@ import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.container.FLEvalContextFactory;
 import org.flasck.jvm.container.JvmDispatcher;
 import org.flasck.jvm.fl.FLMockEvalContext;
+import org.flasck.jvm.fl.LoaderContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -21,8 +22,6 @@ import org.ziniki.ziwsh.intf.IdempotentHandler;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
-
-import test.eval.FLEvalTest;
 
 public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ implements FLEvalContextFactory {
 //	private final EntityStore store;
@@ -43,7 +42,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	
 	@Override
 	public FLEvalContext create() {
-		return new FLEvalTest(loader);
+		return new LoaderContext(loader);
 	}
 
 	@Override
