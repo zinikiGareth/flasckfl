@@ -71,6 +71,9 @@ public class LoadBuiltins {
 	public static final StructDefn send = new StructDefn(pos, FieldsType.STRUCT, null, "Send", false);
 	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
+
+	// The type "operator"
+	private static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
 	
 	// Builtin operators
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2);
@@ -84,6 +87,7 @@ public class LoadBuiltins {
 
 	// This is a weird thing but it seems to fit best here
 	public static final CurryArgument ca = new CurryArgument(pos);
+
 
 	static {
 		// bind TRs
@@ -113,6 +117,9 @@ public class LoadBuiltins {
 		assign.addField(new StructField(pos, false, anyTR, "on"));
 		assign.addField(new StructField(pos, false, stringTR, "fld"));
 		assign.addField(new StructField(pos, false, anyTR, "value"));
+		
+		// is this ok as a string or should it be something else?
+		type.addField(new StructField(pos, false, stringTR, "type"));
 
 		// add cases to unions
 		bool.addCase(falseTR);
@@ -184,7 +191,6 @@ public class LoadBuiltins {
 		repository.newStruct(croset);
 		StructDefn map = new StructDefn(pos, FieldsType.STRUCT, null, "Map", false);
 		repository.newStruct(map);
-		StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
 		repository.newStruct(type);
 
 
