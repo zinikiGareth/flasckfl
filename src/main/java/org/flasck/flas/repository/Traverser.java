@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -46,6 +47,8 @@ import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -136,6 +139,11 @@ public class Traverser implements Visitor {
 		else if (e instanceof FunctionDefinition) {
 			if (functionOrder == null)
 				visitFunction((FunctionDefinition)e);
+		} else if (e instanceof TupleAssignment) {
+			// Do we need to think about function ordering?
+			visitTuple((TupleAssignment)e);
+		} else if (e instanceof TupleMember) {
+			// if needed, it should be visited within the assignment
 		} else if (e instanceof ObjectMethod) {
 			visitObjectMethod((ObjectMethod)e);
 		} else if (e instanceof ObjectAccessor) {
@@ -294,6 +302,19 @@ public class Traverser implements Visitor {
 		traverseFnOrMethod(fn);
 		leaveFunction(fn);
 		rememberCaller(null);
+	}
+
+	@Override
+	public void visitTuple(TupleAssignment e) {
+		visitor.visitTuple(e);
+		visitExpr(e.expr, 0);
+		// if needed, visit members here ...
+		leaveTuple(e);
+	}
+
+	@Override
+	public void leaveTuple(TupleAssignment e) {
+		visitor.leaveTuple(e);
 	}
 
 	private void traverseFnOrMethod(LogicHolder sd) {

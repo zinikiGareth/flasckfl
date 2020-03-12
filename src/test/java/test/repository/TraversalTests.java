@@ -2,9 +2,11 @@ package test.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -22,6 +24,7 @@ import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -33,6 +36,7 @@ import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -573,5 +577,23 @@ public class TraversalTests {
 			oneOf(v).leaveUnitTest(utc);
 		}});
 		new Traverser(v).visitUnitTest(utc);
+	}
+
+	@Test
+	public void traverseTuples() {
+		List<LocatedName> vars = new ArrayList<LocatedName>();
+		vars.add(new LocatedName(pos, "a"));
+		vars.add(new LocatedName(pos, "b"));
+		FunctionName fa = FunctionName.function(pos, null, "_tuple_a");
+		UnresolvedVar expr = new UnresolvedVar(pos, "f");
+		TupleAssignment ta = new TupleAssignment(vars, fa, expr);
+		r.addEntry(fa, ta);
+		context.checking(new Expectations() {{
+			oneOf(v).visitTuple(ta);
+			oneOf(v).visitExpr(expr, 0);
+			oneOf(v).visitUnresolvedVar(expr, 0);
+			oneOf(v).leaveTuple(ta);
+		}});
+		new Traverser(v).doTraversal(r);
 	}
 }

@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -160,6 +161,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveFunctionGroup(FunctionGroup grp) {
 		top.leaveFunctionGroup(grp);
+	}
+
+	public void visitTuple(TupleAssignment e) {
+		top.visitTuple(e);
+	}
+
+	public void leaveTuple(TupleAssignment e) {
+		top.leaveTuple(e);
 	}
 
 	public void visitPattern(Pattern patt, boolean isNested) {
