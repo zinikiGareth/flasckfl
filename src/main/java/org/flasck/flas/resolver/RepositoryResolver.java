@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -84,6 +85,17 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
+		this.scope = scopeStack.remove(0);
+	}
+
+	@Override
+	public void visitTuple(TupleAssignment ta) {
+		scopeStack.add(0, scope);
+		this.scope = ta.name();
+	}
+
+	@Override
+	public void leaveTuple(TupleAssignment e) {
 		this.scope = scopeStack.remove(0);
 	}
 

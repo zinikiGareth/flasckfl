@@ -84,10 +84,10 @@ public class LoadBuiltins {
 	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1);
 	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1);
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2);
+	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1);
 
 	// This is a weird thing but it seems to fit best here
 	public static final CurryArgument ca = new CurryArgument(pos);
-
 
 	static {
 		// bind TRs
@@ -183,6 +183,7 @@ public class LoadBuiltins {
 		repository.functionDefn(length);
 		repository.functionDefn(strlen);
 		repository.functionDefn(concat);
+		repository.functionDefn(makeTuple);
 
 		// not yet thought through for backward compatibility
 		StructDefn card = new StructDefn(pos, FieldsType.STRUCT, null, "Card", false);
