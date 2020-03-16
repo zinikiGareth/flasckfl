@@ -584,12 +584,13 @@ public class TraversalTests {
 		List<LocatedName> vars = new ArrayList<LocatedName>();
 		vars.add(new LocatedName(pos, "a"));
 		vars.add(new LocatedName(pos, "b"));
-		FunctionName fa = FunctionName.function(pos, null, "_tuple_a");
+		FunctionName fta = FunctionName.function(pos, null, "_tuple_a");
+		FunctionName fa = FunctionName.function(pos, null, "a");
 		UnresolvedVar expr = new UnresolvedVar(pos, "f");
-		TupleAssignment ta = new TupleAssignment(vars, fa, expr);
-		ta.addMember(new TupleMember(pos, ta, 0, FunctionName.function(pos, null, "a")));
+		TupleAssignment ta = new TupleAssignment(vars, fta, fa, expr);
+		ta.addMember(new TupleMember(pos, ta, 0, fa));
 		ta.addMember(new TupleMember(pos, ta, 1, FunctionName.function(pos, null, "b")));
-		r.addEntry(fa, ta);
+		r.addEntry(fta, ta);
 		context.checking(new Expectations() {{
 			oneOf(v).visitTuple(ta);
 			oneOf(v).visitExpr(expr, 0);

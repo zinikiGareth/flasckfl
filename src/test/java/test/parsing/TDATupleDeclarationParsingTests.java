@@ -193,10 +193,12 @@ public class TDATupleDeclarationParsingTests {
 	@Test
 	public void aLineCanExist() {
 		final Tokenizable line = line("(x,y) = f 10");
-		final FunctionName fnName = null;
+		final FunctionName tnName = FunctionName.function(line.realinfo(), null, "_tuple_x");
+		final FunctionName fnName = FunctionName.function(line.realinfo(), null, "x");
 		context.checking(new Expectations() {{
-			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("_tuple_x")); will(returnValue(fnName));
-			oneOf(builder).tupleDefn(with(any(List.class)), with(fnName), with(any(Expr.class)));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("_tuple_x")); will(returnValue(tnName));
+			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("x")); will(returnValue(fnName));
+			oneOf(builder).tupleDefn(with(any(List.class)), with(tnName), with(fnName), with(any(Expr.class)));
 		}});
 		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
 		TDAParsing nested = parser.tryParsing(line);

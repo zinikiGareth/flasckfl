@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -137,6 +138,12 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			PosType c = state.consolidate(fn.location(), resultTypes);
 			sv.result(buildApplyType(c.pos, c));
 		}
+	}
+	
+	@Override
+	public void leaveTuple(TupleAssignment e) {
+		PosType c = state.consolidate(e.location(), resultTypes);
+		sv.result(buildApplyType(c.pos, c));
 	}
 	
 	@Override

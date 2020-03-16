@@ -211,7 +211,7 @@ public class DependencyOrdering {
 		FunctionDefinition f = quick("f");
 		UnresolvedVar uvf = new UnresolvedVar(pos, "f");
 		uvf.bind(f);
-		TupleAssignment ta = new TupleAssignment(Arrays.asList(new LocatedName(pos, "a"), new LocatedName(pos, "b")), FunctionName.function(pos, pkg, "_tuple_a"), uvf);
+		TupleAssignment ta = new TupleAssignment(Arrays.asList(new LocatedName(pos, "a"), new LocatedName(pos, "b")), FunctionName.function(pos, pkg, "_tuple_a"), FunctionName.function(pos, pkg, "a"), uvf);
 		TupleMember ma = new TupleMember(pos, ta, 0, FunctionName.function(pos, pkg, "a"));
 		TupleMember mb = new TupleMember(pos, ta, 1, FunctionName.function(pos, pkg, "b"));
 		ta.addMember(ma);

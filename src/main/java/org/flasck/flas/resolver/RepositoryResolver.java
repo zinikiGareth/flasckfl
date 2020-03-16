@@ -91,7 +91,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitTuple(TupleAssignment ta) {
 		scopeStack.add(0, scope);
-		this.scope = ta.name();
+		this.scope = ta.scopePackage();
 	}
 
 	@Override

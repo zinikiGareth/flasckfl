@@ -121,10 +121,11 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		putATupleIntoTheRepository(r);
 		FunctionName exprFnName = FunctionName.function(pos, pkg, "_tuple_a");
+		FunctionName pkgName = FunctionName.function(pos, pkg, "a");
 		List<LocatedName> vars = new ArrayList<>();
 		vars.add(new LocatedName(pos, "a"));
 		vars.add(new LocatedName(pos, "x"));
-		r.tupleDefn(vars, exprFnName, simpleExpr);
+		r.tupleDefn(vars, exprFnName, pkgName, simpleExpr);
 	}
 
 	@Test(expected=DuplicateNameException.class)
@@ -132,20 +133,22 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		putATupleIntoTheRepository(r);
 		FunctionName exprFnName = FunctionName.function(pos, pkg, "_tuple_x");
+		FunctionName pkgName = FunctionName.function(pos, pkg, "x");
 		List<LocatedName> vars = new ArrayList<>();
 		vars.add(new LocatedName(pos, "x"));
 		vars.add(new LocatedName(pos, "b"));
-		r.tupleDefn(vars, exprFnName, simpleExpr);
+		r.tupleDefn(vars, exprFnName, pkgName, simpleExpr);
 	}
 
 	public List<LocatedName> putATupleIntoTheRepository(Repository r) {
 		FunctionName exprFnName = FunctionName.function(pos, pkg, "_tuple_a");
+		FunctionName pkgName = FunctionName.function(pos, pkg, "a");
 		List<LocatedName> vars = new ArrayList<>();
 		vars.add(new LocatedName(pos, "a"));
 		vars.add(new LocatedName(pos, "b"));
 		vars.add(new LocatedName(pos, "c"));
 		// Note: simpleExpr obviously isn't a tuple expr, but it's easy to write.  To typecheck, you would need something that returns 3 elements
-		r.tupleDefn(vars, exprFnName, simpleExpr);
+		r.tupleDefn(vars, exprFnName, pkgName, simpleExpr);
 		return vars;
 	}
 

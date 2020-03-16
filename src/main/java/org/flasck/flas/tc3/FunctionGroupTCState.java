@@ -113,6 +113,9 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 	@Override
 	public PosType consolidate(InputPosition pos, List<PosType> types) {
+		if (types.isEmpty())
+			throw new NotImplementedException("Cannot handle consolidating no types");
+		
 		// If there's just 1, that's easy
 		if (types.size() == 1)
 			return types.get(0);

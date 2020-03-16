@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.repository.LeafAdapter;
 
 public class TypeDumper extends LeafAdapter {
@@ -36,6 +38,22 @@ public class TypeDumper extends LeafAdapter {
 			pw.print("<<UNDEFINED>>");
 		else
 			pw.print(om.type().signature());
+		pw.println();
+	}
+	
+	@Override
+	public void visitTuple(TupleAssignment e) {
+		// I don't think we actually want to dump this
+	}
+	
+	@Override
+	public void visitTupleMember(TupleMember tm) {
+		pw.print(tm.name().uniqueName());
+		pw.print(" :: ");
+		if (tm.type() == null)
+			pw.print("<<UNDEFINED>>");
+		else
+			pw.print(tm.type().signature());
 		pw.println();
 	}
 }

@@ -82,12 +82,13 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			return null;
 		}
 		FunctionName leadName = functionNamer.functionName(vars.get(0).location, "_tuple_" + vars.get(0).text);
+		FunctionName pkgName = functionNamer.functionName(vars.get(0).location, vars.get(0).text);
 		new TDAExpressionParser(errors, e -> {
-			consumer.tupleDefn(vars, leadName, e);
+			consumer.tupleDefn(vars, leadName, pkgName, e);
 		}).tryParsing(line);
 
 		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
-		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(leadName), assembler, consumer);
+		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer);
 	}
 
 	@Override

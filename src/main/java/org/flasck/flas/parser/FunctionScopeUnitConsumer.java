@@ -12,7 +12,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 
 public interface FunctionScopeUnitConsumer extends FunctionDefnConsumer {
-	void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr);
+	void tupleDefn(List<LocatedName> vars, FunctionName leadName, FunctionName pkgName, Expr expr);
 	void newHandler(HandlerImplements hi);
 	void newStandaloneMethod(StandaloneMethod meth);
 	void newObjectMethod(ObjectActionHandler om);

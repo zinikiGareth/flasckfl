@@ -10,6 +10,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
@@ -43,10 +44,20 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitTuple(TupleAssignment ta) {
-		sv.push(new FunctionChecker(errors, sv, state, null));
+		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		sv.push(fc);
 		this.currentFunction = ta;
+		sv.push(new ExpressionChecker(errors, state, sv));
 	}
 
+	@Override
+	public void visitTupleMember(TupleMember tm) {
+		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		sv.push(fc);
+		this.currentFunction = tm;
+		sv.push(new ExpressionChecker(errors, state, sv));
+	}
+	
 	@Override
 	public void result(Object r) {
 		memberTypes.put(currentFunction, (PosType)r);

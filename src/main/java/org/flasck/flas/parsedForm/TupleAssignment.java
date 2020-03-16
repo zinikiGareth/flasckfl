@@ -21,14 +21,16 @@ import org.zinutils.exceptions.NotImplementedException;
 public class TupleAssignment implements RepositoryEntry, StandaloneDefn, TypeBinder, Comparable<StandaloneDefn> {
 	public final List<LocatedName> vars;
 	public final List<TupleMember> members = new ArrayList<TupleMember>();
-	private FunctionName exprFnName;
+	private final FunctionName exprFnName;
+	private final NameOfThing scopePackage;
 	public final Expr expr;
 	private NestedVarReader nestedVars;
 
 	// We used located name here, not unresolvedvar, because this is defining the things
-	public TupleAssignment(List<LocatedName> vars, FunctionName exprFnName, Expr expr) {
+	public TupleAssignment(List<LocatedName> vars, FunctionName exprFnName, FunctionName scopePackage, Expr expr) {
 		this.vars = vars;
 		this.exprFnName = exprFnName;
+		this.scopePackage = scopePackage;
 		this.expr = expr;
 	}
 
@@ -112,5 +114,9 @@ public class TupleAssignment implements RepositoryEntry, StandaloneDefn, TypeBin
 
 	public void addMember(TupleMember tm) {
 		members.add(tm);
+	}
+
+	public NameOfThing scopePackage() {
+		return scopePackage;
 	}
 }

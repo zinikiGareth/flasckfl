@@ -172,10 +172,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
-	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, Expr expr) {
-		TupleAssignment ta = new TupleAssignment(vars, exprFnName, expr);
+	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, FunctionName pkgName, Expr expr) {
+		TupleAssignment ta = new TupleAssignment(vars, exprFnName, pkgName, expr);
 		addEntry(exprFnName, ta);
-		NameOfThing pkg = exprFnName.inContext;
+		NameOfThing pkg = pkgName.inContext;
 		int k=0;
 		for (LocatedName x : vars) {
 			FunctionName tn = FunctionName.function(x.location, pkg, x.text);

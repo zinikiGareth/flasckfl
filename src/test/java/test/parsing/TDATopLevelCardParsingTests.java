@@ -176,7 +176,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanDefineNestedTuples() {
 		context.checking(new Expectations() {{
-			oneOf(builder).tupleDefn(with(any(List.class)), with(any(FunctionName.class)), with(any(Expr.class)));
+			oneOf(builder).tupleDefn(with(any(List.class)), with(any(FunctionName.class)), with(any(FunctionName.class)), with(any(Expr.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("(x,y) = f 2"));
 	}
