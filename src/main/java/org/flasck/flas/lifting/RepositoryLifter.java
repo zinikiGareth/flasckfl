@@ -11,6 +11,8 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.FunctionGroups;
@@ -66,6 +68,13 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	}
 
 	@Override
+	public void visitTuple(TupleAssignment ta) {
+		dependencies.recordFunction(ta);
+		ms = new MappingStore();
+		ma = new MappingAnalyzer(ta, ms, dependencies);
+	}
+	
+	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
 		if (ma != null)
 			ma.visitObjectMethod(meth);
@@ -94,7 +103,6 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		ms = null;
 	}
 
-	
 	@Override
 	public void leaveStandaloneMethod(StandaloneMethod meth) {
 		if (ms.isInteresting()) {
@@ -102,6 +110,24 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 			interesting.add(meth);
 		} else {
 			dull.add(meth);
+		}
+		ma = null;
+		ms = null;
+	}
+
+	@Override
+	public void leaveTuple(TupleAssignment ta) {
+		if (ms.isInteresting()) {
+			ta.nestedVars(ms);
+			interesting.add(ta);
+		} else {
+			dull.add(ta);
+		}
+		for (TupleMember tm : ta.members) {
+			MappingStore msm = new MappingStore();
+			msm.recordDependency(ta);
+			tm.nestedVars(msm);
+			interesting.add(tm);
 		}
 		ma = null;
 		ms = null;

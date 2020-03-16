@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
@@ -38,6 +39,12 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	public void visitObjectMethod(ObjectMethod meth) {
 		sv.push(new FunctionChecker(errors, sv, state, meth));
 		this.currentFunction = meth;
+	}
+
+	@Override
+	public void visitTuple(TupleAssignment ta) {
+		sv.push(new FunctionChecker(errors, sv, state, null));
+		this.currentFunction = ta;
 	}
 
 	@Override

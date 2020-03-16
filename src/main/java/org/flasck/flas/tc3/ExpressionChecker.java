@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -77,6 +78,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 				announce(pos, fn.type());
 			else
 				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
+		} else if (var.defn() instanceof TupleMember) {
+			TupleMember tm = (TupleMember) var.defn();
+			announce(pos, state.requireVarConstraints(tm.location(), tm.name().uniqueName()));
 		} else if (var.defn() instanceof StandaloneMethod) {
 			StandaloneMethod fn = (StandaloneMethod) var.defn();
 			if (fn.hasType())
@@ -106,6 +110,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce(op.location(), (Type) op.defn());
 		} else if (op.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) op.defn();
+			// This handles the tuple case
 			announce(op.location(), fn.type());
 		} else
 			throw new RuntimeException("Cannot handle " + op);

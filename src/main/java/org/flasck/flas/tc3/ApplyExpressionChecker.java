@@ -99,6 +99,10 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			handleListBuilder(expr);
 			return;
 		}
+		if (expr.fn instanceof UnresolvedOperator && ((UnresolvedOperator)expr.fn).op.equals("()")) {
+			handleTupleBuilder(expr);
+			return;
+		}
 		// TODO: we may need to explicitly handle the case where we have a "Send" constructor that wants to collapse a set of arguments into a list
 		// But if we return the right contract method type, it may all just go swimmingly
 		// And we will just have that concern in MethodConversion
@@ -149,6 +153,18 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			results.remove(0); // remove the nil from the front
 			PosType ty = state.consolidate(expr.location(), results);
 			nv.result(new PolyInstance(LoadBuiltins.cons, Arrays.asList(ty.type)));
+		}
+	}
+
+	private void handleTupleBuilder(ApplyExpr expr) {
+		if (expr.args.size() < 2) {
+			throw new RuntimeException("Tuples must have at least two elements");
+		} else {
+			results.remove(0); // remove the operator from the front
+			List<Type> tys = new ArrayList<Type>();
+			for (PosType pt : results)
+				tys.add(pt.type);
+			nv.result(new PolyInstance(LoadBuiltins.tuple, tys));
 		}
 	}
 }

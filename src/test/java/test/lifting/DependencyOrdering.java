@@ -1,6 +1,7 @@
 package test.lifting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -11,8 +12,11 @@ import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -202,6 +206,22 @@ public class DependencyOrdering {
 		assertOrder("test.foo.f.h", "test.foo.f//test.foo.f.g");
 	}
 
+	@Test
+	public void somethingWithTuples() {
+		FunctionDefinition f = quick("f");
+		UnresolvedVar uvf = new UnresolvedVar(pos, "f");
+		uvf.bind(f);
+		TupleAssignment ta = new TupleAssignment(Arrays.asList(new LocatedName(pos, "a"), new LocatedName(pos, "b")), FunctionName.function(pos, pkg, "_tuple_a"), uvf);
+		TupleMember ma = new TupleMember(pos, ta, 0, FunctionName.function(pos, pkg, "a"));
+		TupleMember mb = new TupleMember(pos, ta, 1, FunctionName.function(pos, pkg, "b"));
+		ta.addMember(ma);
+		ta.addMember(mb);
+		lifter.visitTuple(ta);
+		lifter.visitUnresolvedVar((UnresolvedVar) ta.expr, 0);
+		lifter.leaveTuple(ta);
+		assertOrder("test.foo.f", "test.foo._tuple_a", "test.foo.a", "test.foo.b");
+	}
+	
 	private FunctionDefinition quick(String name, RepositoryEntry... deps) {
 		FunctionDefinition fn = function(name);
 		visit(fn, deps);

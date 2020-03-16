@@ -91,6 +91,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveFunctionGroup(FunctionGroup grp);
 		void visitTuple(TupleAssignment e);
 		void leaveTuple(TupleAssignment e);
+		void visitTupleMember(TupleMember sd);
+		void leaveTupleMember(TupleMember sd);
 		void visitPattern(Pattern patt, boolean isNested);
 		void visitVarPattern(VarPattern p, boolean isNested);
 		void visitTypedPattern(TypedPattern p, boolean isNested);
@@ -177,7 +179,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		int k=0;
 		for (LocatedName x : vars) {
 			FunctionName tn = FunctionName.function(x.location, pkg, x.text);
-			addEntry(tn, new TupleMember(x.location, ta, k++, tn));
+			TupleMember tm = new TupleMember(x.location, ta, k++, tn);
+			addEntry(tn, tm);
+			ta.addMember(tm);
 		}
 	}
 

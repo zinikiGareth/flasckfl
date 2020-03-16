@@ -32,7 +32,6 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -261,8 +260,12 @@ public class Traverser implements Visitor {
 				visitFunction((FunctionDefinition) sd);
 			else if (sd instanceof StandaloneMethod)
 				visitStandaloneMethod((StandaloneMethod) sd);
+			else if (sd instanceof TupleAssignment)
+				visitTuple((TupleAssignment) sd);
+			else if (sd instanceof TupleMember)
+				visitTupleMember((TupleMember) sd);
 			else
-				throw new NotImplementedException();
+				throw new NotImplementedException("visit " + sd.getClass());
 		}
 		leaveFunctionGroup(grp);
 	}
@@ -315,6 +318,17 @@ public class Traverser implements Visitor {
 	@Override
 	public void leaveTuple(TupleAssignment e) {
 		visitor.leaveTuple(e);
+	}
+
+	@Override
+	public void visitTupleMember(TupleMember sd) {
+		visitor.visitTupleMember(sd);
+		visitor.leaveTupleMember(sd);
+	}
+
+	@Override
+	public void leaveTupleMember(TupleMember sd) {
+		visitor.leaveTupleMember(sd);
 	}
 
 	private void traverseFnOrMethod(LogicHolder sd) {

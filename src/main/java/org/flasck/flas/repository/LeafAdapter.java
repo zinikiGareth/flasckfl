@@ -30,6 +30,7 @@ import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -190,6 +191,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveTuple(TupleAssignment e) {
+	}
+
+	@Override
+	public void visitTupleMember(TupleMember sd) {
+	}
+
+	@Override
+	public void leaveTupleMember(TupleMember sd) {
 	}
 
 	@Override

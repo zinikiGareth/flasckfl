@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
+import org.flasck.flas.tc3.Tuple;
 import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
@@ -54,6 +55,10 @@ public class LoadBuiltins {
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
+	
+	// This is another really weird thing ... it has arguments really, so needs to be parameterized a variable amount
+	// Probably needs its own class to handle it properly
+	public static final Tuple tuple = new Tuple(pos, "Tuple");
 
 	// Booleans
 	public static final StructDefn falseT = new StructDefn(pos, FieldsType.STRUCT, null, "False", false);
@@ -142,6 +147,7 @@ public class LoadBuiltins {
 		length.bindType(new Apply(list, number));
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
+		makeTuple.bindType(tuple);
 		
 		// add all current functions to list for dependency resolution
 		allFunctions.add(plus);
