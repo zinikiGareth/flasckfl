@@ -168,6 +168,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitTuple(e);
 	}
 
+	public void tupleExprComplete(TupleAssignment e) {
+		top.tupleExprComplete(e);
+	}
+
 	public void leaveTuple(TupleAssignment e) {
 		top.leaveTuple(e);
 	}

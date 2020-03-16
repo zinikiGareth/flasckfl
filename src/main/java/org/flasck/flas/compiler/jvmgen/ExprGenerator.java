@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -106,6 +107,8 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				makeFunctionClosure(myName, fn.argCount());
+			} else if ("MakeTuple".equals(myName)) {
+				sv.result(null);
 			} else
 				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 		} else if (defn instanceof StandaloneMethod) {
@@ -148,6 +151,8 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			StructField sf = (StructField) defn;
 			IExpr ret = meth.callInterface(J.OBJECT, meth.getField("state"), "get", meth.stringConst(sf.name));
 			sv.result(ret);
+		} else if (defn instanceof TupleMember) {
+			makeFunctionClosure(myName, 0);
 		} else if (defn instanceof CurryArgument) {
 			sv.result(new JVMCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {
@@ -196,6 +201,8 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			break;
 		case "[]":
 			return J.NIL;
+		case "()":
+			return "MakeTuple";
 		default:
 			throw new RuntimeException("There is no operator " + op);
 		}

@@ -347,6 +347,16 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	@Override
+	public void leaveTupleMember(TupleMember tm) {
+		if (meth == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
+		this.meth = null;
+		this.state = null;
+	}
+
+	@Override
 	public void leaveObjectMethod(ObjectMethod om) {
 		if (meth == null) {
 			// we elected not to generate, so just forget it ...

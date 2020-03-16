@@ -90,9 +90,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveFunction(FunctionDefinition fn);
 		void leaveFunctionGroup(FunctionGroup grp);
 		void visitTuple(TupleAssignment e);
-		void leaveTuple(TupleAssignment e);
+		void tupleExprComplete(TupleAssignment e);
 		void visitTupleMember(TupleMember sd);
 		void leaveTupleMember(TupleMember sd);
+		void leaveTuple(TupleAssignment e);
 		void visitPattern(Pattern patt, boolean isNested);
 		void visitVarPattern(VarPattern p, boolean isNested);
 		void visitTypedPattern(TypedPattern p, boolean isNested);

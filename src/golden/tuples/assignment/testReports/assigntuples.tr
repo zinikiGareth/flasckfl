@@ -1,3 +1,7 @@
+JVM PASS a is 3
+JVM PASS b is 4
+JVM PASS c is hello
+JVM PASS d is world
 JS PASS a is 3
 JS PASS b is 4
 JS PASS c is hello

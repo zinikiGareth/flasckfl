@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator.XCArg;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -87,7 +88,13 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 	private void makeClosure(WithTypeSignature defn, int expArgs) {
 		IExpr fn = stack.remove(0);
 		IExpr args = meth.arrayOf(J.OBJECT, stack);
-		if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
+		if (defn instanceof FunctionDefinition && defn.name().uniqueName().equals("()")) {
+			// Tuple is junk
+			IExpr call = meth.callInterface(J.OBJECT, fcx, "makeTuple", args);
+			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
+			currentBlock.add(meth.assign(v, call));
+			sv.result(v);
+		} else if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
 			IExpr call = meth.callInterface("java.util.List", fcx, "array", args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));

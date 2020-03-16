@@ -25,8 +25,8 @@ public class CaptureFunctionDefinition implements FunctionScopeUnitConsumer {
 		consumer.functionDefn(func);
 	}
 
-	public void tupleDefn(List<LocatedName> vars, FunctionName leadName, Expr expr) {
-		topLevel.tupleDefn(vars, leadName, expr);
+	public void tupleDefn(List<LocatedName> vars, FunctionName leadName, FunctionName pkgName, Expr expr) {
+		topLevel.tupleDefn(vars, leadName, pkgName, expr);
 	}
 
 	public void newHandler(HandlerImplements hi) {

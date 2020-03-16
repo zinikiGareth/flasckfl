@@ -55,6 +55,7 @@ import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.tc3.Primitive;
 import org.jmock.Expectations;
+import org.jmock.Sequence;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
@@ -591,15 +592,17 @@ public class TraversalTests {
 		ta.addMember(new TupleMember(pos, ta, 0, fa));
 		ta.addMember(new TupleMember(pos, ta, 1, FunctionName.function(pos, null, "b")));
 		r.addEntry(fta, ta);
+		Sequence seq = context.sequence("tuple");
 		context.checking(new Expectations() {{
-			oneOf(v).visitTuple(ta);
-			oneOf(v).visitExpr(expr, 0);
-			oneOf(v).visitUnresolvedVar(expr, 0);
-			oneOf(v).visitTupleMember(ta.members.get(0));
-			oneOf(v).leaveTupleMember(ta.members.get(0));
-			oneOf(v).visitTupleMember(ta.members.get(1));
-			oneOf(v).leaveTupleMember(ta.members.get(1));
-			oneOf(v).leaveTuple(ta);
+			oneOf(v).visitTuple(ta); inSequence(seq);
+			oneOf(v).visitExpr(expr, 0); inSequence(seq);
+			oneOf(v).visitUnresolvedVar(expr, 0); inSequence(seq);
+			oneOf(v).tupleExprComplete(ta); inSequence(seq);
+			oneOf(v).visitTupleMember(ta.members.get(0)); inSequence(seq);
+			oneOf(v).leaveTupleMember(ta.members.get(0)); inSequence(seq);
+			oneOf(v).visitTupleMember(ta.members.get(1)); inSequence(seq);
+			oneOf(v).leaveTupleMember(ta.members.get(1)); inSequence(seq);
+			oneOf(v).leaveTuple(ta); inSequence(seq);
 		}});
 		new Traverser(v).doTraversal(r);
 	}

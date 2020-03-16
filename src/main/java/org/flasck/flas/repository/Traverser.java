@@ -311,9 +311,15 @@ public class Traverser implements Visitor {
 	public void visitTuple(TupleAssignment e) {
 		visitor.visitTuple(e);
 		visitExpr(e.expr, 0);
+		tupleExprComplete(e);
 		for (TupleMember mbr : e.members)
 			visitTupleMember(mbr);
 		leaveTuple(e);
+	}
+
+	@Override
+	public void tupleExprComplete(TupleAssignment e) {
+		visitor.tupleExprComplete(e);
 	}
 
 	@Override

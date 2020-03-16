@@ -23,6 +23,8 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -209,6 +211,46 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void visitTuple(TupleAssignment ta) {
+		this.clz = bce.newClass(ta.name().javaClassName());
+		this.clz.generateAssociatedSourceFile();
+		IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
+		fi.constValue(0);
+		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
+		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
+		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
+		ann.returns(JavaType.object_);
+		meth = ann.done();
+		meth.lenientMode(leniency);
+		fcx = cxArg.getVar();
+		fargs = argsArg.getVar();
+		switchVars.clear();
+		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner, globalMocks);
+		currentBlock = new ArrayList<IExpr>();
+		new ExprGenerator(fs, sv, currentBlock);
+	}
+	
+	@Override
+	public void visitTupleMember(TupleMember tm) {
+		this.clz = bce.newClass(tm.name().javaClassName());
+		this.clz.generateAssociatedSourceFile();
+		IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
+		fi.constValue(0);
+		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "eval");
+		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
+		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
+		ann.returns(JavaType.object_);
+		meth = ann.done();
+		meth.lenientMode(leniency);
+		fcx = cxArg.getVar();
+		fargs = argsArg.getVar();
+		switchVars.clear();
+		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner, globalMocks);
+		currentBlock = new ArrayList<IExpr>();
+		currentBlock.add(meth.returnObject(meth.callInterface(J.OBJECT, fcx, "tupleMember", meth.callStatic(tm.ta.exprFnName().javaClassName(), J.OBJECT, "eval", fcx, meth.arrayOf(J.OBJECT)), meth.intConst(tm.which))));
+	}
+	
+	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
 		this.isStandalone = true;
 	}
@@ -301,6 +343,34 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	@Override
 	public void leaveObjectMethod(ObjectMethod om) {
+		if (meth == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
+		makeBlock(meth, currentBlock).flush();
+		currentBlock.clear();
+		this.meth = null;
+		this.clz = null;
+		this.fcx = null;
+	}
+
+	@Override
+	public void tupleExprComplete(TupleAssignment e) {
+		if (meth == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
+		IExpr r = currentBlock.remove(currentBlock.size()-1);
+		currentBlock.add(meth.returnObject(r));
+		makeBlock(meth, currentBlock).flush();
+		currentBlock.clear();
+		this.meth = null;
+		this.clz = null;
+		this.fcx = null;
+	}
+
+	@Override
+	public void leaveTupleMember(TupleMember sd) {
 		if (meth == null) {
 			// we elected not to generate, so just forget it ...
 			return;

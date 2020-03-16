@@ -190,6 +190,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void tupleExprComplete(TupleAssignment e) {
+	}
+
+	@Override
 	public void leaveTuple(TupleAssignment e) {
 	}
 
