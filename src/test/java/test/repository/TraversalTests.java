@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -586,11 +587,17 @@ public class TraversalTests {
 		FunctionName fa = FunctionName.function(pos, null, "_tuple_a");
 		UnresolvedVar expr = new UnresolvedVar(pos, "f");
 		TupleAssignment ta = new TupleAssignment(vars, fa, expr);
+		ta.addMember(new TupleMember(pos, ta, 0, FunctionName.function(pos, null, "a")));
+		ta.addMember(new TupleMember(pos, ta, 1, FunctionName.function(pos, null, "b")));
 		r.addEntry(fa, ta);
 		context.checking(new Expectations() {{
 			oneOf(v).visitTuple(ta);
 			oneOf(v).visitExpr(expr, 0);
 			oneOf(v).visitUnresolvedVar(expr, 0);
+			oneOf(v).visitTupleMember(ta.members.get(0));
+			oneOf(v).leaveTupleMember(ta.members.get(0));
+			oneOf(v).visitTupleMember(ta.members.get(1));
+			oneOf(v).leaveTupleMember(ta.members.get(1));
 			oneOf(v).leaveTuple(ta);
 		}});
 		new Traverser(v).doTraversal(r);

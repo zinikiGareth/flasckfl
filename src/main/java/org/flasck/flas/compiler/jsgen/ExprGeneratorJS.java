@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -93,7 +94,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				makeFunctionClosure(myName, fn.argCount());
-			} else
+			} else if ("MakeTuple".equals(myName))
+				sv.result(null);
+			else
 				sv.result(block.pushFunction(myName));
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
@@ -120,6 +123,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.boundVar(((TypedPattern)defn).var.var));
 		} else if (defn instanceof StructField) {
 			sv.result(block.loadField(((StructField)defn).name));
+		} else if (defn instanceof TupleMember) {
+			makeFunctionClosure(myName, 0);
 		} else if (defn instanceof CurryArgument) {
 			sv.result(new JSCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {
@@ -171,6 +176,10 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				return "Nil";
 			else
 				return "MakeArray";
+		}
+		case "()":
+		{
+			return "MakeTuple";
 		}
 		default:
 			throw new RuntimeException("There is no operator " + op);

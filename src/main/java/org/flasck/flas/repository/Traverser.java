@@ -311,7 +311,8 @@ public class Traverser implements Visitor {
 	public void visitTuple(TupleAssignment e) {
 		visitor.visitTuple(e);
 		visitExpr(e.expr, 0);
-		// if needed, visit members here ...
+		for (TupleMember mbr : e.members)
+			visitTupleMember(mbr);
 		leaveTuple(e);
 	}
 
@@ -323,7 +324,7 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitTupleMember(TupleMember sd) {
 		visitor.visitTupleMember(sd);
-		visitor.leaveTupleMember(sd);
+		leaveTupleMember(sd);
 	}
 
 	@Override

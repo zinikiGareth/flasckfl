@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.ExtractField;
@@ -28,16 +29,19 @@ import org.flasck.flas.compiler.jsgen.form.JSLocal;
 import org.flasck.flas.compiler.jsgen.form.JSMakeAcor;
 import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
+import org.flasck.flas.compiler.jsgen.form.JSMakeTuple;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
 import org.flasck.flas.compiler.jsgen.form.JSNewState;
 import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
+import org.flasck.flas.compiler.jsgen.form.JSSetField;
 import org.flasck.flas.compiler.jsgen.form.JSStoreField;
 import org.flasck.flas.compiler.jsgen.form.JSString;
-import org.flasck.flas.compiler.jsgen.form.JSSetField;
+import org.flasck.flas.compiler.jsgen.form.JSTupleMember;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSBlock implements JSBlockCreator {
@@ -75,6 +79,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 	
 	@Override
+	public JSExpr tupleMember(FunctionName name) {
+		JSLocal stmt = new JSLocal(creating, new JSPushFunction(name.jsName()));
+		stmts.add(stmt);
+		return stmt;
+	}
+
+	@Override
 	public JSExpr pushFunction(String meth) {
 		JSLocal stmt = new JSLocal(creating, new JSPushFunction(meth));
 		stmts.add(stmt);
@@ -110,6 +121,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr defineTupleMember(TupleMember e) {
+		JSLocal stmt = new JSLocal(creating, new JSTupleMember(e));
+		stmts.add(stmt);
+		return stmt;
+	}
+
+	@Override
 	public JSExpr closure(JSExpr... args) {
 		JSLocal stmt = new JSLocal(creating, new JSClosure(args));
 		stmts.add(stmt);
@@ -133,6 +151,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr makeArray(JSExpr... args) {
 		JSLocal ma = new JSLocal(creating, new JSMakeArray(args));
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
+	public JSExpr makeTuple(JSExpr... args) {
+		JSLocal ma = new JSLocal(creating, new JSMakeTuple(args));
 		stmts.add(ma);
 		return ma;
 	}

@@ -29,6 +29,8 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
@@ -136,6 +138,37 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth.argument("_" + i);
 		this.block = meth;
 		this.state = new JSFunctionStateStore(globalMocks);
+	}
+
+	// When generating a tuple assignment, we have to create a closure which is the "main thing"
+	// and then (below) a closure extracting each member from this thing 
+	@Override
+	public void visitTuple(TupleAssignment e) {
+		switchVars.clear();
+		String pkg = e.name().packageName().jsName();
+		String cxName = e.name().inContext.jsName();
+		jse.ensurePackageExists(pkg, cxName);
+		this.meth = jse.newFunction(pkg, cxName, false, e.name().name);
+			
+		this.meth.argument("_cxt");
+		this.block = meth;
+		this.state = new JSFunctionStateStore(globalMocks);
+		sv.push(new ExprGeneratorJS(state, sv, this.block));
+	}
+	
+	@Override
+	public void visitTupleMember(TupleMember e) {
+		switchVars.clear();
+		String pkg = e.name().packageName().jsName();
+		String cxName = e.name().inContext.jsName();
+		jse.ensurePackageExists(pkg, cxName);
+		this.meth = jse.newFunction(pkg, cxName, false, e.name().name);
+			
+		this.meth.argument("_cxt");
+		this.block = meth;
+		this.state = new JSFunctionStateStore(globalMocks);
+		this.meth.returnObject(meth.defineTupleMember(e));
+//		sv.push(new ExprGeneratorJS(state, sv, this.block));
 	}
 	
 	@Override
@@ -295,6 +328,16 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
+		if (meth == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
+		this.meth = null;
+		this.state = null;
+	}
+
+	@Override
+	public void leaveTuple(TupleAssignment ta) {
 		if (meth == null) {
 			// we elected not to generate, so just forget it ...
 			return;

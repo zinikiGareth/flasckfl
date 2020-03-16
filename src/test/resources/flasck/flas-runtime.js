@@ -149,6 +149,17 @@ FLContext.prototype.array = function(...args) {
 	return args;
 }
 
+FLContext.prototype.makeTuple = function(...args) {
+	return Tuple.eval(this, args);
+}
+
+FLContext.prototype.tupleMember = function(tuple, which) {
+	tuple = this.head(tuple);
+	if (!tuple instanceof Tuple)
+		throw "not a tuple: " + tuple;
+	return tuple.args[which];
+}
+
 FLContext.prototype.error = function(msg) {
 	return FLError.eval(this, msg);
 }
@@ -313,6 +324,16 @@ const False = function() {
 
 False.eval = function(_cxt) {
 	return false;
+}
+
+/* istanbul ignore next */
+const Tuple = function() {
+}
+
+Tuple.eval = function(_cxt, args) {
+	const ret = new Tuple();
+	ret.args = args;
+	return ret;
 }
 
 /* istanbul ignore next */

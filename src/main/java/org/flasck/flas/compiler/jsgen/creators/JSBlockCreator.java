@@ -2,10 +2,12 @@ package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public interface JSBlockCreator {
@@ -14,10 +16,12 @@ public interface JSBlockCreator {
 	JSExpr string(String string);
 	JSExpr newOf(SolidName clz);
 	JSExpr makeArray(JSExpr... args);
+	JSExpr makeTuple(JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr pushFunction(String meth);
 	JSExpr pushConstructor(String clz);
-	
+	JSExpr defineTupleMember(TupleMember e);
+
 	// creating more complex things
 	JSExpr structConst(String name);
 	JSExpr mockContract(SolidName name);
@@ -31,6 +35,7 @@ public interface JSBlockCreator {
 
 	// HSIE logic statements
 	JSExpr boundVar(String var);
+	JSExpr tupleMember(FunctionName name);
 	void bindVar(String slot, String var);
 	void head(String var);
 	void field(String asVar, String fromVar, String field);
