@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -17,6 +18,7 @@ import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.lifting.FunctionGroupOrdering;
+import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
@@ -205,6 +207,17 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).leaveObjectDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traverseAgentDefn() {
+		AgentDefinition s = new AgentDefinition(pos, pos, new CardName(pkg, "AnAgent"));
+		r.addEntry(s.name(), s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitAgentDefn(s);
+			oneOf(v).leaveAgentDefn(s);
 		}});
 		r.traverse(v);
 	}

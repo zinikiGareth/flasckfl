@@ -22,6 +22,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parsedForm.ActionMessage;
+import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
@@ -135,6 +136,8 @@ public class Traverser implements Visitor {
 			visitContractDecl((ContractDecl)e);
 		else if (e instanceof ObjectDefn)
 			visitObjectDefn((ObjectDefn)e);
+		else if (e instanceof AgentDefinition)
+			visitAgentDefn((AgentDefinition)e);
 		else if (e instanceof FunctionDefinition) {
 			if (functionOrder == null)
 				visitFunction((FunctionDefinition)e);
@@ -238,6 +241,17 @@ public class Traverser implements Visitor {
 
 	public void leaveObjectDefn(ObjectDefn obj) {
 		visitor.leaveObjectDefn(obj);
+	}
+
+	@Override
+	public void visitAgentDefn(AgentDefinition s) {
+		visitor.visitAgentDefn(s);
+		leaveAgentDefn(s);
+	}
+
+	@Override
+	public void leaveAgentDefn(AgentDefinition s) {
+		visitor.leaveAgentDefn(s);
 	}
 
 	@Override
