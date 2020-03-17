@@ -185,6 +185,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.evalRet = meth.newOf(obj.name());
 		this.block = meth;
 		this.structFieldHandler = sf -> {
+			if (sf.name.equals("id"))
+				return;
 			JSExpr arg = this.meth.argument(sf.name);
 			this.meth.storeField(this.evalRet, sf.name, arg);
 		};

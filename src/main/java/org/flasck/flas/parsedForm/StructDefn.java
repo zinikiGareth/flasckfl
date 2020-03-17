@@ -14,6 +14,8 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType, AccessorHolder {
 	public static Comparator<StructDefn> nameComparator = new Comparator<StructDefn>() {
 		@Override
@@ -40,14 +42,14 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 
 	@Override
 	public int argCount() {
-		return fields.size();
+		return fields.size() - type.ignoreCount();
 	}
 
 	@Override
 	public Type get(int pos) {
-		if (pos == fields.size())
+		if (pos == argCount())
 			return this;
-		return (Type)fields.get(pos).type.defn();
+		return (Type)fields.get(pos + type.ignoreCount()).type.defn();
 	}
 
 	@Override
