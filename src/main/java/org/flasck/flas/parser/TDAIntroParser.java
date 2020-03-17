@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn;
@@ -27,6 +28,7 @@ import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TDAIntroParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -48,39 +50,49 @@ public class TDAIntroParser implements TDAParsing {
 			return null; // in the "nothing doing" sense
 
 		switch (kw.text) {
-		case "card": {
-			TypeNameToken tn = TypeNameToken.unqualified(toks);
-			if (tn == null) {
-				errors.message(toks, "invalid or missing type name");
-				return new IgnoreNestedParser();
-			}
-			CardName qn = namer.cardName(tn.text);
-			CardDefinition card = new CardDefinition(kw.location, tn.location, qn);
-			consumer.newCard(card);
-			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
-			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
-			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
-			return new TDAMultiParser(errors, 
-				errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer),
-				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, consumer),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
-			);
-		}
+		case "agent":
+		case "card":
 		case "service": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
+			if (toks.hasMore()) {
+				errors.message(toks, "extra tokens at end of line");
+				return new IgnoreNestedParser();
+			}
+			
 			CardName qn = namer.cardName(tn.text);
-			ServiceDefinition svc = new ServiceDefinition(kw.location, tn.location, qn);
-			consumer.newService(svc);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
 			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
+
+			TDAParserConstructor sh;
+			switch (kw.text) {
+			case "agent": {
+				AgentDefinition card = new AgentDefinition(kw.location, tn.location, qn);
+				consumer.newAgent(card);
+				sh = errors -> new TDAAgentElementsParser(errors, new ObjectNestedNamer(qn), card, consumer);
+				break;
+			}
+			case "card": {
+				CardDefinition card = new CardDefinition(kw.location, tn.location, qn);
+				consumer.newCard(card);
+				sh = errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer);
+				break;
+			}
+			case "service": {
+				ServiceDefinition svc = new ServiceDefinition(kw.location, tn.location, qn);
+				consumer.newService(svc);
+				sh = errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer);
+				break;
+			}
+			default:
+				throw new NotImplementedException(kw.text);
+			}
 			return new TDAMultiParser(errors, 
-				errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer),
+				sh,
 				errors -> new TDAHandlerParser(errors, consumer, handlerNamer, consumer),
 				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, consumer),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)

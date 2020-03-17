@@ -23,6 +23,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.parsedForm.ActionMessage;
+import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -199,6 +200,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void newHandler(HandlerImplements hi) {
 		addEntry(hi.handlerName, hi);
+	}
+
+	@Override
+	public void newAgent(AgentDefinition decl) {
+		addEntry(decl.cardName(), decl);
 	}
 
 	@Override
