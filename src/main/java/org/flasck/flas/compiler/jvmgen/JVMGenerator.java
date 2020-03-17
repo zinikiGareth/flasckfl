@@ -416,9 +416,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			this.structFieldHandler = sf -> {
 				if (sf.name.equals("id"))
 					return;
-				IExpr arg = meth.arrayElt(args, meth.intConst(ai.getAndIncrement()));
-				IExpr svar = meth.getField(ret, "state");
-				meth.callInterface("void", svar, "set", meth.stringConst(sf.name), arg).flush();
+				if (sf.init != null) {
+					new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
+				} else {
+					IExpr arg = meth.arrayElt(args, meth.intConst(ai.getAndIncrement()));
+					IExpr svar = meth.getField(ret, "state");
+					meth.callInterface("void", svar, "set", meth.stringConst(sf.name), arg).flush();
+				}
 			};
 		}
 	}

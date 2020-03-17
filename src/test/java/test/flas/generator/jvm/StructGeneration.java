@@ -131,11 +131,11 @@ public class StructGeneration {
 		Var ecxt = new Var.AVar(eval, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		Var eret = new Var.AVar(eval, ename, "ret");
 		Var args = new Var.AVar(eval, "[" + J.OBJECT, "args");
-		IExpr i0 = context.mock(IExpr.class, "i0");
 		IExpr sarg = context.mock(IExpr.class, "sarg");
-		IExpr val = context.mock(IExpr.class, "val");
 		IExpr state = context.mock(IExpr.class, "state");
 		IExpr setField = context.mock(IExpr.class, "setField");
+		IExpr sh = context.mock(IExpr.class, "hello");
+		IExpr val = context.mock(IExpr.class, "val");
 		Sequence flushes = context.sequence("flushes");
 		context.checking(new Expectations() {{ // eval
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
@@ -147,8 +147,8 @@ public class StructGeneration {
 			oneOf(eval).makeNew(ename, ecxt); will(returnValue(mknew));
 			oneOf(eval).assign(eret, mknew); will(returnValue(ass));
 			oneOf(ass).flush(); inSequence(flushes);
-			oneOf(eval).intConst(0); will(returnValue(i0));
-			oneOf(eval).arrayElt(args, i0); will(returnValue(val));
+			oneOf(eval).stringConst("hello"); will(returnValue(sh));
+			oneOf(eval).as(sh, J.OBJECT); will(returnValue(val));
 			oneOf(eval).getField(eret, "state"); will(returnValue(state));
 			oneOf(eval).stringConst("s"); will(returnValue(sarg));
 			oneOf(eval).callInterface("void", state, "set", sarg, val); will(returnValue(setField));

@@ -10,23 +10,13 @@ import org.flasck.flas.commonBase.names.SolidName;
 
 public abstract class FieldsDefn implements AsString, Locatable, PolyHolder {
 	public enum FieldsType { 
-		STRUCT(0),
-		ENTITY(1),
-		DEAL(420), // 420 signifies I haven't thought this through or tested it yet
-		OFFER(420),
-		STATE(420),
-		ENVELOPE(420),
-		WRAPS(420);
-		
-		private final int ignore;
-
-		FieldsType(int ignore) {
-			this.ignore = ignore;
-		}
-		
-		public int ignoreCount() {
-			return ignore;
-		}
+		STRUCT,
+		ENTITY,
+		DEAL,
+		OFFER,
+		STATE,
+		ENVELOPE,
+		WRAPS;
 	}
 
 	public final boolean generate;

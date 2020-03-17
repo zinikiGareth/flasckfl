@@ -1,6 +1,7 @@
 package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -14,8 +15,6 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
-
 public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType, AccessorHolder {
 	public static Comparator<StructDefn> nameComparator = new Comparator<StructDefn>() {
 		@Override
@@ -23,6 +22,9 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 			return l.name().uniqueName().compareTo(r.name().uniqueName());
 		}
 	};
+	
+	public final List<StructField> ctorfields = new ArrayList<StructField>();
+
 
 	// for tests
 	public StructDefn(InputPosition location, FieldsDefn.FieldsType type, String pkg, String tn, boolean generate, PolyType... polys) {
@@ -41,15 +43,22 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 	}
 
 	@Override
+	public void addField(StructField sf) {
+		super.addField(sf);
+		if (sf.init == null)
+			ctorfields.add(sf);
+	}
+
+	@Override
 	public int argCount() {
-		return fields.size() - type.ignoreCount();
+		return ctorfields.size();
 	}
 
 	@Override
 	public Type get(int pos) {
 		if (pos == argCount())
 			return this;
-		return (Type)fields.get(pos + type.ignoreCount()).type.defn();
+		return (Type)ctorfields.get(pos).type.defn();
 	}
 
 	@Override

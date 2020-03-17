@@ -60,7 +60,7 @@ public class StructGenerationJS {
 		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
 		JSMethodCreator eval = context.mock(JSMethodCreator.class);
 		JSExpr obj = context.mock(JSExpr.class, "obj");
-		JSExpr parmS = context.mock(JSExpr.class, "s");
+		JSExpr strS = context.mock(JSExpr.class, "s");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
@@ -68,9 +68,9 @@ public class StructGenerationJS {
 			oneOf(ctorBlock).stateField();
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
 			oneOf(eval).argument("_cxt");
-			oneOf(eval).argument("s"); will(returnValue(parmS));
 			oneOf(eval).newOf(sn); will(returnValue(obj));
-			oneOf(eval).storeField(obj, "s", parmS);
+			oneOf(eval).string("hello"); will(returnValue(strS));
+			oneOf(eval).storeField(obj, "s", strS);
 			oneOf(eval).returnObject(obj);
 		}});
 		StackVisitor gen = new StackVisitor();

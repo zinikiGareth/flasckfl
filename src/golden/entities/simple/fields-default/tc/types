@@ -1,0 +1,4 @@
+test.golden.def :: test.golden.OneDefault
+test.golden.only :: test.golden.OnlyDefault
+test.golden.other :: test.golden.OtherDefault
+test.golden.two :: test.golden.TwoDefault

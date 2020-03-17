@@ -187,8 +187,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.structFieldHandler = sf -> {
 			if (sf.name.equals("id"))
 				return;
-			JSExpr arg = this.meth.argument(sf.name);
-			this.meth.storeField(this.evalRet, sf.name, arg);
+			if (sf.init == null) {
+				JSExpr arg = this.meth.argument(sf.name);
+				this.meth.storeField(this.evalRet, sf.name, arg);
+			} else {
+				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
+			}
+			
 		};
 	}
 	
@@ -470,8 +475,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void result(Object r) {
-		if (r != null)
+		if (r != null) {
 			block.returnObject((JSExpr)r);
+		}
 	}
 
 	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv) {
