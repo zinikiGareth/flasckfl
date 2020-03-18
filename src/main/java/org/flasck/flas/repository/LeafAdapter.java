@@ -44,6 +44,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
+import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
@@ -413,6 +414,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveUnitTestExpect(UnitTestExpect ute) {
+	}
+
+	@Override
+	public void visitUnitTestSend(UnitTestSend s) {
+	}
+
+	@Override
+	public void leaveUnitTestSend(UnitTestSend s) {
 	}
 
 	@Override

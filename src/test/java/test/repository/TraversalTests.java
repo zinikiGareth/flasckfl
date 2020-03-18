@@ -51,6 +51,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
+import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.parser.ut.UnitTestNamer;
@@ -242,7 +243,25 @@ public class TraversalTests {
 	}
 
 	@Test
-	public void traversingAgentDefnVisitsMethodsDefinedInProvides() {
+	public void traversingAgentDefnDoesntVisitMethodsDefinedInProvidesByDefault() {
+		CardName an = new CardName(pkg, "AnAgent");
+		AgentDefinition s = new AgentDefinition(pos, pos, an);
+		Provides p = new Provides(pos, pos, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>());
+		p.addImplementationMethod(meth);
+		s.addProvidedService(p);
+		r.addEntry(s.name(), s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitAgentDefn(s);
+			oneOf(v).visitProvides(p);
+			oneOf(v).leaveProvides(p);
+			oneOf(v).leaveAgentDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traversingAgentDefnVisitsMethodsDefinedInProvidesIfDesired() {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
 		Provides p = new Provides(pos, pos, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
@@ -258,7 +277,7 @@ public class TraversalTests {
 			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
 		}});
-		r.traverse(v);
+		r.traverseWithImplementedMethods(v);
 	}
 
 	@Test
@@ -547,6 +566,41 @@ public class TraversalTests {
 			oneOf(v).visitStringLiteral((StringLiteral) with(ExprMatcher.string("hello")));
 			oneOf(v).visitUnitTestExpect(ute);
 			oneOf(v).leaveUnitTestExpect(ute);
+			oneOf(v).leaveUnitTest(utc);
+			oneOf(v).leaveUnitTestPackage(utp);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traverseUnitTestContract() {
+		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
+		UnitTestName name = new UnitTestName(utfn, 1);
+		UnitTestPackage utp = new UnitTestPackage(utfn);
+		UnitTestCase utc = new UnitTestCase(name, "do something");
+		utp.testCase(utc);
+		TypeReference tr = new TypeReference(pos, "SomeContract");
+		UnresolvedVar f = new UnresolvedVar(pos, "f");
+		StringLiteral hello = new StringLiteral(pos, "hello");
+		ApplyExpr inv = new ApplyExpr(pos, f, hello);
+		UnitTestSend uts = new UnitTestSend(new UnresolvedVar(pos, "card"), tr, inv);
+		utc.steps.add(uts);
+		r.addEntry(name, utp);
+		context.checking(new Expectations() {{
+			oneOf(v).visitUnitTestPackage(utp);
+			oneOf(v).visitUnitTest(utc);
+			oneOf(v).visitUnitTestStep(uts);
+			oneOf(v).visitUnitTestSend(uts);
+			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("card")), with(0));
+			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitExpr(inv, 0);
+			oneOf(v).visitApplyExpr(inv);
+			oneOf(v).visitExpr(f, 1);
+			oneOf(v).visitUnresolvedVar(f, 1);
+			oneOf(v).visitExpr(hello, 0);
+			oneOf(v).visitStringLiteral(hello);
+			oneOf(v).leaveApplyExpr(inv);
+			oneOf(v).leaveUnitTestSend(uts);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);
 		}});

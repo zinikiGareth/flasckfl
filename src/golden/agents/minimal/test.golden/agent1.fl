@@ -7,4 +7,4 @@
 	agent Agent007
 		provides Trivia
 			ask s r
-				<- r.reply s
+				<- r.reply ("answer to " + s)

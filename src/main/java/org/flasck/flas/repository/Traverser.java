@@ -61,6 +61,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
+import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
@@ -980,7 +981,7 @@ public class Traverser implements Visitor {
 			visitUnitDataDeclaration(udd);
 		for (UnitTestCase c : e.tests())
 			visitUnitTest(c);
-		visitor.leaveUnitTestPackage(e);
+		leaveUnitTestPackage(e);
 	}
 
 	@Override
@@ -1008,6 +1009,8 @@ public class Traverser implements Visitor {
 			visitUnitDataDeclaration((UnitDataDeclaration) s);
 		else if (s instanceof UnitTestExpect)
 			visitUnitTestExpect((UnitTestExpect) s);
+		else if (s instanceof UnitTestSend)
+			visitUnitTestSend((UnitTestSend)s);
 		else
 			throw new NotImplementedException("cannot handle " + s.getClass());
 	}
@@ -1097,8 +1100,21 @@ public class Traverser implements Visitor {
 		visitor.leaveUnitTestExpect(ute);
 	}
 
+	public void visitUnitTestSend(UnitTestSend s) {
+		visitor.visitUnitTestSend(s);
+		visitUnresolvedVar(s.card, 0);
+		visitTypeReference(s.contract);
+		visitExpr(s.expr, 0);
+		leaveUnitTestSend(s);
+	}
+
+	public void leaveUnitTestSend(UnitTestSend s) {
+		visitor.leaveUnitTestSend(s);
+	}
+
 	@Override
 	public void leaveUnitTestPackage(UnitTestPackage e) {
+		visitor.leaveUnitTestPackage(e);
 	}
 
 	@Override
