@@ -1,0 +1,4 @@
+	agent NoContractForProvides
+		provides NotDefinedHere
+			foo x
+				<- Debug "hello"

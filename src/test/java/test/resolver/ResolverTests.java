@@ -13,6 +13,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -22,6 +24,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -399,4 +402,21 @@ public class ResolverTests {
 //		assertEquals(vp, from.defn());
 //		assertNull(fld.defn());
 	}
+
+	@Test
+	public void testWeCanResolveProvidesTypeReferencesInsideAgents() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.Fred.Hello"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Hello"); will(returnValue(type));
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		final CardName card = new CardName(pkg, "Card");
+		final TypeReference ty = new TypeReference(pos, "Hello");
+		ContractService cs = new ContractService(pos, pos, ty, new CSName(card, "Fred"), null, null);
+		r.currentScope(cs.name());
+		r.visitTypeReference(ty);
+		assertEquals(type, ty.defn());
+	}
+
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
@@ -112,6 +113,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void visitAgentDefn(AgentDefinition sd) {
+		scopeStack.add(0, scope);
+		this.scope = sd.name();
+	}
+	
+	@Override
 	public void visitStructField(StructField sf) {
 		String name = sf.type.name();
 		RepositoryEntry defn = find(scope, name);
@@ -132,6 +139,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void leaveObjectDefn(ObjectDefn sd) {
+		this.scope = scopeStack.remove(0);
+	}
+
+	@Override
+	public void leaveAgentDefn(AgentDefinition sd) {
 		this.scope = scopeStack.remove(0);
 	}
 

@@ -1,1 +1,10 @@
+	contract Responder
+		down reply (String y)
+
+.	contract Trivia
+.		up ask (String s) (Responder r)
+
 	agent Agent007
+		provides Trivia
+			ask s r
+				<- r.reply s
