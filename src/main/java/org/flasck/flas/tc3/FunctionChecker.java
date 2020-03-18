@@ -49,7 +49,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		this.state = state;
 		this.inMeth = inMeth;
 		if (inMeth != null && inMeth.contractMethod() != null) {
-			csc = new ContractSlotChecker(sv, inMeth);
+			csc = new ContractSlotChecker(errors, sv, state, inMeth);
 		} else
 			csc = null;
 	}

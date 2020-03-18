@@ -26,6 +26,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.EnsureListMessage;
+import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.PosType;
@@ -77,10 +78,7 @@ public class ContractMethodTests {
 		meth.sendMessage(msg);
 		Slot s = context.mock(Slot.class);
 		sv.argSlot(s);
-		context.assertIsSatisfied();
-		sv.visitPattern(vp, false);
-		sv.visitVarPattern(vp, false);
-		sv.leavePattern(vp, false);
+		sv.varInIntro(vp.name(), vp, null);
 		sv.endArg(s);
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
@@ -92,4 +90,51 @@ public class ContractMethodTests {
 		sv.leaveObjectMethod(meth);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void theArgumentTypeMayBeSpecifiedIfItsTheSame() {
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
+		cmdargs.add(tp);
+		args.add(tp);
+		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
+		meth.sendMessage(msg);
+		Slot s = context.mock(Slot.class);
+		sv.argSlot(s);
+		sv.matchType(tp.type(), tp.var, null);
+		sv.endArg(s);
+		sv.visitSendMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.debug));
+		sv.leaveMessage(null);
+		context.checking(new Expectations() {{
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
+			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), (Matcher)Matchers.any(EnsureListMessage.class)))));
+		}});
+		sv.leaveObjectMethod(meth);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void itIsAnErrorToSpecifyADifferentArgumentType() {
+		sv.push(new FunctionChecker(errors, sv, state, meth));
+		TypedPattern ctp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
+		cmdargs.add(ctp);
+		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.numberTR, new VarName(pos, meth.name(), "str"));
+		args.add(tp);
+		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
+		meth.sendMessage(msg);
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "cannot bind str to Number when the contract specifies String");
+			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
+			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type((Matcher)Matchers.any(ErrorType.class), (Matcher)Matchers.any(EnsureListMessage.class)))));
+		}});
+		Slot s = context.mock(Slot.class);
+		sv.argSlot(s);
+		sv.matchType(tp.type(), tp.var, null);
+		sv.endArg(s);
+		sv.visitSendMessage(msg);
+		sv.result(new ExprResult(pos, LoadBuiltins.debug));
+		sv.leaveMessage(null);
+		sv.leaveObjectMethod(meth);
+	}
 }

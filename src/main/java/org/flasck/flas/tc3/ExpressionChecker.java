@@ -89,7 +89,10 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
 		} else if (var.defn() instanceof VarPattern) {
 			VarPattern vp = (VarPattern) var.defn();
-			announce(pos, state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
+			if (vp.type() != null)
+				announce(pos, vp.type());
+			else
+				announce(pos, state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
 		} else if (var.defn() instanceof TypedPattern) {
 			TypedPattern vp = (TypedPattern) var.defn();
 			announce(pos, (Type) vp.type.defn());

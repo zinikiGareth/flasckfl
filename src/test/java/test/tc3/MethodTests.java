@@ -106,7 +106,7 @@ public class MethodTests {
 	@Test
 	public void weCanHandleArgumentTypes() {
 		sv.push(new FunctionChecker(errors, sv, state, null));
-		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "String"), new VarName(pos, meth.name(), "str"));
+		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		args.add(tp);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
@@ -114,13 +114,12 @@ public class MethodTests {
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot slot"); will(returnValue(ut));
+			oneOf(ut).canBeType(pos, LoadBuiltins.string);
 		}});
 		sv.argSlot(s);
-		context.assertIsSatisfied();
-		sv.visitPattern(tp, false);
-		sv.visitTypedPattern(tp, false);
-		sv.leavePattern(tp, false);
+		sv.matchType(tp.type(), tp.var, null);
 		sv.endArg(s);
+		context.assertIsSatisfied();
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);

@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -16,13 +17,18 @@ import org.flasck.flas.tc3.FunctionChecker.ArgResult;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor  {
+	private final ErrorReporter errors;
 	private final NestedVisitor sv;
+	private final CurrentTCState state;
 	private final ObjectMethod inMeth;
 	private final ContractMethodDecl cmd;
 	private int pos;
+	private Type ty;
 
-	public ContractSlotChecker(NestedVisitor sv, ObjectMethod inMeth) {
+	public ContractSlotChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state, ObjectMethod inMeth) {
+		this.errors = errors;
 		this.sv = sv;
+		this.state = state;
 		this.inMeth = inMeth;
 		this.cmd = inMeth.contractMethod();
 		this.pos = 0;
@@ -44,13 +50,19 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 	}
 
 	@Override
-	public void matchType(Type ty, VarName var, FunctionIntro intro) {
-		throw new NotImplementedException();
+	public void matchType(Type want, VarName var, FunctionIntro intro) {
+		NamedType defined = ((TypedPattern)cmd.args.get(pos++)).type.defn();
+		if (defined != want) {
+			errors.message(var.loc, "cannot bind " + var.var + " to " + ((NamedType)want).name() + " when the contract specifies " + defined.name());
+			this.ty = new ErrorType();
+		} else
+			this.ty = want;
 	}
 
 	@Override
 	public void varInIntro(VarName vn, VarPattern vp, FunctionIntro intro) {
-		throw new NotImplementedException();
+		ty = ((TypedPattern)cmd.args.get(pos++)).type.defn();
+		vp.bindType(ty);
 	}
 
 	@Override
@@ -65,6 +77,7 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 
 	@Override
 	public void endArg(Slot s) {
-		sv.result(new ArgResult(((TypedPattern)cmd.args.get(pos++)).type.defn())); 
+		sv.result(new ArgResult(ty));
+		this.ty = null;
 	}
 }
