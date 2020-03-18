@@ -41,18 +41,28 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final List<PosType> resultTypes = new ArrayList<>();
 	private final CurrentTCState state;
 	private final ObjectMethod inMeth;
+	private final ContractSlotChecker csc;
 
 	public FunctionChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state, ObjectMethod inMeth) {
 		this.errors = errors;
 		this.sv = sv;
 		this.state = state;
 		this.inMeth = inMeth;
+		if (inMeth != null && inMeth.contractMethod() != null) {
+			csc = new ContractSlotChecker(sv, inMeth);
+		} else
+			csc = null;
 	}
 	
 	@Override
 	public void argSlot(Slot s) {
-		UnifiableType currentArg = state.createUT(null, "slot " + s);
-		sv.push(new SlotChecker(sv, state, currentArg));
+		if (inMeth != null && inMeth.contractMethod() != null) {
+			// handle contract methods where the types are already prescribed
+			sv.push(csc);
+		} else {
+			UnifiableType currentArg = state.createUT(null, "slot " + s);
+			sv.push(new SlotChecker(sv, state, currentArg));
+		}
 	}
 
 	@Override

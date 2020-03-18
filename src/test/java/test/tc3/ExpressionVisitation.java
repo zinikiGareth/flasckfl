@@ -134,7 +134,6 @@ public class ExpressionVisitation {
 	@Test
 	public void aStructFieldReturnsItsType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
-		FunctionName func = FunctionName.function(pos, null, "f");
 		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "x");
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
