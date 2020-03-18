@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -257,6 +258,20 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		checkValidityOfUDDConstruction(udd);
 	}
 
+	@Override
+	public void visitUnitTestSend(UnitTestSend s) {
+		scopeStack.add(0, scope);
+		RepositoryEntry defn = find(scope, s.contract.name());
+//		if (defn != null)
+//			this.scope = defn.name();
+		// otherwise it is left as it is, which will fail, but errors will occur when the traverser vistri
+	}
+	
+	@Override
+	public void leaveUnitTestSend(UnitTestSend s) {
+		this.scope = scopeStack.remove(0);
+	}
+	
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {
 		NamedType defn = udd.ofType.defn();
 		if (defn == null) {
@@ -280,6 +295,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			// assign - copy from another object (if it's the same type - should we be checking that or do we need to wait for typecheck?)
 			// fields - create the default object, then update
 			// assign + fields - copy from another object & then update fields
+		} else if (defn instanceof AgentDefinition) {
+			// I've forgotten what this is all about, but write some tests and do something ...
 		} else
 			throw new RuntimeException("udd not handled: " + defn.getClass());
 	}

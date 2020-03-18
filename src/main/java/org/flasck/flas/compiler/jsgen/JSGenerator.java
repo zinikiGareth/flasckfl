@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -18,6 +19,7 @@ import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -379,12 +381,15 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
 		JSClassCreator ctr = jse.newClass(pkg, cd.name().jsName());
 		JSMethodCreator meth = ctr.createMethod("name", true);
+		meth.argument("_cxt");
 		meth.returnObject(new JSString(cd.name().uniqueName()));
 		ctrDown = jse.newClass(pkg, cd.name().jsName() + ".Down");
 		JSMethodCreator downName = ctrDown.createMethod("name", true);
+		downName.argument("_cxt");
 		downName.returnObject(new JSString(cd.name().uniqueName() + ".Down"));
 		ctrUp = jse.newClass(pkg, cd.name().jsName() + ".Up");
 		JSMethodCreator upName = ctrUp.createMethod("name", true);
+		upName.argument("_cxt");
 		upName.returnObject(new JSString(cd.name().uniqueName() + ".Up"));
 	}
 
@@ -408,6 +413,20 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		ctrUp = ctrDown = null;
 	}
 
+	@Override
+	public void visitAgentDefn(AgentDefinition ad) {
+		String pkg = ad.name().container().jsName();
+		jse.ensurePackageExists(pkg, pkg);
+		JSClassCreator ctr = jse.newClass(pkg, ad.name().jsName());
+		JSMethodCreator meth = ctr.createMethod("name", true);
+		meth.argument("_cxt");
+		meth.returnObject(new JSString(ad.name().uniqueName()));
+	}
+	
+	@Override
+	public void leaveAgentDefn(AgentDefinition s) {
+	}
+	
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		UnitTestName clzName = e.name;
@@ -433,6 +452,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			state.addMock(udd, mock);
 		} else if (objty instanceof ObjectDefn) {
 			JSExpr obj = meth.createObject((SolidName) objty.name());
+			state.addMock(udd, obj);
+		} else if (objty instanceof AgentDefinition) {
+			JSExpr obj = meth.createAgent((CardName) objty.name());
 			state.addMock(udd, obj);
 		} else {
 			/* It seems to me that this requires us to traverse the whole of 

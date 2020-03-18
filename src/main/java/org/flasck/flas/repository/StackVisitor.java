@@ -54,6 +54,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 
@@ -371,6 +372,11 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitUnitTestSend(UnitTestSend s) {
 		top.visitUnitTestSend(s);
+	}
+
+	@Override
+	public void visitSendMethod(NamedType defn, UnresolvedVar expr) {
+		top.visitSendMethod(defn, expr);
 	}
 
 	public void leaveUnitTestSend(UnitTestSend s) {

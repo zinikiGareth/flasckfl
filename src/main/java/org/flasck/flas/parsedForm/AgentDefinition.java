@@ -11,29 +11,29 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.TemplateName;
+import org.flasck.flas.parser.AgentElementsConsumer;
 import org.flasck.flas.parser.CardElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
-public class AgentDefinition implements Locatable, CardElementsConsumer, RepositoryEntry {
+public class AgentDefinition implements Locatable, AgentElementsConsumer, RepositoryEntry, NamedType {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
 	public StateDefinition state;
 	public final List<Template> templates = new ArrayList<Template>();
-	// Used during the collection process, but eliminated by detox
-	public final List<D3Thing> d3s = new ArrayList<D3Thing>();
-	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
 	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
 	public final List<Provides> services = new ArrayList<Provides>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
-	public final CardName cardName;
-	public final List<ObjectMethod> eventHandlers = new ArrayList<>();
+	public final CardName name;
 
 	public AgentDefinition(InputPosition kw, InputPosition location, CardName name) {
 		this.kw = kw;
 		this.location = location;
 		this.simpleName = name.cardName;
-		this.cardName = name;
+		this.name = name;
 	}
 
 	@Override
@@ -42,27 +42,13 @@ public class AgentDefinition implements Locatable, CardElementsConsumer, Reposit
 	}
 
 	public CardName name() {
-		return cardName;
+		return name;
 	}
 
 	public CardName cardName() {
-		return cardName;
+		return name;
 	}
 
-	@Override
-	public TemplateName templateName(String text) {
-		return new TemplateName(cardName, text);
-	}
-
-	@Override
-	public void addTemplate(Template template) {
-		templates.add(template);
-	}
-
-	public void addEventHandler(ObjectMethod handler) {
-		eventHandlers.add(handler);
-	}
-	
 	@Override
 	public void addProvidedService(Provides contractService) {
 		this.services.add(contractService);
@@ -87,11 +73,31 @@ public class AgentDefinition implements Locatable, CardElementsConsumer, Reposit
 
 	@Override
 	public String toString() {
-		return "Card[" + this.cardName().uniqueName() + "]";
+		return "Agent[" + this.cardName().uniqueName() + "]";
 	}
 	
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println(toString());
+	}
+
+	@Override
+	public String signature() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public int argCount() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public Type get(int pos) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public boolean incorporates(InputPosition pos, Type other) {
+		throw new NotImplementedException();
 	}
 }

@@ -20,11 +20,11 @@ import org.flasck.flas.tokenizers.VarNameToken;
 public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider, HandlerNameProvider {
 	protected final ErrorReporter errors;
 	protected final TemplateNamer namer;
-	protected final CardElementsConsumer consumer;
+	protected final AgentElementsConsumer consumer;
 	protected final TopLevelDefinitionConsumer topLevel;
 	private boolean seenState;
 
-	public TDAAgentElementsParser(ErrorReporter errors, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel) {
+	public TDAAgentElementsParser(ErrorReporter errors, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel) {
 		this.errors = errors;
 		this.namer = namer;
 		this.consumer = consumer;

@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
@@ -26,6 +27,7 @@ public interface JSBlockCreator {
 	JSExpr structConst(String name);
 	JSExpr mockContract(SolidName name);
 	JSExpr createObject(SolidName name);
+	JSExpr createAgent(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);
 	

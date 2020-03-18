@@ -16,6 +16,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 
 	@Override
 	protected TDAParsing strategy(KeywordToken kw, Tokenizable toks) {
+		CardElementsConsumer consumer = (CardElementsConsumer) this.consumer;
 		switch (kw.text) {
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);

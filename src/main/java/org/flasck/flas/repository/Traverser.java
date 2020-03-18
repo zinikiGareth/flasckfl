@@ -1104,8 +1104,28 @@ public class Traverser implements Visitor {
 		visitor.visitUnitTestSend(s);
 		visitUnresolvedVar(s.card, 0);
 		visitTypeReference(s.contract);
-		visitExpr(s.expr, 0);
+		visitSendExpr(s.contract, s.expr);
 		leaveUnitTestSend(s);
+	}
+
+	private void visitSendExpr(TypeReference contract, Expr expr) {
+		if (contract.defn() == null)
+			return;
+		if (expr instanceof UnresolvedVar) {
+			visitor.visitSendMethod(contract.defn(), (UnresolvedVar)expr);
+		} else if (expr instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) expr;
+			visitSendMethod(contract.defn(), (UnresolvedVar)ae.fn);
+			for (Object e : ae.args)
+				visitExpr((Expr) e, 0);
+		} else
+			throw new NotImplementedException("I don't think that should happen");
+	}
+	
+	
+
+	public void visitSendMethod(NamedType defn, UnresolvedVar expr) {
+		visitor.visitSendMethod(defn, expr);
 	}
 
 	public void leaveUnitTestSend(UnitTestSend s) {

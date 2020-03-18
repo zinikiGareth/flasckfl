@@ -271,6 +271,10 @@ FLContext.prototype.mockContract = function(contract) {
 	return new MockContract(contract);
 }
 
+FLContext.prototype.mockAgent = function(agent) {
+	return new MockAgent(agent);
+}
+
 
 class FLError extends Error {
 	constructor(msg) {

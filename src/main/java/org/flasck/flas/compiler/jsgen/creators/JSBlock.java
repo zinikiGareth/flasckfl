@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
@@ -30,6 +31,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMakeAcor;
 import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMakeTuple;
+import org.flasck.flas.compiler.jsgen.form.JSMockAgent;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
 import org.flasck.flas.compiler.jsgen.form.JSNewState;
@@ -257,6 +259,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr createObject(SolidName name) {
 		JSLocal ret = new JSLocal(this.creating, new JSEval(name));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
+	public JSExpr createAgent(CardName name) {
+		JSLocal ret = new JSLocal(this.creating, new JSMockAgent(name));
 		stmts.add(ret);
 		return ret;
 	}

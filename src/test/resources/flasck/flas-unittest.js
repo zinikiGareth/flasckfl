@@ -89,4 +89,7 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 	_cxt.log("Have invocation of", meth, "with", args);
 }
 
+const MockAgent = function(agent) {
+};
+
 
