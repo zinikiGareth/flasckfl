@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -75,6 +76,12 @@ public class MemberExprConvertor extends LeafAdapter {
 		if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) defn;
 			dt = tp.type.defn();
+		} else if (defn instanceof VarPattern) {
+			VarPattern vp = (VarPattern) defn;
+			if (vp.type() == null) {
+				throw new NotImplementedException("cannot use var " + vp + " as it is not bound to a type");
+			} else
+				dt = (NamedType) vp.type();
 		} else if (defn instanceof UnitDataDeclaration) {
 			dt = ((UnitDataDeclaration)defn).ofType.defn();
 		} else
