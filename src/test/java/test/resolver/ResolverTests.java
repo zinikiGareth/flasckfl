@@ -24,7 +24,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
-import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -413,7 +413,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		ContractService cs = new ContractService(pos, pos, ty, new CSName(card, "Fred"), null, null);
+		Provides cs = new Provides(pos, pos, ty, new CSName(card, "Fred"));
 		r.currentScope(cs.name());
 		r.visitTypeReference(ty);
 		assertEquals(type, ty.defn());

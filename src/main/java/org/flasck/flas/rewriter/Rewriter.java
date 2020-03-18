@@ -49,7 +49,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
-import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.D3Thing;
@@ -285,17 +285,17 @@ public class Rewriter implements CodeGenRegistry {
 					members.put(ci.referAsVar, t);
 				}
 			}
-			for (ContractService cs : cd.services) {
-				if (cs.referAsVar != null) {
-					RWContractService t = null;
-					for (RWContractService x : cardServices.values())
-						if (cs.referAsVar.equals(x.referAsVar))
-							t = x;
-					if (t == null)
-						throw new UtilException("No cs for " + cs.referAsVar);
-					members.put(cs.referAsVar, t);
-				}
-			}
+//			for (ContractService cs : cd.services) {
+//				if (cs.referAsVar != null) {
+//					RWContractService t = null;
+//					for (RWContractService x : cardServices.values())
+//						if (cs.referAsVar.equals(x.referAsVar))
+//							t = x;
+//					if (t == null)
+//						throw new UtilException("No cs for " + cs.referAsVar);
+//					members.put(cs.referAsVar, t);
+//				}
+//			}
 			for (HandlerImplements hi : cd.handlers) {
 				statics.put(hi.baseName, new ObjectReference(hi.location(), hi.handlerName));
 			}
@@ -811,7 +811,7 @@ public class Rewriter implements CodeGenRegistry {
 				grp.struct.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 		}
 		
-		for (ContractService cs : cd.services) {
+		for (Provides cs : cd.services) {
 			RWContractService rw = rewriteCS(cx, cs);
 			if (rw == null)
 				continue;
@@ -839,29 +839,29 @@ public class Rewriter implements CodeGenRegistry {
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = null; //cardImplements.get(ci.getRealName());
 
-			for (MethodCaseDefn c : ci.methods) {
-				if (methods.containsKey(c.intro.name().uniqueName()))
-					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.nameAsString()), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name(), c.intro.args.size());
-				rewriteCase(c2, rwm, c, true, false);
-				methods.put(c.intro.name().uniqueName(), rwm);
-				rw.methods.add(rwm);
-				if (!errors.hasErrors())
-					rwm.gatherScopedVars();
-			}
+//			for (MethodCaseDefn c : ci.methods) {
+//				if (methods.containsKey(c.intro.name().uniqueName()))
+//					throw new UtilException("Error or exception?  I think this is two methods with the same name");
+//				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.nameAsString()), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name(), c.intro.args.size());
+//				rewriteCase(c2, rwm, c, true, false);
+//				methods.put(c.intro.name().uniqueName(), rwm);
+//				rw.methods.add(rwm);
+//				if (!errors.hasErrors())
+//					rwm.gatherScopedVars();
+//			}
 		}
 		
-		for (ContractService cs : cd.services) {
+		for (Provides cs : cd.services) {
 			RWContractService rw = null; //cardServices.get(cs.getRealName());
 
-			for (MethodCaseDefn c : cs.methods) {
-				if (methods.containsKey(c.intro.name().uniqueName()))
-					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.nameAsString()), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name(), c.intro.args.size());
-				rewriteCase(c2, rwm, c, true, false);
-				methods.put(c.intro.name().uniqueName(), rwm);
-				rwm.gatherScopedVars();
-			}
+//			for (MethodCaseDefn c : cs.methods) {
+//				if (methods.containsKey(c.intro.name().uniqueName()))
+//					throw new UtilException("Error or exception?  I think this is two methods with the same name");
+//				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.nameAsString()), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name(), c.intro.args.size());
+//				rewriteCase(c2, rwm, c, true, false);
+//				methods.put(c.intro.name().uniqueName(), rwm);
+//				rwm.gatherScopedVars();
+//			}
 		}
 
 		for (HandlerImplements hi : cd.handlers) {
@@ -989,7 +989,7 @@ public class Rewriter implements CodeGenRegistry {
 		}
 	}
 
-	private RWContractService rewriteCS(NamingContext cx, ContractService cs) {
+	private RWContractService rewriteCS(NamingContext cx, Provides cs) {
 		try {
 			Object av = null; // cx.resolve(cs.location(), cs.name());
 			if (av == null || !(av instanceof PackageVar)) {
@@ -998,7 +998,7 @@ public class Rewriter implements CodeGenRegistry {
 			}
 			@SuppressWarnings("unused")
 			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
-			return new RWContractService(cs.kw, cs.location(), null /*cs.getRealName()*/, (SolidName) cd.getTypeName(), cs.vlocation, cs.referAsVar);
+			return new RWContractService(cs.kw, cs.location(), null /*cs.getRealName()*/, (SolidName) cd.getTypeName(), null, null);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -1033,9 +1033,9 @@ public class Rewriter implements CodeGenRegistry {
 		RWContractDecl cd = (RWContractDecl) ((PackageVar) av).defn;
 		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.handlerName, cd.getTypeName(), hi.inCard, bvs);
 		callbackHandlers.put(hi.handlerName.uniqueName(), rw);
-		for (MethodCaseDefn c : hi.methods) {
-			pass1(cx, c.innerScope());
-		}
+//		for (MethodCaseDefn c : hi.methods) {
+//			pass1(cx, c.innerScope());
+//		}
 		return rw;
 	}
 
@@ -1045,20 +1045,20 @@ public class Rewriter implements CodeGenRegistry {
 			if (ret == null)
 				return; // presumably it failed in pass1
 			HandlerContext hc = new HandlerContext(cx, ret);
-			for (MethodCaseDefn c : hi.methods) {
-				if (methods.containsKey(c.intro.name().uniqueName()))
-					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rm = new RWMethodDefinition(ret.location(), contracts.get(ret.nameAsString()), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name(), c.intro.args.size());
-				rewriteCase(hc, rm, c, true, false);
-				ret.methods.add(rm);
-				rm.gatherScopedVars();
-				methods.put(c.intro.name().uniqueName(), rm);
-				Map<String, LocalVar> vars = new TreeMap<>();
-				gatherVars(errors, this, hc, rm.name(), rm.name(), vars, c.intro);
-				FunctionCaseContext hfc = new FunctionCaseContext(hc, rm.name(), null, vars, null/*c.innerScope()*/, true);
-				
-				pass3(hfc, c.innerScope());
-			}
+//			for (MethodCaseDefn c : hi.methods) {
+//				if (methods.containsKey(c.intro.name().uniqueName()))
+//					throw new UtilException("Error or exception?  I think this is two methods with the same name");
+//				RWMethodDefinition rm = new RWMethodDefinition(ret.location(), contracts.get(ret.nameAsString()), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name(), c.intro.args.size());
+//				rewriteCase(hc, rm, c, true, false);
+//				ret.methods.add(rm);
+//				rm.gatherScopedVars();
+//				methods.put(c.intro.name().uniqueName(), rm);
+//				Map<String, LocalVar> vars = new TreeMap<>();
+//				gatherVars(errors, this, hc, rm.name(), rm.name(), vars, c.intro);
+//				FunctionCaseContext hfc = new FunctionCaseContext(hc, rm.name(), null, vars, null/*c.innerScope()*/, true);
+//				
+//				pass3(hfc, c.innerScope());
+//			}
 
 			// Create a struct to store the state.  It feels weird creating a struct in pass3, but we don't creating the bound vars for scoped/lambdas
 			// until just above, so we have to wait ...

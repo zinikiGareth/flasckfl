@@ -24,7 +24,7 @@ public class AgentDefinition implements Locatable, CardElementsConsumer, Reposit
 	public final List<D3Thing> d3s = new ArrayList<D3Thing>();
 	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
 	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
-	public final List<ContractService> services = new ArrayList<ContractService>();
+	public final List<Provides> services = new ArrayList<Provides>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final CardName cardName;
 	public final List<ObjectMethod> eventHandlers = new ArrayList<>();
@@ -64,7 +64,7 @@ public class AgentDefinition implements Locatable, CardElementsConsumer, Reposit
 	}
 	
 	@Override
-	public void addProvidedService(ContractService contractService) {
+	public void addProvidedService(Provides contractService) {
 		this.services.add(contractService);
 	}
 
@@ -77,7 +77,7 @@ public class AgentDefinition implements Locatable, CardElementsConsumer, Reposit
 		contracts.add(o);
 	}
 
-	public void addContractService(ContractService o) {
+	public void addContractService(Provides o) {
 		services.add(o);
 	}
 
