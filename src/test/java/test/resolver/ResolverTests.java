@@ -399,24 +399,67 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		r.currentScope(pkg);
 		new Traverser(r).visitObjectAccessor(oa);
-//		assertEquals(vp, from.defn());
-//		assertNull(fld.defn());
 	}
 
 	@Test
 	public void testWeCanResolveProvidesTypeReferencesInsideAgents() {
 		context.checking(new Expectations() {{
-			oneOf(rr).get("test.repo.Card.Fred.Hello"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Card.S0.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Hello"); will(returnValue(type));
 		}});
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides cs = new Provides(pos, pos, ty, new CSName(card, "Fred"));
+		Provides cs = new Provides(pos, pos, ty, new CSName(card, "S0"));
 		r.currentScope(cs.name());
 		r.visitTypeReference(ty);
 		assertEquals(type, ty.defn());
 	}
 
+	@Test
+	public void itIsAnErrorForTheProvidedTypeNotToExist() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Hello"); will(returnValue(null));
+			oneOf(rr).get("Hello"); will(returnValue(null));
+			oneOf(errors).message(pos, "cannot find type 'Hello'");
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		final CardName card = new CardName(pkg, "Card");
+		final TypeReference ty = new TypeReference(pos, "Hello");
+		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		r.currentScope(card);
+		r.visitProvides(pr);
+	}
+
+	@Test
+	public void ifTheProvidedTypeIsResolvedItMustBeAContractDecl() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Hello"); will(returnValue(type));
+			oneOf(errors).message(pos, "Hello is not a contract");
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		final CardName card = new CardName(pkg, "Card");
+		final TypeReference ty = new TypeReference(pos, "Hello");
+		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		r.currentScope(card);
+		r.visitProvides(pr);
+	}
+
+	@Test
+	public void ifTheProvidedTypeIsResolvedItIsAttachedToTheProvides() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Hello"); will(returnValue(cd));
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		final CardName card = new CardName(pkg, "Card");
+		final TypeReference ty = new TypeReference(pos, "Hello");
+		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		r.currentScope(card);
+		r.visitProvides(pr);
+		assertEquals(cd, pr.actualType());
+	}
 }

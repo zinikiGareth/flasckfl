@@ -1,5 +1,8 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -10,6 +13,8 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 	private InputPosition location;
 	private TypeReference implementing;
 	private final NameOfThing myName;
+	private ContractDecl actualType;
+	public final List<ObjectMethod> implementationMethods = new ArrayList<>();
 
 	public Implements(InputPosition kw, InputPosition location, TypeReference implementing, NameOfThing myName) {
 		this.kw = kw;
@@ -33,6 +38,15 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 
 	@Override
 	public void addImplementationMethod(ObjectMethod method) {
+		implementationMethods.add(method);
+	}
+
+	public ContractDecl actualType() {
+		return actualType;
+	}
+
+	public void bindActualType(ContractDecl actualType) {
+		this.actualType = actualType;
 	}
 
 	@Override

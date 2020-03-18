@@ -42,6 +42,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PatternsHolder;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -246,7 +247,20 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitAgentDefn(AgentDefinition s) {
 		visitor.visitAgentDefn(s);
+		for (Provides p : s.services)
+			visitProvides(p);
 		leaveAgentDefn(s);
+	}
+
+	public void visitProvides(Provides p) {
+		visitor.visitProvides(p);
+		for (ObjectMethod om : p.implementationMethods)
+			visitObjectMethod(om);
+		leaveProvides(p);
+	}
+
+	public void leaveProvides(Provides p) {
+		visitor.leaveProvides(p);
 	}
 
 	@Override

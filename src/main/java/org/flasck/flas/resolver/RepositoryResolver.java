@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -116,6 +117,18 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitAgentDefn(AgentDefinition sd) {
 		scopeStack.add(0, scope);
 		this.scope = sd.name();
+	}
+	
+	@Override
+	public void visitProvides(Provides p) {
+		String name = p.implementsType().name();
+		RepositoryEntry defn = find(scope, name);
+		if (defn == null) {
+			errors.message(p.implementsType().location(), "cannot find type '" + name + "'");
+		} else if (!(defn instanceof ContractDecl)) {
+			errors.message(p.implementsType().location(), name + " is not a contract");
+		} else
+			p.bindActualType((ContractDecl) defn);
 	}
 	
 	@Override

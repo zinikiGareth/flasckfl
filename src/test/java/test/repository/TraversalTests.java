@@ -8,7 +8,9 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -33,6 +35,7 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -217,6 +220,42 @@ public class TraversalTests {
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
+			oneOf(v).leaveAgentDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traversingAgentDefnVisitsProvides() {
+		CardName an = new CardName(pkg, "AnAgent");
+		AgentDefinition s = new AgentDefinition(pos, pos, an);
+		Provides p = new Provides(pos, pos, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		s.addProvidedService(p);
+		r.addEntry(s.name(), s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitAgentDefn(s);
+			oneOf(v).visitProvides(p);
+			oneOf(v).leaveProvides(p);
+			oneOf(v).leaveAgentDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
+	public void traversingAgentDefnVisitsMethodsDefinedInProvides() {
+		CardName an = new CardName(pkg, "AnAgent");
+		AgentDefinition s = new AgentDefinition(pos, pos, an);
+		Provides p = new Provides(pos, pos, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>());
+		p.addImplementationMethod(meth);
+		s.addProvidedService(p);
+		r.addEntry(s.name(), s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitAgentDefn(s);
+			oneOf(v).visitProvides(p);
+			oneOf(v).visitObjectMethod(meth);
+			oneOf(v).leaveObjectMethod(meth);
+			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
 		}});
 		r.traverse(v);

@@ -43,6 +43,7 @@ import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -129,6 +130,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitObjectDefn(ObjectDefn obj);
 		void leaveObjectDefn(ObjectDefn obj);
 		void visitAgentDefn(AgentDefinition s);
+		void visitProvides(Provides p);
+		void leaveProvides(Provides p);
 		void leaveAgentDefn(AgentDefinition s);
 		void visitObjectAccessor(ObjectAccessor oa);
 		void leaveObjectAccessor(ObjectAccessor oa);
