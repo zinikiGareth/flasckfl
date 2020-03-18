@@ -10,6 +10,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectMethod extends ObjectActionHandler {
 	private ObjectDefn od;
+	private ContractMethodDecl contractMethod;
 
 	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args) {
 		super(location, name, args);
@@ -33,5 +34,13 @@ public class ObjectMethod extends ObjectActionHandler {
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println("ObjectMethod[" + toString() + "]");
+	}
+
+	public ContractMethodDecl contractMethod() {
+		return contractMethod;
+	}
+
+	public void bindFromContract(ContractMethodDecl cm) {
+		this.contractMethod = cm;
 	}
 }

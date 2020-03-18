@@ -55,6 +55,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -80,9 +81,17 @@ public class ResolverTests {
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
 	private final ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+	private final ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cd.name(), "d"), new ArrayList<>());
+	private final ContractMethodDecl cmu = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "u"), new ArrayList<>());
 	private final ContractDecl ht = new ContractDecl(pos, pos, new SolidName(pkg, "HandlerType"));
 	private final RepositoryReader rr = context.mock(RepositoryReader.class);
 
+	@Before
+	public void doAttaching() {
+		cd.addMethod(cmd);
+		cd.addMethod(cmu);
+	}
+	
 	@Test
 	public void testWeCanResolveASimpleName() {
 		context.checking(new Expectations() {{
@@ -461,5 +470,59 @@ public class ResolverTests {
 		r.currentScope(card);
 		r.visitProvides(pr);
 		assertEquals(cd, pr.actualType());
+	}
+
+	@Test
+	public void aMethodImplementingAContractHasTheCMDAttachedToItDuringResolution() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
+			oneOf(rr).get("test.repo.Hello"); will(returnValue(cd));
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		final CardName card = new CardName(pkg, "Card");
+		final TypeReference ty = new TypeReference(pos, "Hello");
+		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "u"), new ArrayList<>());
+		pr.addImplementationMethod(om);
+		r.currentScope(card);
+		r.visitProvides(pr);
+		r.visitObjectMethod(om);
+		assertEquals(cmu, om.contractMethod());
+	}
+
+	@Test
+	public void itIsAnErrorToReferenceAContractMethodWhichIsNotOnTheContract() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.AContract"); will(returnValue(null));
+			oneOf(rr).get("test.repo.AContract"); will(returnValue(cd));
+			oneOf(errors).message(pos, "there is no method 'absent' on 'test.repo.AContract'");
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		final CardName card = new CardName(pkg, "Card");
+		final TypeReference ty = new TypeReference(pos, "AContract");
+		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "absent"), new ArrayList<>());
+		pr.addImplementationMethod(om);
+		r.currentScope(card);
+		r.visitProvides(pr);
+		r.visitObjectMethod(om);
+	}
+
+	@Test
+	public void aProvidesCannotImplementADownMethod() {
+		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.AContract"); will(returnValue(null));
+			oneOf(rr).get("test.repo.AContract"); will(returnValue(cd));
+			oneOf(errors).message(pos, "cannot provide down method 'd'");
+		}});
+		Resolver r = new RepositoryResolver(errors, rr);
+		final CardName card = new CardName(pkg, "Card");
+		final TypeReference ty = new TypeReference(pos, "AContract");
+		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "d"), new ArrayList<>());
+		pr.addImplementationMethod(om);
+		r.currentScope(card);
+		r.visitProvides(pr);
+		r.visitObjectMethod(om);
 	}
 }

@@ -89,7 +89,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.AREA, areaName, fnName);
 	}
 
-	public static FunctionName objectMethod(InputPosition location, SolidName on, String name) {
+	public static FunctionName objectMethod(InputPosition location, NameOfThing on, String name) {
 		return new FunctionName(location, CodeType.OBJECT, on, name);
 	}
 

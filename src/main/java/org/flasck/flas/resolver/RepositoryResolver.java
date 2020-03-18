@@ -10,8 +10,10 @@ import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
@@ -34,6 +36,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final RepositoryReader repository;
 	private final List<NameOfThing> scopeStack = new ArrayList<>();
 	private NameOfThing scope;
+	private Implements currentlyImplementing;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -65,6 +68,17 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitObjectMethod(ObjectMethod meth) {
 		scopeStack.add(0, scope);
 		this.scope = meth.name();
+		if (currentlyImplementing != null && currentlyImplementing.actualType() != null) {
+			ContractDecl cd = currentlyImplementing.actualType();
+			ContractMethodDecl cm = cd.getMethod(meth.name().name);
+			if (cm != null) {
+				if (cm.dir == ContractMethodDir.DOWN && currentlyImplementing instanceof Provides)
+					errors.message(meth.location(), "cannot provide down method '" + meth.name().name + "'");
+				else
+					meth.bindFromContract(cm);
+			} else
+				errors.message(meth.location(), "there is no method '" + meth.name().name + "' on '" + cd.name().uniqueName() + "'");
+		}
 	}
 	
 	@Override
@@ -127,10 +141,17 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			errors.message(p.implementsType().location(), "cannot find type '" + name + "'");
 		} else if (!(defn instanceof ContractDecl)) {
 			errors.message(p.implementsType().location(), name + " is not a contract");
-		} else
+		} else {
 			p.bindActualType((ContractDecl) defn);
+			currentlyImplementing = p;
+		}
 	}
 	
+	@Override
+	public void leaveProvides(Provides p) {
+		currentlyImplementing = null;
+	}
+
 	@Override
 	public void visitStructField(StructField sf) {
 		String name = sf.type.name();
