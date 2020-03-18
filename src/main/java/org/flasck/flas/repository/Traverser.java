@@ -78,6 +78,7 @@ public class Traverser implements Visitor {
 	private final Visitor visitor;
 	private StandaloneDefn currentFunction;
 	private FunctionGroups functionOrder;
+	private boolean wantImplementedMethods = false;
 	private boolean wantNestedPatterns;
 	private boolean wantHSI;
 	private boolean patternsTree;
@@ -85,6 +86,11 @@ public class Traverser implements Visitor {
 
 	public Traverser(Visitor visitor) {
 		this.visitor = visitor;
+	}
+
+	public Traverser withImplementedMethods() {
+		this.wantImplementedMethods = true;
+		return this;
 	}
 
 	public Traverser withNestedPatterns() {
@@ -254,8 +260,10 @@ public class Traverser implements Visitor {
 
 	public void visitProvides(Provides p) {
 		visitor.visitProvides(p);
-		for (ObjectMethod om : p.implementationMethods)
-			visitObjectMethod(om);
+		if (wantImplementedMethods) {
+			for (ObjectMethod om : p.implementationMethods)
+				visitObjectMethod(om);
+		}
 		leaveProvides(p);
 	}
 

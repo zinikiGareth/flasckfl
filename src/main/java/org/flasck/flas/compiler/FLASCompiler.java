@@ -104,7 +104,7 @@ public class FLASCompiler {
 	
 	public boolean resolve(ErrorMark mark) {
 		Resolver resolver = new RepositoryResolver(errors, repository);
-		repository.traverse(resolver);
+		repository.traverseWithImplementedMethods(resolver);
 		if (errors.hasErrors()) {
 			errors.showFromMark(mark, errorWriter, 0);
 			return true;

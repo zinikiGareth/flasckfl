@@ -2,7 +2,7 @@
 		down reply (String y)
 
 	contract Trivia
-		up ask (String s) (Responder r)
+		up ask (String s) (Responder.Down r)
 
 	agent Agent007
 		provides Trivia

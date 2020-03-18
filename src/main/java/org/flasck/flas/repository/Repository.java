@@ -66,6 +66,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
+import org.flasck.flas.resolver.Resolver;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
@@ -334,6 +335,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.doTraversal(this);
 	}
 
+	public void traverseWithImplementedMethods(Visitor visitor) {
+ 		Traverser t = new Traverser(visitor);
+ 		t.withImplementedMethods();
+		t.doTraversal(this);
+	}
 
 	public void traverseLifted(Visitor visitor) {
  		Traverser t = new Traverser(visitor);
