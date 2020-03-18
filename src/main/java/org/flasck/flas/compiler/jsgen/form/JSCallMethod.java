@@ -17,8 +17,7 @@ public class JSCallMethod implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		if (obj != null) {
-			obj.write(w);
-			w.print(".");
+			w.print(obj.asVar() + ".");
 		}
 		w.print(toCall);
 		w.print("(_cxt");

@@ -60,7 +60,8 @@ public interface JSBlockCreator {
 	// unit testing
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
 	void expect(JSExpr mock, String var, List<JSExpr> args);
-	
+	void assertSatisfied(String var);
+
 	// Send the block to disk
 	void write(IndentWriter w);
 }

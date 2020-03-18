@@ -38,6 +38,7 @@ import org.flasck.flas.compiler.jsgen.form.JSNewState;
 import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
+import org.flasck.flas.compiler.jsgen.form.JSSatisfaction;
 import org.flasck.flas.compiler.jsgen.form.JSSetField;
 import org.flasck.flas.compiler.jsgen.form.JSStoreField;
 import org.flasck.flas.compiler.jsgen.form.JSString;
@@ -187,6 +188,12 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void expect(JSExpr obj, String assertion, List<JSExpr> args) {
 		JSExpectation stmt = new JSExpectation(obj, assertion, args);
+		stmts.add(stmt);
+	}
+
+	@Override
+	public void assertSatisfied(String var) {
+		JSSatisfaction stmt = new JSSatisfaction(var);
 		stmts.add(stmt);
 	}
 

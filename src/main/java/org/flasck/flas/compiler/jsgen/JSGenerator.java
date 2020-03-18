@@ -89,6 +89,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSClassCreator ctrDown;
 	private JSClassCreator ctrUp;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
+	private final List<JSExpr> explodingMocks = new ArrayList<>();
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -450,6 +451,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		if (objty instanceof ContractDeclDir) {
 			JSExpr mock = meth.mockContract((SolidName) objty.name());
 			state.addMock(udd, mock);
+			explodingMocks.add(mock);
 		} else if (objty instanceof ObjectDefn) {
 			JSExpr obj = meth.createObject((SolidName) objty.name());
 			state.addMock(udd, obj);
@@ -487,6 +489,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
+		for (JSExpr m : explodingMocks) {
+			meth.assertSatisfied(m.asVar());
+		}
 		meth = null;
 		state = null;
 	}

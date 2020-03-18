@@ -89,6 +89,21 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 	_cxt.log("Have invocation of", meth, "with", args);
 }
 
+MockContract.prototype.assertSatisfied = function(_cxt) {
+	var msg = "";
+	for (var meth in this.expected) {
+		if (!this.expected.hasOwnProperty(meth))
+			continue;
+		var exp = this.expected[meth];
+		for (var i=0;i<exp.length;i++) {
+			if (exp[i].invoked != exp[i].allowed)
+				msg += "  " + this.ctr.name() + "." + meth + " <" + i +">\n";
+		}
+	}
+	if (msg)
+		throw new Error("UNUSED\n" + msg);
+}
+
 const MockAgent = function(agent) {
 };
 
