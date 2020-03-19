@@ -11,6 +11,8 @@ UTRunner.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
 	handleMessages(_cxt, inv);
 }
+UTRunner.send = function(_cxt, target, contract, msg, args) {
+}
 const handleMessages = function(_cxt, msg) {
 	if (!msg || msg instanceof FLError)
 		return;
