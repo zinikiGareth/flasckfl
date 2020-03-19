@@ -37,6 +37,7 @@ import org.flasck.flas.compiler.jsgen.form.JSNew;
 import org.flasck.flas.compiler.jsgen.form.JSNewState;
 import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
+import org.flasck.flas.compiler.jsgen.form.JSRecordContract;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
 import org.flasck.flas.compiler.jsgen.form.JSSatisfaction;
 import org.flasck.flas.compiler.jsgen.form.JSSetField;
@@ -257,6 +258,11 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public void error(JSExpr msg) {
+		stmts.add(new JSError(msg));
+	}
+
+	@Override
 	public JSExpr mockContract(SolidName name) {
 		JSLocal ret = new JSLocal(creating, new JSMockContract(name));
 		stmts.add(ret);
@@ -298,6 +304,16 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSLoadField loadField(String field) {
 		return new JSLoadField(field);
+	}
+
+	@Override
+	public void setField(String field, JSExpr expr) {
+		stmts.add(new JSSetField(field, expr));
+	}
+
+	@Override
+	public void recordContract(String ctr, String impl) {
+		stmts.add(new JSRecordContract(ctr, impl));
 	}
 
 	@Override

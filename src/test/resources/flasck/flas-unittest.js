@@ -12,6 +12,9 @@ UTRunner.invoke = function(_cxt, inv) {
 	handleMessages(_cxt, inv);
 }
 UTRunner.send = function(_cxt, target, contract, msg, args) {
+	var reply = target.sendTo(_cxt, contract, msg, args);
+	reply = _cxt.full(reply);
+	handleMessages(_cxt, reply);
 }
 const handleMessages = function(_cxt, msg) {
 	if (!msg || msg instanceof FLError)
@@ -107,6 +110,14 @@ MockContract.prototype.assertSatisfied = function(_cxt) {
 }
 
 const MockAgent = function(agent) {
+	this.agent = agent;
+};
+
+MockAgent.prototype.sendTo = function(_cxt, contract, msg, args) {
+	const ctr = this.agent._contracts.contractFor(_cxt, contract);
+	const inv = Array.from(args);
+	inv.splice(0, 0, _cxt);
+	return ctr[msg].apply(ctr, inv);
 };
 
 

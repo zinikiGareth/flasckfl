@@ -74,4 +74,14 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
+	public PackageName packageName() {
+		NameOfThing ret = card;
+		while (ret != null) {
+			if (ret instanceof PackageName)
+				return (PackageName) ret;
+			ret = ret.container();
+		}
+		throw new RuntimeException("No PackageName found");
+	}
+	
 }

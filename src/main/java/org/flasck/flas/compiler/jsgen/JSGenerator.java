@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -15,6 +16,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
@@ -29,6 +31,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -91,6 +94,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSClassCreator ctrUp;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
+	private JSClassCreator agentCreator;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -265,7 +269,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, pkg, currentOA != null, om.name().jsName().substring(pkg.length()+1));
+		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null, om.name().name);
 		this.methods.add(om.name());
 		this.meth.argument("_cxt");
 		for (int i=0;i<om.argCount();i++)
@@ -419,14 +423,30 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public void visitAgentDefn(AgentDefinition ad) {
 		String pkg = ad.name().container().jsName();
 		jse.ensurePackageExists(pkg, pkg);
-		JSClassCreator ctr = jse.newClass(pkg, ad.name().jsName());
-		JSMethodCreator meth = ctr.createMethod("name", true);
+		agentCreator = jse.newClass(pkg, ad.name().jsName());
+		JSBlockCreator ctor = agentCreator.constructor();
+		ctor.fieldObject("_contracts", "ContractStore");
+		JSMethodCreator meth = agentCreator.createMethod("name", true);
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(ad.name().uniqueName()));
+		JSMethodCreator ctrProvider = agentCreator.createMethod("_contract", false);
+		ctrProvider.argument("_cxt");
+		ctrProvider.argument("_ctr");
+	}
+	
+	@Override
+	public void visitProvides(Provides p) {
+		CSName csn = (CSName)p.name();
+		JSBlockCreator ctor = agentCreator.constructor();
+		ctor.recordContract(p.actualType().name().jsName(), csn.jsName());
+		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn.jsName());
+		svc.arg("_card");
+		svc.constructor().setField("_card", new JSLiteral("_card"));
 	}
 	
 	@Override
 	public void leaveAgentDefn(AgentDefinition s) {
+		agentCreator = null;
 	}
 	
 	@Override

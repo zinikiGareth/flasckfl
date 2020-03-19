@@ -580,6 +580,8 @@ public class TraversalTests {
 		UnitTestCase utc = new UnitTestCase(name, "do something");
 		utp.testCase(utc);
 		TypeReference tr = new TypeReference(pos, "SomeContract");
+		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "SomeContract"));
+		tr.bind(cd);
 		UnresolvedVar f = new UnresolvedVar(pos, "f");
 		StringLiteral hello = new StringLiteral(pos, "hello");
 		ApplyExpr inv = new ApplyExpr(pos, f, hello);
@@ -593,18 +595,14 @@ public class TraversalTests {
 			oneOf(v).visitUnitTestSend(uts);
 			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("card")), with(0));
 			oneOf(v).visitTypeReference(tr);
-			oneOf(v).visitExpr(inv, 0);
-			oneOf(v).visitApplyExpr(inv);
-			oneOf(v).visitExpr(f, 1);
-			oneOf(v).visitUnresolvedVar(f, 1);
+			oneOf(v).visitSendMethod(cd, f);
 			oneOf(v).visitExpr(hello, 0);
 			oneOf(v).visitStringLiteral(hello);
-			oneOf(v).leaveApplyExpr(inv);
 			oneOf(v).leaveUnitTestSend(uts);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);
 		}});
-		r.traverse(v);
+		r.traverseWithHSI(v);
 	}
 
 	@Test

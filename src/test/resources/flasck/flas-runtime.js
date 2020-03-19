@@ -1,3 +1,24 @@
+const JSEnv = function() {
+    this.logger = console;
+}
+
+
+
+const ContractStore = function(_cxt) {
+}
+
+ContractStore.prototype.record = function(_cxt, name, impl) {
+    this[name] = impl;
+}
+
+ContractStore.prototype.contractFor = function(_cxt, name) {
+    const ret = this[name];
+    if (!ret)
+        throw new Error("There is no contract for " + name);
+    return ret;
+}
+
+
 const FLClosure = function(obj, fn, args) {
 	/* istanbul ignore if */
 	if (!fn)
@@ -190,7 +211,11 @@ FLContext.prototype.head = function(obj) {
 
 FLContext.prototype.full = function(obj) {
 	obj = this.head(obj);
-	if (Array.isArray(obj)) {
+	if (obj == null) {
+		// nothing to do
+	} else if (obj._full) {
+		obj._full(this);
+	} else if (Array.isArray(obj)) {
 		for (var i=0;i<obj.length;i++)
 			obj[i] = this.full(obj[i]);
 	}
@@ -441,6 +466,11 @@ Send.eval = function(_cxt, obj, meth, args) {
 	s.meth = meth;
 	s.args = args;
 	return s;
+}
+Send.prototype._full = function(cx) {
+	this.obj = cx.full(this.obj);
+	this.meth = cx.full(this.meth);
+	this.args = cx.full(this.args);
 }
 Send.prototype._compare = function(cx, other) {
 	if (other instanceof Send) {

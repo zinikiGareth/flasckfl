@@ -19,6 +19,6 @@ public class JSMockAgent implements JSExpr {
 	public void write(IndentWriter w) {
 		w.print("_cxt.mockAgent(new ");
 		w.print(name.jsName());
-		w.print("())");
+		w.print("(_cxt))");
 	}
 }

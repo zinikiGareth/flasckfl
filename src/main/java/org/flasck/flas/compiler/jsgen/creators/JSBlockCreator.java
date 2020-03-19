@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
+import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -30,10 +31,12 @@ public interface JSBlockCreator {
 	JSExpr createAgent(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);
+	void recordContract(String ctr, String impl);
 	
 	// create an object of clz and store in a field
 	JSExpr fieldObject(String field, String clz);
 	void stateField();
+	void setField(String field, JSExpr expr);
 
 	// HSIE logic statements
 	JSExpr boundVar(String var);
@@ -47,6 +50,7 @@ public interface JSBlockCreator {
 	JSIfExpr ifTrue(JSExpr ge);
 	void errorNoCase();
 	void errorNoDefaultGuard();
+	void error(JSExpr msg);
 
 	// main logic statements
 	void storeField(JSExpr inObj, String field, JSExpr value);

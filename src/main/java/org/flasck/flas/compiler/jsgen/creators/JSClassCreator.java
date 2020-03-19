@@ -4,4 +4,5 @@ public interface JSClassCreator {
 
 	JSMethodCreator createMethod(String string, boolean prototype);
 	JSBlockCreator constructor();
+	void arg(String a);
 }

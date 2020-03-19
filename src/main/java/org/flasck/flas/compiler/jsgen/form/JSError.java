@@ -3,11 +3,14 @@ package org.flasck.flas.compiler.jsgen.form;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSError implements JSExpr {
-
-	private final String msg;
+	private final JSExpr msg;
 
 	public JSError(String msg) {
-		this.msg = msg;
+		this.msg = new JSString(msg);
+	}
+
+	public JSError(JSExpr msg) {
+		this.msg = msg; 
 	}
 
 	@Override
@@ -18,6 +21,6 @@ public class JSError implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.println("return FLError.eval(_cxt, '" + msg + "');");
+		w.println("return FLError.eval(_cxt, " + msg.asVar() + ");");
 	}
 }
