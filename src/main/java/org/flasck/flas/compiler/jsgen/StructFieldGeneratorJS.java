@@ -24,8 +24,6 @@ public class StructFieldGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
-//		IExpr svar = meth.getField(ret, "state");
-//		sv.result(meth.callInterface("void", svar, "set", meth.stringConst(fieldName), (IExpr)r));
 		currentBlock.storeField(ret, fieldName, (JSExpr) r);
 		sv.result(null);
 	}

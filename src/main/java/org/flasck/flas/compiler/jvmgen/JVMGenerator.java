@@ -188,7 +188,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			return;
 		}
 		GenericAnnotator ann;
-		boolean wantObj, haveThis;
+		boolean wantObj, haveThis, wantParent;
 		if (isStandalone) {
 			this.clz = bce.newClass(om.name().javaClassName());
 			this.clz.generateAssociatedSourceFile();
@@ -197,12 +197,15 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			ann = GenericAnnotator.newMethod(clz, true, "eval");
 			wantObj = om.name().codeType.hasThis();
 			haveThis = false;
+			wantParent = false;
 		} else {
 			if (om.hasObject()) {
 				this.clz = bce.get(om.getObject().name().javaName());
-			} else if (om.hasImplements())
+				wantParent = false;
+			} else if (om.hasImplements()) {
 				this.clz = bce.get(om.getImplements().name().javaClassName());
-			else
+				wantParent = true;
+			} else
 				throw new NotImplementedException("Don't have one of those");
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + om.name().name);
 			fi.constValue(om.argCount());
@@ -224,9 +227,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		IExpr thisVar;
 		if (myThis != null)
 			thisVar = myThis.getVar();
-		else if (haveThis)
+		else if (haveThis) {
 			thisVar = meth.myThis();
-		else
+			if (wantParent)
+				thisVar = meth.getField(thisVar, "_card");
+		} else
 			thisVar = null;
 		fs = new FunctionState(meth, (Var)fcx, thisVar, fargs, runner, globalMocks);
 		currentBlock = new ArrayList<IExpr>();
@@ -234,12 +239,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		if (om.hasObject()) {
 			ObjectDefn od = om.getObject();
 			if (od.state() != null) {
-				fs.provideStateObject(meth.getField("state"));
+				fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
 			}
 		} else if (om.hasImplements()) {
 			Implements m = om.getImplements();
 			if (((StateHolder)m.getParent()).state() != null) {
-				fs.provideStateObject(meth.getField(meth.castTo(meth.getField("_card"), m.getParent().name().javaName()), "state"));
+				fs.provideStateObject(meth.castTo(meth.getField("_card"), J.FIELDS_CONTAINER_WRAPPER));
 			}
 		} else if (!isStandalone)
 			throw new NotImplementedException("Don't have one of those");
@@ -424,7 +429,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			return;
 		String clzName = sd.name().javaName();
 		ByteCodeSink bcc = bce.newClass(clzName);
-		bcc.superclass(J.FIELDS_CONTAINER_WRAPPER);
+		bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
 		bcc.generateAssociatedSourceFile();
 		bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs").constValue(sd.argCount());
 		bcc.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
@@ -432,7 +437,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
+			ctor.callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
 		{ // eval(cx)
@@ -469,14 +474,14 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			return;
 		String clzName = od.name().javaName();
 		ByteCodeSink bcc = bce.newClass(clzName);
-		bcc.superclass(J.FIELDS_CONTAINER_WRAPPER);
+		bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
 		bcc.generateAssociatedSourceFile();
 		bcc.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		{ // ctor(cx)
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
+			ctor.callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
 		{ // eval(cx)
@@ -511,7 +516,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			GenericAnnotator gen = GenericAnnotator.newConstructor(agentClass, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			agentctor = gen.done();
-			agentctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
+			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", cx.getVar()).flush();
 		}
 //		this.structFieldHandler = sf -> {
 //			if (sf.init != null)

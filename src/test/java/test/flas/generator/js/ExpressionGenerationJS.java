@@ -17,6 +17,7 @@ import org.flasck.flas.compiler.jsgen.ApplyExprGeneratorJS;
 import org.flasck.flas.compiler.jsgen.ExprGeneratorJS;
 import org.flasck.flas.compiler.jsgen.JSFunctionState;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
+import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
@@ -153,7 +154,8 @@ public class ExpressionGenerationJS {
 		expr.bind(sf);
 		JSExpr r = context.mock(JSExpr.class, "r");
 		context.checking(new Expectations() {{
-			oneOf(meth).loadField("x"); will(returnValue(r));
+			oneOf(state).stateLocation(); will(returnValue(StateLocation.LOCAL));
+			oneOf(meth).loadField(StateLocation.LOCAL, "x"); will(returnValue(r));
 			oneOf(nv).result(r);
 		}});
 		StackVisitor stackv = new StackVisitor();

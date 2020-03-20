@@ -12,9 +12,11 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 public class JSFunctionStateStore implements JSFunctionState {
 	public Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
 	private Set<UnitDataDeclaration> globalMocks;
+	private StateLocation stateLoc;
 
-	public JSFunctionStateStore(Set<UnitDataDeclaration> globalMocks) {
+	public JSFunctionStateStore(Set<UnitDataDeclaration> globalMocks, StateLocation loc) {
 		this.globalMocks = globalMocks;
+		this.stateLoc = loc;
 	}
 
 	@Override
@@ -34,4 +36,13 @@ public class JSFunctionStateStore implements JSFunctionState {
 			throw new RuntimeException("No mock for " + udd);
 	}
 
+	@Override
+	public void setStateLocation(StateLocation loc) {
+		this.stateLoc = loc;
+	}
+
+	@Override
+	public StateLocation stateLocation() {
+		return stateLoc;
+	}
 }

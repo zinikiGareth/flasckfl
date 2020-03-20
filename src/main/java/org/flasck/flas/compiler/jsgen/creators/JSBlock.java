@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.ExtractField;
 import org.flasck.flas.compiler.jsgen.form.IsAExpr;
@@ -22,6 +23,7 @@ import org.flasck.flas.compiler.jsgen.form.JSError;
 import org.flasck.flas.compiler.jsgen.form.JSEval;
 import org.flasck.flas.compiler.jsgen.form.JSExpectation;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSHead;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
@@ -302,8 +304,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSLoadField loadField(String field) {
-		return new JSLoadField(field);
+	public JSLoadField loadField(StateLocation loc, String field) {
+		return new JSLoadField(loc, field);
 	}
 
 	@Override
@@ -311,6 +313,10 @@ public class JSBlock implements JSBlockCreator {
 		stmts.add(new JSSetField(field, expr));
 	}
 
+	@Override
+	public JSExpr fromCard() {
+		return new JSFromCard();
+	}
 	@Override
 	public void recordContract(String ctr, String impl) {
 		stmts.add(new JSRecordContract(ctr, impl));

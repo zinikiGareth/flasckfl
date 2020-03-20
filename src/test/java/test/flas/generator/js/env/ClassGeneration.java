@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlock;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
@@ -354,7 +355,7 @@ public class ClassGeneration {
 	public void weCanLoadValuesFromTheFieldsContainer() {
 		JSMethod b = new JSMethod(null, false, "fred");
 		b.argument("cxt");
-		b.returnObject(b.loadField("value"));
+		b.returnObject(b.loadField(StateLocation.LOCAL, "value"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("\nnull.fred = function(cxt) {\n  return this.state.get('value');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}

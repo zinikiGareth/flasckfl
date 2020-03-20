@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
+import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
@@ -90,7 +91,7 @@ public class StructGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo.Struct");
 			oneOf(jss).newFunction("test.repo", "test.repo.Struct", true, "_field_s"); will(returnValue(sfacc));
 			oneOf(sfacc).argument("_cxt");
-			oneOf(sfacc).loadField("s"); will(returnValue(obj));
+			oneOf(sfacc).loadField(StateLocation.LOCAL, "s"); will(returnValue(obj));
 			oneOf(sfacc).returnObject(obj);
 		}});
 		StackVisitor gen = new StackVisitor();

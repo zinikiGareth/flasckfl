@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
@@ -36,6 +37,7 @@ public interface JSBlockCreator {
 	JSExpr fieldObject(String field, String clz);
 	void stateField();
 	void setField(String field, JSExpr expr);
+	JSExpr fromCard();
 
 	// HSIE logic statements
 	JSExpr boundVar(String var);
@@ -53,7 +55,7 @@ public interface JSBlockCreator {
 
 	// main logic statements
 	void storeField(JSExpr inObj, String field, JSExpr value);
-	JSExpr loadField(String name);
+	JSExpr loadField(StateLocation loc, String name);
 	JSExpr structArgs(String string, JSExpr... args);
 	JSExpr closure(JSExpr... args);
 	JSExpr curry(int expArgs, JSExpr... args);

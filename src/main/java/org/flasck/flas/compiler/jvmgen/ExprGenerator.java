@@ -64,7 +64,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitCurrentContainer(CurrentContainer expr) {
-		sv.result(state.container);
+		sv.result(state.stateObj);
 	}
 	
 	@Override

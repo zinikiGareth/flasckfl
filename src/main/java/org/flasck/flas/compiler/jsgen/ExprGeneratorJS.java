@@ -5,6 +5,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
@@ -50,7 +51,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitCurrentContainer(CurrentContainer expr) {
-		sv.result(new JSThis());
+		if (state.stateLocation() == StateLocation.LOCAL)
+			sv.result(new JSThis());
+		else if (state.stateLocation() == StateLocation.CARD)
+			sv.result(block.fromCard());
+		else
+			throw new NotImplementedException("There is no associated state location");
 	}
 	
 	@Override
@@ -122,7 +128,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof TypedPattern) {
 			sv.result(block.boundVar(((TypedPattern)defn).var.var));
 		} else if (defn instanceof StructField) {
-			sv.result(block.loadField(((StructField)defn).name));
+			sv.result(block.loadField(state.stateLocation(), ((StructField)defn).name));
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(myName, 0);
 		} else if (defn instanceof CurryArgument) {
