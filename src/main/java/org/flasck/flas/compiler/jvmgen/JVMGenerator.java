@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -20,6 +22,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -42,6 +45,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
+import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
@@ -98,8 +102,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
+	private final List<Var> explodingMocks = new ArrayList<>();
 	private boolean isStandalone;
 	private static final boolean leniency = false;
+	private NewMethodDefiner agentctor;
+	private ByteCodeSink agentClass;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;
@@ -181,7 +188,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			wantObj = om.name().codeType.hasThis();
 			haveThis = false;
 		} else {
-			this.clz = bce.get(om.getObject().name().javaName());
+			if (om.hasObject())
+				this.clz = bce.get(om.getObject().name().javaName());
+			else if (om.hasImplements())
+				this.clz = bce.get(om.getImplements().name().javaClassName());
+			else
+				throw new NotImplementedException("Don't have one of those");
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + om.name().name);
 			fi.constValue(om.argCount());
 			ann = GenericAnnotator.newMethod(clz, false, om.name().name);
@@ -462,6 +474,56 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void visitAgentDefn(AgentDefinition ad) {
+//		if (!od.generate)
+//			return;
+		String clzName = ad.name().javaName();
+		agentClass = bce.newClass(clzName);
+		agentClass.superclass(J.FIELDS_CONTAINER_WRAPPER);
+		agentClass.generateAssociatedSourceFile();
+		agentClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+		IFieldInfo contracts = agentClass.defineField(true, Access.PRIVATE, J.CONTRACTSTORE, "contracts");
+		{ // ctor(cx)
+			GenericAnnotator gen = GenericAnnotator.newConstructor(agentClass, false);
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			agentctor = gen.done();
+			agentctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
+			agentctor.assign(contracts.asExpr(agentctor), agentctor.makeNew(J.SIMPLECONTRACTSTORE, cx.getVar())).flush();
+		}
+//		this.structFieldHandler = sf -> {
+//			if (sf.init != null)
+//				new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
+//		};
+	}
+	
+	@Override
+	public void visitProvides(Provides p) {
+		CSName csn = (CSName) p.name();
+		ByteCodeSink providesClass = bce.newClass(csn.javaClassName());
+		providesClass.superclass(J.OBJECT);
+		providesClass.generateAssociatedSourceFile();
+		IFieldInfo card = providesClass.defineField(true, Access.PRIVATE, J.OBJECT, "_card"); // Probably should be some superclass of card, service, agent ...
+		{
+			GenericAnnotator gen = GenericAnnotator.newConstructor(providesClass, false);
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar parent = gen.argument(J.OBJECT, "card");
+			MethodDefiner ctor = gen.done();
+//			ctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
+			ctor.callSuper("void", J.OBJECT, "<init>").flush();
+			ctor.assign(card.asExpr(ctor), parent.getVar()).flush();
+			ctor.returnVoid().flush();
+		}
+		FieldExpr ctrs = agentClass.getField(agentctor, "contracts");
+		agentctor.callInterface("void", ctrs, "recordContract",
+			agentctor.stringConst(p.actualType().name().uniqueName()),
+			agentctor.as(
+				agentctor.makeNew(csn.javaClassName(), agentctor.getArgument(0), agentctor.as(agentctor.myThis(), J.OBJECT)),
+				J.OBJECT
+			)
+		).flush();
+	}
+	
+	@Override
 	public void visitStructField(StructField sf) {
 		if (structFieldHandler != null)
 			structFieldHandler.visitStructField(sf);
@@ -487,6 +549,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.meth = null;
 	}
 
+	@Override
+	public void leaveAgentDefn(AgentDefinition s) {
+		agentctor.returnVoid().flush();
+		agentctor = null;
+	}
+	
 	@Override
 	public void visitStructFieldAccessor(StructField sf) {
 		String cxName = sf.name().container().javaName();
@@ -530,8 +598,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);
+			this.explodingMocks.add(v);
 		} else if (objty instanceof ObjectDefn) {
 			IExpr mc = meth.callStatic(objty.name().javaName(), J.OBJECT, "eval", this.fcx);
+			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
+			meth.assign(v, mc).flush();
+			this.fs.addMock(udd, v);
+		} else if (objty instanceof AgentDefinition) {
+			AgentDefinition ad = (AgentDefinition)objty;
+			IExpr agent = meth.makeNew(ad.name().javaName(), this.fcx);
+			IExpr mc = meth.callInterface(J.MOCKAGENT, fcx, "mockAgent", meth.as(agent, J.OBJECT));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);
@@ -566,6 +642,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
+		for (Var v : explodingMocks) {
+			meth.callInterface("void", meth.castTo(v, J.EXPECTING), "assertSatisfied", this.fcx).flush();
+		}
 		meth.returnVoid().flush();
 		meth = null;
 		this.currentBlock = null;

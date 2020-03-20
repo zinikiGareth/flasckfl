@@ -39,6 +39,7 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 	@Override
 	public void addImplementationMethod(ObjectMethod method) {
 		implementationMethods.add(method);
+		method.bindToImplements(this);
 	}
 
 	public ContractDecl actualType() {

@@ -41,7 +41,7 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 	
 	@Override
 	public String javaName() {
-		throw new NotImplementedException();
+		throw new NotImplementedException("I think you should be using javaClassName here");
 	}
 
 	@Override
