@@ -197,7 +197,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			inner = "Div";
 			break;
 		case "++":
-			inner = "Concat";
+			inner = "strAppend";
 			break;
 		case "[]":
 			return J.NIL;

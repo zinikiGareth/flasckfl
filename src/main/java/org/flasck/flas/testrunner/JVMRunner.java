@@ -13,6 +13,7 @@ import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.container.FLEvalContextFactory;
 import org.flasck.jvm.container.JvmDispatcher;
+import org.flasck.jvm.container.MockAgent;
 import org.flasck.jvm.fl.FLMockEvalContext;
 import org.flasck.jvm.fl.LoaderContext;
 import org.jsoup.nodes.Document;
@@ -223,6 +224,13 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 //		card.send(ih, ctrName, methodName, argVals);
 //		controller.processPostboxes();
 		assertAllInvocationsCalled();
+	}
+
+	@Override
+	public void send(FLEvalContext cx, Object to, String contract, String meth, Object... args) {
+		Object reply = ((MockAgent)to).sendTo(cx, contract, meth, args);
+		reply = cx.full(reply);
+		dispatcher.invoke(cx, reply);
 	}
 
 	@Override

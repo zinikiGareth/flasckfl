@@ -3,16 +3,10 @@ package org.flasck.flas.parsedForm;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.parser.AgentElementsConsumer;
-import org.flasck.flas.parser.CardElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;

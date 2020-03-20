@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
+import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -42,6 +43,7 @@ import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
@@ -479,16 +481,15 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 //			return;
 		String clzName = ad.name().javaName();
 		agentClass = bce.newClass(clzName);
-		agentClass.superclass(J.FIELDS_CONTAINER_WRAPPER);
+		agentClass.superclass(J.CONTRACT_HOLDER);
 		agentClass.generateAssociatedSourceFile();
 		agentClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
-		IFieldInfo contracts = agentClass.defineField(true, Access.PRIVATE, J.CONTRACTSTORE, "contracts");
+		agentClass.inheritsField(true, Access.PRIVATE, J.CONTRACTSTORE, "store");
 		{ // ctor(cx)
 			GenericAnnotator gen = GenericAnnotator.newConstructor(agentClass, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			agentctor = gen.done();
 			agentctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
-			agentctor.assign(contracts.asExpr(agentctor), agentctor.makeNew(J.SIMPLECONTRACTSTORE, cx.getVar())).flush();
 		}
 //		this.structFieldHandler = sf -> {
 //			if (sf.init != null)
@@ -505,7 +506,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		IFieldInfo card = providesClass.defineField(true, Access.PRIVATE, J.OBJECT, "_card"); // Probably should be some superclass of card, service, agent ...
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(providesClass, false);
-			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			/*PendingVar cx = */gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar parent = gen.argument(J.OBJECT, "card");
 			MethodDefiner ctor = gen.done();
 //			ctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
@@ -513,7 +514,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			ctor.assign(card.asExpr(ctor), parent.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
-		FieldExpr ctrs = agentClass.getField(agentctor, "contracts");
+		FieldExpr ctrs = agentClass.getField(agentctor, "store");
 		agentctor.callInterface("void", ctrs, "recordContract",
 			agentctor.stringConst(p.actualType().name().uniqueName()),
 			agentctor.as(
@@ -607,7 +608,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else if (objty instanceof AgentDefinition) {
 			AgentDefinition ad = (AgentDefinition)objty;
 			IExpr agent = meth.makeNew(ad.name().javaName(), this.fcx);
-			IExpr mc = meth.callInterface(J.MOCKAGENT, fcx, "mockAgent", meth.as(agent, J.OBJECT));
+			IExpr mc = meth.callInterface(J.MOCKAGENT, fcx, "mockAgent", meth.as(agent, J.CONTRACT_HOLDER));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);
@@ -630,6 +631,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void visitUnitTestInvoke(UnitTestInvoke uti) {
 		new DoInvocationGenerator(sv, this.fs, this.runner);
+	}
+	
+	@Override
+	public void visitUnitTestSend(UnitTestSend uts) {
+		new DoSendGenerator(sv, this.fs, meth.as(this.runner, TestRunner.class.getName()));
 	}
 	
 	@Override

@@ -303,6 +303,11 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
+	public void send(FLEvalContext cxt, Object to, String contract, String meth, Object... args) {
+		throw new NotImplementedException();
+	}
+
+	@Override
 	public void event(String cardVar, String methodName) throws Exception {
 		logger.info("Sending event " + methodName + " to " +  cardVar);
 		CardHandle card = cards.get(cardVar);
