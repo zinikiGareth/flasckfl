@@ -4,11 +4,12 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -19,10 +20,12 @@ public class TDAServiceElementsParser implements TDAParsing {
 	private final ServiceElementsConsumer consumer;
 	private final TopLevelDefinitionConsumer topLevel;
 	private boolean seenState;
+	private final ServiceElementsConsumer service;
 
 	public TDAServiceElementsParser(ErrorReporter errors, TemplateNamer namer, ServiceElementsConsumer service, TopLevelDefinitionConsumer topLevel) {
 		this.errors = errors;
 		this.namer = namer;
+		this.service = service;
 		this.consumer = service;
 		this.topLevel = topLevel;
 	}
@@ -61,7 +64,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName csn = namer.csn(tn.location, "S");
-			final Provides cs = new Provides(kw.location, tn.location, ctr, csn);
+			final Provides cs = new Provides(kw.location, tn.location, (NamedType)service, ctr, csn);
 			consumer.addProvidedService(cs);
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel);
 		}

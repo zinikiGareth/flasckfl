@@ -30,6 +30,7 @@ public class FunctionState {
 	public Var evalRet;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final IExpr runner;
+	public IExpr stateObj;
 
 	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs, IExpr runner, Set<UnitDataDeclaration> globalMocks) {
 		this.meth = meth;
@@ -39,6 +40,10 @@ public class FunctionState {
 		this.runner = runner;
 		if (globalMocks != null)
 			this.globalMocks.addAll(globalMocks);
+	}
+	
+	public void provideStateObject(IExpr expr) {
+		this.stateObj = expr;
 	}
 
 	public String nextVar(String pfx) {

@@ -89,7 +89,7 @@ public class AccessorConversion {
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
 		FunctionDefinition fn = new FunctionDefinition(an, 0);
-		ObjectAccessor acor = new ObjectAccessor(fn);
+		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
 		tr.bind(od);
@@ -118,7 +118,7 @@ public class AccessorConversion {
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
 		FunctionDefinition fn = new FunctionDefinition(an, 0);
-		ObjectAccessor acor = new ObjectAccessor(fn);
+		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
 		tr.bind(od);
@@ -174,7 +174,7 @@ public class AccessorConversion {
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
 		FunctionDefinition fn = new FunctionDefinition(an, 3);
-		ObjectAccessor acor = new ObjectAccessor(fn);
+		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
 		tr.bind(od);
@@ -203,7 +203,7 @@ public class AccessorConversion {
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
 		FunctionDefinition fn = new FunctionDefinition(an, 0);
-		ObjectAccessor acor = new ObjectAccessor(fn);
+		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
 		tr.bind(od);

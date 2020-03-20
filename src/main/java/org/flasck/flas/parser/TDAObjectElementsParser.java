@@ -12,9 +12,11 @@ import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
@@ -97,7 +99,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 		case "acor": {
 			if (currParser != null)
 				currParser.scopeComplete(location);
-			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, f -> { ObjectAccessor oa = new ObjectAccessor(f); builder.addAccessor(oa); topLevel.newObjectAccessor(oa); }));
+			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, f -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); builder.addAccessor(oa); topLevel.newObjectAccessor(oa); }));
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel);
 			currParser = fcp;
 			return fcp.tryParsing(toks);

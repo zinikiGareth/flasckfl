@@ -5,12 +5,14 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -61,7 +63,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName csn = namer.csn(tn.location, "S");
-			final Provides contractService = new Provides(kw.location, tn.location, ctr, csn);
+			final Provides contractService = new Provides(kw.location, tn.location, (NamedType)consumer, ctr, csn);
 			consumer.addProvidedService(contractService);
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel);
 		}
@@ -89,7 +91,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName cin = namer.csn(tn.location, "C");
-			final ContractImplements ci = new ContractImplements(kw.location, tn.location, ctr, cin, varloc, varname);
+			final ContractImplements ci = new ContractImplements(kw.location, tn.location, (NamedType)consumer, ctr, cin, varloc, varname);
 			consumer.addContractImplementation(ci);
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel);
 		}

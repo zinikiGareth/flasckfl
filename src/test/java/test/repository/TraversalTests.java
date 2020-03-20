@@ -205,7 +205,7 @@ public class TraversalTests {
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>());
 		s.methods.add(meth);
-		ObjectAccessor oa = new ObjectAccessor(new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2));
+		ObjectAccessor oa = new ObjectAccessor(s, new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2));
 		s.acors.add(oa);
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
@@ -227,10 +227,30 @@ public class TraversalTests {
 	}
 
 	@Test
+	public void traverseAgentDefnVisitsStateIfDefined() {
+		AgentDefinition s = new AgentDefinition(pos, pos, new CardName(pkg, "AnAgent"));
+		StateDefinition sd = new StateDefinition(pos);
+		StringLiteral sl = new StringLiteral(pos, "hello");
+		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", sl);
+		sd.addField(sf);
+		s.defineState(sd);
+		r.addEntry(s.name(), s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitAgentDefn(s);
+			oneOf(v).visitStructField(sf);
+			oneOf(v).visitExpr(sl, 0);
+			oneOf(v).visitStringLiteral(sl);
+			oneOf(v).leaveStructField(sf);
+			oneOf(v).leaveAgentDefn(s);
+		}});
+		r.traverse(v);
+	}
+
+	@Test
 	public void traversingAgentDefnVisitsProvides() {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
-		Provides p = new Provides(pos, pos, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		Provides p = new Provides(pos, pos, s, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
 		s.addProvidedService(p);
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
@@ -246,7 +266,7 @@ public class TraversalTests {
 	public void traversingAgentDefnDoesntVisitMethodsDefinedInProvidesByDefault() {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
-		Provides p = new Provides(pos, pos, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		Provides p = new Provides(pos, pos, null, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>());
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
@@ -264,7 +284,7 @@ public class TraversalTests {
 	public void traversingAgentDefnVisitsMethodsDefinedInProvidesIfDesired() {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
-		Provides p = new Provides(pos, pos, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		Provides p = new Provides(pos, pos, null, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>());
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
@@ -287,7 +307,7 @@ public class TraversalTests {
 		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2);
 		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
 		acorFn.intro(fi);
-		ObjectAccessor oa = new ObjectAccessor(acorFn);
+		ObjectAccessor oa = new ObjectAccessor(s, acorFn);
 		s.acors.add(oa);
 		r.addEntry(oa.name(), oa);
 		context.checking(new Expectations() {{

@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
@@ -15,6 +16,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
@@ -39,13 +41,19 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		if (rhsType.type instanceof ErrorType)
 			return;
 
-		Type container = inMeth.getObject();
+		Type container;
+		if (inMeth.hasObject())
+			container = inMeth.getObject();
+		else if (inMeth.hasImplements())
+			container = inMeth.getImplements().getParent();
+		else
+			throw new NotImplementedException("Cannot handle " + inMeth);
 		String curr = null;
 		String var = null;
 		for (int i=0;i<slots.size();i++) {
 			UnresolvedVar slot = slots.get(i);
-			if (container instanceof ObjectDefn) {
-				ObjectDefn type = (ObjectDefn)container;
+			if (container instanceof StateHolder) {
+				StateHolder type = (StateHolder)container;
 				curr = type.name().uniqueName();
 				StateDefinition state = type.state();
 				if (state == null) {
@@ -62,6 +70,8 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 				}
 				container = fld.type();
 			} else {
+				if (var == null)
+					throw new NotImplementedException("there is no state at the top level in: " + container.getClass());
 				errors.message(slot.location, "field " + var + " in " + curr + " is not a container");
 				rhsType = new ExprResult(rhsType.pos, new ErrorType());
 				return;

@@ -397,7 +397,7 @@ public class ResolverTests {
 		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
 		acorFn.intro(fi);
 		fi.functionCase(new FunctionCaseDefn(null, new UnresolvedVar(pos, "fld")));
-		ObjectAccessor oa = new ObjectAccessor(acorFn);
+		ObjectAccessor oa = new ObjectAccessor(s, acorFn);
 		s.acors.add(oa);
 
 		context.checking(new Expectations() {{
@@ -420,7 +420,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides cs = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		Provides cs = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(cs.name());
 		r.visitTypeReference(ty);
 		assertEquals(type, ty.defn());
@@ -437,7 +437,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
 	}
@@ -452,7 +452,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
 	}
@@ -466,7 +466,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
 		assertEquals(cd, pr.actualType());
@@ -481,7 +481,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "u"), new ArrayList<>());
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
@@ -500,7 +500,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "AContract");
-		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "absent"), new ArrayList<>());
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
@@ -518,7 +518,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "AContract");
-		Provides pr = new Provides(pos, pos, ty, new CSName(card, "S0"));
+		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "d"), new ArrayList<>());
 		pr.addImplementationMethod(om);
 		r.currentScope(card);

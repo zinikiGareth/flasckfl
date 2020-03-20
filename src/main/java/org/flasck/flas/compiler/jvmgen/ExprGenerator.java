@@ -148,8 +148,10 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				throw new RuntimeException("Could not find " + v);
 			sv.result(var);
 		} else if (defn instanceof StructField) {
+			if (state.stateObj == null)
+				throw new NotImplementedException("stateObj has not been bound");
 			StructField sf = (StructField) defn;
-			IExpr ret = meth.callInterface(J.OBJECT, meth.getField("state"), "get", meth.stringConst(sf.name));
+			IExpr ret = meth.callInterface(J.OBJECT, state.stateObj, "get", meth.stringConst(sf.name));
 			sv.result(ret);
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(myName, 0);

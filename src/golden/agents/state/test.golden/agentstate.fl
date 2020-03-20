@@ -1,0 +1,16 @@
+	contract Feedback
+		down reply (String y)
+
+	contract Storage
+		up tell (String s)
+		up ask (Feedback.Down r)
+
+	agent StateAgent
+		state
+			String message
+			
+		provides Storage
+			tell f
+				message <- f
+			ask r
+				<- r.reply ("stored is " ++ message)

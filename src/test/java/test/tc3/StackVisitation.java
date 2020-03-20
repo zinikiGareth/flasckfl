@@ -542,7 +542,7 @@ public class StackVisitation {
 		FunctionName an = FunctionName.function(pos, on, "acor");
 		FunctionDefinition fn = new FunctionDefinition(an, 0);
 		fn.bindType(LoadBuiltins.string);
-		ObjectAccessor acor = new ObjectAccessor(fn);
+		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
 		tr.bind(od);

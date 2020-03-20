@@ -19,11 +19,13 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -170,6 +172,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		switchVars.clear();
 		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner, globalMocks );
 		currentBlock = new ArrayList<IExpr>();
+		if (oaClz != null) {
+			StateHolder od = currentOA.getObject();
+			if (od.state() != null) {
+				fs.provideStateObject(meth.getField("state"));
+			}
+		}
 	}
 	
 	@Override
@@ -190,9 +198,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			wantObj = om.name().codeType.hasThis();
 			haveThis = false;
 		} else {
-			if (om.hasObject())
+			if (om.hasObject()) {
 				this.clz = bce.get(om.getObject().name().javaName());
-			else if (om.hasImplements())
+			} else if (om.hasImplements())
 				this.clz = bce.get(om.getImplements().name().javaClassName());
 			else
 				throw new NotImplementedException("Don't have one of those");
@@ -222,6 +230,20 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			thisVar = null;
 		fs = new FunctionState(meth, (Var)fcx, thisVar, fargs, runner, globalMocks);
 		currentBlock = new ArrayList<IExpr>();
+
+		if (om.hasObject()) {
+			ObjectDefn od = om.getObject();
+			if (od.state() != null) {
+				fs.provideStateObject(meth.getField("state"));
+			}
+		} else if (om.hasImplements()) {
+			Implements m = om.getImplements();
+			if (((StateHolder)m.getParent()).state() != null) {
+				fs.provideStateObject(meth.getField(meth.castTo(meth.getField("_card"), m.getParent().name().javaName()), "state"));
+			}
+		} else if (!isStandalone)
+			throw new NotImplementedException("Don't have one of those");
+
 	}
 	
 	@Override

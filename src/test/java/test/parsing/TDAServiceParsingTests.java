@@ -20,6 +20,7 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -32,10 +33,11 @@ import flas.matchers.HandlerImplementsMatcher;
 import flas.matchers.ServiceDefnMatcher;
 
 public class TDAServiceParsingTests {
+	interface ServiceConsumer extends NamedType, TopLevelDefinitionConsumer {};
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
-	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
+	private TopLevelDefinitionConsumer builder = context.mock(ServiceConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
 	private TDAParsing serviceParser;
 	private ServiceDefinition svc;

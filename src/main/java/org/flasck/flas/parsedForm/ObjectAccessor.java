@@ -8,10 +8,16 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
 public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
+	private final StateHolder od;
 	private final FunctionDefinition fn;
 
-	public ObjectAccessor(FunctionDefinition fn) {
+	public ObjectAccessor(StateHolder od, FunctionDefinition fn) {
+		this.od = od;
 		this.fn = fn;
+	}
+
+	public StateHolder getObject() {
+		return od;
 	}
 	
 	public FunctionName name() {

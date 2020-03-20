@@ -1,0 +1,2 @@
+test.golden.StateAgent._S0.ask :: test.golden.Feedback.Down->List[Message]
+test.golden.StateAgent._S0.tell :: String->List[Message]

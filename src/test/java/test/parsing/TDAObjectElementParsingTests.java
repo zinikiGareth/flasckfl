@@ -9,6 +9,7 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -34,10 +35,11 @@ import flas.matchers.ObjectMethodMatcher;
 import flas.matchers.PatternMatcher;
 
 public class TDAObjectElementParsingTests {
+	interface ObjDef extends ObjectElementsConsumer, StateHolder {}
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
-	private ObjectElementsConsumer builder = context.mock(ObjectElementsConsumer.class);
+	private ObjectElementsConsumer builder = context.mock(ObjDef.class);
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);
 	final SolidName objName = new SolidName(null, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(objName);

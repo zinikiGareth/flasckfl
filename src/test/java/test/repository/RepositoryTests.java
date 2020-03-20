@@ -202,7 +202,7 @@ public class RepositoryTests {
 	public void canAddAnObjectAcorToTheRepository() {
 		Repository r = new Repository();
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
-		ObjectAccessor oa = new ObjectAccessor(new FunctionDefinition(FunctionName.function(pos, od.name(), "acor"), 2));
+		ObjectAccessor oa = new ObjectAccessor(od, new FunctionDefinition(FunctionName.function(pos, od.name(), "acor"), 2));
 		r.newObjectAccessor(oa);
 		assertEquals(oa, r.get("test.repo.Obj.acor"));
 	}
@@ -281,7 +281,7 @@ public class RepositoryTests {
 	@Test
 	public void canAddAHandlerToTheRepository() {
 		Repository r = new Repository();
-		HandlerImplements hi = new HandlerImplements(pos, pos, pos, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
+		HandlerImplements hi = new HandlerImplements(pos, pos, pos, null, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
 		r.newHandler(hi);
 		assertEquals(hi, r.get("test.repo.X"));
 	}
@@ -289,7 +289,7 @@ public class RepositoryTests {
 	@Test(expected=DuplicateNameException.class)
 	public void cannotAddAHandlerToTheRepositoryTwice() {
 		Repository r = new Repository();
-		HandlerImplements hi = new HandlerImplements(pos, pos, pos, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
+		HandlerImplements hi = new HandlerImplements(pos, pos, pos, null, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
 		r.newHandler(hi);
 		r.newHandler(hi);
 	}

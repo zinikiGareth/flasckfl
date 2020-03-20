@@ -12,6 +12,7 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -22,10 +23,11 @@ import flas.matchers.AgentDefnMatcher;
 import flas.matchers.HandlerImplementsMatcher;
 
 public class TDAAgentIntroParsingTests {
+	interface AgentConsumer extends NamedType, TopLevelDefinitionConsumer {};
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
-	private TopLevelDefinitionConsumer builder = context.mock(TopLevelDefinitionConsumer.class);
+	private TopLevelDefinitionConsumer builder = context.mock(AgentConsumer.class);
 	private TopLevelNamer namer = new PackageNamer("test.pkg");
 
 	@Test

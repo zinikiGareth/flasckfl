@@ -7,18 +7,21 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parser.ImplementationMethodConsumer;
+import org.flasck.flas.tc3.NamedType;
 
 public class Implements implements Locatable, ImplementationMethodConsumer {
 	public final InputPosition kw;
 	private InputPosition location;
+	private final NamedType parent;
 	private TypeReference implementing;
 	private final NameOfThing myName;
 	private ContractDecl actualType;
 	public final List<ObjectMethod> implementationMethods = new ArrayList<>();
 
-	public Implements(InputPosition kw, InputPosition location, TypeReference implementing, NameOfThing myName) {
+	public Implements(InputPosition kw, InputPosition location, NamedType parent, TypeReference implementing, NameOfThing myName) {
 		this.kw = kw;
 		this.location = location;
+		this.parent = parent;
 		this.implementing = implementing;
 		this.myName = myName;
 	}
@@ -30,6 +33,10 @@ public class Implements implements Locatable, ImplementationMethodConsumer {
 	
 	public TypeReference implementsType() {
 		return implementing;
+	}
+
+	public NamedType getParent() {
+		return parent;
 	}
 
 	public NameOfThing name() {

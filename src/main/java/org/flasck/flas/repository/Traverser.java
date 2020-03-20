@@ -46,6 +46,7 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -240,11 +241,15 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitObjectDefn(ObjectDefn obj) {
 		visitor.visitObjectDefn(obj);
-		if (obj.state() != null) {
-			for (StructField f : obj.state().fields)
+		traverseState(obj.state());
+		leaveObjectDefn(obj);
+	}
+
+	private void traverseState(StateDefinition state) {
+		if (state != null) {
+			for (StructField f : state.fields)
 				visitStructField(f);
 		}
-		leaveObjectDefn(obj);
 	}
 
 	public void leaveObjectDefn(ObjectDefn obj) {
@@ -254,6 +259,7 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitAgentDefn(AgentDefinition s) {
 		visitor.visitAgentDefn(s);
+		traverseState(s.state());
 		for (Provides p : s.services)
 			visitProvides(p);
 		leaveAgentDefn(s);

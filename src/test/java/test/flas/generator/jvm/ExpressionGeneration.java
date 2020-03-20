@@ -191,12 +191,13 @@ public class ExpressionGeneration {
 		IExpr sx = context.mock(IExpr.class, "sx");
 		IExpr fld = context.mock(IExpr.class, "fld");
 		context.checking(new Expectations() {{
-			oneOf(meth).getField("state"); will(returnValue(state));
 			oneOf(meth).stringConst("x"); will(returnValue(sx));
 			oneOf(meth).callInterface(J.OBJECT, state, "get", sx); will(returnValue(fld));
 			oneOf(nv).result(fld);
 		}});
-		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, cx, null, null, null, null), sv, block)).withHSI();
+		FunctionState fs = new FunctionState(meth, cx, null, null, null, null);
+		fs.provideStateObject(state);
+		Traverser gen = new Traverser(new ExprGenerator(fs, sv, block)).withHSI();
 		gen.visitExpr(expr, 0);
 	}
 

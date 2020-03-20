@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.tc3.NamedType;
 
 public class HandlerImplements extends Implements implements RepositoryEntry {
 	public final String baseName;
@@ -14,8 +15,8 @@ public class HandlerImplements extends Implements implements RepositoryEntry {
 	public final InputPosition typeLocation;
 	public final HandlerName handlerName;
 
-	public HandlerImplements(InputPosition kw, InputPosition location, InputPosition typeLocation, HandlerName handlerName, TypeReference implementing, boolean inCard, List<Object> lambdas) {
-		super(kw, location, implementing, handlerName);
+	public HandlerImplements(InputPosition kw, InputPosition location, InputPosition typeLocation, NamedType parent, HandlerName handlerName, TypeReference implementing, boolean inCard, List<Object> lambdas) {
+		super(kw, location, parent, implementing, handlerName);
 		this.typeLocation = typeLocation;
 		this.handlerName = handlerName;
 		this.baseName = handlerName.baseName;
