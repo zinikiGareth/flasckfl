@@ -19,7 +19,6 @@ import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.testrunner.CommonTestRunner;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -39,7 +38,6 @@ public abstract class BaseRunnerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ErrorResult errors = new ErrorResult();
-	Rewriter rw = new Rewriter(errors, null);
 	// TODO: defining bce here feels out of place and should be in the JVMRunnerTest
 	// But it is "part of" the CompileResult.  Why?
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
