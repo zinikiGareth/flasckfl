@@ -18,7 +18,8 @@ public class AgentDefinition implements Locatable, AgentElementsConsumer, Reposi
 	public final String simpleName;
 	private StateDefinition state;
 	public final List<Template> templates = new ArrayList<Template>();
-	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
+	public final List<ImplementsContract> contracts = new ArrayList<ImplementsContract>();
+	public final List<RequiresContract> requires = new ArrayList<>();
 	public final List<Provides> services = new ArrayList<Provides>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final CardName name;
@@ -57,8 +58,12 @@ public class AgentDefinition implements Locatable, AgentElementsConsumer, Reposi
 		return state;
 	}
 
-	public void addContractImplementation(ContractImplements o) {
+	public void addContractImplementation(ImplementsContract o) {
 		contracts.add(o);
+	}
+
+	public void addRequiredContract(RequiresContract o) {
+		requires.add(o);
 	}
 
 	public void addContractService(Provides o) {

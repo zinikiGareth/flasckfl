@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -170,8 +171,11 @@ public class TDATopLevelCardParsingTests {
 
 	@Test
 	public void cardsCanUtilizeServicesThroughContracts() {
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("implements org.ziniki.ContractName var"));
-		assertEquals(1, card.contracts.size());
+		context.checking(new Expectations() {{
+			oneOf(builder).newRequiredContract(with(any(RequiresContract.class)));
+		}});
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("requires org.ziniki.ContractName var"));
+		assertEquals(1, card.requires.size());
 	}
 
 	@SuppressWarnings("unchecked")

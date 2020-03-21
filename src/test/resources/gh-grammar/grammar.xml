@@ -116,6 +116,9 @@
   <lex token='PROVIDES' pattern='provides'>
   	<p>The <tt>provides</tt> keyword introduces a block indicating that the service portion of a contract will be provided.</p>
   </lex>
+  <lex token='REQUIRES' pattern='requires'>
+  	<p>The <tt>requires</tt> keyword identifies a variable which is bound to a service of the specified contract.</p>
+  </lex>
   <lex token='PUT' pattern='&lt;-'>
   	<p>Method actions are defined using the PUT operator.</p>
   </lex>
@@ -1136,10 +1139,27 @@
     <section title='Card'/>
     <tested by='test.parsing.TDATopLevelCardParsingTests'/>
     <or>
-    	  <ref production='event-handler'/>
-    	  <ref production='implements-contract'/>
+      <ref production='event-handler'/>
+      <ref production='requires-contract'/>
+      <ref production='implements-contract'/>
       <ref production='service-scope-unit'/>
     </or>
+  </production>
+  <production name='requires-contract'>
+    <section title='Requires Contract'>
+      <description>
+        The requires block identifies a contract that this card needs to do its job.
+        It requires a contract name and a variable.
+        The variable can be used in the card to call the service bound to the contract.
+      </description>
+    </section>
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
+    <seq>
+      <token type='REQUIRES' />
+      <token type='type-name'/>
+      <push-part prefix='R' />
+      <token type='var-name'/>
+    </seq>
   </production>
   <production name='implements-contract'>
     <section title='Implements Contract'>
@@ -1148,15 +1168,12 @@
     </section>
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
-    	  <token type='IMPLEMENTS' />
-    	  <token type='type-name'/>
-    	  <push-part prefix='C' />
-    	  <optional>
-        <token type='var-name'/>
-    	  </optional>
-    	  <indent>
-    	    <ref production='implementation-method'/>
-    	  </indent>
+      <token type='IMPLEMENTS' />
+      <token type='type-name'/>
+      <push-part prefix='C' />
+      <indent>
+        <ref production='implementation-method'/>
+      </indent>
     </seq>
   </production>
   <production name='implementation-method'>

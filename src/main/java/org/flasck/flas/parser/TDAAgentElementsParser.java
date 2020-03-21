@@ -5,8 +5,9 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -66,7 +67,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			consumer.addProvidedService(contractService);
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel);
 		}
-		case "implements": {
+		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
 			if (tn == null) {
 				errors.message(toks, "invalid contract reference");
@@ -89,8 +90,25 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				return new IgnoreNestedParser();
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
+			final CSName cin = namer.csn(tn.location, "R");
+			final RequiresContract rc = new RequiresContract(kw.location, tn.location, (NamedType)consumer, ctr, cin, varloc, varname);
+			consumer.addRequiredContract(rc);
+			topLevel.newRequiredContract(rc);
+			return new NoNestingParser(errors);
+		}
+		case "implements": {
+			TypeNameToken tn = TypeNameToken.qualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid contract reference");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "extra tokens at end of line");
+				return new IgnoreNestedParser();
+			}
+			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			final CSName cin = namer.csn(tn.location, "C");
-			final ContractImplements ci = new ContractImplements(kw.location, tn.location, (NamedType)consumer, ctr, cin, varloc, varname);
+			final ImplementsContract ci = new ImplementsContract(kw.location, tn.location, (NamedType)consumer, ctr, cin);
 			consumer.addContractImplementation(ci);
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel);
 		}
