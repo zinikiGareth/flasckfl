@@ -56,6 +56,7 @@ public interface JSBlockCreator {
 	// main logic statements
 	void storeField(JSExpr inObj, String field, JSExpr value);
 	JSExpr loadField(StateLocation loc, String name);
+	JSExpr contractByVar(StateLocation loc, String name);
 	JSExpr structArgs(String string, JSExpr... args);
 	JSExpr closure(JSExpr... args);
 	JSExpr curry(int expArgs, JSExpr... args);

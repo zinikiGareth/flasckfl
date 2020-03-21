@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -152,6 +153,10 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				throw new NotImplementedException("stateObj has not been bound");
 			StructField sf = (StructField) defn;
 			IExpr ret = meth.callInterface(J.OBJECT, state.stateObj, "get", meth.stringConst(sf.name));
+			sv.result(ret);
+		} else if (defn instanceof RequiresContract) {
+			RequiresContract rc = (RequiresContract) defn;
+			IExpr ret = meth.callInterface(J.OBJECT, state.container, "get", meth.stringConst(rc.referAsVar));
 			sv.result(ret);
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(myName, 0);

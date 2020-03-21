@@ -12,4 +12,4 @@
 
 		provides Storage
 			tell msg
-				<- b.tell msg 
+				<- b.store msg 

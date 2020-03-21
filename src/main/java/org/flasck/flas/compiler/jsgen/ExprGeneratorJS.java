@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -129,6 +130,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.boundVar(((TypedPattern)defn).var.var));
 		} else if (defn instanceof StructField) {
 			sv.result(block.loadField(state.stateLocation(), ((StructField)defn).name));
+		} else if (defn instanceof RequiresContract) {
+			sv.result(block.contractByVar(state.stateLocation(), ((RequiresContract)defn).referAsVar));
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(myName, 0);
 		} else if (defn instanceof CurryArgument) {

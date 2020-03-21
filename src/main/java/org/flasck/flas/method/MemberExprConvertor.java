@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -82,11 +83,15 @@ public class MemberExprConvertor extends LeafAdapter {
 				throw new NotImplementedException("cannot use var " + vp + " as it is not bound to a type");
 			} else
 				dt = (NamedType) vp.type();
+		} else if (defn instanceof RequiresContract) {
+			dt = ((RequiresContract)defn).actualType();
 		} else if (defn instanceof UnitDataDeclaration) {
 			dt = ((UnitDataDeclaration)defn).ofType.defn();
 		} else
 			throw new NotImplementedException("cannot handle svc var of type " + (defn == null ? "NULL" : defn.getClass()));
-		if (dt instanceof ContractDeclDir)
+		if (dt instanceof ContractDecl)
+			this.cd = (ContractDecl) dt;
+		else if (dt instanceof ContractDeclDir)
 			this.cd = ((ContractDeclDir) dt).decl;
 		else if (dt instanceof ObjectDefn)
 			this.od = (ObjectDefn) dt;

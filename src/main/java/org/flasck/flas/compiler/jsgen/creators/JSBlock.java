@@ -18,6 +18,7 @@ import org.flasck.flas.compiler.jsgen.form.JSBind;
 import org.flasck.flas.compiler.jsgen.form.JSBoundVar;
 import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
+import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
 import org.flasck.flas.compiler.jsgen.form.JSCurry;
 import org.flasck.flas.compiler.jsgen.form.JSError;
 import org.flasck.flas.compiler.jsgen.form.JSEval;
@@ -306,6 +307,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSLoadField loadField(StateLocation loc, String field) {
 		return new JSLoadField(loc, field);
+	}
+
+	@Override
+	public JSExpr contractByVar(StateLocation loc, String name) {
+		return new JSContractByVar(loc, name);
 	}
 
 	@Override

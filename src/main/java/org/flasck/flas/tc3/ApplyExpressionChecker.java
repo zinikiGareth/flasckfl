@@ -108,12 +108,18 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		// And we will just have that concern in MethodConversion
 		PosType pfn = results.remove(0);
 		Type fn = pfn.type;
-		if (fn instanceof UnifiableType) {
+		if (fn instanceof ErrorType) {
+			nv.result(fn);
+			return;
+		} else if (fn instanceof UnifiableType) {
 			UnifiableType ut = (UnifiableType)fn;
 			nv.result(ut.canBeAppliedTo(expr.location(), results));
 			return;
-		} else if (fn.argCount() < results.size())
-			throw new RuntimeException("should be an error: " + fn + " expects: " + fn.argCount() + " has: " + results.size());
+		} else if (fn.argCount() < results.size()) {
+			errors.message(pfn.pos, fn + " expects: " + fn.argCount() + " has: " + results.size());
+			nv.result(new ErrorType());
+			return;
+		}
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
 		while (!results.isEmpty()) {

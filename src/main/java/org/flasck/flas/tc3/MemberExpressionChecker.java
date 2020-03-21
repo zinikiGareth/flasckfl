@@ -60,6 +60,14 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				nv.result(new ErrorType());
 			} else
 				nv.result(method.type());
+		} else if (ty instanceof ContractDecl) {
+			ContractDecl cd = (ContractDecl) ty;
+			ContractMethodDecl method = cd.getMethod(fld.var);
+			if (method == null) {
+				errors.message(fld.location(), "there is no method '" + fld.var + "' in " + cd.name().uniqueName());
+				nv.result(new ErrorType());
+			} else
+				nv.result(method.type());
 		} else if (ty instanceof StructDefn) {
 			StructDefn sd = (StructDefn) ty;
 			StructField sf = sd.findField(fld.var);
