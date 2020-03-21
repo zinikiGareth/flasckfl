@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.NotImplementedException;
@@ -16,6 +18,10 @@ public class RequiresContract extends Implements implements RepositoryEntry {
 		super(kw, location, parent, type, csn);
 		this.varLocation = vlocation;
 		this.referAsVar = referAsVar;
+	}
+	
+	public NameOfThing varName() {
+		return new VarName(varLocation, this.name().container(), referAsVar);
 	}
 	
 	@Override

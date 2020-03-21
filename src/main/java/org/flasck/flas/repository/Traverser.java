@@ -43,6 +43,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PatternsHolder;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -176,7 +177,7 @@ public class Traverser implements Visitor {
 //				visitUnitDataDeclaration(udd);
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
-		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType) {
+		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType || e instanceof RequiresContract) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof CurryArgument)
 			; // do nothing; just for resolution
@@ -260,6 +261,8 @@ public class Traverser implements Visitor {
 	public void visitAgentDefn(AgentDefinition s) {
 		visitor.visitAgentDefn(s);
 		traverseState(s.state());
+		for (RequiresContract rc : s.requires)
+			visitRequires(rc);
 		for (Provides p : s.services)
 			visitProvides(p);
 		leaveAgentDefn(s);
@@ -276,6 +279,11 @@ public class Traverser implements Visitor {
 
 	public void leaveProvides(Provides p) {
 		visitor.leaveProvides(p);
+	}
+
+	
+	public void visitRequires(RequiresContract rc) {
+		visitor.visitRequires(rc);
 	}
 
 	@Override

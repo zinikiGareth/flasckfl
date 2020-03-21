@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -295,6 +296,22 @@ public class TraversalTests {
 			oneOf(v).visitObjectMethod(meth);
 			oneOf(v).leaveObjectMethod(meth);
 			oneOf(v).leaveProvides(p);
+			oneOf(v).leaveAgentDefn(s);
+		}});
+		r.traverseWithImplementedMethods(v);
+	}
+
+	@Test
+	public void traversingAgentDefnVisitsRequiresContract() {
+		CardName an = new CardName(pkg, "AnAgent");
+		AgentDefinition s = new AgentDefinition(pos, pos, an);
+		RequiresContract rc = new RequiresContract(pos, pos, s, new TypeReference(pos, "Svc"), new CSName(an, "S0"), pos, "svc");
+		s.addRequiredContract(rc);
+		r.newRequiredContract(rc);
+		r.addEntry(s.name(), s);
+		context.checking(new Expectations() {{
+			oneOf(v).visitAgentDefn(s);
+			oneOf(v).visitRequires(rc);
 			oneOf(v).leaveAgentDefn(s);
 		}});
 		r.traverseWithImplementedMethods(v);

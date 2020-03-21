@@ -135,6 +135,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitAgentDefn(AgentDefinition s);
 		void visitProvides(Provides p);
 		void leaveProvides(Provides p);
+		void visitRequires(RequiresContract rc);
 		void leaveAgentDefn(AgentDefinition s);
 		void visitObjectAccessor(ObjectAccessor oa);
 		void leaveObjectAccessor(ObjectAccessor oa);
@@ -240,7 +241,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public void newRequiredContract(RequiresContract rc) {
-		addEntry(rc.name(), rc);
+		addEntry(rc.varName(), rc);
 	}
 	
 	@Override
