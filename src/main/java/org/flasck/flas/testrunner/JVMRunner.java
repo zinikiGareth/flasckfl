@@ -14,7 +14,6 @@ import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.container.FLEvalContextFactory;
 import org.flasck.jvm.container.JvmDispatcher;
 import org.flasck.jvm.container.MockAgent;
-import org.flasck.jvm.fl.FLMockEvalContext;
 import org.flasck.jvm.fl.LoaderContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -123,7 +122,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 //	}
 
 	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
-		FLEvalContext cx = new FLMockEvalContext();
+		FLEvalContext cx = new LoaderContext();
 		expected = cx.full(expected);
 		actual = cx.full(actual);
 		if (!cx.compare(expected, actual))
