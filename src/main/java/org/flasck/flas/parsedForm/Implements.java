@@ -9,56 +9,16 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parser.ImplementationMethodConsumer;
 import org.flasck.flas.tc3.NamedType;
 
-public class Implements implements Locatable, ImplementationMethodConsumer {
-	public final InputPosition kw;
-	private InputPosition location;
-	private final NamedType parent;
-	private TypeReference implementing;
-	private final NameOfThing myName;
-	private ContractDecl actualType;
+public class Implements extends ContractReferencer implements Locatable, ImplementationMethodConsumer {
 	public final List<ObjectMethod> implementationMethods = new ArrayList<>();
 
 	public Implements(InputPosition kw, InputPosition location, NamedType parent, TypeReference implementing, NameOfThing myName) {
-		this.kw = kw;
-		this.location = location;
-		this.parent = parent;
-		this.implementing = implementing;
-		this.myName = myName;
-	}
-
-	@Override
-	public InputPosition location() {
-		return location;
-	}
-	
-	public TypeReference implementsType() {
-		return implementing;
-	}
-
-	public NamedType getParent() {
-		return parent;
-	}
-
-	public NameOfThing name() {
-		return myName;
+		super(kw, location, parent, implementing, myName);
 	}
 
 	@Override
 	public void addImplementationMethod(ObjectMethod method) {
 		implementationMethods.add(method);
 		method.bindToImplements(this);
-	}
-
-	public ContractDecl actualType() {
-		return actualType;
-	}
-
-	public void bindActualType(ContractDecl actualType) {
-		this.actualType = actualType;
-	}
-
-	@Override
-	public String toString() {
-		return myName.uniqueName();
 	}
 }

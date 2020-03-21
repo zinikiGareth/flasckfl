@@ -107,7 +107,8 @@ public class TraversalTests {
 	@Test
 	public void traverseStructDefnWithFieldVisitsTheField() {
 		StructDefn s = new StructDefn(pos, FieldsType.STRUCT, "foo.bar", "MyStruct", true);
-		StructField sf = new StructField(pos, false, new TypeReference(pos, "X", new ArrayList<>()), "x");
+		TypeReference tr = new TypeReference(pos, "X", new ArrayList<>());
+		StructField sf = new StructField(pos, false, tr, "x");
 		s.addField(sf);
 		sf.fullName(new VarName(sf.loc,s.name, sf.name));
 		r.addEntry(s.name(), s);
@@ -115,6 +116,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).visitStructField(sf);
+			oneOf(v).visitTypeReference(tr);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveStructDefn(s);
 		}});
@@ -124,7 +126,8 @@ public class TraversalTests {
 	@Test
 	public void traverseStructDefnWithFieldAccessorVisitsTheFieldAsAnAccessor() {
 		StructDefn s = new StructDefn(pos, FieldsType.STRUCT, "foo.bar", "MyStruct", true);
-		StructField sf = new StructField(pos, true, new TypeReference(pos, "X", new ArrayList<>()), "x");
+		TypeReference tr = new TypeReference(pos, "X", new ArrayList<>());
+		StructField sf = new StructField(pos, true, tr, "x");
 		s.addField(sf);
 		sf.fullName(new VarName(sf.loc,s.name, sf.name));
 		r.addEntry(s.name(), s);
@@ -132,6 +135,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).visitStructField(sf);
+			oneOf(v).visitTypeReference(tr);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveStructDefn(s);
 			oneOf(v).visitStructFieldAccessor(sf);
@@ -174,6 +178,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).visitStructField(sf);
+			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveObjectDefn(s);
 		}});
@@ -192,6 +197,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).visitStructField(sf);
+			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
 			oneOf(v).visitExpr(sl, 0);
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveStructField(sf);
@@ -239,6 +245,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitStructField(sf);
+			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
 			oneOf(v).visitExpr(sl, 0);
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveStructField(sf);
@@ -251,12 +258,14 @@ public class TraversalTests {
 	public void traversingAgentDefnVisitsProvides() {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
-		Provides p = new Provides(pos, pos, s, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		TypeReference fred = new TypeReference(pos, "Fred");
+		Provides p = new Provides(pos, pos, s, fred, new CSName(an, "S0"));
 		s.addProvidedService(p);
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
+			oneOf(v).visitTypeReference(fred);
 			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
 		}});
@@ -267,7 +276,8 @@ public class TraversalTests {
 	public void traversingAgentDefnDoesntVisitMethodsDefinedInProvidesByDefault() {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
-		Provides p = new Provides(pos, pos, null, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		TypeReference fred = new TypeReference(pos, "Fred");
+		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"));
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>());
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
@@ -275,6 +285,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
+			oneOf(v).visitTypeReference(fred);
 			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
 		}});
@@ -285,7 +296,8 @@ public class TraversalTests {
 	public void traversingAgentDefnVisitsMethodsDefinedInProvidesIfDesired() {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
-		Provides p = new Provides(pos, pos, null, new TypeReference(pos, "Fred"), new CSName(an, "S0"));
+		TypeReference fred = new TypeReference(pos, "Fred");
+		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"));
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>());
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
@@ -293,6 +305,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
+			oneOf(v).visitTypeReference(fred);
 			oneOf(v).visitObjectMethod(meth);
 			oneOf(v).leaveObjectMethod(meth);
 			oneOf(v).leaveProvides(p);
@@ -305,13 +318,15 @@ public class TraversalTests {
 	public void traversingAgentDefnVisitsRequiresContract() {
 		CardName an = new CardName(pkg, "AnAgent");
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
-		RequiresContract rc = new RequiresContract(pos, pos, s, new TypeReference(pos, "Svc"), new CSName(an, "S0"), pos, "svc");
+		TypeReference tr = new TypeReference(pos, "Svc");
+		RequiresContract rc = new RequiresContract(pos, pos, s, tr, new CSName(an, "S0"), pos, "svc");
 		s.addRequiredContract(rc);
 		r.newRequiredContract(rc);
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitRequires(rc);
+			oneOf(v).visitTypeReference(tr);
 			oneOf(v).leaveAgentDefn(s);
 		}});
 		r.traverseWithImplementedMethods(v);

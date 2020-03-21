@@ -136,37 +136,22 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitProvides(Provides p) {
-		String name = p.implementsType().name();
-		RepositoryEntry defn = find(scope, name);
-		if (defn == null) {
-			errors.message(p.implementsType().location(), "cannot find type '" + name + "'");
-		} else if (!(defn instanceof ContractDecl)) {
-			errors.message(p.implementsType().location(), name + " is not a contract");
-		} else {
-			p.bindActualType((ContractDecl) defn);
-			currentlyImplementing = p;
-		}
+		currentlyImplementing = p;
 	}
 	
 	@Override
 	public void leaveProvides(Provides p) {
+		TypeReference implementsType = p.implementsType();
+		String name = implementsType.name();
+		NamedType defn = implementsType.defn();
+		if (defn == null) {
+			// will have issued message about failed resolution
+		} else if (!(defn instanceof ContractDecl)) {
+			errors.message(implementsType.location(), name + " is not a contract");
+		}
 		currentlyImplementing = null;
 	}
 
-	@Override
-	public void visitStructField(StructField sf) {
-		String name = sf.type.name();
-		RepositoryEntry defn = find(scope, name);
-		if (defn == null) {
-			errors.message(sf.location(), "cannot find type '" + name + "'");
-			return;
-		} else if (!(defn instanceof Type)) {
-			errors.message(sf.location(), name + " is not a type defn");
-			return;
-		} else
-			sf.type.bind((NamedType) defn);
-	}
-	
 	@Override
 	public void leaveStructDefn(StructDefn sd) {
 		this.scope = scopeStack.remove(0);

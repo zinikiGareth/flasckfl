@@ -10,7 +10,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class RequiresContract extends Implements implements RepositoryEntry {
+public class RequiresContract extends ContractReferencer implements RepositoryEntry {
 	public final String referAsVar;
 	public final InputPosition varLocation;
 

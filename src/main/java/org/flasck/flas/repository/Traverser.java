@@ -201,6 +201,7 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitStructField(StructField sf) {
 		visitor.visitStructField(sf);
+		visitTypeReference(sf.type);
 		if (sf.init != null)
 			visitExpr(sf.init, 0);
 		leaveStructField(sf);
@@ -270,6 +271,7 @@ public class Traverser implements Visitor {
 
 	public void visitProvides(Provides p) {
 		visitor.visitProvides(p);
+		visitTypeReference(p.implementsType());
 		if (wantImplementedMethods) {
 			for (ObjectMethod om : p.implementationMethods)
 				visitObjectMethod(om);
@@ -284,6 +286,7 @@ public class Traverser implements Visitor {
 	
 	public void visitRequires(RequiresContract rc) {
 		visitor.visitRequires(rc);
+		visitTypeReference(rc.implementsType());
 	}
 
 	@Override

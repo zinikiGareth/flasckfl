@@ -10,6 +10,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -22,6 +23,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -70,41 +72,44 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		InputPosition pos = var.location();
 		if (var == null || var.defn() == null)
 			throw new NullPointerException("undefined var: " + var);
-		if (var.defn() instanceof StructDefn) {
-			announce(pos, (Type) var.defn());
-		} else if (var.defn() instanceof FunctionDefinition) {
-			FunctionDefinition fn = (FunctionDefinition) var.defn();
+		RepositoryEntry defn = var.defn();
+		if (defn instanceof StructDefn) {
+			announce(pos, (Type) defn);
+		} else if (defn instanceof FunctionDefinition) {
+			FunctionDefinition fn = (FunctionDefinition) defn;
 			if (fn.type() != null)
 				announce(pos, fn.type());
 			else
 				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
-		} else if (var.defn() instanceof TupleMember) {
-			TupleMember tm = (TupleMember) var.defn();
+		} else if (defn instanceof TupleMember) {
+			TupleMember tm = (TupleMember) defn;
 			announce(pos, state.requireVarConstraints(tm.location(), tm.name().uniqueName()));
-		} else if (var.defn() instanceof StandaloneMethod) {
-			StandaloneMethod fn = (StandaloneMethod) var.defn();
+		} else if (defn instanceof StandaloneMethod) {
+			StandaloneMethod fn = (StandaloneMethod) defn;
 			if (fn.hasType())
 				announce(pos, fn.type());
 			else
 				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
-		} else if (var.defn() instanceof VarPattern) {
-			VarPattern vp = (VarPattern) var.defn();
+		} else if (defn instanceof VarPattern) {
+			VarPattern vp = (VarPattern) defn;
 			if (vp.type() != null)
 				announce(pos, vp.type());
 			else
 				announce(pos, state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
-		} else if (var.defn() instanceof TypedPattern) {
-			TypedPattern vp = (TypedPattern) var.defn();
+		} else if (defn instanceof TypedPattern) {
+			TypedPattern vp = (TypedPattern) defn;
 			announce(pos, (Type) vp.type.defn());
-		} else if (var.defn() instanceof StructField) {
-			StructField sf = (StructField) var.defn();
+		} else if (defn instanceof StructField) {
+			StructField sf = (StructField) defn;
 			announce(pos, (Type) sf.type.defn());
-		} else if (var.defn() instanceof CurryArgument) {
-			announce(pos, (Type) new CurryArgumentType(((Locatable)var.defn()).location()));
-		} else if (var.defn() instanceof UnitDataDeclaration) {
-			announce(pos, ((UnitDataDeclaration)var.defn()).ofType.defn());
+		} else if (defn instanceof CurryArgument) {
+			announce(pos, (Type) new CurryArgumentType(((Locatable)defn).location()));
+		} else if (defn instanceof RequiresContract) {
+			announce(pos, ((RequiresContract)defn).implementsType().defn());
+		} else if (defn instanceof UnitDataDeclaration) {
+			announce(pos, ((UnitDataDeclaration)defn).ofType.defn());
 		} else
-			throw new RuntimeException("Cannot handle " + var.defn() + " of type " + var.defn().getClass());
+			throw new RuntimeException("Cannot handle " + defn + " of type " + defn.getClass());
 	}
 	
 	@Override

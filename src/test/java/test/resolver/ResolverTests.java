@@ -432,7 +432,7 @@ public class ResolverTests {
 			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Hello"); will(returnValue(null));
 			oneOf(rr).get("Hello"); will(returnValue(null));
-			oneOf(errors).message(pos, "cannot find type 'Hello'");
+			oneOf(errors).message(pos, "cannot resolve 'Hello'");
 		}});
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
@@ -440,6 +440,7 @@ public class ResolverTests {
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
+		r.visitTypeReference(ty);
 	}
 
 	@Test
@@ -455,6 +456,8 @@ public class ResolverTests {
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
+		r.visitTypeReference(ty);
+		r.leaveProvides(pr);
 	}
 
 	@Test
@@ -469,6 +472,7 @@ public class ResolverTests {
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
+		r.visitTypeReference(ty);
 		assertEquals(cd, pr.actualType());
 	}
 
@@ -486,6 +490,7 @@ public class ResolverTests {
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);
+		r.visitTypeReference(ty);
 		r.visitObjectMethod(om);
 		assertEquals(cmu, om.contractMethod());
 	}
@@ -505,6 +510,7 @@ public class ResolverTests {
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);
+		r.visitTypeReference(ty);
 		r.visitObjectMethod(om);
 	}
 
@@ -523,6 +529,8 @@ public class ResolverTests {
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);
+		r.visitTypeReference(ty);
 		r.visitObjectMethod(om);
+		r.leaveProvides(pr);
 	}
 }
