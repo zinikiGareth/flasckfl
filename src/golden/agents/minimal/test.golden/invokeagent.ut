@@ -2,5 +2,5 @@
 		data Responder.Down responder
 		data Agent007 agent
 		expect responder reply "answer to question"
-		contract agent Trivia ask "question" responder
+		contract agent Trivia.Up ask "question" responder
 	

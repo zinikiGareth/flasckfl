@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.repository.LeafAdapter;
@@ -39,8 +41,12 @@ public class DoSendGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitSendMethod(NamedType defn, UnresolvedVar fn) {
-		ContractDecl contract = (ContractDecl) defn;
-		this.contract = block.string(contract.name().uniqueName());
+		NameOfThing contract;
+		if (defn instanceof ContractDeclDir)
+			contract = ((ContractDeclDir)defn).name();
+		else
+			contract = ((ContractDecl) defn).name();
+		this.contract = block.string(contract.uniqueName());
 		this.fn = block.string(fn.var);
 	}
 	

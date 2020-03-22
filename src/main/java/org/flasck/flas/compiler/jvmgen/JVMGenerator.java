@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -112,6 +113,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private static final boolean leniency = false;
 	private NewMethodDefiner agentctor;
 	private ByteCodeSink agentClass;
+	private Var agentcx;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;
@@ -519,7 +521,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			GenericAnnotator gen = GenericAnnotator.newConstructor(agentClass, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			agentctor = gen.done();
-			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", cx.getVar()).flush();
+			agentcx = cx.getVar();
+			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
 		}
 //		this.structFieldHandler = sf -> {
 //			if (sf.init != null)
@@ -551,6 +554,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				agentctor.makeNew(csn.javaClassName(), agentctor.getArgument(0), agentctor.as(agentctor.myThis(), J.OBJECT)),
 				J.OBJECT
 			)
+		).flush();
+	}
+	
+	@Override
+	public void visitRequires(RequiresContract rc) {
+		FieldExpr ctrs = agentClass.getField(agentctor, "store");
+		agentctor.callInterface("void", ctrs, "requireService",
+			agentcx,
+			agentctor.classConst(rc.actualType().name().javaClassName()),
+			agentctor.stringConst(rc.referAsVar)
 		).flush();
 	}
 	

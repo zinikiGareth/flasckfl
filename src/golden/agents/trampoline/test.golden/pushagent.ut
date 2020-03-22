@@ -1,9 +1,9 @@
 	test we can push through an agent
-		data Feedback.Down handler
+//		data Feedback.Down handler
 		data Basic.Up root
 		data TrampAgent agent
 		expect root store "datum"
 //		expect handler reply "stored is question"
-		contract agent Storage tell "datum"
-//		contract agent Storage ask handler
+		contract agent Storage.Up tell "datum"
+//		contract agent Storage.Up ask handler
 	

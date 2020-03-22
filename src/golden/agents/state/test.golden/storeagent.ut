@@ -2,6 +2,6 @@
 		data Feedback.Down handler
 		data StateAgent agent
 		expect handler reply "stored is question"
-		contract agent Storage tell "question"
-		contract agent Storage ask handler
+		contract agent Storage.Up tell "question"
+		contract agent Storage.Up ask handler
 	

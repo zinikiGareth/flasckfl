@@ -8,7 +8,7 @@
 		up tell (String s)
 
 	agent TrampAgent
-		requires Basic b
+		requires Basic.Up b
 
 		provides Storage
 			tell msg

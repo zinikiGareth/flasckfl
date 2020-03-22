@@ -18,7 +18,6 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -30,7 +29,6 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
-import org.flasck.flas.tc3.Type;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final ErrorReporter errors;
@@ -70,8 +68,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		scopeStack.add(0, scope);
 		this.scope = meth.name();
 		if (currentlyImplementing != null && currentlyImplementing.actualType() != null) {
-			ContractDecl cd = currentlyImplementing.actualType();
-			ContractMethodDecl cm = cd.getMethod(meth.name().name);
+			ContractDeclDir cd = currentlyImplementing.actualType();
+			ContractMethodDecl cm = cd.decl.getMethod(meth.name().name);
 			if (cm != null) {
 				if (cm.dir == ContractMethodDir.DOWN && currentlyImplementing instanceof Provides)
 					errors.message(meth.location(), "cannot provide down method '" + meth.name().name + "'");

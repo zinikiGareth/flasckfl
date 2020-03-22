@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.tc3.NamedType;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class ContractReferencer implements Locatable {
 	public final InputPosition kw;
@@ -37,8 +38,16 @@ public class ContractReferencer implements Locatable {
 		return myName;
 	}
 
-	public ContractDecl actualType() {
-		return (ContractDecl) implementing.defn();
+	public ContractDeclDir actualType() {
+		NamedType defn = implementing.defn();
+		if (defn == null)
+			return null;
+		else if (defn instanceof ContractDeclDir)
+			return (ContractDeclDir) defn;
+		else if (defn instanceof ContractDecl)
+			return new ContractDeclDir((ContractDecl) defn, "Up");
+		else
+			throw new NotImplementedException(defn.getClass().getName());
 	}
 
 	@Override

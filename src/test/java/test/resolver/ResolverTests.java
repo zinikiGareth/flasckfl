@@ -473,7 +473,7 @@ public class ResolverTests {
 		r.currentScope(card);
 		r.visitProvides(pr);
 		r.visitTypeReference(ty);
-		assertEquals(cd, pr.actualType());
+		assertEquals(cd, pr.actualType().decl);
 	}
 
 	@Test
@@ -500,7 +500,7 @@ public class ResolverTests {
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Card.AContract"); will(returnValue(null));
 			oneOf(rr).get("test.repo.AContract"); will(returnValue(cd));
-			oneOf(errors).message(pos, "there is no method 'absent' on 'test.repo.AContract'");
+			oneOf(errors).message(pos, "there is no method 'absent' on 'test.repo.AContract.Up'");
 		}});
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");
