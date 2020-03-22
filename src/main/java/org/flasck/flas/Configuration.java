@@ -38,6 +38,8 @@ public class Configuration {
 	private void process(String[] args) {
 		for (int i=0;i<args.length;i++) {
 			String arg = args[i];
+			if (arg == null)
+				continue;
 			int hasMore = args.length-i-1;
 			if (arg.startsWith("-")) {
 				if (arg.equals("--root"))

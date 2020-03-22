@@ -26,7 +26,7 @@ public class JSContractByVar implements JSExpr {
 		default:
 			throw new NotImplementedException("cannot handle JSLoadField with " + loc);
 		}
-		return from + ".store.required('" + cvar + "')";
+		return from + "._contracts.required('" + cvar + "')";
 	}
 
 	@Override

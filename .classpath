@@ -18,5 +18,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JSOUP"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/HTTP"/>
 	<classpathentry kind="src" path="/ziwsh-intf"/>
+	<classpathentry kind="src" path="/ziwsh-jvm-common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -3,17 +3,13 @@ package org.flasck.flas.golden;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.compiler.PhaseTo;
-import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
@@ -34,7 +30,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	static String useRunner = System.getProperty("org.flasck.golden.runner");
 	// Note that not specifying defaults to "JS"; but "neither" or "none" (or almost anything else, in fact) does not run either
 	static boolean useJSRunner = useRunner == null || useRunner.equals("js") || useRunner.equals("both");
-	static boolean useJVMRunner = useRunner != null && (useRunner.equals("jvm") || useRunner.equals("both"));
+	static boolean useJVMRunner = useRunner == null || useRunner.equals("jvm") || useRunner.equals("both");
 	static String buildDroidOpt = System.getProperty("org.flasck.golden.buildDroid");
 //	private static boolean buildDroid = buildDroidOpt != null && buildDroidOpt.equals("true");
 	
@@ -92,6 +88,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
 		boolean ignoreTest = new File(f, "ignore").exists();
 		String phase = new File(f, "phase").exists() ? FileUtils.readFile(new File(f, "phase")) : PhaseTo.COMPLETE.toString();
+		boolean runjvm = !new File(f, "jsonly").exists();
+		boolean runjs = !new File(f, "jvmonly").exists();
 
 		File f1 = FileUtils.makeRelativeTo(f, new File("src/golden"));
 		StringBuilder name = new StringBuilder();
@@ -100,21 +98,21 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			f1 = f1.getParentFile();
 		}
 		name.insert(0, "test");
-		addTests(bcc, f, name.toString(), ignoreTest, phase);
+		addTests(bcc, f, name.toString(), ignoreTest, runjvm, runjs, phase);
 	}
 
-	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, String phase) {
+	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, boolean runJvm, boolean runJs, String phase) {
 		addMethod(bcc, name, ignoreTest, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
-				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.stringConst(phase)).flush();
+				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.boolConst(runJvm), done.boolConst(runJs), done.stringConst(phase)).flush();
 			}
 		});
 	}
 	
-	public static void runGolden(String s, String phase) throws Exception {
+	public static void runGolden(String s, boolean runJvm, boolean runJs, String phase) throws Exception {
 		System.out.println("GoldenTest[" + s + "]:");
-		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, useJSRunner, useJVMRunner, checkNothing, checkEverything);
+		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, useJSRunner && runJs, useJVMRunner && runJvm, checkNothing, checkEverything);
 		te.cleanUp();
 		
 		final File actualErrors = new File(s, "errors-tmp");
@@ -122,37 +120,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		final File tr = new File(s, "testReports-tmp");
 		FileUtils.assertDirectory(actualErrors);
 		FileUtils.assertDirectory(tr);
-		Main.noExit("--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types", "test.golden");
+		Main.noExit(
+			"--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types",
+			(useJVMRunner && runJvm)?null:"--no-unit-jvm",
+			(useJSRunner && runJs)?null:"--no-unit-js",
+			"test.golden"
+		);
 		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {
 			te.checkTestResults();
 			te.checkTypes();
-		}
-	}
-
-	@Deprecated
-	protected static void handleErrors(TestEnvironment te, String s, ErrorReporter er) throws FileNotFoundException, IOException {
-		// either way, write the errors to a suitable directory
-		File etmp = new File(s, "errors-tmp"); // may or may not be needed
-		File errors = new File(s, "errors");
-		handleErrors(te, etmp, er, errors);
-	}
-
-	@Deprecated
-	protected static void handleErrors(TestEnvironment te, File etmp, ErrorReporter er, File errors) throws FileNotFoundException, IOException {
-		ErrorResult eres = (ErrorResult) er;
-		// either way, write the errors to a suitable directory
-		FileUtils.assertDirectory(etmp);
-		PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
-		eres.showTo(pw, 0);
-		pw.close();
-
-		if (errors != null && errors.isDirectory()) {
-			// we expected this, so check the errors are correct ...
-			te.assertGolden(errors, etmp);
-		} else {
-			// we didn't expect the error, so by definition is an error
-			eres.showTo(new PrintWriter(System.out), 0);
-			fail("unexpected compilation errors");
 		}
 	}
 

@@ -18,12 +18,16 @@ import org.flasck.jvm.fl.LoaderContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.ziniki.ziwsh.intf.EvalContext;
+import org.ziniki.ziwsh.intf.EvalContextFactory;
 import org.ziniki.ziwsh.intf.IdempotentHandler;
+import org.ziniki.ziwsh.intf.ZiwshBroker;
+import org.ziniki.ziwsh.jvm.SimpleBroker;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
-public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ implements FLEvalContextFactory {
+public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ implements EvalContextFactory, FLEvalContextFactory {
 //	private final EntityStore store;
 //	private final JDKFlasckController controller;
 	// TODO: I don't think this needs to be a special thing in the modern world
@@ -31,6 +35,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 //	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
 	private Document document;
 	private final JvmDispatcher dispatcher;
+	private final ZiwshBroker broker = new SimpleBroker(this);
 
 	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl) {
 		super(config, repository);
@@ -41,8 +46,13 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	}
 	
 	@Override
+	public EvalContext newContext() {
+		return create();
+	}
+
+	@Override
 	public FLEvalContext create() {
-		return new LoaderContext(loader);
+		return new LoaderContext(loader, broker);
 	}
 
 	@Override
@@ -69,7 +79,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 					throw cxt.getError();
 				pw.println("JVM PASS " + utc.description);
 			} catch (WrappedException ex) {
-				Throwable e2 = ex.unwrap();
+				Throwable e2 = WrappedException.unwrapThrowable(ex);
 				if (e2 instanceof AssertFailed) {
 					AssertFailed af = (AssertFailed) e2;
 					pw.println("JVM FAIL " + utc.description);

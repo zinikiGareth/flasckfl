@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -229,8 +230,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			thisVar = myThis.getVar();
 		else if (haveThis) {
 			thisVar = meth.myThis();
-			if (wantParent)
-				thisVar = meth.getField(thisVar, "_card");
+			if (wantParent) {
+				NameOfThing cardClz = om.name().containingCard();
+				thisVar = meth.castTo(meth.getField(thisVar, "_card"), cardClz.javaName());
+			}
 		} else
 			thisVar = null;
 		fs = new FunctionState(meth, (Var)fcx, thisVar, fargs, runner, globalMocks);

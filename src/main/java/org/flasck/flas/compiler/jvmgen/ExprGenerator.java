@@ -156,7 +156,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			sv.result(ret);
 		} else if (defn instanceof RequiresContract) {
 			RequiresContract rc = (RequiresContract) defn;
-			IExpr ret = meth.callInterface(J.OBJECT, state.container, "get", meth.stringConst(rc.referAsVar));
+			IExpr ret = meth.callInterface(J.OBJECT, meth.as(state.container, J.CONTRACT_RETRIEVER), "require", meth.stringConst(rc.referAsVar));
 			sv.result(ret);
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(myName, 0);
