@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.tc3.Apply;
@@ -58,7 +57,7 @@ public class TypeBehaviors {
 
 	@Test
 	public void contractIncorporatesAnArbitraryContract() {
-		assertTrue(LoadBuiltins.contract.incorporates(pos, new ContractDeclDir(new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Svc")), "Up")));
+		assertTrue(LoadBuiltins.contract.incorporates(pos, new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Svc"))));
 	}
 
 	@Test

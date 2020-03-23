@@ -21,7 +21,6 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.Provides;
@@ -324,20 +323,6 @@ public class ResolverTests {
 	}
 
 	@Test
-	public void testWeCanResolveContractDirections() {
-		context.checking(new Expectations() {{
-			oneOf(rr).get("test.repo.Contract"); will(returnValue(cd));
-		}});
-		Resolver r = new RepositoryResolver(errors, rr);
-		r.currentScope(pkg);
-		final TypeReference ty = new TypeReference(pos, "Contract.Down");
-		r.visitTypeReference(ty);
-		assertTrue(ty.defn() instanceof ContractDeclDir);
-		ContractDeclDir cdd = (ContractDeclDir) ty.defn();
-		assertEquals(cd, cdd.decl);
-	}
-
-	@Test
 	public void testWeCanResolveVarsInsideUnitTestSteps() {
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.x"); will(returnValue(vx));
@@ -474,7 +459,7 @@ public class ResolverTests {
 		r.currentScope(card);
 		r.visitProvides(pr);
 		r.visitTypeReference(ty);
-		assertEquals(cd, pr.actualType().decl);
+		assertEquals(cd, pr.actualType());
 	}
 
 	@Test
@@ -501,7 +486,7 @@ public class ResolverTests {
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Card.AContract"); will(returnValue(null));
 			oneOf(rr).get("test.repo.AContract"); will(returnValue(cd));
-			oneOf(errors).message(pos, "there is no method 'absent' on 'test.repo.AContract.Up'");
+			oneOf(errors).message(pos, "there is no method 'absent' on 'test.repo.AContract'");
 		}});
 		Resolver r = new RepositoryResolver(errors, rr);
 		final CardName card = new CardName(pkg, "Card");

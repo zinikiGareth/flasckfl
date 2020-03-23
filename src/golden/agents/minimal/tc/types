@@ -1,1 +1,1 @@
-test.golden.Agent007._S0.ask :: String->test.golden.Responder.Down->List[Message]
+test.golden.Agent007._S0.ask :: String->test.golden.Responder->List[Message]

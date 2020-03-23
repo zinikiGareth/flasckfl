@@ -10,7 +10,7 @@ public enum ContractMethodDir {
 	}, DOWN {
 		@Override
 		public String javaSubclass() {
-			return "$Down";
+			return "";
 		}
 	}, NONE {
 		@Override

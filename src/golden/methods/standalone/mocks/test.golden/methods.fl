@@ -4,8 +4,8 @@
 	contract SendDown
 		card (String data)
 		
-	method sendUp (SendUp.Up svc)
+	method sendUp (SendUp svc)
 		<- svc.meth "hello"
 
-	method sendDown (SendDown.Down svc) (String msg)
+	method sendDown (SendDown svc) (String msg)
 		<- svc.card msg

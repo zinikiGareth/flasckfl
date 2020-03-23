@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.parsedForm.ContractDeclDir;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 
 public class JSFunctionStateStore implements JSFunctionState {
@@ -29,7 +29,7 @@ public class JSFunctionStateStore implements JSFunctionState {
 		if (mocks.containsKey(udd))
 			return mocks.get(udd);
 		else if (globalMocks.contains(udd)) {
-			JSExpr ret = block.mockContract(((ContractDeclDir) udd.ofType.defn()).name());
+			JSExpr ret = block.mockContract(((ContractDecl) udd.ofType.defn()).name());
 			mocks.put(udd, ret); // to share for subsequent refs
 			return ret;
 		} else

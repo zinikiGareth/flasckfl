@@ -24,22 +24,22 @@
 .			Error "no matching case"
 
 	test we can create a Send on a contract
-		data Sample.Up svc
+		data Sample svc
 		assert (q svc)
 			[Send svc "meth" ["hello"]] 
 
 	test we can send directly on a contract
-		data Sample.Up svc
+		data Sample svc
 		assert (r svc)
 			[Send svc "meth" ["hello"]] 
 
 	test we can send to a card
-		data SampleDown.Down svc
+		data SampleDown svc
 		assert (s svc "yo")
 			[Send svc "card" ["yo"]] 
 
 	test we can do two things in one method
-		data Sample.Up svc
+		data Sample svc
 		assert (double svc)
 			[Debug "sending hello", Send svc "meth" ["hello"], Assign "on" "fld" "value"] 
 			

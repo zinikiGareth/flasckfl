@@ -9,13 +9,13 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
@@ -45,32 +45,16 @@ public class ContractGeneration {
 	}
 
 	@Test
-	public void simpleContractDeclarationForcesThreeClassesToBeGenerated() {
+	public void simpleContractDeclaration() {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		ByteCodeSink parent = context.mock(ByteCodeSink.class, "parent");
-		ByteCodeSink up = context.mock(ByteCodeSink.class, "up");
-		ByteCodeSink down = context.mock(ByteCodeSink.class, "down");
 		String pname = "test.repo.MyContract";
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass(pname); will(returnValue(parent));
 			allowing(parent).getCreatedName(); will(returnValue(pname));
-
-			oneOf(bce).newClass("test.repo.MyContract$Up"); will(returnValue(up));
-			allowing(up).generateAssociatedSourceFile();
-			allowing(down).generateAssociatedSourceFile();
-
-			oneOf(bce).newClass("test.repo.MyContract$Down"); will(returnValue(down));
-			
-			oneOf(parent).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Up");
-			oneOf(up).makeInterface();
-			oneOf(up).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Up");
-			oneOf(up).implementsInterface("org.ziniki.ziwsh.intf.UpContract");
-			
-			oneOf(parent).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Down");
-			oneOf(down).makeInterface();
-			oneOf(down).addInnerClassReference(Access.PUBLICSTATICINTERFACE, pname, "Down");
-			oneOf(down).implementsInterface("org.ziniki.ziwsh.intf.DownContract");
-			
+			oneOf(parent).makeInterface();
+			oneOf(parent).generateAssociatedSourceFile();
+			oneOf(parent).implementsInterface(J.DOWN_CONTRACT);
 		}});
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv);
@@ -91,7 +75,7 @@ public class ContractGeneration {
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
 			oneOf(fi).constValue(0);
 		}});
-		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
+		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		new Traverser(gen).visitContractMethod(cmd);
@@ -109,7 +93,7 @@ public class ContractGeneration {
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
 			oneOf(fi).constValue(1);
 		}});
-		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
+		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		cmd.args.add(new VarPattern(pos, new VarName(pos, cname, "hello")));
@@ -127,7 +111,7 @@ public class ContractGeneration {
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
 			oneOf(fi).constValue(1);
 		}});
-		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
+		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "MyHandler");
@@ -149,7 +133,7 @@ public class ContractGeneration {
 			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
 			oneOf(fi).constValue(1);
 		}});
-		JVMGenerator gen = JVMGenerator.forTests(null, null, bcc);
+		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		cmd.args.add(new TuplePattern(pos, new ArrayList<>()));

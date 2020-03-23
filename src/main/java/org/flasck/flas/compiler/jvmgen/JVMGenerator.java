@@ -15,7 +15,6 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -97,8 +96,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private MethodDefiner meth;
 	private IExpr runner;
 	private ByteCodeSink clz;
-	private ByteCodeSink upClz;
-	private ByteCodeSink downClz;
 	private IExpr fcx;
 	private Var fargs;
 	private final Map<Slot, IExpr> switchVars = new HashMap<>();
@@ -132,13 +129,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.currentBlock = new ArrayList<IExpr>();
 	}
 
-	private JVMGenerator(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {
+	private JVMGenerator(ByteCodeSink clz) {
 		this.sv = new StackVisitor();
 		sv.push(this);
 		this.bce = null;
 		this.clz = clz;
-		this.upClz = up;
-		this.downClz = down;
 	}
 
 	@Override
@@ -636,8 +631,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			return;
 		}
 		NamedType objty = udd.ofType.defn();
-		if (objty instanceof ContractDeclDir) {
-			ContractDeclDir cdd = (ContractDeclDir)objty;
+		if (objty instanceof ContractDecl) {
+			ContractDecl cdd = (ContractDecl)objty;
 			IExpr mc = meth.callInterface(J.OBJECT, fcx, "mockContract", meth.classConst(cdd.name().javaClassName()));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
@@ -711,33 +706,25 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
 		String topName = cd.name().javaName();
-		String upName = topName + "$Up";
-		String downName = topName + "$Down";
 		clz = bce.newClass(topName);
-		upClz = bce.newClass(upName);
-		downClz = bce.newClass(downName);
-
-		clz.addInnerClassReference(Access.PUBLICSTATICINTERFACE, clz.getCreatedName(), "Up");
-		upClz.generateAssociatedSourceFile();
-		upClz.makeInterface();
-		upClz.addInnerClassReference(Access.PUBLICSTATICINTERFACE, clz.getCreatedName(), "Up");
-		upClz.implementsInterface(J.UP_CONTRACT);
-
-		clz.addInnerClassReference(Access.PUBLICSTATICINTERFACE, clz.getCreatedName(), "Down");
-		downClz.generateAssociatedSourceFile();
-		downClz.makeInterface();
-		downClz.addInnerClassReference(Access.PUBLICSTATICINTERFACE, clz.getCreatedName(), "Down");
-		downClz.implementsInterface(J.DOWN_CONTRACT);
+		clz.makeInterface();
+		clz.generateAssociatedSourceFile();
+		switch (cd.type) {
+		case CONTRACT:
+			clz.implementsInterface(J.DOWN_CONTRACT);
+			break;
+		case SERVICE:
+			clz.implementsInterface(J.UP_CONTRACT);
+			break;
+		case HANDLER:
+			clz.implementsInterface(J.HANDLER_CONTRACT);
+			break;
+		}
 	}
 
 	@Override
 	public void visitContractMethod(ContractMethodDecl cmd) {
-		ByteCodeSink in;
-		if (cmd.dir == ContractMethodDir.DOWN)
-			in = downClz;
-		else
-			in = upClz;
-		GenericAnnotator ann = GenericAnnotator.newMethod(in, false, cmd.name.name);
+		GenericAnnotator ann = GenericAnnotator.newMethod(clz, false, cmd.name.name);
 		ann.returns(JavaType.object_);
 		meth = ann.done();
 		meth.lenientMode(leniency);
@@ -760,7 +747,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		if (type == null || !(type.defn() instanceof ContractDecl))
 			meth.argument(J.OBJECT, "_ih");
-		IFieldInfo fi = in.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + cmd.name.name);
+		IFieldInfo fi = clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + cmd.name.name);
 		fi.constValue(cmd.args.size());
 	}
 
@@ -779,8 +766,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		return ret;
 	}
 
-	public static JVMGenerator forTests(ByteCodeSink clz, ByteCodeSink up, ByteCodeSink down) {
-		return new JVMGenerator(clz, up, down);
+	public static JVMGenerator forTests(ByteCodeSink clz) {
+		return new JVMGenerator(clz);
 	}
 
 	public NestedVisitor stackVisitor() {

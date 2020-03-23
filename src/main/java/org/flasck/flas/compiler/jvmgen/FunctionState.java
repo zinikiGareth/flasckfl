@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.Slot;
-import org.flasck.flas.parsedForm.ContractDeclDir;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
@@ -78,8 +78,8 @@ public class FunctionState {
 		if (mocks.containsKey(udd))
 			return mocks.get(udd);
 		else if (globalMocks.contains(udd)) {
-			ContractDeclDir cdd = (ContractDeclDir)udd.ofType.defn();
-			IExpr mc = meth.callInterface(J.OBJECT, fcx, "mockContract", meth.classConst(cdd.name().javaClassName()));
+			ContractDecl cd = (ContractDecl)udd.ofType.defn();
+			IExpr mc = meth.callInterface(J.OBJECT, fcx, "mockContract", meth.classConst(cd.name().javaClassName()));
 			Var v = meth.avar(J.OBJECT, nextVar("v"));
 			meth.assign(v, mc).flush();
 			mocks.put(udd, v);

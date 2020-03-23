@@ -12,9 +12,9 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
-import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
@@ -28,29 +28,16 @@ public class ContractGenerationJS {
 	private final PackageName pkg = new PackageName("test.repo");
 	private final JSStorage jss = context.mock(JSStorage.class);
 
-	// TODO: contract generation is a work in progress
 	@Test
-	public void simpleContractDeclarationForcesThreeClassesToBeGenerated() {
+	public void simpleContractDeclaration() {
 		JSClassCreator clz = context.mock(JSClassCreator.class, "clz");
 		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
-		JSClassCreator clzDown = context.mock(JSClassCreator.class, "clzDown");
-		JSMethodCreator methDown = context.mock(JSMethodCreator.class, "methDown");
-		JSClassCreator clzUp = context.mock(JSClassCreator.class, "clzUp");
-		JSMethodCreator methUp = context.mock(JSMethodCreator.class, "methUp");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).returnObject(with(any(JSString.class)));
-			oneOf(jss).newClass("test.repo", "test.repo.MyContract.Down"); will(returnValue(clzDown));
-			oneOf(clzDown).createMethod("name", true); will(returnValue(methDown));
-			oneOf(methDown).argument("_cxt");
-			oneOf(methDown).returnObject(with(any(JSString.class)));
-			oneOf(jss).newClass("test.repo", "test.repo.MyContract.Up"); will(returnValue(clzUp));
-			oneOf(clzUp).createMethod("name", true); will(returnValue(methUp));
-			oneOf(methUp).argument("_cxt");
-			oneOf(methUp).returnObject(with(any(JSString.class)));
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
@@ -63,25 +50,13 @@ public class ContractGenerationJS {
 	public void contractMethodGetsGenerated() {
 		JSClassCreator clz = context.mock(JSClassCreator.class, "clz");
 		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
-		JSClassCreator clzDown = context.mock(JSClassCreator.class, "clzDown");
-		JSMethodCreator methDown = context.mock(JSMethodCreator.class, "methDown");
-		JSClassCreator clzUp = context.mock(JSClassCreator.class, "clzUp");
-		JSMethodCreator methUp = context.mock(JSMethodCreator.class, "methUp");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).returnObject(with(any(JSString.class)));
-			oneOf(jss).newClass("test.repo", "test.repo.MyContract.Down"); will(returnValue(clzDown));
-			oneOf(clzDown).createMethod("name", true); will(returnValue(methDown));
-			oneOf(methDown).argument("_cxt");
-			oneOf(methDown).returnObject(with(any(JSString.class)));
-			oneOf(jss).newClass("test.repo", "test.repo.MyContract.Up"); will(returnValue(clzUp));
-			oneOf(clzUp).createMethod("name", true); will(returnValue(methUp));
-			oneOf(methUp).argument("_cxt");
-			oneOf(methUp).returnObject(with(any(JSString.class)));
-			oneOf(clzDown).createMethod("m", true);
+			oneOf(clz).createMethod("m", true);
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);

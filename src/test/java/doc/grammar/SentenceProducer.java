@@ -362,8 +362,6 @@ public class SentenceProducer {
 
 			case "BINOP":
 				return oneOf("+", "-", "*", "/"); // TODO: more operators
-			case "DIR":
-				return r.nextBoolean()?"up":"down";
 			case "DOSEND":
 				return "send";
 			case "NUMBER":

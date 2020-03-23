@@ -17,7 +17,6 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
@@ -87,14 +86,13 @@ public class UnitTestGenerationJS {
 		JSExpr mc = context.mock(JSExpr.class, "mockContract");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
 		TypeReference ctr = new TypeReference(pos, "Ctr.Up");
-		ContractDeclDir cdd = new ContractDeclDir(cd, "Up");
-		ctr.bind(cdd);
+		ctr.bind(cd);
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), null);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(JSGenerator.class)));
-			oneOf(meth).mockContract(cdd.name()); will(returnValue(mc));
+			oneOf(meth).mockContract(cd.name()); will(returnValue(mc));
 			oneOf(state).addMock(udd, mc);
 		}});
 		Traverser gen = new Traverser(JSGenerator.forTests(meth, runner, nv, state));

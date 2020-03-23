@@ -7,7 +7,6 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -51,16 +50,7 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		if (!(expr.fld instanceof UnresolvedVar))
 			throw new NotImplementedException("Cannot handle " + expr.fld);
 		UnresolvedVar fld = (UnresolvedVar)expr.fld;
-		if (ty instanceof ContractDeclDir) {
-			ContractDeclDir cdd = (ContractDeclDir) ty;
-			ContractDecl cd = cdd.decl;
-			ContractMethodDecl method = cd.getMethod(fld.var);
-			if (method == null) { // TODO: check direction
-				errors.message(fld.location(), "there is no method '" + fld.var + "' in " + cd.name().uniqueName());
-				nv.result(new ErrorType());
-			} else
-				nv.result(method.type());
-		} else if (ty instanceof ContractDecl) {
+		if (ty instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) ty;
 			ContractMethodDecl method = cd.getMethod(fld.var);
 			if (method == null) {

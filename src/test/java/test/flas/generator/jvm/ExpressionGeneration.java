@@ -917,7 +917,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
-			oneOf(meth).classConst("test.repo.Ctr$Up"); will(returnValue(sendClz));
+			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(0); will(returnValue(i0));
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0))));
@@ -968,7 +968,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
-			oneOf(meth).classConst("test.repo.Ctr$Up"); will(returnValue(sendClz));
+			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(2); will(returnValue(i2));
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));

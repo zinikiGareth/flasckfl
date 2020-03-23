@@ -13,7 +13,6 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.method.MemberExprConvertor;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -49,7 +48,7 @@ public class MemberExprConversion {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
 		List<Pattern> args = new ArrayList<>();
 		cd.addMethod(new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "fred"), args));
-		ctr.bind(new ContractDeclDir(cd, "Up"));
+		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
@@ -72,7 +71,7 @@ public class MemberExprConversion {
 		args.add(new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, fn, "x")));
 		args.add(new TypedPattern(pos, LoadBuiltins.numberTR, new VarName(pos, fn, "y")));
 		cd.addMethod(new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, fn, args));
-		ctr.bind(new ContractDeclDir(cd, "Down"));
+		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");

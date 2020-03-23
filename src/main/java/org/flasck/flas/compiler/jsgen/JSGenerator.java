@@ -24,7 +24,6 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -91,8 +90,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
 	private final List<FunctionName> methods = new ArrayList<>();
-	private JSClassCreator ctrDown;
-	private JSClassCreator ctrUp;
+	private JSClassCreator currentContract;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
@@ -386,28 +384,15 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public void visitContractDecl(ContractDecl cd) {
 		String pkg = ((SolidName)cd.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
-		JSClassCreator ctr = jse.newClass(pkg, cd.name().jsName());
-		JSMethodCreator meth = ctr.createMethod("name", true);
-		meth.argument("_cxt");
-		meth.returnObject(new JSString(cd.name().uniqueName()));
-		ctrDown = jse.newClass(pkg, cd.name().jsName() + ".Down");
-		JSMethodCreator downName = ctrDown.createMethod("name", true);
+		currentContract = jse.newClass(pkg, cd.name().jsName());
+		JSMethodCreator downName = currentContract.createMethod("name", true);
 		downName.argument("_cxt");
-		downName.returnObject(new JSString(cd.name().uniqueName() + ".Down"));
-		ctrUp = jse.newClass(pkg, cd.name().jsName() + ".Up");
-		JSMethodCreator upName = ctrUp.createMethod("name", true);
-		upName.argument("_cxt");
-		upName.returnObject(new JSString(cd.name().uniqueName() + ".Up"));
+		downName.returnObject(new JSString(cd.name().uniqueName()));
 	}
 
 	@Override
 	public void visitContractMethod(ContractMethodDecl cmd) {
-		JSClassCreator clz;
-		if (cmd.dir == ContractMethodDir.DOWN)
-			clz = ctrDown;
-		else
-			clz = ctrUp;
-		JSMethodCreator meth = clz.createMethod(cmd.name.name, true);
+		JSMethodCreator meth = currentContract.createMethod(cmd.name.name, true);
 		meth.argument("_cxt");
 		for (int k=0;k<cmd.args.size();k++) {
 			meth.argument("_" + k);
@@ -417,7 +402,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
-		ctrUp = ctrDown = null;
+		currentContract = null;
 	}
 
 	@Override
@@ -471,7 +456,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			return;
 		}
 		NamedType objty = udd.ofType.defn();
-		if (objty instanceof ContractDeclDir) {
+		if (objty instanceof ContractDecl) {
 			JSExpr mock = meth.mockContract((SolidName) objty.name());
 			state.addMock(udd, mock);
 			explodingMocks.add(mock);

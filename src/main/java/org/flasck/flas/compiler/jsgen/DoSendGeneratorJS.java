@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.repository.LeafAdapter;
@@ -41,11 +40,7 @@ public class DoSendGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitSendMethod(NamedType defn, UnresolvedVar fn) {
-		NameOfThing contract;
-		if (defn instanceof ContractDeclDir)
-			contract = ((ContractDeclDir)defn).name();
-		else
-			contract = ((ContractDecl) defn).name();
+		NameOfThing contract = ((ContractDecl) defn).name();
 		this.contract = block.string(contract.uniqueName());
 		this.fn = block.string(fn.var);
 	}

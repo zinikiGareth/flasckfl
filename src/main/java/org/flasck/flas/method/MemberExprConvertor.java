@@ -4,7 +4,6 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldAccessor;
@@ -91,8 +90,6 @@ public class MemberExprConvertor extends LeafAdapter {
 			throw new NotImplementedException("cannot handle svc var of type " + (defn == null ? "NULL" : defn.getClass()));
 		if (dt instanceof ContractDecl)
 			this.cd = (ContractDecl) dt;
-		else if (dt instanceof ContractDeclDir)
-			this.cd = ((ContractDeclDir) dt).decl;
 		else if (dt instanceof ObjectDefn)
 			this.od = (ObjectDefn) dt;
 		else if (dt instanceof StructDefn)

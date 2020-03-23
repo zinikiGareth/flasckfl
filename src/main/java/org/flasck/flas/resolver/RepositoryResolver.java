@@ -8,7 +8,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -68,8 +67,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		scopeStack.add(0, scope);
 		this.scope = meth.name();
 		if (currentlyImplementing != null && currentlyImplementing.actualType() != null) {
-			ContractDeclDir cd = currentlyImplementing.actualType();
-			ContractMethodDecl cm = cd.decl.getMethod(meth.name().name);
+			ContractDecl cd = currentlyImplementing.actualType();
+			ContractMethodDecl cm = cd.getMethod(meth.name().name);
 			if (cm != null) {
 				if (cm.dir == ContractMethodDir.DOWN && currentlyImplementing instanceof Provides)
 					errors.message(meth.location(), "cannot provide down method '" + meth.name().name + "'");
@@ -188,13 +187,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitTypeReference(TypeReference var) {
 		String tn = var.name();
-		if (tn.endsWith(".Up") || tn.endsWith(".Down")) {
-			final RepositoryEntry defn = find(scope, tn.substring(0, tn.lastIndexOf(".")));
-			if (defn != null && defn instanceof ContractDecl) {
-				var.bind(new ContractDeclDir((ContractDecl)defn, tn.substring(tn.lastIndexOf(".")+1)));
-				return;
-			}
-		}
 		final RepositoryEntry defn = find(scope, tn);
 		if (defn == null) {
 			errors.message(var.location(), "cannot resolve '" + tn + "'");
@@ -263,7 +255,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			else
 				return;
 		}
-		if (defn instanceof ContractDeclDir) {
+		if (defn instanceof ContractDecl) {
 			if (udd.expr != null || !udd.fields.isEmpty()) {
 				errors.message(udd.location(), "a contract data declaration may not be initialized");
 			}

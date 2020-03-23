@@ -38,14 +38,12 @@ public class ContractReferencer implements Locatable {
 		return myName;
 	}
 
-	public ContractDeclDir actualType() {
+	public ContractDecl actualType() {
 		NamedType defn = implementing.defn();
 		if (defn == null)
 			return null;
-		else if (defn instanceof ContractDeclDir)
-			return (ContractDeclDir) defn;
 		else if (defn instanceof ContractDecl)
-			return new ContractDeclDir((ContractDecl) defn, "Up");
+			return (ContractDecl) defn;
 		else
 			throw new NotImplementedException(defn.getClass().getName());
 	}
