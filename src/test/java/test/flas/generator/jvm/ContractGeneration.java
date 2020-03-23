@@ -11,7 +11,6 @@ import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -77,7 +76,7 @@ public class ContractGeneration {
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		new Traverser(gen).visitContractMethod(cmd);
 	}
 
@@ -95,7 +94,7 @@ public class ContractGeneration {
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		cmd.args.add(new VarPattern(pos, new VarName(pos, cname, "hello")));
 		new Traverser(gen).visitContractMethod(cmd);
 	}
@@ -113,7 +112,7 @@ public class ContractGeneration {
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "MyHandler");
 		tr.bind(new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract")));
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cname, "handler")));
@@ -135,7 +134,7 @@ public class ContractGeneration {
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		cmd.args.add(new TuplePattern(pos, new ArrayList<>()));
 		new Traverser(gen).visitContractMethod(cmd);
 	}

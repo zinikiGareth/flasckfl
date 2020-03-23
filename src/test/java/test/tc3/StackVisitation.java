@@ -20,7 +20,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectAccessor;
@@ -476,7 +475,7 @@ public class StackVisitation {
 	public void leaveMemberExpressionCanFindAMethodInAValidContract() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
 		List<Pattern> args = new ArrayList<>();
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args);
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, cd.name(), "m"), args);
 		cd.addMethod(cmd);
 		cmd.bindType();
 		
@@ -495,7 +494,7 @@ public class StackVisitation {
 	public void leaveMemberExpressionCannotFindAMethodThatDoesNotExist() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
 		List<Pattern> args = new ArrayList<>();
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args);
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, cd.name(), "m"), args);
 		cd.addMethod(cmd);
 		cmd.bindType();
 		
@@ -520,7 +519,7 @@ public class StackVisitation {
 		TypedPattern argx = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, mname, "x"));
 		argx.type.bind(LoadBuiltins.string);
 		args.add(argx);
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args);
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, cd.name(), "m"), args);
 		cd.addMethod(cmd);
 		cmd.bindType();
 		

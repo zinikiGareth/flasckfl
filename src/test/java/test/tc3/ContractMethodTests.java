@@ -17,7 +17,6 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -48,7 +47,7 @@ public class ContractMethodTests {
 	private final PackageName pkg = new PackageName("test.repo");
 	private final List<Pattern> args = new ArrayList<>();
 	private final List<Pattern> cmdargs = new ArrayList<>();
-	private final ContractMethodDecl cm = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, new SolidName(pkg, "AContract"), "meth"), cmdargs);
+	private final ContractMethodDecl cm = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, new SolidName(pkg, "AContract"), "meth"), cmdargs);
 	private final ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, new CSName(new CardName(pkg, "CardName"), "S0"), cm.name.name), args);
 	private final StackVisitor sv = new StackVisitor();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);

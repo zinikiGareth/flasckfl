@@ -9,10 +9,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -23,17 +20,12 @@ public class ContractMethodParser implements TDAParsing {
 	private final ContractMethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final SolidName cname;
-	private final ContractMethodDir dir;
 
 	public ContractMethodParser(ErrorReporter errors, ContractMethodConsumer builder, FunctionScopeUnitConsumer topLevel, SolidName cname) {
 		this.errors = errors;
 		this.builder = builder;
 		this.topLevel = topLevel;
 		this.cname = cname;
-		if (builder instanceof ContractDecl)
-			dir = ((ContractDecl) builder).type == ContractType.SERVICE ? ContractMethodDir.UP : ContractMethodDir.DOWN;
-		else
-			dir = ContractMethodDir.DOWN;
 	}
 
 	@Override
@@ -76,7 +68,7 @@ public class ContractMethodParser implements TDAParsing {
 		if (errors.hasErrors())
 			return new IgnoreNestedParser();
 
-		builder.addMethod(new ContractMethodDecl(optLoc, name.location, name.location, required, dir, fnName, args));
+		builder.addMethod(new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, args));
 		return new NoNestingParser(errors);
 	}
 

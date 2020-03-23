@@ -7,5 +7,4 @@ public interface TypeWithMethods extends Locatable {
 	String nameAsString();
 	NameOfThing getTypeName();
 	boolean hasMethod(String named);
-	FunctionType getMethodType(String named);
 }

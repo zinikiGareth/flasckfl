@@ -9,7 +9,6 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Implements;
@@ -70,10 +69,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			ContractDecl cd = currentlyImplementing.actualType();
 			ContractMethodDecl cm = cd.getMethod(meth.name().name);
 			if (cm != null) {
-				if (cm.dir == ContractMethodDir.DOWN && currentlyImplementing instanceof Provides)
-					errors.message(meth.location(), "cannot provide down method '" + meth.name().name + "'");
-				else
-					meth.bindFromContract(cm);
+//				if (cm.dir == ContractMethodDir.DOWN && currentlyImplementing instanceof Provides)
+//					errors.message(meth.location(), "cannot provide down method '" + meth.name().name + "'");
+//				else
+				meth.bindFromContract(cm);
 			} else
 				errors.message(meth.location(), "there is no method '" + meth.name().name + "' on '" + cd.name().uniqueName() + "'");
 		}

@@ -22,7 +22,6 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -81,8 +80,8 @@ public class ResolverTests {
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
 	private final ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
-	private final ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cd.name(), "d"), new ArrayList<>());
-	private final ContractMethodDecl cmu = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "u"), new ArrayList<>());
+	private final ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "d"), new ArrayList<>());
+	private final ContractMethodDecl cmu = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "u"), new ArrayList<>());
 	private final ContractDecl ht = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "HandlerType"));
 	private final RepositoryReader rr = context.mock(RepositoryReader.class);
 
@@ -347,7 +346,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		r.currentScope(pkg);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "HandlerType");
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, op.name(), "handler")));
 		new Traverser(r).visitContractMethod(cmd);
@@ -498,25 +497,5 @@ public class ResolverTests {
 		r.visitProvides(pr);
 		r.visitTypeReference(ty);
 		r.visitObjectMethod(om);
-	}
-
-	@Test
-	public void aProvidesCannotImplementADownMethod() {
-		context.checking(new Expectations() {{
-			oneOf(rr).get("test.repo.Card.AContract"); will(returnValue(null));
-			oneOf(rr).get("test.repo.AContract"); will(returnValue(cd));
-			oneOf(errors).message(pos, "cannot provide down method 'd'");
-		}});
-		Resolver r = new RepositoryResolver(errors, rr);
-		final CardName card = new CardName(pkg, "Card");
-		final TypeReference ty = new TypeReference(pos, "AContract");
-		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "d"), new ArrayList<>());
-		pr.addImplementationMethod(om);
-		r.currentScope(card);
-		r.visitProvides(pr);
-		r.visitTypeReference(ty);
-		r.visitObjectMethod(om);
-		r.leaveProvides(pr);
 	}
 }

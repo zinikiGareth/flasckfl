@@ -12,11 +12,9 @@ public class MakeSend implements Expr, WithTypeSignature {
 	public final FunctionName sendMeth;
 	public final Expr obj;
 	public final int nargs;
-	public final ContractMethodDir dir;
 
-	public MakeSend(InputPosition pos, ContractMethodDir dir, FunctionName sendMeth, Expr obj, int nargs) {
+	public MakeSend(InputPosition pos, FunctionName sendMeth, Expr obj, int nargs) {
 		this.pos = pos;
-		this.dir = dir;
 		this.sendMeth = sendMeth;
 		this.obj = obj;
 		this.nargs = nargs;

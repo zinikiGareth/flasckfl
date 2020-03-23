@@ -16,25 +16,21 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	public final InputPosition dkw;
 	private final InputPosition pos;
 	public final boolean required;
-	public final ContractMethodDir dir;
 	public final FunctionName name;
 	public final List<Pattern> args;
 	private Type type;
 
-	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Pattern> args) {
+	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, FunctionName name, List<Pattern> args) {
 		this.rkw = rkw;
 		this.dkw = dkw;
 		this.pos = pos;
 		this.required = required;
-		this.dir = dir;
 		this.name = name;
 		this.args = args;
 	}
 
 	@Override
 	public int compareTo(ContractMethodDecl o) {
-		int dc = dir.compareTo(o.dir);
-		if (dc != 0) return dc;
 		return name.compareTo(o.name);
 	}
 
@@ -59,8 +55,6 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(required?"required":"optional");
-		sb.append(" ");
-		sb.append(dir);
 		sb.append(" ");
 		sb.append(name.name);
 		for (Object o : args) {

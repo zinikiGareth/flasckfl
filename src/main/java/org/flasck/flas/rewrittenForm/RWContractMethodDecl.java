@@ -7,22 +7,19 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.types.FunctionType;
 
 public class RWContractMethodDecl implements Locatable, Comparable<RWContractMethodDecl> {
 	private final InputPosition pos;
 	public final boolean required;
-	public final ContractMethodDir dir;
 	public final String name;
 	public final List<Pattern> args;
 	public final FunctionType type;
 	public final RWTypedPattern handler;
 
-	public RWContractMethodDecl(InputPosition pos, boolean required, ContractMethodDir dir, FunctionName name, List<Pattern> args, FunctionType type, RWTypedPattern handler) {
+	public RWContractMethodDecl(InputPosition pos, boolean required, FunctionName name, List<Pattern> args, FunctionType type, RWTypedPattern handler) {
 		this.pos = pos;
 		this.required = required;
-		this.dir = dir;
 		this.name = name.name;
 		this.args = args;
 		this.type = type;
@@ -31,8 +28,6 @@ public class RWContractMethodDecl implements Locatable, Comparable<RWContractMet
 
 	@Override
 	public int compareTo(RWContractMethodDecl o) {
-		int dc = dir.compareTo(o.dir);
-		if (dc != 0) return dc;
 		return name.compareTo(o.name);
 	}
 	
@@ -42,7 +37,7 @@ public class RWContractMethodDecl implements Locatable, Comparable<RWContractMet
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(dir + " " + name);
+		StringBuilder sb = new StringBuilder(name);
 		for (Object o : args) {
 			sb.append(" ");
 			sb.append(((AsString)o).asString());

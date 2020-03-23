@@ -23,7 +23,6 @@ import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -410,7 +409,7 @@ public class TraversalTests {
 	@Test
 	public void traverseContractWithMethods() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
 		cd.addMethod(cmd);
 		r.addEntry(cd.name(), cd);
 		context.checking(new Expectations() {{
@@ -425,7 +424,7 @@ public class TraversalTests {
 	@Test
 	public void traverseContractWithMethodsWithArguments() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "HandlerType");
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cmd.name, "handler")));
 		cd.addMethod(cmd);
@@ -540,7 +539,7 @@ public class TraversalTests {
 
 	@Test
 	public void exprVisitsMakeSend() {
-		MakeSend ms = new MakeSend(pos, ContractMethodDir.UP, FunctionName.contractMethod(pos, new SolidName(pkg, "Foo"), "f"), var, 2);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, new SolidName(pkg, "Foo"), "f"), var, 2);
 		context.checking(new Expectations() {{
 			oneOf(v).visitMakeSend(ms);
 			oneOf(v).visitExpr(ms, 0);

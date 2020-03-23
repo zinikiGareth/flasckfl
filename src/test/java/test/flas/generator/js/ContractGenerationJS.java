@@ -14,7 +14,6 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
@@ -62,7 +61,7 @@ public class ContractGenerationJS {
 		new JSGenerator(jss, gen);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		cd.methods.add(cmd);
 		new Traverser(gen).visitContractDecl(cd);
 	}

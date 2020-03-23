@@ -19,7 +19,6 @@ import org.flasck.flas.compiler.jvmgen.FunctionState;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractMethodDir;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -899,7 +898,7 @@ public class ExpressionGeneration {
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
-		MakeSend ms = new MakeSend(pos, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "f"), from, 0);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 0);
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
@@ -940,7 +939,7 @@ public class ExpressionGeneration {
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
-		MakeSend ms = new MakeSend(pos, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "f"), from, 2);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 2);
 		me.conversion(ms);
 		ApplyExpr ae = new ApplyExpr(pos, me, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		StackVisitor stackv = new StackVisitor();
