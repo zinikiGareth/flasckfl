@@ -23,8 +23,10 @@ public class KeywordToken {
 		while (line.hasMore() && Character.isLowerCase(line.nextChar())) {
 			line.advance();
 		}
-		if (line.hasMore() && !Character.isWhitespace(line.nextChar()))
+		if (line.hasMore() && !Character.isWhitespace(line.nextChar())) {
+			line.reset(mark);
 			return null;
+		}
 
 		String ret = line.fromMark(mark);
 		if (ret == null)

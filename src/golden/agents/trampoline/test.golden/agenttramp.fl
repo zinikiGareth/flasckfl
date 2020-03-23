@@ -1,11 +1,11 @@
-	contract Feedback
-		down reply (String y)
+	contract handler Feedback
+		reply (String y)
 
-	contract Basic
-		up store (String s)
+	contract service Basic
+		store (String s)
 
-	contract Storage
-		up tell (String s)
+	contract service Storage
+		tell (String s)
 
 	agent TrampAgent
 		requires Basic.Up b

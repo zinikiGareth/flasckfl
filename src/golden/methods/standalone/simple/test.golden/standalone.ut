@@ -34,7 +34,7 @@
 			[Send svc "meth" ["hello"]] 
 
 	test we can send to a card
-		data Sample.Down svc
+		data SampleDown.Down svc
 		assert (s svc "yo")
 			[Send svc "card" ["yo"]] 
 

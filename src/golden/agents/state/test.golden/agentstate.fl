@@ -1,9 +1,9 @@
-	contract Feedback
-		down reply (String y)
+	contract handler Feedback
+		reply (String y)
 
-	contract Storage
-		up tell (String s)
-		up ask (Feedback.Down r)
+	contract service Storage
+		tell (String s)
+		ask (Feedback.Down r)
 
 	agent StateAgent
 		state

@@ -1,2 +1,2 @@
-test.golden.sendDown :: test.golden.SendTo.Down->String->List[Message]
-test.golden.sendUp :: test.golden.SendTo.Up->List[Message]
+test.golden.sendDown :: test.golden.SendDown.Down->String->List[Message]
+test.golden.sendUp :: test.golden.SendUp.Up->List[Message]

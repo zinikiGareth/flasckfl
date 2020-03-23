@@ -76,7 +76,7 @@ public class TDAContractIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("up foo"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("foo"));
 		nested.scopeComplete(new InputPosition("-", 10, 0, "hello"));
 		ContractDecl cd = (ContractDecl) captureIt.get(0);
 		assertEquals(1, cd.methods.size());
@@ -90,8 +90,8 @@ public class TDAContractIntroParsingTests {
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("up foo"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("down bar"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("foo"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("bar"));
 		nested.scopeComplete(new InputPosition("-", 10, 0, "hello"));
 		ContractDecl cd = (ContractDecl) captureIt.get(0);
 		assertEquals(2, cd.methods.size());

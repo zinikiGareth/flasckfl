@@ -1,8 +1,8 @@
-	contract Responder
-		down reply (String y)
+	contract handler Responder
+		reply (String y)
 
-	contract Trivia
-		up ask (String s) (Responder.Down r)
+	contract service Trivia
+		ask (String s) (Responder.Down r)
 
 	agent Agent007
 		provides Trivia

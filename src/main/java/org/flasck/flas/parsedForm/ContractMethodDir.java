@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+@Deprecated
 public enum ContractMethodDir {
 	UP {
 		@Override

@@ -20,9 +20,10 @@
 	method k True (Cons {head: h, tail: t})
 		<- Debug h
 
-	contract Sample
-		up meth (String msg)
-		down card (String data)
+	contract service Sample
+		meth (String msg)
+	contract SampleDown
+		card (String data)
 		
 // we can send to an argument, so this works and should typecheck in some way
 	method q (Sample.Up svc)
@@ -31,7 +32,7 @@
 	method r (Sample.Up svc)
 		<- svc.meth "hello"
 
-	method s (Sample.Down svc) (String msg)
+	method s (SampleDown.Down svc) (String msg)
 		<- svc.card msg
 
 	method double (Sample.Up svc)
