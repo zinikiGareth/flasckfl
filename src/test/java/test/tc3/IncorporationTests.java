@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.junit.Test;
 
 public class IncorporationTests {
@@ -14,7 +15,7 @@ public class IncorporationTests {
 
 	@Test
 	public void contractsIncorporateThemselves() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "CD"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "CD"));
 		assertTrue(cd.incorporates(pos, cd));
 	}
 

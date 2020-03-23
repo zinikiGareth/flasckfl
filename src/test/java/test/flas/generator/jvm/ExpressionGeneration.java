@@ -38,6 +38,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -226,7 +227,7 @@ public class ExpressionGeneration {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");
 		TypeReference ctr = new TypeReference(pos, "MyContract");
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "MyContract"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "MyContract"));
 		ctr.bind(cd);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, nameX, null);
 		expr.bind(udd);
@@ -894,7 +895,7 @@ public class ExpressionGeneration {
 	public void aDotOperator() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		TypeReference ctr = new TypeReference(pos, "Ctr");
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
@@ -935,7 +936,7 @@ public class ExpressionGeneration {
 		UnresolvedVar fld = new UnresolvedVar(pos, "fld");
 		MemberExpr me = new MemberExpr(pos, from, fld);
 		TypeReference ctr = new TypeReference(pos, "Ctr");
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);

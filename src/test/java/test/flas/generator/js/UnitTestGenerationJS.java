@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -84,7 +85,7 @@ public class UnitTestGenerationJS {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		JSFunctionState state = context.mock(JSFunctionState.class);
 		JSExpr mc = context.mock(JSExpr.class, "mockContract");
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
 		TypeReference ctr = new TypeReference(pos, "Ctr.Up");
 		ContractDeclDir cdd = new ContractDeclDir(cd, "Up");
 		ctr.bind(cdd);

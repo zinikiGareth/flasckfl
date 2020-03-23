@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -80,7 +81,7 @@ public class UnitTestGeneration {
 	@Test
 	@Ignore
 	public void weCanCreateLocalUDStringValues() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
 		IExpr runner = context.mock(IExpr.class, "runner");
 		IExpr cls = context.mock(IExpr.class, "cls");
 		IExpr call = context.mock(IExpr.class, "call");
@@ -107,7 +108,7 @@ public class UnitTestGeneration {
 
 	@Test
 	public void weCanCreateLocalUDDMockContracts() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
 		IExpr runner = context.mock(IExpr.class, "runner");
 		IExpr cls = context.mock(IExpr.class, "cls");
 		IExpr call = context.mock(IExpr.class, "call");

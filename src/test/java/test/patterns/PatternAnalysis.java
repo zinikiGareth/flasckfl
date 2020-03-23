@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.patterns.PatternAnalyzer;
@@ -191,7 +192,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void argumentsCanBeContracts() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(null, "Svc"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Svc"));
 		
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
 		final FunctionIntro intro;

@@ -14,16 +14,19 @@ import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ContractDecl implements Locatable, ContractMethodConsumer, RepositoryEntry, NamedType {
+	public enum ContractType { CONTRACT, SERVICE, HANDLER }; 
 	public final List<ContractMethodDecl> methods = new ArrayList<ContractMethodDecl>();
 	public final transient boolean generate;
+	public final ContractType type;
 	public final InputPosition kw;
 	private final InputPosition loc;
-	private SolidName contractName;
+	private final SolidName contractName;
 
-	public ContractDecl(InputPosition kw, InputPosition location, SolidName structName) {
+	public ContractDecl(InputPosition kw, InputPosition location, ContractType type, SolidName ctrName) {
 		this.kw = kw;
 		this.loc = location;
-		this.contractName = structName;
+		this.type = type;
+		this.contractName = ctrName;
 		this.generate = true;
 	}
 

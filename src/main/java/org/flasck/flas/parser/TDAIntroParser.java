@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -202,6 +203,22 @@ public class TDAIntroParser implements TDAParsing {
 			);
 		}
 		case "contract": {
+			KeywordToken sh = KeywordToken.from(toks);
+			ContractType ct = ContractType.CONTRACT;
+			if (sh != null) {
+				switch (sh.text) {
+				case "service":
+					ct = ContractType.SERVICE;
+					break;
+				case "handler":
+					ct = ContractType.HANDLER;
+					break;
+				default:
+					errors.message(sh.location, "invalid contract type");
+					return new IgnoreNestedParser();
+				}
+			}
+			
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
 			if (tn == null) {
 				errors.message(toks, "invalid or missing type name");
@@ -211,7 +228,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
-			ContractDecl decl = new ContractDecl(kw.location, tn.location, namer.solidName(tn.text));
+			ContractDecl decl = new ContractDecl(kw.location, tn.location, ct, namer.solidName(tn.text));
 			consumer.newContract(decl);
 			return new ContractMethodParser(errors, decl, consumer, decl.name());
 		}

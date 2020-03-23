@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -474,7 +475,7 @@ public class StackVisitation {
 	
 	@Test
 	public void leaveMemberExpressionCanFindAMethodInAValidContract() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
 		List<Pattern> args = new ArrayList<>();
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args);
 		cd.addMethod(cmd);
@@ -493,7 +494,7 @@ public class StackVisitation {
 	
 	@Test
 	public void leaveMemberExpressionCannotFindAMethodThatDoesNotExist() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
 		List<Pattern> args = new ArrayList<>();
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, false, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "m"), args);
 		cd.addMethod(cmd);
@@ -514,7 +515,7 @@ public class StackVisitation {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void leaveMemberExpressionCanHandleAnMethodWithArgumentsAndReturnSomethingThatLooksLikeAFunction() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "AContract"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
 		List<Pattern> args = new ArrayList<>();
 		FunctionName mname = FunctionName.contractMethod(pos, cd.name(), "m");
 		TypedPattern argx = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, mname, "x"));

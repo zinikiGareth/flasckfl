@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.ContractDeclDir;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -73,7 +74,7 @@ public class UnitDataDeclTypesTests {
 
 	@Test
 	public void aContractCanBeInstantiatedWithoutAnyFuss() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contract"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contract"));
 		ContractDeclDir cdd = new ContractDeclDir(cd, "Up");
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Nested.udd.Contract"); will(returnValue(null));
@@ -88,7 +89,7 @@ public class UnitDataDeclTypesTests {
 
 	@Test
 	public void aContractMayNotBeGivenAnExpression() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contract"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contract"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Nested.udd.Contract"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Nested.Contract"); will(returnValue(cd));
@@ -103,7 +104,7 @@ public class UnitDataDeclTypesTests {
 
 	@Test
 	public void aContractMayNotBeAssignedFields() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contract"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contract"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Nested.udd.Contract"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Nested.Contract"); will(returnValue(cd));

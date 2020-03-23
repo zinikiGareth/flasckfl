@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parser.ContractMethodParser;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
@@ -30,12 +31,41 @@ public class TDAContractIntroParsingTests {
 	
 	@Test
 	public void theSimplestContractDefinitionAcceptsANameAndReturnsAMethodParser() {
+		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(builder).newContract(with(any(ContractDecl.class)));
+			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		assertTrue(nested instanceof ContractMethodParser);
+		ContractDecl cd = (ContractDecl) captureIt.get(0);
+		assertEquals(ContractType.CONTRACT, cd.type);
+	}
+
+	@Test
+	public void aSimpleServiceContract() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract service Data"));
+		assertTrue(nested instanceof ContractMethodParser);
+		ContractDecl cd = (ContractDecl) captureIt.get(0);
+		assertEquals(ContractType.SERVICE, cd.type);
+	}
+
+	@Test
+	public void aSimpleHandlerContract() {
+		CaptureAction captureIt = new CaptureAction(null);
+		context.checking(new Expectations() {{
+			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
+		}});
+		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract handler Data"));
+		assertTrue(nested instanceof ContractMethodParser);
+		ContractDecl cd = (ContractDecl) captureIt.get(0);
+		assertEquals(ContractType.HANDLER, cd.type);
 	}
 
 	@Test
@@ -83,7 +113,7 @@ public class TDAContractIntroParsingTests {
 	public void theTypeNameMustBeTheValidKind() {
 		Tokenizable toks = TDABasicIntroParsingTests.line("contract fred");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(toks, "invalid or missing type name");
+			oneOf(errors).message(with(any(InputPosition.class)), with("invalid contract type"));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(toks);

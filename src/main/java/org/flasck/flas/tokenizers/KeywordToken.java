@@ -20,9 +20,11 @@ public class KeywordToken {
 
 		InputPosition location = line.realinfo();
 		int mark = line.at();
-		while (line.hasMore() && (Character.isLetter(line.nextChar()) || Character.isDigit(line.nextChar()))) {
+		while (line.hasMore() && Character.isLowerCase(line.nextChar())) {
 			line.advance();
 		}
+		if (line.hasMore() && !Character.isWhitespace(line.nextChar()))
+			return null;
 
 		String ret = line.fromMark(mark);
 		if (ret == null)

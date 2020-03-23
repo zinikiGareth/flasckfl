@@ -50,9 +50,6 @@
   <lex token='DEAL' pattern='deal'>
   	<p>The <tt>deal</tt> keyword introduces a deal declaration.</p>
   </lex>
-  <lex token='DIR' pattern='up|down'>
-  	<p>The <tt>up</tt> and <tt>down</tt> keywords indicate the sense in which a contract method is called.</p>
-  </lex>
   <lex token='DOCWORD' pattern='[a-zA-Z_0-9]+'>
     <p>Words that can appear in the documentation of a test case.</p>
   </lex>
@@ -440,16 +437,44 @@
   <production name='contract-declaration'>
     <section title='Contracts'>
       <description>
+        Contracts are core to FLAS.
+        A contract defines an abstraction of what a card, agent or service does in a way that should be independently testable with tests written against the abstraction.
+        <p>
+        There are three types of contracts:
+        </p>
+        <ul>
+        <li>those that are implemented by cards and agents and can be called by the container;</li>
+        <li>those provided by a service or a providing agent and can be required by cards and then called;</li>
+        <li>those defining how handlers will operate.</li>
+        </ul>
+        In each case, the contract specifies a set of methods which must all be implemented together by the implementing card, agent, service or handler.
       </description>
     </section>
     <tested by='test.parsing.TDAContractIntroParsingTests' />
     <seq>
-      <token type='CONTRACT'/>
+      <ref production='contract-intro'/>
       <token type='type-name' names='Contract\[${name}\]'/>
       <indent>
       	<ref production='contract-method-decls'/>
       </indent>
     </seq>
+  </production>
+  <production name='contract-intro'>
+    <section title='Contracts'/>
+    <tested by='test.parsing.TDAContractIntroParsingTests' />
+    <or>
+      <seq>
+        <token type='CONTRACT'/>
+      </seq>
+      <seq>
+        <token type='CONTRACT'/>
+        <token type='SERVICE'/>
+      </seq>
+      <seq>
+        <token type='CONTRACT'/>
+        <token type='HANDLER'/>
+      </seq>
+    </or>  
   </production>
   <production name='contract-method-decls'>
     <section title='Contracts'/>
@@ -467,7 +492,6 @@
       <optional>
         <token type='OPTIONAL'/>
       </optional>
-      <token type='DIR'/>
       <token type='var-name'/>
       <many>
       	<ref production='argument-pattern-typed'/>

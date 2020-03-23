@@ -47,6 +47,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
@@ -397,7 +398,7 @@ public class TraversalTests {
 
 	@Test
 	public void traverseContract() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
 		r.addEntry(cd.name(), cd);
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
@@ -408,7 +409,7 @@ public class TraversalTests {
 
 	@Test
 	public void traverseContractWithMethods() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
 		cd.addMethod(cmd);
 		r.addEntry(cd.name(), cd);
@@ -423,7 +424,7 @@ public class TraversalTests {
 
 	@Test
 	public void traverseContractWithMethodsWithArguments() {
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Contr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.UP, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "HandlerType");
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cmd.name, "handler")));
@@ -632,7 +633,7 @@ public class TraversalTests {
 		UnitTestCase utc = new UnitTestCase(name, "do something");
 		utp.testCase(utc);
 		TypeReference tr = new TypeReference(pos, "SomeContract");
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "SomeContract"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "SomeContract"));
 		tr.bind(cd);
 		UnresolvedVar f = new UnresolvedVar(pos, "f");
 		StringLiteral hello = new StringLiteral(pos, "hello");

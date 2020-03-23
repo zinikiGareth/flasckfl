@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
@@ -75,7 +76,7 @@ public class ContractGeneration {
 		new JVMGenerator(bce, sv);
 		new JVMGenerator(bce, new StackVisitor());
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractDecl cd = new ContractDecl(pos, pos, cname);
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		new Traverser(sv).visitContractDecl(cd);
 	}
 
@@ -130,7 +131,7 @@ public class ContractGeneration {
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, ContractMethodDir.DOWN, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "MyHandler");
-		tr.bind(new ContractDecl(pos, pos, new SolidName(pkg, "AContract")));
+		tr.bind(new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract")));
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cname, "handler")));
 		new Traverser(gen).visitContractMethod(cmd);
 	}

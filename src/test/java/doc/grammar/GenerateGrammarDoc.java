@@ -20,7 +20,7 @@ public class GenerateGrammarDoc {
 		if (gd == null)
 			gd = System.getProperty("org.ziniki.flas_grammar_dir");
 		if (gd == null) {
-			System.out.println("There is no env var FLAS_GRAMMAR_DIR to store the output");
+			System.out.println("There is no env var FLAS_GRAMMAR_DIR or -Dorg.ziniki.flas_grammar_dir to store the output");
 			return;
 		}
 		File out = new File(gd);

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;
@@ -204,8 +205,12 @@ public class Grammar {
 		Definition defn;
 		if (!rule.elementChildren("token").isEmpty())
 			defn = parseDefn(ruleName, rule.uniqueElement("token"));
-		else
+		else if (!rule.elementChildren("ref").isEmpty())
 			defn = parseDefn(ruleName, rule.uniqueElement("ref"));
+		else if (!rule.elementChildren("or").isEmpty())
+			defn = parseDefn(ruleName, rule.uniqueElement("or"));
+		else
+			throw new NotImplementedException("Cannot find something useful to use in optional " + rule);
 		rule.attributesDone();
 		return new OptionalDefinition(defn);
 	}

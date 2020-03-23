@@ -41,6 +41,7 @@ import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.ConsumeStructFields;
 import org.flasck.flas.parser.ut.UnitTestNamer;
@@ -253,7 +254,7 @@ public class RepositoryTests {
 	@Test
 	public void canAddAContractDeclToTheRepository() {
 		Repository r = new Repository();
-		ContractDecl cd = new ContractDecl(pos, pos, new SolidName(pkg, "Ctr"));
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
 		r.newContract(cd);
 		assertEquals(cd, r.get("test.repo.Ctr"));
 	}
