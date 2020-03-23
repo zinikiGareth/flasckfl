@@ -14,15 +14,14 @@ import org.zinutils.bytecode.IExpr;
 public class DoExpectationGenerator extends LeafAdapter implements ResultAware {
 	private final StackVisitor sv;
 	private final FunctionState fs;
-	private final IExpr runner;
 	private IExpr mock;
 	private List<IExpr> args = new ArrayList<>();
 	private List<IExpr> block;
 
 	public DoExpectationGenerator(StackVisitor sv, FunctionState fs, IExpr runner, List<IExpr> block) {
 		this.sv = sv;
+
 		this.fs = fs;
-		this.runner = runner;
 		this.block = block;
 		sv.push(this);
 		new ExprGenerator(fs, sv, block);

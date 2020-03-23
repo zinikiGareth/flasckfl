@@ -16,7 +16,6 @@ import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.testrunner.CommonTestRunner;
@@ -33,8 +32,8 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 public abstract class BaseRunnerTests {
 	static final int X_VALUE = 420;
 	static final int X_OTHER_VALUE = 520;
-	private static final String HELLO_STRING = "hello, world";
-	private static final String HELLO_CLICKED = "hello clicked";
+//	private static final String HELLO_STRING = "hello, world";
+//	private static final String HELLO_CLICKED = "hello clicked";
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ErrorResult errors = new ErrorResult();
@@ -43,8 +42,6 @@ public abstract class BaseRunnerTests {
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	FLASCompiler sc = new FLASCompiler(null, null, new PrintWriter(System.out));
 	String pkg = "test.runner";
-	Scope mainScope = Scope.topScope(pkg);
-	Scope testScope;
 	CardName cn = new CardName(new PackageName("test.runner"), "TestCard");
 	String spkg = pkg + ".script";
 	StringWriter sw = new StringWriter();

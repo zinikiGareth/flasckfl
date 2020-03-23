@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.parsedForm.CodeType;
 import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;

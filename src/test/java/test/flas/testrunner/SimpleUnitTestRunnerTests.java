@@ -6,7 +6,6 @@ import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.UnitTestResultHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -31,7 +30,7 @@ public class SimpleUnitTestRunnerTests {
 	}
 
 	class Setup {
-		Scope scope = Scope.topScope("test.golden");
+//		Scope scope = Scope.topScope("test.golden");
 	}
 
 	/*

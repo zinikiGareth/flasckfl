@@ -24,7 +24,6 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 	public StateDefinition state;
 	public final List<Template> templates = new ArrayList<Template>();
 	// Used during the collection process, but eliminated by detox
-	public final List<D3Thing> d3s = new ArrayList<D3Thing>();
 	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
 	public final List<ImplementsContract> contracts = new ArrayList<ImplementsContract>();
 	public final List<RequiresContract> requires = new ArrayList<>();

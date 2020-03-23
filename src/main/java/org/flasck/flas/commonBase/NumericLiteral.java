@@ -1,15 +1,8 @@
 package org.flasck.flas.commonBase;
 
-import java.util.List;
-
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.vcode.hsieForm.PushDouble;
-import org.flasck.flas.vcode.hsieForm.PushInt;
-import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.Pushable;
-import org.flasck.flas.vcode.hsieForm.VarInSource;
 
-public class NumericLiteral implements Expr, Pushable {
+public class NumericLiteral implements Expr {
 	public final InputPosition location;
 	public final String text;
 	public final Integer val;
@@ -32,16 +25,6 @@ public class NumericLiteral implements Expr, Pushable {
 		return location;
 	}
 	
-	@Override
-	public PushReturn hsie(InputPosition loc, List<VarInSource> deps) {
-		if (val != null)
-			return new PushInt(location, val);
-		else if (text.indexOf(".") != -1 || text.indexOf("e") != -1)
-			return new PushDouble(location, Double.parseDouble(text));
-		else
-			return new PushInt(location, Integer.parseInt(text));
-	}
-
 	public Object value() {
 		if (val != null)
 			return val;

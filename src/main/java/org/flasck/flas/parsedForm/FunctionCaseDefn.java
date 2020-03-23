@@ -1,12 +1,12 @@
 package org.flasck.flas.parsedForm;
 
 import java.io.Writer;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parser.FunctionNameProvider;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
 public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
@@ -26,10 +26,6 @@ public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 	@Override
 	public InputPosition location() {
 		return intro.location;
-	}
-
-	public CodeType mytype() {
-		return intro.name().codeType;
 	}
 
 	public int nargs() {
