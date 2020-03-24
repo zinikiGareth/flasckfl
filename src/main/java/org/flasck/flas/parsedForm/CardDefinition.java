@@ -88,7 +88,7 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 		services.add(o);
 	}
 
-	public void addHandlerImplementation(HandlerImplements o) {
+	public void newHandler(HandlerImplements o) {
 		handlers.add(o);
 	}
 

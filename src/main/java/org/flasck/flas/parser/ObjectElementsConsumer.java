@@ -5,7 +5,7 @@ import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.Template;
 
-public interface ObjectElementsConsumer extends MethodConsumer {
+public interface ObjectElementsConsumer extends MethodConsumer, HandlerBuilder {
 	ObjectElementsConsumer defineState(StateDefinition state);
 
 	ObjectElementsConsumer addTemplate(Template template);

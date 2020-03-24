@@ -22,6 +22,7 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	public final List<ObjectCtor> ctors = new ArrayList<>();
 	public final List<ObjectAccessor> acors = new ArrayList<>();
 	public final List<ObjectMethod> methods = new ArrayList<>();
+	private final List<HandlerImplements> handlers = new ArrayList<>();
 	protected final List<PolyType> polys;
 	private final Map<String, Integer> methodCases = new HashMap<>();
 	protected final InputPosition location;
@@ -98,6 +99,11 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	public void addMethod(ObjectMethod m) {
 		methods.add(m);
 		m.bindToObject(this);
+	}
+
+	@Override
+	public void newHandler(HandlerImplements hi) {
+		handlers.add(hi);
 	}
 
 	public SolidName name() {

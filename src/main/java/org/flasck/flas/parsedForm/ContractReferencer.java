@@ -45,7 +45,7 @@ public class ContractReferencer implements Locatable {
 		else if (defn instanceof ContractDecl)
 			return (ContractDecl) defn;
 		else
-			throw new NotImplementedException(defn.getClass().getName());
+			return null;
 	}
 
 	@Override

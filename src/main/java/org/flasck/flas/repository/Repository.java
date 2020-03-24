@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -136,6 +137,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitProvides(Provides p);
 		void leaveProvides(Provides p);
 		void visitRequires(RequiresContract rc);
+		void visitImplements(ImplementsContract ic);
+		void leaveImplements(ImplementsContract ic);
+		void visitHandlerImplements(HandlerImplements hi);
+		void leaveHandlerImplements(HandlerImplements hi);
 		void leaveAgentDefn(AgentDefinition s);
 		void visitObjectAccessor(ObjectAccessor oa);
 		void leaveObjectAccessor(ObjectAccessor oa);

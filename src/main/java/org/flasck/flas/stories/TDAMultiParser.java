@@ -60,7 +60,7 @@ public class TDAMultiParser implements TDAParsing {
 	}
 	
 	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
-		return new TDAMultiParser(errors, TDAHandlerParser.constructor(namer, topLevel), TDAMethodParser.constructor(namer, sb, topLevel), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel), TDATupleDeclarationParser.constructor(namer, topLevel));
+		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel), TDAMethodParser.constructor(namer, sb, topLevel), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel), TDATupleDeclarationParser.constructor(namer, topLevel));
 	}
 
 	// I added this method for testing purposes

@@ -1,0 +1,18 @@
+mismatches.f  8.11:   implements  _ NotThere
+                          cannot resolve 'NotThere'
+mismatches.f 10.11:   implements  _ Up
+                          cannot implement service contract
+mismatches.f 11.11:   implements  _ Handler
+                          cannot implement handler contract
+mismatches.f 13.9:    provides  _ NotThere
+                          cannot resolve 'NotThere'
+mismatches.f 14.9:    provides  _ Down
+                          cannot provide non-service contract
+mismatches.f 16.9:    provides  _ Handler
+                          cannot provide non-service contract
+mismatches.f 18.8:    handler  _ NotThere HandleNotThere
+                          cannot resolve 'NotThere'
+mismatches.f 19.8:    handler  _ Down HandleDown
+                          handler cannot implement non-handler contract
+mismatches.f 20.8:    handler  _ Up HandleUp
+                          handler cannot implement service contract

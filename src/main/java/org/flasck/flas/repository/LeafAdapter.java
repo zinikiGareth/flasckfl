@@ -20,6 +20,8 @@ import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -120,6 +122,22 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitRequires(RequiresContract rc) {
+	}
+
+	@Override
+	public void visitImplements(ImplementsContract ic) {
+	}
+
+	@Override
+	public void leaveImplements(ImplementsContract ic) {
+	}
+
+	@Override
+	public void visitHandlerImplements(HandlerImplements hi) {
+	}
+
+	@Override
+	public void leaveHandlerImplements(HandlerImplements hi) {
 	}
 
 	@Override

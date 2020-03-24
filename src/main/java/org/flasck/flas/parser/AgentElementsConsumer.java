@@ -6,7 +6,7 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StateDefinition;
 
-public interface AgentElementsConsumer {
+public interface AgentElementsConsumer extends HandlerBuilder {
 	CardName cardName();
 	void defineState(StateDefinition stateDefinition);
 	void addProvidedService(Provides contractService);

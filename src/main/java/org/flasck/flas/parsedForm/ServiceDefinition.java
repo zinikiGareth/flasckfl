@@ -55,7 +55,7 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 		services.add(o);
 	}
 
-	public void addHandlerImplementation(HandlerImplements o) {
+	public void newHandler(HandlerImplements o) {
 		handlers.add(o);
 	}
 

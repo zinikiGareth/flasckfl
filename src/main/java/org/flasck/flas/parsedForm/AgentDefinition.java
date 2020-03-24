@@ -70,7 +70,7 @@ public class AgentDefinition implements Locatable, AgentElementsConsumer, Reposi
 		services.add(o);
 	}
 
-	public void addHandlerImplementation(HandlerImplements o) {
+	public void newHandler(HandlerImplements o) {
 		handlers.add(o);
 	}
 

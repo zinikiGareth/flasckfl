@@ -33,6 +33,8 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -181,6 +183,8 @@ public class Traverser implements Visitor {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof CurryArgument)
 			; // do nothing; just for resolution
+		else if (e instanceof HandlerImplements) 
+			; // ignored for now because it breaks things that don't care
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
 	}
@@ -266,6 +270,10 @@ public class Traverser implements Visitor {
 			visitRequires(rc);
 		for (Provides p : s.services)
 			visitProvides(p);
+		for (ImplementsContract ic : s.contracts)
+			visitImplements(ic);
+		for (HandlerImplements ic : s.handlers)
+			visitHandlerImplements(ic);
 		leaveAgentDefn(s);
 	}
 
@@ -287,6 +295,26 @@ public class Traverser implements Visitor {
 	public void visitRequires(RequiresContract rc) {
 		visitor.visitRequires(rc);
 		visitTypeReference(rc.implementsType());
+	}
+
+	public void visitImplements(ImplementsContract ic) {
+		visitor.visitImplements(ic);
+		visitTypeReference(ic.implementsType());
+		leaveImplements(ic);
+	}
+
+	public void leaveImplements(ImplementsContract ic) {
+		visitor.leaveImplements(ic);
+	}
+
+	public void visitHandlerImplements(HandlerImplements hi) {
+		visitor.visitHandlerImplements(hi);
+		visitTypeReference(hi.implementsType());
+		leaveHandlerImplements(hi);
+	}
+
+	public void leaveHandlerImplements(HandlerImplements hi) {
+		visitor.leaveHandlerImplements(hi);
 	}
 
 	@Override

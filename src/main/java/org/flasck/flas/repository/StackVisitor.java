@@ -25,6 +25,8 @@ import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -426,6 +428,23 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitRequires(RequiresContract rc) {
 		top.visitRequires(rc);
+	}
+
+	@Override
+	public void visitImplements(ImplementsContract ic) {
+		top.visitImplements(ic);
+	}
+
+	public void leaveImplements(ImplementsContract ic) {
+		top.leaveImplements(ic);
+	}
+
+	public void visitHandlerImplements(HandlerImplements hi) {
+		top.visitHandlerImplements(hi);
+	}
+
+	public void leaveHandlerImplements(HandlerImplements hi) {
+		top.leaveHandlerImplements(hi);
 	}
 
 	public void leaveAgentDefn(AgentDefinition s) {

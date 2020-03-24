@@ -8,10 +8,13 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
@@ -137,15 +140,39 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void leaveProvides(Provides p) {
-		TypeReference implementsType = p.implementsType();
-		String name = implementsType.name();
-		NamedType defn = implementsType.defn();
-		if (defn == null) {
-			// will have issued message about failed resolution
-		} else if (!(defn instanceof ContractDecl)) {
-			errors.message(implementsType.location(), name + " is not a contract");
+		ContractDecl d = p.actualType();
+		if (d == null) {
+			if (p.implementsType().defn() != null)
+				errors.message(p.implementsType().location(), p.implementsType().name() + " is not a contract");
+			return;
 		}
+		if (d.type != ContractType.SERVICE)
+			errors.message(p.implementsType().location(), "cannot provide non-service contract");
 		currentlyImplementing = null;
+	}
+
+	@Override
+	public void leaveImplements(ImplementsContract ic) {
+		ContractDecl d = ic.actualType();
+		if (d == null) {
+			if (ic.implementsType().defn() != null)
+				errors.message(ic.implementsType().location(), ic.implementsType().name() + " is not a contract");
+			return;
+		}
+		if (d.type != ContractType.CONTRACT)
+			errors.message(ic.implementsType().location(), "cannot implement " + d.type.toString().toLowerCase() + " contract");
+	}
+	
+	@Override
+	public void leaveHandlerImplements(HandlerImplements hi) {
+		ContractDecl d = hi.actualType();
+		if (d == null) {
+			if (hi.implementsType().defn() != null)
+				errors.message(hi.implementsType().location(), hi.implementsType().name() + " is not a contract");
+			return;
+		}
+		if (d.type != ContractType.HANDLER)
+			errors.message(hi.implementsType().location(), "handler cannot implement " + (d.type == ContractType.SERVICE?"service":"non-handler") + " contract");
 	}
 
 	@Override

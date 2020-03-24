@@ -155,6 +155,7 @@ public class TDATopLevelCardParsingTests {
 			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
+		assertEquals(1, card.handlers.size());
 	}
 
 	@Test

@@ -1,0 +1,21 @@
+	contract Down
+	
+	contract service Up
+	
+	contract handler Handler
+	
+	agent Agent007
+		implements NotThere
+		implements Down
+		implements Up
+		implements Handler
+		
+		provides NotThere
+		provides Down
+		provides Up
+		provides Handler
+		
+		handler NotThere HandleNotThere
+		handler Down HandleDown
+		handler Up HandleUp
+		handler Handler TheHandler
