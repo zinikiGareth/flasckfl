@@ -49,7 +49,7 @@ public class TDAMethodParser {
 			errors.message(toks, "extra characters at end of line");
 			return new IgnoreNestedParser();
 		}
-		ObjectMethod meth = new ObjectMethod(var.location, fnName, args);
+		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null);
 		builder.addMethod(meth);
 		return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action"));
 	}

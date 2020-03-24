@@ -2,9 +2,9 @@
 		reply (String y)
 
 	contract service Trivia
-		ask (String s) (Responder r)
+		ask (String s) -> (Responder r)
 
 	agent Agent007
 		provides Trivia
-			ask s r
+			ask s -> r
 				<- r.reply ("answer to " ++ s)

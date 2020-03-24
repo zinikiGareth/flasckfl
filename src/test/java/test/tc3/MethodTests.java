@@ -61,7 +61,7 @@ public class MethodTests {
 	private final PackageName pkg = new PackageName("test.repo");
 	private final StringLiteral str = new StringLiteral(pos, "yoyo");
 	private final List<Pattern> args = new ArrayList<>();
-	private final ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, new SolidName(pkg, "X"), "meth"), args);
+	private final ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, new SolidName(pkg, "X"), "meth"), args, null);
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final RAV r = context.mock(RAV.class);

@@ -39,7 +39,7 @@ public class MethodConversion {
 			oneOf(nv).push(with(any(MethodConvertor.class)));
 		}});
 		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
 		mc.visitObjectMethod(om);
 	}
 
@@ -60,7 +60,7 @@ public class MethodConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(null);
 		}});
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
 		MethodConvertor mc = new MethodConvertor(nv);
 		mc.result(e1);
 		mc.result(e2);

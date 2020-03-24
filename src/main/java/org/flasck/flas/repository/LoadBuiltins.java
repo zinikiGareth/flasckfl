@@ -51,10 +51,11 @@ public class LoadBuiltins {
 	// Entity is obviously useful because we use it in Data Contracts
 	// Deal & Offer feel like they would come up in conversations about Commerce
 	// Countables, Currency and ValueStore need to go here too
-	public static final Primitive contract = new Primitive(pos, "Contract");
+	public static final Primitive contract = new Primitive(pos, "Contract"); // Should this be in 3 parts? (CONTRACT, SERVICE, HANDLER?)
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
+	public static final Type idempotentHandler = contract; // This may or may not be correct ...
 	
 	// This is another really weird thing ... it has arguments really, so needs to be parameterized a variable amount
 	// Probably needs its own class to handle it properly
@@ -79,6 +80,7 @@ public class LoadBuiltins {
 
 	// The type "operator"
 	private static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
+
 	
 	// Builtin operators
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2);

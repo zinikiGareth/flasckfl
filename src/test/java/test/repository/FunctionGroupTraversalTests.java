@@ -37,7 +37,7 @@ public class FunctionGroupTraversalTests {
 	FunctionDefinition fn = new FunctionDefinition(nameF, 2);
 	FunctionDefinition gn = new FunctionDefinition(nameG, 2);
 	FunctionDefinition hn = new FunctionDefinition(nameH, 2);
-	StandaloneMethod s1 = new StandaloneMethod(new ObjectMethod(pos, nameS1, new ArrayList<>()));
+	StandaloneMethod s1 = new StandaloneMethod(new ObjectMethod(pos, nameS1, new ArrayList<>(), null));
 
 	@Before
 	public void intros() {

@@ -190,6 +190,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 		case ">":
 		case ">=":
 			return 2;
+		case "->":
+			return 1;
 		default:
 			errors.message(pos, "there is no precedence for operator " + op);
 			return 0;

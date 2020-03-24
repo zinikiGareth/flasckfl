@@ -11,6 +11,7 @@ public class ObjectMethodMatcher extends TypeSafeMatcher<ObjectMethod> {
 	private final NameOfThing scope;
 	private final String name;
 	private Integer hasArgs;
+	private String handlerName;
 
 	public ObjectMethodMatcher(NameOfThing scope, String name) {
 		this.scope = scope;
@@ -29,6 +30,10 @@ public class ObjectMethodMatcher extends TypeSafeMatcher<ObjectMethod> {
 			desc.appendText("/");
 			desc.appendValue(hasArgs);
 		}
+		if (handlerName != null) {
+			desc.appendText("->");
+			desc.appendValue(handlerName);
+		}
 		desc.appendText("}");
 	}
 
@@ -43,6 +48,8 @@ public class ObjectMethodMatcher extends TypeSafeMatcher<ObjectMethod> {
 			return false;
 		if (hasArgs != null && hasArgs != meth.args().size())
 			return false;
+		if (handlerName != null && !handlerName.equals(meth.handler.name().uniqueName()))
+			return false;
 		return true;
 	}
 
@@ -52,6 +59,11 @@ public class ObjectMethodMatcher extends TypeSafeMatcher<ObjectMethod> {
 
 	public ObjectMethodMatcher withArgs(int cnt) {
 		hasArgs = cnt;
+		return this;
+	}
+
+	public ObjectMethodMatcher withHandler(String string) {
+		handlerName = string;
 		return this;
 	}
 }

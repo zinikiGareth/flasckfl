@@ -67,6 +67,22 @@ public class TDAImplementationMethodsParsingTests {
 	}
 
 	@Test
+	public void anImplementationMayHaveASimpleArgumentAndAHandler() {
+		final Tokenizable line = TDABasicIntroParsingTests.line("bar x -> h");
+		context.checking(new Expectations() {{
+			oneOf(namer).functionName(with(any(InputPosition.class)), with("bar")); will(returnValue(FunctionName.function(new InputPosition("file", 1, 10, "bar x"), null, "bar")));
+			oneOf(consumer).addImplementationMethod(with(ObjectMethodMatcher.called(null, "bar").withArgs(1).withHandler("bar.h")));
+			oneOf(topLevel).newObjectMethod(with(any(ObjectMethod.class)));
+			oneOf(topLevel).argument((VarPattern) with(VarPatternMatcher.var("bar.x")));
+			oneOf(topLevel).argument((VarPattern) with(VarPatternMatcher.var("bar.h")));
+		}});
+		TDAParsing nested = parser.tryParsing(line);
+		assertTrue(nested instanceof TDAMethodMessageParser);
+		nested.scopeComplete(line.realinfo());
+		parser.scopeComplete(line.realinfo());
+	}
+
+	@Test
 	public void nothingHappensWhenTheImplementationsAreComplete() {
 		parser.scopeComplete(new InputPosition("fred", 10, 0, "hello"));
 	}

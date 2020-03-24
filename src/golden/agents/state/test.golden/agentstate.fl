@@ -3,7 +3,7 @@
 
 	contract service Storage
 		tell (String s)
-		ask (Feedback r)
+		ask -> (Feedback r)
 
 	agent StateAgent
 		state

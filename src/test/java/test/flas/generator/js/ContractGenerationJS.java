@@ -61,7 +61,7 @@ public class ContractGenerationJS {
 		new JSGenerator(jss, gen);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>(), null);
 		cd.methods.add(cmd);
 		new Traverser(gen).visitContractDecl(cd);
 	}

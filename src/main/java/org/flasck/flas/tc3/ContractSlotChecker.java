@@ -19,8 +19,8 @@ import org.zinutils.exceptions.NotImplementedException;
 public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor  {
 	private final ErrorReporter errors;
 	private final NestedVisitor sv;
-	private final CurrentTCState state;
-	private final ObjectMethod inMeth;
+//	private final CurrentTCState state;
+//	private final ObjectMethod inMeth;
 	private final ContractMethodDecl cmd;
 	private int pos;
 	private Type ty;
@@ -28,8 +28,8 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 	public ContractSlotChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state, ObjectMethod inMeth) {
 		this.errors = errors;
 		this.sv = sv;
-		this.state = state;
-		this.inMeth = inMeth;
+//		this.state = state;
+//		this.inMeth = inMeth;
 		this.cmd = inMeth.contractMethod();
 		this.pos = 0;
 	}
@@ -61,7 +61,14 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 
 	@Override
 	public void varInIntro(VarName vn, VarPattern vp, FunctionIntro intro) {
-		ty = ((TypedPattern)cmd.args.get(pos++)).type.defn();
+		if (pos > cmd.args.size())
+			throw new NotImplementedException("Argument is out of range: " + pos + " " + cmd.args.size());
+		if (pos == cmd.args.size()) {
+			ty = cmd.handler.type.defn();
+			pos++;
+		} else {
+			ty = ((TypedPattern)cmd.args.get(pos++)).type.defn();
+		}
 		vp.bindType(ty);
 	}
 

@@ -44,7 +44,7 @@ public class MethodTraversalTests {
 	final UnresolvedVar dest = new UnresolvedVar(pos, "dest");
 	final FunctionName nameF = FunctionName.standaloneMethod(pos, pkg, "meth");
 	ArrayList<Pattern> args = new ArrayList<>();
-	private ObjectMethod om = new ObjectMethod(pos, nameF, args);
+	private ObjectMethod om = new ObjectMethod(pos, nameF, args, null);
 	private StandaloneMethod sm = new StandaloneMethod(om);
 
 	private SendMessage msg1 = new SendMessage(pos, new ApplyExpr(pos, dest, str));

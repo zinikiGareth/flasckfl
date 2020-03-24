@@ -418,7 +418,7 @@ public class ExpressionGeneration {
 		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
-		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>(), null);
 		om.sendMessage(new SendMessage(pos, expr));
 		StandaloneMethod sm = new StandaloneMethod(om);
 		FunctionIntro fi = new FunctionIntro(fnName, new ArrayList<>());
@@ -568,7 +568,7 @@ public class ExpressionGeneration {
 	public void aStandaloneMethodApplication() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>(), null);
 		fn.bind(new StandaloneMethod(om));
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		IExpr f = context.mock(IExpr.class, "f");

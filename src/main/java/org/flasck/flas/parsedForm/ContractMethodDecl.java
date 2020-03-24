@@ -17,16 +17,18 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	private final InputPosition pos;
 	public final boolean required;
 	public final FunctionName name;
-	public final List<Pattern> args;
+	public final List<TypedPattern> args;
 	private Type type;
+	public final TypedPattern handler;
 
-	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, FunctionName name, List<Pattern> args) {
+	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, FunctionName name, List<TypedPattern> args, TypedPattern handler) {
 		this.rkw = rkw;
 		this.dkw = dkw;
 		this.pos = pos;
 		this.required = required;
 		this.name = name;
 		this.args = args;
+		this.handler = handler;
 	}
 
 	@Override
@@ -37,15 +39,15 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	public void bindType() {
 		if (this.type != null)
 			throw new RuntimeException("Type already bound to " + this.type + " cannot rebind");
-		if (this.args.isEmpty())
-			this.type = LoadBuiltins.send;
-		else {
-			List<Type> types = new ArrayList<>();
-			for (Pattern p : this.args) {
-				types.add(((TypedPattern)p).type());
-			}
-			this.type = new Apply(types, LoadBuiltins.send);
+		List<Type> types = new ArrayList<>();
+		for (Pattern p : this.args) {
+			types.add(((TypedPattern)p).type());
 		}
+		if (handler != null)
+			types.add(handler.type());
+		else
+			types.add(LoadBuiltins.idempotentHandler);
+		this.type = new Apply(types, LoadBuiltins.send);
 	}
 
 	public Type type() {

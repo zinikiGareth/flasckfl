@@ -8,13 +8,15 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectMethod extends ObjectActionHandler {
+public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 	private ObjectDefn od;
 	private Implements impl;
 	private ContractMethodDecl contractMethod;
+	public final VarPattern handler;
 
-	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args) {
+	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args, VarPattern handler) {
 		super(location, name, args);
+		this.handler = handler;
 	}
 	
 	public void bindToObject(ObjectDefn od) {
@@ -47,6 +49,11 @@ public class ObjectMethod extends ObjectActionHandler {
 		if (impl == null)
 			throw new NotImplementedException("There is no impl definition bound here");
 		return impl;
+	}
+
+	@Override
+	public VarPattern handler() {
+		return handler;
 	}
 
 	@Override

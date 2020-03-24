@@ -78,7 +78,7 @@ public class ApplyExprModifiedTests {
 		FunctionName nameG = FunctionName.standaloneMethod(pos, nameF, "g");
 		List<Pattern> args = new ArrayList<>();
 		args.add(new TypedPattern(pos, new TypeReference(pos, "String"), new VarName(pos, nameG, "x")));
-		StandaloneMethod sm = new StandaloneMethod(new ObjectMethod(pos, nameG, args));
+		StandaloneMethod sm = new StandaloneMethod(new ObjectMethod(pos, nameG, args, null));
 
 		MappingStore ms = new MappingStore();
 		ms.recordNestedVar(null, sm.om, vp);
@@ -141,7 +141,7 @@ public class ApplyExprModifiedTests {
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		
 		FunctionName nameG = FunctionName.standaloneMethod(pos, nameF, "g");
-		StandaloneMethod sm = new StandaloneMethod(new ObjectMethod(pos, nameG, new ArrayList<>()));
+		StandaloneMethod sm = new StandaloneMethod(new ObjectMethod(pos, nameG, new ArrayList<>(), null));
 
 		MappingStore ms = new MappingStore();
 		ms.recordNestedVar(null, sm.om, vp);

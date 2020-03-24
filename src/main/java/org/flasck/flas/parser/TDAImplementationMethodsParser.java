@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
@@ -38,17 +39,34 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 		}
 		List<Pattern> args = new ArrayList<>();
 		final FunctionName methName = namer.functionName(name.location, name.text);
+		VarPattern handler = null;
 		while (toks.hasMore()) {
 			ValidIdentifierToken arg = VarNameToken.from(toks);
 			if (arg == null) {
-				errors.message(toks, "invalid argument name");
-				return new IgnoreNestedParser();
+				ExprToken tok = ExprToken.from(errors, toks);
+				if (tok != null && "->".equals(tok.text)) {
+					ValidIdentifierToken h = VarNameToken.from(toks);
+					if (h == null) {
+						errors.message(toks, "missing or invalid handler name");
+						return new IgnoreNestedParser();
+					}
+					handler = new VarPattern(h.location, new VarName(h.location, methName, h.text));
+					topLevel.argument(handler);
+					break;
+				} else {
+					errors.message(toks, "invalid argument name");
+					return new IgnoreNestedParser();
+				}
 			}
 			final VarPattern vp = new VarPattern(arg.location, new VarName(arg.location, methName, arg.text));
 			args.add(vp);
 			topLevel.argument(vp);
 		}
-		final ObjectMethod meth = new ObjectMethod(name.location, methName, args);
+		if (toks.hasMore()) {
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
+		}
+		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler);
 		consumer.addImplementationMethod(meth);
 		topLevel.newObjectMethod(meth);
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);

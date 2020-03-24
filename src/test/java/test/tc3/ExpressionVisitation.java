@@ -92,7 +92,7 @@ public class ExpressionVisitation {
 	public void aStandaloneMethodReturnsItsResolvedType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyX = context.mock(Type.class);
-		StandaloneMethod x = new StandaloneMethod(new ObjectMethod(pos, FunctionName.standaloneMethod(pos, null, "m"), new ArrayList<>()));
+		StandaloneMethod x = new StandaloneMethod(new ObjectMethod(pos, FunctionName.standaloneMethod(pos, null, "m"), new ArrayList<>(), null));
 		x.bindType(tyX);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyX))));

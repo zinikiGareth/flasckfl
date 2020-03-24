@@ -95,7 +95,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analysisWorksForStandaloneMethodsToo() {
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
 		om.sendMessage(new SendMessage(pos, simpleExpr));
 		StandaloneMethod meth = new StandaloneMethod(om);
 		new Traverser(sv).visitStandaloneMethod(meth);

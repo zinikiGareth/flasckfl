@@ -11,10 +11,9 @@ import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
@@ -76,7 +75,7 @@ public class ContractGeneration {
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>(), null);
 		new Traverser(gen).visitContractMethod(cmd);
 	}
 
@@ -94,8 +93,8 @@ public class ContractGeneration {
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
-		cmd.args.add(new VarPattern(pos, new VarName(pos, cname, "hello")));
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>(), null);
+		cmd.args.add(new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, cname, "hello")));
 		new Traverser(gen).visitContractMethod(cmd);
 	}
 
@@ -112,30 +111,10 @@ public class ContractGeneration {
 		}});
 		JVMGenerator gen = JVMGenerator.forTests(bcc);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>(), null);
 		TypeReference tr = new TypeReference(pos, "MyHandler");
 		tr.bind(new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract")));
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cname, "handler")));
-		new Traverser(gen).visitContractMethod(cmd);
-	}
-	
-	// I'm not sure this is a real case, but I'm also not sure it's not
-	@Test
-	public void contractMethodWithComplexPatternArgumentsJustGetBoringNames() {
-		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
-		IFieldInfo fi = context.mock(IFieldInfo.class);
-		context.checking(new Expectations() {{
-			oneOf(bcc).createMethod(false, J.OBJECT, "m"); will(returnValue(meth));
-			oneOf(meth).argument(J.FLEVALCONTEXT, "_cxt");
-			oneOf(meth).argument("java.lang.Object", "a1");
-			oneOf(meth).argument("java.lang.Object", "_ih");
-			oneOf(bcc).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_m"); will(returnValue(fi));
-			oneOf(fi).constValue(1);
-		}});
-		JVMGenerator gen = JVMGenerator.forTests(bcc);
-		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
-		cmd.args.add(new TuplePattern(pos, new ArrayList<>()));
 		new Traverser(gen).visitContractMethod(cmd);
 	}
 }

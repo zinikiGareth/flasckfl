@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.PolyType;
@@ -103,9 +104,6 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			handleTupleBuilder(expr);
 			return;
 		}
-		// TODO: we may need to explicitly handle the case where we have a "Send" constructor that wants to collapse a set of arguments into a list
-		// But if we return the right contract method type, it may all just go swimmingly
-		// And we will just have that concern in MethodConversion
 		PosType pfn = results.remove(0);
 		Type fn = pfn.type;
 		if (fn instanceof ErrorType) {
@@ -140,6 +138,9 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			}
 			pos++;
 		}
+		if (unusedHandlerCase(expr.fn)) {
+			pos++;
+		}
 		// anything left must be curried
 		while (pos < fn.argCount()) {
 			tocurry.add(fn.get(pos++));
@@ -150,6 +151,17 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(new Apply(tocurry));
 		} else
 			nv.result(fn.get(pos));
+	}
+
+	private boolean unusedHandlerCase(Object fn) {
+		if (!(fn instanceof MemberExpr))
+			return false;
+		MemberExpr me = (MemberExpr) fn;
+		ContractMethodDecl cmd = me.contractMethod();
+		if (cmd == null)
+			return false;
+		// TODO: There are subcases here around the specification and use of the handler
+		return true;
 	}
 
 	private void handleListBuilder(ApplyExpr expr) {

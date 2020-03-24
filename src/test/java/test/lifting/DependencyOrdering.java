@@ -41,7 +41,7 @@ public class DependencyOrdering {
 	@Test
 	public void methodsAreConsideredToo() {
 		FunctionName fname = FunctionName.standaloneMethod(pos, pkg, "m");
-		StandaloneMethod meth = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>()));
+		StandaloneMethod meth = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>(), null));
 		lifter.visitStandaloneMethod(meth);
 		lifter.leaveStandaloneMethod(meth);
 		
@@ -74,7 +74,7 @@ public class DependencyOrdering {
 	@Test
 	public void aFunctionReferencingAMethodComesAfterIt() {
 		FunctionName fname = FunctionName.standaloneMethod(pos, pkg, "m");
-		StandaloneMethod fn = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>()));
+		StandaloneMethod fn = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>(), null));
 		lifter.visitStandaloneMethod(fn);
 		lifter.leaveStandaloneMethod(fn);
 		

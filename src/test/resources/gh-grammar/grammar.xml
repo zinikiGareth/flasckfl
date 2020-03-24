@@ -77,6 +77,9 @@
   <lex token='GUARD' pattern='\|'>
   	<p>Defines the variable/function definition operator.</p>
   </lex>
+  <lex token='HANDLE' pattern='-&gt;'>
+  	<p>The HANDLE operator is used to assign subscription handles to handle variables.</p>
+  </lex>
   <lex token='HANDLER' pattern='handler'>
   	<p>The <tt>handler</tt> keyword introduces a callback handler.</p>
   </lex>
@@ -116,14 +119,11 @@
   <lex token='REQUIRES' pattern='requires'>
   	<p>The <tt>requires</tt> keyword identifies a variable which is bound to a service of the specified contract.</p>
   </lex>
-  <lex token='PUT' pattern='&lt;-'>
-  	<p>Method actions are defined using the PUT operator.</p>
-  </lex>
   <lex token='SEND' pattern='&lt;-'>
-  	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
+  	<p>Method actions, variable assignments and template definitions are defined using the SEND operator.</p>
   </lex>
   <lex token='SENDTO' pattern='=&gt;'>
-  	<p>An opening square bracket introduces various list operations as well as polymorphic variables.</p>
+  	<p>The SENDTO operator is used to pass things around in templates.</p>
   </lex>
   <lex token='SERVICE' pattern='service'>
   	<p>The <tt>service</tt> keyword introduces a service declaration.</p>
@@ -448,6 +448,11 @@
         <li>those defining how handlers will operate.</li>
         </ul>
         In each case, the contract specifies a set of methods which must all be implemented together by the implementing card, agent, service or handler.
+        <p>
+        Each method must have a method name.  It may optionally be marked as <code>optional</code>, meaning that implementers do not need to provide a definition for it.
+        It specifies zero or more arguments; these must be typed, and there are restrictions on the types that may be passed.
+        It may optionally specify a subscription handler.  This must be a typed variable where the type is a hander contract.
+        </p>
       </description>
     </section>
     <tested by='test.parsing.TDAContractIntroParsingTests' />
@@ -496,7 +501,18 @@
       <many>
       	<ref production='argument-pattern-typed'/>
       </many>
+      <optional>
+        <ref production='handled-by' />
+      </optional>
       <token type='EOL' />
+    </seq>
+  </production>
+  <production name='handled-by'>
+    <section title='Contracts'/>
+	<tested by='test.parsing.TDAContractMethodParsingTests' />
+    <seq>
+      <token type='HANDLE'/>
+      <ref production='argument-pattern-typed' />
     </seq>
   </production>
   <production name='function-case-definition'>
@@ -511,7 +527,7 @@
 	       There are two ways to declare a function case.
 	       It is possible to declare a single expression on the same line as the function declaration.
 	       Or the function name and argument patterns can appear on one line, and one or more guarded equations
-	       can appear on subsequent lines. 
+	       can appear on subsequent lines.
 	    </description>
 	</section>
     <tested by='test.parsing.TDAFunctionParsingTests' />
@@ -967,7 +983,7 @@
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <or>
       <seq>
-      	<token type='PUT' />
+      	<token type='SEND' />
       	<ref production='service-method' />
     	    <many>
     	      <ref production='expression' />
@@ -975,7 +991,7 @@
     	    <token type='EOL' />
       </seq>
       <seq>
-      	<token type='PUT' />
+      	<token type='SEND' />
         <ref production='expression' />
     	    <token type='EOL' />
       </seq>
@@ -995,7 +1011,7 @@
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
     	  <ref production='member-path' />
-    	  <token type='PUT' />
+    	  <token type='SEND' />
       <ref production='expression' />
     	  <token type='EOL' />
     </seq>
@@ -1202,18 +1218,29 @@
   </production>
   <production name='implementation-method'>
     <section title='Implements Contract'/>
-    <tested by='test.parsing.ImplentationTestingParser' />
+    <tested by='test.parsing.TDAImplementationMethodsParsingTests' />
     <seq>
       <token type='var-name' names='ObjectMethod\[${name}/[0-9]+\]'/>
       <nested-name offset='1'/>
       <many>
         <ref production='argument-pattern-variable'/>
       </many>
+      <optional>
+        <ref production='implementation-result'/>
+      </optional>
       <nested-name offset='0'/>
       <indent>
       	<ref production='method-actions'/>
       </indent>
     </seq>
+  </production>
+  <production name='implementation-result'>
+    <section title='Implements Contract'/>
+    <tested by='test.parsing.TDAImplementationMethodsParsingTests' />
+	<seq>
+	  <token type='HANDLE'/>
+	  <token type='var-name' />
+	</seq>    
   </production>
   <production name='event-handler'>
     <section title='Events'>

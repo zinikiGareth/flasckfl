@@ -1,6 +1,7 @@
 package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
@@ -9,6 +10,7 @@ public class MemberExpr implements Expr {
 	public final Expr from;
 	public final Expr fld;
 	private Expr conversion;
+	private ContractMethodDecl contractMethod;
 
 	public MemberExpr(InputPosition location, Expr from, Expr fld) {
 		if (location == null)
@@ -58,5 +60,13 @@ public class MemberExpr implements Expr {
 		if (conversion == null)
 			throw new NotImplementedException("there is no converted expression");
 		return conversion;
+	}
+
+	public void bindContractMethod(ContractMethodDecl method) {
+		this.contractMethod = method;
+	}
+	
+	public ContractMethodDecl contractMethod() {
+		return contractMethod;
 	}
 }

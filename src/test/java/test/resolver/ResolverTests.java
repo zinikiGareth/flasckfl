@@ -71,7 +71,7 @@ public class ResolverTests {
 	private final FunctionName nameX = FunctionName.function(pos, pkg, "x");
 	private final FunctionName nameY = FunctionName.function(pos, pkg, "y");
 	private final FunctionDefinition fn = new FunctionDefinition(nameF, 0);
-	private final ObjectMethod meth = new ObjectMethod(pos, nameM, new ArrayList<Pattern>());
+	private final ObjectMethod meth = new ObjectMethod(pos, nameM, new ArrayList<Pattern>(), null);
 	private final TypeBinder vx = new FunctionDefinition(nameX, 0);
 	private final TypeBinder vy = new FunctionDefinition(nameY, 0);
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
@@ -79,9 +79,9 @@ public class ResolverTests {
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
 	private final ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
-	private final ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "d"), new ArrayList<>());
-	private final ContractMethodDecl cmu = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "u"), new ArrayList<>());
-	private final ContractDecl ht = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "HandlerType"));
+	private final ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "d"), new ArrayList<>(), null);
+	private final ContractMethodDecl cmu = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "u"), new ArrayList<>(), null);
+	private final ContractDecl ht = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(pkg, "HandlerType"));
 	private final RepositoryReader rr = context.mock(RepositoryReader.class);
 
 	@Before
@@ -345,9 +345,8 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		r.currentScope(pkg);
 		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>());
 		TypeReference tr = new TypeReference(pos, "HandlerType");
-		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, op.name(), "handler")));
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>(), new TypedPattern(pos, tr, new VarName(pos, op.name(), "handler")));
 		new Traverser(r).visitContractMethod(cmd);
 		assertEquals(ht, tr.defn());
 		assertThat(cmd.type(), (Matcher)ApplyMatcher.type(Matchers.is(ht), Matchers.is(LoadBuiltins.send)));
@@ -470,7 +469,7 @@ public class ResolverTests {
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "u"), new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "u"), new ArrayList<>(), null);
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);
@@ -490,7 +489,7 @@ public class ResolverTests {
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "AContract");
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "absent"), new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "absent"), new ArrayList<>(), null);
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);

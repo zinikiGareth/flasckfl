@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import flas.matchers.ContractMethodMatcher;
 import flas.matchers.TypedPatternMatcher;
-import flas.matchers.VarPatternMatcher;
 
 public class TDAContractMethodParsingTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -104,6 +103,21 @@ public class TDAContractMethodParsingTests {
 	}
 
 	@Test
+	public void methodMayHaveAHandler() {
+		ErrorMark mark = context.mock(ErrorMark.class);
+		context.checking(new Expectations() {{
+			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(errors).mark(); will(returnValue(mark));
+			allowing(mark).hasMoreNow(); will(returnValue(false));
+			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred").handler(TypedPatternMatcher.typed("Handler", "h"))));
+			oneOf(topLevel).argument((TypedPattern)with(TypedPatternMatcher.typed("Handler", "h")));
+		}});
+		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("fred -> (Handler h)"));
+		assertTrue(nested instanceof NoNestingParser);
+	}
+
+	@Test
 	public void methodMayNotHaveSimpleArguments() {
 		ErrorMark mark = context.mock(ErrorMark.class);
 		Tokenizable toks = TDABasicIntroParsingTests.line("fred x");
@@ -112,7 +126,7 @@ public class TDAContractMethodParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			// it constructs the "wrong" thing before complaining
-			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred").arg(VarPatternMatcher.var("test.repo.Contract.fred.x"))));
+			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred")));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 			// but it does complain and that should stop it doing the wrong thing later ...
 			oneOf(errors).message(toks, "contract patterns must be typed");

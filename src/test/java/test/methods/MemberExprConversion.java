@@ -45,8 +45,8 @@ public class MemberExprConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		TypeReference ctr = new TypeReference(pos, "Ctr.Up");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
-		List<Pattern> args = new ArrayList<>();
-		cd.addMethod(new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "fred"), args));
+		List<TypedPattern> args = new ArrayList<>();
+		cd.addMethod(new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "fred"), args, null));
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
@@ -65,11 +65,11 @@ public class MemberExprConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		TypeReference ctr = new TypeReference(pos, "Ctr.Down");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
-		List<Pattern> args = new ArrayList<>();
+		List<TypedPattern> args = new ArrayList<>();
 		FunctionName fn = FunctionName.contractMethod(pos, cd.name(), "fred");
 		args.add(new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, fn, "x")));
 		args.add(new TypedPattern(pos, LoadBuiltins.numberTR, new VarName(pos, fn, "y")));
-		cd.addMethod(new ContractMethodDecl(pos, pos, pos, true, fn, args));
+		cd.addMethod(new ContractMethodDecl(pos, pos, pos, true, fn, args, null));
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
@@ -92,7 +92,7 @@ public class MemberExprConversion {
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, pkg, "udd"), null);
 		List<Pattern> args = new ArrayList<>();
 		FunctionName fred = FunctionName.objectMethod(pos, od.name(), "fred");
-		od.addMethod(new ObjectMethod(pos, fred, args));
+		od.addMethod(new ObjectMethod(pos, fred, args, null));
 		from.bind(udd);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
 		MemberExpr me = new MemberExpr(pos, from, fld);

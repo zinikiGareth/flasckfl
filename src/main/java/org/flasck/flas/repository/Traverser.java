@@ -33,6 +33,7 @@ import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerHolder;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.LogicHolder;
@@ -661,6 +662,11 @@ public class Traverser implements Visitor {
 		}
 		for (Pattern p : fn.args())
 			visitPattern(p, false);
+		if (fn instanceof HandlerHolder) {
+			VarPattern h = ((HandlerHolder)fn).handler();
+			if (h != null)
+				visitPattern(h, false);
+		}
 	}
 
 	
@@ -1160,9 +1166,22 @@ public class Traverser implements Visitor {
 			visitor.visitSendMethod(contract.defn(), (UnresolvedVar)expr);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
-			visitSendMethod(contract.defn(), (UnresolvedVar)ae.fn);
-			for (Object e : ae.args)
+			UnresolvedVar te;
+			Expr h = null;
+			List<Object> args;
+			if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals("->")) {
+				te = (UnresolvedVar) ae.args.get(0);
+				h = (Expr) ae.args.get(1);
+				args = new ArrayList<>();
+			} else {
+				te = (UnresolvedVar)ae.fn;
+				args = ae.args;
+			}
+			visitSendMethod(contract.defn(), te);
+			for (Object e : args)
 				visitExpr((Expr) e, 0);
+			if (h != null)
+				visitExpr(h, 0);
 		} else
 			throw new NotImplementedException("I don't think that should happen");
 	}
@@ -1199,6 +1218,8 @@ public class Traverser implements Visitor {
 				visitTypeReference(p.type);
 			}
 		}
+		if (cmd.handler != null)
+			visitTypeReference(cmd.handler.type);
 		leaveContractMethod(cmd);
 
 	}

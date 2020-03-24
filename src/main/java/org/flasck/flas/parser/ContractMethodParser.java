@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -61,14 +62,41 @@ public class ContractMethodParser implements TDAParsing {
 		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), x-> args.add(x), topLevel);
 		while (pp.tryParsing(toks) != null)
 			;
+		List<TypedPattern> targs = new ArrayList<>();
 		for (Pattern p : args) {
 			if (!(p instanceof TypedPattern))
 				errors.message(toks, "contract patterns must be typed");
+			else
+				targs.add((TypedPattern) p);
 		}
 		if (errors.hasErrors())
 			return new IgnoreNestedParser();
+		TypedPattern handler = null;
+		if (toks.hasMore()) {
+			// it must be a handler specification
+			ExprToken tok = ExprToken.from(errors, toks);
+			if (!"->".equals(tok.text)) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
+			
+			List<Pattern> hdlrs = new ArrayList<>();
+			TDAPatternParser hp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), x-> hdlrs.add(x), topLevel);
+			hp.tryParsing(toks);
+			if (hdlrs.size() != 1) {
+				errors.message(toks, "no handler specified");
+				return new IgnoreNestedParser();
+			}
+			if (!(hdlrs.get(0) instanceof TypedPattern))
+				errors.message(toks, "contract handler must be typed");
+			handler = (TypedPattern) hdlrs.get(0);
+		}
+		if (toks.hasMore()) {
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
+		}
 
-		builder.addMethod(new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, args));
+		builder.addMethod(new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, targs, handler));
 		return new NoNestingParser(errors);
 	}
 

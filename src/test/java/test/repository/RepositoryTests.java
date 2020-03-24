@@ -156,7 +156,7 @@ public class RepositoryTests {
 	@Test
 	public void canAddAStandaloneMethodToTheRepository() {
 		Repository r = new Repository();
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
 		r.newStandaloneMethod(meth);
 		assertEquals(meth, r.get("test.repo.m"));
@@ -165,7 +165,7 @@ public class RepositoryTests {
 	@Test(expected=DuplicateNameException.class)
 	public void cannotAddAStandaloneMethodToTheRepositoryTwice() {
 		Repository r = new Repository();
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
 		r.newStandaloneMethod(meth);
 		r.newStandaloneMethod(meth);
@@ -176,7 +176,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
 		r.functionDefn(fn);
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>());
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
 		r.newStandaloneMethod(meth);
 	}
@@ -221,7 +221,7 @@ public class RepositoryTests {
 	public void canAddAnObjectMethodToTheRepository() {
 		Repository r = new Repository();
 		final SolidName on = new SolidName(pkg, "Obj");
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, on, "doit"), new ArrayList<>());
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, on, "doit"), new ArrayList<>(), null);
 		r.newObjectMethod(meth);
 		assertEquals(meth, r.get("test.repo.Obj.doit"));
 	}

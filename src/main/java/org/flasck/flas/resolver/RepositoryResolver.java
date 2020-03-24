@@ -3,6 +3,7 @@ package org.flasck.flas.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -21,6 +22,7 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -233,6 +235,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void leaveContractMethod(ContractMethodDecl cmd) {
+		for (TypedPattern tp : cmd.args) {
+			if (tp.type.defn() instanceof ContractDecl)
+				errors.message(tp.typeLocation, "method arguments may not be contracts");
+		}
+		if (cmd.handler != null) {
+			if (!(cmd.handler.type.defn() instanceof ContractDecl))
+				errors.message(cmd.handler.typeLocation, "method handler must be a handler contract");
+			else if (((ContractDecl)cmd.handler.type.defn()).type != ContractType.HANDLER)
+				errors.message(cmd.handler.typeLocation, "method handler must be a handler contract");
+		}
 		cmd.bindType();
 	}
 	

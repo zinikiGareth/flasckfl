@@ -210,7 +210,7 @@ public class TraversalTests {
 	public void traverseObjectWithMethodsDoesNotDirectlyVisitTheMethod() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>());
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
 		s.methods.add(meth);
 		ObjectAccessor oa = new ObjectAccessor(s, new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2));
 		s.acors.add(oa);
@@ -278,7 +278,7 @@ public class TraversalTests {
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
 		TypeReference fred = new TypeReference(pos, "Fred");
 		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"));
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>());
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null);
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
 		r.addEntry(s.name(), s);
@@ -298,7 +298,7 @@ public class TraversalTests {
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
 		TypeReference fred = new TypeReference(pos, "Fred");
 		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"));
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>());
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null);
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
 		r.addEntry(s.name(), s);
@@ -357,7 +357,7 @@ public class TraversalTests {
 	public void traverseObjectMethodFromTheRepository() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>());
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
 		s.methods.add(meth);
 		r.addEntry(meth.name(), meth);
 		context.checking(new Expectations() {{
@@ -371,7 +371,7 @@ public class TraversalTests {
 	public void traverseObjectMethodFromTheRepositoryEvenInGroupOrder() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>());
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
 		s.methods.add(meth);
 		r.addEntry(meth.name(), meth);
 		context.checking(new Expectations() {{
@@ -383,7 +383,7 @@ public class TraversalTests {
 
 	@Test
 	public void traverseStandaloneMethodFromTheRepository() {
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>());
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
 		StandaloneMethod sm = new StandaloneMethod(meth);
 		r.addEntry(sm.name(), sm);
 		context.checking(new Expectations() {{
@@ -409,7 +409,7 @@ public class TraversalTests {
 	@Test
 	public void traverseContractWithMethods() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>(), null);
 		cd.addMethod(cmd);
 		r.addEntry(cd.name(), cd);
 		context.checking(new Expectations() {{
@@ -424,7 +424,7 @@ public class TraversalTests {
 	@Test
 	public void traverseContractWithMethodsWithArguments() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
-		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>());
+		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>(), null);
 		TypeReference tr = new TypeReference(pos, "HandlerType");
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cmd.name, "handler")));
 		cd.addMethod(cmd);

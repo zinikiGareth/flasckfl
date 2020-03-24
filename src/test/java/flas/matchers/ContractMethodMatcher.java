@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -13,6 +14,7 @@ public class ContractMethodMatcher extends TypeSafeMatcher<ContractMethodDecl> {
 	private final String name;
 	private boolean optional = false;
 	private List<Matcher<Pattern>> args = new ArrayList<>();
+	private TypedPatternMatcher handler;
 
 	public ContractMethodMatcher(String name) {
 		this.name = name;
@@ -31,6 +33,10 @@ public class ContractMethodMatcher extends TypeSafeMatcher<ContractMethodDecl> {
 			arg0.appendText(" ");
 			arg0.appendValue(m);
 		}
+		if (handler != null) {
+			arg0.appendText("->");
+			arg0.appendValue(handler);
+		}
 		arg0.appendText(")");
 	}
 
@@ -44,6 +50,11 @@ public class ContractMethodMatcher extends TypeSafeMatcher<ContractMethodDecl> {
 			if (!args.get(i).matches(cmd.args.get(i)))
 				return false;
 		}
+		if (handler != null) {
+			TypedPattern tp = cmd.handler;
+			if (!handler.matches(tp))
+				return false;
+		}
 		return true;
 	}
 
@@ -54,6 +65,11 @@ public class ContractMethodMatcher extends TypeSafeMatcher<ContractMethodDecl> {
 
 	public ContractMethodMatcher arg(Matcher<Pattern> matcher) {
 		this.args.add(matcher);
+		return this;
+	}
+
+	public ContractMethodMatcher handler(TypedPatternMatcher typed) {
+		this.handler = typed;
 		return this;
 	}
 

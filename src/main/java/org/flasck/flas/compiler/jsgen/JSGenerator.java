@@ -270,8 +270,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null, om.name().name);
 		this.methods.add(om.name());
 		this.meth.argument("_cxt");
-		for (int i=0;i<om.argCount();i++)
+		int i;
+		for (i=0;i<om.argCount();i++)
 			this.meth.argument("_" + i);
+		if (om.contractMethod() != null) {
+			this.meth.argument("_" + i);
+		}
 		this.block = meth;
 		this.state = new JSFunctionStateStore(globalMocks, om.hasObject() ? StateLocation.LOCAL : om.hasImplements() ? StateLocation.CARD : StateLocation.NONE);
 	}

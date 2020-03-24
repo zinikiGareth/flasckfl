@@ -3,5 +3,5 @@
 		data StateAgent agent
 		expect handler reply "stored is question"
 		contract agent Storage tell "question"
-		contract agent Storage ask handler
+		contract agent Storage ask -> handler
 	

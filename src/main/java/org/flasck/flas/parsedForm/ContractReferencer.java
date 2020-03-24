@@ -4,7 +4,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.tc3.NamedType;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class ContractReferencer implements Locatable {
 	public final InputPosition kw;
