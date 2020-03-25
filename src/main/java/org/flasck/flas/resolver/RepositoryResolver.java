@@ -3,7 +3,6 @@ package org.flasck.flas.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
