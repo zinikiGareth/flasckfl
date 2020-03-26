@@ -28,6 +28,7 @@ import org.ziniki.ziwsh.intf.IdempotentHandler;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
+import org.zinutils.utils.FileUtils;
 
 import io.webfolder.ui4j.api.browser.BrowserEngine;
 import io.webfolder.ui4j.api.browser.BrowserFactory;
@@ -171,16 +172,19 @@ public class JSRunner extends CommonTestRunner {
 		return "js";
 	}
 	
-	protected void includeFileAsScript(PrintWriter pw, File f) {
-		if (!f.isAbsolute())
-			f = new File(new File(System.getProperty("user.dir")), f.getPath());
-		pw.println("<script src='file:" + f.getPath() + "?cachebuster=" + System.currentTimeMillis()  + "' type='text/javascript'></script>");
-	}
-
 	private void buildHTML() {
 		try {
-			html = File.createTempFile("testScript", ".html");
-			html.deleteOnExit();
+			String testName;
+			String testDir;
+			if (config != null && config.specifiedTestName != null) {
+				testName = config.specifiedTestName;
+				testDir = System.getProperty("user.dir") + "/html/" + config.specifiedTestName + "/js";
+			} else {
+				testName = "test";
+				testDir = System.getProperty("user.dir") + "/html/js";
+			}
+			FileUtils.assertDirectory(new File(testDir));
+			html = new File(System.getProperty("user.dir") + "/html", testName + ".html");
 			PrintWriter pw = new PrintWriter(html);
 			pw.println("<!DOCTYPE html>");
 			pw.println("<html>");
@@ -193,17 +197,25 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<script src='file:" + jsfile + "' type='text/javascript'></script>");
 			pw.println("<script src='file:" + utfile + "' type='text/javascript'></script>");
 			for (File f : jse.files())
-				includeFileAsScript(pw, f);
+				includeFileAsScript(pw, f, testDir);
 			pw.println("</head>");
 			pw.println("<body>");
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();
-//			System.out.println("Loading " + html);
-//			FileUtils.cat(html);
+			System.out.println("Loading " + html);
+			FileUtils.cat(html);
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}
+	}
+
+	protected void includeFileAsScript(PrintWriter pw, File f, String testDir) {
+		File to = new File(testDir, f.getName());
+		if (!f.isAbsolute())
+			f = new File(new File(System.getProperty("user.dir")), f.getPath());
+		FileUtils.copy(f, to);
+		pw.println("<script src='file:" + to.getPath() + "?cachebuster=" + System.currentTimeMillis()  + "' type='text/javascript'></script>");
 	}
 
 	@Override

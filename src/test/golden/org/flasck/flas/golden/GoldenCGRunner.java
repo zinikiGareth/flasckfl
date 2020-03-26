@@ -124,6 +124,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			"--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types",
 			(useJVMRunner && runJvm)?null:"--no-unit-jvm",
 			(useJSRunner && runJs)?null:"--no-unit-js",
+			"--testname", s.replace("/", "-").replace("src-golden-", ""),
 			"test.golden"
 		);
 		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {

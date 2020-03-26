@@ -29,6 +29,7 @@ public class Configuration {
 	private File writeTestReportsTo;
 	private File writeErrorsTo;
 	public File writeTypesTo;
+	public String specifiedTestName;
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
@@ -66,6 +67,12 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeTestReportsTo = new File(root, args[++i]);
+				} else if (arg.equals("--testname")) {
+					if (hasMore == 0) {
+						System.out.println("--testname <name>");
+						System.exit(1);
+					}
+					specifiedTestName = args[++i];
 				} else if (arg.equals("--flim")) {
 					if (hasMore == 0) {
 						System.out.println("--flim <dir>");

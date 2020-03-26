@@ -20,3 +20,4 @@ tc-tmp/
 webzip.zip
 testReports-tmp/
 /*.html
+/html/
