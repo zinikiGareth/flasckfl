@@ -6,67 +6,104 @@
  *    handler - a class with a method defined called "invoke" which takes a method name and a list of arguments
  */
 
-const proxy = function(cx, ctr, handler) {
-    var intf = window.contracts[ctr].prototype;
-    var proxied = new Object();
-    Object.getOwnPropertyNames(intf).forEach(k => {
-        if (k == "constructor")
-            return;
-        if (typeof(intf[k]) == "function") {
-            cx.log("mocking", ctr, k);
-            proxied[k] = function() {
-                cx.log("invoking " + k);
-                var args = [];
-                for (var i=0;i<arguments.length;i++)
-                    args[i] = arguments[i];
-                var ret = handler["invoke"].call(handler, k, args);
-                cx.log("just invoked " + k);
-                return ret;
+const proxy = function(cx, intf, handler) {
+    const keys = Object.getOwnPropertyNames(intf).filter(k => k != 'constructor');
+    const myhandler = {
+        get: function(target, ps, receiver) {
+            const prop = String(ps);
+            if (prop === "_owner") {
+                return handler;
+            }
+
+            cx.log("invoke called on proxy for " + prop, keys);
+            if (keys.includes(prop)) {
+                const fn = function(...args) {
+                    cx.log("invoking " + prop);
+                    const ret = handler['invoke'].call(handler, prop, args);
+                    cx.log("just invoked " + prop);
+                    return ret;
+                }
+                return fn;
+            } else {
+                cx.log("there is no prop", prop);
+                return function() {
+                    return "-no-such-method-";
+                };
             }
         }
-    });
+    };
+    var proxied = new Proxy({}, myhandler);
     return proxied;
 }
 
-const proxy1 = function(cx, methods, handler) {
-    var proxied = new Object();
-    methods.forEach(k => {
-        cx.log("mocking", k);
-        proxied[k] = function() {
-            cx.log("invoking " + k);
-            var args = [];
-            for (var i=0;i<arguments.length;i++)
-                args[i] = arguments[i];
-            var ret = handler["invoke"].call(handler, k, args);
-            cx.log("just invoked " + k);
-            return ret;
+const proxy1 = function(cx, underlying, methods, handler) {
+    cx.log("mocking with methods", methods, typeof methods[0]);
+    const myhandler = {
+        get: function(target, ps, receiver) {
+            const prop = String(ps);
+            cx.log("Looking for", prop, "in", methods, methods.includes(prop));
+            if (methods.includes(prop)) {
+                const fn = function(...args) {
+                    cx.log("invoking " + prop);
+                    const ret = handler['invoke'].call(handler, prop, args);
+                    cx.log("just invoked " + prop);
+                    return ret;
+                }
+                return fn;
+            } else if (target[prop]) {
+                return target[prop];
+            } else {
+                cx.log("there is no prop", prop);
+                return function() {
+                    return "-no-such-method-";
+                };
+            }
         }
-    });
+    };
+    var proxied = new Proxy(underlying, myhandler);
     return proxied;
 }
 
-window.proxy = proxy;
-window.proxy1 = proxy1;
-const SimpleBroker = function(logger) {
+
+
+const SimpleBroker = function(logger, contracts) {
     this.logger = logger;
+    this.contracts = contracts;
     this.services = {};
 };
+
+SimpleBroker.prototype.connectToServer = function(uri) {
+    this.logger.log("connecting to URI " + uri);
+    const webSocket = new WebSocket(uri);
+    this.logger.log("have ws", webSocket);
+    webSocket.addEventListener("open", () => {
+        this.logger.log("opened");
+    });
+}
 
 SimpleBroker.prototype.register = function(clz, svc) {
     this.services[clz] = new UnmarshallerDispatcher(clz, svc);
 }
 
 SimpleBroker.prototype.require = function(clz) {
-    var ret = this.services[clz];
-    this.logger.log("returning contract with", Object.getOwnPropertyNames(ret));
-    return new MarshallerProxy(this.logger, clz, ret).proxy;
+    var svc = this.services[clz];
+    if (svc == null) {
+        return NoSuchContract.forContract(clz);
+    }
+    return new MarshallerProxy(this.logger, this.contracts[clz], svc).proxy;
 }
 
-window.SimpleBroker = SimpleBroker;
+SimpleBroker.prototype.unmarshalTo = function(clz) {
+    return this.services[clz];
+}
+
+
+
+
 const MarshallerProxy = function(logger, ctr, svc) {
     this.logger = logger;
     this.svc = svc;
-    this.proxy = window.proxy(logger, ctr, this);
+    this.proxy = proxy(logger, ctr, this);
 }
 
 MarshallerProxy.prototype.invoke = function(meth, args) {
@@ -107,16 +144,36 @@ ObjectMarshaller.prototype.marshal = function(o) {
 
 ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
     this.logger.log("asked to send", o, typeof o);
-    ux.string(o);
+    if (typeof o === "string")
+        ux.string(o);
+    else if (typeof o === "object") {
+        if (o instanceof IdempotentHandler)
+            ux.handler(o);
+        else
+            throw Error("cannot handle " + o.constructor.name);
+    } else
+        throw Error("cannot handle " + typeof o);
 }
 
-window.MarshallerProxy = MarshallerProxy;
+
+
+const Unmarshaller = function() {
+}
+
 const UnmarshallerDispatcher = function(ctr, svc) {
     this.svc = svc;
+    Unmarshaller.call(this);
 }
+
+UnmarshallerDispatcher.prototype = new Unmarshaller();
+UnmarshallerDispatcher.prototype.constructor = UnmarshallerDispatcher;
 
 UnmarshallerDispatcher.prototype.begin = function(cx, method) {
     return new DispatcherTraverser(this.svc, method, cx, new CollectingState());
+}
+
+UnmarshallerDispatcher.prototype.toString = function() {
+    return "ProxyFor[UnmarshallerDispatcher]";
 }
 
 const CollectingTraverser = function(cx, collector) {
@@ -126,6 +183,10 @@ const CollectingTraverser = function(cx, collector) {
 
 CollectingTraverser.prototype.string = function(s) {
     this.collect(s);
+}
+
+CollectingTraverser.prototype.handler = function(h) {
+    this.collect(h);
 }
 
 const ListTraverser = function(cx, collector) {
@@ -150,6 +211,8 @@ UnmarshalTraverser.prototype.constructor = UnmarshalTraverser;
 
 const DispatcherTraverser = function(svc, method, cx, collector) {
     UnmarshalTraverser.call(this, cx, collector);
+    if (!svc[method])
+        throw Error("no method '" + method + "'");
     this.svc = svc;
     this.method = method;
 }
@@ -169,4 +232,4 @@ const CollectingState = function() {
 
 }
 
-window.UnmarshallerDispatcher = UnmarshallerDispatcher;
+
