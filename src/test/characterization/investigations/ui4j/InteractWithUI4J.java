@@ -32,7 +32,7 @@ public class InteractWithUI4J {
         page.getDocument().getBody().append("<h1>Hello, World!</h1>");
 
         page.getDocument().queryAll("h1").forEach(e -> {
-			assertEquals("Hello, World!", e.getText().get());
+			assertEquals("Hello, World!", e.getText());
 		});
 
 	}
@@ -79,7 +79,7 @@ public class InteractWithUI4J {
         assertEquals(1, divX.size());
         Element e = divX.get(0);
         assertEquals("div", e.getTagName());
-        assertEquals("x", e.getId().get());
+        assertEquals("x", e.getId());
         assertEquals("<div id=\"x\">hello</div>", e.getOuterHTML());
         assertEquals("hello", e.getInnerHTML());
 

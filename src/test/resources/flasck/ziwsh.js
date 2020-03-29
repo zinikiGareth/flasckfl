@@ -1,84 +1,92 @@
-/** Create a proxy of a contract interface
- *  This may also apply to other things, but that's all I care about
- *  We need a:
- *    cx - a context (mainly used for logging)
- *    ctr - the *NAME* of the interface which must be defined in window.contracts
- *    handler - a class with a method defined called "invoke" which takes a method name and a list of arguments
- */
-
-const proxy = function(cx, intf, handler) {
-    const keys = Object.getOwnPropertyNames(intf).filter(k => k != 'constructor');
-    const myhandler = {
-        get: function(target, ps, receiver) {
-            const prop = String(ps);
-            if (prop === "_owner") {
-                return handler;
-            }
-
-            cx.log("invoke called on proxy for " + prop, keys);
-            if (keys.includes(prop)) {
-                const fn = function(...args) {
-                    cx.log("invoking " + prop);
-                    const ret = handler['invoke'].call(handler, prop, args);
-                    cx.log("just invoked " + prop);
-                    return ret;
-                }
-                return fn;
-            } else {
-                cx.log("there is no prop", prop);
-                return function() {
-                    return "-no-such-method-";
-                };
-            }
-        }
-    };
-    var proxied = new Proxy({}, myhandler);
-    return proxied;
+const JsonBeachhead = function(factory, name, broker, sender) {
+    this.factory = factory;
+    this.name = name;
+    this.broker = broker;
+    this.sender = sender;
 }
 
-const proxy1 = function(cx, underlying, methods, handler) {
-    cx.log("mocking with methods", methods, typeof methods[0]);
-    const myhandler = {
-        get: function(target, ps, receiver) {
-            const prop = String(ps);
-            cx.log("Looking for", prop, "in", methods, methods.includes(prop));
-            if (methods.includes(prop)) {
-                const fn = function(...args) {
-                    cx.log("invoking " + prop);
-                    const ret = handler['invoke'].call(handler, prop, args);
-                    cx.log("just invoked " + prop);
-                    return ret;
-                }
-                return fn;
-            } else if (target[prop]) {
-                return target[prop];
-            } else {
-                cx.log("there is no prop", prop);
-                return function() {
-                    return "-no-such-method-";
-                };
-            }
+JsonBeachhead.prototype.unmarshalContract = function(contract) {
+    var broker = this.broker;
+    var sender = this.sender;
+    return {
+        begin: function(cx, method) {
+            return new JsonMarshaller(broker, {action:"invoke", contract, method, args:[]}, sender);
         }
     };
-    var proxied = new Proxy(underlying, myhandler);
-    return proxied;
+}
+
+JsonBeachhead.prototype.dispatch = function(cx, json, replyTo) {
+    cx.log("dispatching on " + this.name + " and will reply to " + replyTo);
+    const jo = JSON.parse(json);
+    const uow = this.factory.newContext();
+
+    switch (jo.action) {
+        case "invoke": {
+            this.invoke(uow, jo, replyTo);
+            break;
+        }
+    }
+}
+
+JsonBeachhead.prototype.invoke = function(uow, jo, replyTo) {
+    const um = this.broker.unmarshalTo(jo.contract);
+    const dispatcher = um.begin(uow, jo.method);
+    // args
+    dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
+    dispatcher.dispatch();
+}
+
+JsonBeachhead.prototype.makeIdempotentHandler = function(replyTo, ihinfo) {
+    var sender = replyTo;
+    return {
+        success: function(cx) {
+            sender.send({action:"idem", method:"success", idem: ihinfo._ihid, args: []});
+        },
+        failure: function(cx, msg) {
+
+        }
+    }
+}
+
+const JsonMarshaller = function(broker, obj, sender) {
+    this.broker = broker;
+    this.obj = obj;
+    this.sender = sender;
+}
+
+JsonMarshaller.prototype.string = function(s) {
+    this.obj.args.push(s);
+}
+
+JsonMarshaller.prototype.handler = function(h) {
+    this.obj.args.push({"_ihclz":"org.ziniki.ziwsh.intf.IdempotentHandler", "_ihid": this.broker.uniqueHandler(h)});
+}
+
+JsonMarshaller.prototype.dispatch = function() {
+    this.sender.send(JSON.stringify(this.obj));
 }
 
 
 
-const SimpleBroker = function(logger, contracts) {
+const SimpleBroker = function(logger, factory, contracts) {
     this.logger = logger;
+    this.server = null;
+    this.factory = factory;
     this.contracts = contracts;
     this.services = {};
+    this.nextHandle = 1;
 };
 
 SimpleBroker.prototype.connectToServer = function(uri) {
-    this.logger.log("connecting to URI " + uri);
-    const webSocket = new WebSocket(uri);
-    this.logger.log("have ws", webSocket);
-    webSocket.addEventListener("open", () => {
-        this.logger.log("opened");
-    });
+    const zwc = new ZiwshWebClient(this.logger, uri);
+    const bh = new JsonBeachhead(this.factory, uri, this, zwc);
+    this.server = bh;
+    zwc.attachBeachhead(bh);
+    return zwc;
+}
+
+SimpleBroker.prototype.beachhead = function(bh) {
+    this.server = bh;
 }
 
 SimpleBroker.prototype.register = function(clz, svc) {
@@ -88,15 +96,52 @@ SimpleBroker.prototype.register = function(clz, svc) {
 SimpleBroker.prototype.require = function(clz) {
     var svc = this.services[clz];
     if (svc == null) {
-        return NoSuchContract.forContract(clz);
+        if (this.server != null)
+            svc = this.server.unmarshalContract(clz);
+        else
+            return NoSuchContract.forContract(clz);
     }
     return new MarshallerProxy(this.logger, this.contracts[clz], svc).proxy;
 }
 
 SimpleBroker.prototype.unmarshalTo = function(clz) {
-    return this.services[clz];
+    var svc = this.services[clz];
+    if (svc != null)
+        return svc;
+    else if (this.server != null)
+        return this.server.unmarshalContract(clz);
+    else
+        return NoSuchContract.forContract(clz);
 }
 
+SimpleBroker.prototype.uniqueHandler = function(h) {
+    const name = "handler_" + (this.handle++);
+    return name;
+}
+
+
+const IdempotentHandler = function() {
+};
+
+IdempotentHandler.prototype.success = function(cx) {
+};
+
+IdempotentHandler.prototype.failure = function(cx, msg) {
+};
+
+const LoggingIdempotentHandler = function() {
+};
+
+LoggingIdempotentHandler.prototype = new IdempotentHandler();
+LoggingIdempotentHandler.prototype.constructor = LoggingIdempotentHandler;
+
+IdempotentHandler.prototype.success = function(cx) {
+    cx.log("success");
+};
+
+IdempotentHandler.prototype.failure = function(cx, msg) {
+    cx.log("failure: " + msg);
+};
 
 
 
@@ -155,6 +200,104 @@ ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
         throw Error("cannot handle " + typeof o);
 }
 
+
+
+const NoSuchContract = function(ctr) {
+    this.ctr = ctr;
+}
+
+NoSuchContract.prototype.get = function(target, prop, receiver) {
+    var ctr = this.ctr;
+    var meth = String(prop);
+    if (meth === "_proxyHandler")
+        return this;
+    else if (meth == "toString" || prop === Symbol.toStringTag) {
+        return function() {
+            return "noContract[" + ctr + "]";
+        }
+    } else if (meth === "inspect" || meth === "constructor") {
+        return target.inspect;
+    } else {
+        return function(cx, ...rest) {
+            cx.log("no such contract for", ctr, meth);
+            const ih = rest[rest.length-1];
+            ih.failure(cx, "There is no service for " + ctr + "." + meth);
+        }
+    }
+};
+
+NoSuchContract.forContract = function(ctr) {
+    return new Proxy({}, new NoSuchContract(ctr));
+}
+
+
+/** Create a proxy of a contract interface
+ *  This may also apply to other things, but that's all I care about
+ *  We need a:
+ *    cx - a context (mainly used for logging)
+ *    ctr - the *NAME* of the interface which must be defined in window.contracts
+ *    handler - a class with a method defined called "invoke" which takes a method name and a list of arguments
+ */
+
+const proxy = function(cx, intf, handler) {
+    const keys = Object.getOwnPropertyNames(intf).filter(k => k != 'constructor');
+    const myhandler = {
+        get: function(target, ps, receiver) {
+            const prop = String(ps);
+            if (prop === "_owner") {
+                return handler;
+            } else if (prop === "inspect" || ps === Symbol.toStringTag) {
+                return target;
+            }
+
+            cx.log("invoke called on proxy for " + prop, keys);
+            if (keys.includes(prop)) {
+                const fn = function(...args) {
+                    cx.log("invoking " + prop);
+                    const ret = handler['invoke'].call(handler, prop, args);
+                    cx.log("just invoked " + prop);
+                    return ret;
+                }
+                return fn;
+            } else {
+                cx.log("there is no prop", prop);
+                return function() {
+                    return "-no-such-method-";
+                };
+            }
+        }
+    };
+    var proxied = new Proxy({}, myhandler);
+    return proxied;
+}
+
+const proxy1 = function(cx, underlying, methods, handler) {
+    cx.log("mocking with methods", methods, typeof methods[0]);
+    const myhandler = {
+        get: function(target, ps, receiver) {
+            const prop = String(ps);
+            cx.log("Looking for", prop, "in", methods, methods.includes(prop));
+            if (methods.includes(prop)) {
+                const fn = function(...args) {
+                    cx.log("invoking " + prop);
+                    const ret = handler['invoke'].call(handler, prop, args);
+                    cx.log("just invoked " + prop);
+                    return ret;
+                }
+                return fn;
+            } else if (target[prop]) {
+                return target[prop];
+            } else {
+                cx.log("there is no prop", prop);
+                return function() {
+                    return "-no-such-method-";
+                };
+            }
+        }
+    };
+    var proxied = new Proxy(underlying, myhandler);
+    return proxied;
+}
 
 
 const Unmarshaller = function() {
@@ -230,6 +373,38 @@ DispatcherTraverser.prototype.dispatch = function() {
 
 const CollectingState = function() {
 
+}
+
+
+const ZiwshWebClient = function(logger, uri) {
+    const zwc = this;
+    this.logger = logger;
+    logger.log("connecting to URI " + uri);
+    this.conn = new WebSocket(uri);
+    logger.log("have ws", this.conn);
+    this.backlog = [];
+    this.conn.addEventListener("error", (ev) => {
+        logger.log("an error occurred");
+    });
+    this.conn.addEventListener("open", () => {
+        logger.log("opened");
+        while (this.backlog.length > 1) {
+            this.conn.send(this.backlog.pop());
+        }
+    });
+    logger.log("created ZWC");
+}
+
+ZiwshWebClient.prototype.attachBeachhead = function(bh) {
+    this.bh = bh;
+}
+
+ZiwshWebClient.prototype.send = function(json) {
+    this.logger.log("want to send " + json + " to " + this.bh.name + " state = " + this.conn.readyState);
+    if (this.conn.readyState == 1)
+        this.conn.send(json);
+    else
+        this.backlog.push(json);
 }
 
 
