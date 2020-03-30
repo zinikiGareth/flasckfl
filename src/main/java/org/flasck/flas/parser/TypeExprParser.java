@@ -10,9 +10,8 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
 import org.zinutils.exceptions.UtilException;
 
-public class TypeExprParser implements TryParsing {
-
-	@Override
+// TODO: this isn't actually TDA ...
+public class TypeExprParser {
 	public Object tryParsing(Tokenizable line) {
 		TypeExprToken tt = TypeExprToken.from(line);
 		if (tt == null)

@@ -1,3 +1,4 @@
+
 const JsonBeachhead = function(factory, name, broker, sender) {
     this.factory = factory;
     this.name = name;
@@ -16,7 +17,7 @@ JsonBeachhead.prototype.unmarshalContract = function(contract) {
 }
 
 JsonBeachhead.prototype.dispatch = function(cx, json, replyTo) {
-    cx.log("dispatching on " + this.name + " and will reply to " + replyTo);
+    cx.log("dispatching " + json + " on " + this.name + " and will reply to " + replyTo);
     const jo = JSON.parse(json);
     const uow = this.factory.newContext();
 
@@ -24,6 +25,9 @@ JsonBeachhead.prototype.dispatch = function(cx, json, replyTo) {
         case "invoke": {
             this.invoke(uow, jo, replyTo);
             break;
+        }
+        case "idem": {
+            this.idem(uow, jo, replyTo);
         }
     }
 }
@@ -34,6 +38,18 @@ JsonBeachhead.prototype.invoke = function(uow, jo, replyTo) {
     // args
     dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
     dispatcher.dispatch();
+}
+
+JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
+    const ih = this.broker.currentIdem(jo.idem);
+    const um = new UnmarshalTraverser(uow, new CollectingState());
+    const om = new ObjectMarshaller(uow, um);
+    for (var i=0;i<jo.args.length;i++) {
+        om.marshal(jo.args[i]);
+    }
+    uow.log("have args for", jo.method, "as", um.ret);
+    um.ret[0].log("this works?", um.ret.length);
+    ih[jo.method].apply(ih, um.ret);
 }
 
 JsonBeachhead.prototype.makeIdempotentHandler = function(replyTo, ihinfo) {
@@ -75,13 +91,18 @@ const SimpleBroker = function(logger, factory, contracts) {
     this.contracts = contracts;
     this.services = {};
     this.nextHandle = 1;
+    this.handlers = {};
 };
 
 SimpleBroker.prototype.connectToServer = function(uri) {
-    const zwc = new ZiwshWebClient(this.logger, uri);
+    const zwc = new ZiwshWebClient(this.logger, this.factory, uri);
+    this.logger.log("have zwc", zwc);
+    this.logger.log("jb = ", JsonBeachhead);
     const bh = new JsonBeachhead(this.factory, uri, this, zwc);
+    this.logger.log("have bh", bh);
     this.server = bh;
     zwc.attachBeachhead(bh);
+    this.logger.log("attached", bh, "to", zwc);
     return zwc;
 }
 
@@ -115,8 +136,17 @@ SimpleBroker.prototype.unmarshalTo = function(clz) {
 }
 
 SimpleBroker.prototype.uniqueHandler = function(h) {
-    const name = "handler_" + (this.handle++);
+    const name = "handler_" + (this.nextHandle++);
+    this.handlers[name] = h;
     return name;
+}
+
+SimpleBroker.prototype.currentIdem = function(h) {
+    const ret = this.handlers[h];
+    if (!ret) {
+        this.logger.log("there is no handler for", h);
+    }
+    return ret;
 }
 
 
@@ -376,7 +406,11 @@ const CollectingState = function() {
 }
 
 
-const ZiwshWebClient = function(logger, uri) {
+// TODO: I think I want to further remove the websocket abstraction from here
+// so that I can test all the backlog/reconnect logic
+// It needs to pass in a factory instead of URI, I think ...
+
+const ZiwshWebClient = function(logger, factory, uri) {
     const zwc = this;
     this.logger = logger;
     logger.log("connecting to URI " + uri);
@@ -387,10 +421,18 @@ const ZiwshWebClient = function(logger, uri) {
         logger.log("an error occurred");
     });
     this.conn.addEventListener("open", () => {
-        logger.log("opened");
-        while (this.backlog.length > 1) {
-            this.conn.send(this.backlog.pop());
+        logger.log("opened with backlog", this.backlog.length);
+        while (this.backlog.length > 0) {
+            const json = this.backlog.pop();
+            logger.log("sending", json);
+            this.conn.send(json);
         }
+        logger.log("cleared backlog");
+    });
+    this.conn.addEventListener("message", (ev) => {
+        logger.log("received a message", ev.data);
+        logger.log("dispatching to", this.bh);
+        this.bh.dispatch(factory.newContext(), ev.data, this);
     });
     logger.log("created ZWC");
 }
