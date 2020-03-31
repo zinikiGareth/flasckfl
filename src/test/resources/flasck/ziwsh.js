@@ -150,6 +150,56 @@ SimpleBroker.prototype.currentIdem = function(h) {
 }
 
 
+
+const EvalContext = function(env) {
+	this.env = env;
+}
+
+EvalContext.prototype.log = function(...args) {
+	this.env.logger.log.apply(this.env.logger, args);
+}
+
+EvalContext.prototype.fields = function() {
+	return new FieldsContainer(this);
+}
+
+
+const FieldsContainer = function(cx) {
+	this.cx = cx;
+	this.dict = {};
+}
+
+FieldsContainer.prototype.set = function(fld, val) {
+	this.dict[fld] = val;
+}
+
+FieldsContainer.prototype.has = function(fld) {
+	return !!this.dict[fld];
+}
+
+FieldsContainer.prototype.get = function(fld) {
+	const ret = this.dict[fld];
+	this.cx.log('getting', fld, 'from', this, '=', ret);
+	return ret;
+}
+
+FieldsContainer.prototype._compare = function(cx, other) {
+	if (Object.keys(this.dict).length != Object.keys(other.dict).length)
+		return false;
+	for (var k in this.dict) {
+		if (!other.dict.hasOwnProperty(k))
+			return false;
+		else if (!cx.compare(this.dict[k], other.dict[k]))
+			return false;
+	}
+	return true;
+}
+
+FieldsContainer.prototype.toString = function() {
+	return "Fields[" + Object.keys(this.dict).length + "]";
+}
+
+
 const IdempotentHandler = function() {
 };
 
@@ -224,12 +274,29 @@ ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
     else if (typeof o === "object") {
         if (o instanceof IdempotentHandler)
             ux.handler(o);
-        else
-            throw Error("cannot handle " + o.constructor.name);
+        else if (o.state instanceof FieldsContainer) {
+            this.handleStruct(ux, o.state);
+        } else {
+            this.logger.log("o =", o);
+            this.logger.log("o.state = ", o.state);
+            throw Error("cannot handle object with constructor " + o.constructor.name);
+        }
     } else
         throw Error("cannot handle " + typeof o);
 }
 
+ObjectMarshaller.prototype.handleStruct = function(ux, fc) {
+    if (!fc.has("_type")) {
+        throw new Error("No _type defined in " + fc);
+    }
+    const fm = ux.beginFields(fc.get("_type"));
+    const ks = Object.keys(fc.dict);
+    for (var k in ks) {
+        fm.field(ks[k]);
+        this.recursiveMarshal(fm, fc.dict[ks[k]]);
+    }
+    fm.complete();
+}
 
 
 const NoSuchContract = function(ctr) {
@@ -251,7 +318,7 @@ NoSuchContract.prototype.get = function(target, prop, receiver) {
         return function(cx, ...rest) {
             cx.log("no such contract for", ctr, meth);
             const ih = rest[rest.length-1];
-            ih.failure(cx, "There is no service for " + ctr + "." + meth);
+            ih.failure(cx, "There is no service for " + ctr + ":" + meth);
         }
     }
 };
@@ -450,3 +517,11 @@ ZiwshWebClient.prototype.send = function(json) {
 }
 
 
+/* istanbul ignore else */ 
+if (typeof(module) !== 'undefined')
+	module.exports = { EvalContext, FieldsContainer, JsonBeachhead };
+else {
+	window.EvalContext = EvalContext;
+	window.FieldsContainer = FieldsContainer;
+	window.JsonBeachhead = JsonBeachhead;
+}

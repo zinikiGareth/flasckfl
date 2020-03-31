@@ -123,12 +123,11 @@ FLMakeSend.prototype.toString = function() {
 
 
 const FLContext = function(env) {
-	this.env = env;
+	EvalContext.call(this, env);
 }
 
-FLContext.prototype.log = function(...args) {
-	this.env.logger.log.apply(this.env.logger, args);
-}
+FLContext.prototype = new EvalContext();
+FLContext.prototype.constructor = FLContext;
 
 FLContext.prototype.closure = function(fn, ...args) {
 	return new FLClosure(null, fn, args);
@@ -197,10 +196,6 @@ FLContext.prototype.mkacor = function(meth, obj, cnt) {
 		return this.oclosure(meth, obj);
 	else
 		return this.ocurry(cnt, meth, obj);
-}
-
-FLContext.prototype.fields = function() {
-	return new FieldsContainer();
 }
 
 FLContext.prototype.head = function(obj) {
@@ -518,35 +513,6 @@ Assign.prototype.dispatch = function(cx) {
 }
 Assign.prototype.toString = function() {
 	return "Assign[" + "]";
-}
-
-
-const FieldsContainer = function() {
-	this.dict = {};
-}
-
-FieldsContainer.prototype.set = function(fld, val) {
-	this.dict[fld] = val;
-}
-
-FieldsContainer.prototype.get = function(fld) {
-	return this.dict[fld];
-}
-
-FieldsContainer.prototype._compare = function(cx, other) {
-	if (Object.keys(this.dict).length != Object.keys(other.dict).length)
-		return false;
-	for (var k in this.dict) {
-		if (!other.dict.hasOwnProperty(k))
-			return false;
-		else if (!cx.compare(this.dict[k], other.dict[k]))
-			return false;
-	}
-	return true;
-}
-
-FieldsContainer.prototype.toString = function() {
-	return "Fields[" + Object.keys(this.dict).length + "]";
 }
 
 
