@@ -191,9 +191,11 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<head>");
 			// probably wants to be config :-)
 			final String logfile = System.getProperty("user.dir") + "/src/test/resources/flasck/javalogger.js";
+			final String zfile = System.getProperty("user.dir") + "/src/test/resources/flasck/ziwsh.js";
 			final String jsfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js";
 			final String utfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-unittest.js";
 			pw.println("<script src='file:" + logfile + "' type='text/javascript'></script>");
+			pw.println("<script src='file:" + zfile + "' type='text/javascript'></script>");
 			pw.println("<script src='file:" + jsfile + "' type='text/javascript'></script>");
 			pw.println("<script src='file:" + utfile + "' type='text/javascript'></script>");
 			for (File f : jse.files())
