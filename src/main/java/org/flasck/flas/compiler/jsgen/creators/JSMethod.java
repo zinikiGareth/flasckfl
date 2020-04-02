@@ -11,7 +11,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final String pkg;
 	private final boolean prototype;
 	private final String name;
-	private final List<JSVar> args = new ArrayList<>();
+	final List<JSVar> args = new ArrayList<>();
 	private int nextVar = 1;
 
 	public JSMethod(String pkg, boolean prototype, String name) {
@@ -30,7 +30,10 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	
 	@Override
 	public String jsName() {
-		return pkg +"." + name;
+		if (name == null)
+			return pkg;
+		else
+			return pkg +"." + name;
 	}
 	
 	@Override
@@ -44,10 +47,12 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	public void write(IndentWriter w) {
 		w.println("");
 		w.print(pkg);
-		w.print(".");
-		if (prototype)
-			w.print("prototype.");
-		w.print(name);
+		if (name != null) {
+			w.print(".");
+			if (prototype)
+				w.print("prototype.");
+			w.print(name);
+		}
 		w.print(" = function");
 		w.print("(");
 		boolean isFirst = true;
@@ -61,15 +66,17 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		w.print(") ");
 		super.write(w);
 		w.println("");
-		w.println("");
-		w.print(pkg);
-		w.print(".");
-		if (prototype)
-			w.print("prototype.");
-		w.print(name);
-		w.print(".nfargs = function() { return ");
-		w.print(Integer.toString(args.size() - 1)); // -1 for context
-		w.println("; }");
+		if (name != null) {
+			w.println("");
+			w.print(pkg);
+			w.print(".");
+			if (prototype)
+				w.print("prototype.");
+			w.print(name);
+			w.print(".nfargs = function() { return ");
+			w.print(Integer.toString(args.size() - 1)); // -1 for context
+			w.println("; }");
+		}
 	}
 
 	public String obtainNextVar() {

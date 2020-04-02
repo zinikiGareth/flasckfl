@@ -11,7 +11,7 @@ JsonBeachhead.prototype.unmarshalContract = function(contract) {
     var sender = this.sender;
     return {
         begin: function(cx, method) {
-            return new JsonMarshaller(broker, {action:"invoke", contract, method, args:[]}, sender);
+            return new JsonArgsMarshaller(broker, {action:"invoke", contract, method, args:[]}, sender, new CollectingState(cx));
         }
     };
 }
@@ -35,51 +35,164 @@ JsonBeachhead.prototype.dispatch = function(cx, json, replyTo) {
 JsonBeachhead.prototype.invoke = function(uow, jo, replyTo) {
     const um = this.broker.unmarshalTo(jo.contract);
     const dispatcher = um.begin(uow, jo.method);
-    // args
+    for (var i=0;i<jo.args.length-1;i++) {
+        const o = jo.args[i];
+        this.handleArg(dispatcher, o);
+    }
     dispatcher.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
     dispatcher.dispatch();
+}
+
+JsonBeachhead.prototype.handleArg = function(ux, o) {
+    if (typeof(o) === 'string')
+        ux.string(o);
+    else if (o._cycle) {
+        ux.handleCycle(o._cycle);
+    } else if (o._clz) {
+        const fm = ux.beginFields(o._clz);
+        ux.unpack(fm.collectingAs());
+        const ks = Object.keys(o);
+        for (var k in ks) {
+            fm.field(ks[k]);
+            this.handleArg(fm, o[ks[k]]);
+        }
+    } else
+        throw Error("not handled: " + JSON.stringify(o));
 }
 
 JsonBeachhead.prototype.idem = function(uow, jo, replyTo) {
     const ih = this.broker.currentIdem(jo.idem);
     const um = new UnmarshalTraverser(uow, new CollectingState());
     const om = new ObjectMarshaller(uow, um);
-    for (var i=0;i<jo.args.length;i++) {
+    for (var i=0;i<jo.args.length-1;i++) {
         om.marshal(jo.args[i]);
     }
+    if (jo.method == "success")
+        ;
+    else if (jo.method == "failure")
+        om.marshal(jo.args[0]);
+    else
+        um.handler(this.makeIdempotentHandler(replyTo, jo.args[jo.args.length-1]));
     uow.log("have args for", jo.method, "as", um.ret);
-    um.ret[0].log("this works?", um.ret.length);
     ih[jo.method].apply(ih, um.ret);
 }
 
 JsonBeachhead.prototype.makeIdempotentHandler = function(replyTo, ihinfo) {
     var sender = replyTo;
-    return {
-        success: function(cx) {
-            sender.send({action:"idem", method:"success", idem: ihinfo._ihid, args: []});
-        },
-        failure: function(cx, msg) {
-
-        }
+    const ih = new IdempotentHandler();
+    ih.success = function(cx) {
+        sender.send({action:"idem", method:"success", idem: ihinfo._ihid, args: []});
     }
+    ih.failure = function(cx, msg) {
+    }
+    return ih;
 }
 
-const JsonMarshaller = function(broker, obj, sender) {
+const JsonMarshaller = function(broker, sender, collector) {
     this.broker = broker;
-    this.obj = obj;
     this.sender = sender;
+    this.collector = collector;
 }
 
 JsonMarshaller.prototype.string = function(s) {
-    this.obj.args.push(s);
+    this.collect(s);
+}
+
+JsonMarshaller.prototype.number = function(n) {
+    this.collect(n);
+}
+
+JsonMarshaller.prototype.boolean = function(b) {
+    this.collect(b);
+}
+
+JsonMarshaller.prototype.circle = function(o, as) {
+    this.collector.circle(o, as);
+}
+
+JsonMarshaller.prototype.handleCycle = function(cr) {
+    this.broker.logger.log("handling cycle", cr);
+    if (this.collector.already(cr)) {
+        this.collect({_cycle:this.collector.get(cr)});
+        this.broker.logger.log("handled cycle", cr, new Error().stack);
+        return true;
+    }
+    return false;
+}
+
+JsonMarshaller.prototype.beginFields = function(cls) {
+    const me = {_clz:cls};
+    this.collect(me);
+    return new JsonFieldsMarshaller(this.broker, me, this.sender, this.collector);
+}
+
+JsonMarshaller.prototype.beginList = function(cls) {
+    const me = [];
+    this.collect(me);
+    return new JsonListMarshaller(this.broker, me, this.sender, this.collector);
 }
 
 JsonMarshaller.prototype.handler = function(h) {
-    this.obj.args.push({"_ihclz":"org.ziniki.ziwsh.intf.IdempotentHandler", "_ihid": this.broker.uniqueHandler(h)});
+    this.obj.args.push({"_ihclz":h._clz(), "_ihid": this.broker.uniqueHandler(h)});
 }
 
 JsonMarshaller.prototype.dispatch = function() {
+    // this.broker.logger.log("trying to send a response");
     this.sender.send(JSON.stringify(this.obj));
+}
+
+const JsonArgsMarshaller = function(broker, obj, sender, collector) {
+    JsonMarshaller.call(this, broker, sender, collector);
+    this.obj = obj;
+}
+
+JsonArgsMarshaller.prototype = new JsonMarshaller();
+JsonArgsMarshaller.prototype.constructor = JsonArgsMarshaller;
+
+JsonArgsMarshaller.prototype.collect = function(o) {
+    this.obj.args.push(o);
+}
+
+JsonArgsMarshaller.prototype.complete = function() {
+}
+
+const JsonFieldsMarshaller = function(broker, obj, sender, collector) {
+    JsonMarshaller.call(this, broker, sender, collector);
+    this.obj = obj;
+    this.cas = collector.nextName();
+}
+
+JsonFieldsMarshaller.prototype = new JsonMarshaller();
+JsonFieldsMarshaller.prototype.constructor = JsonFieldsMarshaller;
+
+JsonFieldsMarshaller.prototype.collectingAs = function(o) {
+    return this.cas;
+}
+
+JsonFieldsMarshaller.prototype.field = function(f) {
+    this.currentField = f;
+}
+
+JsonFieldsMarshaller.prototype.collect = function(o) {
+    this.obj[this.currentField] = o;
+}
+
+JsonFieldsMarshaller.prototype.complete = function() {
+}
+
+const JsonListMarshaller = function(broker, arr, sender, collector) {
+    JsonMarshaller.call(this, broker, sender, collector);
+    this.arr = arr;
+}
+
+JsonListMarshaller.prototype = new JsonMarshaller();
+JsonListMarshaller.prototype.constructor = JsonListMarshaller;
+
+JsonListMarshaller.prototype.collect = function(o) {
+    this.arr.push(o);
+}
+
+JsonListMarshaller.prototype.complete = function() {
 }
 
 
@@ -151,12 +264,22 @@ SimpleBroker.prototype.currentIdem = function(h) {
 
 
 
-const EvalContext = function(env) {
+const EvalContext = function(env, broker) {
 	this.env = env;
+	this.broker = broker;
 }
 
 EvalContext.prototype.log = function(...args) {
 	this.env.logger.log.apply(this.env.logger, args);
+}
+
+EvalContext.prototype.registerContract = function(name, ctr) {
+	if (!this.env.contracts[name])
+		this.env.contracts[name] = ctr;
+}
+
+EvalContext.prototype.structNamed = function(name) {
+	return this.env.structs[name];
 }
 
 EvalContext.prototype.fields = function() {
@@ -179,7 +302,6 @@ FieldsContainer.prototype.has = function(fld) {
 
 FieldsContainer.prototype.get = function(fld) {
 	const ret = this.dict[fld];
-	this.cx.log('getting', fld, 'from', this, '=', ret);
 	return ret;
 }
 
@@ -202,6 +324,10 @@ FieldsContainer.prototype.toString = function() {
 
 const IdempotentHandler = function() {
 };
+
+IdempotentHandler.prototype._clz = function() {
+    return "org.ziniki.ziwsh.intf.IdempotentHandler";
+}
 
 IdempotentHandler.prototype.success = function(cx) {
 };
@@ -233,10 +359,6 @@ const MarshallerProxy = function(logger, ctr, svc) {
 
 MarshallerProxy.prototype.invoke = function(meth, args) {
     this.logger.log("MarshallerProxy." + meth + "(" + args.length + ")");
-    for (var i=0;i<args.length;i++) {
-        this.logger.log("arg", i, "=", args[i]);
-    }
-    
     const cx = args[0];
     const ux = this.svc.begin(cx, meth);
     new ArgListMarshaller(this.logger, false, true).marshal(ux, args);
@@ -246,7 +368,6 @@ MarshallerProxy.prototype.invoke = function(meth, args) {
 
 const ArgListMarshaller = function(logger, includeFirst, includeLast) {
     this.logger = logger;
-    this.logger.log("created marshaller");
     this.from = includeFirst?0:1;
     this.skipEnd = includeLast?0:1;
 }
@@ -268,28 +389,42 @@ ObjectMarshaller.prototype.marshal = function(o) {
 }
 
 ObjectMarshaller.prototype.recursiveMarshal = function(ux, o) {
-    this.logger.log("asked to send", o, typeof o);
-    if (typeof o === "string")
+    if (ux.handleCycle(o))
+        ;
+    else if (typeof o === "string")
         ux.string(o);
+    else if (typeof o === "number")
+        ux.number(o);
+    else if (typeof o === "boolean")
+        ux.boolean(o);
     else if (typeof o === "object") {
         if (o instanceof IdempotentHandler)
             ux.handler(o);
         else if (o.state instanceof FieldsContainer) {
-            this.handleStruct(ux, o.state);
+            this.handleStruct(ux, o);
+        } else if (Array.isArray(o)) {
+            this.handleArray(ux, o);
         } else {
             this.logger.log("o =", o);
             this.logger.log("o.state = ", o.state);
             throw Error("cannot handle object with constructor " + o.constructor.name);
         }
-    } else
+    } else {
+        this.logger.log("typeof o =", typeof o);
+        this.logger.log("o =", JSON.stringify(o));
         throw Error("cannot handle " + typeof o);
+    }
 }
 
-ObjectMarshaller.prototype.handleStruct = function(ux, fc) {
+ObjectMarshaller.prototype.handleStruct = function(ux, o) {
+    const fc = o.state;
+    // this.logger.log("at", new Error().stack);
     if (!fc.has("_type")) {
         throw new Error("No _type defined in " + fc);
     }
     const fm = ux.beginFields(fc.get("_type"));
+    this.logger.log(fm.constructor.name);
+    ux.circle(o, fm.collectingAs());
     const ks = Object.keys(fc.dict);
     for (var k in ks) {
         fm.field(ks[k]);
@@ -298,33 +433,35 @@ ObjectMarshaller.prototype.handleStruct = function(ux, fc) {
     fm.complete();
 }
 
+ObjectMarshaller.prototype.handleArray = function(ux, l) {
+    const ul = ux.beginList();
+    for (var k=0;k<l.length;k++) {
+        this.recursiveMarshal(ul, l[k]);
+    }
+    ul.complete();
+}
+
 
 const NoSuchContract = function(ctr) {
     this.ctr = ctr;
 }
 
-NoSuchContract.prototype.get = function(target, prop, receiver) {
-    var ctr = this.ctr;
-    var meth = String(prop);
-    if (meth === "_proxyHandler")
-        return this;
-    else if (meth == "toString" || prop === Symbol.toStringTag) {
-        return function() {
-            return "noContract[" + ctr + "]";
-        }
-    } else if (meth === "inspect" || meth === "constructor") {
-        return target.inspect;
-    } else {
-        return function(cx, ...rest) {
+NoSuchContract.forContract = function(ctr) {
+	const nsc = new NoSuchContract(ctr);
+	const ms = ctr.prototype.methods();
+	const meths = {};
+	for (var ni=0; ni<ms.length; ni++) {
+		var meth = ms[ni];
+		meths[meth] = nsc[meth] = function(cx, ...rest) {
             cx.log("no such contract for", ctr, meth);
             const ih = rest[rest.length-1];
             ih.failure(cx, "There is no service for " + ctr + ":" + meth);
         }
-    }
-};
-
-NoSuchContract.forContract = function(ctr) {
-    return new Proxy({}, new NoSuchContract(ctr));
+	}
+	nsc.methods = function() {
+		return meths;
+	}
+    return nsc;
 }
 
 
@@ -337,35 +474,27 @@ NoSuchContract.forContract = function(ctr) {
  */
 
 const proxy = function(cx, intf, handler) {
-    const keys = Object.getOwnPropertyNames(intf).filter(k => k != 'constructor');
-    const myhandler = {
-        get: function(target, ps, receiver) {
-            const prop = String(ps);
-            if (prop === "_owner") {
-                return handler;
-            } else if (prop === "inspect" || ps === Symbol.toStringTag) {
-                return target;
-            }
-
-            cx.log("invoke called on proxy for " + prop, keys);
-            if (keys.includes(prop)) {
-                const fn = function(...args) {
-                    cx.log("invoking " + prop);
-                    const ret = handler['invoke'].call(handler, prop, args);
-                    cx.log("just invoked " + prop);
-                    return ret;
-                }
-                return fn;
-            } else {
-                cx.log("there is no prop", prop);
-                return function() {
-                    return "-no-such-method-";
-                };
-            }
-        }
-    };
-    var proxied = new Proxy({}, myhandler);
+    const keys = intf.methods();
+    const proxied = {};
+    const methods = {};
+    for (var i=0;i<keys.length;i++) {
+    	const meth = keys[i];
+	    methods[meth] = proxied[meth] = proxyMeth(meth, handler);
+    }
+    proxied.methods = function() {
+    	return methods;
+    }
     return proxied;
+}
+
+const proxyMeth = function(meth, handler) {
+	return function(...args) {
+		const cx = args[0];
+        cx.log("invoking " + meth);
+        const ret = handler['invoke'].call(handler, meth, args);
+        cx.log("just invoked " + meth);
+        return ret;
+    }
 }
 
 const proxy1 = function(cx, underlying, methods, handler) {
@@ -409,7 +538,7 @@ UnmarshallerDispatcher.prototype = new Unmarshaller();
 UnmarshallerDispatcher.prototype.constructor = UnmarshallerDispatcher;
 
 UnmarshallerDispatcher.prototype.begin = function(cx, method) {
-    return new DispatcherTraverser(this.svc, method, cx, new CollectingState());
+    return new DispatcherTraverser(this.svc, method, cx, new CollectingState(cx));
 }
 
 UnmarshallerDispatcher.prototype.toString = function() {
@@ -425,8 +554,70 @@ CollectingTraverser.prototype.string = function(s) {
     this.collect(s);
 }
 
+CollectingTraverser.prototype.number = function(n) {
+    this.collect(n);
+}
+
+CollectingTraverser.prototype.boolean = function(b) {
+    this.collect(b);
+}
+
+CollectingTraverser.prototype.handleCycle = function(cr) {
+    const already = this.collector.already(cr);
+    if (already) {
+        this.collect(this.collector.get(cr));
+    }
+    return already;
+}
+
+CollectingTraverser.prototype.circle = function(o, as) {
+    this.collector.circle(o, as);
+}
+
+CollectingTraverser.prototype.unpack = function(collectingAs) {
+    this.collector.circle(this.collector.nextName(), collectingAs);
+}
+
+CollectingTraverser.prototype.beginFields = function(clz) {
+    const ft = new FieldsTraverser(this.cx, this.collector, clz);
+    this.collect(ft.creation);
+    return ft;
+}
+
+CollectingTraverser.prototype.beginList = function() {
+    const lt = new ListTraverser(this.cx, this.collector);
+    this.collect(lt.ret);
+    return lt;
+}
+
 CollectingTraverser.prototype.handler = function(h) {
     this.collect(h);
+}
+
+const FieldsTraverser = function(cx, collector, clz) {
+    CollectingTraverser.call(this, cx, collector);
+    const czz = cx.structNamed(clz);
+    this.creation = new czz(cx);
+    this.creation.state._wrapper = this.creation;
+}
+
+FieldsTraverser.prototype = new CollectingTraverser();
+FieldsTraverser.prototype.constructor = FieldsTraverser;
+
+FieldsTraverser.prototype.field = function(f) {
+    this.currentField = f;
+}
+
+FieldsTraverser.prototype.collect = function(o) {
+    this.creation.state.dict[this.currentField] = o;
+    delete this.currentField;
+}
+
+FieldsTraverser.prototype.collectingAs = function() {
+    return this.creation;
+}
+
+FieldsTraverser.prototype.complete = function() {
 }
 
 const ListTraverser = function(cx, collector) {
@@ -439,6 +630,9 @@ ListTraverser.prototype.constructor = ListTraverser;
 
 ListTraverser.prototype.collect = function(o) {
     this.ret.push(o);
+}
+
+ListTraverser.prototype.complete = function() {
 }
 
 const UnmarshalTraverser = function(cx, collector) {
@@ -462,14 +656,45 @@ DispatcherTraverser.prototype.constructor = DispatcherTraverser;
 
 DispatcherTraverser.prototype.dispatch = function() {
     const ih = this.ret[this.ret.length-1];
-    this.cx.log("want to dispatch", this.svc, this.method);
     this.svc[this.method].apply(this.svc, this.ret);
-    this.cx.log(this.cx);
     ih.success(this.cx);
 }
 
-const CollectingState = function() {
+const CollectingState = function(cx) {
+    this.cx = cx;
+    this.containing = [];
+    this.named = {};
+    this.next = 0;
+}
 
+CollectingState.prototype.nextName = function() {
+    return "c" + (this.next++);
+}
+
+CollectingState.prototype.circle = function(o, as) {
+    this.containing.push({obj: o, stored: as});
+    if (typeof o === "string")
+        this.named[o] = as;
+}
+
+CollectingState.prototype.already = function(cr) {
+    if (this.named[cr])
+        return true;
+    for (var i=0;i<this.containing.length;i++) {
+        if (cr === this.containing[i].obj)
+            return true;
+    }
+    return false;
+}
+
+CollectingState.prototype.get = function(cr) {
+    if (this.named[cr])
+        return this.named[cr];
+    for (var i=0;i<this.containing.length;i++) {
+        if (cr === this.containing[i].obj)
+            return this.containing[i].stored;
+    }
+    throw Error("no key" + cr);
 }
 
 
@@ -519,9 +744,10 @@ ZiwshWebClient.prototype.send = function(json) {
 
 /* istanbul ignore else */ 
 if (typeof(module) !== 'undefined')
-	module.exports = { EvalContext, FieldsContainer, JsonBeachhead };
+	module.exports = { EvalContext, FieldsContainer, JsonBeachhead, IdempotentHandler };
 else {
 	window.EvalContext = EvalContext;
 	window.FieldsContainer = FieldsContainer;
 	window.JsonBeachhead = JsonBeachhead;
+	window.IdempotentHandler = this.IdempotentHandler;
 }

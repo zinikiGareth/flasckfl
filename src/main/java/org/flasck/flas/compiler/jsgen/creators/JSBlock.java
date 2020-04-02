@@ -13,6 +13,7 @@ import org.flasck.flas.compiler.jsgen.form.ExtractField;
 import org.flasck.flas.compiler.jsgen.form.IsAExpr;
 import org.flasck.flas.compiler.jsgen.form.IsConstExpr;
 import org.flasck.flas.compiler.jsgen.form.IsTrueExpr;
+import org.flasck.flas.compiler.jsgen.form.JSArray;
 import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
 import org.flasck.flas.compiler.jsgen.form.JSBoundVar;
@@ -20,6 +21,7 @@ import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
 import org.flasck.flas.compiler.jsgen.form.JSCurry;
+import org.flasck.flas.compiler.jsgen.form.JSCxtMethod;
 import org.flasck.flas.compiler.jsgen.form.JSError;
 import org.flasck.flas.compiler.jsgen.form.JSEval;
 import org.flasck.flas.compiler.jsgen.form.JSExpectation;
@@ -41,12 +43,14 @@ import org.flasck.flas.compiler.jsgen.form.JSNewState;
 import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
 import org.flasck.flas.compiler.jsgen.form.JSRecordContract;
+import org.flasck.flas.compiler.jsgen.form.JSRequireContract;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
 import org.flasck.flas.compiler.jsgen.form.JSSatisfaction;
 import org.flasck.flas.compiler.jsgen.form.JSSetField;
 import org.flasck.flas.compiler.jsgen.form.JSStoreField;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSTupleMember;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -78,6 +82,11 @@ public class JSBlock implements JSBlockCreator {
 		JSLocal ret = new JSLocal(creating, new JSNew(clz));
 		stmts.add(ret);
 		return ret;
+	}
+
+	@Override
+	public JSVar arg(int pos) {
+		return creating.args.get(pos);
 	}
 
 	@Override
@@ -128,6 +137,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr cxtMethod(String meth, JSExpr... args) {
+		JSLocal stmt = new JSLocal(creating, new JSCxtMethod(meth, args));
+		stmts.add(stmt);
+		return stmt;
+	}
+
+	@Override
 	public JSExpr defineTupleMember(TupleMember e) {
 		JSLocal stmt = new JSLocal(creating, new JSTupleMember(e));
 		stmts.add(stmt);
@@ -158,6 +174,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr makeArray(JSExpr... args) {
 		JSLocal ma = new JSLocal(creating, new JSMakeArray(args));
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
+	public JSExpr jsArray(Iterable<JSExpr> arr) {
+		JSLocal ma = new JSLocal(creating, new JSArray(arr));
 		stmts.add(ma);
 		return ma;
 	}
@@ -323,9 +346,15 @@ public class JSBlock implements JSBlockCreator {
 	public JSExpr fromCard() {
 		return new JSFromCard();
 	}
+
 	@Override
 	public void recordContract(String ctr, String impl) {
 		stmts.add(new JSRecordContract(ctr, impl));
+	}
+
+	@Override
+	public void requireContract(String var, String impl) {
+		stmts.add(new JSRequireContract(var, impl));
 	}
 
 	@Override
@@ -336,9 +365,5 @@ public class JSBlock implements JSBlockCreator {
 			stmt.write(iw);
 		}
 		w.print("}");
-	}
-
-	public static JSBlock classMethod(JSClass jsClass) {
-		return new JSBlock(null);
 	}
 }

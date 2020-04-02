@@ -9,6 +9,7 @@ import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -18,8 +19,10 @@ public interface JSBlockCreator {
 	JSExpr string(String string);
 	JSExpr newOf(SolidName clz);
 	JSExpr makeArray(JSExpr... args);
+	JSExpr jsArray(Iterable<JSExpr> arr);
 	JSExpr makeTuple(JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
+	JSExpr cxtMethod(String meth, JSExpr... args);
 	JSExpr pushFunction(String meth);
 	JSExpr pushConstructor(String clz);
 	JSExpr defineTupleMember(TupleMember e);
@@ -32,12 +35,14 @@ public interface JSBlockCreator {
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);
 	void recordContract(String ctr, String impl);
+	void requireContract(String referAsVar, String jsName);
 	
 	// create an object of clz and store in a field
 	JSExpr fieldObject(String field, String clz);
 	void stateField();
 	void setField(String field, JSExpr expr);
 	JSExpr fromCard();
+	JSVar arg(int pos);
 
 	// HSIE logic statements
 	JSExpr boundVar(String var);

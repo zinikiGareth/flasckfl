@@ -19,6 +19,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
+import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -31,6 +32,7 @@ import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -388,9 +390,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = ((SolidName)cd.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
 		currentContract = jse.newClass(pkg, cd.name().jsName());
-		JSMethodCreator downName = currentContract.createMethod("name", true);
-		downName.argument("_cxt");
-		downName.returnObject(new JSString(cd.name().uniqueName()));
+		currentContract.constructor().cxtMethod("registerContract", new JSString(cd.name().uniqueName()), new JSThis());
+		JSMethodCreator ctrName = currentContract.createMethod("name", true);
+		ctrName.returnObject(new JSString(cd.name().uniqueName()));
+		JSMethodCreator methods = currentContract.createMethod("methods", true);
+		List<JSExpr> names = new ArrayList<>();
+		for (ContractMethodDecl m : cd.methods)
+			names.add(methods.string(m.name.name));
+		methods.returnObject(methods.jsArray(names));
 	}
 
 	@Override
@@ -432,6 +439,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn.jsName());
 		svc.arg("_card");
 		svc.constructor().setField("_card", new JSLiteral("_card"));
+	}
+	
+	@Override
+	public void visitRequires(RequiresContract rc) {
+		JSBlockCreator ctor = agentCreator.constructor();
+		ctor.requireContract(rc.referAsVar, rc.actualType().name().jsName());
 	}
 	
 	@Override

@@ -5,16 +5,29 @@ const JSEnv = function() {
 
 
 const ContractStore = function(_cxt) {
+    this.recorded = {};
+    this.toRequire = {};
 }
 
 ContractStore.prototype.record = function(_cxt, name, impl) {
-    this[name] = impl;
+    this.recorded[name] = impl;
 }
 
 ContractStore.prototype.contractFor = function(_cxt, name) {
-    const ret = this[name];
+    const ret = this.recorded[name];
     if (!ret)
         throw new Error("There is no contract for " + name);
+    return ret;
+}
+
+ContractStore.prototype.require = function(_cxt, name, ctr) {
+    this.toRequire[name] = _cxt.broker.require(ctr);
+}
+
+ContractStore.prototype.required = function(_cxt, name) {
+    const ret = this.toRequire[name];
+    if (!ret)
+        throw new Error("There is no provided contract for var " + name);
     return ret;
 }
 
@@ -122,8 +135,8 @@ FLMakeSend.prototype.toString = function() {
 
 
 
-const FLContext = function(env) {
-	EvalContext.call(this, env);
+const FLContext = function(env, broker) {
+	EvalContext.call(this, env, broker);
 }
 
 FLContext.prototype = new EvalContext();
@@ -288,7 +301,9 @@ FLContext.prototype.field = function(obj, field) {
 }
 
 FLContext.prototype.mockContract = function(contract) {
-	return new MockContract(contract);
+	const ret = new MockContract(contract);
+	this.broker.register(contract.name(), ret);
+	return ret;
 }
 
 FLContext.prototype.mockAgent = function(agent) {

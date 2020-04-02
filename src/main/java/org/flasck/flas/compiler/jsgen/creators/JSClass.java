@@ -7,18 +7,18 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClass implements JSClassCreator {
 	private final String name;
-	private final List<String> ctorArgs = new ArrayList<>();
 	private final List<JSMethod> methods = new ArrayList<>();
-	private final JSBlock ctorBlock = JSBlock.classMethod(this);
+	private final JSMethod ctor;
 	
 	public JSClass(String fullName) {
 		this.name = fullName;
-		this.ctorArgs.add("_cxt");
+		ctor = classMethod(null);
+		this.ctor.argument("_cxt");
 	}
 
 	@Override
 	public void arg(String a) {
-		this.ctorArgs.add(a);
+		this.ctor.argument(a);
 	}
 
 	@Override
@@ -27,20 +27,27 @@ public class JSClass implements JSClassCreator {
 		methods.add(meth);
 		return meth;
 	}
+	
+	public JSMethod classMethod(String mname) {
+		return new JSMethod(this.name, false, mname);
+	}
 
 	@Override
 	public JSBlockCreator constructor() {
-		return ctorBlock;
+		return ctor;
 	}
 
 	public void writeTo(IndentWriter iw) {
+		/*
 		iw.println("");
 		iw.print(name);
 		iw.print(" = function(");
 		iw.print(String.join(", ", ctorArgs ));
 		iw.print(") ");
-		ctorBlock.write(iw);
+		ctor.write(iw);
 		iw.println("");
+		*/
+		ctor.write(iw);
 		for (JSMethod m : methods)
 			m.write(iw);
 	}

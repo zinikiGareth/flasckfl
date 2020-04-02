@@ -18,7 +18,7 @@ public class JSMockContract implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("_cxt.mockContract(new ");
-		w.print(name.jsName()); // TODO: should this be JSPName or JSCName or something?
-		w.print("())");
+		w.print(name.jsName());
+		w.print("(_cxt))");
 	}
 }

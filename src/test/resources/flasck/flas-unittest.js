@@ -48,9 +48,19 @@ Expectation.prototype.allow = function(n) {
 	this.allowed = n;
 }
 
+const proxyMe = function(self, meth) {
+	return function(cx, ...rest) {
+		self.serviceMethod(cx, meth, rest);
+	}
+}
+
 const MockContract = function(ctr) {
 	this.ctr = ctr;
 	this.expected = {};
+	var ms = ctr.methods();
+	for (var i in ms) {
+		this[ms[i]] = proxyMe(this, ms[i]);
+	}
 };
 
 MockContract.prototype.areYouA = function(ty) {
