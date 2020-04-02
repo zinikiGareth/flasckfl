@@ -33,7 +33,7 @@ UTRunner.newContext = function(logger) {
 	if (logger) {
 		this.logger = logger;
 	}
-	return new FLContext(this);
+	return new FLContext(this, new SimpleBroker());
 }
 
 	window.runner = UTRunner;

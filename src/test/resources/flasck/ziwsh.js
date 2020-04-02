@@ -228,14 +228,15 @@ SimpleBroker.prototype.register = function(clz, svc) {
 }
 
 SimpleBroker.prototype.require = function(clz) {
+    const ctr = this.contracts[clz];
     var svc = this.services[clz];
     if (svc == null) {
         if (this.server != null)
             svc = this.server.unmarshalContract(clz);
         else
-            return NoSuchContract.forContract(clz);
+            svc = new UnmarshallerDispatcher(clz, NoSuchContract.forContract(ctr));
     }
-    return new MarshallerProxy(this.logger, this.contracts[clz], svc).proxy;
+    return new MarshallerProxy(this.logger, ctr, svc).proxy;
 }
 
 SimpleBroker.prototype.unmarshalTo = function(clz) {
@@ -446,17 +447,21 @@ const NoSuchContract = function(ctr) {
     this.ctr = ctr;
 }
 
+const isntThere = function(ctr, meth) {
+	return function(cx, ...rest) {
+		cx.log("no such contract for", ctr.name(), meth);
+		const ih = rest[rest.length-1];
+		const msg = "There is no service for " + ctr.name() + ":" + meth;
+		throw Error(msg);
+	}
+}
 NoSuchContract.forContract = function(ctr) {
 	const nsc = new NoSuchContract(ctr);
-	const ms = ctr.prototype.methods();
+	const ms = ctr.methods();
 	const meths = {};
 	for (var ni=0; ni<ms.length; ni++) {
 		var meth = ms[ni];
-		meths[meth] = nsc[meth] = function(cx, ...rest) {
-            cx.log("no such contract for", ctr, meth);
-            const ih = rest[rest.length-1];
-            ih.failure(cx, "There is no service for " + ctr + ":" + meth);
-        }
+		meths[meth] = nsc[meth] = isntThere(ctr, meth);
 	}
 	nsc.methods = function() {
 		return meths;
@@ -475,7 +480,7 @@ NoSuchContract.forContract = function(ctr) {
 
 const proxy = function(cx, intf, handler) {
     const keys = intf.methods();
-    const proxied = {};
+    const proxied = { _owner: handler };
     const methods = {};
     for (var i=0;i<keys.length;i++) {
     	const meth = keys[i];
@@ -656,8 +661,12 @@ DispatcherTraverser.prototype.constructor = DispatcherTraverser;
 
 DispatcherTraverser.prototype.dispatch = function() {
     const ih = this.ret[this.ret.length-1];
-    this.svc[this.method].apply(this.svc, this.ret);
-    ih.success(this.cx);
+    try {
+        this.svc[this.method].apply(this.svc, this.ret);
+        ih.success(this.cx);
+    } catch (e) {
+        ih.failure(this.cx, e.message);
+    }
 }
 
 const CollectingState = function(cx) {
@@ -744,10 +753,11 @@ ZiwshWebClient.prototype.send = function(json) {
 
 /* istanbul ignore else */ 
 if (typeof(module) !== 'undefined')
-	module.exports = { EvalContext, FieldsContainer, JsonBeachhead, IdempotentHandler };
+	module.exports = { EvalContext, FieldsContainer, IdempotentHandler, JsonBeachhead, SimpleBroker };
 else {
 	window.EvalContext = EvalContext;
 	window.FieldsContainer = FieldsContainer;
-	window.JsonBeachhead = JsonBeachhead;
 	window.IdempotentHandler = this.IdempotentHandler;
+	window.JsonBeachhead = JsonBeachhead;
+	window.SimpleBroker = SimpleBroker;
 }
