@@ -1,6 +1,7 @@
 package test.flas.generator.js;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -9,6 +10,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
+import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -31,12 +33,16 @@ public class ContractGenerationJS {
 	public void simpleContractDeclaration() {
 		JSClassCreator clz = context.mock(JSClassCreator.class, "clz");
 		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
+		JSExpr jsa = context.mock(JSExpr.class, "array");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
+			oneOf(clz).constructor();
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
-			oneOf(meth).argument("_cxt");
 			oneOf(meth).returnObject(with(any(JSString.class)));
+			oneOf(clz).createMethod("methods", true); will(returnValue(meth));
+			oneOf(meth).jsArray(Arrays.asList()); will(returnValue(jsa));
+			oneOf(meth).returnObject(jsa);
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
@@ -49,12 +55,19 @@ public class ContractGenerationJS {
 	public void contractMethodGetsGenerated() {
 		JSClassCreator clz = context.mock(JSClassCreator.class, "clz");
 		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
+		JSExpr jse = context.mock(JSExpr.class, "string");
+		JSExpr jsa = context.mock(JSExpr.class, "array");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
+			oneOf(clz).constructor();
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
-			oneOf(meth).argument("_cxt");
+//			oneOf(meth).argument("_cxt");
 			oneOf(meth).returnObject(with(any(JSString.class)));
+			oneOf(clz).createMethod("methods", true); will(returnValue(meth));
+			oneOf(meth).string("m"); will(returnValue(jse));
+			oneOf(meth).jsArray(Arrays.asList(jse)); will(returnValue(jsa));
+			oneOf(meth).returnObject(jsa);
 			oneOf(clz).createMethod("m", true);
 		}});
 		StackVisitor gen = new StackVisitor();

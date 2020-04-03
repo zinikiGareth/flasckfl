@@ -311,7 +311,7 @@ public class ClassGeneration {
 		JSExpr mc = b.mockContract(new SolidName(new PackageName("org.fred"), "Ctr"));
 		assertEquals("v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
-		assertEquals("const v1 = _cxt.mockContract(new org.fred.Ctr());\n", sw.toString());
+		assertEquals("const v1 = _cxt.mockContract(new org.fred.Ctr(_cxt));\n", sw.toString());
 	}
 	
 	@Test

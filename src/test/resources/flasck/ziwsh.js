@@ -275,8 +275,8 @@ EvalContext.prototype.log = function(...args) {
 }
 
 EvalContext.prototype.registerContract = function(name, ctr) {
-	if (!this.env.contracts[name])
-		this.env.contracts[name] = ctr;
+	if (this.broker && !this.broker.contracts[name])
+		this.broker.contracts[name] = ctr;
 }
 
 EvalContext.prototype.structNamed = function(name) {
@@ -342,11 +342,11 @@ const LoggingIdempotentHandler = function() {
 LoggingIdempotentHandler.prototype = new IdempotentHandler();
 LoggingIdempotentHandler.prototype.constructor = LoggingIdempotentHandler;
 
-IdempotentHandler.prototype.success = function(cx) {
+LoggingIdempotentHandler.prototype.success = function(cx) {
     cx.log("success");
 };
 
-IdempotentHandler.prototype.failure = function(cx, msg) {
+LoggingIdempotentHandler.prototype.failure = function(cx, msg) {
     cx.log("failure: " + msg);
 };
 

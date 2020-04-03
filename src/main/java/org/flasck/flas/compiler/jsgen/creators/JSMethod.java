@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.compiler.jsgen.form.InitContext;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -41,6 +42,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		JSVar ret = new JSVar(name);
 		args.add(ret);
 		return ret;
+	}
+
+	@Override
+	public void initContext() {
+		stmts.add(new InitContext());
 	}
 
 	@Override

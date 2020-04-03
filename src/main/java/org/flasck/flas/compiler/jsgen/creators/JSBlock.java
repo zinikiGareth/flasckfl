@@ -56,7 +56,7 @@ import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSBlock implements JSBlockCreator {
-	private final List<JSExpr> stmts = new ArrayList<>();
+	protected final List<JSExpr> stmts = new ArrayList<>();
 	private final JSMethod creating;
 
 	protected JSBlock() {

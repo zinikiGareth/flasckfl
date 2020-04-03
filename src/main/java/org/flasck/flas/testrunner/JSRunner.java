@@ -131,7 +131,7 @@ public class JSRunner extends CommonTestRunner {
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
 			try {
-				page.executeScript(utc.name.jsName() + "(window.runner.newContext(window.JavaLogger), window.runner)");
+				page.executeScript(utc.name.jsName() + "(new window.UTRunner(window.JavaLogger))");
 				pw.println("JS PASS " + utc.description);
 				cdl.countDown();
 			} catch (Throwable t) {
@@ -205,8 +205,8 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();
-			System.out.println("Loading " + html);
-			FileUtils.cat(html);
+//			System.out.println("Loading " + html);
+//			FileUtils.cat(html);
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}

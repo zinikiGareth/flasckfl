@@ -18,8 +18,11 @@ public class JSArray implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("[");
+		String sep = "";
 		for (JSExpr e : arr) {
+			w.print(sep);
 			w.print(e.asVar());
+			sep = ",";
 		}
 		w.print("]");
 	}
