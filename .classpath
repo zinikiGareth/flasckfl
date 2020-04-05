@@ -23,5 +23,6 @@
 	<classpathentry kind="src" path="/ziwsh-intf"/>
 	<classpathentry kind="src" path="/ziwsh-jvm-common"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX 11"/>
+	<classpathentry kind="src" path="/streamedlogger"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

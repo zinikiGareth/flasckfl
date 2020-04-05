@@ -8,8 +8,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorMark;
@@ -18,6 +16,8 @@ import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.slf4j.impl.StaticLoggerBinder;
+import org.zinutils.streamedlogger.api.Level;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -105,12 +105,12 @@ public class Main {
 	}
 
 	public static void setLogLevels() {
-		LogManager.getLogger("io.webfolder.ui4j").setLevel(Level.WARN);
-		LogManager.getLogger("Compiler").setLevel(Level.WARN);
-		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
-		LogManager.getLogger("Generator").setLevel(Level.WARN);
-		LogManager.getLogger("HSIE").setLevel(Level.WARN);
-		LogManager.getLogger("Rewriter").setLevel(Level.ERROR);
-		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
+		StaticLoggerBinder.setLevel("io.webfolder.ui4j", Level.WARN);
+		StaticLoggerBinder.setLevel("Compiler", Level.WARN);
+		StaticLoggerBinder.setLevel("DroidGen", Level.WARN);
+		StaticLoggerBinder.setLevel("Generator", Level.WARN);
+		StaticLoggerBinder.setLevel("HSIE", Level.WARN);
+		StaticLoggerBinder.setLevel("Rewriter", Level.ERROR);
+		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
 	}
 }
