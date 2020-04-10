@@ -8,8 +8,10 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
-public class HandlerImplements extends Implements implements RepositoryEntry {
+public class HandlerImplements extends Implements implements RepositoryEntry, NamedType, WithTypeSignature {
 	public final String baseName;
 	public final List<Pattern> boundVars;
 	public final boolean inCard;
@@ -24,7 +26,38 @@ public class HandlerImplements extends Implements implements RepositoryEntry {
 		this.inCard = inCard;
 		this.boundVars = lambdas;
 	}
+
+	@Override
+	public String signature() {
+		return handlerName.uniqueName();
+	}
+
+	@Override
+	public int argCount() {
+		return boundVars.size();
+	}
+
+	@Override
+	public Type get(int pos) {
+		if (pos == boundVars.size())
+			return this;
+		Pattern p = boundVars.get(pos);
+		if (p instanceof TypedPattern)
+			return ((TypedPattern)p).type();
+		else
+			throw new NotImplementedException("Not handled: " + p.getClass());
+	}
+
+	@Override
+	public boolean incorporates(InputPosition pos, Type other) {
+		throw new NotImplementedException();
+	}
 	
+	@Override
+	public Type type() {
+		return this;
+	}
+
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println(toString());

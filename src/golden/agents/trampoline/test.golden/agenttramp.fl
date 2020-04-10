@@ -26,4 +26,4 @@
 			check -> examiner
 				<- b.retrieve -> examiner
 			ask -> hdlr
-.				<- b.retrieve -> (Mapper hdlr)
+				<- b.retrieve -> (Mapper hdlr)

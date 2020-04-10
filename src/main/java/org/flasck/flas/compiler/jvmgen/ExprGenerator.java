@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -138,6 +139,22 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				sv.result(meth.classConst(myName));
 			} else {
 				IExpr call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(sd.argCount()), meth.as(meth.classConst(myName), J.APPLICABLE), meth.arrayOf(J.OBJECT));
+				Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
+				currentBlock.add(meth.assign(v, call));
+				sv.result(v);
+			}
+		} else if (defn instanceof HandlerImplements) {
+			// if the constructor has no args, eval it here
+			// otherwise leave it until "leaveExpr" or "leaveFunction"
+			HandlerImplements hi = (HandlerImplements)defn;
+			if (nargs == 0 && hi.argCount() == 0) {
+				List<IExpr> provided = new ArrayList<>();
+				IExpr args = meth.arrayOf(J.OBJECT, provided);
+				sv.result(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
+			} else if (nargs > 0) {
+				sv.result(meth.classConst(myName));
+			} else {
+				IExpr call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(hi.argCount()), meth.as(meth.classConst(myName), J.APPLICABLE), meth.arrayOf(J.OBJECT));
 				Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 				currentBlock.add(meth.assign(v, call));
 				sv.result(v);

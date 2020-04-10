@@ -60,7 +60,14 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		return other == this;
+		if (other == this)
+			return true;
+		if (other instanceof HandlerImplements) {
+			HandlerImplements hi = (HandlerImplements) other;
+			if (hi.implementsType().defn() == this)
+				return true;
+		}
+		return false;
 	}
 
 	@Override

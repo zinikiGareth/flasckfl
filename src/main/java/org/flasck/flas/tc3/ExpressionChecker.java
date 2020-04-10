@@ -11,6 +11,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -75,6 +76,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			throw new NullPointerException("undefined var: " + var);
 		RepositoryEntry defn = var.defn();
 		if (defn instanceof StructDefn) {
+			announce(pos, (Type) defn);
+		} else if (defn instanceof HandlerImplements) {
 			announce(pos, (Type) defn);
 		} else if (defn instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) defn;

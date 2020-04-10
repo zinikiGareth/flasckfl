@@ -13,6 +13,7 @@ import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -129,6 +130,17 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				sv.result(block.pushConstructor(myName));
 			} else {
 				sv.result(block.curry(sd.argCount(), block.pushConstructor(myName)));
+			}
+		} else if (defn instanceof HandlerImplements) {
+			// if the constructor has no args, eval it here
+			// otherwise leave it until "leaveExpr" or "leaveFunction"
+			HandlerImplements hi = (HandlerImplements)defn;
+			if (nargs == 0 && hi.argCount() == 0) {
+				sv.result(block.structConst(myName));
+			} else if (nargs > 0) {
+				sv.result(block.pushConstructor(myName));
+			} else {
+				sv.result(block.curry(hi.argCount(), block.pushConstructor(myName)));
 			}
 		} else if (defn instanceof VarPattern) {
 			sv.result(block.boundVar(((VarPattern)defn).var));
