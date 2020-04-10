@@ -1,2 +1,3 @@
+test.golden.TrampAgent.Mapper.contains :: String->List[Message]
 test.golden.TrampAgent._S1.check :: test.golden.Examine->List[Message]
 test.golden.TrampAgent._S1.tell :: String->List[Message]

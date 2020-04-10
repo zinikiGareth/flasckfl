@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
+import org.flasck.flas.hsi.HLSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.jvm.J;
@@ -49,7 +50,7 @@ public class FunctionState {
 			int k = ((ArgSlot)s).argpos();
 			in = meth.arrayItem(J.OBJECT, fargs, k);
 			avar = new Var.AVar(meth, J.OBJECT, "head_" + k);
-		} else if (s instanceof CMSlot) {
+		} else if (s instanceof CMSlot || s instanceof HLSlot) {
 			in = from;
 			avar = new Var.AVar(meth, J.OBJECT, "var_" + s.id());
 		} else

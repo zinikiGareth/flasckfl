@@ -137,6 +137,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitHandlerLambda(Pattern p) {
+	}
+
+	@Override
 	public void leaveHandlerImplements(HandlerImplements hi) {
 	}
 

@@ -16,9 +16,9 @@
 	agent TrampAgent
 		requires Basic b
 
-		handler Examine Mapper h
+		handler Examine Mapper (Feedback h)
 			contains msg
-.				<- h.reply msg
+				<- h.reply msg
 			
 		provides Storage
 			tell msg

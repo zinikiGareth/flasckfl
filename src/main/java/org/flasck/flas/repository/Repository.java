@@ -140,6 +140,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitImplements(ImplementsContract ic);
 		void leaveImplements(ImplementsContract ic);
 		void visitHandlerImplements(HandlerImplements hi);
+		void visitHandlerLambda(Pattern p);
 		void leaveHandlerImplements(HandlerImplements hi);
 		void leaveAgentDefn(AgentDefinition s);
 		void visitObjectAccessor(ObjectAccessor oa);

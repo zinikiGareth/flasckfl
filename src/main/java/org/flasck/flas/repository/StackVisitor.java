@@ -443,6 +443,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitHandlerImplements(hi);
 	}
 
+	public void visitHandlerLambda(Pattern p) {
+		top.visitHandlerLambda(p);
+	}
+
 	public void leaveHandlerImplements(HandlerImplements hi) {
 		top.leaveHandlerImplements(hi);
 	}

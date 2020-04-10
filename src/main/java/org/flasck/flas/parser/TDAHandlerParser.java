@@ -1,8 +1,10 @@
 package org.flasck.flas.parser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.VarName;
@@ -61,7 +63,7 @@ public class TDAHandlerParser implements TDAParsing {
 			errors.message(line, "invalid handler name");
 			return new IgnoreNestedParser();
 		}
-		ArrayList<Object> lambdas = new ArrayList<Object>();
+		List<Pattern> lambdas = new ArrayList<>();
 		final HandlerName hn = namer.handlerName(named.text);
 		VarNamer vn = (loc, t) -> new VarName(loc, hn, t); 
 		while (line.hasMore() && !errors.hasErrors()) {

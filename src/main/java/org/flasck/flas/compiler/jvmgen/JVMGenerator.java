@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.HLSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -250,6 +252,15 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else if (!isStandalone)
 			throw new NotImplementedException("Don't have one of those");
 
+	}
+	
+	@Override
+	public void visitHandlerLambda(Pattern p) {
+		if (p instanceof TypedPattern) {
+			TypedPattern tp = (TypedPattern)p;
+			fs.bindVar(currentBlock, tp.var.var, new HLSlot(tp.var.var), meth.aNull());
+		} else
+			throw new NotImplementedException("support varpattern " + p);
 	}
 	
 	@Override

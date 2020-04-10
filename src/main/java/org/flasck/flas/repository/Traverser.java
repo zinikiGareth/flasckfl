@@ -367,9 +367,22 @@ public class Traverser implements Visitor {
 	public void visitObjectMethod(ObjectMethod meth) {
 		visitor.visitObjectMethod(meth);
 		if (!meth.args().isEmpty() || !meth.messages().isEmpty()) {
+			if (meth.hasImplements() && meth.getImplements() instanceof HandlerImplements)
+				traverseHandlerLambdas((HandlerImplements)meth.getImplements());
 			traverseFnOrMethod(meth);
 		}
 		leaveObjectMethod(meth);
+	}
+
+	private void traverseHandlerLambdas(HandlerImplements hi) {
+		for (Pattern i : hi.boundVars)
+			visitHandlerLambda(i);
+	}
+
+	public void visitHandlerLambda(Pattern p) {
+		visitor.visitHandlerLambda(p);
+		if (p instanceof TypedPattern)
+			visitTypeReference(((TypedPattern)p).type);
 	}
 
 	public void leaveObjectMethod(ObjectMethod meth) {

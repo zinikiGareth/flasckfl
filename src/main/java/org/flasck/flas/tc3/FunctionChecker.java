@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
@@ -17,6 +18,7 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -52,6 +54,22 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			csc = new ContractSlotChecker(errors, sv, state, inMeth);
 		} else
 			csc = null;
+	}
+	
+	@Override
+	public void visitHandlerLambda(Pattern p) {
+		if (p instanceof VarPattern) {
+			VarPattern vp = (VarPattern) p;
+			UnifiableType lt = state.createUT(null, "hl " + vp.var);
+			state.bindVarToUT(vp.name().uniqueName(), lt);
+			state.bindVarPatternToUT(vp, lt);
+		} else if (p instanceof TypedPattern) {
+			TypedPattern tp = (TypedPattern) p;
+			UnifiableType lt = state.createUT(null, "hl " + tp.var);
+			lt.canBeType(tp.var.loc, tp.type.defn());
+			state.bindVarToUT(tp.name().uniqueName(), lt);
+		} else
+			throw new NotImplementedException("not supported as lambda: " + p.getClass());
 	}
 	
 	@Override

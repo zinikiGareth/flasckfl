@@ -76,7 +76,12 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			} else {
 				nv.result(fa.type());
 			}
+		} else if (expr.from instanceof UnresolvedVar) {
+			UnresolvedVar var = (UnresolvedVar) expr.from;
+			errors.message(expr.from.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
+			nv.result(new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
+
 	}
 }
