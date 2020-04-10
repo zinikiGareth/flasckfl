@@ -10,6 +10,7 @@ import java.util.Set;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
@@ -19,7 +20,6 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
-import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -442,6 +443,16 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		svc.constructor().setField("_card", new JSLiteral("_card"));
 	}
 	
+	@Override
+	public void visitHandlerImplements(HandlerImplements hi) {
+		HandlerName name = (HandlerName)hi.name();
+//		JSBlockCreator ctor = agentCreator.constructor();
+//		ctor.recordContract(hi.actualType().name().jsName(), csn.jsName());
+		JSClassCreator svc = jse.newClass(name.packageName().jsName(), name.jsName());
+		svc.arg("_card");
+		svc.constructor().setField("_card", new JSLiteral("_card"));
+	}
+
 	@Override
 	public void visitRequires(RequiresContract rc) {
 		JSBlockCreator ctor = agentCreator.constructor();

@@ -71,6 +71,10 @@ public class JSFile {
 		String full = f.getPackage()+"."+f.getName();
 		int li = full.lastIndexOf('.');
 		full = full.substring(0, li);
+		for (JSClass clz : classes) {
+			if (clz.name().equals(full))
+				return;
+		}
 		if (packages.contains(full)) {
 			declarePackage(iw, full);
 			packages.remove(full);

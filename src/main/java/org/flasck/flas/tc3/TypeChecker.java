@@ -31,8 +31,6 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		if (meth.messages().isEmpty())
-			return;
 		sv.push(new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), meth));
 		this.currentMethod = meth;
 	}
@@ -50,7 +48,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void result(Object r) {
 		PosType result = (PosType) r;
-		if (currentMethod != null) {
+		if (currentMethod != null && !currentMethod.messages().isEmpty()) {
 			currentMethod.bindType(result.type);
 			currentMethod = null;
 		}

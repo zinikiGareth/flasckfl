@@ -16,6 +16,10 @@ public class JSClass implements JSClassCreator {
 		this.ctor.argument("_cxt");
 	}
 
+	public String name() {
+		return name;
+	}
+
 	@Override
 	public void arg(String a) {
 		this.ctor.argument(a);
@@ -51,5 +55,4 @@ public class JSClass implements JSClassCreator {
 		for (JSMethod m : methods)
 			m.write(iw);
 	}
-
 }

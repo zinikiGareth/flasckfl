@@ -16,10 +16,8 @@
 	agent TrampAgent
 		requires Basic b
 
-# This fails typecheck because we obviously didn't think about it properly at the time
-# So come back to it ...
-.		handler Examine Mapper h
-.			contains msg
+		handler Examine Mapper h
+			contains msg
 .				<- h.reply msg
 			
 		provides Storage

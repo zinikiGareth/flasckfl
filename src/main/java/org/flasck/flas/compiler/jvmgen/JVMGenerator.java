@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
@@ -18,6 +19,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -542,7 +544,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			/*PendingVar cx = */gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar parent = gen.argument(J.OBJECT, "card");
 			MethodDefiner ctor = gen.done();
-//			ctor.callSuper("void", J.FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 			ctor.callSuper("void", J.OBJECT, "<init>").flush();
 			ctor.assign(card.asExpr(ctor), parent.getVar()).flush();
 			ctor.returnVoid().flush();
@@ -557,6 +558,32 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		).flush();
 	}
 	
+	@Override
+	public void visitHandlerImplements(HandlerImplements hi) {
+		HandlerName name = (HandlerName) hi.name();
+		ByteCodeSink providesClass = bce.newClass(name.javaClassName());
+		providesClass.superclass(J.OBJECT);
+		providesClass.generateAssociatedSourceFile();
+		IFieldInfo card = providesClass.defineField(true, Access.PRIVATE, J.OBJECT, "_card"); // Probably should be some superclass of card, service, agent ...
+		{
+			GenericAnnotator gen = GenericAnnotator.newConstructor(providesClass, false);
+			/*PendingVar cx = */gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar parent = gen.argument(J.OBJECT, "card");
+			MethodDefiner ctor = gen.done();
+			ctor.callSuper("void", J.OBJECT, "<init>").flush();
+			ctor.assign(card.asExpr(ctor), parent.getVar()).flush();
+			ctor.returnVoid().flush();
+		}
+//		FieldExpr ctrs = agentClass.getField(agentctor, "store");
+//		agentctor.callInterface("void", ctrs, "recordContract",
+//			agentctor.stringConst(hi.actualType().name().uniqueName()),
+//			agentctor.as(
+//				agentctor.makeNew(csn.javaClassName(), agentctor.getArgument(0), agentctor.as(agentctor.myThis(), J.OBJECT)),
+//				J.OBJECT
+//			)
+//		).flush();
+	}
+
 	@Override
 	public void visitRequires(RequiresContract rc) {
 		FieldExpr ctrs = agentClass.getField(agentctor, "store");
