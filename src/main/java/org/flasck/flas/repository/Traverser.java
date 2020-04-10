@@ -132,6 +132,7 @@ public class Traverser implements Visitor {
 		for (RepositoryEntry e : repository.dict.values()) {
 			visitEntry(e);
 		}
+		traversalDone();
 	}
 
 	/** It's starting to concern me that for some things (contracts, unit tests) we visit
@@ -1226,7 +1227,7 @@ public class Traverser implements Visitor {
 		visitor.visitContractDecl(cd);
 		for (ContractMethodDecl m : cd.methods)
 			visitContractMethod(m);
-		visitor.leaveContractDecl(cd);
+		leaveContractDecl(cd);
 	}
 
 	@Override
@@ -1251,8 +1252,13 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
+		visitor.leaveContractDecl(cd);
 	}
 	
+	public void traversalDone() {
+		visitor.traversalDone();
+	}
+
 	@Override
 	public String toString() {
 		return "Traverser{" + visitor + "}";

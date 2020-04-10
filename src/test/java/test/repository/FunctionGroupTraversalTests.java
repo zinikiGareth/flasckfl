@@ -60,6 +60,7 @@ public class FunctionGroupTraversalTests {
 			oneOf(v).leaveFunction(fn); inSequence(s);
 			
 			oneOf(v).leaveFunctionGroup(grp1); inSequence(s);
+			oneOf(v).traversalDone();
 		}});
 		new Traverser(v).withFunctionsInDependencyGroups(new FunctionGroupOrdering(Arrays.asList(grp1))).doTraversal(new Repository());
 	}
@@ -83,6 +84,7 @@ public class FunctionGroupTraversalTests {
 			oneOf(v).leaveFunction(gn); inSequence(s);
 			
 			oneOf(v).leaveFunctionGroup(grp1); inSequence(s);
+			oneOf(v).traversalDone();
 		}});
 		FunctionGroupOrdering order = new FunctionGroupOrdering(Arrays.asList(grp1));
 		new Traverser(v).withFunctionsInDependencyGroups(order).doTraversal(new Repository());
@@ -112,6 +114,7 @@ public class FunctionGroupTraversalTests {
 			oneOf(v).leaveFunction(hn); inSequence(s);
 			
 			oneOf(v).leaveFunctionGroup(grp2); inSequence(s);
+			oneOf(v).traversalDone();
 		}});
 		FunctionGroupOrdering order = new FunctionGroupOrdering(Arrays.asList(grp1, grp2));
 		new Traverser(v).withFunctionsInDependencyGroups(order).doTraversal(new Repository());
@@ -146,6 +149,7 @@ public class FunctionGroupTraversalTests {
 			oneOf(v).leaveFunction(hn); inSequence(s);
 			
 			oneOf(v).leaveFunctionGroup(grp2); inSequence(s);
+			oneOf(v).traversalDone();
 		}});
 		FunctionGroupOrdering order = new FunctionGroupOrdering(Arrays.asList(grp1, grp2));
 		new Traverser(v).withFunctionsInDependencyGroups(order).doTraversal(new Repository());
@@ -167,6 +171,7 @@ public class FunctionGroupTraversalTests {
 			oneOf(v).leaveStandaloneMethod(s1); inSequence(s);
 			
 			oneOf(v).leaveFunctionGroup(grp1); inSequence(s);
+			oneOf(v).traversalDone();
 		}});
 		new Traverser(v).withFunctionsInDependencyGroups(new FunctionGroupOrdering(Arrays.asList(grp1))).doTraversal(new Repository());
 	}

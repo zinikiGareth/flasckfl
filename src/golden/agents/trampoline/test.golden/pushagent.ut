@@ -1,13 +1,12 @@
+	data Basic root
+	data TrampAgent agent
+
 	test we can push through an agent
-		data Basic root
-		data TrampAgent agent
 		expect root store "datum"
 		contract agent Storage tell "datum"
 
 	test we can ask for an agent response
 		data Examine handler
-		data Basic root
-		data TrampAgent agent
 		expect root retrieve
 		contract agent Storage check -> handler
 	

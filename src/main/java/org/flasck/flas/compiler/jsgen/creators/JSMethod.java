@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.form.InitContext;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
@@ -45,8 +46,8 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 
 	@Override
-	public void initContext() {
-		stmts.add(new InitContext());
+	public void initContext(PackageName packageName) {
+		stmts.add(new InitContext(packageName));
 	}
 
 	@Override

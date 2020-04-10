@@ -43,7 +43,7 @@ public class GuardGeneration {
 	public void aSingleGuard() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null, null), gen, block);
+		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -96,7 +96,7 @@ public class GuardGeneration {
 	public void aSingleGuardWithDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null, null), gen, block);
+		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -154,7 +154,7 @@ public class GuardGeneration {
 	public void aSingleGuardWithAComplexExpression() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null, null), gen, block);
+		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -233,7 +233,7 @@ public class GuardGeneration {
 	public void twoGuardsNoDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null, null), gen, block);
+		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);
@@ -320,7 +320,7 @@ public class GuardGeneration {
 	public void twoGuardsWithSecondBeingAnExpression() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null, null), gen, block);
+		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0);

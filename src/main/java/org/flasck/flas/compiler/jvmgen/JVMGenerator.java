@@ -167,7 +167,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner, globalMocks );
+		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner );
 		currentBlock = new ArrayList<IExpr>();
 		if (oaClz != null) {
 			StateHolder od = currentOA.getObject();
@@ -232,7 +232,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			}
 		} else
 			thisVar = null;
-		fs = new FunctionState(meth, (Var)fcx, thisVar, fargs, runner, globalMocks);
+		fs = new FunctionState(meth, (Var)fcx, thisVar, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
 
 		if (om.hasObject()) {
@@ -265,7 +265,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner, globalMocks);
+		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
 		new ExprGenerator(fs, sv, currentBlock);
 	}
@@ -285,7 +285,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner, globalMocks);
+		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
 		currentBlock.add(meth.returnObject(meth.callInterface(J.OBJECT, fcx, "tupleMember", meth.callStatic(tm.ta.exprFnName().javaClassName(), J.OBJECT, "eval", fcx, meth.arrayOf(J.OBJECT)), meth.intConst(tm.which))));
 	}
@@ -454,7 +454,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			Var args = pargs.getVar();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
-			this.fs = new FunctionState(meth, cx.getVar(), null, null, runner, globalMocks);
+			this.fs = new FunctionState(meth, cx.getVar(), null, null, runner);
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new ArrayList<IExpr>();
@@ -496,7 +496,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			MethodDefiner meth = gen.done();
 			Var ret = meth.avar(clzName, "ret");
 			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
-			this.fs = new FunctionState(meth, cx.getVar(), null, null, runner, globalMocks);
+			this.fs = new FunctionState(meth, cx.getVar(), null, null, runner);
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new ArrayList<IExpr>();
@@ -625,8 +625,17 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
 		this.fcx = pcx.getVar();
-		this.fs = new FunctionState(meth, fcx, null, null, runner.getVar(), globalMocks);
+		this.fs = new FunctionState(meth, fcx, null, null, runner.getVar());
 		this.currentBlock = new ArrayList<>();
+		// Make sure we declare contracts first - others may use them
+		for (UnitDataDeclaration udd : globalMocks) {
+			if (udd.ofType.defn() instanceof ContractDecl)
+				visitUnitDataDeclaration(udd);
+		}
+		for (UnitDataDeclaration udd : globalMocks) {
+			if (!(udd.ofType.defn() instanceof ContractDecl))
+				visitUnitDataDeclaration(udd);
+		}
 	}
 
 	@Override
@@ -767,7 +776,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner, Var args) {
 		JVMGenerator ret = new JVMGenerator(meth, runner, args);
-		ret.fs = new FunctionState(meth, runner, null, args, runner, null);
+		ret.fs = new FunctionState(meth, runner, null, args, runner);
 		return ret;
 	}
 

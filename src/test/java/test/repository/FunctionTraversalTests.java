@@ -78,6 +78,7 @@ public class FunctionTraversalTests {
 			oneOf(v).leaveApplyExpr((ApplyExpr) with(ae));
 			oneOf(v).leaveFunctionIntro(with(any(FunctionIntro.class)));
 			oneOf(v).leaveFunction(with(any(FunctionDefinition.class)));
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}

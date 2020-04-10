@@ -44,7 +44,7 @@ public class UnitTestGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(jse).newFunction("test.something._ut_package", "test.something._ut_package", false, "_ut4"); will(returnValue(meth));
 			oneOf(meth).argument("runner");
-			oneOf(meth).initContext();
+			oneOf(meth).initContext(pkg);
 		}});
 		JSGenerator gen = new JSGenerator(jse, null);
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");

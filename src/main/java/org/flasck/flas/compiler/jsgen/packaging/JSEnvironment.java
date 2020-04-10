@@ -2,8 +2,11 @@ package org.flasck.flas.compiler.jsgen.packaging;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -13,6 +16,9 @@ import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
+import org.flasck.flas.compiler.jsgen.form.JSString;
+import org.flasck.flas.compiler.jsgen.form.JSThis;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.zinutils.utils.FileUtils;
 
 /** The idea here is to create a set of "package" files in memory with abstract constructs.
@@ -24,6 +30,7 @@ public class JSEnvironment implements JSStorage {
 	// The idea is that there is one file per package
 	private final Map<String, JSFile> files = new TreeMap<String, JSFile>();
 	private final File root;
+	private final List<ContractDecl> contracts = new ArrayList<>();
 
 	public JSEnvironment(File root) {
 		this.root = root;
@@ -72,6 +79,22 @@ public class JSEnvironment implements JSStorage {
 			files.put(pkg, inpkg);
 		}
 		return inpkg;
+	}
+
+	@Override
+	public void contract(ContractDecl cd) {
+		contracts.add(cd);
+	}
+
+	@Override
+	public void complete() {
+		for (Entry<String, JSFile> p : files.entrySet()) {
+			JSMethod ifn = new JSMethod(p.getKey(), false, "_init");
+			ifn.argument("_cxt");
+			for (ContractDecl cd : contracts)
+				ifn.cxtMethod("registerContract", new JSString(cd.name().uniqueName()), ifn.newOf(cd.name()));
+			p.getValue().addFunction(ifn);
+		}
 	}
 
 	// debugMethod

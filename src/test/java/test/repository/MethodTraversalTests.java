@@ -77,6 +77,7 @@ public class MethodTraversalTests {
 			oneOf(v).leaveMessage(msg1); inSequence(s);
 			oneOf(v).leaveObjectMethod(om); inSequence(s);
 			oneOf(v).leaveStandaloneMethod(sm); inSequence(s);
+			oneOf(v).traversalDone();
 		}});
 		args.add(destP);
 		dest.bind(destP);
@@ -110,6 +111,7 @@ public class MethodTraversalTests {
 			oneOf(v).leaveMessage(msg2); inSequence(s);
 			oneOf(v).leaveObjectMethod(om); inSequence(s);
 			oneOf(v).leaveStandaloneMethod(sm); inSequence(s);
+			oneOf(v).traversalDone();
 		}});
 		args.add(destP);
 		dest.bind(destP);

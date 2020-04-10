@@ -515,6 +515,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.leaveHandleExpr(expr, handler);
 	}
 
+	public void traversalDone() {
+		top.traversalDone();
+	}
+
 	public void hsiArgs(List<Slot> slots) {
 		hsi.hsiArgs(slots);
 	}

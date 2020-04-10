@@ -89,6 +89,7 @@ public class TraversalTests {
 		r.addEntry(p.name(), p);
 		context.checking(new Expectations() {{
 			oneOf(v).visitPrimitive(p);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -100,6 +101,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).leaveStructDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -119,6 +121,7 @@ public class TraversalTests {
 			oneOf(v).visitTypeReference(tr);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveStructDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -140,6 +143,7 @@ public class TraversalTests {
 			oneOf(v).leaveStructDefn(s);
 			oneOf(v).visitStructFieldAccessor(sf);
 			oneOf(v).leaveStructFieldAccessor(sf);
+			oneOf(v).traversalDone();
 		}});
 		r.traverseWithHSI(v);
 	}
@@ -152,6 +156,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).leaveStructDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -163,6 +168,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).leaveObjectDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -181,6 +187,7 @@ public class TraversalTests {
 			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveObjectDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -202,6 +209,7 @@ public class TraversalTests {
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveObjectDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -218,6 +226,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).leaveObjectDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -229,6 +238,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).leaveAgentDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -250,6 +260,7 @@ public class TraversalTests {
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveAgentDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -268,6 +279,7 @@ public class TraversalTests {
 			oneOf(v).visitTypeReference(fred);
 			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -288,6 +300,7 @@ public class TraversalTests {
 			oneOf(v).visitTypeReference(fred);
 			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -310,6 +323,7 @@ public class TraversalTests {
 			oneOf(v).leaveObjectMethod(meth);
 			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverseWithImplementedMethods(v);
 	}
@@ -328,6 +342,7 @@ public class TraversalTests {
 			oneOf(v).visitRequires(rc);
 			oneOf(v).visitTypeReference(tr);
 			oneOf(v).leaveAgentDefn(s);
+			oneOf(v).traversalDone();
 		}});
 		r.traverseWithImplementedMethods(v);
 	}
@@ -349,6 +364,7 @@ public class TraversalTests {
 			oneOf(v).leaveFunctionIntro(fi);
 			oneOf(v).leaveFunction(oa.function());
 			oneOf(v).leaveObjectAccessor(oa);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -363,6 +379,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectMethod(meth);
 			oneOf(v).leaveObjectMethod(meth);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -377,6 +394,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectMethod(meth);
 			oneOf(v).leaveObjectMethod(meth);
+			oneOf(v).traversalDone();
 		}});
 		r.traverseInGroups(v, new FunctionGroupOrdering(new ArrayList<>()));
 	}
@@ -391,6 +409,7 @@ public class TraversalTests {
 			oneOf(v).visitObjectMethod(meth);
 			oneOf(v).leaveObjectMethod(meth);
 			oneOf(v).leaveStandaloneMethod(sm);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -402,6 +421,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
 			oneOf(v).leaveContractDecl(cd);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -417,6 +437,7 @@ public class TraversalTests {
 			oneOf(v).visitContractMethod(cmd);
 			oneOf(v).leaveContractMethod(cmd);
 			oneOf(v).leaveContractDecl(cd);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -435,6 +456,7 @@ public class TraversalTests {
 			oneOf(v).visitTypeReference(tr);
 			oneOf(v).leaveContractMethod(cmd);
 			oneOf(v).leaveContractDecl(cd);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -620,6 +642,7 @@ public class TraversalTests {
 			oneOf(v).leaveUnitTestExpect(ute);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -653,6 +676,7 @@ public class TraversalTests {
 			oneOf(v).leaveUnitTestSend(uts);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);
+			oneOf(v).traversalDone();
 		}});
 		r.traverseWithHSI(v);
 	}
@@ -673,6 +697,7 @@ public class TraversalTests {
 			oneOf(v).visitTypeReference(tr);
 			oneOf(v).leaveUnitDataDeclaration(udd);
 			oneOf(v).leaveUnitTestPackage(utp);
+			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
 	}
@@ -759,6 +784,7 @@ public class TraversalTests {
 			oneOf(v).visitTupleMember(ta.members.get(1)); inSequence(seq);
 			oneOf(v).leaveTupleMember(ta.members.get(1)); inSequence(seq);
 			oneOf(v).leaveTuple(ta); inSequence(seq);
+			oneOf(v).traversalDone();
 		}});
 		new Traverser(v).doTraversal(r);
 	}

@@ -475,4 +475,8 @@ public class LeafAdapter implements Visitor {
 	@Override
 	public void leaveHandleExpr(Expr expr, Expr handler) {
 	}
+
+	@Override
+	public void traversalDone() {
+	}
 }

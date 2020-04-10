@@ -34,10 +34,12 @@ public class ContractGenerationJS {
 		JSClassCreator clz = context.mock(JSClassCreator.class, "clz");
 		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
 		JSExpr jsa = context.mock(JSExpr.class, "array");
+		SolidName cname = new SolidName(pkg, "MyContract");
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
-			oneOf(clz).constructor();
+			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));
 			oneOf(clz).createMethod("methods", true); will(returnValue(meth));
@@ -46,8 +48,6 @@ public class ContractGenerationJS {
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
-		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		new Traverser(gen).visitContractDecl(cd);
 	}
 
@@ -57,12 +57,13 @@ public class ContractGenerationJS {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
 		JSExpr jse = context.mock(JSExpr.class, "string");
 		JSExpr jsa = context.mock(JSExpr.class, "array");
+		SolidName cname = new SolidName(pkg, "MyContract");
+		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
-			oneOf(clz).constructor();
+			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
-//			oneOf(meth).argument("_cxt");
 			oneOf(meth).returnObject(with(any(JSString.class)));
 			oneOf(clz).createMethod("methods", true); will(returnValue(meth));
 			oneOf(meth).string("m"); will(returnValue(jse));
@@ -72,8 +73,6 @@ public class ContractGenerationJS {
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
-		SolidName cname = new SolidName(pkg, "MyContract");
-		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>(), null);
 		cd.methods.add(cmd);
 		new Traverser(gen).visitContractDecl(cd);

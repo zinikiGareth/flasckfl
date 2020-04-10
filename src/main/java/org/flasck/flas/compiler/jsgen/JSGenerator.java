@@ -146,7 +146,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
-		this.state = new JSFunctionStateStore(globalMocks, currentOA == null ? StateLocation.NONE : StateLocation.LOCAL);
+		this.state = new JSFunctionStateStore(currentOA == null ? StateLocation.NONE : StateLocation.LOCAL);
 	}
 
 	// When generating a tuple assignment, we have to create a closure which is the "main thing"
@@ -161,7 +161,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			
 		this.meth.argument("_cxt");
 		this.block = meth;
-		this.state = new JSFunctionStateStore(globalMocks, StateLocation.NONE);
+		this.state = new JSFunctionStateStore(StateLocation.NONE);
 		sv.push(new ExprGeneratorJS(state, sv, this.block));
 	}
 	
@@ -175,7 +175,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			
 		this.meth.argument("_cxt");
 		this.block = meth;
-		this.state = new JSFunctionStateStore(globalMocks, StateLocation.NONE);
+		this.state = new JSFunctionStateStore(StateLocation.NONE);
 		this.meth.returnObject(meth.defineTupleMember(e));
 //		sv.push(new ExprGeneratorJS(state, sv, this.block));
 	}
@@ -280,7 +280,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth.argument("_" + i);
 		}
 		this.block = meth;
-		this.state = new JSFunctionStateStore(globalMocks, om.hasObject() ? StateLocation.LOCAL : om.hasImplements() ? StateLocation.CARD : StateLocation.NONE);
+		this.state = new JSFunctionStateStore(om.hasObject() ? StateLocation.LOCAL : om.hasImplements() ? StateLocation.CARD : StateLocation.NONE);
 	}
 	
 	@Override
@@ -391,7 +391,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = ((SolidName)cd.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
 		currentContract = jse.newClass(pkg, cd.name().jsName());
-		currentContract.constructor().cxtMethod("registerContract", new JSString(cd.name().uniqueName()), new JSThis());
+		jse.contract(cd);
 		JSMethodCreator ctrName = currentContract.createMethod("name", true);
 		ctrName.returnObject(new JSString(cd.name().uniqueName()));
 		JSMethodCreator methods = currentContract.createMethod("methods", true);
@@ -462,8 +462,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = jse.newFunction(pkg, pkg, false, clzName.baseName());
 		this.block = meth;
 		runner = meth.argument("runner");
-		meth.initContext();
-		this.state = new JSFunctionStateStore(globalMocks, StateLocation.NONE);
+		meth.initContext(e.name.packageName());
+		this.state = new JSFunctionStateStore(StateLocation.NONE);
+		// Make sure we declare contracts first - others may use them
+		for (UnitDataDeclaration udd : globalMocks) {
+			if (udd.ofType.defn() instanceof ContractDecl)
+				visitUnitDataDeclaration(udd);
+		}
+		for (UnitDataDeclaration udd : globalMocks) {
+			if (!(udd.ofType.defn() instanceof ContractDecl))
+				visitUnitDataDeclaration(udd);
+		}
 	}
 
 	@Override
@@ -533,6 +542,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
+	}
+
+	@Override
+	public void traversalDone() {
+		jse.complete();
 	}
 	
 	@Override
