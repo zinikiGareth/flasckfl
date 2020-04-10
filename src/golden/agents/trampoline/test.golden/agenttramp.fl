@@ -1,15 +1,31 @@
-	contract handler Feedback
-		reply (String y)
+	contract handler Examine
+		contains (String d)
 
 	contract service Basic
 		store (String s)
+		retrieve -> (Examine h)
+
+	contract handler Feedback
+		reply (String y)
 
 	contract service Storage
 		tell (String s)
+		check -> (Examine e)
+		ask -> (Feedback f)
 
 	agent TrampAgent
 		requires Basic b
 
+# This fails typecheck because we obviously didn't think about it properly at the time
+# So come back to it ...
+.		handler Examine Mapper h
+.			contains msg
+.				<- h.reply msg
+			
 		provides Storage
 			tell msg
 				<- b.store msg 
+			check -> examiner
+				<- b.retrieve -> examiner
+			ask -> hdlr
+.				<- b.retrieve -> (Mapper hdlr)

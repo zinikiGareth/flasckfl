@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -45,6 +46,11 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		nv.push(this);
 	}
 	
+	@Override
+	public void visitMakeSend(MakeSend expr) {
+		new ApplyExprGeneratorJS(state, sv, block);
+	}
+
 	@Override
 	public void visitMakeAcor(MakeAcor expr) {
 		new ApplyExprGeneratorJS(state, sv, block);

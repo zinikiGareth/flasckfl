@@ -182,4 +182,27 @@ ExplodingIdempotentHandler.prototype.assertSatisfied = function() {
 		throw new Error("HANDLERS\n" + msg);
 };
 
+const MockHandler = function(ctr) {
+	this.successes = { expected: 0, actual: 0 };
+	this.failures = [];
+	this.ctr = ctr;
+	this.expected = {};
+	this.methodNames = {};
+	var ms = ctr.methods();
+	for (var i in ms) {
+		this.methodNames[ms[i]] = this[ms[i]] = proxyMe(this, ms[i]);
+	}
+	this.methods = function() {
+		return this.methodNames;
+	}
+};
+
+MockHandler.prototype = new ExplodingIdempotentHandler();
+MockHandler.prototype.constructor = MockHandler;
+
+MockHandler.prototype.areYouA = MockContract.prototype.areYouA;
+MockHandler.prototype.expect = MockContract.prototype.expect;
+MockHandler.prototype.serviceMethod = MockContract.prototype.serviceMethod;
+MockHandler.prototype.assertSatisfied = MockContract.prototype.assertSatisfied;
+
 

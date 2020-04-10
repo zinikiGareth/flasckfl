@@ -387,7 +387,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-		makeBlock(meth, currentBlock).flush();
+		if (currentBlock.isEmpty()) {
+			// if we didn't generate anything, it's because we didn't have any messages
+			// so return an empty list
+			meth.returnObject(meth.arrayOf(J.OBJECT)).flush();
+		} else {
+			makeBlock(meth, currentBlock).flush();
+		}
 		currentBlock.clear();
 		this.meth = null;
 		this.clz = null;

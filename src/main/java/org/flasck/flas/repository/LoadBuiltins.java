@@ -92,6 +92,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1);
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2);
 	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1);
+	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2);
 
 	// This is a weird thing but it seems to fit best here
 	public static final CurryArgument ca = new CurryArgument(pos);
@@ -150,6 +151,7 @@ public class LoadBuiltins {
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
 		makeTuple.bindType(tuple);
+		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
 		
 		// add all current functions to list for dependency resolution
 		allFunctions.add(plus);
@@ -159,6 +161,7 @@ public class LoadBuiltins {
 		allFunctions.add(length);
 		allFunctions.add(strlen);
 		allFunctions.add(concat);
+		allFunctions.add(handleSend);
 	}
 	
 	public static void applyTo(Repository repository) {
@@ -192,6 +195,7 @@ public class LoadBuiltins {
 		repository.functionDefn(strlen);
 		repository.functionDefn(concat);
 		repository.functionDefn(makeTuple);
+		repository.functionDefn(handleSend);
 
 		// not yet thought through for backward compatibility
 		StructDefn card = new StructDefn(pos, FieldsType.STRUCT, null, "Card", false);

@@ -38,6 +38,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMakeTuple;
 import org.flasck.flas.compiler.jsgen.form.JSMockAgent;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
+import org.flasck.flas.compiler.jsgen.form.JSMockHandler;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
 import org.flasck.flas.compiler.jsgen.form.JSNewState;
 import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
@@ -193,8 +194,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr makeSend(String sendMeth, JSExpr obj, int nargs) {
-		JSLocal ma = new JSLocal(creating, new JSMakeSend(sendMeth, obj, nargs));
+	public JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler) {
+		JSLocal ma = new JSLocal(creating, new JSMakeSend(sendMeth, obj, nargs, handler));
 		stmts.add(ma);
 		return ma;
 	}
@@ -291,6 +292,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr mockContract(SolidName name) {
 		JSLocal ret = new JSLocal(creating, new JSMockContract(name));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
+	public JSExpr mockHandler(SolidName name) {
+		JSLocal ret = new JSLocal(creating, new JSMockHandler(name));
 		stmts.add(ret);
 		return ret;
 	}

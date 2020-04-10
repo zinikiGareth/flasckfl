@@ -57,8 +57,16 @@ public class TDAMethodMessageParsingTests {
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.get 'hello'"));
-		// I'm not sure if this is quite right, because of the weird thing about the final method being able to have an indented block for everybody
-		// That needs separate testing elsewhere
+		assertTrue(nested instanceof LastOneOnlyNestedParser);
+	}
+
+	@Test
+	public void aSendCanHaveAHandler() {
+		context.checking(new Expectations() {{
+			oneOf(builder).sendMessage(with(SendMessageMatcher.of(ExprMatcher.apply(ExprMatcher.operator("->"), ExprMatcher.apply(ExprMatcher.member(ExprMatcher.unresolved("data"), ExprMatcher.unresolved("get")), ExprMatcher.string("hello")), ExprMatcher.unresolved("hdlr")))));
+		}});
+		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
+		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("<- data.get 'hello' -> hdlr"));
 		assertTrue(nested instanceof LastOneOnlyNestedParser);
 	}
 

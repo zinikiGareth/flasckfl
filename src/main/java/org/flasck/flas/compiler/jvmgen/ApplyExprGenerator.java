@@ -127,9 +127,12 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveMakeSend(MakeSend expr) {
-		IExpr obj = stack.remove(stack.size()-1);
-		IExpr mksend = meth.callInterface(J.OBJECT, fcx, "mksend", meth.classConst(expr.sendMeth.inContext.javaClassName()), meth.stringConst(expr.sendMeth.name), obj, meth.intConst(expr.nargs));
-		stack.add(mksend);
+		if (stack.size() != 1 && stack.size() != 2)
+			throw new NotImplementedException("badly formed stack in MakeSend");
+		IExpr obj = stack.remove(0);
+		IExpr handler = stack.isEmpty()? meth.aNull() : stack.remove(0);
+		IExpr mksend = meth.callInterface(J.OBJECT, fcx, "mksend", meth.classConst(expr.sendMeth.inContext.javaClassName()), meth.stringConst(expr.sendMeth.name), obj, meth.intConst(expr.nargs), handler);
+		sv.result(mksend);
 	}
 	
 	@Override

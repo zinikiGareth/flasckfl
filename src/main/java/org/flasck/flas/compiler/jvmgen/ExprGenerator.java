@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeAcor;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -55,6 +56,11 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitMessages(Messages msgs) {
+		new ApplyExprGenerator(state, sv, currentBlock);
+	}
+	
+	@Override
+	public void visitMakeSend(MakeSend expr) {
 		new ApplyExprGenerator(state, sv, currentBlock);
 	}
 	

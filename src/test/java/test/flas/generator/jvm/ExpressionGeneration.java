@@ -898,7 +898,7 @@ public class ExpressionGeneration {
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
-		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 0);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 0, null);
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
@@ -910,6 +910,7 @@ public class ExpressionGeneration {
 		IExpr sendClz = context.mock(IExpr.class, "clz");
 		IExpr sendMeth = context.mock(IExpr.class, "meth");
 		IExpr i0 = context.mock(IExpr.class, "0");
+		IExpr n1 = context.mock(IExpr.class, "n1");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
@@ -919,7 +920,8 @@ public class ExpressionGeneration {
 			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(0); will(returnValue(i0));
-			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0))));
+			oneOf(meth).aNull(); will(returnValue(n1));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0), Matchers.is(n1))));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null, null);
 		state.bindVar(block, "from", new ArgSlot(0, null), null);
@@ -939,7 +941,7 @@ public class ExpressionGeneration {
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
-		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 2);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 2, null);
 		me.conversion(ms);
 		ApplyExpr ae = new ApplyExpr(pos, me, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		StackVisitor stackv = new StackVisitor();
@@ -970,7 +972,8 @@ public class ExpressionGeneration {
 			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(2); will(returnValue(i2));
-			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2)))); will(returnValue(msi));
+			oneOf(meth).aNull(); will(returnValue(n1));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2), Matchers.is(n1)))); will(returnValue(msi));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).intConst(42); will(returnValue(n1));
 			oneOf(meth).box(n1); will(returnValue(n1));

@@ -2,6 +2,7 @@ package org.flasck.flas.tc3;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -122,6 +123,12 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce(op.location(), fn.type());
 		} else
 			throw new RuntimeException("Cannot handle " + op);
+	}
+	
+	@Override
+	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
+		this.exprPos = location;
+		nv.push(new MessageHandlerExpressionChecker(errors, state, nv));
 	}
 	
 	@Override

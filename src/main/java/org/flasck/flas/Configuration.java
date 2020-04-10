@@ -98,8 +98,10 @@ public class Configuration {
 					}
 					writeJS = new File(root, args[++i]);
 				} else if (arg.equals("--no-unit-js")) {
+					generateJS = false;
 					unitjs = false;
 				} else if (arg.equals("--no-unit-jvm")) {
+					generateJVM = false;
 					unitjvm = false;
 //				} else if (arg.equals("--android")) {
 //					if (hasMore == 0) {

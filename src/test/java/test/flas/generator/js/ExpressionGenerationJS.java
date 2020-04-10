@@ -612,14 +612,14 @@ public class ExpressionGenerationJS {
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
-		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 0);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 0, null);
 		me.conversion(ms);
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		JSExpr fv = context.mock(JSExpr.class, "fv");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("from"); will(returnValue(fv));
-			oneOf(meth).makeSend("f", fv, 0);
+			oneOf(meth).makeSend("f", fv, 0, null);
 		}});
 		new ApplyExprGeneratorJS(state, stackv, meth);
 		Traverser gen = new Traverser(stackv).withHSI();
@@ -636,7 +636,7 @@ public class ExpressionGenerationJS {
 		ctr.bind(cd);
 		TypedPattern tp = new TypedPattern(pos, ctr, new VarName(pos, cd.name(), "from"));
 		from.bind(tp);
-		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 2);
+		MakeSend ms = new MakeSend(pos, FunctionName.contractMethod(pos, cd.name(), "f"), from, 2, null);
 		me.conversion(ms);
 		ApplyExpr ae = new ApplyExpr(pos, me, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		StackVisitor stackv = new StackVisitor();
@@ -647,7 +647,7 @@ public class ExpressionGenerationJS {
 		JSExpr s1 = context.mock(JSExpr.class, "s1");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("from"); will(returnValue(fv));
-			oneOf(meth).makeSend("f", fv, 2); will(returnValue(msi));
+			oneOf(meth).makeSend("f", fv, 2, null); will(returnValue(msi));
 			oneOf(meth).literal("42"); will(returnValue(n1));
 			oneOf(meth).string("hello"); will(returnValue(s1));
 			oneOf(meth).closure(msi, n1, s1); will(returnValue(res));

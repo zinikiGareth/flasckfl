@@ -25,6 +25,7 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -473,7 +474,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		NamedType objty = udd.ofType.defn();
 		if (objty instanceof ContractDecl) {
-			JSExpr mock = meth.mockContract((SolidName) objty.name());
+			ContractDecl cd = (ContractDecl) objty;
+			JSExpr mock;
+			if (cd.type == ContractType.HANDLER)
+				mock = meth.mockHandler((SolidName) objty.name());
+			else
+				mock = meth.mockContract((SolidName) objty.name());
 			state.addMock(udd, mock);
 			explodingMocks.add(mock);
 		} else if (objty instanceof ObjectDefn) {

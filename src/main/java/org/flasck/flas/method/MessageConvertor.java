@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CurrentContainer;
+import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.repository.LeafAdapter;
@@ -59,9 +60,17 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
+	public void leaveHandleExpr(Expr expr, Expr handler) {
+		MakeSend ms = (MakeSend) stack.remove(0);
+		Expr h = (Expr) stack.remove(0);
+		ms.handler = h;
+		nv.result(ms);
+	}
+	
+	@Override
 	public void leaveMessage(ActionMessage msg) {
 		if (stack.size() != 1)
-			throw new NotImplementedException("should be 1");
+			throw new NotImplementedException("when sending messages, should only have 1 arg");
 		nv.result(stack.remove(0));
 	}
 	

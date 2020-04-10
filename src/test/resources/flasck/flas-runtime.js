@@ -106,14 +106,12 @@ FLCurry.prototype.toString = function() {
 
 
 
-const FLMakeSend = function(meth, obj, nargs, /* optional */ args) {
+const FLMakeSend = function(meth, obj, nargs, handler) {
 	this.meth = meth;
 	this.obj = obj;
 	this.nargs = nargs;
-	if (args)
-		this.current = args;
-	else
-		this.current = [];
+	this.current = [];
+	this.handler = handler;
 }
 
 FLMakeSend.prototype.apply = function(cx, args) {
@@ -197,11 +195,11 @@ FLContext.prototype.error = function(msg) {
 	return FLError.eval(this, msg);
 }
 
-FLContext.prototype.mksend = function(meth, obj, cnt) {
+FLContext.prototype.mksend = function(meth, obj, cnt, handler) {
 	if (cnt == 0)
-		return Send.eval(this, obj, meth, []);
+		return Send.eval(this, obj, meth, [], handler);
 	else
-		return new FLMakeSend(meth, obj, cnt);
+		return new FLMakeSend(meth, obj, cnt, handler);
 }
 
 FLContext.prototype.mkacor = function(meth, obj, cnt) {
@@ -312,6 +310,11 @@ FLContext.prototype.mockAgent = function(agent) {
 
 FLContext.prototype.explodingHandler = function() {
 	const ret = new ExplodingIdempotentHandler(this);
+	return ret;
+}
+
+FLContext.prototype.mockHandler = function(contract) {
+	const ret = new MockHandler(contract);
 	return ret;
 }
 

@@ -30,9 +30,10 @@ public interface JSBlockCreator {
 	// creating more complex things
 	JSExpr structConst(String name);
 	JSExpr mockContract(SolidName name);
+	JSExpr mockHandler(SolidName name);
 	JSExpr createObject(SolidName name);
 	JSExpr createAgent(CardName cardName);
-	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs);
+	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);
 	void recordContract(String ctr, String impl);
 	void requireContract(String referAsVar, String jsName);

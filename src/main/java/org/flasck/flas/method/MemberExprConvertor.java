@@ -29,6 +29,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private StructDefn sd;
 	private FunctionName sendMeth;
 	private int expargs;
+	private Expr handler;
 
 	public MemberExprConvertor(NestedVisitor nv) {
 		this.nv = nv;
@@ -98,7 +99,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
 		if (sendMeth != null)
-			nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs));
+			nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs, handler));
 		else
 			throw new NotImplementedException("Need to implement the field case");
 	}

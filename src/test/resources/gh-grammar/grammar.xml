@@ -988,6 +988,9 @@
     	    <many>
     	      <ref production='expression' />
     	    </many>
+    	    <optional>
+    	      <ref production='maybe-handled' />
+    	    </optional>
     	    <token type='EOL' />
       </seq>
       <seq>
@@ -1006,14 +1009,22 @@
     	  <token type='var-name'/>
     </seq>
   </production>
+  <production name='maybe-handled'>
+    <section title='Method'/>
+    <tested by='test.parsing.TDAMethodMessageParsingTests' />
+    <seq>
+	    <token type='HANDLE' />
+        <token type='var-name'/>
+    </seq>
+  </production>
   <production name='assign-method-action'>
     <section title='Method'/>
     <tested by='test.parsing.TDAMethodMessageParsingTests' />
     <seq>
-    	  <ref production='member-path' />
-    	  <token type='SEND' />
+   	  <ref production='member-path' />
+   	  <token type='SEND' />
       <ref production='expression' />
-    	  <token type='EOL' />
+      <token type='EOL' />
     </seq>
   </production>
   <production name='member-path'>

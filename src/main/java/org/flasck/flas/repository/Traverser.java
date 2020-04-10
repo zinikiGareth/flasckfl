@@ -910,11 +910,28 @@ public class Traverser implements Visitor {
 				visitor.visitExpr(ae, 0);
 		}
 		
-		visitor.visitApplyExpr(ae);
-		visitExpr(fn, ae.args.size());
-		for (Object x : ae.args)
-			visitExpr((Expr) x, 0);
-		visitor.leaveApplyExpr(ae);
+		if (fn instanceof UnresolvedOperator && ((UnresolvedOperator)fn).op.equals("->")) {
+			visitHandleExpr(fn.location(), (Expr)ae.args.get(0), (Expr)ae.args.get(1));
+		} else {
+			visitor.visitApplyExpr(ae);
+			visitExpr(fn, ae.args.size());
+			for (Object x : ae.args)
+				visitExpr((Expr) x, 0);
+			leaveApplyExpr(ae);
+		}
+	}
+
+	@Override
+	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
+		visitor.visitHandleExpr(location, expr, handler);
+		visitExpr(expr, 0);
+		visitExpr(handler, 0);
+		leaveHandleExpr(expr, handler);
+	}
+
+	@Override
+	public void leaveHandleExpr(Expr expr, Expr handler) {
+		visitor.leaveHandleExpr(expr, handler);
 	}
 
 	private NestedVarReader isFnNeedingNesting(Expr uv) {
@@ -928,6 +945,7 @@ public class Traverser implements Visitor {
 
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
+		visitor.leaveApplyExpr(expr);
 	}
 
 	@Override
@@ -1001,6 +1019,8 @@ public class Traverser implements Visitor {
 	public void visitMakeSend(MakeSend expr) {
 		visitor.visitMakeSend(expr);
 		visitExpr(expr.obj, 0);
+		if (expr.handler != null)
+			visitExpr(expr.handler, 0);
 		leaveMakeSend(expr);
 	}
 	

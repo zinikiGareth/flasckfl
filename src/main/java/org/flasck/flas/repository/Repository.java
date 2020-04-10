@@ -178,6 +178,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitUnitTestSend(UnitTestSend s);
 		void leaveUnitTestSend(UnitTestSend s);
 		void visitSendMethod(NamedType defn, UnresolvedVar expr);
+		void visitHandleExpr(InputPosition location, Expr expr, Expr handler);
+		void leaveHandleExpr(Expr expr, Expr handler);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
