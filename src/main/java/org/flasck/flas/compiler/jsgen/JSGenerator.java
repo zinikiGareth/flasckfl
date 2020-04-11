@@ -21,7 +21,6 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
-import org.flasck.flas.compiler.jsgen.form.JSSetField;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;

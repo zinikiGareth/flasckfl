@@ -8,7 +8,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StandaloneDefn;
@@ -94,9 +93,6 @@ public class LoadBuiltins {
 	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1);
 	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2);
 
-	// This is a weird thing but it seems to fit best here
-	public static final CurryArgument ca = new CurryArgument(pos);
-
 	static {
 		// bind TRs
 		polyATR.bind(polyA);
@@ -176,7 +172,6 @@ public class LoadBuiltins {
 		repository.addEntry(bool.name(), bool);
 		
 		repository.addEntry(new SolidName(null, "[]"), nil);
-		repository.addEntry(new SolidName(null, "_"), ca);
 		repository.newStruct(nil);
 		repository.newStruct(cons);
 		repository.newUnion(list);

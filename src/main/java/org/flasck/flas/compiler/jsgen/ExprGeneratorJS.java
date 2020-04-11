@@ -10,8 +10,8 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
-import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -94,6 +94,11 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			throw new RuntimeException("var " + var + " was still not resolved");
 		generateFnOrCtor(defn, handleBuiltinName(defn), nargs);
 	}
+	
+	@Override
+	public void visitAnonymousVar(AnonymousVar var) {
+		sv.result(new JSCurryArg());
+	}
 
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
@@ -152,8 +157,6 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.contractByVar(state.stateLocation(), ((RequiresContract)defn).referAsVar));
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(myName, 0);
-		} else if (defn instanceof CurryArgument) {
-			sv.result(new JSCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
 		} else

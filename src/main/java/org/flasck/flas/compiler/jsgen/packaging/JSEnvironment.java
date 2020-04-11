@@ -15,7 +15,6 @@ import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
-import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;

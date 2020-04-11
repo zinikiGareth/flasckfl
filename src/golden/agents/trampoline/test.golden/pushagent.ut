@@ -12,7 +12,7 @@
 	
 	test we can ask for an agent response
 		data Feedback handler
-		expect root retrieve
+		expect root retrieve -> _replier
 		contract agent Storage ask -> handler
 	
 //		expect handler reply "stored is question"

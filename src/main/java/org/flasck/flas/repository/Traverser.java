@@ -23,19 +23,20 @@ import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.CurrentContainer;
-import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerHolder;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ImplementsContract;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -183,9 +184,7 @@ public class Traverser implements Visitor {
 			visitStructFieldAccessor((StructField) e);
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType || e instanceof RequiresContract) {
 			; // do nothing: these are just in the repo for lookup purposes
-		} else if (e instanceof CurryArgument)
-			; // do nothing; just for resolution
-		else if (e instanceof HandlerImplements) 
+		} else if (e instanceof HandlerImplements) 
 			; // ignored for now because it breaks things that don't care
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
@@ -878,6 +877,10 @@ public class Traverser implements Visitor {
 			visitNumericLiteral((NumericLiteral)expr);
 		else if (expr instanceof UnresolvedVar)
 			visitUnresolvedVar((UnresolvedVar) expr, nargs);
+		else if (expr instanceof AnonymousVar)
+			visitAnonymousVar((AnonymousVar) expr);
+		else if (expr instanceof IntroduceVar)
+			visitIntroduceVar((IntroduceVar) expr);
 		else if (expr instanceof UnresolvedOperator)
 			visitUnresolvedOperator((UnresolvedOperator) expr, nargs);
 		else if (expr instanceof MemberExpr)
@@ -1013,6 +1016,16 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
 		visitor.visitUnresolvedOperator(operator, nargs);
+	}
+
+	@Override
+	public void visitIntroduceVar(IntroduceVar var) {
+		visitor.visitIntroduceVar(var);
+	}
+
+	@Override
+	public void visitAnonymousVar(AnonymousVar var) {
+		visitor.visitAnonymousVar(var);
 	}
 
 	@Override

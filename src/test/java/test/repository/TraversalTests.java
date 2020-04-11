@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
@@ -614,7 +615,7 @@ public class TraversalTests {
 		utc.steps.add(udd);
 		UnitTestAssert uta = new UnitTestAssert(null, null);
 		utc.steps.add(uta);
-		UnitTestExpect ute = new UnitTestExpect(new UnresolvedVar(pos, "ctr"), new UnresolvedVar(pos, "meth"), new StringLiteral(pos, "hello"));
+		UnitTestExpect ute = new UnitTestExpect(new UnresolvedVar(pos, "ctr"), new UnresolvedVar(pos, "meth"), new Expr[] { new StringLiteral(pos, "hello") }, null);
 		utc.steps.add(ute);
 		r.newTestData(udd);
 		r.addEntry(name, utp);

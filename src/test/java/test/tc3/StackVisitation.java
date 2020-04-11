@@ -16,6 +16,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
@@ -450,7 +451,7 @@ public class StackVisitation {
 		fn.bindType(fnt);
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
-		ApplyExpr ae = new ApplyExpr(pos, op, LoadBuiltins.ca, e1);
+		ApplyExpr ae = new ApplyExpr(pos, op, new AnonymousVar(pos), e1);
 		aec.result(new ExprResult(pos, fnt));
 		aec.result(new ExprResult(pos, new CurryArgumentType(pos)));
 		aec.result(new ExprResult(pos, nbr));

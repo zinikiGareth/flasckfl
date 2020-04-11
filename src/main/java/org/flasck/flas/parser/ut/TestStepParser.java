@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
@@ -135,7 +136,15 @@ public class TestStepParser implements TDAParsing {
 			if (errors.hasErrors()){
 				return new IgnoreNestedParser();
 			}
-			builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]));
+			Expr handler = null;
+			if (args.size() >= 2) {
+				Expr op = args.get(args.size()-2);
+				if (op instanceof UnresolvedOperator && ((UnresolvedOperator)op).op.equals("->")) {
+					args.remove(args.size()-2);
+					handler = args.remove(args.size()-1);
+				}
+			}
+			builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 			return new TDAMultiParser(errors);
 		}
 		case "template": {

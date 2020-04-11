@@ -124,7 +124,8 @@ public class UnitTestStepParsingTests {
 			oneOf(builder).expect((UnresolvedVar)with(ExprMatcher.unresolved("svc")),
 					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
 					(Expr[])with(Matchers.array(ExprMatcher.number(22),
-							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))));
+							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))),
+					with(aNull(Expr.class)));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello')"));

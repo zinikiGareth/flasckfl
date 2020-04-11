@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -183,10 +184,9 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr((Matcher)any(CurryArgumentType.class))));
 		}});
-		UnresolvedVar uv = new UnresolvedVar(pos, "x");
-		uv.bind(LoadBuiltins.ca);
+		AnonymousVar uv = new AnonymousVar(pos);
 		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
-		tc.visitUnresolvedVar(uv, 0);
+		tc.visitAnonymousVar(uv);
 	}
 	
 	@Test

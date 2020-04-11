@@ -3,12 +3,11 @@ package org.flasck.flas.tc3;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.CurryArgument;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -106,14 +105,17 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof StructField) {
 			StructField sf = (StructField) defn;
 			announce(pos, (Type) sf.type.defn());
-		} else if (defn instanceof CurryArgument) {
-			announce(pos, (Type) new CurryArgumentType(((Locatable)defn).location()));
 		} else if (defn instanceof RequiresContract) {
 			announce(pos, ((RequiresContract)defn).implementsType().defn());
 		} else if (defn instanceof UnitDataDeclaration) {
 			announce(pos, ((UnitDataDeclaration)defn).ofType.defn());
 		} else
 			throw new RuntimeException("Cannot handle " + defn + " of type " + defn.getClass());
+	}
+	
+	@Override
+	public void visitAnonymousVar(AnonymousVar var) {
+		announce(var.location(), (Type) new CurryArgumentType(var.location()));
 	}
 	
 	@Override

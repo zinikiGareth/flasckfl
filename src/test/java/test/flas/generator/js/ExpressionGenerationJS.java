@@ -24,6 +24,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -491,8 +492,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
 		fn.bind(new FunctionDefinition(fnName, 2));
-		UnresolvedVar uv = new UnresolvedVar(pos, "_");
-		uv.bind(LoadBuiltins.ca);
+		AnonymousVar uv = new AnonymousVar(pos);
 		ApplyExpr ae = new ApplyExpr(pos, fn, uv, new StringLiteral(pos, "hello"));
 		JSExpr f = context.mock(JSExpr.class, "f");
 		JSExpr sv = context.mock(JSExpr.class, "sv");

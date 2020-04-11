@@ -6,8 +6,8 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
-import org.flasck.flas.parsedForm.CurryArgument;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -101,6 +101,11 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			throw new RuntimeException("var " + var + " was still not resolved");
 		generateFnOrCtor(defn, defn.name().javaClassName(), nargs);
 	}
+
+	@Override
+	public void visitAnonymousVar(AnonymousVar var) {
+		sv.result(new JVMCurryArg());
+	}
 	
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
@@ -183,8 +188,6 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			sv.result(ret);
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(myName, 0);
-		} else if (defn instanceof CurryArgument) {
-			sv.result(new JVMCurryArg());
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
 		} else

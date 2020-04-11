@@ -47,8 +47,8 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr... args) {
-		this.steps.add(new UnitTestExpect(ctr, meth, args));
+	public void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr[] args, Expr handler) {
+		this.steps.add(new UnitTestExpect(ctr, meth, args, handler));
 	}
 
 	@Override

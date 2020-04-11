@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -22,6 +23,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ImplementsContract;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -350,6 +352,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
+	}
+
+	@Override
+	public void visitIntroduceVar(IntroduceVar var) {
+	}
+
+	@Override
+	public void visitAnonymousVar(AnonymousVar var) {
 	}
 
 	@Override

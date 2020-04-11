@@ -18,6 +18,7 @@ import org.flasck.flas.compiler.jvmgen.ExprGenerator;
 import org.flasck.flas.compiler.jvmgen.FunctionState;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -742,8 +743,7 @@ public class ExpressionGeneration {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
 		fn.bind(new FunctionDefinition(fnName, 2));
-		UnresolvedVar uv = new UnresolvedVar(pos, "_");
-		uv.bind(LoadBuiltins.ca);
+		AnonymousVar uv = new AnonymousVar(pos);
 		ApplyExpr ae = new ApplyExpr(pos, fn, uv, new StringLiteral(pos, "hello"));
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(22));

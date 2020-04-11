@@ -200,7 +200,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		}
 		var.bind(defn);
 	}
-
+	
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
 		final RepositoryEntry defn = find(scope, operator.op);
