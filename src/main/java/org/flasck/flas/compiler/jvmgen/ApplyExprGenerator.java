@@ -43,7 +43,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		new ExprGenerator(state, sv, currentBlock);
+		new ExprGenerator(state, sv, currentBlock, false);
 	}
 
 	@Override

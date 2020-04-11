@@ -45,7 +45,7 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitGuard(FunctionCaseDefn c) {
 		isGuard = true;
-		new ExprGenerator(state, sv, testBlk != null ? testBlk : this.block);
+		new ExprGenerator(state, sv, testBlk != null ? testBlk : this.block, false);
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 			blk = this.block;
 		else
 			nestedBlk = blk = new ArrayList<>();
-		new ExprGenerator(state, sv, blk);
+		new ExprGenerator(state, sv, blk, false);
 	}
 	
 	@Override

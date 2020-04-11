@@ -37,7 +37,7 @@ public class DoSendGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
-		new ExprGenerator(fs, sv, block).visitUnresolvedVar(var, nargs);
+		new ExprGenerator(fs, sv, block, false).visitUnresolvedVar(var, nargs);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class DoSendGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		new ExprGenerator(fs, sv, block).visitExpr(expr, nArgs);
+		new ExprGenerator(fs, sv, block, false).visitExpr(expr, nArgs);
 	}
 	
 	@Override

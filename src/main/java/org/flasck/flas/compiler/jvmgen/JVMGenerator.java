@@ -283,7 +283,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		switchVars.clear();
 		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
-		new ExprGenerator(fs, sv, currentBlock);
+		new ExprGenerator(fs, sv, currentBlock, false);
 	}
 	
 	@Override
@@ -747,6 +747,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.returnVoid().flush();
 		meth = null;
 		this.currentBlock = null;
+		explodingMocks.clear();
 		clz.generate();
 	}
 	

@@ -17,26 +17,34 @@ public class DoExpectationGenerator extends LeafAdapter implements ResultAware {
 	private IExpr mock;
 	private List<IExpr> args = new ArrayList<>();
 	private List<IExpr> block;
+	private boolean isHandler;
+	private IExpr handler;
 
 	public DoExpectationGenerator(StackVisitor sv, FunctionState fs, IExpr runner, List<IExpr> block) {
 		this.sv = sv;
-
 		this.fs = fs;
 		this.block = block;
 		sv.push(this);
-		new ExprGenerator(fs, sv, block);
+		new ExprGenerator(fs, sv, block, true);
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		new ExprGenerator(fs, sv, block);
+		new ExprGenerator(fs, sv, block, true);
 	}
 
+	@Override
+	public void expectHandlerNext() {
+		this.isHandler = true;
+	}
+	
 	@Override
 	public void result(Object r) {
 		// first result is the mock
 		if (mock == null)
 			this.mock = fs.meth.castTo((IExpr) r, J.EXPECTING);
+		else if (isHandler)
+			this.handler = (IExpr) r;
 		else
 			this.args.add((IExpr) r);
 	}
@@ -44,8 +52,10 @@ public class DoExpectationGenerator extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveUnitTestExpect(UnitTestExpect ute) {
-		IExpr x = fs.meth.voidExpr(fs.meth.callInterface(J.MOCKEXPECTATION, mock, "expect", fs.meth.stringConst(ute.method.var), fs.meth.arrayOf(J.OBJECT, args)));
-		x.flush();
+		IExpr x = fs.meth.voidExpr(fs.meth.callInterface(J.MOCKEXPECTATION, mock, "expect", fs.meth.stringConst(ute.method.var), fs.meth.arrayOf(J.OBJECT, args), fs.meth.as(this.handler, J.OBJECT)));
+		block.add(x);
+		JVMGenerator.makeBlock(fs.meth, block).flush();
+		block.clear();
 		sv.result(null);
 	}
 }

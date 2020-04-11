@@ -22,7 +22,7 @@ public class StructFieldGenerator extends LeafAdapter implements ResultAware {
 		this.meth = state.meth;
 		this.ret = state.evalRet;
 		sv.push(this);
-		new ExprGenerator(state, sv, currentBlock);
+		new ExprGenerator(state, sv, currentBlock, false);
 	}
 
 	@Override

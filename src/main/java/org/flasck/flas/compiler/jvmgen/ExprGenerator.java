@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -40,11 +41,13 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	private final MethodDefiner meth;
 	private final IExpr fcx;
 	private final List<IExpr> currentBlock;
+	private final boolean isExpectation;
 
-	public ExprGenerator(FunctionState state, NestedVisitor sv, List<IExpr> currentBlock) {
+	public ExprGenerator(FunctionState state, NestedVisitor sv, List<IExpr> currentBlock, boolean isExpectation) {
 		this.state = state;
 		this.sv = sv;
 		this.currentBlock = currentBlock;
+		this.isExpectation = isExpectation;
 		this.meth = state.meth;
 		this.fcx = state.fcx;
 		sv.push(this);
@@ -104,7 +107,21 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitAnonymousVar(AnonymousVar var) {
-		sv.result(new JVMCurryArg());
+		if (isExpectation) {
+			sv.result(meth.makeNew(J.BOUNDVAR));
+		} else 
+			sv.result(new JVMCurryArg());
+	}
+	
+	@Override
+	public void visitIntroduceVar(IntroduceVar var) {
+		IExpr ret = meth.makeNew(J.BOUNDVAR);
+		if (var != null) {
+			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
+			currentBlock.add(meth.assign(v, ret));
+			ret = v;
+		}
+		sv.result(ret);
 	}
 	
 	@Override

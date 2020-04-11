@@ -23,7 +23,7 @@ public class DoInvocationGenerator extends LeafAdapter implements ResultAware {
 		this.meth = fs.meth;
 		this.cx = fs.fcx;
 		sv.push(this);
-		new ExprGenerator(fs, sv, block);
+		new ExprGenerator(fs, sv, block, false);
 	}
 
 	@Override
