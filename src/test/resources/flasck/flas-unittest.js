@@ -41,6 +41,9 @@ UTRunner.prototype.newContext = function() {
 	window.UTRunner = UTRunner;
 
 
+const BoundVar = function() {
+}
+
 const Expectation = function(args) {
 	this.args = args;
 	this.allowed = 1;

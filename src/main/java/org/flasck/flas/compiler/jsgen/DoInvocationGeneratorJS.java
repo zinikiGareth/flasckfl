@@ -16,7 +16,7 @@ public class DoInvocationGeneratorJS extends LeafAdapter implements ResultAware 
 		this.block = block;
 		this.runner = runner;
 		sv.push(this);
-		new ExprGeneratorJS(state, sv, block);
+		new ExprGeneratorJS(state, sv, block, false);
 	}
 
 	@Override

@@ -9,11 +9,13 @@ import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSIntroducedVar;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -37,10 +39,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	private final JSFunctionState state;
 	private final NestedVisitor sv;
 	private final JSBlockCreator block;
+	private final boolean isExpectation;
 
-	public ExprGeneratorJS(JSFunctionState state, NestedVisitor nv, JSBlockCreator block) {
+	public ExprGeneratorJS(JSFunctionState state, NestedVisitor nv, JSBlockCreator block, boolean isExpectation) {
 		this.state = state;
 		this.sv = nv;
+		this.isExpectation = isExpectation;
 		if (block == null)
 			throw new NullPointerException("Cannot have a null block");
 		this.block = block;
@@ -97,7 +101,15 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitAnonymousVar(AnonymousVar var) {
-		sv.result(new JSCurryArg());
+		if (isExpectation)
+			sv.result(block.introduceVar(null));
+		else
+			sv.result(new JSCurryArg());
+	}
+
+	@Override
+	public void visitIntroduceVar(IntroduceVar var) {
+		sv.result(block.introduceVar(var.var));
 	}
 
 	@Override

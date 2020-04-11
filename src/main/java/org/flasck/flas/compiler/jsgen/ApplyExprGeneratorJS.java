@@ -39,7 +39,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 	}
 
 	public void visitExpr(Expr expr, int nArgs) {
-		new ExprGeneratorJS(state, sv, block);
+		new ExprGeneratorJS(state, sv, block, false);
 	}
 	
 	@Override

@@ -9,11 +9,13 @@ public class JSExpectation implements JSExpr {
 	private final JSExpr mock;
 	private final String method;
 	private final List<JSExpr> args;
+	private final JSExpr handler;
 
-	public JSExpectation(JSExpr mock, String method, List<JSExpr> args) {
+	public JSExpectation(JSExpr mock, String method, List<JSExpr> args, JSExpr handler) {
 		this.mock = mock;
 		this.method = method;
 		this.args = args;
+		this.handler = handler;
 	}
 
 	@Override
@@ -33,7 +35,9 @@ public class JSExpectation implements JSExpr {
 			sep = ", ";
 			w.print(a.asVar());
 		}
-		w.println("]);");
+		w.print("], ");
+		w.print(handler.asVar());
+		w.println(");");
 	}
 
 }

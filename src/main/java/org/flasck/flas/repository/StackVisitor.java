@@ -381,6 +381,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitUnitTestExpect(s);
 	}
 
+	public void expectHandlerNext() {
+		top.expectHandlerNext();
+	}
+
 	public void leaveUnitTestExpect(UnitTestExpect ute) {
 		top.leaveUnitTestExpect(ute);
 	}

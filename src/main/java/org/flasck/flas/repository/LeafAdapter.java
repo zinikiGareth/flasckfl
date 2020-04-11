@@ -451,6 +451,10 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void expectHandlerNext() {
+	}
+
+	@Override
 	public void leaveUnitTestExpect(UnitTestExpect ute) {
 	}
 

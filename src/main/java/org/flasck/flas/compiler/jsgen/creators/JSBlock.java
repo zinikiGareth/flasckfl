@@ -30,6 +30,7 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSHead;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
+import org.flasck.flas.compiler.jsgen.form.JSIntroducedVar;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSLoadField;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
@@ -181,6 +182,16 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr introduceVar(String var) {
+		JSExpr iv = new JSIntroducedVar();
+		if (var != null) {
+			iv = new JSLocal(creating, iv);
+			stmts.add(iv);
+		}
+		return iv;
+	}
+
+	@Override
 	public JSExpr jsArray(Iterable<JSExpr> arr) {
 		JSLocal ma = new JSLocal(creating, new JSArray(arr));
 		stmts.add(ma);
@@ -215,8 +226,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void expect(JSExpr obj, String assertion, List<JSExpr> args) {
-		JSExpectation stmt = new JSExpectation(obj, assertion, args);
+	public void expect(JSExpr obj, String assertion, List<JSExpr> args, JSExpr handler) {
+		JSExpectation stmt = new JSExpectation(obj, assertion, args, handler);
 		stmts.add(stmt);
 	}
 

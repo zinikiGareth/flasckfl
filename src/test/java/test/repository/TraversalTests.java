@@ -22,6 +22,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -615,7 +616,7 @@ public class TraversalTests {
 		utc.steps.add(udd);
 		UnitTestAssert uta = new UnitTestAssert(null, null);
 		utc.steps.add(uta);
-		UnitTestExpect ute = new UnitTestExpect(new UnresolvedVar(pos, "ctr"), new UnresolvedVar(pos, "meth"), new Expr[] { new StringLiteral(pos, "hello") }, null);
+		UnitTestExpect ute = new UnitTestExpect(new UnresolvedVar(pos, "ctr"), new UnresolvedVar(pos, "meth"), new Expr[] { new StringLiteral(pos, "hello") }, new AnonymousVar(pos));
 		utc.steps.add(ute);
 		r.newTestData(udd);
 		r.addEntry(name, utp);
@@ -640,6 +641,9 @@ public class TraversalTests {
 			oneOf(v).visitExpr(with(ExprMatcher.string("hello")), with(0));
 			oneOf(v).visitStringLiteral((StringLiteral) with(ExprMatcher.string("hello")));
 			oneOf(v).visitUnitTestExpect(ute);
+			oneOf(v).expectHandlerNext();
+			oneOf(v).visitExpr(with(any(AnonymousVar.class)), with(0));
+			oneOf(v).visitAnonymousVar(with(any(AnonymousVar.class)));
 			oneOf(v).leaveUnitTestExpect(ute);
 			oneOf(v).leaveUnitTest(utc);
 			oneOf(v).leaveUnitTestPackage(utp);

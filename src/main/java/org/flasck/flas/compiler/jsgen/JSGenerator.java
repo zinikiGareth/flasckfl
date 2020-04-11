@@ -168,7 +168,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth.argument("_cxt");
 		this.block = meth;
 		this.state = new JSFunctionStateStore(StateLocation.NONE);
-		sv.push(new ExprGeneratorJS(state, sv, this.block));
+		sv.push(new ExprGeneratorJS(state, sv, this.block, false));
 	}
 	
 	@Override

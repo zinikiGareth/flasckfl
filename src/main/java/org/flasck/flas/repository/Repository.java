@@ -179,6 +179,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitUnitTestInvoke(UnitTestInvoke uti);
 		void leaveUnitTestInvoke(UnitTestInvoke uti);
 		void visitUnitTestExpect(UnitTestExpect s);
+		void expectHandlerNext();
 		void leaveUnitTestExpect(UnitTestExpect ute);
 		void visitUnitTestSend(UnitTestSend s);
 		void leaveUnitTestSend(UnitTestSend s);

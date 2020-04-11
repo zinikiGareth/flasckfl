@@ -1191,7 +1191,14 @@ public class Traverser implements Visitor {
 		visitUnresolvedVar(ute.ctr, 0);
 		for (Expr e : ute.args)
 			visitExpr(e, 0);
+		expectHandlerNext();
+		visitExpr(ute.handler, 0);
 		leaveUnitTestExpect(ute);
+	}
+
+	@Override
+	public void expectHandlerNext() {
+		visitor.expectHandlerNext();
 	}
 
 	@Override

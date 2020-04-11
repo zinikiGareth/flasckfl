@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.IgnoreNestedParser;
@@ -125,7 +126,7 @@ public class UnitTestStepParsingTests {
 					(UnresolvedVar) with(ExprMatcher.unresolved("meth")),
 					(Expr[])with(Matchers.array(ExprMatcher.number(22),
 							ExprMatcher.apply(ExprMatcher.unresolved("length"), ExprMatcher.string("hello")))),
-					with(aNull(Expr.class)));
+					with(any(AnonymousVar.class)));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("expect svc meth 22 (length 'hello')"));

@@ -36,6 +36,7 @@ public interface JSBlockCreator {
 	JSExpr createAgent(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);
+	JSExpr introduceVar(String var);
 	void recordContract(String ctr, String impl);
 	void requireContract(String referAsVar, String jsName);
 	
@@ -72,7 +73,7 @@ public interface JSBlockCreator {
 
 	// unit testing
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
-	void expect(JSExpr mock, String var, List<JSExpr> args);
+	void expect(JSExpr mock, String var, List<JSExpr> args, JSExpr handler);
 	void assertSatisfied(String var);
 
 	// Send the block to disk

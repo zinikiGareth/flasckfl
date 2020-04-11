@@ -19,7 +19,7 @@ public class StructFieldGeneratorJS extends LeafAdapter implements ResultAware {
 //		this.meth = state.meth;
 		this.ret = evalRet;
 		sv.push(this);
-		new ExprGeneratorJS(state, sv, currentBlock);
+		new ExprGeneratorJS(state, sv, currentBlock, false);
 	}
 
 	@Override

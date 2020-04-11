@@ -76,7 +76,7 @@ public class ExpressionGenerationJS {
 		NumericLiteral expr = new NumericLiteral(pos, "42", 2);
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -91,7 +91,7 @@ public class ExpressionGenerationJS {
 		StringLiteral expr = new StringLiteral(pos, "hello");
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -108,7 +108,7 @@ public class ExpressionGenerationJS {
 		expr.bind(new FunctionDefinition(nameX, 0));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 2);
 	}
@@ -125,7 +125,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 2);
 	}
@@ -142,7 +142,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 2);
 	}
@@ -161,7 +161,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -179,7 +179,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -200,7 +200,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -219,7 +219,7 @@ public class ExpressionGenerationJS {
 		expr.bind(new FunctionDefinition(nameX, 0));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -238,7 +238,7 @@ public class ExpressionGenerationJS {
 		expr.bind(new FunctionDefinition(nameX, 2));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -254,7 +254,7 @@ public class ExpressionGenerationJS {
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -272,7 +272,7 @@ public class ExpressionGenerationJS {
 		expr.bind(LoadBuiltins.cons);
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 0);
 	}
@@ -288,7 +288,7 @@ public class ExpressionGenerationJS {
 		expr.bind(LoadBuiltins.cons);
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 1);
 	}
@@ -360,7 +360,7 @@ public class ExpressionGenerationJS {
 		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(expr, 2);
 	}
@@ -383,7 +383,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).closure(f, iv, sv); will(returnValue(res));
 			oneOf(nv).result(res);
 		}});
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -407,7 +407,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).closure(f, iv, sv); will(returnValue(res));
 			oneOf(nv).result(res);
 		}});
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -433,7 +433,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).closure(f, v1); will(returnValue(res));
 			oneOf(nv).result(res);
 		}});
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -460,7 +460,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -481,7 +481,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -504,7 +504,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -526,7 +526,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv);
 		gen.visitApplyExpr(ae);
 	}
@@ -541,7 +541,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth, false));
 		gen.visitExpr(expr, 0);
 	}
 	
@@ -557,7 +557,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth));
+		Traverser gen = new Traverser(new ExprGeneratorJS(state, stackv, meth, false));
 		gen.visitExpr(expr, 0);
 	}
 	
@@ -576,7 +576,7 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitApplyExpr(expr);
 	}
@@ -597,7 +597,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).makeArray(li1, li2); will(returnValue(msgs));
 			oneOf(nv).result(msgs);
 		}});
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitMessages(me);
 	}
@@ -653,7 +653,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).closure(msi, n1, s1); will(returnValue(res));
 			oneOf(nv).result(res);
 		}});
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitApplyExpr(ae);
 	}
@@ -710,7 +710,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).closure(msi, n1, s1); will(returnValue(res));
 			oneOf(nv).result(res);
 		}});
-		new ExprGeneratorJS(state, stackv, meth);
+		new ExprGeneratorJS(state, stackv, meth, false);
 		Traverser gen = new Traverser(stackv).withHSI();
 		gen.visitExpr(ae, 0);
 	}
