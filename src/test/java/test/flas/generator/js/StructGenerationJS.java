@@ -38,11 +38,14 @@ public class StructGenerationJS {
 		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
 		JSMethodCreator eval = context.mock(JSMethodCreator.class);
 		JSExpr obj = context.mock(JSExpr.class);
+		JSExpr str = context.mock(JSExpr.class, "str");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
+			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));
+			oneOf(ctorBlock).storeField(null, "_type", str);
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
 			oneOf(eval).argument("_cxt");
 			oneOf(eval).newOf(sn); will(returnValue(obj));
@@ -61,12 +64,15 @@ public class StructGenerationJS {
 		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
 		JSMethodCreator eval = context.mock(JSMethodCreator.class);
 		JSExpr obj = context.mock(JSExpr.class, "obj");
+		JSExpr str = context.mock(JSExpr.class, "str");
 		JSExpr strS = context.mock(JSExpr.class, "s");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
+			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));
+			oneOf(ctorBlock).storeField(null, "_type", str);
 			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
 			oneOf(eval).argument("_cxt");
 			oneOf(eval).newOf(sn); will(returnValue(obj));

@@ -1,4 +1,6 @@
 JVM PASS we can push through an agent
+JVM PASS we can directly check for an agent response
 JVM PASS we can ask for an agent response
 JS PASS we can push through an agent
+JS PASS we can directly check for an agent response
 JS PASS we can ask for an agent response

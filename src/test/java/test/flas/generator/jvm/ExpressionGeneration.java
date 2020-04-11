@@ -921,6 +921,7 @@ public class ExpressionGeneration {
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(0); will(returnValue(i0));
 			oneOf(meth).aNull(); will(returnValue(n1));
+			oneOf(meth).as(n1, J.OBJECT); will(returnValue(n1));
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0), Matchers.is(n1))));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
@@ -973,6 +974,7 @@ public class ExpressionGeneration {
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(2); will(returnValue(i2));
 			oneOf(meth).aNull(); will(returnValue(n1));
+			oneOf(meth).as(n1, J.OBJECT); will(returnValue(n1));
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2), Matchers.is(n1)))); will(returnValue(msi));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).intConst(42); will(returnValue(n1));

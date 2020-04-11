@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
@@ -79,7 +80,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr newOf(SolidName clz) {
+	public JSExpr newOf(NameOfThing clz) {
 		JSLocal ret = new JSLocal(creating, new JSNew(clz));
 		stmts.add(ret);
 		return ret;
@@ -326,8 +327,8 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public void stateField() {
-		JSSetField ret = new JSSetField("state", new JSNewState());
-		stmts.add(ret);
+		JSSetField state = new JSSetField("state", new JSNewState());
+		stmts.add(state);
 	}
 
 	@Override

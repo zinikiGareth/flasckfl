@@ -490,6 +490,7 @@ Send.prototype._full = function(cx) {
 	this.obj = cx.full(this.obj);
 	this.meth = cx.full(this.meth);
 	this.args = cx.full(this.args);
+	this.handle = cx.full(this.handle);
 }
 Send.prototype._compare = function(cx, other) {
 	if (other instanceof Send) {
@@ -498,6 +499,7 @@ Send.prototype._compare = function(cx, other) {
 		return false;
 }
 Send.prototype.dispatch = function(cx) {
+	this._full(cx);
 	var args = this.args.slice();
 	args.splice(0, 0, cx);
 	if (this.handle) {

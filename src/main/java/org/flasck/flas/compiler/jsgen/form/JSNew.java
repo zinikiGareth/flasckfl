@@ -1,12 +1,12 @@
 package org.flasck.flas.compiler.jsgen.form;
 
-import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSNew implements JSExpr {
 	private final String clz;
 
-	public JSNew(SolidName clz) {
+	public JSNew(NameOfThing clz) {
 		this.clz = clz.jsName();
 	}
 

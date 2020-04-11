@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
@@ -17,7 +18,7 @@ public interface JSBlockCreator {
 	// very simple and obvious things
 	JSExpr literal(String text);
 	JSExpr string(String string);
-	JSExpr newOf(SolidName clz);
+	JSExpr newOf(NameOfThing clz);
 	JSExpr makeArray(JSExpr... args);
 	JSExpr jsArray(Iterable<JSExpr> arr);
 	JSExpr makeTuple(JSExpr... args);

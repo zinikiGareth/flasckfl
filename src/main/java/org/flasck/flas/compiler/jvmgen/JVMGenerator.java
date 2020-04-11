@@ -256,11 +256,14 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	@Override
 	public void visitHandlerLambda(Pattern p) {
-		if (p instanceof TypedPattern) {
-			TypedPattern tp = (TypedPattern)p;
-			fs.bindVar(currentBlock, tp.var.var, new HLSlot(tp.var.var), meth.aNull());
-		} else
-			throw new NotImplementedException("support varpattern " + p);
+		if (fs != null) {
+			// method with lambdas
+			if (p instanceof TypedPattern) {
+				TypedPattern tp = (TypedPattern)p;
+				fs.bindVar(currentBlock, tp.var.var, new HLSlot(tp.var.var), meth.aNull());
+			} else
+				throw new NotImplementedException("support varpattern " + p);
+		}
 	}
 	
 	@Override

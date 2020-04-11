@@ -279,6 +279,10 @@ EvalContext.prototype.registerContract = function(name, ctr) {
 		this.broker.contracts[name] = ctr;
 }
 
+EvalContext.prototype.registerStruct = function(name, str) {
+	this.env.structs[name] = str;
+}
+
 EvalContext.prototype.structNamed = function(name) {
 	return this.env.structs[name];
 }

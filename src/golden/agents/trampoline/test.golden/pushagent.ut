@@ -5,9 +5,14 @@
 		expect root store "datum"
 		contract agent Storage tell "datum"
 
-	test we can ask for an agent response
+	test we can directly check for an agent response
 		data Examine handler
 		expect root retrieve
 		contract agent Storage check -> handler
+	
+	test we can ask for an agent response
+		data Feedback handler
+		expect root retrieve
+		contract agent Storage ask -> handler
 	
 //		expect handler reply "stored is question"

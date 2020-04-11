@@ -312,6 +312,7 @@ public class Traverser implements Visitor {
 	public void visitHandlerImplements(HandlerImplements hi) {
 		visitor.visitHandlerImplements(hi);
 		visitTypeReference(hi.implementsType());
+		traverseHandlerLambdas(hi);
 		leaveHandlerImplements(hi);
 	}
 

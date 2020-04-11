@@ -11,8 +11,7 @@ public class JSString implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		// TODO Auto-generated method stub
-		
+		w.print(asVar());
 	}
 
 	// TODO: handle nested quotes properly

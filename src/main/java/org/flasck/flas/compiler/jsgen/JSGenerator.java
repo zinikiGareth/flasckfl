@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
@@ -19,6 +21,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
+import org.flasck.flas.compiler.jsgen.form.JSSetField;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
@@ -39,6 +42,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
@@ -97,6 +101,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
+	private JSBlockCreator hdlrCtor;
+	private JSClassCreator hdlr;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -190,6 +196,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
 		JSBlockCreator ctor = ctr.constructor();
 		ctor.stateField();
+		ctor.storeField(this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
 		this.meth = ctr.createMethod("eval", false);
 		this.meth.argument("_cxt");
 		this.evalRet = meth.newOf(obj.name());
@@ -393,6 +400,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
 		currentContract = jse.newClass(pkg, cd.name().jsName());
 		jse.contract(cd);
+		if (cd.type == ContractType.HANDLER)
+			this.currentContract.inheritsFrom(new PackageName("IdempotentHandler"));
 		JSMethodCreator ctrName = currentContract.createMethod("name", true);
 		ctrName.returnObject(new JSString(cd.name().uniqueName()));
 		JSMethodCreator methods = currentContract.createMethod("methods", true);
@@ -448,10 +457,73 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		HandlerName name = (HandlerName)hi.name();
 //		JSBlockCreator ctor = agentCreator.constructor();
 //		ctor.recordContract(hi.actualType().name().jsName(), csn.jsName());
-		JSClassCreator svc = jse.newClass(name.packageName().jsName(), name.jsName());
-		svc.arg("_card");
-		svc.constructor().setField("_card", new JSLiteral("_card"));
+		this.hdlr = jse.newClass(name.packageName().jsName(), name.jsName());
+		this.hdlr.inheritsFrom(hi.actualType().name());
+//		hdlr.arg("_card");
+//		hdlr.constructor().setField("_card", new JSLiteral("_card"));
+		this.hdlrCtor = hdlr.constructor();
+		this.hdlrCtor.stateField();
+		this.meth = hdlr.createMethod("eval", false);
+		this.meth.argument("_cxt");
+		this.evalRet = meth.newOf(hi.name());
+		this.meth.storeField(this.evalRet, "_type", this.meth.string(name.uniqueName()));
+		this.block = meth;
+		jse.handler(hi);
 	}
+
+	@Override
+	public void visitHandlerLambda(Pattern p) {
+		if (hdlr != null) {
+			// defining the class & ctor
+			String name;
+			if (p instanceof TypedPattern)
+				name = ((TypedPattern)p).var.var;
+			else
+				throw new NotImplementedException("pattern " + p);
+			JSExpr arg = this.meth.argument(name);
+			this.meth.storeField(this.evalRet, name, arg);
+		}
+	}
+	
+	@Override
+	public void leaveHandlerImplements(HandlerImplements hi) {
+		if (evalRet != null)
+			meth.returnObject(evalRet);
+		this.block = null;
+		this.evalRet = null;
+		this.meth = null;
+		this.hdlrCtor = null;
+		this.hdlr = null;
+	}
+	
+	/*
+	@Override
+	public void visitStructDefn(StructDefn obj) {
+		if (!obj.generate)
+			return;
+		String pkg = ((SolidName)obj.name()).packageName().jsName();
+		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
+		JSBlockCreator ctor = ctr.constructor();
+		ctor.stateField();
+		this.meth = ctr.createMethod("eval", false);
+		this.meth.argument("_cxt");
+		this.evalRet = meth.newOf(obj.name());
+		this.block = meth;
+		this.structFieldHandler = sf -> {
+			if (sf.name.equals("id"))
+				return;
+			if (sf.init == null) {
+				JSExpr arg = this.meth.argument(sf.name);
+				this.meth.storeField(this.evalRet, sf.name, arg);
+			} else {
+				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
+			}
+			
+		};
+	}
+	*/
+	
 
 	@Override
 	public void visitRequires(RequiresContract rc) {
@@ -475,6 +547,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		runner = meth.argument("runner");
 		meth.initContext(e.name.packageName());
 		this.state = new JSFunctionStateStore(StateLocation.NONE);
+		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
 			if (udd.ofType.defn() instanceof ContractDecl)
