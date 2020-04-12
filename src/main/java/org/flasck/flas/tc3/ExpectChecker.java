@@ -20,7 +20,7 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 public class ExpectChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final ErrorReporter errors;
-	private final RepositoryReader repository;
+	private final CurrentTCState state;
 	private boolean isHandler;
 	private Type mock;
 	private List<Type> args = new ArrayList<>();
@@ -28,15 +28,15 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 
 	public ExpectChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, UnitTestExpect e) {
 		this.errors = errors;
-		this.repository = repository;
 		this.sv = sv;
 		sv.push(this);
-		sv.push(new ExpressionChecker(errors, new FunctionGroupTCState(repository, new DependencyGroup()), sv));
+		state = new FunctionGroupTCState(repository, new DependencyGroup());
+		sv.push(new ExpressionChecker(errors, state, sv));
 	}
 	
 	@Override
 	public void visitExpr(Expr e, int nargs) {
-		sv.push(new ExpressionChecker(errors, new FunctionGroupTCState(repository, new DependencyGroup()), sv));
+		sv.push(new ExpressionChecker(errors, state, sv));
 	}
 	
 	@Override
@@ -106,7 +106,10 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 				sv.result(null);
 				return;
 			}
-		}		
+		}
+		
+		state.resolveAll(errors, true);
+		state.bindIntroducedVarTypes(errors);
 //		if (results.size() != 2)
 //			throw new NotImplementedException();
 //		Type value = results.get(0);

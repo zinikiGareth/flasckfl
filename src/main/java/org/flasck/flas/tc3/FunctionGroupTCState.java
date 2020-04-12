@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -21,6 +22,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	private final RepositoryReader repository;
 	private final Map<String, UnifiableType> constraints = new TreeMap<>();
 	private final Map<VarPattern, UnifiableType> patts = new TreeMap<>(VarPattern.comparator);
+	private final Map<IntroduceVar, UnifiableType> introductions = new TreeMap<>(IntroduceVar.comparator);
 	int polyCount = 0;
 	private Set<UnifiableType> allUTs = new LinkedHashSet<>();
 	private final boolean hasGroup;
@@ -59,8 +61,25 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	@Override
+	public void bindIntroducedVarToUT(IntroduceVar v, UnifiableType ut) {
+		if (!allUTs.contains(ut))
+			throw new NotImplementedException("Where did this come from?");
+		introductions.put(v, ut);
+	}
+
+	@Override
 	public void bindVarPatternTypes(ErrorReporter errors) {
 		for (Entry<VarPattern, UnifiableType> e : patts.entrySet()) {
+			UnifiableType ut = e.getValue();
+			if (!ut.isResolved())
+				throw new RuntimeException("Not yet resolved");
+			e.getKey().bindType(ut.resolve(errors, true));
+		}
+	}
+
+	@Override
+	public void bindIntroducedVarTypes(ErrorReporter errors) {
+		for (Entry<IntroduceVar, UnifiableType> e : introductions.entrySet()) {
 			UnifiableType ut = e.getValue();
 			if (!ut.isResolved())
 				throw new RuntimeException("Not yet resolved");

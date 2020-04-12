@@ -121,7 +121,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitIntroduceVar(IntroduceVar var) {
-		announce(var.location(), state.createUT(var.location(), var.name().uniqueName()));
+		UnifiableType ut = state.createUT(var.location(), var.name().uniqueName());
+		state.bindIntroducedVarToUT(var, ut);
+		announce(var.location(), ut);
 	}
 	
 	@Override

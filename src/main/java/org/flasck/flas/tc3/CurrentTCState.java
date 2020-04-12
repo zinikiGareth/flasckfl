@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.VarPattern;
 
@@ -20,4 +21,6 @@ public interface CurrentTCState {
 	PosType consolidate(InputPosition location, List<PosType> results);
 	void debugInfo();
 	boolean hasGroup();
+	void bindIntroducedVarTypes(ErrorReporter errors);
+	void bindIntroducedVarToUT(IntroduceVar v, UnifiableType ut);
 }
