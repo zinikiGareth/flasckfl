@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -108,7 +109,13 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitIntroduceVar(IntroduceVar var) {
-		sv.result(block.introduceVar(var.var));
+		if (isExpectation) {
+			JSExpr jsv = block.introduceVar(var.var);
+			state.addIntroduction(var, jsv);
+			sv.result(jsv);
+		}
+		else
+			throw new NotImplementedException("Cannot introduce vars here");
 	}
 
 	@Override
@@ -162,6 +169,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.boundVar(((VarPattern)defn).var));
 		} else if (defn instanceof TypedPattern) {
 			sv.result(block.boundVar(((TypedPattern)defn).var.var));
+		} else if (defn instanceof HandlerLambda) {
+			sv.result(block.lambda((HandlerLambda)defn));
 		} else if (defn instanceof StructField) {
 			sv.result(block.loadField(state.stateLocation(), ((StructField)defn).name));
 		} else if (defn instanceof RequiresContract) {
@@ -170,6 +179,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			makeFunctionClosure(myName, 0);
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
+		} else if (defn instanceof IntroduceVar) {
+			sv.result(block.fromIntroduction(state.resolveIntroduction((IntroduceVar) defn)));
 		} else
 			throw new NotImplementedException("cannot generate fn for " + defn);
 	}

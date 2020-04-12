@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class ScopeName implements NameOfThing, Comparable<ScopeName> {
@@ -14,6 +15,11 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 	@Override
 	public NameOfThing container() {
 		return inside;
+	}
+
+	@Override
+	public PackageName packageName() {
+		throw new NotImplementedException();
 	}
 
 	@Override

@@ -27,10 +27,12 @@ import org.flasck.flas.compiler.jsgen.form.JSError;
 import org.flasck.flas.compiler.jsgen.form.JSEval;
 import org.flasck.flas.compiler.jsgen.form.JSExpectation;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSExtractFromBoundVar;
 import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSHead;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIntroducedVar;
+import org.flasck.flas.compiler.jsgen.form.JSLambda;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSLoadField;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
@@ -55,6 +57,7 @@ import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSTupleMember;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -95,6 +98,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr boundVar(String var) {
 		return new JSBoundVar(var);
+	}
+	
+	@Override
+	public JSExpr lambda(HandlerLambda hl) {
+		return new JSLambda(hl);
 	}
 	
 	@Override
@@ -189,6 +197,11 @@ public class JSBlock implements JSBlockCreator {
 			stmts.add(iv);
 		}
 		return iv;
+	}
+
+	@Override
+	public JSExpr fromIntroduction(JSExpr boundVar) {
+		return new JSExtractFromBoundVar(boundVar);
 	}
 
 	@Override

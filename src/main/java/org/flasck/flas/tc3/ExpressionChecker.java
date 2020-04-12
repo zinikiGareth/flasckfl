@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -102,6 +103,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 				announce(pos, state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern vp = (TypedPattern) defn;
+			announce(pos, (Type) vp.type.defn());
+		} else if (defn instanceof HandlerLambda) {
+			TypedPattern vp = (TypedPattern) ((HandlerLambda)defn).patt;
 			announce(pos, (Type) vp.type.defn());
 		} else if (defn instanceof StructField) {
 			StructField sf = (StructField) defn;

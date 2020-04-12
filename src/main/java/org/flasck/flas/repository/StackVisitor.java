@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -459,8 +460,8 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitHandlerImplements(hi);
 	}
 
-	public void visitHandlerLambda(Pattern p) {
-		top.visitHandlerLambda(p);
+	public void visitHandlerLambda(HandlerLambda hl) {
+		top.visitHandlerLambda(hl);
 	}
 
 	public void leaveHandlerImplements(HandlerImplements hi) {

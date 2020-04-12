@@ -16,6 +16,11 @@ public class PolyName implements NameOfThing, Comparable<PolyName> {
 		return null;
 	}
 	
+	@Override
+	public PackageName packageName() {
+		throw new NotImplementedException();
+	}
+
 	public String uniqueName() {
 		return name;
 	}

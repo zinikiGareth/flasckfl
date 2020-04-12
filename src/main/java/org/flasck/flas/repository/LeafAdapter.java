@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -139,7 +140,7 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitHandlerLambda(Pattern p) {
+	public void visitHandlerLambda(HandlerLambda hl) {
 	}
 
 	@Override

@@ -18,4 +18,6 @@ public interface NameOfThing {
 
 	String writeToXML(XMLElement xe);
 
+	PackageName packageName();
+
 }

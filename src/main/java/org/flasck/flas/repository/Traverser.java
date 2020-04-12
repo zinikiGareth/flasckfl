@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerHolder;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.LogicHolder;
@@ -182,7 +183,7 @@ public class Traverser implements Visitor {
 //				visitUnitDataDeclaration(udd);
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
-		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType || e instanceof RequiresContract || e instanceof IntroduceVar) {
+		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType || e instanceof RequiresContract || e instanceof IntroduceVar || e instanceof HandlerLambda) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof HandlerImplements) 
 			; // ignored for now because it breaks things that don't care
@@ -312,6 +313,10 @@ public class Traverser implements Visitor {
 		visitor.visitHandlerImplements(hi);
 		visitTypeReference(hi.implementsType());
 		traverseHandlerLambdas(hi);
+		if (wantImplementedMethods) {
+			for (ObjectMethod om : hi.implementationMethods)
+				visitObjectMethod(om);
+		}
 		leaveHandlerImplements(hi);
 	}
 
@@ -375,14 +380,14 @@ public class Traverser implements Visitor {
 	}
 
 	private void traverseHandlerLambdas(HandlerImplements hi) {
-		for (Pattern i : hi.boundVars)
+		for (HandlerLambda i : hi.boundVars)
 			visitHandlerLambda(i);
 	}
 
-	public void visitHandlerLambda(Pattern p) {
-		visitor.visitHandlerLambda(p);
-		if (p instanceof TypedPattern)
-			visitTypeReference(((TypedPattern)p).type);
+	public void visitHandlerLambda(HandlerLambda i) {
+		visitor.visitHandlerLambda(i);
+		if (i.patt instanceof TypedPattern)
+			visitTypeReference(((TypedPattern)i.patt).type);
 	}
 
 	public void leaveObjectMethod(ObjectMethod meth) {

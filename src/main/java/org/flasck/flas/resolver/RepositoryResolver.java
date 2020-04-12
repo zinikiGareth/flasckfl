@@ -140,6 +140,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void visitHandlerImplements(HandlerImplements hi) {
+		currentlyImplementing = hi;
+	}
+
+	@Override
 	public void leaveProvides(Provides p) {
 		ContractDecl d = p.actualType();
 		if (d == null) {
@@ -174,6 +179,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		}
 		if (d.type != ContractType.HANDLER)
 			errors.message(hi.implementsType().location(), "handler cannot implement " + (d.type == ContractType.SERVICE?"service":"non-handler") + " contract");
+		currentlyImplementing = null;
 	}
 
 	@Override
@@ -273,7 +279,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitUnitTestSend(UnitTestSend s) {
 		scopeStack.add(0, scope);
-		RepositoryEntry defn = find(scope, s.contract.name());
+//		RepositoryEntry defn = find(scope, s.contract.name());
 //		if (defn != null)
 //			this.scope = defn.name();
 		// otherwise it is left as it is, which will fail, but errors will occur when the traverser vistri

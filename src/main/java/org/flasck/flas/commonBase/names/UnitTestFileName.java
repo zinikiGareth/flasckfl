@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XMLElement;
 
@@ -17,6 +18,11 @@ public class UnitTestFileName implements NameOfThing {
 		return container;
 	}
 	
+	@Override
+	public PackageName packageName() {
+		throw new NotImplementedException();
+	}
+
 	@Override
 	public NameOfThing containingCard() {
 		return null;

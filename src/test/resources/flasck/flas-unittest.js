@@ -22,6 +22,7 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	handleMessages(_cxt, reply);
 }
 const handleMessages = function(_cxt, msg) {
+	msg = _cxt.full(msg);
 	if (!msg || msg instanceof FLError)
 		return;
 	else if (msg instanceof Array) {
@@ -44,8 +45,21 @@ UTRunner.prototype.newContext = function() {
 const BoundVar = function() {
 }
 
-const Expectation = function(args) {
+BoundVar.prototype.bindActual = function(obj) {
+	if (this.actual) {
+		throw Error("cannot rebind bound var");
+	}
+	this.actual = obj;
+}
+BoundVar.prototype.introduced = function() {
+	if (!this.actual)
+		throw Error("bound var has not yet been bound");
+	return this.actual;
+}
+
+const Expectation = function(args, handler) {
 	this.args = args;
+	this.handler = handler;
 	this.allowed = 1;
 	this.invoked = 0;
 }
@@ -77,7 +91,7 @@ MockContract.prototype.areYouA = function(ty) {
 	return this.ctr.name() == ty;
 }
 
-MockContract.prototype.expect = function(meth, args) {
+MockContract.prototype.expect = function(meth, args, handler) {
 	if (!this.expected[meth])
 		this.expected[meth] = [];
 	if (!this.ctr[meth] || !this.ctr[meth].nfargs) {
@@ -88,7 +102,7 @@ MockContract.prototype.expect = function(meth, args) {
 		throw new Error("EXP\n  " + this.ctr.name() + "." + meth + " expects " + expArgs + " parameters, not " + args.length);
 	}
 
-	const exp = new Expectation(args);
+	const exp = new Expectation(args, handler);
 	this.expected[meth].push(exp);
 	return exp;
 }
@@ -101,6 +115,9 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 	const exp = this.expected[meth];
 	var matched = null;
 	for (var i=0;i<exp.length;i++) {
+		// TOOD: should see if exp[i].args[j] is a BoundVar
+		// I think this would involve us unwrapping this "list compare" and comparing each argument one at a time
+		// wait for it to come up though
 		if (_cxt.compare(exp[i].args, args)) {
 			matched = exp[i];
 			break;
@@ -114,6 +131,9 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 		throw new Error(this.ctr.name() + "." + meth + " " + args + " already invoked (allowed=" + matched.allowed +"; actual=" + matched.invoked +")");
 	}
 	_cxt.log("Have invocation of", meth, "with", args);
+	if (matched.handler instanceof BoundVar) {
+		matched.handler.bindActual(ih);
+	}
 }
 
 MockContract.prototype.assertSatisfied = function(_cxt) {

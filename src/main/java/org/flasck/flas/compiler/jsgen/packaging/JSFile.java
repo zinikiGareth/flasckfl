@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -43,7 +43,7 @@ public class JSFile {
 		functions.add(jsMethod);
 	}
 
-	public void methodList(SolidName name, List<FunctionName> methods) {
+	public void methodList(NameOfThing name, List<FunctionName> methods) {
 		methodLists.add(new MethodList(name, methods));
 	}
 

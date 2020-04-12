@@ -14,6 +14,7 @@
 		data Feedback handler
 		expect root retrieve -> _replier
 		contract agent Storage ask -> handler
-		invoke replier.contains "entry" 13
+		expect handler reply "entry"
+		invoke replier.contains "entry"
 	
 //		expect handler reply "stored is question"

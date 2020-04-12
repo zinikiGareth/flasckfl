@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class CardName implements NameOfThing, Comparable<CardName> {
@@ -16,6 +17,11 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 		return pkg;
 	}
 	
+	@Override
+	public PackageName packageName() {
+		throw new NotImplementedException();
+	}
+
 	@Override
 	public NameOfThing containingCard() {
 		return this;

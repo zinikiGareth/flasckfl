@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.LocatedName;
@@ -144,7 +145,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitImplements(ImplementsContract ic);
 		void leaveImplements(ImplementsContract ic);
 		void visitHandlerImplements(HandlerImplements hi);
-		void visitHandlerLambda(Pattern p);
+		void visitHandlerLambda(HandlerLambda hl);
 		void leaveHandlerImplements(HandlerImplements hi);
 		void leaveAgentDefn(AgentDefinition s);
 		void visitObjectAccessor(ObjectAccessor oa);
@@ -314,6 +315,12 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		dict.put(name.uniqueName(), entry);
 	}
 
+	@Override
+	public void replaceDefinition(HandlerLambda hl) {
+		if (!dict.containsKey(hl.name().uniqueName()))
+			throw new NotImplementedException(hl.name().uniqueName() + " was not defined");
+		dict.put(hl.name().uniqueName(), hl);
+	}
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(dumpRepo);
 		dumpTo(pw);

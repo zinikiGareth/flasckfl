@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -22,6 +21,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -255,14 +255,14 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
-	public void visitHandlerLambda(Pattern p) {
+	public void visitHandlerLambda(HandlerLambda hl) {
 		if (fs != null) {
 			// method with lambdas
-			if (p instanceof TypedPattern) {
-				TypedPattern tp = (TypedPattern)p;
+			if (hl.patt instanceof TypedPattern) {
+				TypedPattern tp = (TypedPattern)hl.patt;
 				fs.bindVar(currentBlock, tp.var.var, new HLSlot(tp.var.var), meth.aNull());
 			} else
-				throw new NotImplementedException("support varpattern " + p);
+				throw new NotImplementedException("support varpattern " + hl);
 		}
 	}
 	

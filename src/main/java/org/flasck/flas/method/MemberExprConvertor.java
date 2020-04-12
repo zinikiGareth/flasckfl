@@ -6,6 +6,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -74,6 +75,9 @@ public class MemberExprConvertor extends LeafAdapter {
 		NamedType dt;
 		if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) defn;
+			dt = tp.type.defn();
+		} else if (defn instanceof HandlerLambda) {
+			TypedPattern tp = (TypedPattern) ((HandlerLambda)defn).patt;
 			dt = tp.type.defn();
 		} else if (defn instanceof VarPattern) {
 			VarPattern vp = (VarPattern) defn;

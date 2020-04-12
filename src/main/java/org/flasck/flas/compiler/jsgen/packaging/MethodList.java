@@ -3,14 +3,14 @@ package org.flasck.flas.compiler.jsgen.packaging;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class MethodList {
-	private final SolidName name;
+	private final NameOfThing name;
 	private final List<FunctionName> methods;
 
-	public MethodList(SolidName name, List<FunctionName> methods) {
+	public MethodList(NameOfThing name, List<FunctionName> methods) {
 		this.name = name;
 		this.methods = methods;
 	}
@@ -24,10 +24,10 @@ public class MethodList {
 		for (FunctionName f : methods) {
 			if (!isFirst) {
 				kw.print(",");
-				isFirst = false;
 			}
+			isFirst = false;
 			kw.println("");
-			kw.print("\"" + f.name + "\": " + f.jsName());
+			kw.print("\"" + f.name + "\": " + f.jsPName());
 		}
 		jw.println("");
 		jw.println("};");

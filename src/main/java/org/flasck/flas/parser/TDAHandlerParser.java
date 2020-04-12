@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -63,13 +63,15 @@ public class TDAHandlerParser implements TDAParsing {
 			errors.message(line, "invalid handler name");
 			return new IgnoreNestedParser();
 		}
-		List<Pattern> lambdas = new ArrayList<>();
+		List<HandlerLambda> lambdas = new ArrayList<>();
 		final HandlerName hn = namer.handlerName(named.text);
 		VarNamer vn = (loc, t) -> new VarName(loc, hn, t); 
 		while (line.hasMore() && !errors.hasErrors()) {
-			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(patt), topLevel);
+			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(new HandlerLambda(patt)), topLevel);
 			pp.tryParsing(line);
 		}
+		for (HandlerLambda hl : lambdas)
+			((TopLevelDefinitionConsumer) topLevel).replaceDefinition(hl);
 		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, builder, hn, new TypeReference(tn.location, tn.text), inCard, lambdas);
 		if (builder != null)
 			builder.newHandler(hi);

@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -57,19 +58,20 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 	
 	@Override
-	public void visitHandlerLambda(Pattern p) {
-		if (p instanceof VarPattern) {
-			VarPattern vp = (VarPattern) p;
+	public void visitHandlerLambda(HandlerLambda hl) {
+		Pattern patt = hl.patt;
+		if (patt instanceof VarPattern) {
+			VarPattern vp = (VarPattern) patt;
 			UnifiableType lt = state.createUT(null, "hl " + vp.var);
 			state.bindVarToUT(vp.name().uniqueName(), lt);
 			state.bindVarPatternToUT(vp, lt);
-		} else if (p instanceof TypedPattern) {
-			TypedPattern tp = (TypedPattern) p;
+		} else if (patt instanceof TypedPattern) {
+			TypedPattern tp = (TypedPattern) patt;
 			UnifiableType lt = state.createUT(null, "hl " + tp.var);
 			lt.canBeType(tp.var.loc, tp.type.defn());
 			state.bindVarToUT(tp.name().uniqueName(), lt);
 		} else
-			throw new NotImplementedException("not supported as lambda: " + p.getClass());
+			throw new NotImplementedException("not supported as lambda: " + patt.getClass());
 	}
 	
 	@Override

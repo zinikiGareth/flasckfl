@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -32,6 +31,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -95,7 +95,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSExpr evalRet;
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
-	private final List<FunctionName> methods = new ArrayList<>();
+	private Map<Object, List<FunctionName>> methodMap = new HashMap<>();
 	private JSClassCreator currentContract;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
@@ -230,6 +230,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			if (sf.init != null)
 				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
 		};
+		List<FunctionName> methods = new ArrayList<>();
+		methodMap.put(obj, methods);
+		jse.methodList(obj.name(), methods);
 	}
 	
 	@Override
@@ -250,13 +253,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
-		jse.methodList(obj.name(), methods);
 		if (evalRet != null)
 			meth.returnObject(evalRet);
 		this.block = null;
 		this.evalRet = null;
 		this.meth = null;
-		this.methods.clear();
 	}
 	
 	@Override
@@ -278,7 +279,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null, om.name().name);
-		this.methods.add(om.name());
+		this.methodMap.get(om.getImplements()).add(om.name());
 		this.meth.argument("_cxt");
 		int i;
 		for (i=0;i<om.argCount();i++)
@@ -449,6 +450,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn.jsName());
 		svc.arg("_card");
 		svc.constructor().setField("_card", new JSLiteral("_card"));
+		List<FunctionName> methods = new ArrayList<>();
+		methodMap.put(p, methods);
+		jse.methodList(p.name(), methods);
 	}
 	
 	@Override
@@ -468,17 +472,20 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth.storeField(this.evalRet, "_type", this.meth.string(name.uniqueName()));
 		this.block = meth;
 		jse.handler(hi);
+		List<FunctionName> methods = new ArrayList<>();
+		methodMap.put(hi, methods);
+		jse.methodList(hi.name(), methods);
 	}
 
 	@Override
-	public void visitHandlerLambda(Pattern p) {
+	public void visitHandlerLambda(HandlerLambda hl) {
 		if (hdlr != null) {
 			// defining the class & ctor
 			String name;
-			if (p instanceof TypedPattern)
-				name = ((TypedPattern)p).var.var;
+			if (hl.patt instanceof TypedPattern)
+				name = ((TypedPattern)hl.patt).var.var;
 			else
-				throw new NotImplementedException("pattern " + p);
+				throw new NotImplementedException("pattern " + hl);
 			JSExpr arg = this.meth.argument(name);
 			this.meth.storeField(this.evalRet, name, arg);
 		}
@@ -493,6 +500,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = null;
 		this.hdlrCtor = null;
 		this.hdlr = null;
+	}
+
+	@Override
+	public void leaveProvides(Provides p) {
+		this.block = null;
+		this.evalRet = null;
+		this.meth = null;
 	}
 	
 	/*

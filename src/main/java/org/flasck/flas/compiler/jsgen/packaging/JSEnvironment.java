@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
@@ -66,8 +66,8 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public void methodList(SolidName name, List<FunctionName> methods) {
-		JSFile inpkg = getPackage(name.container().uniqueName());
+	public void methodList(NameOfThing name, List<FunctionName> methods) {
+		JSFile inpkg = getPackage(name.packageName().uniqueName());
 		inpkg.methodList(name, methods);
 	}
 

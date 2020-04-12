@@ -11,6 +11,7 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -37,6 +38,7 @@ public interface JSBlockCreator {
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);
 	JSExpr introduceVar(String var);
+	JSExpr fromIntroduction(JSExpr boundVar);
 	void recordContract(String ctr, String impl);
 	void requireContract(String referAsVar, String jsName);
 	
@@ -50,6 +52,7 @@ public interface JSBlockCreator {
 	// HSIE logic statements
 	JSExpr boundVar(String var);
 	JSExpr tupleMember(FunctionName name);
+	JSExpr lambda(HandlerLambda defn);
 	void bindVar(String slot, String var);
 	void head(String var);
 	void field(String asVar, String fromVar, String field);

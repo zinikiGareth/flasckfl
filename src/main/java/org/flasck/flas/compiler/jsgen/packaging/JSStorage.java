@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -17,7 +17,7 @@ public interface JSStorage {
 	void ensurePackageExists(String filePkg, String pkg);
 
 	JSMethodCreator newFunction(String pkg, String cxt, boolean inPrototype, String name);
-	void methodList(SolidName name, List<FunctionName> methods);
+	void methodList(NameOfThing name, List<FunctionName> methods);
 
 	Iterable<File> files();
 
