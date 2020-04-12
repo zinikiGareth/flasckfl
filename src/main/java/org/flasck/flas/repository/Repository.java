@@ -303,6 +303,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		addEntry(data.name(), data);
 	}
 
+	@Override
+	public void newIntroduction(IntroduceVar var) {
+		addEntry(var.name(), var);
+	}
+
 	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {
 		if (dict.containsKey(name.uniqueName()))
 			throw new DuplicateNameException(name);

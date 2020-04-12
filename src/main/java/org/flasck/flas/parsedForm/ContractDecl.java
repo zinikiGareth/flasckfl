@@ -11,6 +11,7 @@ import org.flasck.flas.parser.ContractMethodConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.UnifiableType;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ContractDecl implements Locatable, ContractMethodConsumer, RepositoryEntry, NamedType {
@@ -62,10 +63,14 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 	public boolean incorporates(InputPosition pos, Type other) {
 		if (other == this)
 			return true;
-		if (other instanceof HandlerImplements) {
+		else if (other instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements) other;
 			if (hi.implementsType().defn() == this)
 				return true;
+		} else if (other instanceof UnifiableType) {
+			UnifiableType ut = (UnifiableType)other;
+			ut.canBeType(pos, this);
+			return true;
 		}
 		return false;
 	}

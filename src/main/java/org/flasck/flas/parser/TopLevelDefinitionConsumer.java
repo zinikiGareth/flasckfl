@@ -10,9 +10,10 @@ import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 
-public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer {
+public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer, IntroductionConsumer {
 	void newAgent(AgentDefinition card);
 	void newCard(CardDefinition card);
 	void newService(ServiceDefinition card);

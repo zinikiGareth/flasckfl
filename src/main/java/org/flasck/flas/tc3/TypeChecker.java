@@ -5,6 +5,7 @@ import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -45,6 +46,11 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 		new UTAChecker(errors, repository, sv, a);
 	}
 
+	@Override
+	public void visitUnitTestExpect(UnitTestExpect e) {
+		new ExpectChecker(errors, repository, sv, e);
+	}
+	
 	@Override
 	public void result(Object r) {
 		PosType result = (PosType) r;

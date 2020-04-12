@@ -20,7 +20,7 @@ public class ExprTokenizationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ExprTermConsumer builder = context.mock(ExprTermConsumer.class);
-	private final TDAExprParser parser = new TDAExprParser(errors, builder);
+	private final TDAExprParser parser = new TDAExprParser(errors, null, builder, null);
 	private final Sequence order = context.sequence("order");
 
 	@Test

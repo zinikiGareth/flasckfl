@@ -5,6 +5,8 @@ import java.util.function.Consumer;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parser.ut.IntroduceNamer;
+import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAExpressionParser implements TDAParsing {
@@ -34,11 +36,11 @@ public class TDAExpressionParser implements TDAParsing {
 	private final TDAExprParser parser;
 
 	public TDAExpressionParser(ErrorReporter errors, Consumer<Expr> exprHandler) {
-		this(errors, exprHandler, true);
+		this(errors, null, exprHandler, true, null);
 	}
 
-	public TDAExpressionParser(ErrorReporter errors, Consumer<Expr> exprHandler, boolean reduceToOne) {
-		this.parser = new TDAExprParser(errors, new TDAStackReducer(errors, new Builder(exprHandler), reduceToOne));
+	public TDAExpressionParser(ErrorReporter errors, IntroduceNamer namer, Consumer<Expr> exprHandler, boolean reduceToOne, IntroductionConsumer consumer) {
+		this.parser = new TDAExprParser(errors, namer, new TDAStackReducer(errors, new Builder(exprHandler), reduceToOne), consumer);
 	}
 
 	@Override

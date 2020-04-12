@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -116,6 +117,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitAnonymousVar(AnonymousVar var) {
 		announce(var.location(), (Type) new CurryArgumentType(var.location()));
+	}
+	
+	@Override
+	public void visitIntroduceVar(IntroduceVar var) {
+		announce(var.location(), state.createUT(var.location(), var.name().uniqueName()));
 	}
 	
 	@Override

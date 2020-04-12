@@ -182,7 +182,7 @@ public class Traverser implements Visitor {
 //				visitUnitDataDeclaration(udd);
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
-		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType || e instanceof RequiresContract) {
+		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType || e instanceof RequiresContract || e instanceof IntroduceVar) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof HandlerImplements) 
 			; // ignored for now because it breaks things that don't care

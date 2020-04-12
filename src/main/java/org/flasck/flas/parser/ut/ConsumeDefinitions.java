@@ -1,5 +1,6 @@
 package org.flasck.flas.parser.ut;
 
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -27,5 +28,10 @@ public class ConsumeDefinitions implements UnitTestDefinitionConsumer {
 	@Override
 	public void nestedData(UnitDataDeclaration data) {
 		consumer.newTestData(data);
+	}
+
+	@Override
+	public void newIntroduction(IntroduceVar var) {
+		consumer.newIntroduction(var);
 	}
 }

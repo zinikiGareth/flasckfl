@@ -10,16 +10,22 @@ import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parser.ut.IntroduceNamer;
+import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAExprParser implements TDAParsing {
+	private final IntroduceNamer namer;
 	private final ExprTermConsumer builder;
 	private final ErrorReporter errors;
+	private final IntroductionConsumer consumer;
 
-	public TDAExprParser(ErrorReporter errors, ExprTermConsumer builder) {
+	public TDAExprParser(ErrorReporter errors, IntroduceNamer namer, ExprTermConsumer builder, IntroductionConsumer consumer) {
 		this.errors = errors;
+		this.namer = namer;
 		this.builder = builder;
+		this.consumer = consumer;
 	}
 
 	public TDAParsing tryParsing(Tokenizable line) {
@@ -43,9 +49,11 @@ public class TDAExprParser implements TDAParsing {
 					term = new UnresolvedVar(tok.location, tok.text);
 				else if (tok.text.equals("_"))
 					term = new AnonymousVar(tok.location);
-				else if (tok.text.startsWith("_"))
-					term = new IntroduceVar(tok.location, tok.text.substring(1));
-				else {
+				else if (consumer != null && tok.text.startsWith("_")) {
+					IntroduceVar iv = new IntroduceVar(tok.location, namer, tok.text.substring(1));
+					consumer.newIntroduction(iv);
+					term = iv;
+				} else {
 					errors.message(tok.location, "syntax error");
 					return new IgnoreNestedParser();
 				}

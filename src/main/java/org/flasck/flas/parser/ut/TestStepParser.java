@@ -66,7 +66,7 @@ public class TestStepParser implements TDAParsing {
 			}
 			TypeNameToken evname = TypeNameToken.qualified(toks);
 			if (evname == null) {
-				errors.message(toks, "contract requires an event type");
+				errors.message(toks, "contract requires a Contract name");
 				return new IgnoreNestedParser();
 			}
 			List<Expr> eventObj = new ArrayList<>();
@@ -131,8 +131,7 @@ public class TestStepParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			List<Expr> args = new ArrayList<>();
-//			TDAExprParser expr = new TDAExprParser(errors, new TDAExpressionParser.Builder(x -> args.add(x)));
-			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> args.add(x), false);
+			TDAExpressionParser expr = new TDAExpressionParser(errors, namer, x -> args.add(x), false, topLevel);
 			expr.tryParsing(toks);
 			if (errors.hasErrors()){
 				return new IgnoreNestedParser();
