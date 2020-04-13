@@ -2,12 +2,16 @@ package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parser.ContractMethodConsumer;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
@@ -29,6 +33,10 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 		this.type = type;
 		this.contractName = ctrName;
 		this.generate = true;
+		if (type == ContractType.HANDLER) {
+			addMethod(new ContractMethodDecl(kw, kw, location, false, FunctionName.contractMethod(location, ctrName, "success"), new ArrayList<TypedPattern>(), null));
+			addMethod(new ContractMethodDecl(kw, kw, location, false, FunctionName.contractMethod(location, ctrName, "failure"), Arrays.asList(new TypedPattern(location, LoadBuiltins.stringTR, new VarName(location, ctrName, "msg"))), null));
+		}
 	}
 
 	@Override

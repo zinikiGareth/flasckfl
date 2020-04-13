@@ -8,6 +8,7 @@
 	test we can directly check for an agent response
 		data Examine handler
 		expect root retrieve
+		expect handler success
 		contract agent Storage check -> handler
 	
 	test we can ask for an agent response

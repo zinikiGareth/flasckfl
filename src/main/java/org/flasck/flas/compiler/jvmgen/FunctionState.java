@@ -9,6 +9,7 @@ import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HLSlot;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
@@ -25,6 +26,7 @@ public class FunctionState {
 	private int nextVar = 1;
 	private Map<String, AVar> vars = new HashMap<>();
 	private Map<UnitDataDeclaration, IExpr> mocks = new TreeMap<UnitDataDeclaration, IExpr>();
+	private Map<IntroduceVar, Var> ivars = new TreeMap<>(IntroduceVar.comparator);
 	public Var evalRet;
 	public IExpr stateObj;
 
@@ -72,5 +74,18 @@ public class FunctionState {
 			return mocks.get(udd);
 		else
 			throw new NotImplementedException("There is no mock for " + udd);
+	}
+
+	public void addIntroduction(IntroduceVar var, Var v) {
+		if (ivars.containsKey(var))
+			throw new NotImplementedException("Duplicate introduction " + var.name().uniqueName());
+		ivars.put(var, v);
+	}
+
+	public IExpr resolveIntroduction(IntroduceVar defn) {
+		if (ivars.containsKey(defn))
+			return ivars.get(defn);
+		else
+			throw new NotImplementedException("Duplicate introduction " + defn.name().uniqueName());
 	}
 }

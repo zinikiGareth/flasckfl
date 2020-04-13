@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -117,9 +118,10 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	public void visitIntroduceVar(IntroduceVar var) {
 		IExpr ret = meth.makeNew(J.BOUNDVAR);
 		if (var != null) {
-			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
+			Var v = meth.avar(J.BOUNDVAR, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, ret));
 			ret = v;
+			state.addIntroduction(var, v);
 		}
 		sv.result(ret);
 	}
@@ -158,7 +160,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			} else if (myName.equals(J.NIL) || sd.argCount() == nargs) {
 				sv.result(null);
 			} else if (nargs > 0) {
-				sv.result(meth.classConst(myName));
+				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 			} else {
 				IExpr call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(sd.argCount()), meth.as(meth.classConst(myName), J.APPLICABLE), meth.arrayOf(J.OBJECT));
 				Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
@@ -174,7 +176,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				IExpr args = meth.arrayOf(J.OBJECT, provided);
 				sv.result(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
 			} else if (nargs > 0) {
-				sv.result(meth.classConst(myName));
+				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 			} else {
 				IExpr call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(hi.argCount()), meth.as(meth.classConst(myName), J.APPLICABLE), meth.arrayOf(J.OBJECT));
 				Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
@@ -193,6 +195,9 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			if (var == null)
 				throw new RuntimeException("Could not find " + v);
 			sv.result(var);
+		} else if (defn instanceof HandlerLambda) {
+			String v = ((TypedPattern)((HandlerLambda)defn).patt).var.var;
+			sv.result(meth.getField(v));
 		} else if (defn instanceof StructField) {
 			if (state.stateObj == null)
 				throw new NotImplementedException("stateObj has not been bound");
@@ -207,12 +212,18 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			makeFunctionClosure(myName, 0);
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
+		} else if (defn instanceof IntroduceVar) {
+			handleIntroduction(state.resolveIntroduction((IntroduceVar)defn));
 		} else
 			throw new NotImplementedException();
 	}
 
 	private void handleUnitTestData(UnitDataDeclaration udd) {
 		sv.result(state.resolveMock(udd));
+	}
+	
+	private void handleIntroduction(IExpr intr) {
+		sv.result(meth.callVirtual(J.OBJECT, intr, "introduced"));
 	}
 
 	private void makeFunctionClosure(String name, int expArgs) {

@@ -114,6 +114,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private NewMethodDefiner agentctor;
 	private ByteCodeSink agentClass;
 	private Var agentcx;
+	private ByteCodeSink definingClz;
+	private AtomicInteger nextArg = new AtomicInteger();
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;
@@ -204,8 +206,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				this.clz = bce.get(om.getObject().name().javaName());
 				wantParent = false;
 			} else if (om.hasImplements()) {
-				this.clz = bce.get(om.getImplements().name().javaClassName());
-				wantParent = true;
+				Implements impl = om.getImplements();
+				this.clz = bce.get(impl.name().javaClassName());
+				wantParent = !(impl instanceof HandlerImplements);
 			} else
 				throw new NotImplementedException("Don't have one of those");
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + om.name().name);
@@ -256,7 +259,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	@Override
 	public void visitHandlerLambda(HandlerLambda hl) {
-		if (fs != null) {
+		if (definingClz != null) {
+			String name = ((TypedPattern)hl.patt).name().var;
+			definingClz.defineField(true, Access.PRIVATE, J.OBJECT, name);
+			meth.assign(meth.getField(fs.evalRet, name), meth.arrayElt(fs.fargs, meth.intConst(nextArg.getAndIncrement()))).flush();
+		} else if (fs != null) {
 			// method with lambdas
 			if (hl.patt instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern)hl.patt;
@@ -575,27 +582,45 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void visitHandlerImplements(HandlerImplements hi) {
 		HandlerName name = (HandlerName) hi.name();
-		ByteCodeSink providesClass = bce.newClass(name.javaClassName());
-		providesClass.superclass(J.OBJECT);
-		providesClass.generateAssociatedSourceFile();
-		IFieldInfo card = providesClass.defineField(true, Access.PRIVATE, J.OBJECT, "_card"); // Probably should be some superclass of card, service, agent ...
+		String clzName = name.javaClassName();
+		definingClz = bce.newClass(clzName);
+		definingClz.superclass(J.LOGGINGIDEMPOTENTHANDLER);
+		definingClz.implementsInterface(J.IDEMPOTENTHANDLER);
+		definingClz.generateAssociatedSourceFile();
+		definingClz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs").constValue(hi.argCount());
 		{
-			GenericAnnotator gen = GenericAnnotator.newConstructor(providesClass, false);
+			GenericAnnotator gen = GenericAnnotator.newConstructor(definingClz, false);
 			/*PendingVar cx = */gen.argument(J.FLEVALCONTEXT, "cxt");
-			PendingVar parent = gen.argument(J.OBJECT, "card");
 			MethodDefiner ctor = gen.done();
 			ctor.callSuper("void", J.OBJECT, "<init>").flush();
-			ctor.assign(card.asExpr(ctor), parent.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
-//		FieldExpr ctrs = agentClass.getField(agentctor, "store");
-//		agentctor.callInterface("void", ctrs, "recordContract",
-//			agentctor.stringConst(hi.actualType().name().uniqueName()),
-//			agentctor.as(
-//				agentctor.makeNew(csn.javaClassName(), agentctor.getArgument(0), agentctor.as(agentctor.myThis(), J.OBJECT)),
-//				J.OBJECT
-//			)
-//		).flush();
+		{ // eval(cx)
+			GenericAnnotator gen = GenericAnnotator.newMethod(definingClz, true, "eval");
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar pargs = gen.argument("[" + J.OBJECT, "args");
+			gen.returns(J.OBJECT);
+			MethodDefiner meth = gen.done();
+//			Var args = pargs.getVar();
+			Var ret = meth.avar(clzName, "ret");
+			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
+			this.fs = new FunctionState(meth, cx.getVar(), null, pargs.getVar(), runner);
+			this.meth = meth;
+			fs.evalRet = ret;
+			this.currentBlock = new ArrayList<IExpr>();
+//			AtomicInteger ai = new AtomicInteger(0);
+//			this.structFieldHandler = sf -> {
+//				if (sf.name.equals("id"))
+//					return;
+//				if (sf.init != null) {
+//					new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
+//				} else {
+//					IExpr arg = meth.arrayElt(args, meth.intConst(ai.getAndIncrement()));
+//					IExpr svar = meth.getField(ret, "state");
+//					meth.callInterface("void", svar, "set", meth.stringConst(sf.name), arg).flush();
+//				}
+//			};
+		}
 	}
 
 	@Override
@@ -634,6 +659,21 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.meth = null;
 	}
 
+	@Override
+	public void leaveHandlerImplements(HandlerImplements hi) {
+		if (this.currentBlock != null && !this.currentBlock.isEmpty())
+			makeBlock(meth, currentBlock).flush();
+		this.meth.returnObject(fs.evalRet).flush();
+		this.meth = null;
+		this.definingClz = null;
+	}
+
+	@Override
+	public void leaveProvides(Provides p) {
+		this.currentBlock = null;
+		this.meth = null;
+	}
+	
 	@Override
 	public void leaveAgentDefn(AgentDefinition s) {
 		agentctor.returnVoid().flush();
