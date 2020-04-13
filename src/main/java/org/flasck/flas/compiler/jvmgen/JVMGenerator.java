@@ -820,6 +820,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void visitContractMethod(ContractMethodDecl cmd) {
+		// This is too rash; we are trying to eliminate builtin IH methods only
+		if (cmd.name.name.equals("success") || cmd.name.name.contentEquals("failure"))
+			return;
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, false, cmd.name.name);
 		ann.returns(JavaType.object_);
 		meth = ann.done();

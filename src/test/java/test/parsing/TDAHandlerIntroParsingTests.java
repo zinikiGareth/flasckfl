@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -50,9 +51,10 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerCanHaveLambdaExpressions() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
 			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.x")));
 			oneOf(builder).argument(with(any(TypedPattern.class)));
+			exactly(2).of(builder).replaceDefinition(with(any(HandlerLambda.class)));
+			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName x (String s)"));
@@ -62,8 +64,9 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerCanHaveLambdaExpressionsWithPolymorphicVars() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
 			oneOf(builder).argument(with(any(TypedPattern.class)));
+			oneOf(builder).replaceDefinition(with(any(HandlerLambda.class)));
+			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName (List[List[Integer]] mrtho)"));
@@ -75,6 +78,7 @@ public class TDAHandlerIntroParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
 			oneOf(builder).argument(with(any(TypedPattern.class)));
+			exactly(2).of(builder).replaceDefinition(with(any(HandlerLambda.class)));
 			oneOf(builder).argument(with(any(TypedPattern.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);

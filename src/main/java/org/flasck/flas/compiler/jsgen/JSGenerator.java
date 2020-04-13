@@ -278,8 +278,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null, om.name().name);
-		this.methodMap.get(om.getImplements()).add(om.name());
+		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null || om.hasObject(), om.name().name);
+		if (om.hasImplements())
+			this.methodMap.get(om.getImplements()).add(om.name());
+		else if (om.hasObject())
+			this.methodMap.get(om.getObject()).add(om.name());
 		this.meth.argument("_cxt");
 		int i;
 		for (i=0;i<om.argCount();i++)

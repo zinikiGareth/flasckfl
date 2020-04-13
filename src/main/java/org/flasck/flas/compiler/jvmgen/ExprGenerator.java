@@ -160,7 +160,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			} else if (myName.equals(J.NIL) || sd.argCount() == nargs) {
 				sv.result(null);
 			} else if (nargs > 0) {
-				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
+				sv.result(meth.classConst(myName));
 			} else {
 				IExpr call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(sd.argCount()), meth.as(meth.classConst(myName), J.APPLICABLE), meth.arrayOf(J.OBJECT));
 				Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
