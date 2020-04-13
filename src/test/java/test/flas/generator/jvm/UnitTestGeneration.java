@@ -71,6 +71,7 @@ public class UnitTestGeneration {
 		UnitTestCase utc = new UnitTestCase(utn , "do something");
 		gen.visitUnitTest(utc);
 		context.checking(new Expectations() {{
+			oneOf(meth).callVirtual("void", arg, "testComplete");
 			oneOf(meth).returnVoid();
 			oneOf(bcc).generate();
 		}});
@@ -108,6 +109,7 @@ public class UnitTestGeneration {
 	@Test
 	public void weCanCreateLocalUDDMockContracts() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
+		IExpr runner = context.mock(IExpr.class, "runner");
 		IExpr cls = context.mock(IExpr.class, "cls");
 		IExpr call = context.mock(IExpr.class, "call");
 		IExpr fcx = context.mock(IExpr.class, "fcx");
@@ -116,8 +118,9 @@ public class UnitTestGeneration {
 		}});
 		AVar v1 = new AVar(meth, J.OBJECT, "v1");
 		context.checking(new Expectations() {{
+			oneOf(meth).castTo(fcx, J.ERRORCOLLECTOR); will(returnValue(runner));
 			oneOf(meth).classConst("test.something.Ctr"); will(returnValue(cls));
-			oneOf(meth).callInterface(J.OBJECT, fcx, "mockContract", cls); will(returnValue(call));
+			oneOf(meth).callInterface(J.OBJECT, fcx, "mockContract", runner, cls); will(returnValue(call));
 			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
 			oneOf(meth).assign(v1, call);
 		}});

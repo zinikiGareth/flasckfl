@@ -4,6 +4,10 @@ const UTRunner = function(logger) {
 	this.contracts = {};
 	this.structs = {};
 	this.broker = new SimpleBroker(logger, this, this.contracts);
+	this.errors = [];
+}
+UTRunner.prototype.error = function(err) {
+	this.errors.push(err);
 }
 UTRunner.prototype.assertSameValue = function(_cxt, e, a) {
 	e = _cxt.full(e);
@@ -14,29 +18,35 @@ UTRunner.prototype.assertSameValue = function(_cxt, e, a) {
 }
 UTRunner.prototype.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
-	handleMessages(_cxt, inv);
+	this.handleMessages(_cxt, inv);
 }
 UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	var reply = target.sendTo(_cxt, contract, msg, args);
 	reply = _cxt.full(reply);
-	handleMessages(_cxt, reply);
+	this.handleMessages(_cxt, reply);
 }
-const handleMessages = function(_cxt, msg) {
+UTRunner.prototype.handleMessages = function(_cxt, msg) {
+	if (this.errors.length != 0)
+		throw this.errors[0];
 	msg = _cxt.full(msg);
 	if (!msg || msg instanceof FLError)
 		return;
 	else if (msg instanceof Array) {
 		for (var i=0;i<msg.length;i++) {
-			handleMessages(_cxt, msg[i]);
+			this.handleMessages(_cxt, msg[i]);
 		}
 	} else if (msg) {
 		var ret = msg.dispatch(_cxt);
 		if (ret)
-			handleMessages(_cxt, ret);
+			this.handleMessages(_cxt, ret);
 	}
 }
 UTRunner.prototype.newContext = function() {
 	return new FLContext(this, this.broker);
+}
+UTRunner.prototype.checkAtEnd = function() {
+	if (this.errors.length > 0)
+		throw this.errors[0];
 }
 
 	window.UTRunner = UTRunner;
@@ -110,8 +120,10 @@ MockContract.prototype.expect = function(meth, args, handler) {
 MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 	const ih = args[args.length-1];
 	args = args.slice(0, args.length-1);
-	if (!this.expected[meth])
-		throw new Error("There are no expectations on " + this.ctr.name() + " for " + meth);
+	if (!this.expected[meth]) {
+		_cxt.env.error(new Error("There are no expectations on " + this.ctr.name() + " for " + meth));
+		return;
+	}
 	const exp = this.expected[meth];
 	var matched = null;
 	for (var i=0;i<exp.length;i++) {
@@ -124,11 +136,13 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 		}
 	}
 	if (!matched) {
-		throw new Error("Unexpected invocation: " + this.ctr.name() + "." + meth + " " + args);
+		_cxt.env.error(new Error("Unexpected invocation: " + this.ctr.name() + "." + meth + " " + args));
+		return;
 	}
 	matched.invoked++;
 	if (matched.invoked > matched.allowed) {
-		throw new Error(this.ctr.name() + "." + meth + " " + args + " already invoked (allowed=" + matched.allowed +"; actual=" + matched.invoked +")");
+		_cxt.env.error(new Error(this.ctr.name() + "." + meth + " " + args + " already invoked (allowed=" + matched.allowed +"; actual=" + matched.invoked +")"));
+		return;
 	}
 	_cxt.log("Have invocation of", meth, "with", args);
 	if (matched.handler instanceof BoundVar) {

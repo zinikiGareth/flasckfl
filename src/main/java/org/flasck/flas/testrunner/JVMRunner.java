@@ -1,6 +1,7 @@
 package org.flasck.flas.testrunner;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.Configuration;
@@ -11,6 +12,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLError;
+import org.flasck.jvm.container.ErrorCollector;
 import org.flasck.jvm.container.FLEvalContextFactory;
 import org.flasck.jvm.container.JvmDispatcher;
 import org.flasck.jvm.container.MockAgent;
@@ -27,7 +29,7 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
-public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ implements EvalContextFactory, FLEvalContextFactory {
+public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ implements EvalContextFactory, FLEvalContextFactory, ErrorCollector {
 //	private final EntityStore store;
 //	private final JDKFlasckController controller;
 	// TODO: I don't think this needs to be a special thing in the modern world
@@ -36,6 +38,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	private Document document;
 	private final JvmDispatcher dispatcher;
 	private final ZiwshBroker broker = new SimpleBroker(this);
+	private List<Throwable> runtimeErrors = new ArrayList<Throwable>();
 
 	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl) {
 		super(config, repository);
@@ -52,7 +55,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 
 	@Override
 	public FLEvalContext create() {
-		return new LoaderContext(loader, broker);
+		return new LoaderContext(loader, broker, this);
 	}
 
 	@Override
@@ -60,7 +63,11 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 		return "jvm";
 	}
 
-	
+	@Override
+	public void error(Throwable error) {
+		runtimeErrors.add(error);
+	}
+
 	@Override
 	public void preparePackage(PrintWriter pw, UnitTestPackage e) {
 		
@@ -274,6 +281,10 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 //		assertAllInvocationsCalled();
 	}
 	
+	public void testComplete() throws Throwable {
+		if (!runtimeErrors.isEmpty())
+			throw runtimeErrors .get(0);
+	}
 	// can we get rid of this and just use the other one directly?
 //	public <T> T mockContract(Class<T> ctr) {
 //		return cxt.mockContract(ctr);

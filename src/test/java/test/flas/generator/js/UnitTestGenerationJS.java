@@ -52,7 +52,7 @@ public class UnitTestGenerationJS {
 		UnitTestCase utc = new UnitTestCase(utn , "do something");
 		gen.visitUnitTest(utc);
 		context.checking(new Expectations() {{
-			// I don't currently think this requires any work ...
+			oneOf(meth).testComplete();
 		}});
 		gen.leaveUnitTest(utc);
 	}

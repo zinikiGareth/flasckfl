@@ -94,7 +94,10 @@ public class JSEnvironment implements JSStorage {
 	@Override
 	public void complete() {
 		for (Entry<String, JSFile> p : files.entrySet()) {
-			JSMethod ifn = new JSMethod(p.getKey(), false, "_init");
+			String pkg = p.getKey();
+			if (pkg.contains("._ut_"))
+				continue;
+			JSMethod ifn = new JSMethod(pkg, false, "_init");
 			ifn.argument("_cxt");
 			for (ContractDecl cd : contracts)
 				ifn.cxtMethod("registerContract", new JSString(cd.name().uniqueName()), ifn.newOf(cd.name()));

@@ -7,4 +7,5 @@ public interface JSMethodCreator extends JSBlockCreator {
 	String jsName();
 	JSExpr argument(String name);
 	void initContext(PackageName packageName);
+	void testComplete();
 }

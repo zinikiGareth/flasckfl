@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.form.InitContext;
+import org.flasck.flas.compiler.jsgen.form.JSBlockComplete;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -48,6 +49,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	@Override
 	public void initContext(PackageName packageName) {
 		stmts.add(new InitContext(packageName));
+	}
+
+	@Override
+	public void testComplete() {
+		stmts.add(new JSBlockComplete());
 	}
 
 	@Override

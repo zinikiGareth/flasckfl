@@ -728,7 +728,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		NamedType objty = udd.ofType.defn();
 		if (objty instanceof ContractDecl) {
 			ContractDecl cdd = (ContractDecl)objty;
-			IExpr mc = meth.callInterface(J.OBJECT, fcx, "mockContract", meth.classConst(cdd.name().javaClassName()));
+			IExpr mc = meth.callInterface(J.OBJECT, fcx, "mockContract", meth.castTo(fcx, J.ERRORCOLLECTOR), meth.classConst(cdd.name().javaClassName()));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);
@@ -784,6 +784,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		for (Var v : explodingMocks) {
 			meth.callInterface("void", meth.castTo(v, J.EXPECTING), "assertSatisfied", this.fcx).flush();
 		}
+		meth.callVirtual("void", runner, "testComplete").flush();
 		meth.returnVoid().flush();
 		meth = null;
 		this.currentBlock = null;
