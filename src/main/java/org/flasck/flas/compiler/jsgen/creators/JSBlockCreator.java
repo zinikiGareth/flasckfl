@@ -33,7 +33,8 @@ public interface JSBlockCreator {
 	JSExpr structConst(String name);
 	JSExpr mockContract(SolidName name);
 	JSExpr mockHandler(SolidName name);
-	JSExpr createObject(SolidName name);
+	JSExpr createObject(NameOfThing name);
+	JSExpr createObject(NameOfThing name, List<JSExpr> args);
 	JSExpr createAgent(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);

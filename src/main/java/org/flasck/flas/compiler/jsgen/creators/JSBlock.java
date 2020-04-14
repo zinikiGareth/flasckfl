@@ -329,8 +329,15 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr createObject(SolidName name) {
+	public JSExpr createObject(NameOfThing name) {
 		JSLocal ret = new JSLocal(this.creating, new JSEval(name));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
+	public JSExpr createObject(NameOfThing name, List<JSExpr> args) {
+		JSLocal ret = new JSLocal(this.creating, new JSEval(name.jsName(), args));
 		stmts.add(ret);
 		return ret;
 	}

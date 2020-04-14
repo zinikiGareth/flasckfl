@@ -612,6 +612,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		} else if (objty instanceof AgentDefinition) {
 			JSExpr obj = meth.createAgent((CardName) objty.name());
 			state.addMock(udd, obj);
+		} else if (objty instanceof HandlerImplements) {
+			new UDDGeneratorJS(sv, meth, state, this.block);
 		} else {
 			/* It seems to me that this requires us to traverse the whole of 
 			 * the inner expression.  I'm not quite sure what is the best way to handle that.
@@ -659,7 +661,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
 	}
-
+	
 	@Override
 	public void traversalDone() {
 		jse.complete();

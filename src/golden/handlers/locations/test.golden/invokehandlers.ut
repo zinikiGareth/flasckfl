@@ -1,0 +1,13 @@
+	test we can call a free standing handler
+		data Up callUp
+		data Simple mock
+		data Standalone myHandler <- Standalone mock 
+		expect mock reply "yo"
+		invoke myHandler.reply "yo"
+
+.	test we can call a handler on an agent
+.		data Up callUp
+.		data Agentum agent
+.		expect callUp call -> _hdlr
+.		contract agent Down obtain
+.		invoke hdlr.reply "yo"

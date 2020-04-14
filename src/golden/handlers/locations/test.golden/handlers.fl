@@ -1,0 +1,34 @@
+	contract Down
+		obtain
+	
+	contract Up
+		call -> (Simple q)
+
+	contract handler Simple
+		reply (String s)
+	
+	handler Simple Standalone (Simple passon)
+		reply s
+			<- passon.reply s
+			
+	object Obscure
+		state
+			String var
+			
+.		handler Simple InObject
+.			reply s
+.				var <- s
+	
+	agent Agentum
+		state
+			String var
+			
+		handler Simple InAgent
+.			reply s
+.				var <- s
+
+		requires Up u
+		
+		implements Down
+			obtain
+.				<- u.call -> InAgent

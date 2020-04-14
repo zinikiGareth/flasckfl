@@ -321,6 +321,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			if (udd.expr == null && udd.fields.isEmpty() && sd.argCount() != 0) {
 				errors.message(udd.location(), "either an expression or at least one field assignment must be specified for " + defn.name().uniqueName());
 			}
+		} else if (defn instanceof HandlerImplements) {
+			HandlerImplements hi = (HandlerImplements) defn;
+			if (udd.expr == null && udd.fields.isEmpty() && hi.argCount() != 0) {
+				errors.message(udd.name.location, "an expression must be specified for " + defn.name().uniqueName());
+			}
 		} else if (defn instanceof ObjectDefn) {
 			// I actually think all the combinations are OK
 			// nothing - create the default object

@@ -47,6 +47,13 @@ public class HandlerImplements extends Implements implements RepositoryEntry, Na
 			throw new NotImplementedException("Not handled: " + p.getClass());
 	}
 
+	public ObjectMethod getMethod(String called) {
+		for (ObjectMethod m : super.implementationMethods)
+			if (m.name().name.equals(called))
+				return m;
+		return null;
+	}
+
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
 		throw new NotImplementedException();

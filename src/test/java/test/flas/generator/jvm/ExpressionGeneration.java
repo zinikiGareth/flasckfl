@@ -911,6 +911,7 @@ public class ExpressionGeneration {
 		IExpr sendMeth = context.mock(IExpr.class, "meth");
 		IExpr i0 = context.mock(IExpr.class, "0");
 		IExpr n1 = context.mock(IExpr.class, "n1");
+		IExpr n2 = context.mock(IExpr.class, "n2");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
@@ -922,7 +923,8 @@ public class ExpressionGeneration {
 			oneOf(meth).intConst(0); will(returnValue(i0));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).as(n1, J.OBJECT); will(returnValue(n1));
-			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i0), Matchers.is(n1))));
+			oneOf(meth).as(with(VarMatcher.local(23)), with(J.OBJECT)); will(returnValue(n2));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), Matchers.is(n2), Matchers.is(i0), Matchers.is(n1))));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
 		state.bindVar(block, "from", new ArgSlot(0, null), null);
@@ -964,6 +966,7 @@ public class ExpressionGeneration {
 		IExpr args = context.mock(IExpr.class, "args");
 		IExpr clos = context.mock(IExpr.class, "clos");
 		IExpr ass2 = context.mock(IExpr.class, "ass2");
+		IExpr n2 = context.mock(IExpr.class, "n2");
 		context.checking(new Expectations() {{
 			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
@@ -975,7 +978,8 @@ public class ExpressionGeneration {
 			oneOf(meth).intConst(2); will(returnValue(i2));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).as(n1, J.OBJECT); will(returnValue(n1));
-			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), VarMatcher.local(23), Matchers.is(i2), Matchers.is(n1)))); will(returnValue(msi));
+			oneOf(meth).as(with(VarMatcher.local(23)), with(J.OBJECT)); will(returnValue(n2));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), Matchers.is(n2), Matchers.is(i2), Matchers.is(n1)))); will(returnValue(msi));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).intConst(42); will(returnValue(n1));
 			oneOf(meth).box(n1); will(returnValue(n1));

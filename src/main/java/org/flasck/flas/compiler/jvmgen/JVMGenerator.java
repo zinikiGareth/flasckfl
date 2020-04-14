@@ -250,7 +250,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			}
 		} else if (om.hasImplements()) {
 			Implements m = om.getImplements();
-			if (((StateHolder)m.getParent()).state() != null) {
+			StateHolder parent = (StateHolder)m.getParent();
+			if (parent != null && parent.state() != null) {
 				fs.provideStateObject(meth.castTo(meth.getField("_card"), J.FIELDS_CONTAINER_WRAPPER));
 			}
 		} else if (!isStandalone)
@@ -765,6 +766,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);
+		} else if (objty instanceof HandlerImplements) {
+			new UDDGenerator(sv, fs, currentBlock);
 		} else if (objty instanceof AgentDefinition) {
 			AgentDefinition ad = (AgentDefinition)objty;
 			IExpr agent = meth.makeNew(ad.name().javaName(), this.fcx);

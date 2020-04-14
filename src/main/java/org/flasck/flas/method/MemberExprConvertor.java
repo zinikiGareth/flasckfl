@@ -6,6 +6,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeSend;
@@ -29,6 +30,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private ContractDecl cd;
 	private ObjectDefn od;
 	private StructDefn sd;
+	private HandlerImplements hi;
 	private FunctionName sendMeth;
 	private int expargs;
 	private Expr handler;
@@ -64,6 +66,15 @@ public class MemberExprConvertor extends LeafAdapter {
 					throw new NotImplementedException("There is no acor " + var.var);
 				sendMeth = FunctionName.function(var.location(), this.sd.name(), var.var);
 				expargs = 0;
+			} else if (hi != null) {
+				ObjectMethod hm = this.hi.getMethod(var.var);
+				if (hm == null)
+					throw new NotImplementedException("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
+//				FieldAccessor acor = this.sd.getAccessor(var.var);
+//				if (acor == null)
+//					throw new NotImplementedException("There is no acor " + var.var);
+				sendMeth = hm.name();
+				expargs = hm.argCount();
 			} else {
 				throw new NotImplementedException("Need to implement the field case");
 			}
@@ -99,6 +110,8 @@ public class MemberExprConvertor extends LeafAdapter {
 			this.od = (ObjectDefn) dt;
 		else if (dt instanceof StructDefn)
 			this.sd = (StructDefn) dt;
+		else if (dt instanceof HandlerImplements)
+			this.hi = (HandlerImplements) dt;
 		else
 			throw new NotImplementedException("cannot handle svc defn of type " + (dt == null ? "NULL" : dt.getClass()));
 	}
