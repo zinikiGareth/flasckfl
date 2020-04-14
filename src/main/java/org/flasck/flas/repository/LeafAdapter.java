@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -136,7 +137,7 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi) {
+	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
 	}
 
 	@Override

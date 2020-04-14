@@ -52,6 +52,7 @@ import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -144,7 +145,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitRequires(RequiresContract rc);
 		void visitImplements(ImplementsContract ic);
 		void leaveImplements(ImplementsContract ic);
-		void visitHandlerImplements(HandlerImplements hi);
+		void visitHandlerImplements(HandlerImplements hi, StateHolder sh);
 		void visitHandlerLambda(HandlerLambda hl);
 		void leaveHandlerImplements(HandlerImplements hi);
 		void leaveAgentDefn(AgentDefinition s);

@@ -38,6 +38,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -473,7 +474,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 	
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi) {
+	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
 		HandlerName name = (HandlerName)hi.name();
 //		JSBlockCreator ctor = agentCreator.constructor();
 //		ctor.recordContract(hi.actualType().name().jsName(), csn.jsName());

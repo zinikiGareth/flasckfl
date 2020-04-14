@@ -53,6 +53,7 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -170,6 +171,10 @@ public class Traverser implements Visitor {
 		} else if (e instanceof StandaloneMethod) {
 			if (functionOrder == null)
 				visitStandaloneMethod((StandaloneMethod)e);
+		} else if (e instanceof HandlerImplements) {
+			HandlerImplements hi = (HandlerImplements) e;
+			if (hi.getParent() == null)
+				visitHandlerImplements(hi, null);
 		} else if (e instanceof StructDefn)
 			visitStructDefn((StructDefn)e);
 		else if (e instanceof UnionTypeDefn)
@@ -185,9 +190,7 @@ public class Traverser implements Visitor {
 			visitStructFieldAccessor((StructField) e);
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType || e instanceof RequiresContract || e instanceof IntroduceVar || e instanceof HandlerLambda) {
 			; // do nothing: these are just in the repo for lookup purposes
-		} else if (e instanceof HandlerImplements) 
-			; // ignored for now because it breaks things that don't care
-		else
+		} else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
 	}
 
@@ -250,6 +253,8 @@ public class Traverser implements Visitor {
 	public void visitObjectDefn(ObjectDefn obj) {
 		visitor.visitObjectDefn(obj);
 		traverseState(obj.state());
+		for (HandlerImplements ic : obj.handlers)
+			visitHandlerImplements(ic, obj);
 		leaveObjectDefn(obj);
 	}
 
@@ -275,7 +280,7 @@ public class Traverser implements Visitor {
 		for (ImplementsContract ic : s.contracts)
 			visitImplements(ic);
 		for (HandlerImplements ic : s.handlers)
-			visitHandlerImplements(ic);
+			visitHandlerImplements(ic, s);
 		leaveAgentDefn(s);
 	}
 
@@ -313,8 +318,8 @@ public class Traverser implements Visitor {
 		visitor.leaveImplements(ic);
 	}
 
-	public void visitHandlerImplements(HandlerImplements hi) {
-		visitor.visitHandlerImplements(hi);
+	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
+		visitor.visitHandlerImplements(hi, sh);
 		visitTypeReference(hi.implementsType());
 		traverseHandlerLambdas(hi);
 		if (wantImplementedMethods) {

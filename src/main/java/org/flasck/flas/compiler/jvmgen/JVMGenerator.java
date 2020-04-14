@@ -607,7 +607,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi) {
+	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
 		HandlerName name = (HandlerName) hi.name();
 		String clzName = name.javaClassName();
 		definingClz = bce.newClass(clzName);

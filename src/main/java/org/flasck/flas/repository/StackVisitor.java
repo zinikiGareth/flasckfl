@@ -40,6 +40,7 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -456,8 +457,8 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.leaveImplements(ic);
 	}
 
-	public void visitHandlerImplements(HandlerImplements hi) {
-		top.visitHandlerImplements(hi);
+	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
+		top.visitHandlerImplements(hi, sh);
 	}
 
 	public void visitHandlerLambda(HandlerLambda hl) {

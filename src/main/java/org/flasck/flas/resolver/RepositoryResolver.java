@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -152,7 +153,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi) {
+	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
 		currentlyImplementing = hi;
 	}
 
