@@ -12,5 +12,5 @@
 		provides Storage
 			tell f
 				message <- f
-			ask r
+			ask -> r
 				<- r.reply ("stored is " ++ message)

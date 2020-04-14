@@ -1,0 +1,20 @@
+	contract handler Callback
+		
+	contract service ToProvide
+		handle (String s) -> (Callback c)
+
+	agent TheMethodMustExist
+		provides ToProvide
+			notThere
+
+	agent MustSpecifyTheFormalArgs
+		provides ToProvide
+			handle
+
+	agent MustHaveArrowBeforeHandler
+		provides ToProvide
+			handle s c
+
+	agent IgnoringTheHandlerIsOK
+		provides ToProvide
+			handle s

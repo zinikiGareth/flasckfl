@@ -3,6 +3,7 @@ package org.flasck.flas.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -73,9 +74,15 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			ContractDecl cd = currentlyImplementing.actualType();
 			ContractMethodDecl cm = cd.getMethod(meth.name().name);
 			if (cm != null) {
-//				if (cm.dir == ContractMethodDir.DOWN && currentlyImplementing instanceof Provides)
-//					errors.message(meth.location(), "cannot provide down method '" + meth.name().name + "'");
-//				else
+				if (meth.argCount() < cm.args.size()) {
+					InputPosition loc = meth.location();
+					if (!meth.args().isEmpty())
+						loc = meth.args().get(meth.args().size()-1).location();
+					errors.message(loc, "insufficient arguments provided to contract method '" + meth.name().name + "'");
+				} else if (meth.argCount() > cm.args.size()) {
+					InputPosition loc = meth.args().get(cm.args.size()).location();
+					errors.message(loc, "excess arguments provided to contract method '" + meth.name().name + "'");
+				}
 				meth.bindFromContract(cm);
 			} else
 				errors.message(meth.location(), "there is no method '" + meth.name().name + "' on '" + cd.name().uniqueName() + "'");
