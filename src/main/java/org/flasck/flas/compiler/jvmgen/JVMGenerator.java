@@ -115,8 +115,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private NewMethodDefiner agentctor;
 	private ByteCodeSink agentClass;
 	private Var agentcx;
-	private ByteCodeSink definingClz;
-	private AtomicInteger nextArg = new AtomicInteger();
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;
@@ -257,22 +255,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else if (!isStandalone)
 			throw new NotImplementedException("Don't have one of those");
 
-	}
-	
-	@Override
-	public void visitHandlerLambda(HandlerLambda hl) {
-		if (definingClz != null) {
-			String name = ((TypedPattern)hl.patt).name().var;
-			definingClz.defineField(true, Access.PRIVATE, J.OBJECT, name);
-			meth.assign(meth.getField(fs.evalRet, name), meth.arrayElt(fs.fargs, meth.intConst(nextArg.getAndIncrement()))).flush();
-		} else if (fs != null) {
-			// method with lambdas
-			if (hl.patt instanceof TypedPattern) {
-				TypedPattern tp = (TypedPattern)hl.patt;
-				fs.bindVar(currentBlock, tp.var.var, new HLSlot(tp.var.var), meth.aNull());
-			} else
-				throw new NotImplementedException("support varpattern " + hl);
-		}
 	}
 	
 	@Override
@@ -609,46 +591,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	@Override
 	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
-		HandlerName name = (HandlerName) hi.name();
-		String clzName = name.javaClassName();
-		definingClz = bce.newClass(clzName);
-		definingClz.superclass(J.LOGGINGIDEMPOTENTHANDLER);
-		definingClz.implementsInterface(J.IDEMPOTENTHANDLER);
-		definingClz.generateAssociatedSourceFile();
-		definingClz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs").constValue(hi.argCount());
-		{
-			GenericAnnotator gen = GenericAnnotator.newConstructor(definingClz, false);
-			/*PendingVar cx = */gen.argument(J.FLEVALCONTEXT, "cxt");
-			MethodDefiner ctor = gen.done();
-			ctor.callSuper("void", J.OBJECT, "<init>").flush();
-			ctor.returnVoid().flush();
-		}
-		{ // eval(cx)
-			GenericAnnotator gen = GenericAnnotator.newMethod(definingClz, true, "eval");
-			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
-			PendingVar pargs = gen.argument("[" + J.OBJECT, "args");
-			gen.returns(J.OBJECT);
-			MethodDefiner meth = gen.done();
-//			Var args = pargs.getVar();
-			Var ret = meth.avar(clzName, "ret");
-			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
-			this.fs = new FunctionState(meth, cx.getVar(), null, pargs.getVar(), runner);
-			this.meth = meth;
-			fs.evalRet = ret;
-			this.currentBlock = new ArrayList<IExpr>();
-//			AtomicInteger ai = new AtomicInteger(0);
-//			this.structFieldHandler = sf -> {
-//				if (sf.name.equals("id"))
-//					return;
-//				if (sf.init != null) {
-//					new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
-//				} else {
-//					IExpr arg = meth.arrayElt(args, meth.intConst(ai.getAndIncrement()));
-//					IExpr svar = meth.getField(ret, "state");
-//					meth.callInterface("void", svar, "set", meth.stringConst(sf.name), arg).flush();
-//				}
-//			};
-		}
+		new HIGenerator(sv, bce, hi, sh, runner);
 	}
 
 	@Override
@@ -685,15 +628,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			makeBlock(meth, currentBlock).flush();
 		this.meth.returnObject(fs.evalRet).flush();
 		this.meth = null;
-	}
-
-	@Override
-	public void leaveHandlerImplements(HandlerImplements hi) {
-		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			makeBlock(meth, currentBlock).flush();
-		this.meth.returnObject(fs.evalRet).flush();
-		this.meth = null;
-		this.definingClz = null;
 	}
 
 	@Override
