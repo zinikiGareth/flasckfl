@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -132,7 +133,9 @@ public class Traverser implements Visitor {
 			for (FunctionGroup grp : functionOrder)
 				visitFunctionGroup(grp);
 		}
-		for (RepositoryEntry e : repository.dict.values()) {
+		Set<RepositoryEntry> entriesInSomeOrder = new TreeSet<RepositoryEntry>(RepositoryEntry.preferredOrder);
+		entriesInSomeOrder.addAll(repository.dict.values());
+		for (RepositoryEntry e : entriesInSomeOrder) {
 			visitEntry(e);
 		}
 		traversalDone();
