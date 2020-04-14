@@ -142,6 +142,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void visitImplements(ImplementsContract ic) {
+		currentlyImplementing = ic;
+	}
+	
+	@Override
 	public void visitProvides(Provides p) {
 		currentlyImplementing = p;
 	}
@@ -174,6 +179,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		}
 		if (d.type != ContractType.CONTRACT)
 			errors.message(ic.implementsType().location(), "cannot implement " + d.type.toString().toLowerCase() + " contract");
+		currentlyImplementing = null;
 	}
 	
 	@Override

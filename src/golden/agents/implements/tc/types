@@ -1,0 +1,2 @@
+test.golden.CalledAgent._C0.inform :: String->List[Message]
+test.golden.CalledAgent._C0.retrieve :: test.golden.Extractor->List[Message]

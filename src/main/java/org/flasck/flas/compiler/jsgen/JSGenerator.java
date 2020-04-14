@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -443,6 +444,19 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator ctrProvider = agentCreator.createMethod("_contract", false);
 		ctrProvider.argument("_cxt");
 		ctrProvider.argument("_ctr");
+	}
+	
+	@Override
+	public void visitImplements(ImplementsContract ic) {
+		CSName csn = (CSName)ic.name();
+		JSBlockCreator ctor = agentCreator.constructor();
+		ctor.recordContract(ic.actualType().name().jsName(), csn.jsName());
+		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn.jsName());
+		svc.arg("_card");
+		svc.constructor().setField("_card", new JSLiteral("_card"));
+		List<FunctionName> methods = new ArrayList<>();
+		methodMap.put(ic, methods);
+		jse.methodList(ic.name(), methods);
 	}
 	
 	@Override

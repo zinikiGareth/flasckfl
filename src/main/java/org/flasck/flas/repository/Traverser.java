@@ -302,6 +302,10 @@ public class Traverser implements Visitor {
 	public void visitImplements(ImplementsContract ic) {
 		visitor.visitImplements(ic);
 		visitTypeReference(ic.implementsType());
+		if (wantImplementedMethods) {
+			for (ObjectMethod om : ic.implementationMethods)
+				visitObjectMethod(om);
+		}
 		leaveImplements(ic);
 	}
 

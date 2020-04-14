@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.Implements;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -551,6 +552,32 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 //			if (sf.init != null)
 //				new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
 //		};
+	}
+	
+	@Override
+	public void visitImplements(ImplementsContract ic) {
+		CSName csn = (CSName) ic.name();
+		ByteCodeSink providesClass = bce.newClass(csn.javaClassName());
+		providesClass.superclass(J.OBJECT);
+		providesClass.generateAssociatedSourceFile();
+		IFieldInfo card = providesClass.defineField(true, Access.PRIVATE, J.OBJECT, "_card"); // Probably should be some superclass of card, service, agent ...
+		{
+			GenericAnnotator gen = GenericAnnotator.newConstructor(providesClass, false);
+			/*PendingVar cx = */gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar parent = gen.argument(J.OBJECT, "card");
+			MethodDefiner ctor = gen.done();
+			ctor.callSuper("void", J.OBJECT, "<init>").flush();
+			ctor.assign(card.asExpr(ctor), parent.getVar()).flush();
+			ctor.returnVoid().flush();
+		}
+		FieldExpr ctrs = agentClass.getField(agentctor, "store");
+		agentctor.callInterface("void", ctrs, "recordContract",
+			agentctor.stringConst(ic.actualType().name().uniqueName()),
+			agentctor.as(
+				agentctor.makeNew(csn.javaClassName(), agentctor.getArgument(0), agentctor.as(agentctor.myThis(), J.OBJECT)),
+				J.OBJECT
+			)
+		).flush();
 	}
 	
 	@Override

@@ -1,0 +1,17 @@
+	contract handler Extractor
+		current (String y)
+
+	contract Learn
+		inform (String s)
+		retrieve -> (Extractor r)
+
+	agent CalledAgent
+		state
+			String factoid
+			
+		implements Learn
+			inform f
+				factoid <- f
+			retrieve -> r
+				<- r.current ("currently is " ++ factoid)
+				

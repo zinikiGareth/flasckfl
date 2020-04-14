@@ -1,0 +1,7 @@
+	test we can call down to an agent
+		data Extractor handler
+		data CalledAgent agent
+		expect handler current "currently is thing I know"
+		contract agent Learn inform "thing I know"
+		contract agent Learn retrieve -> handler
+	
