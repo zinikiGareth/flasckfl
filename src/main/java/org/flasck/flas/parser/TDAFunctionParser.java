@@ -54,7 +54,7 @@ public class TDAFunctionParser implements TDAParsing {
 		final FunctionIntro intro = new FunctionIntro(fcase, args);
 		consumer.functionIntro(intro);
 		if (!line.hasMore()) {
-			return new TDAFunctionGuardedEquationParser(errors, intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case"));
+			return new TDAFunctionGuardedEquationParser(errors, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case"));
 		}
 		ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null || !tok.text.equals("=")) {

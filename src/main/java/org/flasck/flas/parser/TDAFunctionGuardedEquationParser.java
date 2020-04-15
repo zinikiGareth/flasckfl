@@ -12,14 +12,16 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAFunctionGuardedEquationParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final InputPosition introStart;
 	private final FunctionGuardedEquationConsumer consumer;
 	private final List<FunctionCaseDefn> cases = new ArrayList<>();
 	private InputPosition haveDefault;
 	private boolean reportedError;
 	private LastOneOnlyNestedParser nestedParser;
 
-	public TDAFunctionGuardedEquationParser(ErrorReporter errors, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser) {
+	public TDAFunctionGuardedEquationParser(ErrorReporter errors, InputPosition introStart, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser) {
 		this.errors = errors;
+		this.introStart = introStart;
 		this.consumer = consumer;
 		this.nestedParser = nestedParser;
 	}
@@ -83,6 +85,6 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (cases.isEmpty())
-			errors.message(location, "no function cases specified");
+			errors.message(introStart, "no function cases specified");
 	}
 }
