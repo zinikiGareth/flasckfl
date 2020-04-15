@@ -1,0 +1,43 @@
+	contract CountDown
+		obtain
+		check
+	
+	contract handler Counter
+		reply (Number n)
+	
+	contract CountUp
+		call -> (Counter q)
+		tell (Number n)
+
+	handler Counter StandaloneCounter (Number base) (Counter passon)
+		reply n
+			<- passon.reply (base + n)
+			
+	object ObscureCounter
+		state
+			Number var
+		
+		acor stored = var
+		handler Counter InObject (Number base)
+			reply n
+				var <- (base + n)
+				
+		method obtain (CountUp u)
+			<- u.call -> (InObject 42)
+	
+	agent AgentCounter
+		state
+			Number var
+			
+		handler Counter InAgent (Number base)
+			reply n
+				var <- (base + n)
+
+		requires CountUp u
+		
+		implements CountDown
+			obtain
+				<- u.call -> (InAgent 42)
+			check
+				<- u.tell var
+			

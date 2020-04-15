@@ -5,6 +5,15 @@
 		expect mock reply "yo"
 		invoke myHandler.reply "yo"
 
+	test we can call a handler on an object
+		data Up callUp
+		data Obscure obj
+		expect callUp call -> _hdlr
+		invoke obj.obtain callUp
+		invoke hdlr.reply "yo"
+		assert (obj.stored)
+			"yo"
+			
 	test we can call a handler on an agent
 		data Up callUp
 		data Agentum agent
@@ -14,11 +23,28 @@
 		expect callUp tell "yo"
 		contract agent Down check
 
-	test we can call a handler on an object
-		data Up callUp
-		data Obscure obj
+	test we can use a free standing handler with an arg
+		data CountUp callUp
+		data Counter mock
+		data StandaloneCounter myHandler <- StandaloneCounter 42 mock 
+		expect mock reply 66
+		invoke myHandler.reply 24
+
+	test we can use a handler on an object with an arg
+		data CountUp callUp
+		data ObscureCounter obj
 		expect callUp call -> _hdlr
 		invoke obj.obtain callUp
-		invoke hdlr.reply "yo"
+		invoke hdlr.reply 24
 		assert (obj.stored)
-			"yo"
+			66
+			
+	test we can use a handler on an agent with an arg
+		data CountUp callUp
+		data AgentCounter agent
+		expect callUp call -> _hdlr
+		contract agent CountDown obtain
+		invoke hdlr.reply 24
+		expect callUp tell 66
+		contract agent CountDown check
+		
