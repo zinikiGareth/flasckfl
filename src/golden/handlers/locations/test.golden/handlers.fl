@@ -1,8 +1,10 @@
 	contract Down
 		obtain
+		check
 	
 	contract Up
 		call -> (Simple q)
+		tell (String var)
 
 	contract handler Simple
 		reply (String s)
@@ -14,10 +16,14 @@
 	object Obscure
 		state
 			String var
-			
+		
+		acor stored = var
 		handler Simple InObject
 			reply s
 				var <- s
+				
+		method obtain (Up u)
+			<- u.call -> InObject
 	
 	agent Agentum
 		state
@@ -32,3 +38,5 @@
 		implements Down
 			obtain
 				<- u.call -> InAgent
+			check
+				<- u.tell var

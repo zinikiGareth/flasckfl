@@ -1,4 +1,6 @@
 JVM PASS we can call a free standing handler
 JVM PASS we can call a handler on an agent
+JVM PASS we can call a handler on an object
 JS PASS we can call a free standing handler
 JS PASS we can call a handler on an agent
+JS PASS we can call a handler on an object

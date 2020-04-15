@@ -11,14 +11,14 @@
 		expect callUp call -> _hdlr
 		contract agent Down obtain
 		invoke hdlr.reply "yo"
-.		assert (agent.var)
-.			"yo"
+		expect callUp tell "yo"
+		contract agent Down check
 
-.	test we can call a handler on an object
-.		data Up callUp
-.		data Obscure obj
-.		expect callUp call -> _hdlr
-.		contract agent Down obtain
-.		invoke hdlr.reply "yo"
-.		assert (agent.var)
-.			"yo"
+	test we can call a handler on an object
+		data Up callUp
+		data Obscure obj
+		expect callUp call -> _hdlr
+		invoke obj.obtain callUp
+		invoke hdlr.reply "yo"
+		assert (obj.stored)
+			"yo"
