@@ -28,7 +28,7 @@ public class TDAFunctionGuardedCaseParsingTests {
 		context.checking(new Expectations() {{
 			allowing(loonp).anotherParent();
 		}});
-		parser = new TDAFunctionGuardedEquationParser(errors, consumer, loonp);
+		parser = new TDAFunctionGuardedEquationParser(errors, pos, consumer, loonp);
 	}
 
 	@Test

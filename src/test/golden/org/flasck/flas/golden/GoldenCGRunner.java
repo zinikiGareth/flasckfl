@@ -4,8 +4,8 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Main;
@@ -66,23 +66,31 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			p = Pattern.compile(match);
 		}
 
-		ByteCodeCreator bcc = emptyTestClass(bce, "goldenTests");
-		Set<File> dirs = new TreeSet<>(new FileNameComparator());
+//		Set<File> dirs = new TreeSet<>(new FileNameComparator());
+		Map<File, ByteCodeCreator> bccs = new TreeMap<>(new FileNameComparator());
 		for (File f : FileUtils.findFilesMatching(new File("src/golden"), "*.fl")) {
 			File dir = f.getParentFile().getParentFile();
-			if (p == null || p.matcher(dir.getPath()).find())
-				dirs.add(dir);
+			if (p == null || p.matcher(dir.getPath()).find()) {
+				ByteCodeCreator bcc = emptyTestClass(bce, makeNameForTest(dir).toString());
+				addGoldenTest(bcc, dir);
+				if (bcc.methodCount() > 1)
+					bccs.put(dir, bcc);
+			}
 		}
-		for (File dir : dirs)
-			addGoldenTest(bcc, dir);
-		if (bcc.methodCount() == 1) {
-			addMethod(bcc, "classEmpty", false, new TestMethodContentProvider() {
-				@Override
-				public void defineMethod(NewMethodDefiner done) {
-				}
-			});
-		}
-		return new Class<?>[] { generate(cl, bcc) };
+		//		for (File dir : dirs)
+//		if (bcc.methodCount() == 1) {
+//			addMethod(bcc, "classEmpty", false, new TestMethodContentProvider() {
+//				@Override
+//				public void defineMethod(NewMethodDefiner done) {
+//				}
+//			});
+//		}
+		Class<?>[] ret = new Class<?>[bccs.size()];
+		int i=0;
+		for (ByteCodeCreator bcc : bccs.values())
+			ret[i++] = generate(cl, bcc);
+		return ret;
+//		return new Class<?>[] { generate(cl, bcc) };
 	}
 
 	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
@@ -91,14 +99,19 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		boolean runjvm = !new File(f, "jsonly").exists();
 		boolean runjs = !new File(f, "jvmonly").exists();
 
+		StringBuilder name = makeNameForTest(f);
+		name.insert(0, "test");
+		addTests(bcc, f, name.toString(), ignoreTest, runjvm, runjs, phase);
+	}
+
+	private static StringBuilder makeNameForTest(final File f) {
 		File f1 = FileUtils.makeRelativeTo(f, new File("src/golden"));
 		StringBuilder name = new StringBuilder();
 		while (f1 != null) {
 			name.insert(0, StringUtil.capitalize(f1.getName()));
 			f1 = f1.getParentFile();
 		}
-		name.insert(0, "test");
-		addTests(bcc, f, name.toString(), ignoreTest, runjvm, runjs, phase);
+		return name;
 	}
 
 	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, boolean runJvm, boolean runJs, String phase) {
