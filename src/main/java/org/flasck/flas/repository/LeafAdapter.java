@@ -29,6 +29,8 @@ import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectContract;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
@@ -109,6 +111,14 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
+	public void visitObjectContract(ObjectContract oc) {
+	}
+
+	@Override
+	public void leaveObjectContract(ObjectContract oc) {
+	}
+
+	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
 	}
 
@@ -158,6 +168,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveObjectAccessor(ObjectAccessor oa) {
+	}
+
+	@Override
+	public void visitObjectCtor(ObjectCtor oa) {
+	}
+
+	@Override
+	public void leaveObjectCtor(ObjectCtor oa) {
 	}
 
 	@Override

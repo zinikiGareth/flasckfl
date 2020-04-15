@@ -19,6 +19,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder {
 	private StateDefinition state;
 	private final List<Template> templates = new ArrayList<>();
+	public final List<ObjectContract> contracts = new ArrayList<>();
 	public final List<ObjectCtor> ctors = new ArrayList<>();
 	public final List<ObjectAccessor> acors = new ArrayList<>();
 	public final List<ObjectMethod> methods = new ArrayList<>();
@@ -51,6 +52,13 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 		return null;
 	}
 
+	public ObjectCtor getConstructor(String called) {
+		for (ObjectCtor ret : ctors)
+			if (ret.name().name.equals("_ctor_" + called))
+				return ret;
+		
+		return null;
+	}
 
 	public ObjectMethod getMethod(String called) {
 		for (ObjectMethod ret : methods)
@@ -59,6 +67,7 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 		
 		return null;
 	}
+
 	public void completePolyNames() {
 		for (PolyType pa : polys)
 			pa.containedIn(name);
@@ -79,6 +88,12 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 		return state;
 	}
 	
+	@Override
+	public ObjectElementsConsumer requireContract(ObjectContract oc) {
+		contracts.add(oc);
+		return this;
+	}
+
 	@Override
 	public ObjectElementsConsumer addTemplate(Template template) {
 		this.templates.add(template);
@@ -143,7 +158,7 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	
 	@Override
 	public String signature() {
-		throw new NotImplementedException();
+		return name.uniqueName();
 	}
 
 	@Override
@@ -158,7 +173,7 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		throw new NotImplementedException();
+		return this == other;
 	}
 
 	@Override

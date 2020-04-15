@@ -9,7 +9,9 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -69,19 +71,28 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				nv.result(sf.type.defn());
 			}
 		} else if (ty instanceof ObjectDefn) {
-			ObjectDefn sd = (ObjectDefn) ty;
-			FieldAccessor fa = sd.getAccessor(fld.var);
-			if (fa == null) {
-				throw new NotImplementedException();
-			} else {
+			ObjectDefn od = (ObjectDefn) ty;
+			FieldAccessor fa = od.getAccessor(fld.var);
+			if (fa != null) {
 				nv.result(fa.type());
+				return;
 			}
+			ObjectCtor ctor = od.getConstructor(fld.var);
+			if (ctor != null) {
+				nv.result(ctor.type());
+				return;
+			}
+			ObjectMethod meth = od.getMethod(fld.var);
+			if (meth != null) {
+				nv.result(meth.type());
+				return;
+			}
+			throw new NotImplementedException("object " + od.name() + " does not have acor or ctor");
 		} else if (expr.from instanceof UnresolvedVar) {
 			UnresolvedVar var = (UnresolvedVar) expr.from;
 			errors.message(expr.from.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
 			nv.result(new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
-
 	}
 }

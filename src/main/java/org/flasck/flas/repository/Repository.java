@@ -44,6 +44,8 @@ import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.ObjectContract;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
@@ -189,6 +191,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitHandleExpr(InputPosition location, Expr expr, Expr handler);
 		void leaveHandleExpr(Expr expr, Expr handler);
 		void traversalDone();
+		void visitObjectContract(ObjectContract oc);
+		void leaveObjectContract(ObjectContract oc);
+		void visitObjectCtor(ObjectCtor oa);
+		void leaveObjectCtor(ObjectCtor oa);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
@@ -258,6 +264,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void newRequiredContract(RequiresContract rc) {
 		addEntry(rc.varName(), rc);
+	}
+	
+	@Override
+	public void newObjectContract(ObjectContract oc) {
+		addEntry(oc.varName(), oc);
 	}
 	
 	@Override

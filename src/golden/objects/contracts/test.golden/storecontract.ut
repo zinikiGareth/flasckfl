@@ -1,0 +1,6 @@
+	test we can use a contract stored on a nested object
+		data Up monitor
+		data HoldContract agent
+		contract agent Down init
+		expect monitor call "hello"
+		contract agent Down run

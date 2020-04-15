@@ -11,7 +11,7 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -28,20 +28,20 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		HSIPatternOptions opts;
 		UnresolvedVar var;
 		
-		public PO(VarPattern p, FunctionIntro fi, ObjectMethod meth) {
+		public PO(VarPattern p, FunctionIntro fi, ObjectActionHandler meth) {
 			this(fi, meth, p, p.name());
 			this.opts.addVar(p, fi);
 			this.var.bind(p);
 		}
 
-		public PO(TypedPattern p, FunctionIntro fi, ObjectMethod meth) {
+		public PO(TypedPattern p, FunctionIntro fi, ObjectActionHandler meth) {
 			this(fi, meth, p, p.name());
 			this.opts.addTyped(p, fi);
 			this.var.bind(p);
 		}
 
 		// for the merging case
-		public PO(PO o, FunctionIntro fi, ObjectMethod meth) {
+		public PO(PO o, FunctionIntro fi, ObjectActionHandler meth) {
 			this(fi, meth, new VarPattern(o.p.location(), o.name), o.name);
 			if (o.p instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o.p;
@@ -53,7 +53,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 			}
 		}
 
-		private PO(FunctionIntro fi, ObjectMethod meth, Pattern p, VarName name) {
+		private PO(FunctionIntro fi, ObjectActionHandler meth, Pattern p, VarName name) {
 			this.p = p;
 			this.name = name;
 			this.opts = new HSIPatternOptions();
@@ -79,12 +79,12 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	private Set<StandaloneDefn> deps = new HashSet<>(); 
 	
 	@Override
-	public void recordNestedVar(FunctionIntro fi, ObjectMethod meth, VarPattern vp) {
+	public void recordNestedVar(FunctionIntro fi, ObjectActionHandler meth, VarPattern vp) {
 		patterns.add(new PO(vp, fi, meth));
 	}
 
 	@Override
-	public void recordNestedVar(FunctionIntro fi, ObjectMethod meth, TypedPattern tp) {
+	public void recordNestedVar(FunctionIntro fi, ObjectActionHandler meth, TypedPattern tp) {
 		patterns.add(new PO(tp, fi, meth));
 	}
 

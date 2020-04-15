@@ -1,0 +1,27 @@
+	contract Up
+		call (String s)
+		
+	contract Down
+		init
+		run
+
+	object CallContract
+		requires Up u
+		
+		ctor init
+		
+		method doit
+			<- u.call "hello"
+		
+	agent HoldContract
+		state
+			CallContract obj
+
+		requires Up u
+
+		implements Down
+			init
+				obj <- CallContract.init
+			run
+				<- obj.doit
+		

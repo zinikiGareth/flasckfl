@@ -93,11 +93,11 @@ public class MethodTests {
 	}
 
 	@Test
-	public void noMessagesNullType() {
+	public void noMessagesNilType() {
 		sv.push(new FunctionChecker(errors, sv, state, null));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(r).result(null);
+			oneOf(r).result(new PosType(pos, LoadBuiltins.nil));
 		}});
 		sv.leaveObjectMethod(meth);
 	}

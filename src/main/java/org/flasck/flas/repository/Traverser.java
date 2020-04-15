@@ -44,6 +44,9 @@ import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.ObjectContract;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PatternsHolder;
@@ -171,6 +174,8 @@ public class Traverser implements Visitor {
 		} else if (e instanceof ObjectAccessor) {
 			if (functionOrder == null)
 				visitObjectAccessor((ObjectAccessor)e);
+		} else if (e instanceof ObjectCtor) {
+			visitObjectCtor((ObjectCtor)e);
 		} else if (e instanceof StandaloneMethod) {
 			if (functionOrder == null)
 				visitStandaloneMethod((StandaloneMethod)e);
@@ -191,7 +196,8 @@ public class Traverser implements Visitor {
 //				visitUnitDataDeclaration(udd);
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
-		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof PolyType || e instanceof RequiresContract || e instanceof IntroduceVar || e instanceof HandlerLambda) {
+		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof IntroduceVar || e instanceof HandlerLambda ||
+				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
@@ -256,6 +262,8 @@ public class Traverser implements Visitor {
 	public void visitObjectDefn(ObjectDefn obj) {
 		visitor.visitObjectDefn(obj);
 		traverseState(obj.state());
+		for (ObjectContract oc : obj.contracts)
+			visitObjectContract(oc);
 		for (HandlerImplements ic : obj.handlers)
 			visitHandlerImplements(ic, obj);
 		leaveObjectDefn(obj);
@@ -268,6 +276,19 @@ public class Traverser implements Visitor {
 		}
 	}
 
+	@Override
+	public void visitObjectContract(ObjectContract oc) {
+		visitor.visitObjectContract(oc);
+		visitTypeReference(oc.implementsType());
+		leaveObjectContract(oc);
+	}
+
+	@Override
+	public void leaveObjectContract(ObjectContract oc) {
+		visitor.leaveObjectContract(oc);
+	}
+
+	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
 		visitor.leaveObjectDefn(obj);
 	}
@@ -351,6 +372,18 @@ public class Traverser implements Visitor {
 	@Override
 	public void leaveObjectAccessor(ObjectAccessor oa) {
 		visitor.leaveObjectAccessor(oa);
+	}
+
+	@Override
+	public void visitObjectCtor(ObjectCtor oc) {
+		visitor.visitObjectCtor(oc);
+		traverseFnOrMethod(oc);
+		leaveObjectCtor(oc);
+	}
+
+	@Override
+	public void leaveObjectCtor(ObjectCtor oc) {
+		visitor.leaveObjectCtor(oc);
 	}
 
 	@Override
@@ -471,10 +504,10 @@ public class Traverser implements Visitor {
 		if (fn instanceof FunctionDefinition) {
 			for (FunctionIntro i : ((FunctionDefinition) fn).intros())
 				visitFunctionIntro(i);
-		} else if (fn instanceof ObjectMethod) {
+		} else if (fn instanceof ObjectActionHandler) {
 			if (!patternsTree)
 				visitPatterns((PatternsHolder)fn);
-			visitObjectsMessages(((ObjectMethod)fn).messages());
+			visitObjectsMessages(((ObjectActionHandler)fn).messages());
 		} else
 			throw new NotImplementedException();
 	}

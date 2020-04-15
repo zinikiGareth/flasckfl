@@ -11,15 +11,19 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
@@ -51,6 +55,33 @@ public class TDAObjectElementsParser implements TDAParsing {
 			builder.defineState(state);
 			return new TDAStructFieldParser(errors, new ConsumeStructFields(topLevel, namer, state), FieldsType.STATE, false);
 		}
+		case "requires": {
+			TypeNameToken tn = TypeNameToken.qualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid contract reference");
+				return new IgnoreNestedParser();
+			}
+			
+			if (!toks.hasMore()) {
+				errors.message(toks, "missing variable name");
+				return new IgnoreNestedParser();
+			}
+			ValidIdentifierToken var = VarNameToken.from(toks);
+			if (var == null) {
+				errors.message(toks, "invalid service var name");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "extra tokens at end of line");
+				return new IgnoreNestedParser();
+			}
+			final TypeReference ctr = namer.contract(tn.location, tn.text);
+			VarName cv = namer.nameVar(var.location, var.text);
+			ObjectContract oc = new ObjectContract(ctr, cv);
+			builder.requireContract(oc);
+			topLevel.newObjectContract(oc);
+			return new NoNestingParser(errors);
+		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
 			final Template template = new Template(kw.location, tn.location, namer.template(tn.text), null, null);
@@ -70,7 +101,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 				errors.message(toks, "extra characters at end of line");
 				return new IgnoreNestedParser();
 			}
-			ObjectCtor ctor = new ObjectCtor(var.location, fnName, args);
+			ObjectCtor ctor = new ObjectCtor(var.location, (Type)builder, fnName, args);
 			builder.addConstructor(ctor);
 			MethodMessagesConsumer collector = new MethodMessagesConsumer() {
 				@Override

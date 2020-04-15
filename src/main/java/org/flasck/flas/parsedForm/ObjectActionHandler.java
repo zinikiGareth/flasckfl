@@ -20,7 +20,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder, TypeBinder {
+public abstract class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder, TypeBinder {
 	private final InputPosition location;
 	private final FunctionName name;
 	private final List<Pattern> args;
@@ -118,7 +118,7 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 	
 	public Type type() {
 		if (this.type == null)
-			throw new RuntimeException("Type not bound");
+			throw new RuntimeException("Type not bound for " + name.uniqueName());
 		return this.type;
 	}
 
@@ -144,4 +144,10 @@ public class ObjectActionHandler implements Locatable, MethodMessagesConsumer, R
 	public void dumpTo(PrintWriter pw) {
 		pw.println("ObjectCtor[" + toString() + "]");
 	}
+
+	public abstract boolean hasObject();
+	public abstract boolean hasImplements();
+	public abstract Type getObject();
+	public abstract Implements getImplements();
+	public abstract ContractMethodDecl contractMethod();
 }

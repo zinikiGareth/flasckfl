@@ -6,6 +6,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -48,6 +49,14 @@ public class PatternAnalyzer extends LeafAdapter {
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
 		hsiTree = new HSIArgsTree(meth.argCount() + (meth.handler != null ? 1 : 0));
+		nslot = 0;
+		current = null;
+		hsiTree.consider(null);
+	}
+
+	@Override
+	public void visitObjectCtor(ObjectCtor meth) {
+		hsiTree = new HSIArgsTree(meth.argCount());
 		nslot = 0;
 		current = null;
 		hsiTree.consider(null);
@@ -128,6 +137,11 @@ public class PatternAnalyzer extends LeafAdapter {
 
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
+		meth.bindHsi(hsiTree);
+	}
+
+	@Override
+	public void leaveObjectCtor(ObjectCtor meth) {
 		meth.bindHsi(hsiTree);
 	}
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
-import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructField;
@@ -22,15 +22,15 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final CurrentTCState state;
 	private final InputPosition pos;
-	private final ObjectMethod inMeth;
+	private final ObjectActionHandler inMeth;
 	private ExprResult rhsType;
 
-	public MessageChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor sv, InputPosition pos, ObjectMethod meth) {
+	public MessageChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor sv, InputPosition pos, ObjectActionHandler inMeth) {
 		this.errors = errors;
 		this.state = state;
 		this.sv = sv;
 		this.pos = pos;
-		this.inMeth = meth;
+		this.inMeth = inMeth;
 		sv.push(this);
 		sv.push(new ExpressionChecker(errors, state, sv));
 	}
@@ -110,6 +110,12 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		// an empty list is fine
 		if (check == LoadBuiltins.nil) {
 			sv.result(rhsType);
+			return;
+		}
+		
+		if (check instanceof EnsureListMessage) {
+			EnsureListMessage elm = (EnsureListMessage) check;
+			elm.validate(errors);
 			return;
 		}
 		

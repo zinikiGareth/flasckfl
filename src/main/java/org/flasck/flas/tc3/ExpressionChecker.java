@@ -13,6 +13,8 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
+import org.flasck.flas.parsedForm.ObjectContract;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -76,9 +78,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		if (var == null || var.defn() == null)
 			throw new NullPointerException("undefined var: " + var);
 		RepositoryEntry defn = var.defn();
-		if (defn instanceof StructDefn) {
-			announce(pos, (Type) defn);
-		} else if (defn instanceof HandlerImplements) {
+		if (defn instanceof StructDefn || defn instanceof ObjectDefn || defn instanceof HandlerImplements) {
 			announce(pos, (Type) defn);
 		} else if (defn instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) defn;
@@ -112,6 +112,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce(pos, (Type) sf.type.defn());
 		} else if (defn instanceof RequiresContract) {
 			announce(pos, ((RequiresContract)defn).implementsType().defn());
+		} else if (defn instanceof ObjectContract) {
+			announce(pos, ((ObjectContract)defn).implementsType().defn());
 		} else if (defn instanceof UnitDataDeclaration) {
 			announce(pos, ((UnitDataDeclaration)defn).ofType.defn());
 		} else

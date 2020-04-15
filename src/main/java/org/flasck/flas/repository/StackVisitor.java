@@ -34,6 +34,8 @@ import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectContract;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
@@ -424,12 +426,28 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitObjectDefn(e);
 	}
 
+	public void visitObjectContract(ObjectContract oc) {
+		top.visitObjectContract(oc);
+	}
+
+	public void leaveObjectContract(ObjectContract oc) {
+		top.leaveObjectContract(oc);
+	}
+
 	public void leaveObjectDefn(ObjectDefn obj) {
 		top.leaveObjectDefn(obj);
 	}
 
 	public void visitObjectAccessor(ObjectAccessor oa) {
 		top.visitObjectAccessor(oa);
+	}
+
+	public void visitObjectCtor(ObjectCtor oa) {
+		top.visitObjectCtor(oa);
+	}
+
+	public void leaveObjectCtor(ObjectCtor oa) {
+		top.leaveObjectCtor(oa);
 	}
 
 	public void visitAgentDefn(AgentDefinition s) {

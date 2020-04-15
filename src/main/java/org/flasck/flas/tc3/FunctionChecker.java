@@ -14,6 +14,8 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -43,10 +45,10 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final List<PosType> argTypes = new ArrayList<>();
 	private final List<PosType> resultTypes = new ArrayList<>();
 	private final CurrentTCState state;
-	private final ObjectMethod inMeth;
+	private final ObjectActionHandler inMeth;
 	private final ContractSlotChecker csc;
 
-	public FunctionChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state, ObjectMethod inMeth) {
+	public FunctionChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state, ObjectActionHandler inMeth) {
 		this.errors = errors;
 		this.sv = sv;
 		this.state = state;
@@ -179,13 +181,28 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
 		if (meth.messages().isEmpty())
-			sv.result(null);
+			sv.result(new PosType(meth.location(), LoadBuiltins.nil));
 		else if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + meth.name().uniqueName());
 		else {
 			PosType posty = state.consolidate(meth.location(), resultTypes);
 			sv.result(buildApplyType(meth.location(), new PosType(posty.pos, new EnsureListMessage(meth.location(), posty.type))));
 		}
+	}
+
+	@Override
+	public void leaveObjectCtor(ObjectCtor ctor) {
+		if (ctor.messages().isEmpty())
+			sv.result(new PosType(ctor.location(), ctor.getObject()));
+		else if (resultTypes.isEmpty())
+			throw new RuntimeException("No types inferred for " + ctor.name().uniqueName());
+		else {
+			PosType posty = state.consolidate(ctor.location(), resultTypes);
+			sv.result(buildApplyType(ctor.location(), new PosType(posty.pos, new EnsureListMessage(ctor.location(), posty.type))));
+		}
+	}
+
+	public void leaveObjectActionHandler(ObjectActionHandler meth) {
 	}
 
 	private PosType buildApplyType(InputPosition pos, PosType result) {

@@ -1,0 +1,10 @@
+	contract Up
+		call
+
+	object CallContract
+		requires Up u
+		
+	agent HoldContract
+		state
+			CallContract obj
+		

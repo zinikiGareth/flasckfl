@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -76,6 +77,12 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
+		if (ma != null)
+			ma.visitObjectMethod(meth);
+	}
+	
+	@Override
+	public void visitObjectCtor(ObjectCtor meth) {
 		if (ma != null)
 			ma.visitObjectMethod(meth);
 	}

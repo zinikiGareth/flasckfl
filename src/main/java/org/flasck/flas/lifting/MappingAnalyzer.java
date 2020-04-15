@@ -3,7 +3,7 @@ package org.flasck.flas.lifting;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -17,7 +17,7 @@ public class MappingAnalyzer {
 	private final VarDependencyMapper dependencies;
 	private FunctionName name;
 	private FunctionIntro fi;
-	private ObjectMethod meth;
+	private ObjectActionHandler meth;
 
 	public MappingAnalyzer(TypeBinder fn, MappingCollector c, VarDependencyMapper dependencies) {
 		this.fn = fn;
@@ -30,7 +30,7 @@ public class MappingAnalyzer {
 		name = fi.name();
 	}
 
-	public void visitObjectMethod(ObjectMethod meth) {
+	public void visitObjectMethod(ObjectActionHandler meth) {
 		this.meth = meth;
 		name = meth.name();
 	}

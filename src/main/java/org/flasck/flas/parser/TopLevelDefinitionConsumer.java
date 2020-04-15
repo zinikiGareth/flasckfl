@@ -5,6 +5,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.ServiceDefinition;
@@ -26,5 +27,6 @@ public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer, I
 	void newTestData(UnitDataDeclaration data);
 	void newObjectAccessor(ObjectAccessor oa);
 	void newRequiredContract(RequiresContract rc);
+	void newObjectContract(ObjectContract oc);
 	void replaceDefinition(HandlerLambda hl);
 }

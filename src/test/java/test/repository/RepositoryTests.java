@@ -212,7 +212,7 @@ public class RepositoryTests {
 	public void canAddAnObjectCtorToTheRepository() {
 		Repository r = new Repository();
 		final SolidName on = new SolidName(pkg, "Obj");
-		ObjectCtor ctor = new ObjectCtor(pos, FunctionName.objectCtor(pos, on, "simple"), new ArrayList<>());
+		ObjectCtor ctor = new ObjectCtor(pos, null, FunctionName.objectCtor(pos, on, "simple"), new ArrayList<>());
 		r.newObjectMethod(ctor);
 		assertEquals(ctor, r.get("test.repo.Obj._ctor_simple"));
 	}

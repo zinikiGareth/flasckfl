@@ -22,6 +22,7 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDAStructFieldParser;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -35,7 +36,7 @@ import flas.matchers.ObjectMethodMatcher;
 import flas.matchers.PatternMatcher;
 
 public class TDAObjectElementParsingTests {
-	interface ObjDef extends ObjectElementsConsumer, StateHolder {}
+	interface ObjDef extends ObjectElementsConsumer, StateHolder, Type {}
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);

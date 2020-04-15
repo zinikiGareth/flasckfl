@@ -8,7 +8,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class EnsureListMessage implements Type {
-	private final static Type lm = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
+	public final static Type listMessages = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 	private final InputPosition pos;
 	private Type ret;
 	
@@ -29,7 +29,7 @@ public class EnsureListMessage implements Type {
 	}
 	
 	public Type listMessages() {
-		return lm;
+		return listMessages;
 	}
 	
 	@Override
@@ -45,13 +45,13 @@ public class EnsureListMessage implements Type {
 	@Override
 	public Type get(int pos) {
 		if (pos == 0)
-			return lm;
+			return listMessages;
 		throw new NotImplementedException();
 	}
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		return lm.incorporates(pos, other);
+		return listMessages.incorporates(pos, other);
 	}
 
 	@Override
@@ -61,6 +61,6 @@ public class EnsureListMessage implements Type {
 	
 	@Override
 	public String toString() {
-		return pos + " " + lm;
+		return pos + " " + listMessages;
 	}
 }

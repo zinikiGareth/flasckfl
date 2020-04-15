@@ -50,16 +50,24 @@ public class TDAMethodMessageParser implements TDAParsing {
 	private TDAParsing handleAssign(ExprToken tok, Tokenizable toks) {
 		List<UnresolvedVar> slots = new ArrayList<>();
 		boolean haveDot = true;
-		while (tok.type == ExprToken.IDENTIFIER) {
+		while (tok != null && tok.type == ExprToken.IDENTIFIER) {
 			haveDot = false;
 			UnresolvedVar v = new UnresolvedVar(tok.location, tok.text);
 			slots.add(v);
 			tok = ExprToken.from(errors, toks);
+			if (tok == null) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
 			if (tok.type == ExprToken.PUNC && ".".equals(tok.text)) {
 				tok = ExprToken.from(errors, toks);
 				haveDot = true;
 			} else
 				break;
+		}
+		if (tok == null) {
+			errors.message(toks, "syntax error");
+			return new IgnoreNestedParser();
 		}
 		if ("<-".equals(tok.text)) {
 			InputPosition pos = tok.location;

@@ -73,6 +73,8 @@ public class Main {
 		
 		FunctionGroups ordering = compiler.lift();
 		compiler.analyzePatterns();
+		if (errors.hasErrors())
+			return true;
 		
 		if (config.doTypeCheck) {
 			compiler.doTypeChecking(mark, ordering);

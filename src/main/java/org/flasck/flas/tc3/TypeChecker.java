@@ -2,6 +2,8 @@ package org.flasck.flas.tc3;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
+import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -16,7 +18,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
-	private ObjectMethod currentMethod;
+	private ObjectActionHandler currentMethod;
 
 	public TypeChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
 		this.errors = errors;
@@ -32,6 +34,12 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
+		sv.push(new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), meth));
+		this.currentMethod = meth;
+	}
+	
+	@Override
+	public void visitObjectCtor(ObjectCtor meth) {
 		sv.push(new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), meth));
 		this.currentMethod = meth;
 	}
@@ -54,7 +62,7 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void result(Object r) {
 		PosType result = (PosType) r;
-		if (currentMethod != null && !currentMethod.messages().isEmpty()) {
+		if (currentMethod != null) {
 			currentMethod.bindType(result.type);
 			currentMethod = null;
 		}
