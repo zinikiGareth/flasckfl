@@ -1,5 +1,8 @@
 package org.flasck.flas.compiler.jsgen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -159,7 +162,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
 			HandlerImplements hi = (HandlerImplements)defn;
 			if (nargs == 0 && hi.argCount() == 0) {
-				sv.result(block.structConst(myName));
+				List<JSExpr> args = new ArrayList<JSExpr>();
+				args.add(state.container());
+				sv.result(block.createObject(myName, args));
 			} else if (nargs > 0) {
 				sv.result(block.pushConstructor(myName));
 			} else {

@@ -1,17 +1,30 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSNew implements JSExpr {
 	private final String clz;
+	private final List<JSExpr> args;
 
 	public JSNew(NameOfThing clz) {
-		this.clz = clz.jsName();
+		this(clz.jsName(), new ArrayList<>());
 	}
 
 	public JSNew(String clz) {
+		this(clz, new ArrayList<>());
+	}
+	
+	public JSNew(NameOfThing clz, List<JSExpr> args) {
+		this(clz.jsName(), args);
+	}
+
+	public JSNew(String clz, List<JSExpr> args) {
 		this.clz = clz;
+		this.args = args;
 	}
 
 	@Override
@@ -23,7 +36,12 @@ public class JSNew implements JSExpr {
 	public void write(IndentWriter w) {
 		w.print("new ");
 		w.print(clz);
-		w.print("(_cxt)");
+		w.print("(_cxt");
+		for (JSExpr e : args) {
+			w.print(", ");
+			w.print(e.asVar());
+		}
+		w.print(")");
 	}
 
 }

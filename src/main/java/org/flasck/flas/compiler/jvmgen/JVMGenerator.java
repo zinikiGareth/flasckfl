@@ -9,10 +9,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.names.CSName;
-import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.ArgSlot;
-import org.flasck.flas.hsi.HLSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -21,7 +19,6 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectAccessor;

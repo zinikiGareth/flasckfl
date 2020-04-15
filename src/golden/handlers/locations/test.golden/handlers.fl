@@ -15,20 +15,20 @@
 		state
 			String var
 			
-.		handler Simple InObject
-.			reply s
-.				var <- s
+		handler Simple InObject
+			reply s
+				var <- s
 	
 	agent Agentum
 		state
 			String var
 			
 		handler Simple InAgent
-.			reply s
-.				var <- s
+			reply s
+				var <- s
 
 		requires Up u
 		
 		implements Down
 			obtain
-.				<- u.call -> InAgent
+				<- u.call -> InAgent

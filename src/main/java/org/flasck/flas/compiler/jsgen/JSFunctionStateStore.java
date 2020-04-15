@@ -13,9 +13,16 @@ public class JSFunctionStateStore implements JSFunctionState {
 	public Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
 	public Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
 	private StateLocation stateLoc;
+	private final JSExpr container;
 
-	public JSFunctionStateStore(StateLocation loc) {
+	public JSFunctionStateStore(StateLocation loc, JSExpr container) {
 		this.stateLoc = loc;
+		this.container = container;
+	}
+
+	@Override
+	public JSExpr container() {
+		return container;
 	}
 
 	@Override

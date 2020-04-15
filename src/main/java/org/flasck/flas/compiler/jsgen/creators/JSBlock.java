@@ -91,6 +91,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr newOf(NameOfThing clz, List<JSExpr> args) {
+		JSLocal ret = new JSLocal(creating, new JSNew(clz, args));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
 	public JSVar arg(int pos) {
 		return creating.args.get(pos);
 	}
@@ -330,14 +337,17 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr createObject(NameOfThing name) {
-		JSLocal ret = new JSLocal(this.creating, new JSEval(name));
-		stmts.add(ret);
-		return ret;
+		return createObject(name, new ArrayList<>());
 	}
 
 	@Override
 	public JSExpr createObject(NameOfThing name, List<JSExpr> args) {
-		JSLocal ret = new JSLocal(this.creating, new JSEval(name.jsName(), args));
+		return createObject(name.jsName(), args);
+	}
+
+	@Override
+	public JSExpr createObject(String name, List<JSExpr> args) {
+		JSLocal ret = new JSLocal(this.creating, new JSEval(name, args));
 		stmts.add(ret);
 		return ret;
 	}

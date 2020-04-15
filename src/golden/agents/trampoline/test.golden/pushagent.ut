@@ -17,5 +17,3 @@
 		contract agent Storage ask -> handler
 		expect handler reply "entry"
 		invoke replier.contains "entry"
-	
-//		expect handler reply "stored is question"

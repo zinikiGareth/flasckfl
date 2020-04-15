@@ -1,1 +1,4 @@
+test.golden.Agentum.InAgent.reply :: String->List[Message]
+test.golden.Agentum._C1.obtain :: List[Message]
+test.golden.Obscure.InObject.reply :: String->List[Message]
 test.golden.Standalone.reply :: String->List[Message]

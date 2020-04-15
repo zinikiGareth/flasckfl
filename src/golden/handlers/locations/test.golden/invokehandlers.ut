@@ -5,9 +5,20 @@
 		expect mock reply "yo"
 		invoke myHandler.reply "yo"
 
-.	test we can call a handler on an agent
+	test we can call a handler on an agent
+		data Up callUp
+		data Agentum agent
+		expect callUp call -> _hdlr
+		contract agent Down obtain
+		invoke hdlr.reply "yo"
+.		assert (agent.var)
+.			"yo"
+
+.	test we can call a handler on an object
 .		data Up callUp
-.		data Agentum agent
+.		data Obscure obj
 .		expect callUp call -> _hdlr
 .		contract agent Down obtain
 .		invoke hdlr.reply "yo"
+.		assert (agent.var)
+.			"yo"

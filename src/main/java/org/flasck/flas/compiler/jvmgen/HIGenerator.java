@@ -41,12 +41,26 @@ public class HIGenerator extends LeafAdapter {
 		definingClz.superclass(J.LOGGINGIDEMPOTENTHANDLER);
 		definingClz.implementsInterface(J.IDEMPOTENTHANDLER);
 		definingClz.generateAssociatedSourceFile();
-		definingClz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs").constValue(hi.argCount());
+		int nfargs = hi.argCount();
+		String cardType = null;
+		if (sh != null) {
+			cardType = sh.name().javaName();
+			definingClz.defineField(true, Access.PRIVATE, cardType, "_card");
+			nfargs++;
+		}
+		definingClz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs").constValue(nfargs);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(definingClz, false);
 			/*PendingVar cx = */gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar card = null;
+			if (sh != null) {
+				card = gen.argument(cardType, "_card");
+			}
 			MethodDefiner ctor = gen.done();
 			ctor.callSuper("void", J.OBJECT, "<init>").flush();
+			if (card != null) {
+				ctor.assign(ctor.getField("_card"), card.getVar()).flush();
+			}
 			ctor.returnVoid().flush();
 		}
 		{ // eval(cx)
@@ -56,7 +70,12 @@ public class HIGenerator extends LeafAdapter {
 			gen.returns(J.OBJECT);
 			MethodDefiner meth = gen.done();
 			Var ret = meth.avar(clzName, "ret");
-			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
+			IExpr newObj;
+			if (sh != null) {
+				newObj = meth.makeNew(clzName, cx.getVar(), meth.castTo(meth.arrayElt(pargs.getVar(), meth.intConst(nextArg.getAndIncrement())), cardType));
+			} else 
+				newObj = meth.makeNew(clzName, cx.getVar());
+			meth.assign(ret, newObj).flush();
 			this.fs = new FunctionState(meth, cx.getVar(), null, pargs.getVar(), runner);
 			this.meth = meth;
 			fs.evalRet = ret;

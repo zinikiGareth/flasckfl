@@ -20,6 +20,7 @@ public interface JSBlockCreator {
 	JSExpr literal(String text);
 	JSExpr string(String string);
 	JSExpr newOf(NameOfThing clz);
+	JSExpr newOf(NameOfThing clz, List<JSExpr> args);
 	JSExpr makeArray(JSExpr... args);
 	JSExpr jsArray(Iterable<JSExpr> arr);
 	JSExpr makeTuple(JSExpr... args);
@@ -35,6 +36,7 @@ public interface JSBlockCreator {
 	JSExpr mockHandler(SolidName name);
 	JSExpr createObject(NameOfThing name);
 	JSExpr createObject(NameOfThing name, List<JSExpr> args);
+	JSExpr createObject(String name, List<JSExpr> args);
 	JSExpr createAgent(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);

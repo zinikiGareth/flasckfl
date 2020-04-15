@@ -11,6 +11,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -80,6 +81,13 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 	// TODO: I think in these first two cases we should also check for explicit currying
 	// There certainly isn't implicit currying on the first one which is an Array of unspecified length
 	private void makeClosure(WithTypeSignature defn, int expArgs) {
+		if (defn instanceof HandlerImplements) {
+			HandlerImplements hi = (HandlerImplements)defn;
+			if (hi.getParent() != null) {
+				expArgs++;
+				stack.add(1, state.container());
+			}
+		}
 		if (defn instanceof FunctionDefinition && defn.name().uniqueName().equals("()")) {
 			stack.remove(0);
 			sv.result(block.makeTuple(stack.toArray(new JSExpr[stack.size()])));

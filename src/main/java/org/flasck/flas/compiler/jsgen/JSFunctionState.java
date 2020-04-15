@@ -6,7 +6,8 @@ import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 
 public interface JSFunctionState {
-	enum StateLocation { NONE, LOCAL, CARD };
+	enum StateLocation { NONE, LOCAL, CARD }
+	public JSExpr container();
 	public void addMock(UnitDataDeclaration udd, JSExpr resolvesTo);
 	public JSExpr resolveMock(JSBlockCreator block, UnitDataDeclaration udd);
 	void setStateLocation(StateLocation loc);

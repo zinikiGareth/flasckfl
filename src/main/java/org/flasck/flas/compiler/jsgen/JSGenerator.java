@@ -10,7 +10,6 @@ import java.util.Set;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -19,8 +18,10 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
+import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -31,7 +32,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -43,7 +44,6 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
-import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
@@ -102,8 +102,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
-	private JSBlockCreator hdlrCtor;
-	private JSClassCreator hdlr;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -154,7 +152,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
-		this.state = new JSFunctionStateStore(currentOA == null ? StateLocation.NONE : StateLocation.LOCAL);
+		this.state = new JSFunctionStateStore(currentOA == null ? StateLocation.NONE : StateLocation.LOCAL, null);
 	}
 
 	// When generating a tuple assignment, we have to create a closure which is the "main thing"
@@ -169,7 +167,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			
 		this.meth.argument("_cxt");
 		this.block = meth;
-		this.state = new JSFunctionStateStore(StateLocation.NONE);
+		this.state = new JSFunctionStateStore(StateLocation.NONE, null);
 		sv.push(new ExprGeneratorJS(state, sv, this.block, false));
 	}
 	
@@ -183,7 +181,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			
 		this.meth.argument("_cxt");
 		this.block = meth;
-		this.state = new JSFunctionStateStore(StateLocation.NONE);
+		this.state = new JSFunctionStateStore(StateLocation.NONE, null);
 		this.meth.returnObject(meth.defineTupleMember(e));
 //		sv.push(new ExprGeneratorJS(state, sv, this.block));
 	}
@@ -278,13 +276,21 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth = null;
 			return;
 		}
+		JSExpr container = null;
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null || om.hasObject(), om.name().name);
-		if (om.hasImplements())
-			this.methodMap.get(om.getImplements()).add(om.name());
-		else if (om.hasObject())
+		if (om.hasImplements()) {
+			Implements impl = om.getImplements();
+			this.methodMap.get(impl).add(om.name());
+			if (impl instanceof HandlerImplements)
+				container = new JSThis();
+			else
+				container = new JSFromCard();
+		} else if (om.hasObject()) {
 			this.methodMap.get(om.getObject()).add(om.name());
+			container = new JSThis();
+		}
 		this.meth.argument("_cxt");
 		int i;
 		for (i=0;i<om.argCount();i++)
@@ -293,7 +299,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth.argument("_" + i);
 		}
 		this.block = meth;
-		this.state = new JSFunctionStateStore(om.hasObject() ? StateLocation.LOCAL : om.hasImplements() ? StateLocation.CARD : StateLocation.NONE);
+		this.state = new JSFunctionStateStore(om.hasObject() ? StateLocation.LOCAL : om.hasImplements() ? StateLocation.CARD : StateLocation.NONE, container);
 	}
 	
 	@Override
@@ -475,49 +481,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
-		HandlerName name = (HandlerName)hi.name();
-//		JSBlockCreator ctor = agentCreator.constructor();
-//		ctor.recordContract(hi.actualType().name().jsName(), csn.jsName());
-		this.hdlr = jse.newClass(name.packageName().jsName(), name.jsName());
-		this.hdlr.inheritsFrom(hi.actualType().name());
-//		hdlr.arg("_card");
-//		hdlr.constructor().setField("_card", new JSLiteral("_card"));
-		this.hdlrCtor = hdlr.constructor();
-		this.hdlrCtor.stateField();
-		this.meth = hdlr.createMethod("eval", false);
-		this.meth.argument("_cxt");
-		this.evalRet = meth.newOf(hi.name());
-		this.meth.storeField(this.evalRet, "_type", this.meth.string(name.uniqueName()));
-		this.block = meth;
-		jse.handler(hi);
-		List<FunctionName> methods = new ArrayList<>();
-		methodMap.put(hi, methods);
-		jse.methodList(hi.name(), methods);
-	}
-
-	@Override
-	public void visitHandlerLambda(HandlerLambda hl) {
-		if (hdlr != null) {
-			// defining the class & ctor
-			String name;
-			if (hl.patt instanceof TypedPattern)
-				name = ((TypedPattern)hl.patt).var.var;
-			else
-				throw new NotImplementedException("pattern " + hl);
-			JSExpr arg = this.meth.argument(name);
-			this.meth.storeField(this.evalRet, name, arg);
-		}
-	}
-	
-	@Override
-	public void leaveHandlerImplements(HandlerImplements hi) {
-		if (evalRet != null)
-			meth.returnObject(evalRet);
-		this.block = null;
-		this.evalRet = null;
-		this.meth = null;
-		this.hdlrCtor = null;
-		this.hdlr = null;
+		new HIGeneratorJS(sv, jse, methodMap, hi, sh);
 	}
 
 	@Override
@@ -577,7 +541,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = meth;
 		runner = meth.argument("runner");
 		meth.initContext(e.name.packageName());
-		this.state = new JSFunctionStateStore(StateLocation.NONE);
+		this.state = new JSFunctionStateStore(StateLocation.NONE, null);
 		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {

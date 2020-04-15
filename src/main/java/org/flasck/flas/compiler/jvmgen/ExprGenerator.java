@@ -173,6 +173,9 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			HandlerImplements hi = (HandlerImplements)defn;
 			if (nargs == 0 && hi.argCount() == 0) {
 				List<IExpr> provided = new ArrayList<>();
+				if (hi.getParent() != null) {
+					provided.add(state.container);
+				}
 				IExpr args = meth.arrayOf(J.OBJECT, provided);
 				sv.result(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
 			} else if (nargs > 0) {
