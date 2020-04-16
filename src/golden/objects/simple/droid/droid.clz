@@ -1,7 +1,0 @@
-src/golden/objdefn-simple/droid-to/test/golden/Simple.java
-class Simple.java extends org.flasck.jvm.objects.FlasckObject {
-  void <init>(org.ziniki.ziwsh.json.FLEvalContext cx, java.lang.Object state) {
-    super.<init>(cx, state)
-    return
-  }
-}

@@ -1,2 +1,0 @@
-package test.golden
-  object test.golden.Simple @{1:0|object} @{1:7|Simple}
