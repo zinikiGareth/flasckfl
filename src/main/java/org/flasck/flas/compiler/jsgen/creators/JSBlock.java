@@ -40,6 +40,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMakeAcor;
 import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMakeTuple;
+import org.flasck.flas.compiler.jsgen.form.JSMember;
 import org.flasck.flas.compiler.jsgen.form.JSMockAgent;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSMockHandler;
@@ -110,6 +111,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr lambda(HandlerLambda hl) {
 		return new JSLambda(hl);
+	}
+	
+	@Override
+	public JSExpr member(String var) {
+		return new JSMember(var);
 	}
 	
 	@Override

@@ -218,7 +218,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof IntroduceVar) {
 			handleIntroduction(state.resolveIntroduction((IntroduceVar)defn));
 		} else
-			throw new NotImplementedException();
+			throw new NotImplementedException("cannot evaluate " + defn.getClass());
 	}
 
 	private void handleUnitTestData(UnitDataDeclaration udd) {

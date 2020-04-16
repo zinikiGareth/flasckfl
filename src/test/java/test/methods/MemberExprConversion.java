@@ -55,7 +55,7 @@ public class MemberExprConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "Ctr"), "fred"), ExprMatcher.unresolved("from"), 0)));
 		}});
-		MemberExprConvertor mc = new MemberExprConvertor(nv);
+		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null);
 		Traverser gen = new Traverser(mc).withMemberFields();
 		gen.visitExpr(me, 0);
 	}
@@ -78,7 +78,7 @@ public class MemberExprConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "Ctr"), "fred"), ExprMatcher.unresolved("from"), 2)));
 		}});
-		MemberExprConvertor mc = new MemberExprConvertor(nv);
+		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null);
 		Traverser gen = new Traverser(mc).withMemberFields();
 		gen.visitExpr(me, 0);
 	}
@@ -99,7 +99,7 @@ public class MemberExprConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(fred, ExprMatcher.unresolved("from"), 0)));
 		}});
-		MemberExprConvertor mc = new MemberExprConvertor(nv);
+		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null);
 		Traverser gen = new Traverser(mc).withMemberFields();
 		gen.visitExpr(me, 0);
 	}
@@ -118,7 +118,7 @@ public class MemberExprConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "StructDefn"), "fred"), ExprMatcher.unresolved("from"), 0)));
 		}});
-		MemberExprConvertor mc = new MemberExprConvertor(nv);
+		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null);
 		Traverser gen = new Traverser(mc).withMemberFields();
 		gen.visitExpr(me, 0);
 	}

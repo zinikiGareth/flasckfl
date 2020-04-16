@@ -535,6 +535,19 @@ Assign.prototype.dispatch = function(cx) {
 }
 Assign.prototype.toString = function() {
 	return "Assign[" + "]";
+};
+
+const ResponseWithMessages = function(cx, obj, msgs) {
+	this.obj = obj;
+	this.msgs = msgs;
+}
+ResponseWithMessages.prototype._full = function(cx) {
+	this.obj = cx.full(this.obj);
+	this.msgs = cx.full(this.msgs);
+}
+ResponseWithMessages.response = function(cx, rwm) {
+	rwm = cx.full(rwm);
+	return rwm.obj;
 }
 
 

@@ -52,10 +52,13 @@ public interface JSBlockCreator {
 	JSExpr fromCard();
 	JSVar arg(int pos);
 
-	// HSIE logic statements
+	// Stored values
 	JSExpr boundVar(String var);
 	JSExpr tupleMember(FunctionName name);
 	JSExpr lambda(HandlerLambda defn);
+	JSExpr member(String var);
+
+	// HSIE logic statements
 	void bindVar(String slot, String var);
 	void head(String var);
 	void field(String asVar, String fromVar, String field);

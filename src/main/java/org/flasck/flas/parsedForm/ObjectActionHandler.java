@@ -147,7 +147,7 @@ public abstract class ObjectActionHandler implements Locatable, MethodMessagesCo
 
 	public abstract boolean hasObject();
 	public abstract boolean hasImplements();
-	public abstract Type getObject();
+	public abstract ObjectDefn getObject();
 	public abstract Implements getImplements();
 	public abstract ContractMethodDecl contractMethod();
 }

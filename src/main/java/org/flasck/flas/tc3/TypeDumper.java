@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.io.PrintWriter;
 
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -30,8 +31,6 @@ public class TypeDumper extends LeafAdapter {
 
 	@Override
 	public void visitObjectMethod(ObjectMethod om) {
-		if (om.messages().isEmpty())
-			return;
 		pw.print(om.name().uniqueName());
 		pw.print(" :: ");
 		if (!om.hasType() || om.type() == null)
@@ -41,6 +40,17 @@ public class TypeDumper extends LeafAdapter {
 		pw.println();
 	}
 	
+	@Override
+	public void visitObjectCtor(ObjectCtor oc) {
+		pw.print(oc.name().uniqueName());
+		pw.print(" :: ");
+		if (!oc.hasType() || oc.type() == null)
+			pw.print("<<UNDEFINED>>");
+		else
+			pw.print(oc.type().signature());
+		pw.println();
+	}
+
 	@Override
 	public void visitTuple(TupleAssignment e) {
 		// I don't think we actually want to dump this

@@ -1,0 +1,4 @@
+test.golden.CallContract._ctor_init :: test.golden.CallContract
+test.golden.CallContract.doit :: List[Message]
+test.golden.HoldContract._C1.init :: List[Message]
+test.golden.HoldContract._C1.run :: <<UNDEFINED>>

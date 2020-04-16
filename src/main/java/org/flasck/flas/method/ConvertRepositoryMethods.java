@@ -2,6 +2,7 @@ package org.flasck.flas.method;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
@@ -25,7 +26,12 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod e) {
-		sv.push(new MethodConvertor(sv));
+		sv.push(new MethodConvertor(errors, sv, e));
+	}
+	
+	@Override
+	public void visitObjectCtor(ObjectCtor e) {
+		sv.push(new MethodConvertor(errors, sv, e));
 	}
 	
 	@Override
@@ -35,6 +41,6 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestInvoke(UnitTestInvoke e) {
-		sv.push(new MessageConvertor(sv));
+		sv.push(new MessageConvertor(null, sv, null));
 	}
 }

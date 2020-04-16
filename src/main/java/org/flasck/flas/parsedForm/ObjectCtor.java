@@ -8,12 +8,16 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectCtor extends ObjectActionHandler {
+public class ObjectCtor extends ObjectActionHandler implements WithTypeSignature {
 	private Type od;
 
 	public ObjectCtor(InputPosition location, Type od, FunctionName name, List<Pattern> args) {
 		super(location, name, args);
 		this.od = od;
+	}
+
+	public int argCountIncludingContracts() {
+		return argCount() + ((ObjectDefn)od).contracts.size();
 	}
 	
 	@Override
@@ -22,13 +26,18 @@ public class ObjectCtor extends ObjectActionHandler {
 	}
 
 	@Override
+	public String signature() {
+		return od.signature();
+	}
+
+	@Override
 	public boolean hasObject() {
 		return true;
 	}
 
 	@Override
-	public Type getObject() {
-		return od;
+	public ObjectDefn getObject() {
+		return (ObjectDefn) od;
 	}
 
 	@Override

@@ -8,4 +8,5 @@ public interface JSMethodCreator extends JSBlockCreator {
 	JSExpr argument(String name);
 	void initContext(PackageName packageName);
 	void testComplete();
+	void copyContract(JSExpr copyInto, String fld, String arg);
 }

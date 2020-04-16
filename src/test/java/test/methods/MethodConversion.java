@@ -49,7 +49,7 @@ public class MethodConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(MessageConvertor.class)));
 		}});
-		MethodConvertor mc = new MethodConvertor(nv);
+		MethodConvertor mc = new MethodConvertor(null, nv, null);
 		mc.visitMessage(new SendMessage(pos, e1));
 	}
 	
@@ -61,7 +61,7 @@ public class MethodConversion {
 			oneOf(nv).result(null);
 		}});
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
-		MethodConvertor mc = new MethodConvertor(nv);
+		MethodConvertor mc = new MethodConvertor(null, nv, null);
 		mc.result(e1);
 		mc.result(e2);
 		mc.leaveObjectMethod(om);

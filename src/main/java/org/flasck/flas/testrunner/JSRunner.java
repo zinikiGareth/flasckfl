@@ -96,6 +96,7 @@ public class JSRunner extends CommonTestRunner {
 	private Page page;
 	private Map<String, CardHandle> cards = new TreeMap<>();
 	private File html;
+	private boolean useCachebuster = false;
 	
 	public JSRunner(Configuration config, Repository repository, JSStorage jse) {
 		super(config, repository);
@@ -217,7 +218,10 @@ public class JSRunner extends CommonTestRunner {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
 		FileUtils.copy(f, to);
-		pw.println("<script src='file:" + to.getPath() + "?cachebuster=" + System.currentTimeMillis()  + "' type='text/javascript'></script>");
+		String path = to.getPath();
+		if (useCachebuster )
+			path += "?cachebuster=" + System.currentTimeMillis();
+		pw.println("<script src='file:" + path + "' type='text/javascript'></script>");
 	}
 
 	@Override

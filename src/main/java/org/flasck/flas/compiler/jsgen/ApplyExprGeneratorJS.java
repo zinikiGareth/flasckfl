@@ -10,11 +10,13 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSResponseWithMessages;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -81,13 +83,18 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 	// TODO: I think in these first two cases we should also check for explicit currying
 	// There certainly isn't implicit currying on the first one which is an Array of unspecified length
 	private void makeClosure(WithTypeSignature defn, int expArgs) {
+		// First adjust "expected Args" for "hidden" arguments
 		if (defn instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements)defn;
 			if (hi.getParent() != null) {
 				expArgs++;
 				stack.add(1, state.container());
 			}
+		} else if (defn instanceof ObjectCtor) {
+			expArgs += ((ObjectCtor)defn).getObject().contracts.size();
 		}
+		
+		// Then divided and conquer for special cases ...
 		if (defn instanceof FunctionDefinition && defn.name().uniqueName().equals("()")) {
 			stack.remove(0);
 			sv.result(block.makeTuple(stack.toArray(new JSExpr[stack.size()])));
@@ -123,6 +130,8 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				call = block.curry(expArgs, args);
 			else
 				call = block.closure(args);
+			if (defn instanceof ObjectCtor)
+				call = new JSResponseWithMessages(call);
 			sv.result(call);
 		}
 	}

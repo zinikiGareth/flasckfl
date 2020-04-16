@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
@@ -102,6 +103,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
+	private ObjectCtor currentOC;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -222,6 +224,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
 		JSBlockCreator ctor = ctr.constructor();
 		ctor.stateField();
+		/* DEPRECATED - use CTORs instead */
 		this.meth = ctr.createMethod("eval", false);
 		this.meth.argument("_cxt");
 		this.evalRet = meth.newOf(obj.name());
@@ -230,6 +233,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			if (sf.init != null)
 				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
 		};
+		/* END DEPRECATED */
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(obj, methods);
 		jse.methodList(obj.name(), methods);
@@ -301,6 +305,21 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = meth;
 		this.state = new JSFunctionStateStore(om.hasObject() ? StateLocation.LOCAL : om.hasImplements() ? StateLocation.CARD : StateLocation.NONE, container);
 	}
+
+	@Override
+	public void visitObjectCtor(ObjectCtor oc) {
+		currentOC = oc;
+		JSExpr container = new JSThis();
+		String pkg = oc.name().packageName().jsName();
+		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
+		this.meth = jse.newFunction(pkg, oc.name().container().jsName(), false, oc.name().name);
+		this.meth.argument("_cxt");
+		int i;
+		for (i=0;i<oc.argCount();i++)
+			this.meth.argument("_" + i);
+		this.block = meth;
+		this.state = new JSFunctionStateStore(StateLocation.LOCAL, container);
+	}
 	
 	@Override
 	public void hsiArgs(List<Slot> slots) {
@@ -317,7 +336,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new GuardGeneratorJS(state, sv, this.block));
+		if (currentOC != null)
+			new ObjectCtorGeneratorJS(state, sv, currentOC.getObject(), this.meth);
+		else
+			sv.push(new GuardGeneratorJS(state, sv, this.block));
 	}
 
 	@Override
@@ -406,6 +428,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	@Override
+	public void leaveObjectCtor(ObjectCtor oc) {
+		if (meth == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
+		this.meth = null;
+		this.state = null;
+		this.currentOC = null;
+	}
+
+	@Override
 	public void visitContractDecl(ContractDecl cd) {
 		String pkg = ((SolidName)cd.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
@@ -491,35 +524,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = null;
 	}
 	
-	/*
-	@Override
-	public void visitStructDefn(StructDefn obj) {
-		if (!obj.generate)
-			return;
-		String pkg = ((SolidName)obj.name()).packageName().jsName();
-		jse.ensurePackageExists(pkg, obj.name().container().jsName());
-		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
-		JSBlockCreator ctor = ctr.constructor();
-		ctor.stateField();
-		this.meth = ctr.createMethod("eval", false);
-		this.meth.argument("_cxt");
-		this.evalRet = meth.newOf(obj.name());
-		this.block = meth;
-		this.structFieldHandler = sf -> {
-			if (sf.name.equals("id"))
-				return;
-			if (sf.init == null) {
-				JSExpr arg = this.meth.argument(sf.name);
-				this.meth.storeField(this.evalRet, sf.name, arg);
-			} else {
-				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
-			}
-			
-		};
-	}
-	*/
-	
-
 	@Override
 	public void visitRequires(RequiresContract rc) {
 		JSBlockCreator ctor = agentCreator.constructor();

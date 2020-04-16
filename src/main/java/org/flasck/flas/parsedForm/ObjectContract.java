@@ -15,7 +15,7 @@ public class ObjectContract implements RepositoryEntry {
 		this.cv = cv;
 	}
 
-	public NameOfThing varName() {
+	public VarName varName() {
 		return cv;
 	}
 
