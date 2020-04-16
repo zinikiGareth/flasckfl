@@ -22,6 +22,8 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectContract;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
@@ -112,6 +114,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private NewMethodDefiner agentctor;
 	private ByteCodeSink agentClass;
 	private Var agentcx;
+	private ObjectCtor currentOC;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;
@@ -255,6 +258,31 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void visitObjectCtor(ObjectCtor oc) {
+		currentOC = oc;
+		GenericAnnotator ann;
+		this.clz = bce.get(oc.getObject().name().javaName());
+		IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + oc.name().name);
+		fi.constValue(oc.argCount());
+		ann = GenericAnnotator.newMethod(clz, true, oc.name().name);
+		PendingVar cxArg = ann.argument(J.FLEVALCONTEXT, "cxt");
+		PendingVar argsArg = ann.argument("[" + J.OBJECT, "args");
+		ObjectDefn od = oc.getObject();
+		ann.returns(JavaType.object_);
+		meth = ann.done();
+		meth.lenientMode(leniency);
+		fcx = cxArg.getVar();
+		fargs = argsArg.getVar();
+		switchVars.clear();
+		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner);
+		currentBlock = new ArrayList<IExpr>();
+		if (od.state() != null) {
+			// TODO: myThis() will not be allowed here ...
+			fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
+		}
+	}
+	
+	@Override
 	public void visitTuple(TupleAssignment ta) {
 		this.clz = bce.newClass(ta.name().javaClassName());
 		this.clz.generateAssociatedSourceFile();
@@ -360,7 +388,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		new GuardGenerator(fs, sv, currentBlock);
+		if (currentOC != null)
+			new ObjectCtorGenerator(fs, sv, currentOC.getObject(), currentBlock);
+		else
+			new GuardGenerator(fs, sv, currentBlock);
 	}
 
 	@Override
@@ -398,6 +429,26 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else {
 			makeBlock(meth, currentBlock).flush();
 		}
+		currentBlock.clear();
+		this.meth = null;
+		this.clz = null;
+		this.fcx = null;
+	}
+
+	@Override
+	public void leaveObjectCtor(ObjectCtor oc) {
+		if (meth == null) {
+			// we elected not to generate, so just forget it ...
+			return;
+		}
+		if (currentBlock.isEmpty()) {
+			// if we didn't generate anything, it's because we didn't have any messages
+			// so return an empty list
+			meth.returnObject(meth.arrayOf(J.OBJECT)).flush();
+		} else {
+			makeBlock(meth, currentBlock).flush();
+		}
+		currentOC = null;
 		currentBlock.clear();
 		this.meth = null;
 		this.clz = null;
@@ -486,6 +537,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
 		bcc.generateAssociatedSourceFile();
 		bcc.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+		for (ObjectContract oc : od.contracts) {
+			bcc.defineField(false, Access.PRIVATE, J.OBJECT, oc.varName().var);
+		}
 		{ // ctor(cx)
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
@@ -493,6 +547,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			ctor.callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
+		/** DEPRECATED **/
 		{ // eval(cx)
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
@@ -509,6 +564,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			if (sf.init != null)
 				new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
 		};
+		/** END DEPRECATED **/
 	}
 	
 	@Override

@@ -309,6 +309,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
 		currentOC = oc;
+		// This doesn't feel like it can possibly be right but presumably isn't used (yet)
 		JSExpr container = new JSThis();
 		String pkg = oc.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());

@@ -15,6 +15,8 @@ import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectContract;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -211,12 +213,22 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			RequiresContract rc = (RequiresContract) defn;
 			IExpr ret = meth.callInterface(J.OBJECT, meth.as(state.container, J.CONTRACT_RETRIEVER), "require", state.fcx, meth.stringConst(rc.referAsVar));
 			sv.result(ret);
+		} else if (defn instanceof ObjectContract) {
+			ObjectContract rc = (ObjectContract) defn;
+			IExpr ret = meth.getField(state.container, rc.varName().var);
+			sv.result(ret);
 		} else if (defn instanceof TupleMember) {
 			makeFunctionClosure(myName, 0);
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
 		} else if (defn instanceof IntroduceVar) {
 			handleIntroduction(state.resolveIntroduction((IntroduceVar)defn));
+		} else if (defn instanceof ObjectCtor) {
+			ObjectCtor oc = (ObjectCtor) defn;
+			if (nargs == 0) {
+				makeFunctionClosure(myName, oc.argCountIncludingContracts());
+			} else
+				sv.result(meth.makeNew(J.CALLSTATIC, meth.classConst(oc.name().container().javaName()), meth.stringConst(oc.name().name), meth.intConst(nargs)));
 		} else
 			throw new NotImplementedException("cannot evaluate " + defn.getClass());
 	}

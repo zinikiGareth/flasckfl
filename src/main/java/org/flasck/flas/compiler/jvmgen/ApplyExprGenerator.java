@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -88,13 +89,19 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 	
 	private void makeClosure(WithTypeSignature defn, int expArgs) {
 		IExpr fn = stack.remove(0);
+		
+		// First adjust "expected Args" for "hidden" arguments
 		if (defn instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements) defn;
 			if (hi.getParent() != null) {
 				expArgs++;
 				stack.add(0, state.container);
 			}
+		} else if (defn instanceof ObjectCtor) {
+			expArgs += ((ObjectCtor)defn).getObject().contracts.size();
 		}
+		
+		// Then divide and conquer for special cases ...
 		IExpr args = meth.arrayOf(J.OBJECT, stack);
 		if (defn instanceof FunctionDefinition && defn.name().uniqueName().equals("()")) {
 			// Tuple is junk
@@ -129,7 +136,10 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 				call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));
-			sv.result(v);
+			IExpr ret = v;
+			if (defn instanceof ObjectCtor)
+				ret = new WrappedWithMessages(meth, state.fcx, v);
+			sv.result(ret);
 		}
 	}
 
