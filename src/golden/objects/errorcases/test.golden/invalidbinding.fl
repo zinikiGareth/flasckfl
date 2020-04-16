@@ -1,10 +1,21 @@
 	contract Up
 		call
 
+	contract Down
+		init
+
 	object CallContract
 		requires Up u
+		
+		ctor init
+		
 		
 	agent HoldContract
 		state
 			CallContract obj
+			
+		implements Down
+			init
+				obj <- CallContract.init
+	
 		
