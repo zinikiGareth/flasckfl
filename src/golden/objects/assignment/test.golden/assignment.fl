@@ -2,6 +2,8 @@
 		state
 			String s <- "hello"
 
+		ctor init
+
 		acor gets = s
 		acor lengthPlus k = (strlen s) + k
 					

@@ -1,3 +1,4 @@
+test.golden.Assignable._ctor_init :: test.golden.Assignable
 test.golden.Assignable.gets :: String
 test.golden.Assignable.lengthPlus :: Number->Number
 test.golden.Assignable.message :: String->List[Message]

@@ -1,2 +1,3 @@
-invalidbindi 19.20:   obj <- CallContract. _ init
-                          there is no available implementation of test.golden.Up
+    noctor.fl:    1.7:    object  _ NoCtor
+                              objects must have at least one constructor
+                          

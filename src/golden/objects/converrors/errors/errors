@@ -1,0 +1,3 @@
+invalidbindi 19.20:   obj <- CallContract. _ init
+                          there is no available implementation of test.golden.Up
+                          

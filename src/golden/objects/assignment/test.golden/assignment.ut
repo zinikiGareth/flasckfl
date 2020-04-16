@@ -1,15 +1,15 @@
 	test the initial value is "hello"
-		data Assignable x
+		data Assignable x <- Assignable.init
 		assert (x.gets)
 			"hello"
 
 	test we can pass arguments to accessors
-		data Assignable x
+		data Assignable x <- Assignable.init
 		assert (x.lengthPlus 4)
 			9
 
 	test that we can make it goodbye
-		data Assignable x
+		data Assignable x <- Assignable.init
 		invoke x.message "goodbye"
 		assert (x.gets)
 			"goodbye"
