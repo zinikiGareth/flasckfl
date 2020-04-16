@@ -6,6 +6,7 @@ import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 
@@ -35,12 +36,17 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	}
 	
 	@Override
+	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
+		new UDDConvertor(sv, errors);
+	}
+	
+	@Override
 	public void visitUnitTestAssert(UnitTestAssert e) {
 		new AccessorConvertor(sv, errors);
 	}
 	
 	@Override
 	public void visitUnitTestInvoke(UnitTestInvoke e) {
-		sv.push(new MessageConvertor(null, sv, null));
+		sv.push(new MessageConvertor(errors, sv, null));
 	}
 }

@@ -5,9 +5,11 @@ test.golden.Agentum.InAgent.reply :: String->List[Message]
 test.golden.Agentum._C1.check :: List[Message]
 test.golden.Agentum._C1.obtain :: List[Message]
 test.golden.Obscure.InObject.reply :: String->List[Message]
+test.golden.Obscure._ctor_init :: test.golden.Obscure
 test.golden.Obscure.obtain :: test.golden.Up->List[Message]
 test.golden.Obscure.stored :: String
 test.golden.ObscureCounter.InObject.reply :: Number->List[Message]
+test.golden.ObscureCounter._ctor_init :: test.golden.ObscureCounter
 test.golden.ObscureCounter.obtain :: test.golden.CountUp->List[Message]
 test.golden.ObscureCounter.stored :: Number
 test.golden.Standalone.reply :: String->List[Message]

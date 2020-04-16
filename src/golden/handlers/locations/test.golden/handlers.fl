@@ -16,7 +16,9 @@
 	object Obscure
 		state
 			String var
-		
+
+		ctor init
+				
 		acor stored = var
 		handler Simple InObject
 			reply s

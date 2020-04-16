@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -16,8 +17,8 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 	private final FunctionGuardedEquationConsumer consumer;
 	private final List<FunctionCaseDefn> cases = new ArrayList<>();
 	private InputPosition haveDefault;
-	private boolean reportedError;
 	private LastOneOnlyNestedParser nestedParser;
+	private boolean reportedDefault;
 
 	public TDAFunctionGuardedEquationParser(ErrorReporter errors, InputPosition introStart, FunctionGuardedEquationConsumer consumer, LastOneOnlyNestedParser nestedParser) {
 		this.errors = errors;
@@ -28,6 +29,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable line) {
+		ErrorMark mark = errors.mark();
 		nestedParser.anotherParent();
 		InputPosition start = line.realinfo();
 		ExprToken tok = ExprToken.from(errors, line);
@@ -42,18 +44,20 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 		
 		// Look for and collect a guard, if any
 		List<Expr> optionalGuard = new ArrayList<>();
-		if (reportedError)
+		if (mark.hasMoreNow())
 			return null;
 		else if (haveDefault != null) {
-			errors.message(start, "default case has already been specified");
-			reportedError = true;
+			if (!reportedDefault) {
+				errors.message(start, "default case has already been specified");
+				reportedDefault = true;
+			}
 			return null;
 		} else if (tok.text.equals("|")) {
 			// it's a guard
 			new TDAExpressionParser(errors, e -> {
 				optionalGuard.add(e);
 			}).tryParsing(line);
-			if (errors.hasErrors())
+			if (mark.hasMoreNow())
 				return null;
 	
 			tok = ExprToken.from(errors, line);
@@ -84,7 +88,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		if (cases.isEmpty())
+		if (cases.isEmpty() && !errors.hasErrors())
 			errors.message(introStart, "no function cases specified");
 	}
 }

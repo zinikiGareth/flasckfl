@@ -82,6 +82,7 @@ public class TDAObjectElementParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("simple")));
 			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
+			oneOf(builder).complete(errors, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor simple"));
@@ -100,6 +101,7 @@ public class TDAObjectElementParsingTests {
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
 			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
+			oneOf(builder).complete(errors, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("ctor args x"));
@@ -114,6 +116,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
+			oneOf(builder).complete(tracker, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));
@@ -130,6 +133,7 @@ public class TDAObjectElementParsingTests {
 			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(topLevel).argument(with(any(VarPattern.class)));
 			oneOf(topLevel).argument(with(any(TypedPattern.class)));
+			oneOf(builder).complete(tracker, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname x (Number y) = x + y"));
@@ -145,6 +149,7 @@ public class TDAObjectElementParsingTests {
 			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
 			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
+			oneOf(builder).complete(tracker, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("acor myname = 42"));

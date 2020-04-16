@@ -327,11 +327,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				errors.message(udd.name.location, "an expression must be specified for " + defn.name().uniqueName());
 			}
 		} else if (defn instanceof ObjectDefn) {
-			// I actually think all the combinations are OK
-			// nothing - create the default object
-			// assign - copy from another object (if it's the same type - should we be checking that or do we need to wait for typecheck?)
-			// fields - create the default object, then update
-			// assign + fields - copy from another object & then update fields
+			if (udd.expr == null) {
+				errors.message(udd.name.location, "an expression must be specified for " + defn.name().uniqueName());
+			}
 		} else if (defn instanceof AgentDefinition) {
 			// I've forgotten what this is all about, but write some tests and do something ...
 		} else

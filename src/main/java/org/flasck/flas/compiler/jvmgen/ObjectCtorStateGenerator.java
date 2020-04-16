@@ -3,8 +3,9 @@ package org.flasck.flas.compiler.jvmgen;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
@@ -13,18 +14,18 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 
-public class ObjectCtorGenerator extends LeafAdapter implements ResultAware {
+public class ObjectCtorStateGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState state;
 	private final StackVisitor sv;
 	private final List<IExpr> currentBlock;
-	private IExpr messages;
 	private Var ret;
+	private IExpr fieldValue;
 
-	public ObjectCtorGenerator(FunctionState fs, StackVisitor sv, ObjectDefn object, List<IExpr> currentBlock, Var ocret) {
+	public ObjectCtorStateGenerator(FunctionState fs, StackVisitor sv, ObjectDefn object, List<IExpr> currentBlock, Var ocret) {
 		this.state = fs;
 		this.sv = sv;
 		this.currentBlock = currentBlock;
-		ret = ocret;
+		this.ret = ocret;
 		sv.push(this);
 	}
 
@@ -35,14 +36,20 @@ public class ObjectCtorGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		messages = (IExpr) r;
+		fieldValue = (IExpr) r;
+	}
+
+	@Override
+	public void leaveStructField(StructField sf) {
+		MethodDefiner meth = state.meth;
+		if (fieldValue != null) {
+			currentBlock.add(meth.callVirtual("void", ret, "set", meth.stringConst(sf.name), meth.as(fieldValue, J.OBJECT)));
+			this.fieldValue = null;
+		}
 	}
 	
 	@Override
-	public void endInline(FunctionIntro fi) {
-		MethodDefiner meth = state.meth;
-		IExpr returned = meth.makeNew(J.RESPONSE_WITH_MESSAGES, state.fcx, meth.as(ret, J.OBJECT), meth.as(messages, J.OBJECT));
-		currentBlock.add(meth.returnObject(returned));
+	public void leaveStateDefinition(StateDefinition state) {
 		sv.result(null);
 	}
 }

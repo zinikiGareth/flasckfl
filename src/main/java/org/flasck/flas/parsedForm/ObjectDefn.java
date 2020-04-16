@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
@@ -119,6 +120,13 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	@Override
 	public void newHandler(HandlerImplements hi) {
 		handlers.add(hi);
+	}
+	
+	@Override
+	public void complete(ErrorReporter errors, InputPosition location) {
+		if (ctors.isEmpty()) {
+			errors.message(this.location(), "objects must have at least one constructor");
+		}
 	}
 
 	public SolidName name() {

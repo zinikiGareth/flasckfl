@@ -65,7 +65,7 @@ public class FunctionState {
 		return vars.get(var);
 	}
 	
-	public void addMock(UnitDataDeclaration udd, Var v) {
+	public void addMock(UnitDataDeclaration udd, IExpr v) {
 		mocks.put(udd, v);
 	}
 

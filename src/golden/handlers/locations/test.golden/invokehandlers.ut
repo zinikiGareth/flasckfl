@@ -7,7 +7,7 @@
 
 	test we can call a handler on an object
 		data Up callUp
-		data Obscure obj
+		data Obscure obj <- Obscure.init
 		expect callUp call -> _hdlr
 		invoke obj.obtain callUp
 		invoke hdlr.reply "yo"
@@ -32,7 +32,7 @@
 
 	test we can use a handler on an object with an arg
 		data CountUp callUp
-		data ObscureCounter obj
+		data ObscureCounter obj <- ObscureCounter.init
 		expect callUp call -> _hdlr
 		invoke obj.obtain callUp
 		invoke hdlr.reply 24

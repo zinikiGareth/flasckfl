@@ -54,6 +54,7 @@ import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -195,6 +196,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveObjectContract(ObjectContract oc);
 		void visitObjectCtor(ObjectCtor oa);
 		void leaveObjectCtor(ObjectCtor oa);
+		void leaveStateDefinition(StateDefinition state);
+		void visitStateDefinition(StateDefinition state);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();

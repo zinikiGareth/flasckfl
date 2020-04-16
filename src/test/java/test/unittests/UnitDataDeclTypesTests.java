@@ -3,6 +3,8 @@ package test.unittests;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -117,14 +119,15 @@ public class UnitDataDeclTypesTests {
 	}
 
 	@Test
-	public void aObjectCanBeInstantiatedWithoutAnyFuss() {
+	public void aObjectCanBeInstantiatedWithAnExpression() {
 		AccessorHolder od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), false, new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Nested.udd.Obj"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Nested.Obj"); will(returnValue(od));
 		}});
 		TypeReference ctr = new TypeReference(pos, "Obj");
-		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), null);
+		UnresolvedVar from = new UnresolvedVar(pos, "Obj");
+		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), new MemberExpr(pos, from, new UnresolvedVar(pos, "fld")));
 		r.visitUnitDataDeclaration(udd);
 		r.visitTypeReference(ctr);
 		r.leaveUnitDataDeclaration(udd);

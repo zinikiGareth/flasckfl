@@ -72,12 +72,15 @@ public class MemberExprConvertor extends LeafAdapter {
 					om = this.od.getConstructor(var.var);
 					odctor = om;
 				}
-				if (acor != null)
-					throw new NotImplementedException("I don't think I've handled that case yet but it is valid");
-				if (om == null)
+				if (acor != null) {
+					sendMeth = FunctionName.function(var.location(), this.od.name(), var.var);
+					expargs = acor.type().argCount();
+				} else if (om == null)
 					throw new NotImplementedException("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
-				sendMeth = om.name();
-				expargs = om.argCount();
+				else {
+					sendMeth = om.name();
+					expargs = om.argCount();
+				}
 			} else if (sd != null) {
 				FieldAccessor acor = this.sd.getAccessor(var.var);
 				if (acor == null)
@@ -141,7 +144,6 @@ public class MemberExprConvertor extends LeafAdapter {
 	public void leaveMemberExpr(MemberExpr expr) {
 		if (odctor != null) {
 			convertObjectCtor(expr);
-			return;
 		} else if (sendMeth != null)
 			nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs, handler));
 		else

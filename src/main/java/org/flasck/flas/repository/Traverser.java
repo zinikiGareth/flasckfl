@@ -261,7 +261,7 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitObjectDefn(ObjectDefn obj) {
 		visitor.visitObjectDefn(obj);
-		traverseState(obj.state());
+		visitStateDefinition(obj.state());
 		for (ObjectContract oc : obj.contracts)
 			visitObjectContract(oc);
 		for (HandlerImplements ic : obj.handlers)
@@ -269,11 +269,19 @@ public class Traverser implements Visitor {
 		leaveObjectDefn(obj);
 	}
 
-	private void traverseState(StateDefinition state) {
+	@Override
+	public void visitStateDefinition(StateDefinition state) {
 		if (state != null) {
+			visitor.visitStateDefinition(state);
 			for (StructField f : state.fields)
 				visitStructField(f);
+			leaveStateDefinition(state);
 		}
+	}
+
+	@Override
+	public void leaveStateDefinition(StateDefinition state) {
+		visitor.leaveStateDefinition(state);
 	}
 
 	@Override
@@ -296,7 +304,7 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitAgentDefn(AgentDefinition s) {
 		visitor.visitAgentDefn(s);
-		traverseState(s.state());
+		visitStateDefinition(s.state());
 		for (RequiresContract rc : s.requires)
 			visitRequires(rc);
 		for (Provides p : s.services)
@@ -377,6 +385,7 @@ public class Traverser implements Visitor {
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
 		visitor.visitObjectCtor(oc);
+		visitStateDefinition(oc.getObject().state());
 		traverseFnOrMethod(oc);
 		leaveObjectCtor(oc);
 	}

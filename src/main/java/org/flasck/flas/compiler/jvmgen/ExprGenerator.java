@@ -225,10 +225,12 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			handleIntroduction(state.resolveIntroduction((IntroduceVar)defn));
 		} else if (defn instanceof ObjectCtor) {
 			ObjectCtor oc = (ObjectCtor) defn;
+			IExpr fn = meth.makeNew(J.CALLSTATIC, meth.classConst(oc.name().container().javaName()), meth.stringConst(oc.name().name), meth.intConst(nargs));
 			if (nargs == 0) {
-				makeFunctionClosure(myName, oc.argCountIncludingContracts());
+				Var v = makeClosure(fn, oc.argCountIncludingContracts());
+				sv.result(new WrappedWithMessages(meth, fcx, v));
 			} else
-				sv.result(meth.makeNew(J.CALLSTATIC, meth.classConst(oc.name().container().javaName()), meth.stringConst(oc.name().name), meth.intConst(nargs)));
+				sv.result(fn);
 		} else
 			throw new NotImplementedException("cannot evaluate " + defn.getClass());
 	}
@@ -243,6 +245,11 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 
 	private void makeFunctionClosure(String name, int expArgs) {
 		IExpr fn = meth.makeNew(J.CALLEVAL, meth.classConst(name));
+		Var v = makeClosure(fn, expArgs);
+		sv.result(v);
+	}
+
+	private Var makeClosure(IExpr fn, int expArgs) {
 		IExpr args = meth.arrayOf(J.OBJECT, new ArrayList<IExpr>());
 		IExpr call;
 		if (expArgs > 0)
@@ -251,7 +258,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
 		Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 		currentBlock.add(meth.assign(v, call));
-		sv.result(v);
+		return v;
 	}
 
 	private String resolveOpName(String op) {

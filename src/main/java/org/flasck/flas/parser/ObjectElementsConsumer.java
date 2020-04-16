@@ -1,5 +1,7 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
@@ -12,4 +14,5 @@ public interface ObjectElementsConsumer extends MethodConsumer, HandlerBuilder {
 	ObjectElementsConsumer addConstructor(ObjectCtor ctor);
 	ObjectElementsConsumer addAccessor(ObjectAccessor acor);
 	ObjectElementsConsumer requireContract(ObjectContract oc);
+	void complete(ErrorReporter errors, InputPosition location);
 }

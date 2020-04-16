@@ -1,0 +1,3 @@
+	guarded x
+		| true = "hello"
+		| false = "goodbye"

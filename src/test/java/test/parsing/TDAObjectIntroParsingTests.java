@@ -48,6 +48,7 @@ public class TDAObjectIntroParsingTests {
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
 		assertTrue(nested instanceof TDAMultiParser);
+		nested.tryParsing(TDABasicIntroParsingTests.line("ctor obligatory"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
 		nested.scopeComplete(null);
 	}

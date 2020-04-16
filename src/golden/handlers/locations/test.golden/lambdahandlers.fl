@@ -16,7 +16,9 @@
 	object ObscureCounter
 		state
 			Number var
-		
+
+		ctor init
+				
 		acor stored = var
 		handler Counter InObject (Number base)
 			reply n

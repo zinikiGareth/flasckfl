@@ -42,6 +42,7 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -553,6 +554,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveHandleExpr(Expr expr, Expr handler) {
 		top.leaveHandleExpr(expr, handler);
+	}
+
+	public void leaveStateDefinition(StateDefinition state) {
+		top.leaveStateDefinition(state);
+	}
+
+	public void visitStateDefinition(StateDefinition state) {
+		top.visitStateDefinition(state);
 	}
 
 	public void traversalDone() {

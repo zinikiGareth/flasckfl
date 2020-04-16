@@ -49,7 +49,9 @@ public class UDDGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
 		if (assigned != null) {
-			fs.addMock(udd, (Var) assigned);
+			JVMGenerator.makeBlock(meth, currentBlock).flush();
+			currentBlock.clear();
+			fs.addMock(udd, assigned);
 		} else {
 			NamedType objty = udd.ofType.defn();
 			IExpr mc = meth.callStatic(objty.name().javaName(), J.OBJECT, "eval", this.fs.fcx);

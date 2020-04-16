@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -115,6 +116,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ByteCodeSink agentClass;
 	private Var agentcx;
 	private ObjectCtor currentOC;
+	private Var ocret;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;
@@ -276,12 +278,26 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		switchVars.clear();
 		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
-		if (od.state() != null) {
-			// TODO: myThis() will not be allowed here ...
-			fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
+
+		ocret = meth.avar(od.name().javaName(), "ret");
+		IExpr created = meth.makeNew(od.name().javaName(), fs.fcx);
+		currentBlock.add(meth.assign(ocret, created));
+		int i = 0;
+		for (ObjectContract octr : od.contracts) {
+			IExpr ci = meth.arrayElt(fs.fargs, meth.intConst(i++));
+			IExpr assn = meth.assign(meth.getField(ocret, octr.varName().var), ci);
+			currentBlock.add(assn);
 		}
 	}
 	
+	@Override
+	public void visitStateDefinition(StateDefinition state) {
+		if (ocret != null) {
+			fs.provideStateObject(meth.as(ocret, J.FIELDS_CONTAINER_WRAPPER));
+			new ObjectCtorStateGenerator(fs, sv, currentOC.getObject(), currentBlock, ocret);
+		}
+	}
+
 	@Override
 	public void visitTuple(TupleAssignment ta) {
 		this.clz = bce.newClass(ta.name().javaClassName());
@@ -389,7 +405,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void startInline(FunctionIntro fi) {
 		if (currentOC != null)
-			new ObjectCtorGenerator(fs, sv, currentOC.getObject(), currentBlock);
+			new ObjectCtorGenerator(fs, sv, currentOC.getObject(), currentBlock, ocret);
 		else
 			new GuardGenerator(fs, sv, currentBlock);
 	}
@@ -449,6 +465,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			makeBlock(meth, currentBlock).flush();
 		}
 		currentOC = null;
+		ocret = null;
 		currentBlock.clear();
 		this.meth = null;
 		this.clz = null;
@@ -547,30 +564,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			ctor.callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
-		/** DEPRECATED **/
-		{ // eval(cx)
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
-			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
-			gen.returns(J.OBJECT);
-			MethodDefiner meth = gen.done();
-			Var ret = meth.avar(clzName, "ret");
-			meth.assign(ret, meth.makeNew(clzName, cx.getVar())).flush();
-			this.fs = new FunctionState(meth, cx.getVar(), null, null, runner);
-			this.meth = meth;
-			fs.evalRet = ret;
-			this.currentBlock = new ArrayList<IExpr>();
-		}
-		this.structFieldHandler = sf -> {
-			if (sf.init != null)
-				new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
-		};
-		/** END DEPRECATED **/
 	}
 	
 	@Override
 	public void visitAgentDefn(AgentDefinition ad) {
-//		if (!od.generate)
-//			return;
 		String clzName = ad.name().javaName();
 		agentClass = bce.newClass(clzName);
 		agentClass.superclass(J.CONTRACT_HOLDER);
@@ -584,10 +581,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			agentcx = cx.getVar();
 			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
 		}
-//		this.structFieldHandler = sf -> {
-//			if (sf.init != null)
-//				new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
-//		};
 	}
 	
 	@Override
@@ -664,16 +657,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
-	public void leaveObjectDefn(ObjectDefn obj) {
-		if (!obj.generate)
-			return;
-		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			makeBlock(meth, currentBlock).flush();
-		this.meth.returnObject(fs.evalRet).flush();
-		this.meth = null;
-	}
-	
-	@Override
 	public void leaveStructDefn(StructDefn sd) {
 		if (!sd.generate)
 			return;
@@ -749,10 +732,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			this.fs.addMock(udd, v);
 			this.explodingMocks.add(v);
 		} else if (objty instanceof ObjectDefn) {
-			IExpr mc = meth.callStatic(objty.name().javaName(), J.OBJECT, "eval", this.fcx);
-			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
-			meth.assign(v, mc).flush();
-			this.fs.addMock(udd, v);
+//			IExpr mc = meth.callStatic(objty.name().javaName(), J.OBJECT, "eval", this.fcx);
+//			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
+//			meth.assign(v, mc).flush();
+//			this.fs.addMock(udd, v);
+			new UDDGenerator(sv, fs, currentBlock);
 		} else if (objty instanceof HandlerImplements) {
 			new UDDGenerator(sv, fs, currentBlock);
 		} else if (objty instanceof AgentDefinition) {

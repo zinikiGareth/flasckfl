@@ -185,9 +185,11 @@ public class TraversalTests {
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
+			oneOf(v).visitStateDefinition(sd);
 			oneOf(v).visitStructField(sf);
 			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
 			oneOf(v).leaveStructField(sf);
+			oneOf(v).leaveStateDefinition(sd);
 			oneOf(v).leaveObjectDefn(s);
 			oneOf(v).traversalDone();
 		}});
@@ -205,11 +207,13 @@ public class TraversalTests {
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
+			oneOf(v).visitStateDefinition(sd);
 			oneOf(v).visitStructField(sf);
 			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
 			oneOf(v).visitExpr(sl, 0);
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveStructField(sf);
+			oneOf(v).leaveStateDefinition(sd);
 			oneOf(v).leaveObjectDefn(s);
 			oneOf(v).traversalDone();
 		}});
@@ -256,11 +260,13 @@ public class TraversalTests {
 		r.addEntry(s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
+			oneOf(v).visitStateDefinition(sd);
 			oneOf(v).visitStructField(sf);
 			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
 			oneOf(v).visitExpr(sl, 0);
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveStructField(sf);
+			oneOf(v).leaveStateDefinition(sd);
 			oneOf(v).leaveAgentDefn(s);
 			oneOf(v).traversalDone();
 		}});
