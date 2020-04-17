@@ -111,7 +111,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 				} else
 					bound.add(LoadBuiltins.any);
 			}
-			return new PolyInstance(this, bound);
+			return new PolyInstance(this.location(), this, bound);
 		} else
 			return this;
 		/*

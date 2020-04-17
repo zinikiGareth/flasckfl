@@ -100,7 +100,7 @@ public class TDAObjectElementParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
 			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectActionHandler.class)));
-			oneOf(topLevel).argument(with(errors), with(any(VarPattern.class)));
+			oneOf(topLevel).argument(with(aNull(ErrorReporter.class)), with(any(VarPattern.class)));
 			oneOf(builder).complete(errors, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
@@ -131,7 +131,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(topLevel).argument(with(tracker), with(any(VarPattern.class)));
+			oneOf(topLevel).argument(with(aNull(ErrorReporter.class)), with(any(VarPattern.class)));
 			oneOf(topLevel).argument(with(tracker), with(any(TypedPattern.class)));
 			oneOf(builder).complete(tracker, pos);
 		}});

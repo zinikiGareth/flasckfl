@@ -3,6 +3,7 @@ package org.flasck.flas.repository;
 import java.io.PrintWriter;
 import java.util.Comparator;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parsedForm.ContractDecl;
 
@@ -29,6 +30,7 @@ public interface RepositoryEntry {
 	};
 	
 	NameOfThing name();
+	InputPosition location();
 	void dumpTo(PrintWriter pw);
 
 }

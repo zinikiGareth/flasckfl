@@ -147,7 +147,7 @@ public class TCStateTests {
 	@Test
 	public void aPolyInstanceHasItsParametersConsolidated() {
 		Type result = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.trueT), new PosType(pos, LoadBuiltins.falseT))).type;
-		PolyInstance pi = new PolyInstance(LoadBuiltins.cons, Arrays.asList(result));
+		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(result));
 		state.resolveAll(errors, true);
 		assertThat(pi, (Matcher)PolyInstanceMatcher.of(LoadBuiltins.cons, ResolvedUTMatcher.with(LoadBuiltins.bool)));
 	}

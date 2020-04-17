@@ -346,7 +346,7 @@ public class MethodTests {
 	@Test
 	public void listOfDebugMessagesIsFine() {
 		new MessageChecker(errors, state, sv, pos, meth);
-		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.debug));
+		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
@@ -357,7 +357,7 @@ public class MethodTests {
 	@Test
 	public void consOfSendMessagesIsFine() {
 		new MessageChecker(errors, state, sv, pos, meth);
-		PolyInstance pi = new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.send));
+		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.send));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
@@ -368,7 +368,7 @@ public class MethodTests {
 	@Test
 	public void listOfMessagesIsFine() {
 		new MessageChecker(errors, state, sv, pos, meth);
-		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
+		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
 		}});
@@ -392,7 +392,7 @@ public class MethodTests {
 	@Test
 	public void listOfNumbersIsNotFine() {
 		new MessageChecker(errors, state, sv, pos, meth);
-		PolyInstance pi = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number));
+		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.number));
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "List[Number] cannot be a Message");
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
@@ -406,7 +406,7 @@ public class MethodTests {
 	public void anyOtherPolyIsNotFine() {
 		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, "A")));
 		new MessageChecker(errors, state, sv, pos, meth);
-		PolyInstance pi = new PolyInstance(sda, Arrays.asList(LoadBuiltins.message));
+		PolyInstance pi = new PolyInstance(pos, sda, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "test.repo.Foo[Message] cannot be a Message");
 			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));

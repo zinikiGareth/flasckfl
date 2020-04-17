@@ -1,3 +1,6 @@
+    duplerror.fl  4.7:    object  _ Duplicate
+                              test.golden.Duplicate is defined multiple times: duplerror.fl  1.7
+    duplerror.fl  9.5:    ctor  _ fred
+                              test.golden.DuplicateCtor._ctor_fred is defined multiple times: duplerror.fl  8.5
     noctor.fl:    1.7:    object  _ NoCtor
                               objects must have at least one constructor
-                          

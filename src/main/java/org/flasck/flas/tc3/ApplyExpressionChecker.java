@@ -78,7 +78,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			List<Type> polys = new ArrayList<>();
 			for (Type t : sd.polys())
 				polys.add(instantiateFreshPolys(uts, new PosType(pos, t)).type);
-			PolyInstance pi = new PolyInstance(sd, polys);
+			PolyInstance pi = new PolyInstance(pos, sd, polys);
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn)type).fields)
@@ -170,7 +170,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		} else {
 			results.remove(0); // remove the nil from the front
 			PosType ty = state.consolidate(expr.location(), results);
-			nv.result(new PolyInstance(LoadBuiltins.cons, Arrays.asList(ty.type)));
+			nv.result(new PolyInstance(expr.location(), LoadBuiltins.cons, Arrays.asList(ty.type)));
 		}
 	}
 
@@ -182,7 +182,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			List<Type> tys = new ArrayList<Type>();
 			for (PosType pt : results)
 				tys.add(pt.type);
-			nv.result(new PolyInstance(LoadBuiltins.tuple, tys));
+			nv.result(new PolyInstance(expr.location(), LoadBuiltins.tuple, tys));
 		}
 	}
 }

@@ -23,7 +23,7 @@ import org.flasck.flas.tc3.Tuple;
 import org.flasck.flas.tc3.Type;
 
 public class LoadBuiltins {
-	private static InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
+	public static final InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
 
 	public static Set<StandaloneDefn> allFunctions = new TreeSet<>();
 	
@@ -70,7 +70,7 @@ public class LoadBuiltins {
 	public static final StructDefn nil = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
 	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, polyA);
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), polyA);
-	public static final PolyInstance listAny = new PolyInstance(list, Arrays.asList(any));
+	public static final PolyInstance listAny = new PolyInstance(pos, list, Arrays.asList(any));
 	
 	// Messages
 	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);

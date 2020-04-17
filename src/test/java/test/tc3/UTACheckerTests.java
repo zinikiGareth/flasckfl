@@ -143,8 +143,8 @@ public class UTACheckerTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.number))));
-		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number))));
+		tc.result(new ExprResult(pos, new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.number))));
+		tc.result(new ExprResult(pos, new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.number))));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -159,8 +159,8 @@ public class UTACheckerTests {
 			oneOf(errors).message(pos, "value is of type Cons[Number] that cannot be the result of an expression of type Cons[String]");
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.number))));
-		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.string))));
+		tc.result(new ExprResult(pos, new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.number))));
+		tc.result(new ExprResult(pos, new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.string))));
 		tc.postUnitTestAssert(uta);
 	}
 	
@@ -193,7 +193,7 @@ public class UTACheckerTests {
 			oneOf(errors).message(pos, "value is of type List[Number] that cannot be the result of an expression of type Nil");
 			oneOf(sv).result(null);
 		}});
-		tc.result(new ExprResult(pos, new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.number))));
+		tc.result(new ExprResult(pos, new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.number))));
 		tc.result(new ExprResult(pos, LoadBuiltins.nil));
 		tc.postUnitTestAssert(uta);
 	}

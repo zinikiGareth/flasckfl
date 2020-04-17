@@ -10,10 +10,12 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class PolyInstance implements NamedType, RepositoryEntry {
+	private final InputPosition loc;
 	private final NamedType ty;
 	private final List<Type> polys;
 
-	public PolyInstance(NamedType ty, List<Type> polys) {
+	public PolyInstance(InputPosition loc, NamedType ty, List<Type> polys) {
+		this.loc = loc;
 		this.ty = ty;
 		this.polys = polys;
 	}
@@ -27,6 +29,11 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 		return polys;
 	}
 
+	@Override
+	public InputPosition location() {
+		return loc;
+	}
+	
 	@Override
 	public String signature() {
 		StringBuilder ret = new StringBuilder();

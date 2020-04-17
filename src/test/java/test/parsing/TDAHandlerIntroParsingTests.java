@@ -51,7 +51,7 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerCanHaveLambdaExpressions() {
 		context.checking(new Expectations() {{
-			oneOf(builder).argument(with(tracker), (VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.x")));
+			oneOf(builder).argument(with(aNull(ErrorReporter.class)), (VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.x")));
 			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 			exactly(2).of(builder).replaceDefinition(with(any(HandlerLambda.class)));
 			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));

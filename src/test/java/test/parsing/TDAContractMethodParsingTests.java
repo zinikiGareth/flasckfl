@@ -127,7 +127,7 @@ public class TDAContractMethodParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			// it constructs the "wrong" thing before complaining
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred")));
-			oneOf(topLevel).argument(with(errors), with(any(VarPattern.class)));
+			oneOf(topLevel).argument(with(aNull(ErrorReporter.class)), with(any(VarPattern.class)));
 			// but it does complain and that should stop it doing the wrong thing later ...
 			oneOf(errors).message(toks, "contract patterns must be typed");
 		}});

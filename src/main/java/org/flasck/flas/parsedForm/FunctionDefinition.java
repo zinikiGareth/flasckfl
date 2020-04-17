@@ -54,7 +54,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	@Override
 	public InputPosition location() {
 		if (intros.isEmpty())
-			return null;
+			return name.location;
 		else
 			return intros.get(0).location;
 	}

@@ -77,7 +77,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}
 			final TypeReference ctr = namer.contract(tn.location, tn.text);
 			VarName cv = namer.nameVar(var.location, var.text);
-			ObjectContract oc = new ObjectContract(ctr, cv);
+			ObjectContract oc = new ObjectContract(var.location, ctr, cv);
 			builder.requireContract(oc);
 			topLevel.newObjectContract(errors, oc);
 			return new NoNestingParser(errors);

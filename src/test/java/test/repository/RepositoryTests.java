@@ -51,6 +51,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
+import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
@@ -71,11 +72,14 @@ public class RepositoryTests {
 		assertEquals(fn, r.get("test.repo.fred"));
 	}
 
-	@Test(expected=DuplicateNameException.class)
+	@Test
 	public void cannotAddAFunctionToTheRepositoryTwice() {
 		Repository r = new Repository();
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
 		r.functionDefn(errors, fn);
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.fred is defined multiple times: " + pos);
+		}});
 		r.functionDefn(errors, fn);
 	}
 
@@ -122,7 +126,7 @@ public class RepositoryTests {
 		assertEquals("test.repo.c", tm.name().uniqueName());
 	}
 
-	@Test(expected=DuplicateNameException.class)
+	@Test
 	public void cannotAddALeadTupleMemberToTheRepositoryTwice() {
 		Repository r = new Repository();
 		putATupleIntoTheRepository(r);
@@ -131,10 +135,13 @@ public class RepositoryTests {
 		List<LocatedName> vars = new ArrayList<>();
 		vars.add(new LocatedName(pos, "a"));
 		vars.add(new LocatedName(pos, "x"));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.a is defined multiple times: " + pos);
+		}});
 		r.tupleDefn(errors, vars, exprFnName, pkgName, simpleExpr);
 	}
 
-	@Test(expected=DuplicateNameException.class)
+	@Test
 	public void cannotAddASecondaryTupleMemberToTheRepositoryTwice() {
 		Repository r = new Repository();
 		putATupleIntoTheRepository(r);
@@ -143,6 +150,9 @@ public class RepositoryTests {
 		List<LocatedName> vars = new ArrayList<>();
 		vars.add(new LocatedName(pos, "x"));
 		vars.add(new LocatedName(pos, "b"));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.b is defined multiple times: " + pos);
+		}});
 		r.tupleDefn(errors, vars, exprFnName, pkgName, simpleExpr);
 	}
 
@@ -167,22 +177,28 @@ public class RepositoryTests {
 		assertEquals(meth, r.get("test.repo.m"));
 	}
 
-	@Test(expected=DuplicateNameException.class)
+	@Test
 	public void cannotAddAStandaloneMethodToTheRepositoryTwice() {
 		Repository r = new Repository();
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
 		r.newStandaloneMethod(errors, meth);
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.m is defined multiple times: " + pos);
+		}});
 		r.newStandaloneMethod(errors, meth);
 	}
 
-	@Test(expected=DuplicateNameException.class)
+	@Test
 	public void cannotAddAStandaloneMethodToTheRepositoryIfAFunctionIsAlreadyThere() {
 		Repository r = new Repository();
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
 		r.functionDefn(errors, fn);
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.fred is defined multiple times: " + pos);
+		}});
 		r.newStandaloneMethod(errors, meth);
 	}
 
@@ -292,11 +308,14 @@ public class RepositoryTests {
 		assertEquals(hi, r.get("test.repo.X"));
 	}
 
-	@Test(expected=DuplicateNameException.class)
+	@Test
 	public void cannotAddAHandlerToTheRepositoryTwice() {
 		Repository r = new Repository();
 		HandlerImplements hi = new HandlerImplements(pos, pos, pos, null, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
 		r.newHandler(errors, hi);
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "test.repo.X is defined multiple times: " + pos);
+		}});
 		r.newHandler(errors, hi);
 	}
 
@@ -320,7 +339,7 @@ public class RepositoryTests {
 	public void canAddAUTPackageToTheRepository()  {
 		Repository r = new Repository();
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_file");
-		UnitTestPackage utp = new UnitTestPackage(utfn);
+		UnitTestPackage utp = new UnitTestPackage(pos, utfn);
 		r.unitTestPackage(errors, utp);
 		assertEquals(utp, r.get("test.repo._ut_file"));
 	}
@@ -382,7 +401,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
-		ms.add(new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.bool)));
+		ms.add(new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.bool)));
 		ms.add(LoadBuiltins.nil);
 		Type u = r.findUnionWith(ms);
 		assertNotNull(u);

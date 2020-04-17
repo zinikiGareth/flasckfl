@@ -194,7 +194,7 @@ public class ExpressionVisitation {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).requireVarConstraints(null, "f"); will(returnValue(ut));
+			oneOf(state).requireVarConstraints(pos, "f"); will(returnValue(ut));
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(ut))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);

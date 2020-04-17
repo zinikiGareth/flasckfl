@@ -90,7 +90,7 @@ public class TypeResolution {
 	@Test
 	public void aUnionCanBeFormedFromItsComponentPolymorphicParts() {
 		gc.visitFunction(fnF);
-		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.nil), new PosType(pos, new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any))))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.nil), new PosType(pos, new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any))))));
 		gc.leaveFunctionGroup(null);
 		assertThat(fnF.type(), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
 	}

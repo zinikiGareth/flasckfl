@@ -1,0 +1,9 @@
+	object Duplicate
+		ctor init
+		
+	object Duplicate
+		ctor fred
+		
+	object DuplicateCtor
+		ctor fred
+		ctor fred

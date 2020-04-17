@@ -2,6 +2,7 @@ package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -13,6 +14,11 @@ public class HandlerLambda implements RepositoryEntry {
 		this.patt = patt;
 	}
 
+	@Override
+	public InputPosition location() {
+		return patt.location();
+	}
+	
 	@Override
 	public NameOfThing name() {
 		return ((RepositoryEntry)patt).name();

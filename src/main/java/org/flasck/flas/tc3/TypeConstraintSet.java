@@ -149,7 +149,7 @@ public class TypeConstraintSet implements UnifiableType {
 				for (PolyType p : sd.polys()) {
 					polys.add(LoadBuiltins.any);
 				}
-				tys.add(new PosType(pt.pos, new PolyInstance(sd, polys)));
+				tys.add(new PosType(pt.pos, new PolyInstance(pos, sd, polys)));
 			} else
 				tys.add(pt);
 		}
@@ -176,7 +176,7 @@ public class TypeConstraintSet implements UnifiableType {
 					else
 						polys.add(LoadBuiltins.any);
 				}
-				tys.add(new PosType(pos, new PolyInstance(ty, polys)));
+				tys.add(new PosType(pos, new PolyInstance(pos, ty, polys)));
 			}
 		}
 		

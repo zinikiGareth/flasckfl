@@ -616,7 +616,7 @@ public class TraversalTests {
 	public void traverseUnitTest() {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
 		UnitTestName name = new UnitTestName(utfn, 1);
-		UnitTestPackage utp = new UnitTestPackage(utfn);
+		UnitTestPackage utp = new UnitTestPackage(pos, utfn);
 		UnitTestCase utc = new UnitTestCase(name, "do something");
 		utp.testCase(utc);
 		TypeReference tr = new TypeReference(pos, "StructThing");
@@ -664,7 +664,7 @@ public class TraversalTests {
 	public void traverseUnitTestContract() {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
 		UnitTestName name = new UnitTestName(utfn, 1);
-		UnitTestPackage utp = new UnitTestPackage(utfn);
+		UnitTestPackage utp = new UnitTestPackage(pos, utfn);
 		UnitTestCase utc = new UnitTestCase(name, "do something");
 		utp.testCase(utc);
 		TypeReference tr = new TypeReference(pos, "SomeContract");
@@ -698,7 +698,7 @@ public class TraversalTests {
 	public void traverseTopLevelUnitTestDataDeclaration() {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
 		UnitTestName name = new UnitTestName(utfn, 1);
-		UnitTestPackage utp = new UnitTestPackage(utfn);
+		UnitTestPackage utp = new UnitTestPackage(pos, utfn);
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, true, tr, FunctionName.function(pos, name, "ut"), null);
 		utp.data(udd);

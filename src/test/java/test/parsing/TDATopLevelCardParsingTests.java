@@ -115,7 +115,7 @@ public class TDATopLevelCardParsingTests {
 	public void cardsCanHaveEventHandlers() {
 		context.checking(new Expectations() {{
 			oneOf(builder).newObjectMethod(with(tracker), with(any(ObjectActionHandler.class)));
-			oneOf(builder).argument(with(tracker), with(any(VarPattern.class)));
+			oneOf(builder).argument(with(aNull(ErrorReporter.class)), with(any(VarPattern.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("event foo ev"));
 		assertEquals(1, card.eventHandlers.size());

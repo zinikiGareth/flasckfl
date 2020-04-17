@@ -2,6 +2,7 @@ package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -14,6 +15,11 @@ public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
 	public ObjectAccessor(StateHolder od, FunctionDefinition fn) {
 		this.od = od;
 		this.fn = fn;
+	}
+
+	@Override
+	public InputPosition location() {
+		return fn.location();
 	}
 
 	public StateHolder getObject() {

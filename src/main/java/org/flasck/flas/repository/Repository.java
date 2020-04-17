@@ -214,7 +214,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void tupleDefn(ErrorReporter errors, List<LocatedName> vars, FunctionName exprFnName, FunctionName pkgName, Expr expr) {
 		TupleAssignment ta = new TupleAssignment(vars, exprFnName, pkgName, expr);
-		addEntry(errors, exprFnName, ta);
 		NameOfThing pkg = pkgName.inContext;
 		int k=0;
 		for (LocatedName x : vars) {
@@ -222,6 +221,12 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			TupleMember tm = new TupleMember(x.location, ta, k++, tn);
 			addEntry(errors, tn, tm);
 			ta.addMember(tm);
+		}
+		try {
+			addEntry(null, exprFnName, ta);
+		} catch (DuplicateNameException ex) {
+			// if this is thrown, it is because vars[0] is a duplicate
+			// that (should) have already flagged an error above
 		}
 	}
 
@@ -326,11 +331,15 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	public void addEntry(ErrorReporter errors, final NameOfThing name, final RepositoryEntry entry) {
-		if (dict.containsKey(name.uniqueName())) {
-//			errors.
-			throw new DuplicateNameException(name);
+		String un = name.uniqueName();
+		if (dict.containsKey(un)) {
+			if (errors != null) {
+				errors.message(entry.location(), un + " is defined multiple times: " + dict.get(un).location());
+				return;
+			} else
+				throw new DuplicateNameException(name);
 		}
-		dict.put(name.uniqueName(), entry);
+		dict.put(un, entry);
 	}
 
 	@Override

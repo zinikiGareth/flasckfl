@@ -79,14 +79,13 @@ public class FunctionAssemblerTests {
 
 	// This is basically a test that the repository will reject duplicate names, but
 	// it is saying that we don't treat it specially
-	@Test(expected = DuplicateNameException.class)
+	@Test
 	public void aScopeCannotHaveDefinitionsInARandomOrder() {
 		context.checking(new Expectations() {
 			{
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0)));
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
-				will(throwException(new DuplicateNameException(pkg)));
 			}
 		});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
@@ -98,13 +97,12 @@ public class FunctionAssemblerTests {
 
 	// This depends on the "other things" telling the function assembler to "move
 	// on" ... we need to test that separately
-	@Test(expected = DuplicateNameException.class)
+	@Test
 	public void aScopeCannotHaveDefinitionsDividedByOtherElements() {
 		context.checking(new Expectations() {
 			{
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
-				will(throwException(new DuplicateNameException(pkg)));
 			}
 		});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);

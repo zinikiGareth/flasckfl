@@ -8,7 +8,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class EnsureListMessage implements Type {
-	public final static Type listMessages = new PolyInstance(LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
+	public final static Type listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 	private final InputPosition pos;
 	private Type ret;
 	

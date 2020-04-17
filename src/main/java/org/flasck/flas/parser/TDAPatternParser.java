@@ -157,7 +157,7 @@ public class TDAPatternParser implements TDAParsing {
 		final VarPattern vp = new VarPattern(initial.location, namer.nameVar(initial.location, initial.text));
 		consumer.accept(vp);
 		try {
-			topLevel.argument(errors, vp);
+			topLevel.argument(null, vp);
 		} catch (DuplicateNameException ex) {
 			errors.message(vp.location(), "duplicate function argument " + vp.var);
 		}
