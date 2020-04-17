@@ -31,7 +31,7 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aSimpleHandlerCanBeDefined() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+			oneOf(builder).newHandler(with(errors), with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));
@@ -41,7 +41,7 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerContractNameCanHaveAQualifiedName() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+			oneOf(builder).newHandler(with(errors), with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName"));
@@ -51,10 +51,10 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerCanHaveLambdaExpressions() {
 		context.checking(new Expectations() {{
-			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.x")));
-			oneOf(builder).argument(with(any(TypedPattern.class)));
+			oneOf(builder).argument(with(tracker), (VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.x")));
+			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 			exactly(2).of(builder).replaceDefinition(with(any(HandlerLambda.class)));
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler org.ziniki.ContractName HandlerName x (String s)"));
@@ -64,9 +64,9 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerCanHaveLambdaExpressionsWithPolymorphicVars() {
 		context.checking(new Expectations() {{
-			oneOf(builder).argument(with(any(TypedPattern.class)));
+			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 			oneOf(builder).replaceDefinition(with(any(HandlerLambda.class)));
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName (List[List[Integer]] mrtho)"));
@@ -76,10 +76,10 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerCanHaveMultipleLambdaExpressions() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
-			oneOf(builder).argument(with(any(TypedPattern.class)));
+			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
+			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 			exactly(2).of(builder).replaceDefinition(with(any(HandlerLambda.class)));
-			oneOf(builder).argument(with(any(TypedPattern.class)));
+			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName (String s) (List[List[Integer]] mrtho)"));
@@ -89,9 +89,9 @@ public class TDAHandlerIntroParsingTests {
 	@Test
 	public void aHandlerCanContainAMethod() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
-			oneOf(builder).newObjectMethod(with(any(ObjectActionHandler.class)));
-			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.foo.x")));
+			oneOf(builder).newHandler(with(errors), with(any(HandlerImplements.class)));
+			oneOf(builder).newObjectMethod(with(errors), with(any(ObjectActionHandler.class)));
+			oneOf(builder).argument(with(errors), (VarPattern) with(VarPatternMatcher.var("test.pkg.HandlerName.foo.x")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("handler ContractName HandlerName"));

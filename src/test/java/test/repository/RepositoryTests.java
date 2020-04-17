@@ -21,6 +21,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DuplicateNameException;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
@@ -50,19 +51,23 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class RepositoryTests {
+	public @Rule JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
+	final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void canAddAFunctionToTheRepository() {
 		Repository r = new Repository();
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
-		r.functionDefn(fn);
+		r.functionDefn(errors, fn);
 		assertEquals(fn, r.get("test.repo.fred"));
 	}
 
@@ -70,8 +75,8 @@ public class RepositoryTests {
 	public void cannotAddAFunctionToTheRepositoryTwice() {
 		Repository r = new Repository();
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
-		r.functionDefn(fn);
-		r.functionDefn(fn);
+		r.functionDefn(errors, fn);
+		r.functionDefn(errors, fn);
 	}
 
 	@Test
@@ -79,7 +84,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		final FunctionName fred = FunctionName.function(pos, pkg, "fred");
 		VarPattern parm = new VarPattern(pos, new VarName(pos, fred, "a"));
-		r.argument(parm);
+		r.argument(errors, parm);
 		assertEquals(parm, r.get("test.repo.fred.a"));
 	}
 
@@ -126,7 +131,7 @@ public class RepositoryTests {
 		List<LocatedName> vars = new ArrayList<>();
 		vars.add(new LocatedName(pos, "a"));
 		vars.add(new LocatedName(pos, "x"));
-		r.tupleDefn(vars, exprFnName, pkgName, simpleExpr);
+		r.tupleDefn(errors, vars, exprFnName, pkgName, simpleExpr);
 	}
 
 	@Test(expected=DuplicateNameException.class)
@@ -138,7 +143,7 @@ public class RepositoryTests {
 		List<LocatedName> vars = new ArrayList<>();
 		vars.add(new LocatedName(pos, "x"));
 		vars.add(new LocatedName(pos, "b"));
-		r.tupleDefn(vars, exprFnName, pkgName, simpleExpr);
+		r.tupleDefn(errors, vars, exprFnName, pkgName, simpleExpr);
 	}
 
 	public List<LocatedName> putATupleIntoTheRepository(Repository r) {
@@ -149,7 +154,7 @@ public class RepositoryTests {
 		vars.add(new LocatedName(pos, "b"));
 		vars.add(new LocatedName(pos, "c"));
 		// Note: simpleExpr obviously isn't a tuple expr, but it's easy to write.  To typecheck, you would need something that returns 3 elements
-		r.tupleDefn(vars, exprFnName, pkgName, simpleExpr);
+		r.tupleDefn(errors, vars, exprFnName, pkgName, simpleExpr);
 		return vars;
 	}
 
@@ -158,7 +163,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
-		r.newStandaloneMethod(meth);
+		r.newStandaloneMethod(errors, meth);
 		assertEquals(meth, r.get("test.repo.m"));
 	}
 
@@ -167,25 +172,25 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
-		r.newStandaloneMethod(meth);
-		r.newStandaloneMethod(meth);
+		r.newStandaloneMethod(errors, meth);
+		r.newStandaloneMethod(errors, meth);
 	}
 
 	@Test(expected=DuplicateNameException.class)
 	public void cannotAddAStandaloneMethodToTheRepositoryIfAFunctionIsAlreadyThere() {
 		Repository r = new Repository();
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
-		r.functionDefn(fn);
+		r.functionDefn(errors, fn);
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
-		r.newStandaloneMethod(meth);
+		r.newStandaloneMethod(errors, meth);
 	}
 
 	@Test
 	public void canAddAObjectDefnToTheRepository() {
 		Repository r = new Repository();
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
-		r.newObject(od);
+		r.newObject(errors, od);
 		assertEquals(od, r.get("test.repo.Obj"));
 	}
 
@@ -194,7 +199,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		PolyType pa = new PolyType(pos, "A");
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, Arrays.asList(pa));
-		r.newObject(od);
+		r.newObject(errors, od);
 		assertEquals(pa, r.get("test.repo.Obj.A"));
 	}
 
@@ -204,7 +209,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
 		ObjectAccessor oa = new ObjectAccessor(od, new FunctionDefinition(FunctionName.function(pos, od.name(), "acor"), 2));
-		r.newObjectAccessor(oa);
+		r.newObjectAccessor(errors, oa);
 		assertEquals(oa, r.get("test.repo.Obj.acor"));
 	}
 
@@ -213,7 +218,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		final SolidName on = new SolidName(pkg, "Obj");
 		ObjectCtor ctor = new ObjectCtor(pos, null, FunctionName.objectCtor(pos, on, "simple"), new ArrayList<>());
-		r.newObjectMethod(ctor);
+		r.newObjectMethod(errors, ctor);
 		assertEquals(ctor, r.get("test.repo.Obj._ctor_simple"));
 	}
 
@@ -222,7 +227,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		final SolidName on = new SolidName(pkg, "Obj");
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, on, "doit"), new ArrayList<>(), null);
-		r.newObjectMethod(meth);
+		r.newObjectMethod(errors, meth);
 		assertEquals(meth, r.get("test.repo.Obj.doit"));
 	}
 
@@ -230,7 +235,7 @@ public class RepositoryTests {
 	public void canAddAStructDefnToTheRepository() {
 		Repository r = new Repository();
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructName"), true, new ArrayList<>());
-		r.newStruct(sd);
+		r.newStruct(errors, sd);
 		assertEquals(sd, r.get("test.repo.StructName"));
 	}
 
@@ -239,7 +244,7 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		PolyType pa = new PolyType(pos, "A");
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructName"), true, Arrays.asList(pa));
-		r.newStruct(sd);
+		r.newStruct(errors, sd);
 		assertEquals(pa, r.get("test.repo.StructName.A"));
 	}
 
@@ -247,7 +252,7 @@ public class RepositoryTests {
 	public void canAddAUnionDefnToTheRepository() {
 		Repository r = new Repository();
 		UnionTypeDefn ud = new UnionTypeDefn(pos, true, new SolidName(pkg, "MyUnion"), new ArrayList<>());
-		r.newUnion(ud);
+		r.newUnion(errors, ud);
 		assertEquals(ud, r.get("test.repo.MyUnion"));
 	}
 
@@ -255,7 +260,7 @@ public class RepositoryTests {
 	public void canAddAContractDeclToTheRepository() {
 		Repository r = new Repository();
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
-		r.newContract(cd);
+		r.newContract(errors, cd);
 		assertEquals(cd, r.get("test.repo.Ctr"));
 	}
 
@@ -263,7 +268,7 @@ public class RepositoryTests {
 	public void canAddADealDefnToTheRepository() { // it's just a struct
 		Repository r = new Repository();
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.DEAL, new SolidName(pkg, "MyDeal"), true, new ArrayList<>());
-		r.newStruct(sd);
+		r.newStruct(errors, sd);
 		assertEquals(sd, r.get("test.repo.MyDeal"));
 	}
 
@@ -271,8 +276,8 @@ public class RepositoryTests {
 	public void structFieldsAreGivenNamesAndAddedToTheRepo() {
 		Repository r = new Repository();
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "TheStruct"), true, new ArrayList<>());
-		ConsumeStructFields csf = new ConsumeStructFields(r, (loc, t) -> new VarName(loc, sd.name(), t), sd);
-		r.newStruct(sd);
+		ConsumeStructFields csf = new ConsumeStructFields(errors, r, (loc, t) -> new VarName(loc, sd.name(), t), sd);
+		r.newStruct(errors, sd);
 		final StructField sf = new StructField(pos, true, new TypeReference(pos, "A"), "x");
 		csf.addField(sf);
 		assertEquals("test.repo.TheStruct.x", sf.name().uniqueName());
@@ -283,7 +288,7 @@ public class RepositoryTests {
 	public void canAddAHandlerToTheRepository() {
 		Repository r = new Repository();
 		HandlerImplements hi = new HandlerImplements(pos, pos, pos, null, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
-		r.newHandler(hi);
+		r.newHandler(errors, hi);
 		assertEquals(hi, r.get("test.repo.X"));
 	}
 
@@ -291,15 +296,15 @@ public class RepositoryTests {
 	public void cannotAddAHandlerToTheRepositoryTwice() {
 		Repository r = new Repository();
 		HandlerImplements hi = new HandlerImplements(pos, pos, pos, null, new HandlerName(pkg, "X"), new TypeReference(pos, "Y"), false, new ArrayList<>());
-		r.newHandler(hi);
-		r.newHandler(hi);
+		r.newHandler(errors, hi);
+		r.newHandler(errors, hi);
 	}
 
 	@Test
 	public void canAddAServiceToTheRepository() {
 		Repository r = new Repository();
 		ServiceDefinition svc = new ServiceDefinition(pos, pos, new CardName(pkg, "Foo"));
-		r.newService(svc);
+		r.newService(errors, svc);
 		assertEquals(svc, r.get("test.repo.Foo"));
 	}
 
@@ -307,7 +312,7 @@ public class RepositoryTests {
 	public void canAddACardDefnToTheRepository() {
 		Repository r = new Repository();
 		CardDefinition card = new CardDefinition(pos, pos, new CardName(pkg, "Card"));
-		r.newCard(card);
+		r.newCard(errors, card);
 		assertEquals(card, r.get("test.repo.Card"));
 	}
 	
@@ -316,14 +321,14 @@ public class RepositoryTests {
 		Repository r = new Repository();
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_file");
 		UnitTestPackage utp = new UnitTestPackage(utfn);
-		r.unitTestPackage(utp);
+		r.unitTestPackage(errors, utp);
 		assertEquals(utp, r.get("test.repo._ut_file"));
 	}
 	
 	@Test
 	public void canFindAUnionInTheRepository() {
 		Repository r = new Repository();
-		LoadBuiltins.applyTo(r);
+		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
@@ -334,7 +339,7 @@ public class RepositoryTests {
 	@Test
 	public void anyIsAllowedWhenFindingAUnionInTheRepositoryIfItIsOneOfTheInputs() {
 		Repository r = new Repository();
-		LoadBuiltins.applyTo(r);
+		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.number);
 		ms.add(LoadBuiltins.any);
@@ -345,7 +350,7 @@ public class RepositoryTests {
 	@Test
 	public void inOrderToMatchAUnionMustContainAllTheThings() {
 		Repository r = new Repository();
-		LoadBuiltins.applyTo(r);
+		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
@@ -356,7 +361,7 @@ public class RepositoryTests {
 	@Test
 	public void inOrderToMatchAUnionMustNotContainMoreThings() {
 		Repository r = new Repository();
-		LoadBuiltins.applyTo(r);
+		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		assertEquals(LoadBuiltins.trueT, r.findUnionWith(ms));
@@ -365,7 +370,7 @@ public class RepositoryTests {
 	@Test
 	public void allTheThingsMustBeTheRightThings() {
 		Repository r = new Repository();
-		LoadBuiltins.applyTo(r);
+		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.nil);
@@ -375,7 +380,7 @@ public class RepositoryTests {
 	@Test
 	public void unionsCanBeFormedOfPolyInstances() {
 		Repository r = new Repository();
-		LoadBuiltins.applyTo(r);
+		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(new PolyInstance(LoadBuiltins.cons, Arrays.asList(LoadBuiltins.bool)));
 		ms.add(LoadBuiltins.nil);

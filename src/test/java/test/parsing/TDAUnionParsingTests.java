@@ -32,7 +32,7 @@ public class TDAUnionParsingTests {
 	@Test
 	public void theUnionKeywordAppearsOnALineWithAType() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newUnion(with(UnionDefnMatcher.match("test.pkg.Foo")));
+			oneOf(builder).newUnion(with(errors), with(UnionDefnMatcher.match("test.pkg.Foo")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("union Foo"));
@@ -42,7 +42,7 @@ public class TDAUnionParsingTests {
 	@Test
 	public void aUnionDefinitionMayBePolymorphic() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newUnion(with(UnionDefnMatcher.match("test.pkg.List").poly("A")));
+			oneOf(builder).newUnion(with(errors), with(UnionDefnMatcher.match("test.pkg.List").poly("A")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("union List A"));

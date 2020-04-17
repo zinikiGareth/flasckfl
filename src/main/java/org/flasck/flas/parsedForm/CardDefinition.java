@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.TemplateName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.CardElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
@@ -88,7 +89,7 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 		services.add(o);
 	}
 
-	public void newHandler(HandlerImplements o) {
+	public void newHandler(ErrorReporter errors, HandlerImplements o) {
 		handlers.add(o);
 	}
 

@@ -91,8 +91,8 @@ public class FLASCompiler {
 			String file = FileUtils.dropExtension(f.getName());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
 			UnitTestPackage utp = new UnitTestPackage(utfn);
-			repository.unitTestPackage(utp);
-			ParsingPhase parser = new ParsingPhase(errors, utfn, new ConsumeDefinitions(repository, utp));
+			repository.unitTestPackage(errors, utp);
+			ParsingPhase parser = new ParsingPhase(errors, utfn, new ConsumeDefinitions(errors, repository, utp));
 			parser.process(f);
 			errors.showFromMark(mark, errorWriter, 4);
 			mark = errors.mark();

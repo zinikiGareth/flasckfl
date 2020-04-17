@@ -29,7 +29,7 @@ public class TDAOfferIntroParsingTests {
 	@Test
 	public void theSimplestOfferCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.pkg.Coffee").as(FieldsDefn.FieldsType.OFFER)));
+			oneOf(builder).newStruct(with(errors), with(StructDefnMatcher.match("test.pkg.Coffee").as(FieldsDefn.FieldsType.OFFER)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("offer Coffee"));

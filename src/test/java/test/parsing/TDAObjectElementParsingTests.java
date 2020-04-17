@@ -81,7 +81,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("simple")));
-			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
+			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectActionHandler.class)));
 			oneOf(builder).complete(errors, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
@@ -99,8 +99,8 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(ObjectCtorMatcher.called("args").arg(PatternMatcher.var("x"))));
-			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
-			oneOf(topLevel).argument(with(any(VarPattern.class)));
+			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectActionHandler.class)));
+			oneOf(topLevel).argument(with(errors), with(any(VarPattern.class)));
 			oneOf(builder).complete(errors, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
@@ -114,7 +114,7 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveAccessorMethods() { // Correct me if I'm wrong, but these are really functions, because they don't do state updates
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
+			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(builder).complete(tracker, pos);
 		}});
@@ -130,9 +130,9 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(topLevel).argument(with(any(VarPattern.class)));
-			oneOf(topLevel).argument(with(any(TypedPattern.class)));
+			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
+			oneOf(topLevel).argument(with(tracker), with(any(VarPattern.class)));
+			oneOf(topLevel).argument(with(tracker), with(any(TypedPattern.class)));
 			oneOf(builder).complete(tracker, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
@@ -146,9 +146,9 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
-			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
+			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.myname"))));
 			oneOf(builder).addAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
-			oneOf(topLevel).newObjectAccessor(with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
+			oneOf(topLevel).newObjectAccessor(with(tracker), with(ObjectAccessorMatcher.of(FunctionDefinitionMatcher.named("MyObject.othername"))));
 			oneOf(builder).complete(tracker, pos);
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
@@ -169,7 +169,7 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
-			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
+			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectActionHandler.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update"));
@@ -184,8 +184,8 @@ public class TDAObjectElementParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ObjectMethodMatcher.called(objName, "update")));
-			oneOf(topLevel).newObjectMethod(with(any(ObjectActionHandler.class)));
-			oneOf(topLevel).argument(with(any(TypedPattern.class)));
+			oneOf(topLevel).newObjectMethod(with(errors), with(any(ObjectActionHandler.class)));
+			oneOf(topLevel).argument(with(errors), with(any(TypedPattern.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method update (String s)"));

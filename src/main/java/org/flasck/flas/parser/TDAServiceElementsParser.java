@@ -45,11 +45,11 @@ public class TDAServiceElementsParser implements TDAParsing {
 			consumer.defineState(state);
 			seenState = true;
 			
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(topLevel, namer, state), FieldsType.STATE, false);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
-			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(new StandaloneMethod(sm)); };
+			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(errors, new StandaloneMethod(sm)); };
 			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel).parseMethod(namer, toks);
 		}
 		case "provides": {

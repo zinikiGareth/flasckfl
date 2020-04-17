@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PolyType;
@@ -160,53 +161,53 @@ public class LoadBuiltins {
 		allFunctions.add(handleSend);
 	}
 	
-	public static void applyTo(Repository repository) {
-		repository.addEntry(any.name(), any);
-		repository.addEntry(contract.name(), contract);
-		repository.newStruct(error);
-		repository.addEntry(number.name(), number);
-		repository.addEntry(string.name(), string);
+	public static void applyTo(ErrorReporter errors, Repository repository) {
+		repository.addEntry(errors, any.name(), any);
+		repository.addEntry(errors, contract.name(), contract);
+		repository.newStruct(errors, error);
+		repository.addEntry(errors, number.name(), number);
+		repository.addEntry(errors, string.name(), string);
 
-		repository.addEntry(falseT.name(), falseT);
-		repository.addEntry(trueT.name(), trueT);
-		repository.addEntry(bool.name(), bool);
+		repository.addEntry(errors, falseT.name(), falseT);
+		repository.addEntry(errors, trueT.name(), trueT);
+		repository.addEntry(errors, bool.name(), bool);
 		
-		repository.addEntry(new SolidName(null, "[]"), nil);
-		repository.newStruct(nil);
-		repository.newStruct(cons);
-		repository.newUnion(list);
+		repository.addEntry(errors, new SolidName(null, "[]"), nil);
+		repository.newStruct(errors, nil);
+		repository.newStruct(errors, cons);
+		repository.newUnion(errors, list);
 		
-		repository.newStruct(debug);
-		repository.newStruct(send);
-		repository.newStruct(assign);
-		repository.newUnion(message);
+		repository.newStruct(errors, debug);
+		repository.newStruct(errors, send);
+		repository.newStruct(errors, assign);
+		repository.newUnion(errors, message);
 
-		repository.functionDefn(isEqual);
-		repository.functionDefn(plus);
-		repository.functionDefn(minus);
-		repository.functionDefn(mul);
-		repository.functionDefn(div);
-		repository.functionDefn(length);
-		repository.functionDefn(strlen);
-		repository.functionDefn(concat);
-		repository.functionDefn(makeTuple);
-		repository.functionDefn(handleSend);
+		repository.functionDefn(errors, isEqual);
+		repository.functionDefn(errors, plus);
+		repository.functionDefn(errors, minus);
+		repository.functionDefn(errors, mul);
+		repository.functionDefn(errors, div);
+		repository.functionDefn(errors, length);
+		repository.functionDefn(errors, strlen);
+		repository.functionDefn(errors, concat);
+		repository.functionDefn(errors, makeTuple);
+		repository.functionDefn(errors, handleSend);
 
 		// not yet thought through for backward compatibility
 		StructDefn card = new StructDefn(pos, FieldsType.STRUCT, null, "Card", false);
-		repository.newStruct(card);
+		repository.newStruct(errors, card);
 		StructDefn croset = new StructDefn(pos, FieldsType.STRUCT, null, "Croset", false);
-		repository.newStruct(croset);
+		repository.newStruct(errors, croset);
 		StructDefn map = new StructDefn(pos, FieldsType.STRUCT, null, "Map", false);
-		repository.newStruct(map);
-		repository.newStruct(type);
+		repository.newStruct(errors, map);
+		repository.newStruct(errors, type);
 
 
 		// dubious backward compatibility
 
 		StructDefn crokeys = new StructDefn(pos, FieldsType.STRUCT, null, "Crokeys", false);
-		repository.newStruct(crokeys);
+		repository.newStruct(errors, crokeys);
 		StructDefn id = new StructDefn(pos, FieldsType.STRUCT, null, "Id", false);
-		repository.newStruct(id);
+		repository.newStruct(errors, id);
 	}
 }

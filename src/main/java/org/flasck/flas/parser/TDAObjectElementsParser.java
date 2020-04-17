@@ -53,7 +53,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}
 			StateDefinition state = new StateDefinition(toks.realinfo());
 			builder.defineState(state);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(topLevel, namer, state), FieldsType.STATE, false);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
 		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -79,7 +79,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			VarName cv = namer.nameVar(var.location, var.text);
 			ObjectContract oc = new ObjectContract(ctr, cv);
 			builder.requireContract(oc);
-			topLevel.newObjectContract(oc);
+			topLevel.newObjectContract(errors, oc);
 			return new NoNestingParser(errors);
 		}
 		case "template": {
@@ -117,7 +117,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 				@Override
 				public void done() {
 					ctor.done();
-					topLevel.newObjectMethod(ctor);
+					topLevel.newObjectMethod(errors, ctor);
 				}
 			};
 			if (currParser != null) {
@@ -129,7 +129,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 		case "acor": {
 			if (currParser != null)
 				currParser.scopeComplete(location);
-			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, f -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); builder.addAccessor(oa); topLevel.newObjectAccessor(oa); }));
+			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, (errors, f) -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); builder.addAccessor(oa); topLevel.newObjectAccessor(errors, oa); }));
 			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel);
 			currParser = fcp;
 			return fcp.tryParsing(toks);
@@ -140,7 +140,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 				@Override
 				public void addMethod(ObjectMethod method) {
 					builder.addMethod(method);
-					topLevel.newObjectMethod(method);
+					topLevel.newObjectMethod(errors, method);
 				}
 			};
 			return new TDAMethodParser(errors, namer, dispenser, topLevel).parseMethod(methodNamer, toks);

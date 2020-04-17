@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.AgentElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
@@ -70,7 +71,7 @@ public class AgentDefinition implements Locatable, AgentElementsConsumer, Reposi
 		services.add(o);
 	}
 
-	public void newHandler(HandlerImplements o) {
+	public void newHandler(ErrorReporter errors, HandlerImplements o) {
 		handlers.add(o);
 	}
 

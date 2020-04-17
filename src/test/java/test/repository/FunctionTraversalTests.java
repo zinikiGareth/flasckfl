@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -37,6 +38,7 @@ public class FunctionTraversalTests {
 	final UnresolvedVar var = new UnresolvedVar(pos, "x");
 	final FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, var);
 	final FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, new ApplyExpr(pos, var, number));
+	final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Before
 	public void initializeRepository() {
@@ -52,7 +54,7 @@ public class FunctionTraversalTests {
 			intro.functionCase(fcd2);
 			fn.intro(intro);
 		}
-		r.functionDefn(fn);
+		r.functionDefn(errors, fn);
 	}
 	
 	@Test

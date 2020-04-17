@@ -31,7 +31,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void theSimplestStructCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Nil")));
+			oneOf(builder).newStruct(with(tracker), with(StructDefnMatcher.match("test.names.Nil")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Nil"));
@@ -65,7 +65,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void aPolymorphicStructDefinitionCreatesTheRightScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Cons").poly("A").locs(0,7)));
+			oneOf(builder).newStruct(with(tracker), with(StructDefnMatcher.match("test.names.Cons").poly("A").locs(0,7)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Cons A"));
@@ -75,7 +75,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void aPolymorphicStructDefinitionMayHaveMultipleVars() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Map").poly("A").poly("B").locs(0,7)));
+			oneOf(builder).newStruct(with(tracker), with(StructDefnMatcher.match("test.names.Map").poly("A").poly("B").locs(0,7)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct Map A B"));
@@ -96,7 +96,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void weCanTellAnEntityApartFromAStruct() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,7).as(FieldsDefn.FieldsType.ENTITY)));
+			oneOf(builder).newStruct(with(tracker), with(StructDefnMatcher.match("test.names.Fred").locs(0,7).as(FieldsDefn.FieldsType.ENTITY)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("entity Fred"));
@@ -106,7 +106,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void envelopesCanBeDefinedInTheSameWay() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,9).as(FieldsDefn.FieldsType.ENVELOPE)));
+			oneOf(builder).newStruct(with(tracker), with(StructDefnMatcher.match("test.names.Fred").locs(0,9).as(FieldsDefn.FieldsType.ENVELOPE)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("envelope Fred"));
@@ -116,7 +116,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void wrapsAreVerySimilarToo() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
+			oneOf(builder).newStruct(with(tracker), with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		final Tokenizable line = TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred");
@@ -130,8 +130,8 @@ public class TDAStructIntroParsingTests {
 	public void wrapsFieldsDontHaveTypesThough() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
-			oneOf(builder).newStructField(with(any(StructField.class)));
+			oneOf(builder).newStruct(with(tracker), with(StructDefnMatcher.match("test.names.Fred").locs(0,6).as(FieldsDefn.FieldsType.WRAPS)));
+			oneOf(builder).newStructField(with(tracker), with(any(StructField.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		final Tokenizable line = TDABasicIntroParsingTests.line("wraps Fred <- InstanceOfFred");
@@ -145,7 +145,7 @@ public class TDAStructIntroParsingTests {
 	@Test
 	public void structsInPackagesHaveQualifiedNames() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.names.InPackage")));
+			oneOf(builder).newStruct(with(tracker), with(StructDefnMatcher.match("test.names.InPackage")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("struct InPackage"));

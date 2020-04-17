@@ -29,7 +29,7 @@ public class TDADealIntroParsingTests {
 	@Test
 	public void theSimplestDealCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStruct(with(StructDefnMatcher.match("test.pkg.Cart").as(FieldsDefn.FieldsType.DEAL)));
+			oneOf(builder).newStruct(with(errors), with(StructDefnMatcher.match("test.pkg.Cart").as(FieldsDefn.FieldsType.DEAL)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("deal Cart"));

@@ -33,12 +33,12 @@ public class TDAContractIntroParsingTests {
 	public void theSimplestContractDefinitionAcceptsANameAndReturnsAMethodParser() {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
+			oneOf(builder).newContract(with(errors), with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		assertTrue(nested instanceof ContractMethodParser);
-		ContractDecl cd = (ContractDecl) captureIt.get(0);
+		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.CONTRACT, cd.type);
 	}
 
@@ -46,12 +46,12 @@ public class TDAContractIntroParsingTests {
 	public void aSimpleServiceContract() {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
+			oneOf(builder).newContract(with(errors), with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract service Data"));
 		assertTrue(nested instanceof ContractMethodParser);
-		ContractDecl cd = (ContractDecl) captureIt.get(0);
+		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.SERVICE, cd.type);
 	}
 
@@ -59,12 +59,12 @@ public class TDAContractIntroParsingTests {
 	public void aSimpleHandlerContract() {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
+			oneOf(builder).newContract(with(errors), with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract handler Data"));
 		assertTrue(nested instanceof ContractMethodParser);
-		ContractDecl cd = (ContractDecl) captureIt.get(0);
+		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(ContractType.HANDLER, cd.type);
 	}
 
@@ -72,13 +72,13 @@ public class TDAContractIntroParsingTests {
 	public void aContractMayHaveAMethod() {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
+			oneOf(builder).newContract(with(tracker), with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("foo"));
 		nested.scopeComplete(new InputPosition("-", 10, 0, "hello"));
-		ContractDecl cd = (ContractDecl) captureIt.get(0);
+		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(1, cd.methods.size());
 	}
 
@@ -86,14 +86,14 @@ public class TDAContractIntroParsingTests {
 	public void aContractMayHaveMultipleMethods() {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(builder).newContract(with(any(ContractDecl.class))); will(captureIt);
+			oneOf(builder).newContract(with(tracker), with(any(ContractDecl.class))); will(captureIt);
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("foo"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("bar"));
 		nested.scopeComplete(new InputPosition("-", 10, 0, "hello"));
-		ContractDecl cd = (ContractDecl) captureIt.get(0);
+		ContractDecl cd = (ContractDecl) captureIt.get(1);
 		assertEquals(2, cd.methods.size());
 	}
 

@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ServiceElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
@@ -55,7 +56,7 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 		services.add(o);
 	}
 
-	public void newHandler(HandlerImplements o) {
+	public void newHandler(ErrorReporter errors, HandlerImplements o) {
 		handlers.add(o);
 	}
 

@@ -64,7 +64,7 @@ public class TDAMethodParser {
 						KeywordToken kw = KeywordToken.from(toks);
 						if (kw == null || !"method".equals(kw.text))
 							return null;
-						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(new StandaloneMethod(m)), topLevel).parseMethod(namer, toks);
+						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel).parseMethod(namer, toks);
 					}
 					
 					@Override

@@ -118,7 +118,7 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	}
 
 	@Override
-	public void newHandler(HandlerImplements hi) {
+	public void newHandler(ErrorReporter errors, HandlerImplements hi) {
 		handlers.add(hi);
 	}
 	

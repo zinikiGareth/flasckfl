@@ -37,8 +37,8 @@ public class TDAFunctionParsingNestingTests {
 	@Test
 	public void weCanHaveTwoFunctionsInTheSameScope() {
 		context.checking(new Expectations() {{
-			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
-			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
+			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
+			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
 		parser.tryParsing(line("f = 42"));
 		parser.tryParsing(line("g = 86"));
@@ -62,8 +62,8 @@ public class TDAFunctionParsingNestingTests {
 	@Test
 	public void weCanHaveTwoFunctionsWithGuardsInTheSameScope() {
 		context.checking(new Expectations() {{
-			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
-			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
+			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
+			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
 		TDAParsing parser = TDAMultiParser.topLevelUnit(tracker, functionNamer, builder);
 		TDAParsing nested = parser.tryParsing(line("f"));

@@ -55,11 +55,11 @@ public class TDATopLevelCardParsingTests {
 		CaptureAction captureCard = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(builder).newCard(with(CardDefnMatcher.called("test.pkg.CardA"))); will(captureCard);
+			oneOf(builder).newCard(with(tracker), with(CardDefnMatcher.called("test.pkg.CardA"))); will(captureCard);
 		}});
 		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
 		cardParser = intro.tryParsing(TDABasicIntroParsingTests.line("card CardA"));
-		card = (CardDefinition) captureCard.get(0);
+		card = (CardDefinition) captureCard.get(1);
 	}
 
 	@Test
@@ -114,8 +114,8 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanHaveEventHandlers() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newObjectMethod(with(any(ObjectActionHandler.class)));
-			oneOf(builder).argument(with(any(VarPattern.class)));
+			oneOf(builder).newObjectMethod(with(tracker), with(any(ObjectActionHandler.class)));
+			oneOf(builder).argument(with(tracker), with(any(VarPattern.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("event foo ev"));
 		assertEquals(1, card.eventHandlers.size());
@@ -124,7 +124,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanHaveStandaloneMethods() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
+			oneOf(builder).newStandaloneMethod(with(tracker), with(any(StandaloneMethod.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("method m"));
 	}
@@ -132,7 +132,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsWithStandaloneMethodsDontCascadeErrorsBecausePatternParsingIsIgnored() {
 		context.checking(new Expectations() {{
-			oneOf(builder).argument(with(any(TypedPattern.class)));
+			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 		}});
 		// throw an error to simulate cascade
 		tracker.fakeErrorWithoutNeedingAssertion();
@@ -142,7 +142,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanHaveNestedFunctions() {
 		context.checking(new Expectations() {{
-			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
+			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
 		TDAParsing nested = cardParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
 		nested.scopeComplete(pos);
@@ -152,7 +152,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanHaveNestedHandlers() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
+			oneOf(builder).newHandler(with(tracker), with(any(HandlerImplements.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
 		assertEquals(1, card.handlers.size());
@@ -173,7 +173,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanUtilizeServicesThroughContracts() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newRequiredContract(with(any(RequiresContract.class)));
+			oneOf(builder).newRequiredContract(with(tracker), with(any(RequiresContract.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("requires org.ziniki.ContractName var"));
 		assertEquals(1, card.requires.size());
@@ -183,7 +183,7 @@ public class TDATopLevelCardParsingTests {
 	@Test
 	public void cardsCanDefineNestedTuples() {
 		context.checking(new Expectations() {{
-			oneOf(builder).tupleDefn(with(any(List.class)), with(any(FunctionName.class)), with(any(FunctionName.class)), with(any(Expr.class)));
+			oneOf(builder).tupleDefn(with(tracker), with(any(List.class)), with(any(FunctionName.class)), with(any(FunctionName.class)), with(any(Expr.class)));
 		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("(x,y) = f 2"));
 	}

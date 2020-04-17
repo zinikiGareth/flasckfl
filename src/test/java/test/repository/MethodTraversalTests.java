@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
@@ -52,6 +53,7 @@ public class MethodTraversalTests {
 	private List<UnresolvedVar> slotName = new ArrayList<>();
 	private AssignMessage msg2 = new AssignMessage(pos, slotName, new ApplyExpr(pos, dest, str));
 	private VarPattern destP = new VarPattern(pos, new VarName(pos, nameF, "dest"));
+	final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void traverseAMethodWithSendMessage() {
@@ -82,7 +84,7 @@ public class MethodTraversalTests {
 		args.add(destP);
 		dest.bind(destP);
 		om.sendMessage(msg1);
-		r.newStandaloneMethod(sm);
+		r.newStandaloneMethod(errors, sm);
 		r.traverse(v);
 	}
 
@@ -117,7 +119,7 @@ public class MethodTraversalTests {
 		dest.bind(destP);
 		om.assignMessage(msg2);
 		slotName.add(slotX);
-		r.newStandaloneMethod(sm);
+		r.newStandaloneMethod(errors, sm);
 		r.traverse(v);
 	}
 

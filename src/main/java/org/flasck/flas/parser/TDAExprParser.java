@@ -51,7 +51,7 @@ public class TDAExprParser implements TDAParsing {
 					term = new AnonymousVar(tok.location);
 				else if (consumer != null && tok.text.startsWith("_")) {
 					IntroduceVar iv = new IntroduceVar(tok.location, namer, tok.text.substring(1));
-					consumer.newIntroduction(iv);
+					consumer.newIntroduction(errors, iv);
 					term = iv;
 				} else {
 					errors.message(tok.location, "syntax error");

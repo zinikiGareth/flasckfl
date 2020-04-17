@@ -46,7 +46,7 @@ public class Main {
 		Repository repository = new Repository();
 		FLASCompiler compiler = new FLASCompiler(errors, repository, ew);
 //		compiler.scanWebZips();
-		LoadBuiltins.applyTo(repository);
+		LoadBuiltins.applyTo(errors, repository);
 		for (File input : config.inputs)
 			mark = compiler.processInput(mark, input);
 

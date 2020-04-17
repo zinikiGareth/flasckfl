@@ -49,7 +49,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			consumer.defineState(state);
 			seenState = true;
 			
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(topLevel, namer, state), FieldsType.STATE, false);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -93,7 +93,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final CSName cin = namer.csn(tn.location, "R");
 			final RequiresContract rc = new RequiresContract(kw.location, tn.location, (NamedType)consumer, ctr, cin, varloc, varname);
 			consumer.addRequiredContract(rc);
-			topLevel.newRequiredContract(rc);
+			topLevel.newRequiredContract(errors, rc);
 			return new NoNestingParser(errors);
 		}
 		case "implements": {
@@ -114,7 +114,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
-			MethodConsumer smConsumer = om -> { topLevel.newStandaloneMethod(new StandaloneMethod(om)); };
+			MethodConsumer smConsumer = om -> { topLevel.newStandaloneMethod(errors, new StandaloneMethod(om)); };
 			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel).parseMethod(namer, toks);
 		}
 		default:

@@ -21,6 +21,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.DuplicateNameException;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -206,127 +207,129 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 	
 	@Override
-	public void functionDefn(FunctionDefinition func) {
-		addEntry(func.name(), func);
+	public void functionDefn(ErrorReporter errors, FunctionDefinition func) {
+		addEntry(errors, func.name(), func);
 	}
 
 	@Override
-	public void tupleDefn(List<LocatedName> vars, FunctionName exprFnName, FunctionName pkgName, Expr expr) {
+	public void tupleDefn(ErrorReporter errors, List<LocatedName> vars, FunctionName exprFnName, FunctionName pkgName, Expr expr) {
 		TupleAssignment ta = new TupleAssignment(vars, exprFnName, pkgName, expr);
-		addEntry(exprFnName, ta);
+		addEntry(errors, exprFnName, ta);
 		NameOfThing pkg = pkgName.inContext;
 		int k=0;
 		for (LocatedName x : vars) {
 			FunctionName tn = FunctionName.function(x.location, pkg, x.text);
 			TupleMember tm = new TupleMember(x.location, ta, k++, tn);
-			addEntry(tn, tm);
+			addEntry(errors, tn, tm);
 			ta.addMember(tm);
 		}
 	}
 
 	@Override
-	public void argument(VarPattern parm) {
-		addEntry(parm.name(), parm);
+	public void argument(ErrorReporter errors, VarPattern parm) {
+		addEntry(errors, parm.name(), parm);
 	}
 
 	@Override
-	public void argument(TypedPattern parm) {
-		addEntry(parm.name(), parm);
+	public void argument(ErrorReporter errors, TypedPattern parm) {
+		addEntry(errors, parm.name(), parm);
 	}
 
 	@Override
-	public void newHandler(HandlerImplements hi) {
-		addEntry(hi.handlerName, hi);
+	public void newHandler(ErrorReporter errors, HandlerImplements hi) {
+		addEntry(errors, hi.handlerName, hi);
 	}
 
 	@Override
-	public void newAgent(AgentDefinition decl) {
-		addEntry(decl.cardName(), decl);
+	public void newAgent(ErrorReporter errors, AgentDefinition decl) {
+		addEntry(errors, decl.cardName(), decl);
 	}
 
 	@Override
-	public void newCard(CardDefinition decl) {
-		addEntry(decl.cardName(), decl);
+	public void newCard(ErrorReporter errors, CardDefinition decl) {
+		addEntry(errors, decl.cardName(), decl);
 	}
 
 	@Override
-	public void newService(ServiceDefinition svc) {
-		addEntry(svc.cardName(), svc);
+	public void newService(ErrorReporter errors, ServiceDefinition svc) {
+		addEntry(errors, svc.cardName(), svc);
 	}
 
 	@Override
-	public void newStandaloneMethod(StandaloneMethod meth) {
-		addEntry(meth.name(), meth);
+	public void newStandaloneMethod(ErrorReporter errors, StandaloneMethod meth) {
+		addEntry(errors, meth.name(), meth);
 	}
 
 	@Override
-	public void newObjectMethod(ObjectActionHandler om) {
-		addEntry(om.name(), om);
+	public void newObjectMethod(ErrorReporter errors, ObjectActionHandler om) {
+		addEntry(errors, om.name(), om);
 	}
 
 	@Override
-	public void newRequiredContract(RequiresContract rc) {
-		addEntry(rc.varName(), rc);
+	public void newRequiredContract(ErrorReporter errors, RequiresContract rc) {
+		addEntry(errors, rc.varName(), rc);
 	}
 	
 	@Override
-	public void newObjectContract(ObjectContract oc) {
-		addEntry(oc.varName(), oc);
+	public void newObjectContract(ErrorReporter errors, ObjectContract oc) {
+		addEntry(errors, oc.varName(), oc);
 	}
 	
 	@Override
-	public void newStruct(StructDefn sd) {
+	public void newStruct(ErrorReporter errors, StructDefn sd) {
 		sd.completePolyNames();
-		addEntry(sd.name(), sd);
+		addEntry(errors, sd.name(), sd);
 		for (PolyType p : sd.polys())
-			addEntry(p.name(), p);
+			addEntry(errors, p.name(), p);
 	}
 
 	@Override
-	public void newStructField(StructField sf) {
-		addEntry(sf.name(), sf);
+	public void newStructField(ErrorReporter errors, StructField sf) {
+		addEntry(errors, sf.name(), sf);
 	}
 
 	@Override
-	public void newUnion(UnionTypeDefn ud) {
-		addEntry(ud.name(), ud);
+	public void newUnion(ErrorReporter errors, UnionTypeDefn ud) {
+		addEntry(errors, ud.name(), ud);
 	}
 
 	@Override
-	public void newContract(ContractDecl decl) {
-		addEntry(decl.name(), decl);
+	public void newContract(ErrorReporter errors, ContractDecl decl) {
+		addEntry(errors, decl.name(), decl);
 	}
 
 	@Override
-	public void newObject(ObjectDefn od) {
+	public void newObject(ErrorReporter errors, ObjectDefn od) {
 		od.completePolyNames();
-		addEntry(od.name(), od);
+		addEntry(errors, od.name(), od);
 		for (PolyType p : od.polys())
-			addEntry(p.name(), p);
+			addEntry(errors, p.name(), p);
 	}
 
 	@Override
-	public void newObjectAccessor(ObjectAccessor oa) {
-		addEntry(oa.name(), oa);
+	public void newObjectAccessor(ErrorReporter errors, ObjectAccessor oa) {
+		addEntry(errors, oa.name(), oa);
 	}
 
-	public void unitTestPackage(UnitTestPackage pkg) {
-		addEntry(pkg.name(), pkg);
-	}
-
-	@Override
-	public void newTestData(UnitDataDeclaration data) {
-		addEntry(data.name(), data);
+	public void unitTestPackage(ErrorReporter errors, UnitTestPackage pkg) {
+		addEntry(errors, pkg.name(), pkg);
 	}
 
 	@Override
-	public void newIntroduction(IntroduceVar var) {
-		addEntry(var.name(), var);
+	public void newTestData(ErrorReporter errors, UnitDataDeclaration data) {
+		addEntry(errors, data.name(), data);
 	}
 
-	public void addEntry(final NameOfThing name, final RepositoryEntry entry) {
-		if (dict.containsKey(name.uniqueName()))
+	@Override
+	public void newIntroduction(ErrorReporter errors, IntroduceVar var) {
+		addEntry(errors, var.name(), var);
+	}
+
+	public void addEntry(ErrorReporter errors, final NameOfThing name, final RepositoryEntry entry) {
+		if (dict.containsKey(name.uniqueName())) {
+//			errors.
 			throw new DuplicateNameException(name);
+		}
 		dict.put(name.uniqueName(), entry);
 	}
 

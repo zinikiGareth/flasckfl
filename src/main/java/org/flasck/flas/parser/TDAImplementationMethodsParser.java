@@ -51,7 +51,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 						return new IgnoreNestedParser();
 					}
 					handler = new VarPattern(h.location, new VarName(h.location, methName, h.text));
-					topLevel.argument(handler);
+					topLevel.argument(errors, handler);
 					break;
 				} else {
 					errors.message(toks, "invalid argument name");
@@ -60,7 +60,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 			}
 			final VarPattern vp = new VarPattern(arg.location, new VarName(arg.location, methName, arg.text));
 			args.add(vp);
-			topLevel.argument(vp);
+			topLevel.argument(errors, vp);
 		}
 		if (toks.hasMore()) {
 			errors.message(toks, "syntax error");
@@ -68,7 +68,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 		}
 		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler);
 		consumer.addImplementationMethod(meth);
-		topLevel.newObjectMethod(meth);
+		topLevel.newObjectMethod(errors, meth);
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);
 		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action");
 		return new TDAMethodMessageParser(errors, meth, nestedParser);

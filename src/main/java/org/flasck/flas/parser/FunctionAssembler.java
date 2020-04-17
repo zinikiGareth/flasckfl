@@ -29,7 +29,7 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 		FunctionName fname = (FunctionName) next.name().inContext;
 		if (curr == null || !fname.equals(curr.name())) {
 			if (curr != null)
-				consumer.functionDefn(curr);
+				consumer.functionDefn(errors, curr);
 			curr = new FunctionDefinition(fname, next.args.size());
 			broken = false;
 		}
@@ -44,7 +44,7 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 	@Override
 	public void moveOn() {
 		if (!broken && curr != null)
-			consumer.functionDefn(curr);
+			consumer.functionDefn(errors, curr);
 		curr = null;
 		broken = false;
 	}

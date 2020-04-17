@@ -32,7 +32,7 @@ public class TDAMethodIntroParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
-			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
+			oneOf(builder).newStandaloneMethod(with(errors), with(any(StandaloneMethod.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method foo"));
@@ -46,8 +46,8 @@ public class TDAMethodIntroParsingTests {
 			allowing(errors).hasErrors(); will(returnValue(false));
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
-			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
-			oneOf(builder).argument((VarPattern) with(VarPatternMatcher.var("test.pkg.foo.x")));
+			oneOf(builder).newStandaloneMethod(with(errors), with(any(StandaloneMethod.class)));
+			oneOf(builder).argument(with(errors), (VarPattern) with(VarPatternMatcher.var("test.pkg.foo.x")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("method foo x"));

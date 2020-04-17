@@ -40,7 +40,7 @@ public class FunctionAssemblerTests {
 	public void aSimpleIntroByItselfIsAssembled() {
 		context.checking(new Expectations() {
 			{
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0).intros(1)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0).intros(1)));
 			}
 		});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
@@ -52,8 +52,8 @@ public class FunctionAssemblerTests {
 	public void aScopeCanHaveTwoFunctions() {
 		context.checking(new Expectations() {
 			{
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0).intros(1)));
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0).intros(1)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 			}
 		});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
@@ -66,8 +66,8 @@ public class FunctionAssemblerTests {
 	public void aScopeCanHaveTwoFunctionsSpreadAcrossMultipleIntros() {
 		context.checking(new Expectations() {
 			{
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0)));
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(2)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(2)));
 			}
 		});
 		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
@@ -83,9 +83,9 @@ public class FunctionAssemblerTests {
 	public void aScopeCannotHaveDefinitionsInARandomOrder() {
 		context.checking(new Expectations() {
 			{
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0)));
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 				will(throwException(new DuplicateNameException(pkg)));
 			}
 		});
@@ -102,8 +102,8 @@ public class FunctionAssemblerTests {
 	public void aScopeCannotHaveDefinitionsDividedByOtherElements() {
 		context.checking(new Expectations() {
 			{
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
-				oneOf(consumer).functionDefn(with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
+				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 				will(throwException(new DuplicateNameException(pkg)));
 			}
 		});

@@ -32,7 +32,7 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void theSimplestObjectCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store")));
+			oneOf(builder).newObject(with(errors), with(ObjectDefnMatcher.match("test.pkg.Store")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
@@ -42,8 +42,8 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void anObjectCanIncludeAFunction() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store")));
-			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
+			oneOf(builder).newObject(with(tracker), with(ObjectDefnMatcher.match("test.pkg.Store")));
+			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
@@ -56,8 +56,8 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void objectsCanHaveNestedHandlers() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store")));
-			oneOf(builder).newHandler(with(HandlerImplementsMatcher.named("test.pkg.Store.Handler")));
+			oneOf(builder).newObject(with(tracker), with(ObjectDefnMatcher.match("test.pkg.Store")));
+			oneOf(builder).newHandler(with(tracker), with(HandlerImplementsMatcher.named("test.pkg.Store.Handler")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store"));
@@ -91,7 +91,7 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void aPolymorphicObjectDefinitionCreatesTheRightScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.Store").poly("A").locs(0,7)));
+			oneOf(builder).newObject(with(errors), with(ObjectDefnMatcher.match("test.pkg.Store").poly("A").locs(0,7)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object Store A"));
@@ -123,7 +123,7 @@ public class TDAObjectIntroParsingTests {
 	@Test
 	public void objectsInPackagesHaveQualifiedNames() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newObject(with(ObjectDefnMatcher.match("test.pkg.InPackage")));
+			oneOf(builder).newObject(with(errors), with(ObjectDefnMatcher.match("test.pkg.InPackage")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("object InPackage"));

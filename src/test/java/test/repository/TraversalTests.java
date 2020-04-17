@@ -19,6 +19,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -84,11 +85,12 @@ public class TraversalTests {
 	final Repository r = new Repository();
 	final HSIVisitor v = context.mock(HSIVisitor.class);
 	final Traverser t = new Traverser(v);
+	final ErrorReporter errors = context.mock(ErrorReporter.class);
 
 	@Test
 	public void traversePrimitive() {
 		Primitive p = new Primitive(pos, "Foo");
-		r.addEntry(p.name(), p);
+		r.addEntry(errors, p.name(), p);
 		context.checking(new Expectations() {{
 			oneOf(v).visitPrimitive(p);
 			oneOf(v).traversalDone();
@@ -99,7 +101,7 @@ public class TraversalTests {
 	@Test
 	public void traverseStructDefn() {
 		StructDefn s = new StructDefn(pos, FieldsType.STRUCT, "foo.bar", "MyStruct", true);
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).leaveStructDefn(s);
@@ -115,8 +117,8 @@ public class TraversalTests {
 		StructField sf = new StructField(pos, false, tr, "x");
 		s.addField(sf);
 		sf.fullName(new VarName(sf.loc,s.name, sf.name));
-		r.addEntry(s.name(), s);
-		r.addEntry(sf.name(), sf);
+		r.addEntry(errors, s.name(), s);
+		r.addEntry(errors, sf.name(), sf);
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).visitStructField(sf);
@@ -135,8 +137,8 @@ public class TraversalTests {
 		StructField sf = new StructField(pos, true, tr, "x");
 		s.addField(sf);
 		sf.fullName(new VarName(sf.loc,s.name, sf.name));
-		r.addEntry(s.name(), s);
-		r.addEntry(sf.name(), sf);
+		r.addEntry(errors, s.name(), s);
+		r.addEntry(errors, sf.name(), sf);
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).visitStructField(sf);
@@ -154,7 +156,7 @@ public class TraversalTests {
 	public void traverserDoesNotVisitPolyTypes() {
 		PolyType pa = new PolyType(pos, "A");
 		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "MyStruct"), true, Arrays.asList(pa));
-		r.newStruct(s);
+		r.newStruct(errors, s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).leaveStructDefn(s);
@@ -166,7 +168,7 @@ public class TraversalTests {
 	@Test
 	public void traverseObjectDefn() {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).leaveObjectDefn(s);
@@ -182,7 +184,7 @@ public class TraversalTests {
 		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "s");
 		sd.addField(sf);
 		s.defineState(sd);
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).visitStateDefinition(sd);
@@ -204,7 +206,7 @@ public class TraversalTests {
 		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", sl);
 		sd.addField(sf);
 		s.defineState(sd);
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).visitStateDefinition(sd);
@@ -228,7 +230,7 @@ public class TraversalTests {
 		s.methods.add(meth);
 		ObjectAccessor oa = new ObjectAccessor(s, new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2));
 		s.acors.add(oa);
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).leaveObjectDefn(s);
@@ -240,7 +242,7 @@ public class TraversalTests {
 	@Test
 	public void traverseAgentDefn() {
 		AgentDefinition s = new AgentDefinition(pos, pos, new CardName(pkg, "AnAgent"));
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).leaveAgentDefn(s);
@@ -257,7 +259,7 @@ public class TraversalTests {
 		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", sl);
 		sd.addField(sf);
 		s.defineState(sd);
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitStateDefinition(sd);
@@ -280,7 +282,7 @@ public class TraversalTests {
 		TypeReference fred = new TypeReference(pos, "Fred");
 		Provides p = new Provides(pos, pos, s, fred, new CSName(an, "S0"));
 		s.addProvidedService(p);
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
@@ -301,7 +303,7 @@ public class TraversalTests {
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null);
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
@@ -322,7 +324,7 @@ public class TraversalTests {
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null);
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
-		r.addEntry(s.name(), s);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
@@ -343,8 +345,8 @@ public class TraversalTests {
 		TypeReference tr = new TypeReference(pos, "Svc");
 		RequiresContract rc = new RequiresContract(pos, pos, s, tr, new CSName(an, "S0"), pos, "svc");
 		s.addRequiredContract(rc);
-		r.newRequiredContract(rc);
-		r.addEntry(s.name(), s);
+		r.newRequiredContract(errors, rc);
+		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitRequires(rc);
@@ -364,7 +366,7 @@ public class TraversalTests {
 		acorFn.intro(fi);
 		ObjectAccessor oa = new ObjectAccessor(s, acorFn);
 		s.acors.add(oa);
-		r.addEntry(oa.name(), oa);
+		r.addEntry(errors, oa.name(), oa);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectAccessor(oa);
 			oneOf(v).visitFunction(oa.function());
@@ -383,7 +385,7 @@ public class TraversalTests {
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
 		s.methods.add(meth);
-		r.addEntry(meth.name(), meth);
+		r.addEntry(errors, meth.name(), meth);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectMethod(meth);
 			oneOf(v).leaveObjectMethod(meth);
@@ -398,7 +400,7 @@ public class TraversalTests {
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
 		s.methods.add(meth);
-		r.addEntry(meth.name(), meth);
+		r.addEntry(errors, meth.name(), meth);
 		context.checking(new Expectations() {{
 			oneOf(v).visitObjectMethod(meth);
 			oneOf(v).leaveObjectMethod(meth);
@@ -411,7 +413,7 @@ public class TraversalTests {
 	public void traverseStandaloneMethodFromTheRepository() {
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
 		StandaloneMethod sm = new StandaloneMethod(meth);
-		r.addEntry(sm.name(), sm);
+		r.addEntry(errors, sm.name(), sm);
 		context.checking(new Expectations() {{
 			oneOf(v).visitStandaloneMethod(sm);
 			oneOf(v).visitObjectMethod(meth);
@@ -425,7 +427,7 @@ public class TraversalTests {
 	@Test
 	public void traverseContract() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
-		r.addEntry(cd.name(), cd);
+		r.addEntry(errors, cd.name(), cd);
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
 			oneOf(v).leaveContractDecl(cd);
@@ -439,7 +441,7 @@ public class TraversalTests {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Contr"));
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cd.name(), "meth"), new ArrayList<>(), null);
 		cd.addMethod(cmd);
-		r.addEntry(cd.name(), cd);
+		r.addEntry(errors, cd.name(), cd);
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
 			oneOf(v).visitContractMethod(cmd);
@@ -457,7 +459,7 @@ public class TraversalTests {
 		TypeReference tr = new TypeReference(pos, "HandlerType");
 		cmd.args.add(new TypedPattern(pos, tr, new VarName(pos, cmd.name, "handler")));
 		cd.addMethod(cmd);
-		r.addEntry(cd.name(), cd);
+		r.addEntry(errors, cd.name(), cd);
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
 			oneOf(v).visitContractMethod(cmd);
@@ -624,8 +626,8 @@ public class TraversalTests {
 		utc.steps.add(uta);
 		UnitTestExpect ute = new UnitTestExpect(new UnresolvedVar(pos, "ctr"), new UnresolvedVar(pos, "meth"), new Expr[] { new StringLiteral(pos, "hello") }, new AnonymousVar(pos));
 		utc.steps.add(ute);
-		r.newTestData(udd);
-		r.addEntry(name, utp);
+		r.newTestData(errors, udd);
+		r.addEntry(errors, name, utp);
 		context.checking(new Expectations() {{
 			oneOf(v).visitUnitTestPackage(utp);
 			oneOf(v).visitUnitTest(utc);
@@ -673,7 +675,7 @@ public class TraversalTests {
 		ApplyExpr inv = new ApplyExpr(pos, f, hello);
 		UnitTestSend uts = new UnitTestSend(new UnresolvedVar(pos, "card"), tr, inv);
 		utc.steps.add(uts);
-		r.addEntry(name, utp);
+		r.addEntry(errors, name, utp);
 		context.checking(new Expectations() {{
 			oneOf(v).visitUnitTestPackage(utp);
 			oneOf(v).visitUnitTest(utc);
@@ -700,8 +702,8 @@ public class TraversalTests {
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, true, tr, FunctionName.function(pos, name, "ut"), null);
 		utp.data(udd);
-		r.newTestData(udd);
-		r.addEntry(name, utp);
+		r.newTestData(errors, udd);
+		r.addEntry(errors, name, utp);
 		context.checking(new Expectations() {{
 			oneOf(v).visitUnitTestPackage(utp);
 			oneOf(v).visitUnitDataDeclaration(udd);
@@ -783,7 +785,7 @@ public class TraversalTests {
 		TupleAssignment ta = new TupleAssignment(vars, fta, fa, expr);
 		ta.addMember(new TupleMember(pos, ta, 0, fa));
 		ta.addMember(new TupleMember(pos, ta, 1, FunctionName.function(pos, null, "b")));
-		r.addEntry(fta, ta);
+		r.addEntry(errors, fta, ta);
 		Sequence seq = context.sequence("tuple");
 		context.checking(new Expectations() {{
 			oneOf(v).visitTuple(ta); inSequence(seq);

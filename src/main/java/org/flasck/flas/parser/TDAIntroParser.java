@@ -75,21 +75,21 @@ public class TDAIntroParser implements TDAParsing {
 			case "agent": {
 				AgentDefinition agent = new AgentDefinition(kw.location, tn.location, qn);
 				hb = agent;
-				consumer.newAgent(agent);
+				consumer.newAgent(errors, agent);
 				sh = errors -> new TDAAgentElementsParser(errors, new ObjectNestedNamer(qn), agent, consumer);
 				break;
 			}
 			case "card": {
 				CardDefinition card = new CardDefinition(kw.location, tn.location, qn);
 				hb = card;
-				consumer.newCard(card);
+				consumer.newCard(errors, card);
 				sh = errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer);
 				break;
 			}
 			case "service": {
 				ServiceDefinition svc = new ServiceDefinition(kw.location, tn.location, qn);
 				hb = svc;
-				consumer.newService(svc);
+				consumer.newService(errors, svc);
 				sh = errors -> new TDAServiceElementsParser(errors, new ObjectNestedNamer(qn), svc, consumer);
 				break;
 			}
@@ -128,8 +128,8 @@ public class TDAIntroParser implements TDAParsing {
 			}
 			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
 			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, namer.solidName(tn.text), true, polys);
-			consumer.newStruct(sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), ty, true);
+			consumer.newStruct(errors, sd);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), ty, true);
 		}
 		case "wraps": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -152,8 +152,8 @@ public class TDAIntroParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, namer.solidName(tn.text), true, new ArrayList<>());
-			consumer.newStruct(sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), FieldsType.WRAPS, false);
+			consumer.newStruct(errors, sd);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), FieldsType.WRAPS, false);
 		}
 		case "union": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
@@ -171,7 +171,7 @@ public class TDAIntroParser implements TDAParsing {
 					polys.add(new PolyType(ta.location, ta.text));
 			}
 			final UnionTypeDefn ud = new UnionTypeDefn(tn.location, true, namer.solidName(tn.text), polys);
-			consumer.newUnion(ud);
+			consumer.newUnion(errors, ud);
 			return new TDAUnionFieldParser(errors, ud);
 		}
 		case "object": {
@@ -195,7 +195,7 @@ public class TDAIntroParser implements TDAParsing {
 			}
 			final SolidName on = namer.solidName(tn.text);
 			ObjectDefn od = new ObjectDefn(kw.location, tn.location, on, true, polys);
-			consumer.newObject(od);
+			consumer.newObject(errors, od);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
 			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
@@ -233,7 +233,7 @@ public class TDAIntroParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			ContractDecl decl = new ContractDecl(kw.location, tn.location, ct, namer.solidName(tn.text));
-			consumer.newContract(decl);
+			consumer.newContract(errors, decl);
 			return new ContractMethodParser(errors, decl, consumer, decl.name());
 		}
 		case "handler": {
@@ -243,7 +243,7 @@ public class TDAIntroParser implements TDAParsing {
 		case "method": {
 //			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
 //			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
-			MethodConsumer smConsumer = om -> { consumer.newStandaloneMethod(new StandaloneMethod(om)); };
+			MethodConsumer smConsumer = om -> { consumer.newStandaloneMethod(errors, new StandaloneMethod(om)); };
 			return new TDAMethodParser(errors, namer, smConsumer, consumer).parseMethod(namer, toks);
 		}
 		default:

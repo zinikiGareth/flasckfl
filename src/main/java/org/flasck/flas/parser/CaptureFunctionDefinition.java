@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
@@ -21,31 +22,31 @@ public class CaptureFunctionDefinition implements FunctionScopeUnitConsumer {
 		this.consumer = consumer;
 	}
 
-	public void functionDefn(FunctionDefinition func) {
-		consumer.functionDefn(func);
+	public void functionDefn(ErrorReporter errors, FunctionDefinition func) {
+		consumer.functionDefn(errors, func);
 	}
 
-	public void tupleDefn(List<LocatedName> vars, FunctionName leadName, FunctionName pkgName, Expr expr) {
-		topLevel.tupleDefn(vars, leadName, pkgName, expr);
+	public void tupleDefn(ErrorReporter errors, List<LocatedName> vars, FunctionName leadName, FunctionName pkgName, Expr expr) {
+		topLevel.tupleDefn(errors, vars, leadName, pkgName, expr);
 	}
 
-	public void newHandler(HandlerImplements hi) {
-		topLevel.newHandler(hi);
+	public void newHandler(ErrorReporter errors, HandlerImplements hi) {
+		topLevel.newHandler(errors, hi);
 	}
 
-	public void newStandaloneMethod(StandaloneMethod meth) {
-		topLevel.newStandaloneMethod(meth);
+	public void newStandaloneMethod(ErrorReporter errors, StandaloneMethod meth) {
+		topLevel.newStandaloneMethod(errors, meth);
 	}
 
-	public void newObjectMethod(ObjectActionHandler om) {
-		topLevel.newObjectMethod(om);
+	public void newObjectMethod(ErrorReporter errors, ObjectActionHandler om) {
+		topLevel.newObjectMethod(errors, om);
 	}
 
-	public void argument(VarPattern parm) {
-		topLevel.argument(parm);
+	public void argument(ErrorReporter errors, VarPattern parm) {
+		topLevel.argument(errors, parm);
 	}
 
-	public void argument(TypedPattern with) {
-		topLevel.argument(with);
+	public void argument(ErrorReporter errors, TypedPattern with) {
+		topLevel.argument(errors, with);
 	}
 }

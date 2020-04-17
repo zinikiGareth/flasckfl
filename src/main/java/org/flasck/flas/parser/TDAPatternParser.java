@@ -157,7 +157,7 @@ public class TDAPatternParser implements TDAParsing {
 		final VarPattern vp = new VarPattern(initial.location, namer.nameVar(initial.location, initial.text));
 		consumer.accept(vp);
 		try {
-			topLevel.argument(vp);
+			topLevel.argument(errors, vp);
 		} catch (DuplicateNameException ex) {
 			errors.message(vp.location(), "duplicate function argument " + vp.var);
 		}
@@ -183,7 +183,7 @@ public class TDAPatternParser implements TDAParsing {
 		if (tok.type == PattToken.VAR) {
 			TypedPattern m = new TypedPattern(type.location, tr, namer.nameVar(tok.location, tok.text));
 			consumer.accept(m);
-			topLevel.argument(m);
+			topLevel.argument(errors, m);
 			return this;
 		} else if (tr.hasPolys()) {
 			errors.message(toks, "type parameters can only be used with type patterns");

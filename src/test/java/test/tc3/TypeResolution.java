@@ -52,7 +52,7 @@ public class TypeResolution {
 
 	@Before
 	public void begin() {
-		LoadBuiltins.applyTo(repository);
+		LoadBuiltins.applyTo(errors, repository);
 		context.checking(new Expectations() {{
 			allowing(sv);
 			allowing(grp).isEmpty(); will(returnValue(false));

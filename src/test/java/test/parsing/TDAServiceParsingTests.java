@@ -47,11 +47,11 @@ public class TDAServiceParsingTests {
 		CaptureAction captureCard = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
-			oneOf(builder).newService(with(ServiceDefnMatcher.called("test.pkg.ServiceA"))); will(captureCard);
+			oneOf(builder).newService(with(tracker), with(ServiceDefnMatcher.called("test.pkg.ServiceA"))); will(captureCard);
 		}});
 		TDAIntroParser intro = new TDAIntroParser(tracker, namer, builder);
 		serviceParser = intro.tryParsing(TDABasicIntroParsingTests.line("service ServiceA"));
-		svc = (ServiceDefinition) captureCard.get(0);
+		svc = (ServiceDefinition) captureCard.get(1);
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class TDAServiceParsingTests {
 	@Test
 	public void servicesCanHaveStandaloneMethods() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newStandaloneMethod(with(any(StandaloneMethod.class)));
+			oneOf(builder).newStandaloneMethod(with(tracker), with(any(StandaloneMethod.class)));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("method m"));
 	}
@@ -89,7 +89,7 @@ public class TDAServiceParsingTests {
 	@Test
 	public void servicesCanHaveNestedFunctions() {
 		context.checking(new Expectations() {{
-			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
+			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("f = 42"));
 		serviceParser.scopeComplete(null);
@@ -98,7 +98,7 @@ public class TDAServiceParsingTests {
 	@Test
 	public void servicesCanHaveNestedHandlers() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newHandler(with(HandlerImplementsMatcher.named("test.pkg.ServiceA.Handler")));
+			oneOf(builder).newHandler(with(tracker), with(HandlerImplementsMatcher.named("test.pkg.ServiceA.Handler")));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("handler Contract Handler"));
 	}
@@ -116,7 +116,7 @@ public class TDAServiceParsingTests {
 	@Test
 	public void cardsCanDefineNestedTuples() {
 		context.checking(new Expectations() {{
-			oneOf(builder).tupleDefn(with(any(List.class)), with(any(FunctionName.class)), with(any(FunctionName.class)), with(any(Expr.class)));
+			oneOf(builder).tupleDefn(with(tracker), with(any(List.class)), with(any(FunctionName.class)), with(any(FunctionName.class)), with(any(Expr.class)));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("(x,y) = f 2"));
 	}

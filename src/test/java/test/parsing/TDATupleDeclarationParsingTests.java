@@ -198,7 +198,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("_tuple_x")); will(returnValue(tnName));
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("x")); will(returnValue(fnName));
-			oneOf(builder).tupleDefn(with(any(List.class)), with(tnName), with(fnName), with(any(Expr.class)));
+			oneOf(builder).tupleDefn(with(tracker), with(any(List.class)), with(tnName), with(fnName), with(any(Expr.class)));
 		}});
 		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
 		TDAParsing nested = parser.tryParsing(line);

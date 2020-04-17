@@ -61,7 +61,7 @@ public class TCStateTests {
 
 	@Before
 	public void begin() {
-		LoadBuiltins.applyTo(repository);
+		LoadBuiltins.applyTo(errors, repository);
 		context.checking(new Expectations() {{
 			fnF.intro(fiF1);
 			fnF.intro(fiF2);

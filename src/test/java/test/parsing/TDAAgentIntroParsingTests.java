@@ -33,7 +33,7 @@ public class TDAAgentIntroParsingTests {
 	@Test
 	public void theSimplestagentCreatesAScopeEntryAndReturnsAFieldParser() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newAgent(with(AgentDefnMatcher.match("test.pkg.JamesBond")));
+			oneOf(builder).newAgent(with(errors), with(AgentDefnMatcher.match("test.pkg.JamesBond")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("agent JamesBond"));
@@ -43,8 +43,8 @@ public class TDAAgentIntroParsingTests {
 	@Test
 	public void anagentCanIncludeAFunction() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newAgent(with(AgentDefnMatcher.match("test.pkg.JamesBond")));
-			oneOf(builder).functionDefn(with(any(FunctionDefinition.class)));
+			oneOf(builder).newAgent(with(tracker), with(AgentDefnMatcher.match("test.pkg.JamesBond")));
+			oneOf(builder).functionDefn(with(tracker), with(any(FunctionDefinition.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("agent JamesBond"));
@@ -56,8 +56,8 @@ public class TDAAgentIntroParsingTests {
 	@Test
 	public void agentsCanHaveNestedHandlers() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newAgent(with(AgentDefnMatcher.match("test.pkg.JamesBond")));
-			oneOf(builder).newHandler(with(HandlerImplementsMatcher.named("test.pkg.JamesBond.Handler")));
+			oneOf(builder).newAgent(with(tracker), with(AgentDefnMatcher.match("test.pkg.JamesBond")));
+			oneOf(builder).newHandler(with(tracker), with(HandlerImplementsMatcher.named("test.pkg.JamesBond.Handler")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("agent JamesBond"));
@@ -102,7 +102,7 @@ public class TDAAgentIntroParsingTests {
 	@Test
 	public void agentsInPackagesHaveQualifiedNames() {
 		context.checking(new Expectations() {{
-			oneOf(builder).newAgent(with(AgentDefnMatcher.match("test.pkg.InPackage")));
+			oneOf(builder).newAgent(with(errors), with(AgentDefnMatcher.match("test.pkg.InPackage")));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(errors, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("agent InPackage"));
