@@ -25,6 +25,7 @@ public interface JSBlockCreator {
 	JSExpr jsArray(Iterable<JSExpr> arr);
 	JSExpr makeTuple(JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
+	JSExpr callStatic(String clz, String meth);
 	JSExpr cxtMethod(String meth, JSExpr... args);
 	JSExpr pushFunction(String meth);
 	JSExpr pushConstructor(String clz);
@@ -48,7 +49,8 @@ public interface JSBlockCreator {
 	// create an object of clz and store in a field
 	JSExpr fieldObject(String field, String clz);
 	void stateField();
-	void setField(String field, JSExpr expr);
+	void setField(String field, JSExpr value);
+	void setField(JSExpr obj, String field, JSExpr value);
 	JSExpr fromCard();
 	JSVar arg(int pos);
 

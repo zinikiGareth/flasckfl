@@ -43,6 +43,8 @@ const FLClosure = function(obj, fn, args) {
 }
 
 FLClosure.prototype.eval = function(_cxt) {
+	if (this.val)
+		return this.val;
 	this.args[0] = _cxt;
 	this.obj = _cxt.full(this.obj);
 	var cnt = this.fn.nfargs();
@@ -207,6 +209,16 @@ FLContext.prototype.mkacor = function(meth, obj, cnt) {
 		return this.oclosure(meth, obj);
 	else
 		return this.ocurry(cnt, meth, obj);
+}
+
+FLContext.prototype.makeStatic = function(clz, meth) {
+	const oc = this.objectNamed(clz);
+	const ocm = oc[meth];
+	const ret = function(...args) {
+		return ocm.apply(null, args);
+	};
+	ret.nfargs = ocm.nfargs;
+	return ret;
 }
 
 FLContext.prototype.head = function(obj) {

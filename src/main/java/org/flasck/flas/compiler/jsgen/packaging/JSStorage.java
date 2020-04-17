@@ -9,6 +9,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.ObjectDefn;
 
 public interface JSStorage {
 
@@ -22,7 +23,9 @@ public interface JSStorage {
 	Iterable<File> files();
 
 	void contract(ContractDecl cd);
+	void object(ObjectDefn cd);
 	void handler(HandlerImplements hi);
 
 	void complete();
+
 }

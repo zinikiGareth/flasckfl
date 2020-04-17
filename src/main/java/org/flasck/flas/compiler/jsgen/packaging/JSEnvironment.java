@@ -18,6 +18,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.zinutils.utils.FileUtils;
 
 /** The idea here is to create a set of "package" files in memory with abstract constructs.
@@ -30,6 +31,7 @@ public class JSEnvironment implements JSStorage {
 	private final Map<String, JSFile> files = new TreeMap<String, JSFile>();
 	private final File root;
 	private final List<ContractDecl> contracts = new ArrayList<>();
+	private final List<ObjectDefn> objects = new ArrayList<>();
 	private final List<HandlerImplements> handlers = new ArrayList<>();
 
 	public JSEnvironment(File root) {
@@ -87,6 +89,11 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
+	public void object(ObjectDefn cd) {
+		objects.add(cd);
+	}
+
+	@Override
 	public void handler(HandlerImplements hi) {
 		handlers.add(hi);
 	}
@@ -101,6 +108,8 @@ public class JSEnvironment implements JSStorage {
 			ifn.argument("_cxt");
 			for (ContractDecl cd : contracts)
 				ifn.cxtMethod("registerContract", new JSString(cd.name().uniqueName()), ifn.newOf(cd.name()));
+			for (ObjectDefn od : objects)
+				ifn.cxtMethod("registerObject", new JSString(od.name().uniqueName()), ifn.literal(od.name().uniqueName()));
 			for (HandlerImplements hi : handlers)
 				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().uniqueName()));
 			p.getValue().addFunction(ifn);

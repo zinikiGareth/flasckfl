@@ -161,6 +161,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr callStatic(String clz, String meth) {
+		JSLocal stmt = new JSLocal(creating, new JSCxtMethod("makeStatic", string(clz), string(meth)));
+		stmts.add(stmt);
+		return stmt;
+	}
+
+	@Override
 	public JSExpr cxtMethod(String meth, JSExpr... args) {
 		JSLocal stmt = new JSLocal(creating, new JSCxtMethod(meth, args));
 		stmts.add(stmt);
@@ -396,6 +403,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void setField(String field, JSExpr expr) {
 		stmts.add(new JSSetField(field, expr));
+	}
+
+	@Override
+	public void setField(JSExpr on, String field, JSExpr expr) {
+		stmts.add(new JSSetField(on, field, expr));
 	}
 
 	@Override

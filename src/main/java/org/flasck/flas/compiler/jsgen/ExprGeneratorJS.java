@@ -12,6 +12,7 @@ import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSResponseWithMessages;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
@@ -191,11 +192,19 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof IntroduceVar) {
 			sv.result(block.fromIntroduction(state.resolveIntroduction((IntroduceVar) defn)));
 		} else if (defn instanceof ObjectCtor) {
+			ObjectCtor oc = (ObjectCtor) defn;
+			JSExpr fn = block.callStatic(oc.name().container().jsName(), oc.name().name);
 			if (nargs == 0) {
-				ObjectCtor oc = (ObjectCtor) defn;
-				makeFunctionClosure(myName, oc.argCountIncludingContracts());
+				int expArgs = oc.argCountIncludingContracts();
+				JSExpr[] args = new JSExpr[] { fn };
+				JSExpr call;
+				if (expArgs > 0)
+					call = block.curry(expArgs, args);
+				else
+					call = block.closure(args);
+				sv.result(new JSResponseWithMessages(call));
 			} else
-				sv.result(block.pushFunction(myName));
+				sv.result(fn);
 		} else
 			throw new NotImplementedException("cannot generate fn for " + defn);
 	}

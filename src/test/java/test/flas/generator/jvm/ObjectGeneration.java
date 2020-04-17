@@ -15,7 +15,6 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
 import org.jmock.Expectations;
-import org.jmock.Sequence;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;

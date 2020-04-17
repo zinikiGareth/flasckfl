@@ -35,11 +35,13 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -104,6 +106,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
 	private ObjectCtor currentOC;
+	private JSExpr ocret;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -221,19 +224,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			return;
 		String pkg = ((SolidName)obj.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, obj.name().container().jsName());
+		jse.object(obj);
 		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
 		JSBlockCreator ctor = ctr.constructor();
 		ctor.stateField();
-		/* DEPRECATED - use CTORs instead */
-		this.meth = ctr.createMethod("eval", false);
-		this.meth.argument("_cxt");
-		this.evalRet = meth.newOf(obj.name());
-		this.block = meth;
-		this.structFieldHandler = sf -> {
-			if (sf.init != null)
-				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
-		};
-		/* END DEPRECATED */
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(obj, methods);
 		jse.methodList(obj.name(), methods);
@@ -253,15 +247,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator meth = jse.newFunction(pkg, cxName, true, "_field_" + sf.name);
 		meth.argument("_cxt");
 		meth.returnObject(meth.loadField(StateLocation.LOCAL, sf.name));
-	}
-	
-	@Override
-	public void leaveObjectDefn(ObjectDefn obj) {
-		if (evalRet != null)
-			meth.returnObject(evalRet);
-		this.block = null;
-		this.evalRet = null;
-		this.meth = null;
 	}
 	
 	@Override
@@ -320,6 +305,22 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth.argument("_" + i);
 		this.block = meth;
 		this.state = new JSFunctionStateStore(StateLocation.LOCAL, container);
+		
+		ObjectDefn od = oc.getObject();
+		this.ocret = meth.newOf(od.name());
+		for (ObjectContract ctr : od.contracts) {
+			String cname = "_ctr_" + ctr.varName().var;
+			meth.argument(cname);
+			meth.copyContract(ocret, ctr.varName().var, cname);
+		}
+
+	}
+	
+	@Override
+	public void visitStateDefinition(StateDefinition state) {
+		if (ocret != null) {
+			new ObjectCtorStateGeneratorJS(this.state, sv, currentOC.getObject(), this.block, ocret);
+		}
 	}
 	
 	@Override
@@ -338,7 +339,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void startInline(FunctionIntro fi) {
 		if (currentOC != null)
-			new ObjectCtorGeneratorJS(state, sv, currentOC.getObject(), this.meth);
+			new ObjectCtorGeneratorJS(state, sv, currentOC.getObject(), this.meth, this.ocret);
 		else
 			sv.push(new GuardGeneratorJS(state, sv, this.block));
 	}
@@ -437,6 +438,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = null;
 		this.state = null;
 		this.currentOC = null;
+		this.ocret = null;
 	}
 
 	@Override
@@ -575,12 +577,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 				mock = meth.mockContract((SolidName) objty.name());
 			state.addMock(udd, mock);
 			explodingMocks.add(mock);
-		} else if (objty instanceof ObjectDefn) {
-			JSExpr obj = meth.createObject((SolidName) objty.name());
-			state.addMock(udd, obj);
 		} else if (objty instanceof AgentDefinition) {
 			JSExpr obj = meth.createAgent((CardName) objty.name());
 			state.addMock(udd, obj);
+		} else if (objty instanceof ObjectDefn) {
+			new UDDGeneratorJS(sv, meth, state, this.block);
 		} else if (objty instanceof HandlerImplements) {
 			new UDDGeneratorJS(sv, meth, state, this.block);
 		} else {

@@ -9,8 +9,6 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
-import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
-import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -34,22 +32,17 @@ public class ObjectGenerationJS {
 		SolidName sn = new SolidName(pkg, "Obj");
 		JSClassCreator clz = context.mock(JSClassCreator.class);
 		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
-		JSMethodCreator eval = context.mock(JSMethodCreator.class);
-		JSExpr obj = context.mock(JSExpr.class);
+		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).object(od);
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
-			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
-			oneOf(eval).argument("_cxt");
-			oneOf(eval).newOf(sn); will(returnValue(obj));
-			oneOf(eval).returnObject(obj);
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
-		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		new Traverser(gen).visitObjectDefn(od);
 	}
 
@@ -58,25 +51,17 @@ public class ObjectGenerationJS {
 		SolidName sn = new SolidName(pkg, "Obj");
 		JSClassCreator clz = context.mock(JSClassCreator.class);
 		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
-		JSMethodCreator eval = context.mock(JSMethodCreator.class);
-		JSExpr obj = context.mock(JSExpr.class, "obj");
-		JSExpr sl = context.mock(JSExpr.class, "sl");
+		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).object(od);
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
-			oneOf(clz).createMethod("eval", false); will(returnValue(eval));
-			oneOf(eval).argument("_cxt");
-			oneOf(eval).newOf(sn); will(returnValue(obj));
-			oneOf(eval).string("hello"); will(returnValue(sl));
-			oneOf(eval).storeField(obj, "s", sl);
-			oneOf(eval).returnObject(obj);
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
-		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		StateDefinition sd = new StateDefinition(pos);
 		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);

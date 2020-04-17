@@ -287,6 +287,14 @@ EvalContext.prototype.structNamed = function(name) {
 	return this.env.structs[name];
 }
 
+EvalContext.prototype.registerObject = function(name, str) {
+	this.env.objects[name] = str;
+}
+
+EvalContext.prototype.objectNamed = function(name) {
+	return this.env.objects[name];
+}
+
 EvalContext.prototype.fields = function() {
 	return new FieldsContainer(this);
 }
