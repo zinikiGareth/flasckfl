@@ -1,0 +1,5 @@
+	test fails if we introduce a var twice
+		data WillCall c
+		data Obj obj <- Obj.load
+		expect c meth "yo" -> _reply
+		expect c meth "yo" -> _reply

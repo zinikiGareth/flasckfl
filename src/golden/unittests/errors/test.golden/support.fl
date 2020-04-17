@@ -1,0 +1,14 @@
+	contract handler MyHandler
+	
+	contract WillCall
+		meth (String y) -> (MyHandler h)
+
+	object Obj
+		state
+			WillCall x
+	
+		ctor load
+		
+		method invoke (String s)
+			<- x.meth s
+			

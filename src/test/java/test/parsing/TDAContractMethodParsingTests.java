@@ -120,7 +120,6 @@ public class TDAContractMethodParsingTests {
 	@Test
 	public void methodMayNotHaveSimpleArguments() {
 		ErrorMark mark = context.mock(ErrorMark.class);
-		Tokenizable toks = TDABasicIntroParsingTests.line("fred x");
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 			allowing(errors).mark(); will(returnValue(mark));
@@ -129,9 +128,10 @@ public class TDAContractMethodParsingTests {
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred")));
 			oneOf(topLevel).argument(with(aNull(ErrorReporter.class)), with(any(VarPattern.class)));
 			// but it does complain and that should stop it doing the wrong thing later ...
-			oneOf(errors).message(toks, "contract patterns must be typed");
+			oneOf(errors).message(with(any(InputPosition.class)), with("contract patterns must be typed"));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
+		Tokenizable toks = TDABasicIntroParsingTests.line("fred x");
 		TDAParsing nested = parser.tryParsing(toks);
 		assertTrue(nested instanceof NoNestingParser);
 	}

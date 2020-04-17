@@ -25,10 +25,15 @@ public class TDATypeReferenceParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		TypeNameToken qn = TypeNameToken.qualified(toks);
 		if (qn == null) {
-			throw new RuntimeException("I think we should know what we're getting at this point, but if not turn this into an error");
+			errors.message(toks, "typename expected");
+			return null;
 		}
 		int mark = toks.at();
 		PattToken tok = PattToken.from(errors, toks);
+		if (tok == null) {
+			errors.message(toks, "object name expected");
+			return null;
+		}
 		List<TypeReference> andTypeParameters = new ArrayList<>();
 		if (tok.type == PattToken.OSB) {
 			TDATypeReferenceParser inner = new TDATypeReferenceParser(errors, x -> andTypeParameters.add(x));

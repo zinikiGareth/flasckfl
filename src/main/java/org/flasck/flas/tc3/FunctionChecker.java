@@ -193,7 +193,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	@Override
 	public void leaveObjectCtor(ObjectCtor ctor) {
 		if (ctor.messages().isEmpty())
-			sv.result(new PosType(ctor.location(), ctor.getObject()));
+			sv.result(buildApplyType(ctor.location(), new PosType(ctor.location(), ctor.getObject())));
 		else if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + ctor.name().uniqueName());
 		else {

@@ -65,7 +65,7 @@ public class ContractMethodParser implements TDAParsing {
 		List<TypedPattern> targs = new ArrayList<>();
 		for (Pattern p : args) {
 			if (!(p instanceof TypedPattern))
-				errors.message(toks, "contract patterns must be typed");
+				errors.message(p.location(), "contract patterns must be typed");
 			else
 				targs.add((TypedPattern) p);
 		}
@@ -87,9 +87,12 @@ public class ContractMethodParser implements TDAParsing {
 				errors.message(toks, "no handler specified");
 				return new IgnoreNestedParser();
 			}
-			if (!(hdlrs.get(0) instanceof TypedPattern))
-				errors.message(toks, "contract handler must be typed");
-			handler = (TypedPattern) hdlrs.get(0);
+			Pattern p = hdlrs.get(0);
+			if (!(p instanceof TypedPattern)) {
+				errors.message(p.location(), "contract handler must be a typed pattern");
+				return new IgnoreNestedParser();
+			}
+			handler = (TypedPattern) p;
 		}
 		if (toks.hasMore()) {
 			errors.message(toks, "syntax error");

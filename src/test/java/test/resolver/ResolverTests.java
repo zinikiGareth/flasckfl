@@ -412,6 +412,7 @@ public class ResolverTests {
 	@Test
 	public void itIsAnErrorForTheProvidedTypeNotToExist() {
 		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.S0.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Hello"); will(returnValue(null));
 			oneOf(rr).get("Hello"); will(returnValue(null));
@@ -429,6 +430,7 @@ public class ResolverTests {
 	@Test
 	public void ifTheProvidedTypeIsResolvedItMustBeAContractDecl() {
 		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.S0.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Hello"); will(returnValue(type));
 			oneOf(errors).message(pos, "Hello is not a contract");
@@ -446,6 +448,7 @@ public class ResolverTests {
 	@Test
 	public void ifTheProvidedTypeIsResolvedItIsAttachedToTheProvides() {
 		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.S0.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Hello"); will(returnValue(cd));
 		}});
@@ -462,6 +465,7 @@ public class ResolverTests {
 	@Test
 	public void aMethodImplementingAContractHasTheCMDAttachedToItDuringResolution() {
 		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.S0.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Card.Hello"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Hello"); will(returnValue(cd));
 		}});
@@ -481,6 +485,7 @@ public class ResolverTests {
 	@Test
 	public void itIsAnErrorToReferenceAContractMethodWhichIsNotOnTheContract() {
 		context.checking(new Expectations() {{
+			oneOf(rr).get("test.repo.Card.S0.AContract"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Card.AContract"); will(returnValue(null));
 			oneOf(rr).get("test.repo.AContract"); will(returnValue(cd));
 			oneOf(errors).message(pos, "there is no method 'absent' on 'test.repo.AContract'");

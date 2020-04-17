@@ -33,8 +33,12 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 		nestedParser.anotherParent();
 		InputPosition start = line.realinfo();
 		ExprToken tok = ExprToken.from(errors, line);
-		if (tok == null || (!tok.text.equals("=") && !tok.text.equals("|"))) {
-			errors.message(line, "syntax error");
+		if (tok == null) {
+			errors.message(line, "syntax error in function case definition");
+			return null;
+		}
+		if (!tok.text.equals("=") && !tok.text.equals("|")) {
+			errors.message(tok.location, "syntax error in function case definition");
 			return null;
 		}
 		if (!line.hasMore()) {

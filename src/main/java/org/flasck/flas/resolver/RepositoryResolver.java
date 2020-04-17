@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
@@ -91,6 +92,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void visitObjectCtor(ObjectCtor ctor) {
+		scopeStack.add(0, scope);
+		this.scope = ctor.name();
+	}
+	
+	@Override
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
 		RepositoryEntry defn = find(scope, p.ctor);
 		if (defn == null) {
@@ -113,6 +120,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		this.scope = scopeStack.remove(0);
 	}
 
+	@Override
+	public void leaveObjectMethod(ObjectMethod meth) {
+		this.scope = scopeStack.remove(0);
+	}
+
+	@Override
+	public void leaveObjectCtor(ObjectCtor oa) {
+		this.scope = scopeStack.remove(0);
+	}
+	
 	@Override
 	public void visitTuple(TupleAssignment ta) {
 		scopeStack.add(0, scope);
@@ -144,16 +161,22 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitImplements(ImplementsContract ic) {
+		scopeStack.add(0, scope);
+		this.scope = ic.name();
 		currentlyImplementing = ic;
 	}
 	
 	@Override
 	public void visitProvides(Provides p) {
+		scopeStack.add(0, scope);
+		this.scope = p.name();
 		currentlyImplementing = p;
 	}
 	
 	@Override
 	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
+		scopeStack.add(0, scope);
+		this.scope = hi.name();
 		currentlyImplementing = hi;
 	}
 

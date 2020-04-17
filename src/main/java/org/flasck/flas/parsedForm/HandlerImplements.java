@@ -56,7 +56,7 @@ public class HandlerImplements extends Implements implements RepositoryEntry, Na
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		throw new NotImplementedException();
+		return this == other;
 	}
 	
 	@Override
