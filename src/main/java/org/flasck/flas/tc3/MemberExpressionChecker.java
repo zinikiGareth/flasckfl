@@ -87,10 +87,11 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				nv.result(meth.type());
 				return;
 			}
-			throw new NotImplementedException("object " + od.name() + " does not have acor or ctor");
+			errors.message(expr.fld.location(), "object " + od.name() + " does not have a method, ctor or acor " + fld.var);
+			nv.result(new ErrorType());
 		} else if (expr.from instanceof UnresolvedVar) {
 			UnresolvedVar var = (UnresolvedVar) expr.from;
-			errors.message(expr.from.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
+			errors.message(var.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
 			nv.result(new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);

@@ -1,0 +1,18 @@
+	contract Down
+		init
+		later
+
+	object InitContract
+		ctor init
+		
+	agent BadCallContract
+		state
+			InitContract obj
+			String x
+			
+		implements Down
+			init
+				obj <- InitContract.start
+			later
+				x <- obj.notThere
+		
