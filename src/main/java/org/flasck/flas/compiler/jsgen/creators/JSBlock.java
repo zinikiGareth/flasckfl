@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.ExtractField;
 import org.flasck.flas.compiler.jsgen.form.IsAExpr;
@@ -400,13 +399,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSLoadField loadField(StateLocation loc, String field) {
-		return new JSLoadField(loc, field);
+	public JSLoadField loadField(JSExpr container, String field) {
+		return new JSLoadField(container, field);
 	}
 
 	@Override
-	public JSExpr contractByVar(StateLocation loc, String name) {
-		return new JSContractByVar(loc, name);
+	public JSExpr contractByVar(JSExpr container, String name) {
+		return new JSContractByVar(container, name);
 	}
 
 	@Override

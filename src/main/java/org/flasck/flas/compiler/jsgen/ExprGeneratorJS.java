@@ -8,11 +8,9 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -179,9 +177,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof HandlerLambda) {
 			sv.result(block.lambda((HandlerLambda)defn));
 		} else if (defn instanceof StructField) {
-			sv.result(block.loadField(state.stateLocation(), ((StructField)defn).name));
+			sv.result(block.loadField(state.container(), ((StructField)defn).name));
 		} else if (defn instanceof RequiresContract) {
-			sv.result(block.contractByVar(state.stateLocation(), ((RequiresContract)defn).referAsVar));
+			sv.result(block.contractByVar(state.container(), ((RequiresContract)defn).referAsVar));
 		} else if (defn instanceof ObjectContract) {
 			sv.result(block.member(((ObjectContract)defn).varName().var));
 		} else if (defn instanceof TupleMember) {

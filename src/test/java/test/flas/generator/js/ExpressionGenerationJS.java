@@ -17,12 +17,12 @@ import org.flasck.flas.compiler.jsgen.ApplyExprGeneratorJS;
 import org.flasck.flas.compiler.jsgen.ExprGeneratorJS;
 import org.flasck.flas.compiler.jsgen.JSFunctionState;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
-import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
+import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -155,8 +155,7 @@ public class ExpressionGenerationJS {
 		expr.bind(sf);
 		JSExpr r = context.mock(JSExpr.class, "r");
 		context.checking(new Expectations() {{
-			oneOf(state).stateLocation(); will(returnValue(StateLocation.LOCAL));
-			oneOf(meth).loadField(StateLocation.LOCAL, "x"); will(returnValue(r));
+			oneOf(meth).loadField(new JSThis(), "x"); will(returnValue(r));
 			oneOf(nv).result(r);
 		}});
 		StackVisitor stackv = new StackVisitor();

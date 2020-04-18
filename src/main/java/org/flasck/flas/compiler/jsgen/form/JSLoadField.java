@@ -1,32 +1,23 @@
 package org.flasck.flas.compiler.jsgen.form;
 
-import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSLoadField implements JSExpr {
+	private final JSExpr container;
 	private final String field;
-	private StateLocation loc;
 
-	public JSLoadField(StateLocation loc, String field) {
-		this.loc = loc;
+	public JSLoadField(JSExpr container, String field) {
+		if (container == null) {
+			throw new NotImplementedException();
+		}
+		this.container = container;
 		this.field = field;
 	}
 
 	@Override
 	public String asVar() {
-		String from;
-		switch (loc) {
-		case LOCAL:
-			from = "this";
-			break;
-		case CARD:
-			from = "this._card";
-			break;
-		default:
-			throw new NotImplementedException("cannot handle JSLoadField with " + loc);
-		}
-		return from + ".state.get('" + field + "')";
+		return container.asVar() + ".state.get('" + field + "')";
 	}
 
 	@Override

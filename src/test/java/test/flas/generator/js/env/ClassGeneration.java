@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlock;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
@@ -22,6 +21,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
+import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.packaging.JSFile;
@@ -355,7 +355,7 @@ public class ClassGeneration {
 	public void weCanLoadValuesFromTheFieldsContainer() {
 		JSMethod b = new JSMethod(null, false, "fred");
 		b.argument("cxt");
-		b.returnObject(b.loadField(StateLocation.LOCAL, "value"));
+		b.returnObject(b.loadField(new JSThis(), "value"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("\nnull.fred = function(cxt) {\n  return this.state.get('value');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}

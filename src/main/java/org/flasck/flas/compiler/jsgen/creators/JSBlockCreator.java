@@ -6,7 +6,6 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
@@ -75,8 +74,8 @@ public interface JSBlockCreator {
 
 	// main logic statements
 	void storeField(JSExpr inObj, String field, JSExpr value);
-	JSExpr loadField(StateLocation loc, String name);
-	JSExpr contractByVar(StateLocation loc, String name);
+	JSExpr loadField(JSExpr container, String name);
+	JSExpr contractByVar(JSExpr container, String name);
 	JSExpr structArgs(String string, JSExpr... args);
 	JSExpr closure(JSExpr... args);
 	JSExpr curry(int expArgs, JSExpr... args);

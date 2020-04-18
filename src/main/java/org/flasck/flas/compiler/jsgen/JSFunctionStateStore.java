@@ -12,11 +12,9 @@ import org.zinutils.exceptions.NotImplementedException;
 public class JSFunctionStateStore implements JSFunctionState {
 	public Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
 	public Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
-	private StateLocation stateLoc;
 	private final JSExpr container;
 
-	public JSFunctionStateStore(StateLocation loc, JSExpr container) {
-		this.stateLoc = loc;
+	public JSFunctionStateStore(JSExpr container) {
 		this.container = container;
 	}
 
@@ -53,15 +51,5 @@ public class JSFunctionStateStore implements JSFunctionState {
 			return introductions.get(var);
 		else
 			throw new RuntimeException("No introduction for " + var);
-	}
-
-	@Override
-	public void setStateLocation(StateLocation loc) {
-		this.stateLoc = loc;
-	}
-
-	@Override
-	public StateLocation stateLocation() {
-		return stateLoc;
 	}
 }

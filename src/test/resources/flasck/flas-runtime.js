@@ -523,6 +523,13 @@ Send.prototype._compare = function(cx, other) {
 }
 Send.prototype.dispatch = function(cx) {
 	this._full(cx);
+	if (this.obj instanceof ResponseWithMessages) {
+		// build an array of messages with the RWM ones first and "me" last
+		const ret = ResponseWithMessages.messages(cx, this.obj);
+		// TODO: consider args and handle
+		ret.push(Send.eval(cx, ResponseWithMessages.response(cx, this.obj), this.meth, this.args, this.handle));
+		return ret;
+	}
 	var args = this.args.slice();
 	args.splice(0, 0, cx);
 	if (this.handle) {
