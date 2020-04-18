@@ -199,10 +199,11 @@ public class TDAIntroParser implements TDAParsing {
 			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
 			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
+			ObjectNestedNamer onn = new ObjectNestedNamer(on);
 			return new TDAMultiParser(errors, 
-				errors -> new TDAObjectElementsParser(errors, new ObjectNestedNamer(on), od, consumer),
+				errors -> {	return new TDAObjectElementsParser(errors, onn, od, consumer); },
 				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, consumer),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
 			);
 		}

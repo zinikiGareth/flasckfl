@@ -45,6 +45,9 @@ public class TDAObjectElementsParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		InputPosition location = toks.realinfo();
 		KeywordToken kw = KeywordToken.from(toks);
+		if (kw == null) {
+			return null; // try something else - e.g. functions 
+		}
 		switch (kw.text) {
 		case "state": {
 			if (toks.hasMore()) {

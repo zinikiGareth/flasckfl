@@ -2,5 +2,9 @@
                               test.golden.Duplicate is defined multiple times: duplerror.fl  1.7
     duplerror.fl  9.5:    ctor  _ fred
                               test.golden.DuplicateCtor._ctor_fred is defined multiple times: duplerror.fl  8.5
+    fieldvarconf 11.1:    ( _ msg, foo) = ("hello", 'world')
+                              test.golden.StateFirst.msg is defined multiple times: fieldvarconf  3.7
+    fieldvarconf 23.7:    String  _ msg
+                              test.golden.StateLast.msg is defined multiple times: fieldvarconf 20.1
     noctor.fl:    1.7:    object  _ NoCtor
                               objects must have at least one constructor
