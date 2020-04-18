@@ -1,0 +1,11 @@
+	test we can construct an object with nothing going for it
+		data Simple x <- Simple.init
+		
+.	test we can construct an object with one argument
+.		data OneArg oa <- OneArg.witharg "hello"
+
+.	test we can construct and initialize an object field
+.		data InitArg x <- InitArg.init "hello"
+.		assert (x.value)
+.			"hello"
+		

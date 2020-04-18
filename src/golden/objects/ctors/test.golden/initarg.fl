@@ -1,0 +1,8 @@
+	object InitArg
+		state
+			String msg
+
+		ctor init (String x)
+			msg <- x
+			
+		acor value = msg

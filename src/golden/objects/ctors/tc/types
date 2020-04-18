@@ -1,0 +1,4 @@
+test.golden.InitArg._ctor_init :: String->test.golden.InitArg
+test.golden.InitArg.value :: String
+test.golden.OneArg._ctor_witharg :: String->test.golden.OneArg
+test.golden.Simple._ctor_init :: test.golden.Simple

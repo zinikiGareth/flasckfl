@@ -193,14 +193,10 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	@Override
 	public void leaveObjectCtor(ObjectCtor ctor) {
-		if (ctor.messages().isEmpty())
-			sv.result(buildApplyType(ctor.location(), new PosType(ctor.location(), ctor.getObject())));
-		else if (resultTypes.isEmpty())
-			throw new RuntimeException("No types inferred for " + ctor.name().uniqueName());
-		else {
-			PosType posty = state.consolidate(ctor.location(), resultTypes);
-			sv.result(buildApplyType(ctor.location(), new PosType(posty.pos, new EnsureListMessage(ctor.location(), posty.type))));
-		}
+		// Note that this is its declared type.  It carries messages behind the scenes
+		// The reaason for this trickery is that constructors are special and we want to have natural looking syntax
+		// I'm not sure if there is a "purely functional syntax" for object construction at the moment - create it if/when it is needed
+		sv.result(buildApplyType(ctor.location(), new PosType(ctor.location(), ctor.getObject())));
 	}
 
 	public void leaveObjectActionHandler(ObjectActionHandler meth) {
