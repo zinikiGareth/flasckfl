@@ -12,7 +12,6 @@ import org.flasck.flas.compiler.jsgen.JSFunctionState.StateLocation;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSResponseWithMessages;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
@@ -69,12 +68,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitCurrentContainer(CurrentContainer expr) {
-		if (state.stateLocation() == StateLocation.LOCAL)
-			sv.result(new JSThis());
-		else if (state.stateLocation() == StateLocation.CARD)
-			sv.result(block.fromCard());
-		else
-			throw new NotImplementedException("There is no associated state location");
+//		if (state.stateLocation() == StateLocation.LOCAL)
+			sv.result(state.container());
+//		else if (state.stateLocation() == StateLocation.CARD)
+//			sv.result(block.fromCard());
+//		else
+//			throw new NotImplementedException("There is no associated state location");
 	}
 	
 	@Override
@@ -202,7 +201,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 					call = block.curry(expArgs, args);
 				else
 					call = block.closure(args);
-				sv.result(new JSResponseWithMessages(call));
+				sv.result(call);
 			} else
 				sv.result(fn);
 		} else

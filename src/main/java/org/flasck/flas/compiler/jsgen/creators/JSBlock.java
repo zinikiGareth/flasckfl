@@ -54,12 +54,14 @@ import org.flasck.flas.compiler.jsgen.form.JSReturn;
 import org.flasck.flas.compiler.jsgen.form.JSSatisfaction;
 import org.flasck.flas.compiler.jsgen.form.JSSetField;
 import org.flasck.flas.compiler.jsgen.form.JSStoreField;
+import org.flasck.flas.compiler.jsgen.form.JSStoreMock;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSTupleMember;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSBlock implements JSBlockCreator {
@@ -262,6 +264,13 @@ public class JSBlock implements JSBlockCreator {
 	public void expect(JSExpr obj, String assertion, List<JSExpr> args, JSExpr handler) {
 		JSExpectation stmt = new JSExpectation(obj, assertion, args, handler);
 		stmts.add(stmt);
+	}
+	
+	@Override
+	public JSExpr storeMockObject(UnitDataDeclaration udd, JSExpr value) {
+		JSLocal ret = new JSLocal(creating, new JSStoreMock(value));
+		stmts.add(ret);
+		return ret;
 	}
 
 	@Override

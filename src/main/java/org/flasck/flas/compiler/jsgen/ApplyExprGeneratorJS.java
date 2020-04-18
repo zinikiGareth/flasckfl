@@ -10,7 +10,6 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSResponseWithMessages;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -132,8 +131,6 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				call = block.curry(expArgs, args);
 			else
 				call = block.closure(args);
-			if (defn instanceof ObjectCtor)
-				call = new JSResponseWithMessages(call);
 			sv.result(call);
 		}
 	}

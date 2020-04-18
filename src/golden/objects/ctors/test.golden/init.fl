@@ -1,0 +1,8 @@
+	object Init
+		state
+			String msg
+
+		ctor create
+			msg <- "hello"
+			
+		acor value = msg

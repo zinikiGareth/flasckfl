@@ -13,6 +13,7 @@ import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public interface JSBlockCreator {
@@ -85,6 +86,7 @@ public interface JSBlockCreator {
 	// unit testing
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
 	void expect(JSExpr mock, String var, List<JSExpr> args, JSExpr handler);
+	JSExpr storeMockObject(UnitDataDeclaration udd, JSExpr value);
 	void assertSatisfied(String var);
 
 	// Send the block to disk

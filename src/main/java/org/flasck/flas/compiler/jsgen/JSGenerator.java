@@ -294,8 +294,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
 		currentOC = oc;
-		// This doesn't feel like it can possibly be right but presumably isn't used (yet)
-		JSExpr container = new JSThis();
 		String pkg = oc.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, oc.name().container().jsName(), false, oc.name().name);
@@ -304,10 +302,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (i=0;i<oc.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
-		this.state = new JSFunctionStateStore(StateLocation.LOCAL, container);
 		
 		ObjectDefn od = oc.getObject();
 		this.ocret = meth.newOf(od.name());
+		JSExpr container = ocret; 
+		this.state = new JSFunctionStateStore(StateLocation.LOCAL, container);
 		for (ObjectContract ctr : od.contracts) {
 			String cname = "_ctr_" + ctr.varName().var;
 			meth.argument(cname);

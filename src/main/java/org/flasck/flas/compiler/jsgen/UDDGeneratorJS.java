@@ -9,7 +9,6 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
-import org.flasck.flas.tc3.NamedType;
 
 public class UDDGeneratorJS extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
@@ -45,13 +44,16 @@ public class UDDGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
+		JSExpr value;
 		if (assigned != null) {
-			state.addMock(udd, assigned);
+			value = assigned;
 		} else {
-			NamedType objty = udd.ofType.defn();
-			JSExpr obj = meth.createObject(objty.name());
-			state.addMock(udd, obj);
+			value = meth.createObject(udd.ofType.defn().name());
 		}
+		JSExpr newMock = block.storeMockObject(udd, value);
+		// I think this is where we would then want to do the assigning of fields ...
+		state.addMock(udd, newMock);
+		
 		sv.result(null);
 	}
 }

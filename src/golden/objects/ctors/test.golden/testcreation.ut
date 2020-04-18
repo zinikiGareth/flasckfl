@@ -1,6 +1,11 @@
 	test we can construct an object with nothing going for it
 		data Simple x <- Simple.init
 		
+	test we can construct an object with no arguments but an initializer
+		data Init in <- Init.create
+		assert (in.value)
+			"hello"
+
 .	test we can construct an object with one argument
 .		data OneArg oa <- OneArg.witharg "hello"
 

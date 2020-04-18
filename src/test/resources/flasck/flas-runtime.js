@@ -310,6 +310,17 @@ FLContext.prototype.field = function(obj, field) {
 	}
 }
 
+FLContext.prototype.storeMock = function(value) {
+	value = this.full(value);
+	if (value instanceof ResponseWithMessages) {
+		// because this is a test operation, we can assume that env is a UTRunner
+		debugger;
+		this.env.handleMessages(this, ResponseWithMessages.messages(this, value));
+		return ResponseWithMessages.response(this, value);
+	} else
+		return value;
+}
+
 FLContext.prototype.mockContract = function(contract) {
 	const ret = new MockContract(contract);
 	this.broker.register(contract.name(), ret);
@@ -558,8 +569,10 @@ ResponseWithMessages.prototype._full = function(cx) {
 	this.msgs = cx.full(this.msgs);
 }
 ResponseWithMessages.response = function(cx, rwm) {
-	rwm = cx.full(rwm);
 	return rwm.obj;
+}
+ResponseWithMessages.messages = function(cx, rwm) {
+	return rwm.msgs;
 }
 
 
