@@ -18,9 +18,14 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DuplicateNameException;
+import org.flasck.flas.compiler.StateNameException;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.parsedForm.ActionMessage;
@@ -224,7 +229,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		}
 		try {
 			addEntry(null, exprFnName, ta);
-		} catch (DuplicateNameException ex) {
+		} catch (DuplicateNameException | StateNameException ex) {
 			// if this is thrown, it is because vars[0] is a duplicate
 			// that (should) have already flagged an error above
 		}
@@ -332,6 +337,9 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	public void addEntry(ErrorReporter errors, final NameOfThing name, final RepositoryEntry entry) {
 		String un = name.uniqueName();
+		if (!checkNoStateConflicts(errors, name, entry)) {
+			return;
+		}
 		if (dict.containsKey(un)) {
 			if (errors != null) {
 				errors.message(entry.location(), un + " is defined multiple times: " + dict.get(un).location());
@@ -340,6 +348,65 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 				throw new DuplicateNameException(name);
 		}
 		dict.put(un, entry);
+	}
+
+	private boolean checkNoStateConflicts(ErrorReporter errors, NameOfThing name, RepositoryEntry entry) {
+		// I need the base name, so I *think* this is true
+		// Add tests and cases as needed
+		System.out.println(name + " " + name.getClass().getSimpleName() + " " + entry.getClass().getSimpleName());
+		if (entry instanceof StructField) {
+			VarName vn = (VarName) name;
+			String cname = vn.container().uniqueName() + ".";
+			boolean conflicts = false;
+			for (Entry<String, RepositoryEntry> e : dict.entrySet()) {
+				if (e.getKey().startsWith(cname)) {
+					NameOfThing rn = e.getValue().name();
+					String base;
+					if (rn instanceof FunctionName)
+						base = ((FunctionName)rn).name;
+					else if (rn instanceof VarName)
+						base = ((VarName)rn).var;
+					else
+						continue;
+					if (base.equals(vn.var)) {
+						if (errors == null)
+							throw new NotImplementedException("we should be passed errors in this case - figure it out");
+						else
+							errors.message(e.getValue().location(), "cannot use " + base + " here as it conflicts with state member at " + vn.loc);
+						conflicts = true;
+					}
+				}
+			}
+			return !conflicts;
+		} else if (name instanceof FunctionName || name instanceof VarName) {
+			String base;
+			if (name instanceof FunctionName)
+				base = ((FunctionName)name).name;
+			else if (name instanceof VarName)
+				base = ((VarName)name).var;
+			else
+				throw new NotImplementedException("cannot extract base from " + name);
+			NameOfThing n1 = name;
+			while (n1 != null && !(n1 instanceof PackageName)) {
+				if (n1 instanceof SolidName || n1 instanceof CardName) {
+					RepositoryEntry other = dict.get(n1.uniqueName());
+					if (other instanceof StateHolder) {
+						StateDefinition state = ((StateHolder)other).state();
+						if (state != null && state.hasMember(base)) {
+							if (errors == null)
+								throw new StateNameException(state.findField(base).name());
+							else
+								errors.message(entry.location(), "cannot use " + base + " here as it conflicts with state member at " + state.findField(base).loc);
+							return false;
+						}
+					}
+					break;
+				}
+				n1 = n1.container();
+			}
+			return true;
+		} else
+			return true;
 	}
 
 	@Override

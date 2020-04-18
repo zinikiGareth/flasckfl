@@ -8,6 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.compiler.DuplicateNameException;
+import org.flasck.flas.compiler.StateNameException;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -160,6 +161,8 @@ public class TDAPatternParser implements TDAParsing {
 			topLevel.argument(null, vp);
 		} catch (DuplicateNameException ex) {
 			errors.message(vp.location(), "duplicate function argument " + vp.var);
+		} catch (StateNameException ex) {
+			errors.message(vp.location(), "cannot use " + vp.var + " as function argument because is a state member at " + ex.location());
 		}
 		return this;
 	}

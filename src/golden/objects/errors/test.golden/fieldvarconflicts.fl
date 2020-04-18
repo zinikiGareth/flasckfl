@@ -1,0 +1,23 @@
+	object StateFirst
+		state
+			String msg
+
+		ctor init (String msg)
+			msg <- msg
+			
+		acor value msg = msg
+
+		fn msg = msg
+		(msg, foo) = ("hello", 'world')
+		
+	object StateLast
+		ctor init (String msg)
+			msg <- msg
+			
+		acor value msg = msg
+
+		fn msg = msg
+		(msg, foo) = ("hello", 'world')
+		
+		state
+			String msg
