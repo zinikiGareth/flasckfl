@@ -49,6 +49,7 @@ import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.MemberExpressionChecker;
 import org.flasck.flas.tc3.PosType;
+import org.flasck.flas.tc3.SingleFunctionChecker;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeChecker;
 import org.flasck.flas.tc3.TypeConstraintSet;
@@ -59,6 +60,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;
 
@@ -99,6 +101,7 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(TypeChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
+			oneOf(nv).push(with(any(SingleFunctionChecker.class)));
 		}});
 		TypeChecker gc = new TypeChecker(errors, repository, nv);
 		gc.visitObjectMethod(meth);
@@ -177,14 +180,21 @@ public class StackVisitation {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
 		meth.assignMessage(new AssignMessage(pos, new ArrayList<UnresolvedVar>(), new StringLiteral(pos, "hello")));
-		Type ty = context.mock(Type.class);
+		CaptureAction captureSFC = new CaptureAction(null);
+		Type ty = context.mock(Type.class, "ty");
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(TypeChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
+			oneOf(nv).push(with(any(SingleFunctionChecker.class))); will(captureSFC);
 		}});
 		TypeChecker gc = new TypeChecker(errors, repository, nv);
 		gc.visitObjectMethod(meth);
-		gc.result(new PosType(pos, ty));
+		context.assertIsSatisfied();
+		context.checking(new Expectations() {{
+			oneOf(nv).result(null);
+		}});
+		SingleFunctionChecker sfc = (SingleFunctionChecker) captureSFC.get(0);
+		sfc.result(new PosType(pos, ty));
 		assertEquals(ty, meth.type());
 	}
 
