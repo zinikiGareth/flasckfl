@@ -66,6 +66,8 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 					defn = (MakeSend) fn;
 				else if (fn instanceof MakeAcor)
 					defn = (MakeAcor) fn;
+				else if (fn instanceof UnresolvedVar)
+					defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
 				else
 					throw new NotImplementedException("unknown operator type: " + fn.getClass());
 			}

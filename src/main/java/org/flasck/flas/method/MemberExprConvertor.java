@@ -178,6 +178,9 @@ public class MemberExprConvertor extends LeafAdapter {
 			} else
 				throw new NotImplementedException("there are other valid cases ... and probably invalid ones too");
 		}
-		nv.result(new ApplyExpr(expr.location, fn, (Object[])args.toArray(new Expr[args.size()])));
+		if (args.isEmpty())
+			nv.result(fn);
+		else
+			nv.result(new ApplyExpr(expr.location, fn, (Object[])args.toArray(new Expr[args.size()])));
 	}
 }
