@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -83,6 +84,7 @@ public class StackVisitation {
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		fi.bindTree(new HSIArgsTree(0));
 		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
 		GroupChecker gc = new GroupChecker(errors, nv, null);
@@ -102,6 +104,7 @@ public class StackVisitation {
 		gc.visitObjectMethod(meth);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void theResultIsWhatWeEndUpSpittingOut() {
 		FunctionName name = FunctionName.function(pos, null, "f");
@@ -112,13 +115,15 @@ public class StackVisitation {
 		Type ty = context.mock(Type.class, "ty");
 		UnifiableType utf = context.mock(UnifiableType.class, "utf");
 		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 			allowing(state).requireVarConstraints(pos, "f"); will(returnValue(utf));
-			oneOf(utf).determinedType(new PosType(pos, ty));
-			oneOf(state).resolveAll(errors, false);
-			oneOf(state).enhanceAllMutualUTs();
-			oneOf(state).resolveAll(errors, true);
-			oneOf(state).bindVarPatternTypes(errors);
+			oneOf(state).groupDone(with(errors), with(any(Map.class)));
+//			oneOf(utf).determinedType(new PosType(pos, ty));
+//			oneOf(state).resolveAll(errors, false);
+//			oneOf(state).enhanceAllMutualUTs();
+//			oneOf(state).resolveAll(errors, true);
+//			oneOf(state).bindVarPatternTypes(errors);
 			oneOf(nv).result(null);
 		}});
 		GroupChecker gc = new GroupChecker(errors, nv, state);
@@ -127,9 +132,10 @@ public class StackVisitation {
 		gc.leaveFunctionIntro(fi);
 		gc.leaveFunction(fn);
 		gc.leaveFunctionGroup(null);
-		assertEquals(ty, fn.type());
+//		assertEquals(ty, fn.type());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void weCanTypecheckMethods() {
 		FunctionName name = FunctionName.standaloneMethod(pos, null, "meth");
@@ -143,6 +149,7 @@ public class StackVisitation {
 		
 		Type ty = context.mock(Type.class);
 		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
 		GroupChecker gc = new GroupChecker(errors, nv, state);
@@ -151,17 +158,18 @@ public class StackVisitation {
 		UnifiableType utm = context.mock(UnifiableType.class, "utm");
 		context.checking(new Expectations() {{
 			allowing(state).requireVarConstraints(pos, "meth"); will(returnValue(utm));
-			oneOf(utm).determinedType(new PosType(pos, ty));
-			oneOf(state).resolveAll(errors, false);
-			oneOf(state).enhanceAllMutualUTs();
-			oneOf(state).resolveAll(errors, true);
-			oneOf(state).bindVarPatternTypes(errors);
+			oneOf(state).groupDone(with(errors), with(any(Map.class)));
+//			oneOf(utm).determinedType(new PosType(pos, ty));
+//			oneOf(state).resolveAll(errors, false);
+//			oneOf(state).enhanceAllMutualUTs();
+//			oneOf(state).resolveAll(errors, true);
+//			oneOf(state).bindVarPatternTypes(errors);
 			oneOf(nv).result(null);
 		}});
 		gc.result(new PosType(pos, ty));
 		gc.leaveObjectMethod(om);
 		gc.leaveFunctionGroup(null);
-		assertEquals(ty, om.type());
+//		assertEquals(ty, om.type());
 	}
 
 	@Test

@@ -28,6 +28,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
@@ -45,6 +46,13 @@ public class GuardTests {
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
+	
+	@Before
+	public void allowFC() {
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(FunctionChecker.class)));
+		}});
+	}
 	
 	// Assume we have something like
 	//  | (2 == 3) = x

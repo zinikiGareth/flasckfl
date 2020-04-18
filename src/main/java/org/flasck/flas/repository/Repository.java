@@ -351,9 +351,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	private boolean checkNoStateConflicts(ErrorReporter errors, NameOfThing name, RepositoryEntry entry) {
-		// I need the base name, so I *think* this is true
-		// Add tests and cases as needed
-		System.out.println(name + " " + name.getClass().getSimpleName() + " " + entry.getClass().getSimpleName());
 		if (entry instanceof StructField) {
 			VarName vn = (VarName) name;
 			String cname = vn.container().uniqueName() + ".";

@@ -39,8 +39,12 @@ public class TypeConsolidation {
 	@Before
 	public void before() {
 		f.intro(fi);
+		context.checking(new Expectations() {{
+			oneOf(nv).push(with(any(FunctionChecker.class)));
+		}});
 	}
 	
+
 	@Test
 	public void withNoArgsItsJustASimpleConstant() {
 		FunctionChecker fc = new FunctionChecker(errors, nv, state, null);

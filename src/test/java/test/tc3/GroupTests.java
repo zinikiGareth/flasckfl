@@ -66,16 +66,18 @@ public class GroupTests {
 	FunctionIntro fiG2 = new FunctionIntro(nameG, args);
 	private FunctionGroup grp = new DependencyGroup(fnF, fnG);
 	private CurrentTCState state = new FunctionGroupTCState(repository, grp);
-	private final GroupChecker gc = new GroupChecker(errors, sv, state);
+	private GroupChecker gc;
 
 	@Before
 	public void begin() {
 		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(GroupChecker.class)));
 			fnF.intro(fiF1);
 			fnF.intro(fiF2);
 			fnG.intro(fiG1);
 			fnG.intro(fiG2);
 		}});
+		this.gc = new GroupChecker(errors, sv, state);
 	}
 	
 	/*

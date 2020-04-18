@@ -13,6 +13,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.RepositoryReader;
@@ -106,6 +107,52 @@ public class FunctionGroupTCState implements CurrentTCState {
 		return new PolyType(pos, new String(new char[] { (char)('A' + polyCount++) }));
 	}
 	
+	
+	@Override
+	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes) {
+		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
+
+//		System.out.println(grp);
+//		state.debugInfo();
+		
+		// if we picked up anything based on the invocation of the method in this group, add that into the mix
+		for (Entry<TypeBinder, PosType> m : memberTypes.entrySet()) {
+			String name = m.getKey().name().uniqueName();
+			UnifiableType ut = this.requireVarConstraints(m.getKey().location(), name);
+			ut.determinedType(m.getValue());
+		}
+//		state.debugInfo();
+
+		// Then we can resolve all the UTs
+		this.resolveAll(errors, false);
+//		state.debugInfo();
+		this.enhanceAllMutualUTs();
+//		state.debugInfo();
+		this.resolveAll(errors, true);
+//		state.debugInfo();
+		
+		// Then we can bind the types
+		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
+			e.getKey().bindType(cleanUTs(errors, e.getValue().type));
+		}
+		this.bindVarPatternTypes(errors);
+	}
+
+	private Type cleanUTs(ErrorReporter errors, Type ty) {
+		if (ty instanceof EnsureListMessage)
+			((EnsureListMessage)ty).validate(errors);
+		if (ty instanceof UnifiableType)
+			return cleanUTs(errors, ((UnifiableType)ty).resolve(errors, true));
+		else if (ty instanceof Apply) {
+			Apply a = (Apply) ty;
+			List<Type> tys = new ArrayList<>();
+			for (Type t : a.tys)
+				tys.add(cleanUTs(errors, t));
+			return new Apply(tys);
+		} else
+			return ty;
+	}
+
 	@Override
 	public void resolveAll(ErrorReporter errors, boolean hard) {
 		while (true) {

@@ -35,19 +35,19 @@ public class TypeChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		sv.push(new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), meth));
+		new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), meth);
 		this.currentMethod = meth;
 	}
 	
 	@Override
 	public void visitObjectCtor(ObjectCtor meth) {
-		sv.push(new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), meth));
+		new FunctionChecker(errors, sv, new FunctionGroupTCState(repository, new DependencyGroup()), meth);
 		this.currentMethod = meth;
 	}
 	
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
-		sv.push(new GroupChecker(errors, sv, new FunctionGroupTCState(repository, grp)));
+		new GroupChecker(errors, sv, new FunctionGroupTCState(repository, grp));
 	}
 	
 	@Override

@@ -57,6 +57,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			csc = new ContractSlotChecker(errors, sv, state, inMeth);
 		} else
 			csc = null;
+		sv.push(this);
 	}
 	
 	@Override

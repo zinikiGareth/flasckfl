@@ -1,11 +1,7 @@
 package org.flasck.flas.tc3;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -28,32 +24,31 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 		this.errors = errors;
 		this.sv = sv;
 		this.state = state;
+		sv.push(this);
 	}
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		sv.push(new FunctionChecker(errors, sv, state, null));
+		new FunctionChecker(errors, sv, state, null);
 		this.currentFunction = fn;
 	}
 
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		this.currentFunction = meth;
 	}
 
 	@Override
 	public void visitTuple(TupleAssignment ta) {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
-		sv.push(fc);
+		new FunctionChecker(errors, sv, state, null);
 		this.currentFunction = ta;
 		sv.push(new ExpressionChecker(errors, state, sv));
 	}
 
 	@Override
 	public void visitTupleMember(TupleMember tm) {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
-		sv.push(fc);
+		new FunctionChecker(errors, sv, state, null);
 		this.currentFunction = tm;
 		sv.push(new ExpressionChecker(errors, state, sv));
 	}
@@ -66,48 +61,8 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
-		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
-
-//		System.out.println(grp);
-//		state.debugInfo();
-		
-		// if we picked up anything based on the invocation of the method in this group, add that into the mix
-		for (Entry<TypeBinder, PosType> m : memberTypes.entrySet()) {
-			String name = m.getKey().name().uniqueName();
-			UnifiableType ut = state.requireVarConstraints(m.getKey().location(), name);
-			ut.determinedType(m.getValue());
-		}
-//		state.debugInfo();
-
-		// Then we can resolve all the UTs
-		state.resolveAll(errors, false);
-//		state.debugInfo();
-		state.enhanceAllMutualUTs();
-//		state.debugInfo();
-		state.resolveAll(errors, true);
-//		state.debugInfo();
-		
-		// Then we can bind the types
-		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
-			e.getKey().bindType(cleanUTs(e.getValue().type));
-		}
-		state.bindVarPatternTypes(errors);
+		state.groupDone(errors, memberTypes);
 		sv.result(null);
-	}
-
-	private Type cleanUTs(Type ty) {
-		if (ty instanceof EnsureListMessage)
-			((EnsureListMessage)ty).validate(errors);
-		if (ty instanceof UnifiableType)
-			return cleanUTs(((UnifiableType)ty).resolve(errors, true));
-		else if (ty instanceof Apply) {
-			Apply a = (Apply) ty;
-			List<Type> tys = new ArrayList<>();
-			for (Type t : a.tys)
-				tys.add(cleanUTs(t));
-			return new Apply(tys);
-		} else
-			return ty;
 	}
 
 	public CurrentTCState testsWantToCheckState() {

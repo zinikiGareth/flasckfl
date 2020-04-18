@@ -68,7 +68,7 @@ public class ContractMethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanMatchASimpleUntypedArgument() {
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		cmdargs.add(tp);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, meth.name(), "str"));
@@ -92,7 +92,7 @@ public class ContractMethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void theArgumentTypeMayBeSpecifiedIfItsTheSame() {
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		cmdargs.add(tp);
 		args.add(tp);
@@ -115,7 +115,7 @@ public class ContractMethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void itIsAnErrorToSpecifyADifferentArgumentType() {
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		TypedPattern ctp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		cmdargs.add(ctp);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.numberTR, new VarName(pos, meth.name(), "str"));

@@ -79,7 +79,7 @@ public class MethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aSingleDebugMessageGivesAListOfMessage() {
-		sv.push(new FunctionChecker(errors, sv, state, null));
+		new FunctionChecker(errors, sv, state, null);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
 		sv.visitSendMessage(msg);
@@ -94,7 +94,7 @@ public class MethodTests {
 
 	@Test
 	public void noMessagesNilType() {
-		sv.push(new FunctionChecker(errors, sv, state, null));
+		new FunctionChecker(errors, sv, state, null);
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(new PosType(pos, LoadBuiltins.nil));
@@ -105,7 +105,7 @@ public class MethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanHandleArgumentTypes() {
-		sv.push(new FunctionChecker(errors, sv, state, null));
+		new FunctionChecker(errors, sv, state, null);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		args.add(tp);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
@@ -143,7 +143,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		sv.visitAssignSlot(msg.slot);
@@ -163,7 +163,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -183,7 +183,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -203,7 +203,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, new ErrorType()));
 		context.checking(new Expectations() {{
@@ -222,7 +222,7 @@ public class MethodTests {
 		Expr nl = new NumericLiteral(pos, "42", 2);
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), nl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.number));
 		context.checking(new Expectations() {{
@@ -244,7 +244,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -268,7 +268,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -294,7 +294,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
 		meth.assignMessage(msg);
-		sv.push(new FunctionChecker(errors, sv, state, meth));
+		new FunctionChecker(errors, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
