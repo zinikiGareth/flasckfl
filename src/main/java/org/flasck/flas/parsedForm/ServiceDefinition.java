@@ -18,7 +18,6 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
-	public StateDefinition state;
 	public final List<Provides> services = new ArrayList<Provides>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final CardName serviceName;
@@ -41,11 +40,6 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 	
 	public CardName cardName() {
 		return serviceName;
-	}
-
-	@Override
-	public void defineState(StateDefinition stateDefinition) {
-		this.state = stateDefinition;
 	}
 
 	public void addProvidedService(Provides contractService) {

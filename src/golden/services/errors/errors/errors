@@ -1,0 +1,5 @@
+    restrictions  4.0:     _ state
+                              services may not have state
+    restrictions  7.0:     _ implements Down
+                              services may not implement down contracts
+                              

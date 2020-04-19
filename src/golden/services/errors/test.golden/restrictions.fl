@@ -1,0 +1,7 @@
+	contract Down
+	
+	service HelpMe
+		state
+			Number x
+		
+		implements Down

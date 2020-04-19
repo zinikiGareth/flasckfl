@@ -4,10 +4,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.StandaloneMethod;
-import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -19,7 +17,6 @@ public class TDAServiceElementsParser implements TDAParsing {
 	private final TemplateNamer namer;
 	private final ServiceElementsConsumer consumer;
 	private final TopLevelDefinitionConsumer topLevel;
-	private boolean seenState;
 	private final ServiceElementsConsumer service;
 
 	public TDAServiceElementsParser(ErrorReporter errors, TemplateNamer namer, ServiceElementsConsumer service, TopLevelDefinitionConsumer topLevel) {
@@ -37,15 +34,12 @@ public class TDAServiceElementsParser implements TDAParsing {
 			return null;
 		switch (kw.text) {
 		case "state": {
-			if (seenState) {
-				errors.message(kw.location, "multiple state declarations");
-				return new IgnoreNestedParser();
-			}
-			final StateDefinition state = new StateDefinition(toks.realinfo());
-			consumer.defineState(state);
-			seenState = true;
-			
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
+			errors.message(kw.location, "services may not have state");
+			return new IgnoreNestedParser();
+		}
+		case "implements": {
+			errors.message(kw.location, "services may not implement down contracts");
+			return new IgnoreNestedParser();
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);

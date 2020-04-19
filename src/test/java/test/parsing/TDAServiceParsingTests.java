@@ -2,7 +2,6 @@ package test.parsing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -13,7 +12,6 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
-import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAIntroParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -61,20 +59,11 @@ public class TDAServiceParsingTests {
 	}
 
 	@Test
-	public void aCardCanHaveAStateDeclaration() {
-		assertNull(svc.state);
-		serviceParser.tryParsing(TDABasicIntroParsingTests.line("state"));
-		assertTrue(svc.state instanceof StateDefinition);
-	}
-
-	@Test
-	public void theCardCannotHaveTwoStateDeclarations() {
-		final Tokenizable line = TDABasicIntroParsingTests.line("state");
+	public void aServiceCannotHaveAStateDeclaration() {
+		Tokenizable line = TDABasicIntroParsingTests.line("state");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(line.realinfo().copySetEnd(5), "multiple state declarations");
+			oneOf(errors).message(line.realinfo().copySetEnd(5), "services may not have state");
 		}});
-		assertNull(svc.state);
-		serviceParser.tryParsing(TDABasicIntroParsingTests.line("state"));
 		serviceParser.tryParsing(line);
 	}
 
