@@ -28,6 +28,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
+import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -249,8 +250,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			}
 		} else if (om.hasImplements()) {
 			Implements m = om.getImplements();
-			StateHolder parent = (StateHolder)m.getParent();
-			if (parent != null && parent.state() != null) {
+			NamedType parent = m.getParent();
+			if (parent != null && parent instanceof StateHolder && ((StateHolder)parent).state() != null) {
 				fs.provideStateObject(meth.castTo(meth.getField("_card"), J.FIELDS_CONTAINER_WRAPPER));
 			}
 		} else if (!isStandalone)
@@ -583,6 +584,22 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void visitServiceDefn(ServiceDefinition sd) {
+		String clzName = sd.name().javaName();
+		agentClass = bce.newClass(clzName);
+		agentClass.superclass(J.CONTRACT_HOLDER);
+		agentClass.generateAssociatedSourceFile();
+		agentClass.inheritsField(true, Access.PRIVATE, J.CONTRACTSTORE, "store");
+		{ // ctor(cx)
+			GenericAnnotator gen = GenericAnnotator.newConstructor(agentClass, false);
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			agentctor = gen.done();
+			agentcx = cx.getVar();
+			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
+		}
+	}
+	
+	@Override
 	public void visitImplements(ImplementsContract ic) {
 		CSName csn = (CSName) ic.name();
 		ByteCodeSink providesClass = bce.newClass(csn.javaClassName());
@@ -678,6 +695,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	
+	public void leaveServiceDefn(ServiceDefinition s) {
+		agentctor.returnVoid().flush();
+		agentctor = null;
+	}
+	
+	@Override
 	public void visitStructFieldAccessor(StructField sf) {
 		String cxName = sf.name().container().javaName();
 		ByteCodeSink bcc = bce.get(cxName);
@@ -742,6 +766,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			AgentDefinition ad = (AgentDefinition)objty;
 			IExpr agent = meth.makeNew(ad.name().javaName(), this.fcx);
 			IExpr mc = meth.callInterface(J.MOCKAGENT, fcx, "mockAgent", meth.as(agent, J.CONTRACT_HOLDER));
+			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
+			meth.assign(v, mc).flush();
+			this.fs.addMock(udd, v);
+		} else if (objty instanceof ServiceDefinition) {
+			ServiceDefinition ad = (ServiceDefinition)objty;
+			IExpr agent = meth.makeNew(ad.name().javaName(), this.fcx);
+			IExpr mc = meth.callInterface(J.MOCKSERVICE, fcx, "mockService", meth.as(agent, J.CONTRACT_HOLDER));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);

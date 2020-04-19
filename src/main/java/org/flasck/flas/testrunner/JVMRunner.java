@@ -16,6 +16,7 @@ import org.flasck.jvm.container.ErrorCollector;
 import org.flasck.jvm.container.FLEvalContextFactory;
 import org.flasck.jvm.container.JvmDispatcher;
 import org.flasck.jvm.container.MockAgent;
+import org.flasck.jvm.container.MockService;
 import org.flasck.jvm.fl.LoaderContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,6 +26,7 @@ import org.ziniki.ziwsh.intf.EvalContextFactory;
 import org.ziniki.ziwsh.intf.IdempotentHandler;
 import org.ziniki.ziwsh.intf.ZiwshBroker;
 import org.ziniki.ziwsh.jvm.SimpleBroker;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
@@ -244,7 +246,13 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 
 	@Override
 	public void send(FLEvalContext cx, Object to, String contract, String meth, Object... args) {
-		Object reply = ((MockAgent)to).sendTo(cx, contract, meth, args);
+		Object reply;
+		if (to instanceof MockAgent)
+			reply = ((MockAgent)to).sendTo(cx, contract, meth, args);
+		else if (to instanceof MockService)
+			reply = ((MockService)to).sendTo(cx, contract, meth, args);
+		else
+			throw new NotImplementedException("cannot handle " + to.getClass());
 		reply = cx.full(reply);
 		dispatcher.invoke(cx, reply);
 	}

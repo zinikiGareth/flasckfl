@@ -132,8 +132,13 @@ public class JSRunner extends CommonTestRunner {
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
 			try {
-				page.executeScript(utc.name.jsName() + "(new window.UTRunner(window.JavaLogger))");
-				pw.println("JS PASS " + utc.description);
+				Object isdf = page.executeScript("typeof(" + utc.name.container().jsName() + ")");
+				if (!"undefined".equals(isdf))
+					isdf = page.executeScript("typeof(" + utc.name.jsName() + ")");
+				if ("function".equals(isdf)) {
+					page.executeScript(utc.name.jsName() + "(new window.UTRunner(window.JavaLogger))");
+					pw.println("JS PASS " + utc.description);
+				}
 				cdl.countDown();
 			} catch (Throwable t) {
 				if (t instanceof Ui4jException)

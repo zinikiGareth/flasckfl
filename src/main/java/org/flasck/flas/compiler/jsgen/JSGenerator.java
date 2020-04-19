@@ -52,6 +52,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
+import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -543,6 +544,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
+		if (involvesServices(e)) {
+			new DontGenerateJSServices(sv);
+			return;
+		}
 		UnitTestName clzName = e.name;
 		if (currentOA != null)
 			throw new NotImplementedException("I don't think you can nest a unit test in an accessor");
@@ -562,6 +567,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			if (!(udd.ofType.defn() instanceof ContractDecl))
 				visitUnitDataDeclaration(udd);
 		}
+	}
+
+	private boolean involvesServices(UnitTestCase e) {
+		// This is actually more complicated than this, because the mocks could be global ...
+		for (UnitTestStep s : e.steps) {
+			if (s instanceof UnitDataDeclaration) {
+				UnitDataDeclaration udd = (UnitDataDeclaration) s;
+				if (udd.ofType.defn() instanceof ServiceDefinition)
+					return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

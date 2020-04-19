@@ -1,0 +1,9 @@
+	test we can call a service in JVM
+		data DependOn mock
+		data Trampoline t
+		data Value hdlr
+		expect mock data -> _reply
+		expect hdlr success
+		contract t DependOn data -> hdlr
+		expect hdlr value "yo"
+		invoke reply.value "yo"
