@@ -4,27 +4,23 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.Var;
 
 public class ObjectCtorGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState state;
 	private final StackVisitor sv;
 	private final List<IExpr> currentBlock;
 	private IExpr messages;
-	private Var ret;
 
-	public ObjectCtorGenerator(FunctionState fs, StackVisitor sv, ObjectDefn object, List<IExpr> currentBlock, Var ocret) {
+	public ObjectCtorGenerator(FunctionState fs, StackVisitor sv, List<IExpr> currentBlock) {
 		this.state = fs;
 		this.sv = sv;
 		this.currentBlock = currentBlock;
-		ret = ocret;
 		sv.push(this);
 	}
 
@@ -41,7 +37,7 @@ public class ObjectCtorGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void endInline(FunctionIntro fi) {
 		MethodDefiner meth = state.meth;
-		IExpr returned = meth.makeNew(J.RESPONSE_WITH_MESSAGES, state.fcx, meth.as(ret, J.OBJECT), meth.as(messages, J.OBJECT));
+		IExpr returned = meth.makeNew(J.RESPONSE_WITH_MESSAGES, state.fcx, meth.as(state.ocret(), J.OBJECT), meth.as(messages, J.OBJECT));
 		currentBlock.add(meth.returnObject(returned));
 		sv.result(null);
 	}

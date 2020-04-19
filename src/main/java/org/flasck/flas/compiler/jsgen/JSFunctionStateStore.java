@@ -4,23 +4,42 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
+import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSFunctionStateStore implements JSFunctionState {
-	public Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
-	public Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
+	public final Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
+	public final Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
 	private final JSExpr container;
+	private final JSMethodCreator meth;
+	private JSExpr ocret;
 
-	public JSFunctionStateStore(JSExpr container) {
+	public JSFunctionStateStore(JSMethodCreator meth, JSExpr container) {
+		this.meth = meth;
 		this.container = container;
 	}
 
 	@Override
+	public JSMethodCreator meth() {
+		return meth;
+	}
+	
+	@Override
 	public JSExpr container() {
 		return container;
+	}
+	
+	@Override
+	public void objectCtor(JSExpr ocret) {
+		this.ocret = ocret;
+	}
+	
+	@Override
+	public JSExpr ocret() {
+		return ocret;
 	}
 
 	@Override

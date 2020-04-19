@@ -1,6 +1,8 @@
 JVM PASS we can construct an object with nothing going for it
 JVM PASS we can construct an object with no arguments but an initializer
 JVM PASS we can construct an object with one argument
+JVM PASS we can construct and initialize an object field
 JS PASS we can construct an object with nothing going for it
 JS PASS we can construct an object with no arguments but an initializer
 JS PASS we can construct an object with one argument
+JS PASS we can construct and initialize an object field

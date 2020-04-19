@@ -104,8 +104,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
-	private ObjectCtor currentOC;
-	private JSExpr ocret;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -156,7 +154,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
-		this.state = new JSFunctionStateStore(currentOA != null ? new JSThis() : null);
+		this.state = new JSFunctionStateStore(meth, currentOA != null ? new JSThis() : null);
 	}
 
 	// When generating a tuple assignment, we have to create a closure which is the "main thing"
@@ -171,7 +169,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			
 		this.meth.argument("_cxt");
 		this.block = meth;
-		this.state = new JSFunctionStateStore(null);
+		this.state = new JSFunctionStateStore(meth, null);
 		sv.push(new ExprGeneratorJS(state, sv, this.block, false));
 	}
 	
@@ -185,7 +183,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			
 		this.meth.argument("_cxt");
 		this.block = meth;
-		this.state = new JSFunctionStateStore(null);
+		this.state = new JSFunctionStateStore(meth, null);
 		this.meth.returnObject(meth.defineTupleMember(e));
 //		sv.push(new ExprGeneratorJS(state, sv, this.block));
 	}
@@ -287,12 +285,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth.argument("_" + i);
 		}
 		this.block = meth;
-		this.state = new JSFunctionStateStore(container);
+		this.state = new JSFunctionStateStore(meth, container);
 	}
 
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
-		currentOC = oc;
 		String pkg = oc.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, oc.name().container().jsName(), false, oc.name().name);
@@ -303,21 +300,21 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = meth;
 		
 		ObjectDefn od = oc.getObject();
-		this.ocret = meth.newOf(od.name());
+		JSExpr ocret = meth.newOf(od.name());
 		JSExpr container = ocret; 
-		this.state = new JSFunctionStateStore(container);
+		this.state = new JSFunctionStateStore(meth, container);
+		this.state.objectCtor(ocret);
 		for (ObjectContract ctr : od.contracts) {
 			String cname = "_ctr_" + ctr.varName().var;
 			meth.argument(cname);
 			meth.copyContract(ocret, ctr.varName().var, cname);
 		}
-
 	}
 	
 	@Override
 	public void visitStateDefinition(StateDefinition state) {
-		if (ocret != null) {
-			new ObjectCtorStateGeneratorJS(this.state, sv, currentOC.getObject(), this.block, ocret);
+		if (this.state != null && this.state.ocret() != null) {
+			new ObjectCtorStateGeneratorJS(this.state, sv, this.block);
 		}
 	}
 	
@@ -336,8 +333,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		if (currentOC != null)
-			new ObjectCtorGeneratorJS(state, sv, currentOC.getObject(), this.meth, this.ocret);
+		if (state.ocret() != null)
+			new ObjectCtorGeneratorJS(state, sv, this.meth);
 		else
 			sv.push(new GuardGeneratorJS(state, sv, this.block));
 	}
@@ -435,8 +432,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		this.meth = null;
 		this.state = null;
-		this.currentOC = null;
-		this.ocret = null;
 	}
 
 	@Override
@@ -546,7 +541,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = meth;
 		runner = meth.argument("runner");
 		meth.initContext(e.name.packageName());
-		this.state = new JSFunctionStateStore(null);
+		this.state = new JSFunctionStateStore(meth, null);
 		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {

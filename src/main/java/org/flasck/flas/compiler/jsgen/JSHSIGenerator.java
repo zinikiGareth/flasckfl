@@ -87,16 +87,12 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 	@Override
 	public void matchDefault() {
 		if (this.currentLevel.matchDefault != null) {
-//			if (!stack.isEmpty())
-//				this.block.returnObject(this.stack.remove(0));
 			this.block = this.currentLevel.matchDefault;
 		}
 	}
 
 	@Override
 	public void defaultCase() {
-//		if (!stack.isEmpty())
-//			this.block.returnObject(this.stack.remove(0));
 		this.block = this.currentLevel.elseBlock;
 	}
 
@@ -112,8 +108,6 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 
 	@Override
 	public void endSwitch() {
-//		if (!stack.isEmpty())
-//			this.block.returnObject(this.stack.remove(0));
 		switchStack.remove(0);
 		if (!switchStack.isEmpty())
 			currentLevel = switchStack.get(0);
@@ -122,7 +116,10 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 
 	@Override
 	public void startInline(FunctionIntro fi) {
-		sv.push(new GuardGeneratorJS(state, sv, this.block));
+		if (state != null && state.ocret() != null)
+			new ObjectCtorGeneratorJS(state, sv, this.block);
+		else
+			sv.push(new GuardGeneratorJS(state, sv, this.block));
 	}
 
 	@Override

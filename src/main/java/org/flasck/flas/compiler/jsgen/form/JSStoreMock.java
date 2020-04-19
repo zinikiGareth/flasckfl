@@ -19,7 +19,7 @@ public class JSStoreMock implements JSExpr {
 	public void write(IndentWriter w) {
 		w.print("_cxt.storeMock(");
 		w.print(value.asVar());
-		w.print(");");
+		w.print(")");
 	}
 
 }

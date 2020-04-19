@@ -115,7 +115,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private NewMethodDefiner agentctor;
 	private ByteCodeSink agentClass;
 	private Var agentcx;
-	private ObjectCtor currentOC;
 	private Var ocret;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
@@ -261,7 +260,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
-		currentOC = oc;
 		GenericAnnotator ann;
 		this.clz = bce.get(oc.getObject().name().javaName());
 		IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + oc.name().name);
@@ -280,6 +278,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		currentBlock = new ArrayList<IExpr>();
 
 		ocret = meth.avar(od.name().javaName(), "ret");
+		fs.provideOcret(ocret);
 		IExpr created = meth.makeNew(od.name().javaName(), fs.fcx);
 		currentBlock.add(meth.assign(ocret, created));
 		int i = 0;
@@ -289,12 +288,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			currentBlock.add(assn);
 		}
 	}
-	
+
 	@Override
 	public void visitStateDefinition(StateDefinition state) {
 		if (ocret != null) {
 			fs.provideStateObject(meth.as(ocret, J.FIELDS_CONTAINER_WRAPPER));
-			new ObjectCtorStateGenerator(fs, sv, currentOC.getObject(), currentBlock, ocret);
+			new ObjectCtorStateGenerator(fs, sv, currentBlock);
 		}
 	}
 
@@ -404,8 +403,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	// This is needed here as well as HSIGenerator to handle the no-switch case
 	@Override
 	public void startInline(FunctionIntro fi) {
-		if (currentOC != null)
-			new ObjectCtorGenerator(fs, sv, currentOC.getObject(), currentBlock, ocret);
+		if (fs.ocret() != null)
+			new ObjectCtorGenerator(fs, sv, currentBlock);
 		else
 			new GuardGenerator(fs, sv, currentBlock);
 	}
@@ -464,7 +463,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else {
 			makeBlock(meth, currentBlock).flush();
 		}
-		currentOC = null;
+		fs.provideOcret(null);
 		ocret = null;
 		currentBlock.clear();
 		this.meth = null;
