@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -32,8 +31,8 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void event(UnresolvedVar card, StringLiteral name, Expr event) {
-		this.steps.add(new UnitTestEvent(card, name, event));
+	public void event(UnresolvedVar card, Expr event) {
+		this.steps.add(new UnitTestEvent(card, event));
 	}
 
 	@Override

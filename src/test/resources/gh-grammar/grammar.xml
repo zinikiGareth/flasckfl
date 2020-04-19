@@ -9,6 +9,9 @@
   <lex token='ACOR' pattern='acor'>
   	<p>The <tt>acor</tt> keyword introduces an object accessor function.</p>
   </lex>
+  <lex token='AGENT' pattern='agent'>
+  	<p>The <tt>agent</tt> keyword introduces an agent declaration.</p>
+  </lex>
   <lex token='APPLY' pattern='\.'>
   	<p>The apply operator.</p>
   </lex>
@@ -244,6 +247,7 @@
       <ref production='contract-declaration'/>
       <ref production='object-declaration'/>
       <ref production='service-declaration'/>
+      <ref production='agent-declaration'/>
       <ref production='card-declaration'/>
     </or>
   </production>
@@ -1125,7 +1129,6 @@
     <section title='Service'/>
     <tested by='test.parsing.TDAServiceParsingTests' />
     <seq>
-    	  <ref production='state-declaration'/>
       <ref production='service-scope'/>
     </seq>
   </production>
@@ -1154,6 +1157,28 @@
     	  <indent>
     	    <ref production='implementation-method'/>
     	  </indent>
+    </seq>
+  </production>
+  <production name='agent-declaration'>
+    <section title='Agent'>
+      <description>
+      </description>
+    </section>
+    <tested by='test.parsing.TDAServiceParsingTests' />
+    <seq>
+    	  <token type='AGENT' />
+    	  <token type='type-name' names='Agent\[${name}\]' />
+    	  <indent-one>
+    	    <ref production='agent-contents'/>
+    	  </indent-one>
+    </seq>
+  </production>
+  <production name='agent-contents'>
+    <section title='Agent'/>
+    <tested by='test.parsing.TDAAgentParsingTests' />
+    <seq>
+   	  <ref production='state-declaration'/>
+      <ref production='service-scope'/>
     </seq>
   </production>
   <production name='card-declaration'>

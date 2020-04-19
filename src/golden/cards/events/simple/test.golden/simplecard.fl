@@ -1,0 +1,6 @@
+	card EventHandler
+		state
+			String s
+		
+		event click ev
+			s <- "hello"

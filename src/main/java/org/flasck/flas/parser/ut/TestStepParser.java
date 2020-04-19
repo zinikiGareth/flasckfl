@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -17,7 +16,6 @@ import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.KeywordToken;
-import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -91,18 +89,25 @@ public class TestStepParser implements TDAParsing {
 		}
 		case "event": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);
-			TemplateNameToken evname = TemplateNameToken.from(toks);
+			if (tok == null) {
+				errors.message(toks, "must specify a card to receive event");
+				return new IgnoreNestedParser();
+			}
 			List<Expr> eventObj = new ArrayList<>();
 			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
 			expr.tryParsing(toks);
 			if (errors.hasErrors()){
 				return new IgnoreNestedParser();
 			}
-			if (tok == null || evname == null || eventObj.isEmpty()) {
-				errors.message(toks, "missing arguments");
+			if (eventObj.isEmpty()) {
+				errors.message(toks, "must provide an event object");
 				return new IgnoreNestedParser();
 			}
-			builder.event(new UnresolvedVar(tok.location, tok.text), new StringLiteral(evname.location, evname.text), eventObj.get(0));
+			if (eventObj.size() > 1) {
+				errors.message(toks, "only one event object is allowed");
+				return new IgnoreNestedParser();
+			}
+			builder.event(new UnresolvedVar(tok.location, tok.text), eventObj.get(0));
 			return new NoNestingParser(errors);
 		}
 		case "invoke": {

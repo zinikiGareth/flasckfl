@@ -1,0 +1,5 @@
+	test we can click on a card
+		data EventHandler eh
+		event eh (ClickEvent)
+		assert (eh.s)
+			"hello"
