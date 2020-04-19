@@ -40,6 +40,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
+import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -257,6 +258,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod om) {
+		if (om.hasImplements() && om.getImplements().getParent() instanceof ServiceDefinition) {
+			new DontGenerateJSServices(sv);
+			return;
+		}
 		switchVars.clear();
 		if (!om.isConverted()) {
 			this.meth = null;
@@ -480,6 +485,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator ctrProvider = agentCreator.createMethod("_contract", false);
 		ctrProvider.argument("_cxt");
 		ctrProvider.argument("_ctr");
+	}
+	
+	@Override
+	public void visitServiceDefn(ServiceDefinition ad) {
+		new DontGenerateJSServices(sv);
 	}
 	
 	@Override

@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -160,6 +161,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void visitServiceDefn(ServiceDefinition sd) {
+		scopeStack.add(0, scope);
+		this.scope = sd.name();
+	}
+	
+	@Override
 	public void visitImplements(ImplementsContract ic) {
 		scopeStack.add(0, scope);
 		this.scope = ic.name();
@@ -242,6 +249,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void leaveAgentDefn(AgentDefinition sd) {
+		this.scope = scopeStack.remove(0);
+	}
+
+	@Override
+	public void leaveServiceDefn(ServiceDefinition sd) {
 		this.scope = scopeStack.remove(0);
 	}
 

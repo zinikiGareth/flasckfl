@@ -1,0 +1,12 @@
+	contract handler Value
+		value (String x)
+
+	contract service DependOn
+		data -> (Value hdlr)
+		
+	service Trampoline
+		requires DependOn parent
+		
+		provides DependOn
+			data -> hdlr
+				<- parent.data -> hdlr
