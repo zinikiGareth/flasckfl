@@ -1,5 +1,7 @@
 agenterrors.  2.9:    provides  _ NotDefinedHere
                           cannot resolve 'NotDefinedHere'
+incorrectarg  7.9:    provides  _ ToProvide
+                          must implement required contract method test.golden.ToProvide.handle
 incorrectarg  8.0:     _ notThere
                           there is no method 'notThere' on 'test.golden.ToProvide'
 incorrectarg 12.0:     _ handle

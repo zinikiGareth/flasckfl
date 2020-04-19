@@ -1,0 +1,2 @@
+servicecontr  6.9:    provides  _ Svc
+                          must implement required contract method test.golden.Svc.start

@@ -204,6 +204,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveObjectCtor(ObjectCtor oa);
 		void leaveStateDefinition(StateDefinition state);
 		void visitStateDefinition(StateDefinition state);
+		void visitServiceDefn(ServiceDefinition s);
+		void leaveServiceDefn(ServiceDefinition s);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();

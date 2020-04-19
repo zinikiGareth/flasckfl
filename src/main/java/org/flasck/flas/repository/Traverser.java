@@ -54,6 +54,7 @@ import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -161,6 +162,8 @@ public class Traverser implements Visitor {
 			visitObjectDefn((ObjectDefn)e);
 		else if (e instanceof AgentDefinition)
 			visitAgentDefn((AgentDefinition)e);
+		else if (e instanceof ServiceDefinition)
+			visitServiceDefn((ServiceDefinition)e);
 		else if (e instanceof FunctionDefinition) {
 			if (functionOrder == null)
 				visitFunction((FunctionDefinition)e);
@@ -316,6 +319,18 @@ public class Traverser implements Visitor {
 		leaveAgentDefn(s);
 	}
 
+	@Override
+	public void visitServiceDefn(ServiceDefinition s) {
+		visitor.visitServiceDefn(s);
+		for (RequiresContract rc : s.requires)
+			visitRequires(rc);
+		for (Provides p : s.provides)
+			visitProvides(p);
+		for (HandlerImplements ic : s.handlers)
+			visitHandlerImplements(ic, null);
+		leaveServiceDefn(s);
+	}
+
 	public void visitProvides(Provides p) {
 		visitor.visitProvides(p);
 		visitTypeReference(p.implementsType());
@@ -368,6 +383,10 @@ public class Traverser implements Visitor {
 	@Override
 	public void leaveAgentDefn(AgentDefinition s) {
 		visitor.leaveAgentDefn(s);
+	}
+
+	public void leaveServiceDefn(ServiceDefinition s) {
+		visitor.leaveServiceDefn(s);
 	}
 
 	@Override

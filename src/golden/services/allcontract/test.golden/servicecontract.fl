@@ -1,0 +1,6 @@
+	contract service Svc
+		start
+		optional whyBother
+		
+	service Starter
+		provides Svc

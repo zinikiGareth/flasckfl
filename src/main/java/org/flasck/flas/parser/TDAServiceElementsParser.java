@@ -5,12 +5,15 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
+import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDAServiceElementsParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -61,6 +64,35 @@ public class TDAServiceElementsParser implements TDAParsing {
 			final Provides cs = new Provides(kw.location, tn.location, (NamedType)service, ctr, csn);
 			consumer.addProvidedService(cs);
 			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel);
+		}
+		case "requires": {
+			TypeNameToken tn = TypeNameToken.qualified(toks);
+			if (tn == null) {
+				errors.message(toks, "invalid contract reference");
+				return new IgnoreNestedParser();
+			}
+			
+			InputPosition varloc = null;
+			String varname = null;
+			if (toks.hasMore()) {
+				ValidIdentifierToken var = VarNameToken.from(toks);
+				if (var == null) {
+					errors.message(toks, "invalid service var name");
+					return new IgnoreNestedParser();
+				}
+				varloc = var.location;
+				varname = var.text;
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "extra tokens at end of line");
+				return new IgnoreNestedParser();
+			}
+			final TypeReference ctr = namer.contract(tn.location, tn.text);
+			final CSName cin = namer.csn(tn.location, "R");
+			final RequiresContract rc = new RequiresContract(kw.location, tn.location, (NamedType)consumer, ctr, cin, varloc, varname);
+			consumer.addRequiredContract(rc);
+			topLevel.newRequiredContract(errors, rc);
+			return new NoNestingParser(errors);
 		}
 		default:
 			return null;

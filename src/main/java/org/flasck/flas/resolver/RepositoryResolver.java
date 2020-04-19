@@ -182,15 +182,26 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void leaveProvides(Provides p) {
+		currentlyImplementing = null;
 		ContractDecl d = p.actualType();
 		if (d == null) {
 			if (p.implementsType().defn() != null)
 				errors.message(p.implementsType().location(), p.implementsType().name() + " is not a contract");
 			return;
 		}
-		if (d.type != ContractType.SERVICE)
+		if (d.type != ContractType.SERVICE) {
 			errors.message(p.implementsType().location(), "cannot provide non-service contract");
-		currentlyImplementing = null;
+			return;
+		}
+		cmds:
+		for (ContractMethodDecl cmd : d.methods) {
+			if (!cmd.required)
+				continue;
+			for (ObjectMethod m : p.implementationMethods)
+				if (m.name().name.equals(cmd.name.name))
+					continue cmds;
+			errors.message(p.location(), "must implement required contract method " + cmd.name.uniqueName());
+		}
 	}
 
 	@Override

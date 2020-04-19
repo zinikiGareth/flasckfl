@@ -98,7 +98,7 @@ public class TDAServiceParsingTests {
 //			oneOf(builder).newHandler(with(any(HandlerImplements.class)));
 		}});
 		serviceParser.tryParsing(TDABasicIntroParsingTests.line("provides org.ziniki.ContractName"));
-		assertEquals(1, svc.services.size());
+		assertEquals(1, svc.provides.size());
 	}
 
 	@SuppressWarnings("unchecked")

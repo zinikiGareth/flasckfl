@@ -18,7 +18,8 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
-	public final List<Provides> services = new ArrayList<Provides>();
+	public final List<Provides> provides = new ArrayList<Provides>();
+	public final List<RequiresContract> requires = new ArrayList<>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final CardName serviceName;
 
@@ -43,11 +44,11 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 	}
 
 	public void addProvidedService(Provides contractService) {
-		services.add(contractService);
+		provides.add(contractService);
 	}
 
-	public void addContractService(Provides o) {
-		services.add(o);
+	public void addRequiredContract(RequiresContract o) {
+		requires.add(o);
 	}
 
 	public void newHandler(ErrorReporter errors, HandlerImplements o) {

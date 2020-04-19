@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
+import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -125,6 +126,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitAgentDefn(AgentDefinition s) {
+	}
+
+	@Override
+	public void visitServiceDefn(ServiceDefinition s) {
+	}
+
+	@Override
+	public void leaveServiceDefn(ServiceDefinition s) {
 	}
 
 	@Override
