@@ -55,7 +55,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 
 	@Override
 	public FLEvalContext create() {
-		return new LoaderContext(loader, broker, this);
+		return new LoaderContext(loader, broker, this, dispatcher);
 	}
 
 	@Override

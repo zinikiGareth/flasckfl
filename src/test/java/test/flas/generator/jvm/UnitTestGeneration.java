@@ -139,14 +139,17 @@ public class UnitTestGeneration {
 	public void weCanCreateLocalObjectsInUDDs() {
 		IExpr runner = context.mock(IExpr.class, "runner");
 		IExpr call = context.mock(IExpr.class, "call");
+		IExpr stored = context.mock(IExpr.class, "stored");
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(17));
 		}});
 		AVar v1 = new AVar(meth, J.OBJECT, "v1");
 		context.checking(new Expectations() {{
 			oneOf(meth).callStatic("test.something.Obj", J.OBJECT, "eval", runner); will(returnValue(call));
+			oneOf(meth).as(call, J.OBJECT); will(returnValue(call));
+			oneOf(meth).callInterface(J.OBJECT, runner, "storeMock", call); will(returnValue(stored));
 			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
-			oneOf(meth).assign(v1, call);
+			oneOf(meth).assign(v1, stored);
 		}});
 		JVMGenerator jvm = JVMGenerator.forTests(meth, runner, null);
 		Traverser gen = new Traverser(jvm.stackVisitor());

@@ -314,7 +314,6 @@ FLContext.prototype.storeMock = function(value) {
 	value = this.full(value);
 	if (value instanceof ResponseWithMessages) {
 		// because this is a test operation, we can assume that env is a UTRunner
-		debugger;
 		this.env.handleMessages(this, ResponseWithMessages.messages(this, value));
 		return ResponseWithMessages.response(this, value);
 	} else

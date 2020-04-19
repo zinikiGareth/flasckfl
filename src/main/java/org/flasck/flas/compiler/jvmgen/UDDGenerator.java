@@ -48,17 +48,19 @@ public class UDDGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
+		IExpr value;
 		if (assigned != null) {
-			JVMGenerator.makeBlock(meth, currentBlock).flush();
-			currentBlock.clear();
-			fs.addMock(udd, assigned);
+			value = assigned;
 		} else {
 			NamedType objty = udd.ofType.defn();
-			IExpr mc = meth.callStatic(objty.name().javaName(), J.OBJECT, "eval", this.fs.fcx);
-			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
-			meth.assign(v, mc).flush();
-			this.fs.addMock(udd, v);
+			value = meth.callStatic(objty.name().javaName(), J.OBJECT, "eval", this.fs.fcx);
 		}
+		Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
+		IExpr sm = meth.callInterface(J.OBJECT, fs.fcx, "storeMock", meth.as(value, J.OBJECT));
+		currentBlock.add(meth.assign(v, sm));
+		JVMGenerator.makeBlock(meth, currentBlock).flush();
+		currentBlock.clear();
+		fs.addMock(udd, v);
 		sv.result(null);
 	}
 

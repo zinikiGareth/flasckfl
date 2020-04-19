@@ -97,7 +97,7 @@ public class StructGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo.Struct");
 			oneOf(jss).newFunction("test.repo", "test.repo.Struct", true, "_field_s"); will(returnValue(sfacc));
 			oneOf(sfacc).argument("_cxt");
-			oneOf(sfacc).loadField(new JSThis(), "s"); will(returnValue(obj));
+			oneOf(sfacc).loadField(with(any(JSThis.class)), with("s")); will(returnValue(obj));
 			oneOf(sfacc).returnObject(obj);
 		}});
 		StackVisitor gen = new StackVisitor();

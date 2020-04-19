@@ -113,11 +113,11 @@ public class UnitTestGenerationJS {
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, utn, "data"), null);
 		JSExpr mo = context.mock(JSExpr.class, "mockObject");
+		JSExpr smo = context.mock(JSExpr.class, "storedObject");
 		context.checking(new Expectations() {{
-//			oneOf(nv).push(with(any(JSGenerator.class)));
-//			oneOf(nv).push(with(any(UDDGeneratorJS.class)));
 			oneOf(meth).createObject(od.name()); will(returnValue(mo));
-			oneOf(state).addMock(udd, mo);
+			oneOf(meth).storeMockObject(udd, mo); will(returnValue(smo));
+			oneOf(state).addMock(udd, smo);
 		}});
 		JSGenerator.forTests(meth, runner, nv, state);
 		Traverser gen = new Traverser(nv);

@@ -228,7 +228,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			IExpr fn = meth.makeNew(J.CALLSTATIC, meth.classConst(oc.name().container().javaName()), meth.stringConst(oc.name().name), meth.intConst(nargs));
 			if (nargs == 0) {
 				Var v = makeClosure(fn, oc.argCountIncludingContracts());
-				sv.result(new WrappedWithMessages(meth, fcx, v));
+				sv.result(v);
 			} else
 				sv.result(fn);
 		} else

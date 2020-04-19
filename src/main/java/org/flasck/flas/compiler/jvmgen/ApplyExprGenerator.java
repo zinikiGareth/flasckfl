@@ -138,10 +138,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 				call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));
-			IExpr ret = v;
-			if (defn instanceof ObjectCtor)
-				ret = new WrappedWithMessages(meth, state.fcx, v);
-			sv.result(ret);
+			sv.result(v);
 		}
 	}
 

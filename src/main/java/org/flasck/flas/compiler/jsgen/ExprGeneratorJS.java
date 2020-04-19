@@ -66,12 +66,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitCurrentContainer(CurrentContainer expr) {
-//		if (state.stateLocation() == StateLocation.LOCAL)
-			sv.result(state.container());
-//		else if (state.stateLocation() == StateLocation.CARD)
-//			sv.result(block.fromCard());
-//		else
-//			throw new NotImplementedException("There is no associated state location");
+		sv.result(state.container());
 	}
 	
 	@Override
