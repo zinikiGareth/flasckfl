@@ -150,6 +150,6 @@ public abstract class ObjectActionHandler implements Locatable, MethodMessagesCo
 	public abstract boolean isEvent();
 	public abstract ObjectDefn getObject();
 	public abstract Implements getImplements();
-	public abstract Type getCard();
+	public abstract CardDefinition getCard();
 	public abstract ContractMethodDecl contractMethod();
 }

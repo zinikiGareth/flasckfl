@@ -25,6 +25,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -271,7 +272,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSExpr container = null;
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null || om.hasObject(), om.name().name);
+		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent(), om.name().name);
 		if (om.hasImplements()) {
 			Implements impl = om.getImplements();
 			this.methodMap.get(impl).add(om.name());
@@ -281,6 +282,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 				container = new JSFromCard();
 		} else if (om.hasObject()) {
 			this.methodMap.get(om.getObject()).add(om.name());
+			container = new JSThis();
+		} else if (om.isEvent()) {
+			this.methodMap.get(om.getCard()).add(om.name());
 			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
@@ -489,6 +493,25 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 	
 	@Override
+	public void visitCardDefn(CardDefinition cd) {
+		String pkg = cd.name().container().jsName();
+		jse.ensurePackageExists(pkg, pkg);
+		agentCreator = jse.newClass(pkg, cd.name().jsName());
+		JSBlockCreator ctor = agentCreator.constructor();
+		ctor.stateField();
+		ctor.fieldObject("_contracts", "ContractStore");
+		JSMethodCreator meth = agentCreator.createMethod("name", true);
+		meth.argument("_cxt");
+		meth.returnObject(new JSString(cd.name().uniqueName()));
+		JSMethodCreator ctrProvider = agentCreator.createMethod("_contract", false);
+		ctrProvider.argument("_cxt");
+		ctrProvider.argument("_ctr");
+		List<FunctionName> methods = new ArrayList<>();
+		methodMap.put(cd, methods);
+		jse.methodList(cd.name(), methods);
+	}
+	
+	@Override
 	public void visitServiceDefn(ServiceDefinition ad) {
 		new DontGenerateJSServices(sv);
 	}
@@ -542,6 +565,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		agentCreator = null;
 	}
 	
+	@Override
+	public void leaveCardDefn(CardDefinition s) {
+		agentCreator = null;
+	}
+
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
 		if (involvesServices(e)) {
@@ -599,6 +627,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			explodingMocks.add(mock);
 		} else if (objty instanceof AgentDefinition) {
 			JSExpr obj = meth.createAgent((CardName) objty.name());
+			state.addMock(udd, obj);
+		} else if (objty instanceof CardDefinition) {
+			JSExpr obj = meth.createCard((CardName) objty.name());
 			state.addMock(udd, obj);
 		} else if (objty instanceof ObjectDefn) {
 			new UDDGeneratorJS(sv, meth, state, this.block);

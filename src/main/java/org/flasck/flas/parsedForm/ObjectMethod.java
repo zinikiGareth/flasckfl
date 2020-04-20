@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
@@ -63,7 +62,7 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 	}
 
 	@Override
-	public Type getCard() {
+	public CardDefinition getCard() {
 		return eventCard;
 	}
 

@@ -2,6 +2,7 @@ package org.flasck.flas.method;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.MemberExpr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
@@ -13,6 +14,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -47,7 +49,7 @@ public class AccessorConvertor extends LeafAdapter {
 				// UDDs can prod state directly on cards, agents and objects ...
 				StateHolder sh = (StateHolder)udd.ofType.defn();
 				if (sh.state().hasMember(meth.var)) {
-					expr.conversion(new ApplyExpr(expr.location, "_prod_state", expr.from, meth));
+					expr.conversion(new ApplyExpr(expr.location, LoadBuiltins.prodState, expr.from, new StringLiteral(meth.location, meth.var)));
 					return;
 				}
 			}

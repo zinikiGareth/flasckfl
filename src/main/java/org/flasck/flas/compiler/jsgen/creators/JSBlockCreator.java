@@ -39,6 +39,7 @@ public interface JSBlockCreator {
 	JSExpr createObject(NameOfThing name, List<JSExpr> args);
 	JSExpr createObject(String name, List<JSExpr> args);
 	JSExpr createAgent(CardName cardName);
+	JSExpr createCard(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
 	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);
 	JSExpr introduceVar(String var);

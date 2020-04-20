@@ -56,7 +56,7 @@ public class ObjectCtor extends ObjectActionHandler implements WithTypeSignature
 	}
 
 	@Override
-	public Type getCard() {
+	public CardDefinition getCard() {
 		throw new NotImplementedException();
 	}
 

@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
@@ -86,6 +87,8 @@ public class LoadBuiltins {
 	// The type "operator"
 	private static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
 
+	// The function that prods state in UDDs
+	public static UnresolvedVar prodState = new UnresolvedVar(pos, "_prod_state");
 	
 	// Builtin operators
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2);
@@ -141,6 +144,8 @@ public class LoadBuiltins {
 		message.addCase(assignTR);
 		message.addCase(sendTR);
 		event.addCase(clickEventTR);
+		
+		prodState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_prod_state"), 2));
 		
 		// specify function types
 		{

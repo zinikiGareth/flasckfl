@@ -330,6 +330,10 @@ FLContext.prototype.mockAgent = function(agent) {
 	return new MockAgent(agent);
 }
 
+FLContext.prototype.mockCard = function(card) {
+	return new MockCard(card);
+}
+
 FLContext.prototype.explodingHandler = function() {
 	const ret = new ExplodingIdempotentHandler(this);
 	return ret;
@@ -474,6 +478,12 @@ FLBuiltin.isEqual = function(_cxt, a, b) {
 }
 
 FLBuiltin.isEqual.nfargs = function() { return 2; }
+
+FLBuiltin._prod_state = function(_cxt, sh, v) {
+	return "not yet";
+}
+
+FLBuiltin._prod_state.nfargs = function() { return 2; }
 
 
 

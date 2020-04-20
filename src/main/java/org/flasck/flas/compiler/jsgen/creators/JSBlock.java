@@ -41,6 +41,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMakeTuple;
 import org.flasck.flas.compiler.jsgen.form.JSMember;
 import org.flasck.flas.compiler.jsgen.form.JSMockAgent;
+import org.flasck.flas.compiler.jsgen.form.JSMockCard;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSMockHandler;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
@@ -376,6 +377,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr createAgent(CardName name) {
 		JSLocal ret = new JSLocal(this.creating, new JSMockAgent(name));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
+	public JSExpr createCard(CardName name) {
+		JSLocal ret = new JSLocal(this.creating, new JSMockCard(name));
 		stmts.add(ret);
 		return ret;
 	}

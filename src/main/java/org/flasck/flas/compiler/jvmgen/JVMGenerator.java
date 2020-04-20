@@ -14,6 +14,7 @@ import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -210,6 +211,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				Implements impl = om.getImplements();
 				this.clz = bce.get(impl.name().javaClassName());
 				wantParent = !(impl instanceof HandlerImplements);
+			} else if (om.isEvent()) {
+				CardDefinition card = om.getCard();
+				this.clz = bce.get(card.name().javaName());
+				wantParent = false;
 			} else
 				throw new NotImplementedException("Don't have one of those");
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + om.name().name);
@@ -245,6 +250,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 		if (om.hasObject()) {
 			ObjectDefn od = om.getObject();
+			if (od.state() != null) {
+				fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
+			}
+		} else if (om.isEvent()) {
+			CardDefinition od = om.getCard();
 			if (od.state() != null) {
 				fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
 			}
@@ -582,7 +592,24 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
 		}
 	}
-	
+
+	@Override
+	public void visitCardDefn(CardDefinition cd) {
+		String clzName = cd.name().javaName();
+		agentClass = bce.newClass(clzName);
+		agentClass.superclass(J.CONTRACT_HOLDER);
+		agentClass.generateAssociatedSourceFile();
+		agentClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+		agentClass.inheritsField(true, Access.PRIVATE, J.CONTRACTSTORE, "store");
+		{ // ctor(cx)
+			GenericAnnotator gen = GenericAnnotator.newConstructor(agentClass, false);
+			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			agentctor = gen.done();
+			agentcx = cx.getVar();
+			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
+		}
+	}
+
 	@Override
 	public void visitServiceDefn(ServiceDefinition sd) {
 		String clzName = sd.name().javaName();
@@ -695,7 +722,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void leaveCardDefn(CardDefinition cd) {
+		agentctor.returnVoid().flush();
+		agentctor = null;
+	}
 	
+	@Override
 	public void leaveServiceDefn(ServiceDefinition s) {
 		agentctor.returnVoid().flush();
 		agentctor = null;
@@ -762,6 +794,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			new UDDGenerator(sv, fs, currentBlock);
 		} else if (objty instanceof HandlerImplements) {
 			new UDDGenerator(sv, fs, currentBlock);
+		} else if (objty instanceof CardDefinition) {
+			CardDefinition cd = (CardDefinition)objty;
+			IExpr card = meth.makeNew(cd.name().javaName(), this.fcx);
+			IExpr mc = meth.callInterface(J.MOCKCARD, fcx, "mockCard", meth.as(card, J.CONTRACT_HOLDER));
+			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
+			meth.assign(v, mc).flush();
+			this.fs.addMock(udd, v);
 		} else if (objty instanceof AgentDefinition) {
 			AgentDefinition ad = (AgentDefinition)objty;
 			IExpr agent = meth.makeNew(ad.name().javaName(), this.fcx);
