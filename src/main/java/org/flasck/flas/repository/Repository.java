@@ -74,6 +74,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -194,6 +195,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveUnitTestExpect(UnitTestExpect ute);
 		void visitUnitTestSend(UnitTestSend s);
 		void leaveUnitTestSend(UnitTestSend s);
+		void visitUnitTestEvent(UnitTestEvent e);
+		void leaveUnitTestEvent(UnitTestEvent e);
 		void visitSendMethod(NamedType defn, UnresolvedVar expr);
 		void visitHandleExpr(InputPosition location, Expr expr, Expr handler);
 		void leaveHandleExpr(Expr expr, Expr handler);

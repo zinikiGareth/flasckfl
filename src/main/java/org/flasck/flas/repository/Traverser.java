@@ -72,6 +72,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -1213,6 +1214,8 @@ public class Traverser implements Visitor {
 			visitUnitTestExpect((UnitTestExpect) s);
 		else if (s instanceof UnitTestSend)
 			visitUnitTestSend((UnitTestSend)s);
+		else if (s instanceof UnitTestEvent)
+			visitUnitTestEvent((UnitTestEvent)s);
 		else
 			throw new NotImplementedException("cannot handle " + s.getClass());
 	}
@@ -1352,6 +1355,17 @@ public class Traverser implements Visitor {
 
 	public void leaveUnitTestSend(UnitTestSend s) {
 		visitor.leaveUnitTestSend(s);
+	}
+
+	public void visitUnitTestEvent(UnitTestEvent e) {
+		visitor.visitUnitTestEvent(e);
+		visitExpr(e.card, 0);
+		visitExpr(e.expr, 0);
+		leaveUnitTestEvent(e);
+	}
+
+	public void leaveUnitTestEvent(UnitTestEvent e) {
+		visitor.leaveUnitTestEvent(e);
 	}
 
 	@Override

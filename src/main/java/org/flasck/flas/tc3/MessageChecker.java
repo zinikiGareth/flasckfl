@@ -45,8 +45,10 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 			container = inMeth.getObject();
 		else if (inMeth.hasImplements())
 			container = inMeth.getImplements().getParent();
+		else if (inMeth.isEvent())
+			container = inMeth.getCard();
 		else
-			throw new NotImplementedException("Cannot handle " + inMeth);
+			throw new NotImplementedException("Cannot find container in " + inMeth + " " + inMeth.getClass() + " with no object or implements");
 		String curr = null;
 		String var = null;
 		for (int i=0;i<slots.size();i++) {

@@ -51,6 +51,16 @@ public class ObjectCtor extends ObjectActionHandler implements WithTypeSignature
 	}
 
 	@Override
+	public boolean isEvent() {
+		return false;
+	}
+
+	@Override
+	public Type getCard() {
+		throw new NotImplementedException();
+	}
+
+	@Override
 	public String toString() {
 		return "ctor " + name().uniqueName();
 	}

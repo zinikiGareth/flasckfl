@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
@@ -13,10 +14,15 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 	private Implements impl;
 	private ContractMethodDecl contractMethod;
 	public final VarPattern handler;
+	private CardDefinition eventCard;
 
 	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args, VarPattern handler) {
 		super(location, name, args);
 		this.handler = handler;
+	}
+
+	public void eventFor(CardDefinition card) {
+		this.eventCard = card;
 	}
 	
 	public void bindToObject(ObjectDefn od) {
@@ -49,6 +55,16 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 		if (impl == null)
 			throw new NotImplementedException("There is no impl definition bound here");
 		return impl;
+	}
+
+	@Override
+	public boolean isEvent() {
+		return eventCard != null;
+	}
+
+	@Override
+	public Type getCard() {
+		return eventCard;
 	}
 
 	@Override

@@ -53,6 +53,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -507,6 +508,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveUnitTestSend(UnitTestSend s) {
+	}
+
+	@Override
+	public void visitUnitTestEvent(UnitTestEvent e) {
+	}
+
+	@Override
+	public void leaveUnitTestEvent(UnitTestEvent e) {
 	}
 
 	@Override

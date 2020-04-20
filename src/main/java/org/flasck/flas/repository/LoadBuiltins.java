@@ -42,6 +42,7 @@ public class LoadBuiltins {
 	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
 	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
+	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
 	
 	// "Primitive" types
 	public static final PolyType polyA = new PolyType(pos, "A"); 
@@ -78,6 +79,10 @@ public class LoadBuiltins {
 	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
 
+	// Events
+	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
+	public static final UnionTypeDefn event = new UnionTypeDefn(pos, false, new SolidName(null, "Event"));
+	
 	// The type "operator"
 	private static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
 
@@ -110,6 +115,7 @@ public class LoadBuiltins {
 		debugTR.bind(debug);
 		sendTR.bind(send);
 		assignTR.bind(assign);
+		clickEventTR.bind(clickEvent);
 	
 		// add fields to structs
 		error.addField(new StructField(pos, false, stringTR, "message"));
@@ -134,6 +140,7 @@ public class LoadBuiltins {
 		message.addCase(debugTR);
 		message.addCase(assignTR);
 		message.addCase(sendTR);
+		event.addCase(clickEventTR);
 		
 		// specify function types
 		{
@@ -181,6 +188,9 @@ public class LoadBuiltins {
 		repository.newStruct(errors, send);
 		repository.newStruct(errors, assign);
 		repository.newUnion(errors, message);
+
+		repository.newStruct(errors, clickEvent);
+		repository.newUnion(errors, event);
 
 		repository.functionDefn(errors, isEqual);
 		repository.functionDefn(errors, plus);
