@@ -491,8 +491,12 @@ FLBuiltin.isEqual = function(_cxt, a, b) {
 
 FLBuiltin.isEqual.nfargs = function() { return 2; }
 
-FLBuiltin._prod_state = function(_cxt, sh, v) {
-	return "not yet";
+FLBuiltin._prod_state = function(_cxt, mock, v) {
+	// mock should be a MockCard or MockAgent (or MockObject or something?)
+	const sh = mock.card ? mock.card : mock.agent;
+	if (sh.state.dict[v] === undefined)
+		throw Error("no member " + v + " in " + sh.state.dict);
+	return sh.state.dict[v];
 }
 
 FLBuiltin._prod_state.nfargs = function() { return 2; }
