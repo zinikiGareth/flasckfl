@@ -1,0 +1,5 @@
+	card WrongEventPatterns
+		
+		event musthavearg
+		
+		event mustbetyped ev

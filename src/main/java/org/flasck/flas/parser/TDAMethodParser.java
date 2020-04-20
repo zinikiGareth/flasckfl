@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -30,6 +31,7 @@ public class TDAMethodParser {
 	}
 	
 	public TDAParsing parseMethod(FunctionNameProvider methodNamer, Tokenizable toks) {
+		ErrorMark mark = errors.mark();
 		ValidIdentifierToken var = VarNameToken.from(toks);
 		if (var == null) {
 			errors.message(toks, "no method name provided");
@@ -42,7 +44,7 @@ public class TDAMethodParser {
 		}, topLevel);
 		while (pp.tryParsing(toks) != null)
 			;
-		if (errors.hasErrors()) 
+		if (mark.hasMoreNow()) 
 			return new IgnoreNestedParser();
 		
 		if (toks.hasMore()) {

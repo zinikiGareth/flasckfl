@@ -1,0 +1,4 @@
+    wrongpattern  3.17:   event musthavearg _ 
+                              event handlers must have exactly one (typed) argument
+    wrongpattern  5.18:   event mustbetyped  _ ev
+                              event arguments must be typed

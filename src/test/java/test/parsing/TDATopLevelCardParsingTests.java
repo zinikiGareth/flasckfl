@@ -115,9 +115,9 @@ public class TDATopLevelCardParsingTests {
 	public void cardsCanHaveEventHandlers() {
 		context.checking(new Expectations() {{
 			oneOf(builder).newObjectMethod(with(tracker), with(any(ObjectActionHandler.class)));
-			oneOf(builder).argument(with(aNull(ErrorReporter.class)), with(any(VarPattern.class)));
+			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
 		}});
-		cardParser.tryParsing(TDABasicIntroParsingTests.line("event foo ev"));
+		cardParser.tryParsing(TDABasicIntroParsingTests.line("event foo (ClickEvent ev)"));
 		assertEquals(1, card.eventHandlers.size());
 	}
 
@@ -133,6 +133,7 @@ public class TDATopLevelCardParsingTests {
 	public void cardsWithStandaloneMethodsDontCascadeErrorsBecausePatternParsingIsIgnored() {
 		context.checking(new Expectations() {{
 			oneOf(builder).argument(with(tracker), with(any(TypedPattern.class)));
+			oneOf(builder).newStandaloneMethod(with(tracker), with(any(StandaloneMethod.class)));
 		}});
 		// throw an error to simulate cascade
 		tracker.fakeErrorWithoutNeedingAssertion();

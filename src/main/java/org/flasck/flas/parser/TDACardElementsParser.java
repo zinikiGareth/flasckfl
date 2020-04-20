@@ -1,11 +1,13 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -31,7 +33,20 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);
-			MethodConsumer evConsumer = em -> { em.eventFor((CardDefinition)consumer); consumer.addEventHandler(em); topLevel.newObjectMethod(errors, em); };
+			MethodConsumer evConsumer = em -> {
+				if (em.args().size() != 1) {
+					errors.message(toks, "event handlers must have exactly one (typed) argument");
+					return;
+				}
+				Pattern ev = em.args().get(0);
+				if (ev instanceof VarPattern) {
+					errors.message(ev.location(), "event arguments must be typed");
+					return;
+				}
+				em.eventFor((CardDefinition)consumer);
+				consumer.addEventHandler(em);
+				topLevel.newObjectMethod(errors, em);
+			};
 			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel).parseMethod(namer, toks);
 		}
 		default:
