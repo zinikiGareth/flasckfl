@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -122,6 +123,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
+	}
+
+	@Override
+	public void visitCardDefn(CardDefinition cd) {
+	}
+
+	@Override
+	public void leaveCardDefn(CardDefinition s) {
 	}
 
 	@Override

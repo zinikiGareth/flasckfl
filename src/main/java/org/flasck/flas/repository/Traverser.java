@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -164,6 +165,8 @@ public class Traverser implements Visitor {
 			visitAgentDefn((AgentDefinition)e);
 		else if (e instanceof ServiceDefinition)
 			visitServiceDefn((ServiceDefinition)e);
+		else if (e instanceof CardDefinition)
+			visitCardDefn((CardDefinition)e);
 		else if (e instanceof FunctionDefinition) {
 			if (functionOrder == null)
 				visitFunction((FunctionDefinition)e);
@@ -305,6 +308,23 @@ public class Traverser implements Visitor {
 	}
 
 	@Override
+	public void visitCardDefn(CardDefinition cd) {
+		visitor.visitCardDefn(cd);
+		visitStateDefinition(cd.state());
+		for (RequiresContract rc : cd.requires)
+			visitRequires(rc);
+		for (Provides p : cd.services)
+			visitProvides(p);
+		for (ImplementsContract ic : cd.contracts)
+			visitImplements(ic);
+		for (HandlerImplements ic : cd.handlers)
+			visitHandlerImplements(ic, cd);
+		// TODO: events
+		// TODO: templates
+		leaveCardDefn(cd);
+	}
+
+	@Override
 	public void visitAgentDefn(AgentDefinition s) {
 		visitor.visitAgentDefn(s);
 		visitStateDefinition(s.state());
@@ -378,6 +398,11 @@ public class Traverser implements Visitor {
 
 	public void leaveHandlerImplements(HandlerImplements hi) {
 		visitor.leaveHandlerImplements(hi);
+	}
+
+	@Override
+	public void leaveCardDefn(CardDefinition s) {
+		visitor.leaveCardDefn(s);
 	}
 
 	@Override

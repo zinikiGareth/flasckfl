@@ -206,6 +206,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitStateDefinition(StateDefinition state);
 		void visitServiceDefn(ServiceDefinition s);
 		void leaveServiceDefn(ServiceDefinition s);
+		void visitCardDefn(CardDefinition cd);
+		void leaveCardDefn(CardDefinition s);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();

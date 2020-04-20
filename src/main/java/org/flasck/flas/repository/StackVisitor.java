@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -450,6 +451,16 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void leaveObjectCtor(ObjectCtor oa) {
 		top.leaveObjectCtor(oa);
+	}
+
+	@Override
+	public void visitCardDefn(CardDefinition cd) {
+		top.visitCardDefn(cd);
+	}
+
+	@Override
+	public void leaveCardDefn(CardDefinition s) {
+		top.leaveCardDefn(s);
 	}
 
 	public void visitAgentDefn(AgentDefinition s) {

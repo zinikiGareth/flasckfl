@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
@@ -155,6 +156,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void visitCardDefn(CardDefinition cd) {
+		scopeStack.add(0, scope);
+		this.scope = cd.name();
+	}
+	
+	@Override
 	public void visitAgentDefn(AgentDefinition sd) {
 		scopeStack.add(0, scope);
 		this.scope = sd.name();
@@ -244,6 +251,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void leaveObjectDefn(ObjectDefn sd) {
+		this.scope = scopeStack.remove(0);
+	}
+
+	@Override
+	public void leaveCardDefn(CardDefinition cd) {
 		this.scope = scopeStack.remove(0);
 	}
 
@@ -375,6 +387,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		} else if (defn instanceof ObjectDefn) {
 			if (udd.expr == null) {
 				errors.message(udd.name.location, "an expression must be specified for " + defn.name().uniqueName());
+			}
+		} else if (defn instanceof CardDefinition) {
+			if (udd.expr != null) {
+				errors.message(udd.location(), "cards may not be initialized");
 			}
 		} else if (defn instanceof AgentDefinition) {
 			if (udd.expr != null) {

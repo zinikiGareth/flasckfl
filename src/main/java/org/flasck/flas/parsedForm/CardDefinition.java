@@ -18,7 +18,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class CardDefinition implements Locatable, CardElementsConsumer, RepositoryEntry, NamedType {
+public class CardDefinition implements Locatable, CardElementsConsumer, RepositoryEntry, NamedType, StateHolder {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
@@ -51,6 +51,10 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 
 	public CardName cardName() {
 		return cardName;
+	}
+
+	public StateDefinition state() {
+		return state;
 	}
 
 	@Override
