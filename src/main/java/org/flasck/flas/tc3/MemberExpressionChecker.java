@@ -3,18 +3,22 @@ package org.flasck.flas.tc3;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
@@ -87,13 +91,33 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				nv.result(meth.type());
 				return;
 			}
+			if (expr.from instanceof UnresolvedVar && ((UnresolvedVar)expr.from).defn() instanceof UnitDataDeclaration) {
+				handleStateHolderUDD((StateHolder) ty, fld.location, fld.var);
+				return;
+			}
+			
 			errors.message(expr.fld.location(), "object " + od.name() + " does not have a method, ctor or acor " + fld.var);
 			nv.result(new ErrorType());
+		} else if (ty instanceof CardDefinition) {
+			if (expr.from instanceof UnresolvedVar && ((UnresolvedVar)expr.from).defn() instanceof UnitDataDeclaration)
+				handleStateHolderUDD((StateHolder) ty, fld.location, fld.var);
+			else {
+				errors.message(fld.location(), "there is insufficient information to deduce the type of the object in order to apply it to '" + fld.var + "'");
+				nv.result(new ErrorType());
+			}
 		} else if (expr.from instanceof UnresolvedVar) {
 			UnresolvedVar var = (UnresolvedVar) expr.from;
 			errors.message(var.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
 			nv.result(new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
+	}
+
+	private void handleStateHolderUDD(StateHolder ty, InputPosition loc, String var) {
+		if (ty.state().hasMember(var)) {
+			nv.result(ty.state().findField(var).type.defn());
+		} else {
+			errors.message(loc, "there is no member '" + var + "' in the state of " + ty.name().uniqueName());
+		}
 	}
 }

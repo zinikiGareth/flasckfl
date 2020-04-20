@@ -1,11 +1,13 @@
 package org.flasck.flas.method;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -41,6 +43,14 @@ public class AccessorConvertor extends LeafAdapter {
 		AccessorHolder od;
 		if (uv.defn() instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) uv.defn();
+			if (udd.ofType.defn() instanceof StateHolder) {
+				// UDDs can prod state directly on cards, agents and objects ...
+				StateHolder sh = (StateHolder)udd.ofType.defn();
+				if (sh.state().hasMember(meth.var)) {
+					expr.conversion(new ApplyExpr(expr.location, "_prod_state", expr.from, meth));
+					return;
+				}
+			}
 			od = (ObjectDefn) udd.ofType.defn();
 		} else if (uv.defn() instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)uv.defn();
