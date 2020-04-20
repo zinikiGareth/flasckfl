@@ -2,5 +2,5 @@
 		state
 			String s
 		
-		event click ev
+		event click (ClickEvent ev)
 			s <- "hello"

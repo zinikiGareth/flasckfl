@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
@@ -48,6 +49,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -104,6 +106,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
 	private Map<Object, List<FunctionName>> methodMap = new HashMap<>();
+	private Map<CardDefinition, Map<String, FunctionName>> eventMap = new HashMap<>();
 	private JSClassCreator currentContract;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
@@ -285,7 +288,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.methodMap.get(om.getObject()).add(om.name());
 			container = new JSThis();
 		} else if (om.isEvent()) {
-			this.methodMap.get(om.getCard()).add(om.name());
+			TypedPattern tp = (TypedPattern) om.args().get(0);
+			// TODO: I think we should traverse the event type hierarchy & add for all subclasses which are not already defined
+			// Or have been defined by one of our base classes
+			// That is, eventMap should be a complete map for all classes which have been defined and we should use the closest one
+			this.eventMap.get(om.getCard()).put(tp.type.name(), om.name());
 			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
@@ -510,6 +517,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(cd, methods);
 		jse.methodList(cd.name(), methods);
+		Map<String, FunctionName> eventMethods = new TreeMap<>();
+		eventMap.put(cd, eventMethods);
+		jse.eventMap(cd.name(), eventMethods);
 	}
 	
 	@Override

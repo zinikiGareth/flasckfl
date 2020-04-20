@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
@@ -71,6 +72,12 @@ public class JSEnvironment implements JSStorage {
 	public void methodList(NameOfThing name, List<FunctionName> methods) {
 		JSFile inpkg = getPackage(name.packageName().uniqueName());
 		inpkg.methodList(name, methods);
+	}
+
+	@Override
+	public void eventMap(CardName name, Map<String, FunctionName> eventMethods) {
+		JSFile inpkg = getPackage(name.packageName().uniqueName());
+		inpkg.eventMap(name, eventMethods);
 	}
 
 	public JSFile getPackage(String pkg) {

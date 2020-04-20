@@ -2,7 +2,9 @@ package org.flasck.flas.compiler.jsgen.packaging;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
@@ -19,6 +21,7 @@ public interface JSStorage {
 
 	JSMethodCreator newFunction(String pkg, String cxt, boolean inPrototype, String name);
 	void methodList(NameOfThing name, List<FunctionName> methods);
+	void eventMap(CardName name, Map<String, FunctionName> eventMethods);
 
 	Iterable<File> files();
 
@@ -27,5 +30,6 @@ public interface JSStorage {
 	void handler(HandlerImplements hi);
 
 	void complete();
+
 
 }

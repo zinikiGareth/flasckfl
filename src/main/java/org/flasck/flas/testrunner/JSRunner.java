@@ -244,7 +244,7 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
-	public void event(Object card, Object event) throws Exception {
+	public void event(FLEvalContext cx, Object card, Object event) throws Exception {
 //		logger.info("Sending event " + methodName + " to " +  cardVar);
 //		CardHandle card = cards.get(cardVar);
 //		AtomicBoolean choke = new AtomicBoolean(false);

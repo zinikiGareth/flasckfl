@@ -5,9 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
@@ -21,6 +23,7 @@ public class JSFile {
 	private final List<JSClass> classes = new ArrayList<>();
 	private final List<JSMethod> functions = new ArrayList<>();
 	private final List<MethodList> methodLists = new ArrayList<>();
+	private final List<EventMap> eventMaps = new ArrayList<>();
 
 	public JSFile(String pkg, File file) {
 		this.pkg = pkg;
@@ -47,6 +50,10 @@ public class JSFile {
 		methodLists.add(new MethodList(name, methods));
 	}
 
+	public void eventMap(CardName name, Map<String, FunctionName> eventMethods) {
+		eventMaps.add(new EventMap(name, eventMethods));
+	}
+
 	// untested
 	public void write() throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(file);
@@ -64,6 +71,8 @@ public class JSFile {
 			f.write(iw);
 		}
 		for (MethodList m : methodLists)
+			m.write(iw);
+		for (EventMap m : eventMaps)
 			m.write(iw);
 	}
 

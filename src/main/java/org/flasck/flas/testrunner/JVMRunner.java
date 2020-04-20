@@ -15,6 +15,7 @@ import org.flasck.jvm.container.ErrorCollector;
 import org.flasck.jvm.container.FLEvalContextFactory;
 import org.flasck.jvm.container.JvmDispatcher;
 import org.flasck.jvm.container.MockAgent;
+import org.flasck.jvm.container.MockCard;
 import org.flasck.jvm.container.MockService;
 import org.flasck.jvm.fl.LoaderContext;
 import org.ziniki.ziwsh.intf.EvalContext;
@@ -165,11 +166,11 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	}
 
 	@Override
-	public void event(Object card, Object event) throws Exception {
-//		if (!cdefns.containsKey(cardVar))
-//			throw new UtilException("there is no card '" + cardVar + "'");
-////		FlasckHandle card = cards.get(cardVar);
-////		card.event(controller.createContext(), cardVar, methodName);
+	public void event(FLEvalContext cx, Object card, Object event) throws Exception {
+		MockCard mc = (MockCard) card;
+		Object reply = cx.handleEvent(mc.card(), event);
+		reply = cx.full(reply);
+		dispatcher.invoke(cx, reply);
 	}
 
 //	@Override

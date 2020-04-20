@@ -42,7 +42,7 @@ public class DoUTEventGenerator extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestEvent(UnitTestEvent e) {
 		if (args.size() != 2)
 			throw new RuntimeException("expected card & event");
-		this.meth.callInterface("void", runner, "event", args.get(0), args.get(1)).flush();
+		this.meth.callInterface("void", runner, "event", fs.fcx, args.get(0), args.get(1)).flush();
 		sv.result(null);
 	}
 

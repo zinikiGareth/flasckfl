@@ -27,9 +27,10 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	this.handleMessages(_cxt, reply);
 }
 UTRunner.prototype.event = function(_cxt, target, event) {
-//	var reply = ... figure out the invocation ...
-//	reply = _cxt.full(reply);
-//	this.handleMessages(_cxt, reply);
+	// TODO: when we have templates, this should indirect as an event through the DIV & its event handler
+	var reply = _cxt.handleEvent(target.card, event);
+	reply = _cxt.full(reply);
+	this.handleMessages(_cxt, reply);
 }
 UTRunner.prototype.handleMessages = function(_cxt, msg) {
 	if (this.errors.length != 0)
@@ -183,7 +184,7 @@ MockAgent.prototype.sendTo = function(_cxt, contract, msg, args) {
 };
 
 const MockCard = function(card) {
-	this.agent = card;
+	this.card = card;
 };
 
 MockCard.prototype = new MockAgent();

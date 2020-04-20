@@ -310,6 +310,18 @@ FLContext.prototype.field = function(obj, field) {
 	}
 }
 
+FLContext.prototype.handleEvent = function(card, event) {
+	const en = event.constructor.name;
+	const handler = card._events()[en];
+	var reply = [];
+	if (handler) {
+		reply = handler.call(card, this, event);
+	}
+	// When we have properly figured out message dispatch, we should handle the messages here ...
+	// But for now ...
+	return reply;
+}
+
 FLContext.prototype.storeMock = function(value) {
 	value = this.full(value);
 	if (value instanceof ResponseWithMessages) {
@@ -497,6 +509,10 @@ ClickEvent.prototype.constructor = ClickEvent;
 
 ClickEvent.eval = function(cx) {
     return new ClickEvent();
+}
+
+ClickEvent.prototype.areYouA = function(name) {
+    return name == "ClickEvent" || name == "Event";
 }
 
 

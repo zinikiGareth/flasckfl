@@ -1,11 +1,13 @@
 package org.flasck.flas.compiler.jvmgen;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.names.CSName;
@@ -70,6 +72,16 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
+	public class EventsMethod {
+		private final MethodDefiner meth;
+		private final IExpr ret;
+
+		public EventsMethod(MethodDefiner cardevents, IExpr eventsMap) {
+			this.meth = cardevents;
+			this.ret = eventsMap;
+		}
+	}
+
 	public static class XCArg {
 		public final int arg;
 		public final IExpr expr;
@@ -119,6 +131,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ByteCodeSink agentClass;
 	private Var agentcx;
 	private Var ocret;
+	private Map<CardDefinition, EventsMethod> evhs = new HashMap<>();
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
 		this.bce = bce;
@@ -216,6 +229,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				CardDefinition card = om.getCard();
 				this.clz = bce.get(card.name().javaName());
 				wantParent = false;
+				TypedPattern tp = (TypedPattern) om.args().get(0);
+				EventsMethod em = evhs.get(card);
+				IExpr classArgs = em.meth.arrayOf(Class.class.getName(), em.meth.classConst(J.FLEVALCONTEXT), em.meth.classConst("[L" + J.OBJECT + ";"));
+				IExpr ehm = em.meth.callVirtual(Method.class.getName(), em.meth.classConst(card.name().javaName()), "getDeclaredMethod", em.meth.stringConst(om.name().name), classArgs);
+				em.meth.voidExpr(em.meth.callInterface(J.OBJECT, em.ret, "put", em.meth.as(em.meth.stringConst(tp.type.name()), J.OBJECT), em.meth.as(ehm, J.OBJECT))).flush();
 			} else
 				throw new NotImplementedException("Don't have one of those");
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + om.name().name);
@@ -599,6 +617,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		String clzName = cd.name().javaName();
 		agentClass = bce.newClass(clzName);
 		agentClass.superclass(J.CONTRACT_HOLDER);
+		agentClass.implementsInterface(J.EVENTS_HOLDER);
 		agentClass.generateAssociatedSourceFile();
 		agentClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		agentClass.inheritsField(true, Access.PRIVATE, J.CONTRACTSTORE, "store");
@@ -608,6 +627,18 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			agentctor = gen.done();
 			agentcx = cx.getVar();
 			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
+		}
+		{
+			// _events()
+			// ideally, this would return a statically created map but I can't be bothered right now ...
+			GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, "_events");
+			gen.returns(Map.class.getName());
+			MethodDefiner cardevents = gen.done();
+			cardevents.lenientMode(leniency);
+			IExpr eventsMap = cardevents.makeNew(TreeMap.class.getName());
+			Var v = cardevents.avar(Map.class.getName(), "ret");
+			cardevents.assign(v, eventsMap).flush();
+			evhs.put(cd, new EventsMethod(cardevents, v));
 		}
 	}
 
@@ -952,5 +983,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	public FunctionState state() {
 		return fs;
+	}
+	
+	@Override
+	public void traversalDone() {
+		for (EventsMethod e : evhs.values()) {
+			e.meth.returnObject(e.ret).flush();
+		}
 	}
 }
