@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
@@ -18,16 +17,11 @@ import org.flasck.jvm.container.JvmDispatcher;
 import org.flasck.jvm.container.MockAgent;
 import org.flasck.jvm.container.MockService;
 import org.flasck.jvm.fl.LoaderContext;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.intf.EvalContext;
 import org.ziniki.ziwsh.intf.EvalContextFactory;
-import org.ziniki.ziwsh.intf.IdempotentHandler;
 import org.ziniki.ziwsh.intf.ZiwshBroker;
 import org.ziniki.ziwsh.jvm.SimpleBroker;
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
@@ -37,7 +31,7 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	// TODO: I don't think this needs to be a special thing in the modern world
 	private final ClassLoader loader;
 //	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
-	private Document document;
+//	private Document document;
 	private final JvmDispatcher dispatcher;
 	private final ZiwshBroker broker = new SimpleBroker(this);
 	private List<Throwable> runtimeErrors = new ArrayList<Throwable>();
@@ -109,37 +103,6 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 		pw.flush();
 	}
 
-//	public void considerResource(File file) {
-//		loader.addClassesFrom(file);
-//	}
-
-	// Compile this to JVM bytecodes using the regular compiler
-	// - should only have access to exported things
-	// - make the generated classes available to the loader
-//	public void prepareScript(String scriptPkg, Scope scope) {
-//		CompileResult tcr = null;
-//		try {
-//			try {
-//				tcr = compiler.createJVM(testPkg, compiledPkg, compiledScope, scope);
-//			} catch (ErrorResultException ex) {
-//				((ErrorResult)ex.errors).showTo(new PrintWriter(System.err), 0);
-//				fail("Errors compiling test script");
-//			}
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//			throw new UtilException("Failed", ex);
-//		}
-		// 3. Load the class(es) into memory
-//		loader.add(tcr.bce);
-//	}
-
-//	@Override
-//	public void prepareCase() {
-//		document = Jsoup.parse("<html><head></head><body></body></html>");
-//		cards.clear();
-//		errors.clear();
-//	}
-
 	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
 		FLEvalContext cx = new LoaderContext();
 		expected = cx.full(expected);
@@ -148,100 +111,44 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 			throw new AssertFailed(expected, actual);
 	}
 
-	@Override
-	@Deprecated
-	public void assertCorrectValue(int exprId) throws Exception {
-//		List<Class<?>> toRun = new ArrayList<>();
-//		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
-//		toRun.add(Class.forName(testPkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
+//	@Override
+//	public void createCardAs(CardName cardType, String bindVar) {
+////		if (cards.containsKey(bindVar))
+////			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 //
-////		FLASRuntimeCache edc = new FLASTransactionContext(cxt, this.loader, this.store);
-//		Map<String, Object> evals = new TreeMap<String, Object>();
-//		for (Class<?> clz : toRun) {
-//			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
-//			try {
-//				Object o = Reflection.callStatic(clz, "eval", new Object[] { cxt, new Object[] {} });
-//				o = Reflection.callStatic(FLEval.class, "full", cxt, o);
-//				evals.put(key, o);
-//			} catch (Throwable ex) {
-//				System.out.println("Error evaluating " + key);
-//				ex.printStackTrace();
-//				throw ex;
-//			}
-//		}
-//		
-//		Object expected = evals.get("value" + exprId);
-//		Object actual = evals.get("expr" + exprId);
+////		ScopeEntry se = compiledScope.get(cardType.cardName);
+////		if (se == null)
+////			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
+////		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
+////			throw new UtilException(cardType.cardName + " is not a card");
+////		CardDefinition cd = (CardDefinition) se.getValue();
 //		try {
-//			assertEquals(expected, actual);
-//		} catch (AssertionError ex) {
-//			throw new AssertFailed(expected, actual);
-//		}
-	}
-
-	@Override
-	public void createCardAs(CardName cardType, String bindVar) {
-//		if (cards.containsKey(bindVar))
-//			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
-
-//		ScopeEntry se = compiledScope.get(cardType.cardName);
-//		if (se == null)
-//			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
-//		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
-//			throw new UtilException(cardType.cardName + " is not a card");
-//		CardDefinition cd = (CardDefinition) se.getValue();
-		try {
-			Element body = document.select("body").get(0);
-			Element div = document.createElement("div");
-			body.appendChild(div);
-			
-//			@SuppressWarnings("unchecked")
-//			Class<? extends FlasckCard> clz = (Class<? extends FlasckCard>) loader.loadClass(cardType.javaName());
-//			FlasckHandle handle = controller.createCard(clz, new JSoupWrapperElement(div));
-//			List<Object> services = new ArrayList<>();
+//			Element body = document.select("body").get(0);
+//			Element div = document.createElement("div");
+//			body.appendChild(div);
 //			
-//			for (ContractImplements ctr : cd.contracts) {
-//				String fullName = fullName(ctr.name());
-//				if (!fullName.equals("org.flasck.Init") && !fullName.equals("org.flasck.Render"))
-//					cacheSvc(fullName);
-//			}
-			
-//			cdefns.put(bindVar, cd);
-//			cards.put(bindVar, handle);
-		} catch (Exception ex) {
-			throw UtilException.wrap(ex);
-		}
-	}
+////			@SuppressWarnings("unchecked")
+////			Class<? extends FlasckCard> clz = (Class<? extends FlasckCard>) loader.loadClass(cardType.javaName());
+////			FlasckHandle handle = controller.createCard(clz, new JSoupWrapperElement(div));
+////			List<Object> services = new ArrayList<>();
+////			
+////			for (ContractImplements ctr : cd.contracts) {
+////				String fullName = fullName(ctr.name());
+////				if (!fullName.equals("org.flasck.Init") && !fullName.equals("org.flasck.Render"))
+////					cacheSvc(fullName);
+////			}
+//			
+////			cdefns.put(bindVar, cd);
+////			cards.put(bindVar, handle);
+//		} catch (Exception ex) {
+//			throw UtilException.wrap(ex);
+//		}
+//	}
 
 	@Override
 	public void invoke(FLEvalContext cx, Object expr) throws Exception {
 		expr = cx.full(expr);
 		dispatcher.invoke(cx, expr);
-	}
-
-	@Override
-	public void send(FLEvalContext cxt, IdempotentHandler ih, String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
-		if (!cdefns.containsKey(cardVar))
-			throw new UtilException("there is no card '" + cardVar + "'");
-
-//		String ctrName = getFullContractNameForCard(cardVar, contractName, methodName);
-//		FlasckHandle card = cards.get(cardVar);
-		Object[] argVals;
-		if (args == null || args.isEmpty())
-			argVals = new Object[0];
-		else {
-			argVals = new Object[args.size()];
-			int cnt = 0;
-			for (int i : args) {
-				Class<?> clz = Class.forName(testPkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);
-				Object o = Reflection.callStatic(clz, "eval", cxt, new Object[] { new Object[] {} });
-				o = Reflection.call(cxt, "full", o);
-				argVals[cnt++] = o;
-			}
-		}
-//		card.send(ih, ctrName, methodName, argVals);
-//		controller.processPostboxes();
-		assertAllInvocationsCalled();
 	}
 
 	@Override
@@ -258,36 +165,36 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	}
 
 	@Override
-	public void event(String cardVar, String methodName) throws Exception {
-		if (!cdefns.containsKey(cardVar))
-			throw new UtilException("there is no card '" + cardVar + "'");
-//		FlasckHandle card = cards.get(cardVar);
-//		card.event(controller.createContext(), cardVar, methodName);
+	public void event(Object card, Object event) throws Exception {
+//		if (!cdefns.containsKey(cardVar))
+//			throw new UtilException("there is no card '" + cardVar + "'");
+////		FlasckHandle card = cards.get(cardVar);
+////		card.event(controller.createContext(), cardVar, methodName);
 	}
 
-	@Override
-	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
-//		matcher.match(selector, document.select(selector).stream().map(e -> new JSoupWrapperElement(e)).collect(Collectors.toList()));
-	}
-
-	@Override
-	public void click(String selector) {
-		Elements elts = document.select(selector);
-		if (elts.size() == 0)
-			throw new UtilException("No elements matched " + selector);
-		else if (elts.size() > 1)
-			throw new UtilException("Multiple elements matched " + selector);
-		Element e = elts.first();
-		if (!e.hasAttr("onclick"))
-			throw new UtilException("There is no 'onclick' attribute on " + e.outerHtml());
-//		String[] ca = e.attr("onclick").split(":");
-//		FlasckCard card = this.controller.getCard(ca[0]);
-//		EventHandler handler = card.getAction(ca[1], "click");
-//		// TODO: we really should create an event object here ...
-//		Object ev = null;
-//		this.controller.handleEventOn(card, handler, ev);
-//		assertAllInvocationsCalled();
-	}
+//	@Override
+//	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
+////		matcher.match(selector, document.select(selector).stream().map(e -> new JSoupWrapperElement(e)).collect(Collectors.toList()));
+//	}
+//
+//	@Override
+//	public void click(String selector) {
+//		Elements elts = document.select(selector);
+//		if (elts.size() == 0)
+//			throw new UtilException("No elements matched " + selector);
+//		else if (elts.size() > 1)
+//			throw new UtilException("Multiple elements matched " + selector);
+//		Element e = elts.first();
+//		if (!e.hasAttr("onclick"))
+//			throw new UtilException("There is no 'onclick' attribute on " + e.outerHtml());
+////		String[] ca = e.attr("onclick").split(":");
+////		FlasckCard card = this.controller.getCard(ca[0]);
+////		EventHandler handler = card.getAction(ca[1], "click");
+////		// TODO: we really should create an event object here ...
+////		Object ev = null;
+////		this.controller.handleEventOn(card, handler, ev);
+////		assertAllInvocationsCalled();
+//	}
 	
 	public void testComplete() throws Throwable {
 		if (!runtimeErrors.isEmpty())

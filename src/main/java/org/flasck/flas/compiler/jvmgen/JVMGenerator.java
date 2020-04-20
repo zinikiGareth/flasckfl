@@ -42,6 +42,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
@@ -839,6 +840,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void visitUnitTestSend(UnitTestSend uts) {
 		new DoSendGenerator(sv, this.fs, meth.as(this.runner, TestRunner.class.getName()));
+	}
+	
+	@Override
+	public void visitUnitTestEvent(UnitTestEvent uts) {
+		new DoUTEventGenerator(sv, this.fs, meth.as(this.runner, TestRunner.class.getName()));
 	}
 	
 	@Override

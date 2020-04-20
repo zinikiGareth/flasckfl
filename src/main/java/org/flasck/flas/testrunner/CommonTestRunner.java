@@ -71,36 +71,6 @@ public abstract class CommonTestRunner implements TestRunner {
 	public abstract void preparePackage(PrintWriter pw, UnitTestPackage e);
 	public abstract void runit(PrintWriter pw, UnitTestCase utc);
 
-//	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public void expect(String cardVar, String ctr, String method, List<Integer> chkargs) {
-//		expectations.add(new Expectation(fullName(ctr), method, (List)chkargs));
-	}
-
-//	protected String getFullContractNameForCard(String cardVar, String contractName, String methodName) {
-//		CardDefinition cd = cdefns.get(cardVar);
-//		String fullName = fullName(contractName);
-//		ContractImplements ctr = null;
-//		for (ContractImplements x : cd.contracts)
-//			if (x.name().equals(contractName) || x.name().equals(fullName))
-//				ctr = x;
-//		if (ctr == null)
-//			throw new UtilException("the card '" + cardVar + "' does not have the contract '" + contractName +"'");
-//	
-//		MethodCaseDefn meth = null;
-//		for (MethodCaseDefn q : ctr.methods) {
-//			if (q.methodName().name.equals(methodName))
-//				meth = q;
-//		}
-//		if (meth == null)
-//			throw new UtilException("the contract '" + contractName + "' does not have the method '" + methodName +"'");
-//		return fullName;
-//	}
-
-//	protected String fullName(String name) {
-//		return compiledScope.fullName(name);
-//	}
-//
 	protected void assertAllInvocationsCalled() {
 		for (Invocation ii : invocations)
 			System.out.println("Should have expected: " + ii);

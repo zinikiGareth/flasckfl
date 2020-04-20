@@ -50,6 +50,7 @@ import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
@@ -667,6 +668,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitUnitTestSend(UnitTestSend uts) {
 		new DoSendGeneratorJS(state, sv, this.block, this.runner);
+	}
+
+	@Override
+	public void visitUnitTestEvent(UnitTestEvent ute) {
+		new DoUTEventGeneratorJS(state, sv, this.block, this.runner);
 	}
 
 	@Override

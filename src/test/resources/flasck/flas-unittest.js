@@ -26,6 +26,11 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	reply = _cxt.full(reply);
 	this.handleMessages(_cxt, reply);
 }
+UTRunner.prototype.event = function(_cxt, target, event) {
+//	var reply = ... figure out the invocation ...
+//	reply = _cxt.full(reply);
+//	this.handleMessages(_cxt, reply);
+}
 UTRunner.prototype.handleMessages = function(_cxt, msg) {
 	if (this.errors.length != 0)
 		throw this.errors[0];

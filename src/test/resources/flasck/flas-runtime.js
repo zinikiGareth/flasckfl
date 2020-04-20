@@ -487,6 +487,20 @@ FLBuiltin._prod_state.nfargs = function() { return 2; }
 
 
 
+const Event = function() {
+}
+
+const ClickEvent = function() {
+}
+ClickEvent.prototype = new Event();
+ClickEvent.prototype.constructor = ClickEvent;
+
+ClickEvent.eval = function(cx) {
+    return new ClickEvent();
+}
+
+
+
 const Debug = function() {
 }
 Debug.eval = function(_cxt, msg) {

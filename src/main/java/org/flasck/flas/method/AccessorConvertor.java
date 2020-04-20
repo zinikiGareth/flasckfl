@@ -48,7 +48,7 @@ public class AccessorConvertor extends LeafAdapter {
 			if (udd.ofType.defn() instanceof StateHolder) {
 				// UDDs can prod state directly on cards, agents and objects ...
 				StateHolder sh = (StateHolder)udd.ofType.defn();
-				if (sh.state().hasMember(meth.var)) {
+				if (sh.state() != null && sh.state().hasMember(meth.var)) {
 					expr.conversion(new ApplyExpr(expr.location, LoadBuiltins.prodState, expr.from, new StringLiteral(meth.location, meth.var)));
 					return;
 				}
