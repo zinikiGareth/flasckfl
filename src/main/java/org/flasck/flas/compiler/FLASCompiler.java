@@ -3,6 +3,7 @@ package org.flasck.flas.compiler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -37,6 +38,8 @@ import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.jvm.J;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.splitter.SplitMetaData;
+import org.ziniki.splitter.Splitter;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -50,12 +53,14 @@ public class FLASCompiler {
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final PrintWriter errorWriter;
+	private final Splitter splitter;
 //	private final DroidBuilder builder = new DroidBuilder();
 
 	public FLASCompiler(ErrorReporter errors, Repository repository, PrintWriter errorWriter) {
 		this.errors = errors;
 		this.repository = repository;
 		this.errorWriter = errorWriter;
+		this.splitter = new Splitter();
 	}
 	
 	public ErrorMark processInput(ErrorMark mark, File input) {
@@ -69,7 +74,21 @@ public class FLASCompiler {
 		return mark;
 	}
 
-	// Now read and parse all the files, passing it on to the alleged phase2
+	public ErrorMark splitWeb(ErrorMark mark, File web) {
+		if (!web.canRead()) {
+			errors.message((InputPosition) null, "there is no web input: " + web);
+			return errors.mark();
+		}
+		try {
+			SplitMetaData md = splitter.split(web);
+			repository.webData(md);
+		} catch (IOException ex) {
+			errors.message((InputPosition) null, "error splitting: " + web);
+			return errors.mark();
+		}
+		return mark;
+	}
+
 	public ErrorMark parse(ErrorMark mark, File dir) {
 		if (!dir.isDirectory())
 			throw new RuntimeException("there is no input directory " + dir);
@@ -252,15 +271,4 @@ public class FLASCompiler {
 		errors.reportException(ex);
 	}
 
-	// Complete initialization by preparing the compiler for use
-	//	public void scanWebZips() {
-	//		if (webzips.isEmpty())
-	//			return;
-	//		if (webzipdir == null) {
-	//			errors.message((InputPosition) null, "using webzips requires a webzipdir");
-	//			return;
-	//		}
-	//		for (String s : webzips)
-	//			scanWebZip(s);
-	//	}
 }

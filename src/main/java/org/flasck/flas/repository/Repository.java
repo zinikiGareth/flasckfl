@@ -86,6 +86,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
+import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
@@ -419,6 +420,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			throw new NotImplementedException(hl.name().uniqueName() + " was not defined");
 		dict.put(hl.name().uniqueName(), hl);
 	}
+
+	public void webData(SplitMetaData md) {
+	}
+
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(dumpRepo);
 		dumpTo(pw);
@@ -509,33 +514,4 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		for (RepositoryEntry e : dict.values())
 			System.out.println(e.name().uniqueName() + " => " + e);
 	}
-//	@Override
-//	public void process() {
-//		new PFDumper().dumpScope(new Indenter(new PrintWriter(System.out)), scope);
-//		try {
-//			// TODO: we would like the sinks to be passed in so that we preserve TDA rather than creating them here 
-//			CompileResult res = compiler.stage2(errors, null, null, scope.scopeName.uniqueName(), scope);
-//			bce = res.bce;
-//			jsFiles = res.jsFiles();
-//		} catch (ErrorResultException ex) {
-//			errors.merge(ex.errors);
-//		} catch (Throwable t) {
-//			t.printStackTrace();
-//			errors.message(((InputPosition)null), t.toString());
-//		}
-//	}
-
-//	@Override
-//	public void bceTo(BCEReceiver sendTo) {
-//		if (bce == null)
-//			throw new RuntimeException("Too soon");
-//		sendTo.provideBCE(bce);
-//	}
-//
-//	@Override
-//	public void jsTo(JSReceiver sendTo) {
-//		if (jsFiles == null)
-//			throw new RuntimeException("Too soon");
-//		sendTo.provideFiles(jsFiles);
-//	}
 }

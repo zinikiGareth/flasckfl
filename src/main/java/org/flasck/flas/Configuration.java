@@ -26,6 +26,7 @@ public class Configuration {
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
 	public final List<File> inputs = new ArrayList<File>();
+	public final List<File> webs = new ArrayList<File>();
 	private File writeTestReportsTo;
 	private File writeErrorsTo;
 	public File writeTypesTo;
@@ -115,20 +116,12 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeJVM = new File(root, args[++i]);
-//				} else if (arg.equals("--webzipdir")) {
-//					if (hasMore == 0) {
-//						System.out.println("--webzipdir <dir>");
-//						System.exit(1);
-//					}
-//					webZipDir = new File(root, args[++i]);
-//				} else if (arg.equals("--webzip")) {
-//					if (hasMore == 0) {
-//						System.out.println("--webzip <name>");
-//						System.exit(1);
-//					}
-//					useWebZips.add(args[++i]);
-//				} else if (arg.equals("--legacy")) {
-//					tda = false;
+				} else if (arg.equals("--web")) {
+					if (hasMore == 0) {
+						System.out.println("--web <dir|zip>");
+						System.exit(1);
+					}
+					webs.add(new File(root, args[++i]));
 				} else {
 					boolean matched = false;
 					/*

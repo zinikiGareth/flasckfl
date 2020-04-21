@@ -45,10 +45,11 @@ public class Main {
 
 		Repository repository = new Repository();
 		FLASCompiler compiler = new FLASCompiler(errors, repository, ew);
-//		compiler.scanWebZips();
 		LoadBuiltins.applyTo(errors, repository);
 		for (File input : config.inputs)
 			mark = compiler.processInput(mark, input);
+		for (File web : config.webs)
+			mark = compiler.splitWeb(mark, web);
 
 		if (config.dumprepo != null) {
 			try {

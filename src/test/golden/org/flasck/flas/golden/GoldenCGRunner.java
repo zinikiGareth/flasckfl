@@ -138,11 +138,19 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		FileUtils.assertDirectory(tr);
 		List<String> args = new ArrayList<String>();
 		args.addAll(Arrays.asList("--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
-		args.add("--testname");
+		for (File wf : new File(s).listFiles()) {
+			// TODO: this restricts us to directories, which are easier to work with, but we could add another case for ZIP files if we wanted ...
+			// We could also add a case that zipped up the directory to /tmp and did that ...
+			if (wf.isDirectory() && wf.getName().startsWith("web")) {
+				args.add("--web");
+				args.add(wf.getName());
+			}
+		}
 		if (!useJVMRunner || !runJvm)
 			args.add("--no-unit-jvm");
 		if (!useJSRunner || !runJs)
 			args.add("--no-unit-js");
+		args.add("--testname");
 		args.add(s.replace("/", "-").replace("src-golden-", ""));
 		args.add("test.golden");
 		Main.noExit(args.toArray(new String[args.size()]));
