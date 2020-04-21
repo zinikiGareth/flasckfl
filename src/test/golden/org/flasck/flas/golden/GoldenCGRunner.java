@@ -4,6 +4,9 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
@@ -133,13 +136,16 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		final File tr = new File(s, "testReports-tmp");
 		FileUtils.assertDirectory(actualErrors);
 		FileUtils.assertDirectory(tr);
-		Main.noExit(
-			"--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types",
-			(useJVMRunner && runJvm)?null:"--no-unit-jvm",
-			(useJSRunner && runJs)?null:"--no-unit-js",
-			"--testname", s.replace("/", "-").replace("src-golden-", ""),
-			"test.golden"
-		);
+		List<String> args = new ArrayList<String>();
+		args.addAll(Arrays.asList("--root", s, "--jvm", "droid-to", "--jsout", "jsout-tmp", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
+		args.add("--testname");
+		if (!useJVMRunner || !runJvm)
+			args.add("--no-unit-jvm");
+		if (!useJSRunner || !runJs)
+			args.add("--no-unit-js");
+		args.add(s.replace("/", "-").replace("src-golden-", ""));
+		args.add("test.golden");
+		Main.noExit(args.toArray(new String[args.size()]));
 		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {
 			te.checkTestResults();
 			te.checkTypes();
