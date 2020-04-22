@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.MatchedItem;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
@@ -154,9 +155,11 @@ public class TestStepParser implements TDAParsing {
 			builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 			return new TDAMultiParser(errors);
 		}
-		case "template": {
-			builder.template();
-			return new NoNestingParser(errors);
+		case "match": {
+			MatchedItem what = MatchedItem.TEXT;
+			String selector = null;
+			boolean contains = false;
+			return new FreeTextParser(errors, text -> { builder.match(what, selector, contains, text); });
 		}
 		default: {
 			toks.reset(mark);

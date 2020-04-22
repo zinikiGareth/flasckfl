@@ -3,9 +3,12 @@ package org.flasck.flas.testrunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
@@ -13,6 +16,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
+import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
@@ -90,7 +94,7 @@ public class JSRunner extends CommonTestRunner {
 		this.browser = BrowserFactory.getWebKit();
 
 		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
-		buildHTML();
+		buildHTML(repository.allWebs());
 		page = browser.navigate("file:" + html.getPath());
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
@@ -164,7 +168,7 @@ public class JSRunner extends CommonTestRunner {
 		return "js";
 	}
 	
-	private void buildHTML() {
+	private void buildHTML(Iterable<SplitMetaData> webs) {
 		try {
 			String testName;
 			String testDir;
@@ -181,6 +185,15 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<!DOCTYPE html>");
 			pw.println("<html>");
 			pw.println("<head>");
+			for (SplitMetaData smd : webs) {
+				try (ZipInputStream zis = smd.processedZip()) {
+					ZipEntry ze;
+					while ((ze = zis.getNextEntry()) != null) {
+						if (ze.getName().endsWith(".html"))
+							renderTemplate(pw, ze.getName(), zis);
+					}
+				}
+			}
 			// probably wants to be config :-)
 			final String logfile = System.getProperty("user.dir") + "/src/test/resources/flasck/javalogger.js";
 			final String zfile = System.getProperty("user.dir") + "/src/test/resources/flasck/ziwsh.js";
@@ -204,13 +217,19 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 
+	private void renderTemplate(PrintWriter pw, String name, ZipInputStream zis) {
+		pw.println("<template id='" + name.replace(".html", "") + "'>");
+		pw.println(new String(FileUtils.readAllStream(zis), Charset.forName("UTF-8")));
+		pw.println("</template>");
+	}
+
 	protected void includeFileAsScript(PrintWriter pw, File f, String testDir) {
 		File to = new File(testDir, f.getName());
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
 		FileUtils.copy(f, to);
 		String path = to.getPath();
-		if (useCachebuster )
+		if (useCachebuster)
 			path += "?cachebuster=" + System.currentTimeMillis();
 		pw.println("<script src='file:" + path + "' type='text/javascript'></script>");
 	}

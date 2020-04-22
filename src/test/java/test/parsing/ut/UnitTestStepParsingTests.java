@@ -10,6 +10,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.MatchedItem;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -210,12 +211,12 @@ public class UnitTestStepParsingTests {
 	}
 
 	@Test
-	public void testWeCanHandleATemplateStep() {
+	public void testWeCanHandleAMatchStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).template();
+			oneOf(builder).match(MatchedItem.HTML, null, false, "hello");
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
-		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("template"));
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match text"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);

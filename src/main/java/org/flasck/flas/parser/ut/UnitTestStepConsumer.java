@@ -3,6 +3,7 @@ package org.flasck.flas.parser.ut;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.MatchedItem;
 
 public interface UnitTestStepConsumer {
 	void assertion(Expr expr, Expr value);
@@ -11,5 +12,5 @@ public interface UnitTestStepConsumer {
 	void invokeObjectMethod(Expr expr);
 	void sendOnContract(UnresolvedVar card, TypeReference contract, Expr invocation);
 	void expect(UnresolvedVar ctr, UnresolvedVar meth, Expr[] args, Expr handler);
-	void template();
+	void match(MatchedItem what, String selector, boolean contains, String text);
 }

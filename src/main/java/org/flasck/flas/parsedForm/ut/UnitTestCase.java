@@ -51,7 +51,8 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void template() {
+	public void match(MatchedItem what, String selector, boolean contains, String text) {
+		this.steps.add(new UnitTestMatch(what, selector, contains, text));
 	}
 
 	@Override

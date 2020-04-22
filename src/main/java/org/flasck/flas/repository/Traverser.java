@@ -62,6 +62,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -75,6 +76,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
+import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -320,8 +322,9 @@ public class Traverser implements Visitor {
 			visitImplements(ic);
 		for (HandlerImplements ic : cd.handlers)
 			visitHandlerImplements(ic, cd);
+		for (Template t : cd.templates)
+			visitTemplate(t);
 		// TODO: events
-		// TODO: templates
 		leaveCardDefn(cd);
 	}
 
@@ -399,6 +402,15 @@ public class Traverser implements Visitor {
 
 	public void leaveHandlerImplements(HandlerImplements hi) {
 		visitor.leaveHandlerImplements(hi);
+	}
+	public void visitTemplate(Template t) {
+		visitor.visitTemplate(t);
+		leaveTemplate(t);
+	}
+
+
+	public void leaveTemplate(Template t) {
+		visitor.leaveTemplate(t);
 	}
 
 	@Override
@@ -1216,6 +1228,8 @@ public class Traverser implements Visitor {
 			visitUnitTestSend((UnitTestSend)s);
 		else if (s instanceof UnitTestEvent)
 			visitUnitTestEvent((UnitTestEvent)s);
+		else if (s instanceof UnitTestMatch)
+			visitUnitTestMatch((UnitTestMatch)s);
 		else
 			throw new NotImplementedException("cannot handle " + s.getClass());
 	}
@@ -1366,6 +1380,15 @@ public class Traverser implements Visitor {
 
 	public void leaveUnitTestEvent(UnitTestEvent e) {
 		visitor.leaveUnitTestEvent(e);
+	}
+
+	public void visitUnitTestMatch(UnitTestMatch m) {
+		visitor.visitUnitTestMatch(m);
+		leaveUnitTestMatch(m);
+	}
+
+	public void leaveUnitTestMatch(UnitTestMatch m) {
+		visitor.leaveUnitTestMatch(m);
 	}
 
 	@Override

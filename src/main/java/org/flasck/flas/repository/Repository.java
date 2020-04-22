@@ -3,6 +3,7 @@ package org.flasck.flas.repository;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -77,6 +79,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
+import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -212,9 +215,14 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveServiceDefn(ServiceDefinition s);
 		void visitCardDefn(CardDefinition cd);
 		void leaveCardDefn(CardDefinition s);
+		void visitTemplate(Template t);
+		void leaveTemplate(Template t);
+		void visitUnitTestMatch(UnitTestMatch m);
+		void leaveUnitTestMatch(UnitTestMatch m);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
+	private final List<SplitMetaData> webs = new ArrayList<>();
 	
 	public Repository() {
 	}
@@ -422,6 +430,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	public void webData(SplitMetaData md) {
+		webs.add(md);
 	}
 
 	public void dumpTo(File dumpRepo) throws FileNotFoundException {
@@ -507,6 +516,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	public void traverseWithHSI(HSIVisitor v) {
 		Traverser t = new Traverser(v).withHSI().withNestedPatterns();
 		t.doTraversal(this);
+	}
+
+	public Iterable<SplitMetaData> allWebs() {
+		return webs;
 	}
 
 	@Override

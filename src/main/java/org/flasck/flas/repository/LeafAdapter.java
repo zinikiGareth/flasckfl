@@ -43,6 +43,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -56,6 +57,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
+import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -144,6 +146,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveServiceDefn(ServiceDefinition s) {
+	}
+
+	@Override
+	public void visitTemplate(Template t) {
+	}
+
+	@Override
+	public void leaveTemplate(Template t) {
 	}
 
 	@Override
@@ -516,6 +526,14 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void leaveUnitTestEvent(UnitTestEvent e) {
+	}
+
+	@Override
+	public void visitUnitTestMatch(UnitTestMatch m) {
+	}
+
+	@Override
+	public void leaveUnitTestMatch(UnitTestMatch m) {
 	}
 
 	@Override

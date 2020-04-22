@@ -1487,6 +1487,22 @@
            If the pattern matches and true is returned, it's OK. If the patterns don't match and Error is returned, or the function explicitly returns false, the match fails.
            Obviously, we expect exactly all of the expectations to happen.
         </p>
+        <p>We seem to have omitted tests on the HTML:
+
+all based on the "match" command
+
+text or html or css
+allow an optional selector
+allow the keyword "contains"
+Subsequent indented lines are white-space approximation of the content or value
+Examples:
+match text
+match html
+match html contains
+match html ".body" contains
+match css ".body['height']"
+        
+        </p>
       </description>
     </section>
     <tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
