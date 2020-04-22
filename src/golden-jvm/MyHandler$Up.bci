@@ -1,6 +1,0 @@
-interface test/runner/MyHandler$Up
-  extends java/lang/Object
-  implements org/ziniki/ziwsh/UpContract
-[Class SourceFile]: MyHandler.java
-1 inner classes
-Ref abstract interface public static Class[test/runner/MyHandler$Up] <= Class[test/runner/MyHandler].Up
