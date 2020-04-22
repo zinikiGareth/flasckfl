@@ -224,28 +224,51 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void leaveImplements(ImplementsContract ic) {
+		currentlyImplementing = null;
 		ContractDecl d = ic.actualType();
 		if (d == null) {
 			if (ic.implementsType().defn() != null)
 				errors.message(ic.implementsType().location(), ic.implementsType().name() + " is not a contract");
 			return;
 		}
-		if (d.type != ContractType.CONTRACT)
+		if (d.type != ContractType.CONTRACT) {
 			errors.message(ic.implementsType().location(), "cannot implement " + d.type.toString().toLowerCase() + " contract");
-		currentlyImplementing = null;
+			return;
+		}
+		cmds:
+		for (ContractMethodDecl cmd : d.methods) {
+			if (!cmd.required)
+				continue;
+			for (ObjectMethod m : ic.implementationMethods)
+				if (m.name().name.equals(cmd.name.name))
+					continue cmds;
+			errors.message(ic.location(), "must implement required contract method " + cmd.name.uniqueName());
+		}
 	}
 	
 	@Override
 	public void leaveHandlerImplements(HandlerImplements hi) {
+		currentlyImplementing = null;
 		ContractDecl d = hi.actualType();
 		if (d == null) {
 			if (hi.implementsType().defn() != null)
 				errors.message(hi.implementsType().location(), hi.implementsType().name() + " is not a contract");
 			return;
 		}
-		if (d.type != ContractType.HANDLER)
+		if (d.type != ContractType.HANDLER) {
 			errors.message(hi.implementsType().location(), "handler cannot implement " + (d.type == ContractType.SERVICE?"service":"non-handler") + " contract");
-		currentlyImplementing = null;
+			return;
+		}
+		cmds:
+		for (ContractMethodDecl cmd : d.methods) {
+			if (!cmd.required)
+				continue;
+			for (ObjectMethod m : hi.implementationMethods)
+				if (m.name().name.equals(cmd.name.name))
+					continue cmds;
+			errors.message(hi.location(), "must implement required contract method " + cmd.name.uniqueName());
+		}
+
 	}
 
 	@Override

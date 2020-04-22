@@ -1,6 +1,13 @@
+	contract Update
+		say (String msg)
+
 	card Message
 		state
 			String message <- 'hello'
 
 		template label
 			show-message <- message
+			
+		implements Update
+			say msg
+				message <- msg

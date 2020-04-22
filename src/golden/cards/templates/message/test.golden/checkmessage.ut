@@ -2,3 +2,10 @@
 		data Message m 
 		match m text
 			hello
+			
+	test that we can make it say goodbye
+		data Message m
+		contract m Update say "goodbye"
+		match m text
+			goodbye
+			

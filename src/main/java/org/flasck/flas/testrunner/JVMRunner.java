@@ -159,6 +159,8 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 			reply = ((MockAgent)to).sendTo(cx, contract, meth, args);
 		else if (to instanceof MockService)
 			reply = ((MockService)to).sendTo(cx, contract, meth, args);
+		else if (to instanceof MockCard)
+			reply = ((MockCard)to).sendTo(cx, contract, meth, args);
 		else
 			throw new NotImplementedException("cannot handle " + to.getClass());
 		reply = cx.full(reply);

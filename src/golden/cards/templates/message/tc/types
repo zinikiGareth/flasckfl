@@ -1,0 +1,1 @@
+test.golden.Message._C0.say :: String->List[Message]
