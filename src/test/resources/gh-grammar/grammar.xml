@@ -92,6 +92,9 @@
   <lex token='INVOKE' pattern='invoke'>
   	<p>The <tt>invoke</tt> keyword is used in unit tests to invoke a method on an object.</p>
   </lex>
+  <lex token='MATCH' pattern='match'>
+  	<p>The <tt>match</tt> keyword introduces a template matching step in a unit test.</p>
+  </lex>
   <lex token='METHOD' pattern='method'>
   	<p>The <tt>method</tt> keyword introduces a standalone method definition.</p>
   </lex>
@@ -1588,7 +1591,7 @@ match css ".body['height']"
   <production name='unit-test-template'>
     <section title='Unit Tests' />
     <seq>
-      <token type='TEMPLATE' />
+      <token type='MATCH' />
       <!--  as with the template definitions before, I'm not really sure what comes here ... -->
       <!--  I do know I want it to be as independent of HTML as possible, and thus close to the syntax used for specifying them -->
       <!--  but obviously I want something disconnected from the actual logic -->

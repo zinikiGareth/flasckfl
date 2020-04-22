@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.ut.MatchedItem;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.parser.ut.FreeTextParser;
 import org.flasck.flas.parser.ut.SingleExpressionParser;
 import org.flasck.flas.parser.ut.TestStepParser;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -213,11 +214,12 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleAMatchStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).match(MatchedItem.HTML, null, false, "hello");
+			oneOf(builder).match(MatchedItem.TEXT, null, false, "hello");
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match text"));
-		assertTrue(nested instanceof NoNestingParser);
+		assertTrue(nested instanceof FreeTextParser);
+		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
 	}

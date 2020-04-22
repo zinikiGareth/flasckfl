@@ -345,6 +345,7 @@ public class SentenceProducer {
 			case "HANDLER":
 			case "IMPLEMENTS":
 			case "INVOKE":
+			case "MATCH":
 			case "METHOD":
 			case "OBJECT":
 			case "OFFER":
