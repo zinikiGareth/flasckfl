@@ -510,6 +510,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.stateField();
 		ctor.fieldObject("_contracts", "ContractStore");
+		if (!cd.templates.isEmpty()) {
+			ctor.setField(new JSThis(), "_template", ctor.string(cd.templates.get(0).refersTo.defn().id()));
+		}
 		JSMethodCreator meth = agentCreator.createMethod("name", true);
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(cd.name().uniqueName()));

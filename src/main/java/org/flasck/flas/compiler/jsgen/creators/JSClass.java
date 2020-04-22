@@ -25,6 +25,7 @@ public class JSClass implements JSClassCreator {
 	@Override
 	public void inheritsFrom(NameOfThing baseClass) {
 		this.baseClass = baseClass;
+		this.ctor.inheritFrom(baseClass);
 	}
 	
 	@Override

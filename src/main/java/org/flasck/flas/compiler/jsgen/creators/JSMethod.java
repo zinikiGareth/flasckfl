@@ -3,12 +3,14 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
 import org.flasck.flas.compiler.jsgen.form.InitContext;
 import org.flasck.flas.compiler.jsgen.form.JSBlockComplete;
 import org.flasck.flas.compiler.jsgen.form.JSCopyContract;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSInheritFrom;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -46,6 +48,10 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		JSVar ret = new JSVar(name);
 		args.add(ret);
 		return ret;
+	}
+
+	public void inheritFrom(NameOfThing baseClass) {
+		stmts.add(new JSInheritFrom(baseClass));
 	}
 
 	@Override

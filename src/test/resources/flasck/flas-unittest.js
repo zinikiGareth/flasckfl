@@ -37,8 +37,12 @@ UTRunner.prototype.event = function(_cxt, target, event) {
 	this.handleMessages(_cxt, reply);
 }
 UTRunner.prototype.match = function(_cxt, target, what, selector, contains, expected) {
-	const actual = "TBD";
-	// TODO: ensure this does the appropriate thing with white space
+	if (!target || !target.card || !target.card._currentDiv) {
+		throw Error("MATCH\nThe card has no rendered content");
+	}
+	var actual = target.card._currentDiv.innerText.trim();
+	actual = actual.replace(/\n/g, ' ');
+	actual = actual.replace(/ +/, ' ');
 	if (contains) {
 		if (!actual.includes(expected))
 			throw new Error("MATCH\n  expected to contain: " + expected + "\n  actual:   " + actual);

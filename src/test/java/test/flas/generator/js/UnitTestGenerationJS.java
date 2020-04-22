@@ -44,6 +44,7 @@ public class UnitTestGenerationJS {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		context.checking(new Expectations() {{
 			oneOf(jse).newFunction("test.something._ut_package", "test.something._ut_package", false, "_ut4"); will(returnValue(meth));
+			oneOf(meth).clear();
 			oneOf(meth).argument("runner");
 			oneOf(meth).initContext(pkg);
 		}});
