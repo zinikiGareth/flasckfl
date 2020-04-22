@@ -63,6 +63,7 @@ public class UnitTestGeneration {
 			oneOf(bcc).createMethod(true, "void", "dotest"); will(returnValue(meth));
 			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
 			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(arg));
+			oneOf(meth).callVirtual("void", arg, "clearBody", arg);
 		}});
 		StackVisitor sv = new StackVisitor();
 		JVMGenerator gen = new JVMGenerator(bce, sv);

@@ -37,6 +37,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -47,6 +48,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
+import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -127,7 +129,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private final List<Var> explodingMocks = new ArrayList<>();
 	private boolean isStandalone;
 	private static final boolean leniency = false;
-	private NewMethodDefiner agentctor;
+	private MethodDefiner agentctor;
 	private ByteCodeSink agentClass;
 	private Var agentcx;
 	private Var ocret;
@@ -564,7 +566,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				if (sf.name.equals("id"))
 					return;
 				if (sf.init != null) {
-					new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name);
+					new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name, ret);
 				} else {
 					IExpr arg = meth.arrayElt(args, meth.intConst(ai.getAndIncrement()));
 					IExpr svar = meth.getField(ret, "state");
@@ -609,6 +611,14 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			agentctor = gen.done();
 			agentcx = cx.getVar();
 			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
+			currentBlock = new ArrayList<IExpr>();
+			this.structFieldHandler = sf -> {
+				if (sf.init != null) {
+					this.fs = new FunctionState(agentctor, agentcx, agentctor.myThis(), null, runner);
+					fs.provideStateObject(agentctor.getField("state"));
+					new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name, agentctor.myThis());
+				}
+			};
 		}
 	}
 
@@ -616,7 +626,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void visitCardDefn(CardDefinition cd) {
 		String clzName = cd.name().javaName();
 		agentClass = bce.newClass(clzName);
-		agentClass.superclass(J.CONTRACT_HOLDER);
+		agentClass.superclass(J.FLCARD);
 		agentClass.implementsInterface(J.EVENTS_HOLDER);
 		agentClass.generateAssociatedSourceFile();
 		agentClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
@@ -626,7 +636,20 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			agentctor = gen.done();
 			agentcx = cx.getVar();
-			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
+			IExpr rootTemplate;
+			if (cd.templates.isEmpty())
+				rootTemplate = agentctor.as(agentctor.aNull(), J.STRING);
+			else
+				rootTemplate = agentctor.stringConst(cd.templates.get(0).refersTo.defn().id());
+			agentctor.callSuper("void", J.FLCARD, "<init>", agentcx, rootTemplate).flush();
+			currentBlock = new ArrayList<IExpr>();
+			this.structFieldHandler = sf -> {
+				if (sf.init != null) {
+					this.fs = new FunctionState(agentctor, agentcx, agentctor.myThis(), null, runner);
+					fs.provideStateObject(agentctor.getField("state"));
+					new StructFieldGenerator(this.fs, sv, this.currentBlock, sf.name, agentctor.myThis());
+				}
+			};
 		}
 		{
 			// _events()
@@ -732,6 +755,20 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
+	public void visitTemplate(Template t, boolean isFirst) {
+		if (!isFirst)
+			return; // will need dealing with in some way at some point
+		
+		GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, "_updateDisplay");
+		PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
+		gen.returns("void");
+		MethodDefiner tf = gen.done();
+		fs = new FunctionState(tf, fcx.getVar(), tf.myThis(), null, runner);
+		fs.provideStateObject(agentctor.getField("state"));
+		new TemplateProcessor(fs, sv);
+	}
+	
+	@Override
 	public void leaveStructDefn(StructDefn sd) {
 		if (!sd.generate)
 			return;
@@ -793,6 +830,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.fcx = pcx.getVar();
 		this.fs = new FunctionState(meth, fcx, null, null, runner.getVar());
 		this.currentBlock = new ArrayList<>();
+		meth.callVirtual("void", runner.getVar(), "clearBody", this.fcx).flush();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
 			if (udd.ofType.defn() instanceof ContractDecl)
@@ -879,6 +917,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void visitUnitTestMatch(UnitTestMatch utm) {
+		new DoUTMatchGenerator(sv, this.fs, meth.as(this.runner, TestRunner.class.getName()));
+	}
+	
+	@Override
 	public void leaveUnitTestInvoke(UnitTestInvoke uti) {
 		if (currentBlock.size() != 1)
 			throw new RuntimeException("Multiple result expressions");
@@ -958,6 +1001,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fi.constValue(cmd.args.size());
 	}
 
+	@Override
+	public void leaveContractMethod(ContractMethodDecl cmd) {
+		this.meth = null;
+	}
+	
+	@Override
+	public void leaveContractDecl(ContractDecl cd) {
+		this.clz = null;
+	}
+	
 	public static IExpr makeBlock(MethodDefiner meth, List<IExpr> block) {
 		if (block.isEmpty())
 			throw new NotImplementedException("there must be at least one statement in a block");

@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
+import org.flasck.jvm.FLEvalContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
@@ -70,6 +71,7 @@ public abstract class CommonTestRunner implements TestRunner {
 
 	public abstract void preparePackage(PrintWriter pw, UnitTestPackage e);
 	public abstract void runit(PrintWriter pw, UnitTestCase utc);
+	public abstract void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches);
 
 	protected void assertAllInvocationsCalled() {
 		for (Invocation ii : invocations)

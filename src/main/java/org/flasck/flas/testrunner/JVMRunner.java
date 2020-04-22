@@ -55,6 +55,10 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 		return new LoaderContext(loader, broker, this, dispatcher);
 	}
 
+	public void clearBody(FLEvalContext cx) {
+		
+	}
+	
 	@Override
 	public String name() {
 		return "jvm";
@@ -173,6 +177,10 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 		Object reply = cx.handleEvent(mc.card(), event);
 		reply = cx.full(reply);
 		dispatcher.invoke(cx, reply);
+	}
+
+	@Override
+	public void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches) {
 	}
 
 //	@Override

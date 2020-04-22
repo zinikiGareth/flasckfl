@@ -8,19 +8,18 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.Var;
 
 public class StructFieldGenerator extends LeafAdapter implements ResultAware {
 	private final StackVisitor sv;
 	private final String fieldName;
 	private final MethodDefiner meth;
-	private final Var ret;
+	private final IExpr ret;
 
-	public StructFieldGenerator(FunctionState state, StackVisitor sv, List<IExpr> currentBlock, String fieldName) {
+	public StructFieldGenerator(FunctionState state, StackVisitor sv, List<IExpr> currentBlock, String fieldName, IExpr ret) {
 		this.sv = sv;
 		this.fieldName = fieldName;
 		this.meth = state.meth;
-		this.ret = state.evalRet;
+		this.ret = ret;
 		sv.push(this);
 		new ExprGenerator(state, sv, currentBlock, false);
 	}

@@ -252,6 +252,10 @@ public class JSRunner extends CommonTestRunner {
 //		assertNoErrors();
 //	}
 
+	@Override
+	public void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches) {
+	}
+
 	protected JSObject getVar(String var) {
 		return (JSObject)page.executeScript(var);
 	}
