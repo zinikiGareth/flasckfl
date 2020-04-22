@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.CardElementsConsumer;
@@ -18,7 +19,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class CardDefinition implements Locatable, CardElementsConsumer, RepositoryEntry, NamedType, StateHolder {
+public class CardDefinition implements Locatable, CardElementsConsumer, RepositoryEntry, NamedType, StateHolder, ContractImplementor, ContractProvider {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
@@ -95,6 +96,24 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 
 	public void newHandler(ErrorReporter errors, HandlerImplements o) {
 		handlers.add(o);
+	}
+
+	@Override
+	public boolean implementsContract(NameOfThing ctr) {
+		for (ImplementsContract ic : this.contracts) {
+			if (ic.implementsType().defn().name().uniqueName().equals(ctr.uniqueName()))
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean providesContract(NameOfThing ctr) {
+		for (Provides ic : this.services) {
+			if (ic.implementsType().defn().name().uniqueName().equals(ctr.uniqueName()))
+				return true;
+		}
+		return false;
 	}
 
 	@Override

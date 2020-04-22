@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.ServiceElementsConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -14,7 +15,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ServiceDefinition implements Locatable, ServiceElementsConsumer, RepositoryEntry, NamedType {
+public class ServiceDefinition implements Locatable, ServiceElementsConsumer, RepositoryEntry, NamedType, ContractProvider {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
@@ -53,6 +54,15 @@ public class ServiceDefinition implements Locatable, ServiceElementsConsumer, Re
 
 	public void newHandler(ErrorReporter errors, HandlerImplements o) {
 		handlers.add(o);
+	}
+
+	@Override
+	public boolean providesContract(NameOfThing ctr) {
+		for (Provides ic : this.provides) {
+			if (ic.implementsType().defn().name().uniqueName().equals(ctr.uniqueName()))
+				return true;
+		}
+		return false;
 	}
 
 	@Override

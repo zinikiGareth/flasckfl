@@ -1,0 +1,3 @@
+	test we cannot ask an agent to process a message on a contract it does not have
+		data MyAgent m
+		contract m NotOnMyAgent callit

@@ -1,0 +1,4 @@
+	contract NotOnMyAgent
+		callit
+		
+	agent MyAgent
