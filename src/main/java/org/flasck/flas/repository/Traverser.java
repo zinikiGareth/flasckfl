@@ -63,7 +63,12 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateCustomization;
+import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -411,6 +416,9 @@ public class Traverser implements Visitor {
 	public void visitTemplate(Template t, boolean isFirst) {
 		visitor.visitTemplate(t, isFirst);
 		visitTemplateReference(t.refersTo, isFirst);
+		for (TemplateBinding b : t.bindings()) {
+			visitTemplateBinding(b);
+		}
 		leaveTemplate(t);
 	}
 
@@ -420,6 +428,65 @@ public class Traverser implements Visitor {
 
 	public void leaveTemplate(Template t) {
 		visitor.leaveTemplate(t);
+	}
+
+	public void visitTemplateBinding(TemplateBinding b) {
+		visitor.visitTemplateBinding(b);
+		for (TemplateBindingOption c : b.conditional()) {
+			visitTemplateBindingOption(c);
+		}
+		visitTemplateBindingOption(b.defaultBinding);
+		leaveTemplateBinding(b);
+	}
+
+	public void visitTemplateBindingOption(TemplateBindingOption option) {
+		visitor.visitTemplateBindingOption(option);
+		if (option.cond != null)
+			visitExpr(option.cond, 0);
+		visitExpr(option.expr, 0);
+		visitTemplateCustomization(option);
+		leaveTemplateBindingOption(option);
+	}
+
+	public void leaveTemplateBindingOption(TemplateBindingOption option) {
+		visitor.leaveTemplateBindingOption(option);
+	}
+
+	public void leaveTemplateBinding(TemplateBinding b) {
+		visitor.leaveTemplateBinding(b);
+	}
+
+	public void visitTemplateCustomization(TemplateCustomization tc) {
+		visitor.visitTemplateCustomization(tc);
+		for (TemplateStylingOption tso : tc.conditionalStylings)
+			visitTemplateStyling(tso);
+		for (TemplateEvent te : tc.events)
+			visitTemplateEvent(te);
+		leaveTemplateCustomization(tc);
+	}
+
+	public void leaveTemplateCustomization(TemplateCustomization tc) {
+		visitor.leaveTemplateCustomization(tc);
+	}
+
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+		visitor.visitTemplateStyling(tso);
+		visitExpr(tso.cond, 0);
+		leaveTemplateStyling(tso);
+	}
+
+	public void leaveTemplateStyling(TemplateStylingOption tso) {
+		visitor.leaveTemplateStyling(tso);
+	}
+	
+	public void visitTemplateEvent(TemplateEvent te) {
+		visitor.visitTemplateEvent(te);
+		visitExpr(te.expr, 0);
+		leaveTemplateEvent(te);
+	}
+
+	public void leaveTemplateEvent(TemplateEvent te) {
+		visitor.leaveTemplateEvent(te);
 	}
 
 	@Override

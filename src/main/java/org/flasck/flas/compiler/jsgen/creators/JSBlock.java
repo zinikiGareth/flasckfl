@@ -60,6 +60,7 @@ import org.flasck.flas.compiler.jsgen.form.JSTupleMember;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -283,6 +284,11 @@ public class JSBlock implements JSBlockCreator {
 	public void returnObject(JSExpr jsExpr) {
 		JSReturn stmt = new JSReturn(jsExpr);
 		stmts.add(stmt);
+	}
+
+	@Override
+	public void updateContent(TemplateField field, JSExpr expr) {
+		stmts.add(new JSUpdateContent(field, expr));
 	}
 
 	@Override

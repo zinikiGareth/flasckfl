@@ -1,0 +1,4 @@
+	test that the label says hello
+		data Message m 
+		match m text
+			hello

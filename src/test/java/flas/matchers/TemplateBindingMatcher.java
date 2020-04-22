@@ -1,5 +1,6 @@
 package flas.matchers;
 
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -7,7 +8,7 @@ import org.hamcrest.TypeSafeMatcher;
 public class TemplateBindingMatcher extends TypeSafeMatcher<TemplateBinding> {
 	private final String name;
 	private String expr;
-	private String sendsTo;
+	private TemplateName sendsTo;
 
 	public TemplateBindingMatcher(String name) {
 		this.name = name;
@@ -18,8 +19,8 @@ public class TemplateBindingMatcher extends TypeSafeMatcher<TemplateBinding> {
 		return this;
 	}
 
-	public TemplateBindingMatcher sendsTo(String string) {
-		this.sendsTo = string;
+	public TemplateBindingMatcher sendsTo(TemplateName ot) {
+		this.sendsTo = ot;
 		return this;
 	}
 
@@ -48,7 +49,7 @@ public class TemplateBindingMatcher extends TypeSafeMatcher<TemplateBinding> {
 			return false;
 		if ((sendsTo == null) != (bind.defaultBinding == null || bind.defaultBinding.sendsTo == null))
 			return false;
-		if (sendsTo != null && !sendsTo.equals(bind.defaultBinding.sendsTo))
+		if (sendsTo != null && !sendsTo.equals(bind.defaultBinding.sendsTo.name))
 			return false;
 		return true;
 	}

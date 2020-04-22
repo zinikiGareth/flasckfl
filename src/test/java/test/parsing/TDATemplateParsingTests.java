@@ -9,6 +9,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
@@ -20,6 +23,7 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATemplateBindingParser;
 import org.flasck.flas.parser.TDATemplateOptionsParser;
 import org.flasck.flas.parser.TemplateBindingConsumer;
+import org.flasck.flas.parser.TemplateNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -38,13 +42,15 @@ public class TDATemplateParsingTests {
 	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private TDATemplateBindingParser parser;
 	private TemplateBindingConsumer consumer = context.mock(TemplateBindingConsumer.class);
+	private PackageName pkg = new PackageName("test.golden");
 	private InputPosition pos = new InputPosition("fred", 10, 0, "hello");
+	private TemplateNamer namer = context.mock(TemplateNamer.class);
 
 	@Before
 	public void setup() {
 		context.checking(new Expectations() {{
 		}});
-		parser = new TDATemplateBindingParser(tracker, consumer);
+		parser = new TDATemplateBindingParser(tracker, namer, consumer);
 	}
 
 	@Test
@@ -68,8 +74,10 @@ public class TDATemplateParsingTests {
 
 	@Test
 	public void forTheObjectCaseABindingMustSpecifyTheObjectTemplateToUseForRendering() {
+		TemplateName ot = new TemplateName(pos, new CardName(pkg, "Card"), "object-template");
 		context.checking(new Expectations() {{
-			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo("object-template")));
+			oneOf(namer).template(with(any(InputPosition.class)), with("object-template")); will(returnValue(ot));
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo(ot)));
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
 		assertTrue(nested instanceof TDATemplateOptionsParser);
@@ -135,7 +143,9 @@ public class TDATemplateParsingTests {
 	@Test
 	public void forTheObjectCaseADefaultExpressionMayHaveATemplate() {
 		CaptureAction captureIt = new CaptureAction(null);
+		TemplateName tn = new TemplateName(pos, new CardName(pkg, "Card"), "template-7");
 		context.checking(new Expectations() {{
+			oneOf(namer).template(with(any(InputPosition.class)), with("template-7")); will(returnValue(tn));
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
@@ -168,8 +178,10 @@ public class TDATemplateParsingTests {
 	@Test
 	public void aNameByItselfMayHaveAConditionalSendOptionWithSendTo() {
 		CaptureAction captureIt = new CaptureAction(null);
+		TemplateName tn = new TemplateName(pos, new CardName(pkg, "Card"), "my-template");
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
+			oneOf(namer).template(with(any(InputPosition.class)), with("my-template")); will(returnValue(tn));
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
 		nested.tryParsing(TDABasicIntroParsingTests.line("| true <- obj => my-template"));
@@ -180,7 +192,7 @@ public class TDATemplateParsingTests {
 		TemplateBindingOption db = binding.conditionalBindings.get(0);
 		assertThat(db.cond, ExprMatcher.unresolved("true"));
 		assertThat(db.expr, ExprMatcher.unresolved("obj"));
-		assertEquals("my-template", db.sendsTo);
+		assertEquals("my-template", db.sendsTo.name.baseName());
 	}
 
 	@Test
@@ -350,8 +362,10 @@ public class TDATemplateParsingTests {
 	public void aTemplateBindingOnOneLineCannotHaveNestedOptions() {
 		CaptureAction captureIt = new CaptureAction(null);
 		final Tokenizable errline = TDABasicIntroParsingTests.line("<- 42");
+		TemplateName ot = new TemplateName(pos, new CardName(pkg, "Card"), "object-template");
 		context.checking(new Expectations() {{
-			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo("object-template"))); will(captureIt);
+			oneOf(namer).template(with(any(InputPosition.class)), with("object-template")); will(returnValue(ot));
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo(ot))); will(captureIt);
 			oneOf(errors).message(errline, "syntax error");
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));
@@ -363,8 +377,10 @@ public class TDATemplateParsingTests {
 	public void aTemplateBindingOnOneLineCannotHaveNestedConditionals() {
 		CaptureAction captureIt = new CaptureAction(null);
 		final Tokenizable errline = TDABasicIntroParsingTests.line("| true <- 42");
+		TemplateName ot = new TemplateName(pos, new CardName(pkg, "Card"), "object-template");
 		context.checking(new Expectations() {{
-			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo("object-template"))); will(captureIt);
+			oneOf(namer).template(with(any(InputPosition.class)), with("object-template")); will(returnValue(ot));
+			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area").expr("member").sendsTo(ot))); will(captureIt);
 			oneOf(errors).message(errline, "conditional bindings are not permitted after the default has been specified");
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area <- member => object-template"));

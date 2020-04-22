@@ -49,7 +49,12 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateCustomization;
+import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -490,6 +495,46 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
 		top.visitTemplateReference(refersTo, isFirst);
+	}
+
+	public void visitTemplateBinding(TemplateBinding b) {
+		top.visitTemplateBinding(b);
+	}
+
+	public void visitTemplateBindingOption(TemplateBindingOption option) {
+		top.visitTemplateBindingOption(option);
+	}
+
+	public void leaveTemplateBindingOption(TemplateBindingOption option) {
+		top.leaveTemplateBindingOption(option);
+	}
+
+	public void leaveTemplateBinding(TemplateBinding b) {
+		top.leaveTemplateBinding(b);
+	}
+
+	public void visitTemplateCustomization(TemplateCustomization tc) {
+		top.visitTemplateCustomization(tc);
+	}
+
+	public void leaveTemplateCustomization(TemplateCustomization tc) {
+		top.leaveTemplateCustomization(tc);
+	}
+
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+		top.visitTemplateStyling(tso);
+	}
+
+	public void leaveTemplateStyling(TemplateStylingOption tso) {
+		top.leaveTemplateStyling(tso);
+	}
+
+	public void visitTemplateEvent(TemplateEvent te) {
+		top.visitTemplateEvent(te);
+	}
+
+	public void leaveTemplateEvent(TemplateEvent te) {
+		top.leaveTemplateEvent(te);
 	}
 
 	@Override

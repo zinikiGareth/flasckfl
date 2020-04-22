@@ -13,6 +13,14 @@ public class TemplateBinding extends TemplateCustomization {
 		this.defaultBinding = simple;
 	}
 	
+	public Iterable<TemplateBindingOption> conditional() {
+		return conditionalBindings;
+	}
+	
+	public TemplateBindingOption defaultBinding() {
+		return defaultBinding;
+	}
+	
 	@Override
 	public String toString() {
 		return "Binding[" + slot + "<-"+ defaultBinding.expr + "=>" + defaultBinding.sendsTo+"]";

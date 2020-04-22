@@ -1,0 +1,6 @@
+	card Message
+		state
+			String message <- 'hello'
+
+		template label
+			show-message <- message

@@ -349,6 +349,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			errors.message(name.location(), "secondary web templates must be item templates, not card " + name.baseName());
 			return;
 		}
+		// TODO: if !isFirst, it must already be referred to
+		// ALSO TODO: collect the references during traversal
+		// And drive from golden tests ...
 		refersTo.bindTo(webInfo);
 	}
 	

@@ -90,7 +90,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
 			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, namer.template(tn.location, tn.text)));
 			builder.addTemplate(template);
-			return new TDATemplateBindingParser(errors, template);
+			return new TDATemplateBindingParser(errors, namer, template);
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(toks);

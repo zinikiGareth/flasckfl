@@ -8,16 +8,20 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateField;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDATemplateBindingParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final TemplateNamer namer;
 	private final TemplateBindingConsumer consumer;
 
-	public TDATemplateBindingParser(ErrorReporter errors, TemplateBindingConsumer consumer) {
+	public TDATemplateBindingParser(ErrorReporter errors, TemplateNamer namer, TemplateBindingConsumer consumer) {
 		this.errors = errors;
+		this.namer = namer;
 		this.consumer = consumer;
 	}
 
@@ -28,6 +32,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
+		TemplateField field = new TemplateField(tok.location, tok.text);
 		TemplateBindingOption simple = null;
 		if (toks.hasMore()) {
 			ExprToken send = ExprToken.from(errors, toks);
@@ -47,7 +52,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			Expr expr = seen.get(0);
-			String sendsTo = null;
+			TemplateReference sendsTo = null;
 			if (toks.hasMore()) {
 				ExprToken format = ExprToken.from(errors, toks);
 				if (format == null || !"=>".equals(format.text)) {
@@ -59,16 +64,16 @@ public class TDATemplateBindingParser implements TDAParsing {
 					errors.message(toks, "missing template name");
 					return new IgnoreNestedParser();
 				}
-				sendsTo = dest.text;
+				sendsTo = new TemplateReference(dest.location, namer.template(dest.location, dest.text));
 			}
-			simple = new TemplateBindingOption(null, expr, sendsTo);
+			simple = new TemplateBindingOption(field, null, expr, sendsTo);
 		}
 		final TemplateBinding binding = new TemplateBinding(tok.text, simple);
 		consumer.addBinding(binding);
 		if (simple != null)
-			return new TDATemplateOptionsParser(errors, simple);
+			return new TDATemplateOptionsParser(errors, namer, simple);
 		else
-			return new TDATemplateOptionsParser(errors, binding);
+			return new TDATemplateOptionsParser(errors, namer, binding);
 	}
 
 	@Override

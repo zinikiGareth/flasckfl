@@ -11,6 +11,7 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -83,6 +84,9 @@ public interface JSBlockCreator {
 	JSExpr xcurry(int expArgs, List<XCArg> posargs);
 	void returnObject(JSExpr jsExpr);
 
+	// templates
+	void updateContent(TemplateField assignsTo, JSExpr expr);
+	
 	// unit testing
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
 	void expect(JSExpr mock, String var, List<JSExpr> args, JSExpr handler);

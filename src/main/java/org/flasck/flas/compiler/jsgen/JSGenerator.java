@@ -47,6 +47,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -499,6 +500,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator ctrProvider = agentCreator.createMethod("_contract", false);
 		ctrProvider.argument("_cxt");
 		ctrProvider.argument("_ctr");
+		this.structFieldHandler = sf -> {
+			if (sf.init != null) {
+				new StructFieldGeneratorJS(state, sv, ctor, sf.name, new JSThis());
+			}
+		};
 	}
 	
 	@Override
@@ -508,11 +514,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		agentCreator = jse.newClass(pkg, cd.name().jsName());
 		agentCreator.inheritsFrom(new PackageName("FLCard"));
 		JSBlockCreator ctor = agentCreator.constructor();
-		ctor.stateField();
 		ctor.fieldObject("_contracts", "ContractStore");
 		if (!cd.templates.isEmpty()) {
 			ctor.setField(new JSThis(), "_template", ctor.string(cd.templates.get(0).refersTo.defn().id()));
 		}
+		ctor.stateField();
 		JSMethodCreator meth = agentCreator.createMethod("name", true);
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(cd.name().uniqueName()));
@@ -525,6 +531,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		Map<String, FunctionName> eventMethods = new TreeMap<>();
 		eventMap.put(cd, eventMethods);
 		jse.eventMap(cd.name(), eventMethods);
+		this.structFieldHandler = sf -> {
+			if (sf.init != null) {
+				new StructFieldGeneratorJS(state, sv, ctor, sf.name, new JSThis());
+			}
+		};
 	}
 	
 	@Override
@@ -579,6 +590,19 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void leaveAgentDefn(AgentDefinition s) {
 		agentCreator = null;
+	}
+	
+	@Override
+	public void visitTemplate(Template t, boolean isFirst) {
+		// NOTE: TDD - this probably actually wants to do something, but it doesn't want to be _updateDisplay but probably "_update_<templateName>"
+		if (!isFirst)
+			return;
+		
+		JSMethodCreator updateDisplay = agentCreator.createMethod("_updateDisplay", true);
+		updateDisplay.argument("_cxt");
+		updateDisplay.argument("div");
+		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
+		new TemplateProcessorJS(state, sv, updateDisplay);
 	}
 	
 	@Override

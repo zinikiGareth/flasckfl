@@ -11,6 +11,8 @@ import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
 import org.flasck.flas.parsedForm.TemplateEvent;
+import org.flasck.flas.parsedForm.TemplateField;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.StringToken;
@@ -19,18 +21,21 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDATemplateOptionsParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final TemplateNamer namer;
 	private final TemplateBinding binding;
 	private final TemplateCustomization customizer;
 	private boolean seenContent;
 
-	public TDATemplateOptionsParser(ErrorReporter errors, TemplateBinding binding) {
+	public TDATemplateOptionsParser(ErrorReporter errors, TemplateNamer namer, TemplateBinding binding) {
 		this.errors = errors;
+		this.namer = namer;
 		this.binding = binding;
 		this.customizer = binding;
 	}
 
-	public TDATemplateOptionsParser(ErrorReporter errors, TemplateBindingOption option) {
+	public TDATemplateOptionsParser(ErrorReporter errors, TemplateNamer namer, TemplateBindingOption option) {
 		this.errors = errors;
+		this.namer = namer;
 		this.binding = null;
 		this.customizer = option;
 	}
@@ -45,6 +50,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
+		TemplateField field = new TemplateField(tok.location, tok.text);
 		TemplateBindingOption tc = null;
 		if ("|".equals(tok.text)) {
 			if ((binding == null || binding.defaultBinding != null) && toksHasSend(toks)) {
@@ -68,7 +74,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			if ("<-".equals(tok.text)) {
-				TemplateBindingOption tbo = readTemplateBinding(toks);
+				TemplateBindingOption tbo = readTemplateBinding(toks, field);
 				if (tbo == null)
 					return new IgnoreNestedParser();
 				tc = tbo.conditionalOn(seen.get(0));
@@ -92,7 +98,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(toks, "multiple default bindings are not permitted");
 				return new IgnoreNestedParser();
 			}
-			tc = readTemplateBinding(toks);
+			tc = readTemplateBinding(toks, field);
 			if (tc == null)
 				return new IgnoreNestedParser();
 			binding.defaultBinding = tc;
@@ -107,12 +113,12 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		if (tc != null)
-			return new TDATemplateOptionsParser(errors, tc);
+			return new TDATemplateOptionsParser(errors, namer, tc);
 		else
 			return new NoNestingParser(errors);
 	}
 
-	private TemplateBindingOption readTemplateBinding(Tokenizable toks) {
+	private TemplateBindingOption readTemplateBinding(Tokenizable toks, TemplateField field) {
 		List<Expr> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
 			seen.add(t);
@@ -121,13 +127,13 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			errors.message(toks, "no expression to send");
 			return null;
 		}
-		String sendTo = null;
+		TemplateReference sendTo = null;
 		if (toks.hasMore()) {
 			ExprToken sendToTok = ExprToken.from(errors, toks);
 			if (sendToTok != null) {
 				if ("=>".equals(sendToTok.text)) {
 					TemplateNameToken tnt = TemplateNameToken.from(toks);
-					sendTo = tnt.text;
+					sendTo = new TemplateReference(tnt.location, namer.template(tnt.location, tnt.text));
 				} else {
 					errors.message(toks, "syntax error");
 					return null;
@@ -138,7 +144,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return null;
 		}
-		return new TemplateBindingOption(null, seen.get(0), sendTo);
+		return new TemplateBindingOption(field, null, seen.get(0), sendTo);
 	}
 
 	private TemplateStylingOption readTemplateStyles(Expr expr, Tokenizable toks) {

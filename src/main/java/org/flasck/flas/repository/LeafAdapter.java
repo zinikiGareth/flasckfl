@@ -44,7 +44,12 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateCustomization;
+import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -155,6 +160,46 @@ public class LeafAdapter implements Visitor {
 
 	@Override
 	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
+	}
+
+	@Override
+	public void visitTemplateBinding(TemplateBinding b) {
+	}
+
+	@Override
+	public void visitTemplateBindingOption(TemplateBindingOption option) {
+	}
+
+	@Override
+	public void leaveTemplateBindingOption(TemplateBindingOption option) {
+	}
+
+	@Override
+	public void leaveTemplateBinding(TemplateBinding b) {
+	}
+
+	@Override
+	public void visitTemplateCustomization(TemplateCustomization tc) {
+	}
+
+	@Override
+	public void leaveTemplateCustomization(TemplateCustomization tc) {
+	}
+
+	@Override
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+	}
+
+	@Override
+	public void leaveTemplateStyling(TemplateStylingOption tso) {
+	}
+
+	@Override
+	public void visitTemplateEvent(TemplateEvent te) {
+	}
+
+	@Override
+	public void leaveTemplateEvent(TemplateEvent te) {
 	}
 
 	@Override

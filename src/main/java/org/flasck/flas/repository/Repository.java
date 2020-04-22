@@ -66,7 +66,12 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateCustomization;
+import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -222,6 +227,16 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void visitUnitTestMatch(UnitTestMatch m);
 		void leaveUnitTestMatch(UnitTestMatch m);
 		void visitTemplateReference(TemplateReference refersTo, boolean isFirst);
+		void visitTemplateBinding(TemplateBinding b);
+		void visitTemplateBindingOption(TemplateBindingOption option);
+		void leaveTemplateBindingOption(TemplateBindingOption option);
+		void leaveTemplateBinding(TemplateBinding b);
+		void visitTemplateCustomization(TemplateCustomization tc);
+		void leaveTemplateCustomization(TemplateCustomization tc);
+		void visitTemplateStyling(TemplateStylingOption tso);
+		void leaveTemplateStyling(TemplateStylingOption tso);
+		void visitTemplateEvent(TemplateEvent te);
+		void leaveTemplateEvent(TemplateEvent te);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
