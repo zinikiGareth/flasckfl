@@ -8,7 +8,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 
 public interface TemplateNamer extends FunctionScopeNamer, VarNamer {
 
-	TemplateName template(String text);
+	TemplateName template(InputPosition location, String text);
 
 	FunctionName ctor(InputPosition location, String text);
 

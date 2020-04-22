@@ -49,6 +49,7 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -483,8 +484,12 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 	}
 
 	@Override
-	public void visitTemplate(Template t) {
-		top.visitTemplate(t);
+	public void visitTemplate(Template t, boolean isFirst) {
+		top.visitTemplate(t, isFirst);
+	}
+
+	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
+		top.visitTemplateReference(refersTo, isFirst);
 	}
 
 	@Override

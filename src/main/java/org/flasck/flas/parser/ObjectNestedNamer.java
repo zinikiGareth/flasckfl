@@ -20,8 +20,8 @@ public class ObjectNestedNamer extends InnerPackageNamer implements TemplateName
 	}
 
 	@Override
-	public TemplateName template(String text) {
-		return new TemplateName(pkg, text);
+	public TemplateName template(InputPosition location, String text) {
+		return new TemplateName(location, pkg, text);
 	}
 
 	@Override

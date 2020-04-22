@@ -6,6 +6,10 @@ const UTRunner = function(logger) {
 	this.objects = {};
 	this.broker = new SimpleBroker(logger, this, this.contracts);
 	this.errors = [];
+	this.nextDivId = 1;
+}
+UTRunner.prototype.clear = function() {
+	document.body.innerHTML = '';
 }
 UTRunner.prototype.error = function(err) {
 	this.errors.push(err);
@@ -31,6 +35,17 @@ UTRunner.prototype.event = function(_cxt, target, event) {
 	var reply = _cxt.handleEvent(target.card, event);
 	reply = _cxt.full(reply);
 	this.handleMessages(_cxt, reply);
+}
+UTRunner.prototype.match = function(_cxt, target, what, selector, contains, expected) {
+	const actual = "TBD";
+	// TODO: ensure this does the appropriate thing with white space
+	if (contains) {
+		if (!actual.includes(expected))
+			throw new Error("MATCH\n  expected to contain: " + expected + "\n  actual:   " + actual);
+	} else {
+		if (actual != expected)
+			throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
+	}
 }
 UTRunner.prototype.handleMessages = function(_cxt, msg) {
 	if (this.errors.length != 0)
@@ -183,8 +198,12 @@ MockAgent.prototype.sendTo = function(_cxt, contract, msg, args) {
 	return ctr[msg].apply(ctr, inv);
 };
 
-const MockCard = function(card) {
+const MockCard = function(cx, card) {
 	this.card = card;
+	const newdiv = document.createElement("div");
+	newdiv.setAttribute("id", cx.nextDocumentId());
+	document.body.appendChild(newdiv);
+	this.card.renderInto(cx, newdiv);
 };
 
 MockCard.prototype = new MockAgent();

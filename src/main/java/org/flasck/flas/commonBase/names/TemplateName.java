@@ -1,20 +1,22 @@
 package org.flasck.flas.commonBase.names;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class TemplateName implements NameOfThing, Comparable<TemplateName> {
+	private final InputPosition location;
 	private final NameOfThing cardName;
-	private String name;
+	private final String name;
 
-	public TemplateName(NameOfThing cardName) {
-		this.cardName = cardName;
-		this.name = null;
-	}
-	
-	public TemplateName(NameOfThing cardName, String name) {
+	public TemplateName(InputPosition location, NameOfThing cardName, String name) {
+		this.location = location;
 		this.cardName = cardName;
 		this.name = name;
+	}
+
+	public InputPosition location() {
+		return location;
 	}
 	
 	@Override

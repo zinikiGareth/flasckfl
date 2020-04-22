@@ -1,28 +1,18 @@
 package org.flasck.flas.parsedForm;
 
-import java.util.List;
-
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.parser.TemplateBindingConsumer;
 
 public class Template implements Locatable, TemplateBindingConsumer {
 	public final InputPosition kw;
 	private final InputPosition loc;
-	public final TemplateName name;
-	@Deprecated
-	public final List<LocatedToken> args;
-	@Deprecated
-	public final TemplateLine content;
+	public final TemplateReference refersTo;
 
-	public Template(InputPosition kw, InputPosition loc, TemplateName name, List<LocatedToken> args, TemplateLine content) {
+	public Template(InputPosition kw, InputPosition loc, TemplateReference refersTo) {
 		this.kw = kw;
 		this.loc = loc;
-		this.name = name;
-		this.args = args;
-		this.content = content;
+		this.refersTo = refersTo;
 	}
 
 	@Override
@@ -36,6 +26,6 @@ public class Template implements Locatable, TemplateBindingConsumer {
 
 	@Override
 	public String toString() {
-		return "Template[" + name.uniqueName() + "]";
+		return "Template[" + refersTo.name.uniqueName() + "]";
 	}
 }

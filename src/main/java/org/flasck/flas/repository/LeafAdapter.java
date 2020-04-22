@@ -44,6 +44,7 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -149,7 +150,11 @@ public class LeafAdapter implements Visitor {
 	}
 
 	@Override
-	public void visitTemplate(Template t) {
+	public void visitTemplate(Template t, boolean isFirst) {
+	}
+
+	@Override
+	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
 	}
 
 	@Override

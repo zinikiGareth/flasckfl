@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
@@ -27,7 +28,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				errors.message(toks, "template must have a name");
 				return new IgnoreNestedParser();
 			}
-			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.text), null, null);
+			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, consumer.templateName(tn.location, tn.text)));
 			consumer.addTemplate(template);
 			return new TDATemplateBindingParser(errors, template);
 		}

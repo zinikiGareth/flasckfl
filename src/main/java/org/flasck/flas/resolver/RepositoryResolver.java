@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -24,6 +25,7 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -36,6 +38,8 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
+import org.ziniki.splitter.CardData;
+import org.ziniki.splitter.CardType;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final ErrorReporter errors;
@@ -328,6 +332,24 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
 		this.scope = scopeStack.remove(0);
+	}
+	
+	@Override
+	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
+		TemplateName name = refersTo.name;
+		CardData webInfo = repository.findWeb(name.baseName());
+		if (webInfo == null) {
+			errors.message(name.location(), "there is no web template defined for " + name.baseName());
+			return;
+		}
+		if (isFirst && webInfo.type() != CardType.CARD) {
+			errors.message(name.location(), "first web template must be a card template, not item " + name.baseName());
+			return;
+		} else if (!isFirst && webInfo.type() != CardType.ITEM) {
+			errors.message(name.location(), "secondary web templates must be item templates, not card " + name.baseName());
+			return;
+		}
+		refersTo.bindTo(webInfo);
 	}
 	
 	@Override

@@ -66,6 +66,7 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -89,6 +90,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
+import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -215,10 +217,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		void leaveServiceDefn(ServiceDefinition s);
 		void visitCardDefn(CardDefinition cd);
 		void leaveCardDefn(CardDefinition s);
-		void visitTemplate(Template t);
+		void visitTemplate(Template t, boolean isFirst);
 		void leaveTemplate(Template t);
 		void visitUnitTestMatch(UnitTestMatch m);
 		void leaveUnitTestMatch(UnitTestMatch m);
+		void visitTemplateReference(TemplateReference refersTo, boolean isFirst);
 	}
 
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
@@ -516,6 +519,16 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	public void traverseWithHSI(HSIVisitor v) {
 		Traverser t = new Traverser(v).withHSI().withNestedPatterns();
 		t.doTraversal(this);
+	}
+
+	@Override
+	public CardData findWeb(String baseName) {
+		for (SplitMetaData web : webs) {
+			CardData ret = web.forCard(baseName);
+			if (ret != null)
+				return ret;
+		}
+		return null;
 	}
 
 	public Iterable<SplitMetaData> allWebs() {

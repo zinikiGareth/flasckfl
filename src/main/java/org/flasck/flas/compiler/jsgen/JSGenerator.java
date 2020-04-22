@@ -506,6 +506,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = cd.name().container().jsName();
 		jse.ensurePackageExists(pkg, pkg);
 		agentCreator = jse.newClass(pkg, cd.name().jsName());
+		agentCreator.inheritsFrom(new PackageName("FLCard"));
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.stateField();
 		ctor.fieldObject("_contracts", "ContractStore");
@@ -595,6 +596,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = jse.newFunction(pkg, pkg, false, clzName.baseName());
 		this.block = meth;
 		runner = meth.argument("runner");
+		meth.clear();
 		meth.initContext(e.name.packageName());
 		this.state = new JSFunctionStateStore(meth, null);
 		explodingMocks.clear();
@@ -688,6 +690,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void visitUnitTestMatch(UnitTestMatch m) {
+		new DoUTMatchGeneratorJS(state, sv, this.block, this.runner);
 	}
 	
 	@Override

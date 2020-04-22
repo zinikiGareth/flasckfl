@@ -63,6 +63,7 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -322,8 +323,11 @@ public class Traverser implements Visitor {
 			visitImplements(ic);
 		for (HandlerImplements ic : cd.handlers)
 			visitHandlerImplements(ic, cd);
-		for (Template t : cd.templates)
-			visitTemplate(t);
+		boolean isFirst = true;
+		for (Template t : cd.templates) {
+			visitTemplate(t, isFirst);
+			isFirst = false;
+		}
 		// TODO: events
 		leaveCardDefn(cd);
 	}
@@ -403,11 +407,16 @@ public class Traverser implements Visitor {
 	public void leaveHandlerImplements(HandlerImplements hi) {
 		visitor.leaveHandlerImplements(hi);
 	}
-	public void visitTemplate(Template t) {
-		visitor.visitTemplate(t);
+
+	public void visitTemplate(Template t, boolean isFirst) {
+		visitor.visitTemplate(t, isFirst);
+		visitTemplateReference(t.refersTo, isFirst);
 		leaveTemplate(t);
 	}
 
+	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
+		visitor.visitTemplateReference(refersTo, isFirst);
+	}
 
 	public void leaveTemplate(Template t) {
 		visitor.leaveTemplate(t);
@@ -1384,6 +1393,7 @@ public class Traverser implements Visitor {
 
 	public void visitUnitTestMatch(UnitTestMatch m) {
 		visitor.visitUnitTestMatch(m);
+		visitExpr(m.card, 0);
 		leaveUnitTestMatch(m);
 	}
 

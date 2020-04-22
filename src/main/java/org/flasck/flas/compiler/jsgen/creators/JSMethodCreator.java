@@ -6,6 +6,7 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 public interface JSMethodCreator extends JSBlockCreator {
 	String jsName();
 	JSExpr argument(String name);
+	void clear();
 	void initContext(PackageName packageName);
 	void testComplete();
 	void copyContract(JSExpr copyInto, String fld, String arg);

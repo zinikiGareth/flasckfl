@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.compiler.jsgen.form.ClearRunner;
 import org.flasck.flas.compiler.jsgen.form.InitContext;
 import org.flasck.flas.compiler.jsgen.form.JSBlockComplete;
 import org.flasck.flas.compiler.jsgen.form.JSCopyContract;
@@ -45,6 +46,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		JSVar ret = new JSVar(name);
 		args.add(ret);
 		return ret;
+	}
+
+	@Override
+	public void clear() {
+		stmts.add(new ClearRunner());
 	}
 
 	@Override

@@ -310,6 +310,10 @@ FLContext.prototype.field = function(obj, field) {
 	}
 }
 
+FLContext.prototype.nextDocumentId = function() {
+	return "flaselt_" + (this.env.nextDivId++);
+}
+
 FLContext.prototype.handleEvent = function(card, event) {
 	const en = event.constructor.name;
 	const handler = card._events()[en];
@@ -343,7 +347,7 @@ FLContext.prototype.mockAgent = function(agent) {
 }
 
 FLContext.prototype.mockCard = function(card) {
-	return new MockCard(card);
+	return new MockCard(this, card);
 }
 
 FLContext.prototype.explodingHandler = function() {
@@ -356,6 +360,14 @@ FLContext.prototype.mockHandler = function(contract) {
 	return ret;
 }
 
+
+const FLCard = function() {
+
+}
+
+FLCard.prototype.renderInto = function(cx, div) {
+    
+}
 
 class FLError extends Error {
 	constructor(msg) {

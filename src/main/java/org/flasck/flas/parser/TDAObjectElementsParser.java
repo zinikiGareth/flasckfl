@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -87,7 +88,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
-			final Template template = new Template(kw.location, tn.location, namer.template(tn.text), null, null);
+			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, namer.template(tn.location, tn.text)));
 			builder.addTemplate(template);
 			return new TDATemplateBindingParser(errors, template);
 		}

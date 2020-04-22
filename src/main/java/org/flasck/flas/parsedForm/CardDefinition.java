@@ -58,8 +58,8 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 	}
 
 	@Override
-	public TemplateName templateName(String text) {
-		return new TemplateName(cardName, text);
+	public TemplateName templateName(InputPosition location, String text) {
+		return new TemplateName(location, cardName, text);
 	}
 
 	@Override
