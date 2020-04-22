@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -51,8 +52,8 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void match(MatchedItem what, String selector, boolean contains, String text) {
-		this.steps.add(new UnitTestMatch(what, selector, contains, text));
+	public void match(Expr card, MatchedItem what, StringLiteral selector, boolean contains, String text) {
+		this.steps.add(new UnitTestMatch(card, what, selector, contains, text));
 	}
 
 	@Override

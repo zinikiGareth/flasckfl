@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -214,10 +215,62 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleAMatchStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).match(MatchedItem.TEXT, null, false, "hello");
+			oneOf(builder).match(with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(aNull(StringLiteral.class)), with(false), with("hello"));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
-		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match text"));
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text"));
+		assertTrue(nested instanceof FreeTextParser);
+		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeCanMatchStyles() {
+		context.checking(new Expectations() {{
+			oneOf(builder).match(with(ExprMatcher.unresolved("h")), with(MatchedItem.STYLE), with(aNull(StringLiteral.class)), with(false), with("hello"));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match h style"));
+		assertTrue(nested instanceof FreeTextParser);
+		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeCanMatchWithAStringSelector() {
+		context.checking(new Expectations() {{
+			oneOf(builder).match(with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), (StringLiteral) with(ExprMatcher.string("selector-tbd")), with(false), with("hello"));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text \"selector-tbd\""));
+		assertTrue(nested instanceof FreeTextParser);
+		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeCanMatchAPortionOfATextNode() {
+		context.checking(new Expectations() {{
+			oneOf(builder).match(with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), with(aNull(StringLiteral.class)), with(true), with("hello"));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text contains"));
+		assertTrue(nested instanceof FreeTextParser);
+		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testWeCanMatchAPortionOfTheTextSelectedWithAStringSelector() {
+		context.checking(new Expectations() {{
+			oneOf(builder).match(with(ExprMatcher.unresolved("card")), with(MatchedItem.TEXT), (StringLiteral) with(ExprMatcher.string("selector-tbd")), with(true), with("hello"));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("match card text 'selector-tbd' contains"));
 		assertTrue(nested instanceof FreeTextParser);
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("hello"));
 		nested.scopeComplete(pos);

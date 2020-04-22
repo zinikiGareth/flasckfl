@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -17,6 +18,7 @@ import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -156,10 +158,38 @@ public class TestStepParser implements TDAParsing {
 			return new TDAMultiParser(errors);
 		}
 		case "match": {
-			MatchedItem what = MatchedItem.TEXT;
-			String selector = null;
-			boolean contains = false;
-			return new FreeTextParser(errors, text -> { builder.match(what, selector, contains, text); });
+			ValidIdentifierToken card = VarNameToken.from(toks);
+			if (card == null) {
+				errors.message(toks, "missing card");
+				return new IgnoreNestedParser();
+			}
+			ValidIdentifierToken whattok = VarNameToken.from(toks);
+			if (whattok == null) {
+				errors.message(toks, "missing category");
+				return new IgnoreNestedParser();
+			}
+			MatchedItem what;
+			switch (whattok.text) {
+			case "text":
+				what = MatchedItem.TEXT;
+				break;
+			case "style":
+				what = MatchedItem.STYLE;
+				break;
+			default:
+				errors.message(whattok.location, "invalid category: " + whattok.text);
+				return new IgnoreNestedParser();
+			}
+			InputPosition sp = toks.realinfo();
+			String s = StringToken.from(errors, toks);
+			StringLiteral selector = (s != null)?new StringLiteral(sp, s):null;
+			ValidIdentifierToken isContains = VarNameToken.from(toks);
+			if (isContains != null && !"contains".equals(isContains.text)) {
+				errors.message(isContains.location, "syntax error");
+				return new IgnoreNestedParser();
+			}
+			boolean contains = isContains != null;
+			return new FreeTextParser(errors, text -> { builder.match(new UnresolvedVar(card.location, card.text), what, selector, contains, text); });
 		}
 		default: {
 			toks.reset(mark);

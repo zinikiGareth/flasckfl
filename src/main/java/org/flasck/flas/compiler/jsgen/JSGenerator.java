@@ -55,6 +55,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
+import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -685,6 +686,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		new DoUTEventGeneratorJS(state, sv, this.block, this.runner);
 	}
 
+	@Override
+	public void visitUnitTestMatch(UnitTestMatch m) {
+	}
+	
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
 		for (JSExpr m : explodingMocks) {

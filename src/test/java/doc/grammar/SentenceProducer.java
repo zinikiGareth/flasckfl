@@ -354,8 +354,10 @@ public class SentenceProducer {
 			case "SERVICE":
 			case "STATE":
 			case "STRUCT":
+			case "STYLE":
 			case "TEMPLATE":
 			case "TEST":
+			case "TEXT":
 			case "TRUE":
 			case "UNION":
 			case "WRAPS":

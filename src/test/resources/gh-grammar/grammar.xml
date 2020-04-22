@@ -143,11 +143,17 @@
   <lex token='STRUCT' pattern='struct'>
   	<p>The <tt>struct</tt> keyword introduces a struct declaration.</p>
   </lex>
+  <lex token='STYLE' pattern='style'>
+  	<p>The <tt>style</tt> keyword is used to match card styles.</p>
+  </lex>
   <lex token='TEMPLATE' pattern='template'>
   	<p>The <tt>template</tt> keyword introduces a template definition.</p>
   </lex>
   <lex token='TEST' pattern='test'>
   	<p>The <tt>test</tt> keyword introduces a unit test case.</p>
+  </lex>
+  <lex token='TEXT' pattern='text'>
+  	<p>The <tt>text</tt> keyword is used to match text on a card.</p>
   </lex>
   <lex token='TRUE' pattern='true'>
   	<p>The boolean literal <tt>true</tt>.</p>
@@ -1530,7 +1536,7 @@ match css ".body['height']"
       <ref production='unit-contract-action' />
       <ref production='unit-test-assert' />
       <ref production='unit-test-expect' />
-      <ref production='unit-test-template' />
+      <ref production='unit-test-match' />
     </or>
   </production>
   <production name='unit-event-action'>
@@ -1588,14 +1594,25 @@ match css ".body['height']"
       <!-- should have an indent block that enables matching functions to be defined  -->
     </seq>
   </production>
-  <production name='unit-test-template'>
+  <production name='unit-test-match'>
     <section title='Unit Tests' />
     <seq>
       <token type='MATCH' />
+      <token type='var-name' /> <!-- the card -->
+      <ref production='unit-test-match-category' />
+      <!-- optional "selector" (but not CSS?) -->
+      <!-- optional "contains" -->
       <!--  as with the template definitions before, I'm not really sure what comes here ... -->
       <!--  I do know I want it to be as independent of HTML as possible, and thus close to the syntax used for specifying them -->
       <!--  but obviously I want something disconnected from the actual logic -->
     </seq>
+  </production>
+  <production name='unit-test-match-category'>
+    <section title='Unit Tests' />
+    <or>
+      <token type='TEXT' />
+      <token type='STYLE' /> <!-- the card -->
+    </or>
   </production>
   <production name='unit-data-declaration'>
     <section title='Unit Test Data'>

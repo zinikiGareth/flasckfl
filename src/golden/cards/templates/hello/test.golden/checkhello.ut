@@ -1,5 +1,5 @@
 	test that the label says hello
-Note that spacing should not be important
-		match text
+		data Hello h 
+		match h text
 			hello,
 			world
