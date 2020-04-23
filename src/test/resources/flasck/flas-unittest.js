@@ -215,7 +215,7 @@ const MockCard = function(cx, card) {
 	const newdiv = document.createElement("div");
 	newdiv.setAttribute("id", cx.nextDocumentId());
 	document.body.appendChild(newdiv);
-	this.card.renderInto(cx, newdiv);
+	this.card._renderInto(cx, newdiv);
 };
 
 MockCard.prototype.sendTo = function(_cxt, contract, msg, args) {

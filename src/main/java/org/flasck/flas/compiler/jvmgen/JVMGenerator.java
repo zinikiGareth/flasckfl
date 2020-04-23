@@ -786,12 +786,18 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	@Override
 	public void leaveAgentDefn(AgentDefinition s) {
+		if (this.currentBlock != null && !this.currentBlock.isEmpty())
+			makeBlock(meth, currentBlock).flush();
+		this.currentBlock = null;
 		agentctor.returnVoid().flush();
 		agentctor = null;
 	}
 	
 	@Override
 	public void leaveCardDefn(CardDefinition cd) {
+		if (this.currentBlock != null && !this.currentBlock.isEmpty())
+			makeBlock(meth, currentBlock).flush();
+		this.currentBlock = null;
 		agentctor.returnVoid().flush();
 		agentctor = null;
 	}
@@ -867,7 +873,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else if (objty instanceof CardDefinition) {
 			CardDefinition cd = (CardDefinition)objty;
 			IExpr card = meth.makeNew(cd.name().javaName(), this.fcx);
-			IExpr mc = meth.callInterface(J.MOCKCARD, fcx, "mockCard", meth.as(card, J.CONTRACT_HOLDER));
+			IExpr mc = meth.callInterface(J.MOCKCARD, fcx, "mockCard", meth.as(card, J.FLCARD));
 			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);

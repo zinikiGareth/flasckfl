@@ -71,7 +71,7 @@ public abstract class CommonTestRunner implements TestRunner {
 
 	public abstract void preparePackage(PrintWriter pw, UnitTestPackage e);
 	public abstract void runit(PrintWriter pw, UnitTestCase utc);
-	public abstract void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches);
+	public abstract void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches) throws NotMatched;
 
 	protected void assertAllInvocationsCalled() {
 		for (Invocation ii : invocations)

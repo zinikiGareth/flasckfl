@@ -3,6 +3,7 @@ package org.flasck.flas.testrunner;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
@@ -18,6 +19,8 @@ import org.flasck.jvm.container.MockAgent;
 import org.flasck.jvm.container.MockCard;
 import org.flasck.jvm.container.MockService;
 import org.flasck.jvm.fl.LoaderContext;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.ziniki.ziwsh.intf.EvalContext;
 import org.ziniki.ziwsh.intf.EvalContextFactory;
 import org.ziniki.ziwsh.intf.ZiwshBroker;
@@ -26,23 +29,22 @@ import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
-public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */ implements EvalContextFactory, FLEvalContextFactory, ErrorCollector {
-//	private final EntityStore store;
-//	private final JDKFlasckController controller;
+public class JVMRunner extends CommonTestRunner implements EvalContextFactory, FLEvalContextFactory, ErrorCollector {
 	// TODO: I don't think this needs to be a special thing in the modern world
 	private final ClassLoader loader;
-//	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
-//	private Document document;
+	private Document document;
 	private final JvmDispatcher dispatcher;
 	private final ZiwshBroker broker = new SimpleBroker(this);
 	private List<Throwable> runtimeErrors = new ArrayList<Throwable>();
+	private int docId = 1;
+	private final Map<String, String> templates;
 
-	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl) {
+	public JVMRunner(Configuration config, Repository repository, ClassLoader bcl, Map<String, String> templates) {
 		super(config, repository);
 		this.loader = bcl;
+		this.templates = templates;
 		this.dispatcher = new JvmDispatcher(this);
-//		this.store = null;
-//		this.controller = null;
+		
 	}
 	
 	@Override
@@ -56,12 +58,32 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 	}
 
 	public void clearBody(FLEvalContext cx) {
-		
+		this.document = Document.createShell("http://localhost");
 	}
 	
 	@Override
+	public String getTemplate(String template) {
+		return templates.get(template);
+	}
+
+	@Override
+	public String nextDocumentId() {
+		return "flaselt_" + docId++;
+	}
+
+	@Override
 	public String name() {
 		return "jvm";
+	}
+	
+	@Override
+	public Element newdiv() {
+		return document.createElement("div");
+	}
+
+	@Override
+	public void attachToBody(Element newdiv) {
+		document.body().appendChild(newdiv);
 	}
 
 	@Override
@@ -158,17 +180,21 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 
 	@Override
 	public void send(FLEvalContext cx, Object to, String contract, String meth, Object... args) {
+		MockCard mc = null;
 		Object reply;
 		if (to instanceof MockAgent)
 			reply = ((MockAgent)to).sendTo(cx, contract, meth, args);
 		else if (to instanceof MockService)
 			reply = ((MockService)to).sendTo(cx, contract, meth, args);
-		else if (to instanceof MockCard)
-			reply = ((MockCard)to).sendTo(cx, contract, meth, args);
-		else
+		else if (to instanceof MockCard) {
+			mc = (MockCard)to;
+			reply = mc.sendTo(cx, contract, meth, args);
+		} else
 			throw new NotImplementedException("cannot handle " + to.getClass());
 		reply = cx.full(reply);
 		dispatcher.invoke(cx, reply);
+		if (mc != null)
+			updateCard(cx, mc);
 	}
 
 	@Override
@@ -177,10 +203,30 @@ public class JVMRunner extends CommonTestRunner /* implements ServiceProvider */
 		Object reply = cx.handleEvent(mc.card(), event);
 		reply = cx.full(reply);
 		dispatcher.invoke(cx, reply);
+		updateCard(cx, mc);
+	}
+
+	private void updateCard(FLEvalContext cx, MockCard mc) {
+		mc.card()._updateDisplay(cx);
 	}
 
 	@Override
-	public void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches) {
+	public void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches) throws NotMatched {
+		if (target == null || !(target instanceof MockCard)) {
+			throw new NotMatched(selector, "The card had no rendered content");
+		}
+		MockCard card = (MockCard) target;
+		String content = card.getContent();
+		if (content == null)
+			throw new NotMatched(selector, "The card had no rendered content");
+		content = content.trim().replace('\n', ' ').replaceAll(" +", " ");
+		if (contains) {
+			if (!content.contains(matches))
+				throw new NotMatched(selector, matches, content);
+		} else {
+			if (!content.equals(matches))
+				throw new NotMatched(selector, matches, content);
+		}
 	}
 
 //	@Override

@@ -365,7 +365,7 @@ const FLCard = function(cx) {
     this._currentDiv = null;
 }
 
-FLCard.prototype.renderInto = function(_cxt, div) {
+FLCard.prototype._renderInto = function(_cxt, div) {
     div.innerHTML = '';
     if (this._template) {
         var t = document.getElementById(this._template);

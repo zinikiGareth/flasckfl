@@ -6,9 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
@@ -197,15 +201,16 @@ public class FLASCompiler {
 		if (config.generateJVM)
 			saveBCE(config.jvmDir(), bce);
 
+		Map<String, String> allTemplates = extractTemplatesFromWebs();
 		Map<File, PrintWriter> writers = new HashMap<>();
 		if (config.generateJVM && config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
-			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl);
+			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
 			jvmRunner.runAll(writers);
 		}
 
 		if (config.generateJS && config.unitjs) {
-			JSRunner jsRunner = new JSRunner(config, repository, jse);
+			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates);
 			jsRunner.runAll(writers);
 		}
 		writers.values().forEach(w -> w.close());
@@ -215,6 +220,24 @@ public class FLASCompiler {
 			return true;
 		}
 		return false;
+	}
+
+	private Map<String, String> extractTemplatesFromWebs() {
+		Map<String, String> ret = new TreeMap<>();
+		try {
+			for (SplitMetaData smd : repository.allWebs()) {
+				try (ZipInputStream zis = smd.processedZip()) {
+					ZipEntry ze;
+					while ((ze = zis.getNextEntry()) != null) {
+						if (ze.getName().endsWith(".html"))
+							ret.put(ze.getName().replace(".html", ""), new String(FileUtils.readAllStream(zis), Charset.forName("UTF-8")));
+					}
+				}
+			}
+		} catch (IOException ex) {
+			errors.message(((InputPosition)null), "internal error reading templates from splitter");
+		}
+		return ret;
 	}
 
 	public void populateBCE(ByteCodeEnvironment bce) {

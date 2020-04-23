@@ -33,7 +33,9 @@ public class NotMatched extends FlasTestException {
 	public String getMessage() {
 		if (failure != null)
 			return "Matcher failed on '" + selector + "': " + failure;
-		else
-			return "Matcher '" + selector + "' failed: expected <<" + expected + ">> but was '" + actual + "'"; 
+		else {
+			String s = selector != null ? " '" + selector + "'" : "";
+			return "Matcher" + s + " failed: expected <<" + expected + ">> but was '" + actual + "'"; 
+		}
 	}
 }

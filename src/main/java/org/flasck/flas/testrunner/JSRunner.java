@@ -3,20 +3,17 @@ package org.flasck.flas.testrunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
-import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
@@ -88,13 +85,13 @@ public class JSRunner extends CommonTestRunner {
 	private File html;
 	private boolean useCachebuster = false;
 	
-	public JSRunner(Configuration config, Repository repository, JSStorage jse) {
+	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates) {
 		super(config, repository);
 		this.jse = jse;
 		this.browser = BrowserFactory.getWebKit();
 
 		// TODO: I'm not sure how much more of this is actually per-package and how much is "global"
-		buildHTML(repository.allWebs());
+		buildHTML(templates);
 		page = browser.navigate("file:" + html.getPath());
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
@@ -168,7 +165,7 @@ public class JSRunner extends CommonTestRunner {
 		return "js";
 	}
 	
-	private void buildHTML(Iterable<SplitMetaData> webs) {
+	private void buildHTML(Map<String, String> templates) {
 		try {
 			String testName;
 			String testDir;
@@ -185,15 +182,9 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("<!DOCTYPE html>");
 			pw.println("<html>");
 			pw.println("<head>");
-			for (SplitMetaData smd : webs) {
-				try (ZipInputStream zis = smd.processedZip()) {
-					ZipEntry ze;
-					while ((ze = zis.getNextEntry()) != null) {
-						if (ze.getName().endsWith(".html"))
-							renderTemplate(pw, ze.getName(), zis);
-					}
-				}
-			}
+			for (Entry<String, String> e : templates.entrySet())
+				renderTemplate(pw, e.getKey(), e.getValue());
+
 			// probably wants to be config :-)
 			final String logfile = System.getProperty("user.dir") + "/src/test/resources/flasck/javalogger.js";
 			final String zfile = System.getProperty("user.dir") + "/src/test/resources/flasck/ziwsh.js";
@@ -217,9 +208,9 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 
-	private void renderTemplate(PrintWriter pw, String name, ZipInputStream zis) {
+	private void renderTemplate(PrintWriter pw, String name, String template) {
 		pw.println("<template id='" + name.replace(".html", "") + "'>");
-		pw.println(new String(FileUtils.readAllStream(zis), Charset.forName("UTF-8")));
+		pw.println(template);
 		pw.println("</template>");
 	}
 

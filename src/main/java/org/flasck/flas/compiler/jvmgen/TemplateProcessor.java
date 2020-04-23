@@ -36,7 +36,7 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveTemplateBindingOption(TemplateBindingOption tbo) {
-		currentBlock.add(fs.meth.callVirtual("void", fs.container, "_updateContent", fs.meth.stringConst(tbo.assignsTo.text), expr));
+		currentBlock.add(fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.meth.stringConst(tbo.assignsTo.text), expr));
 		JVMGenerator.makeBlock(fs.meth, currentBlock).flush();
 	}
 
