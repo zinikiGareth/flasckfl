@@ -12,13 +12,14 @@ import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLError;
-import org.flasck.jvm.container.ErrorCollector;
+import org.flasck.jvm.container.CardEnvironment;
+import org.flasck.jvm.container.Dispatcher;
 import org.flasck.jvm.container.FLEvalContextFactory;
 import org.flasck.jvm.container.JvmDispatcher;
 import org.flasck.jvm.container.MockAgent;
 import org.flasck.jvm.container.MockCard;
 import org.flasck.jvm.container.MockService;
-import org.flasck.jvm.fl.LoaderContext;
+import org.flasck.jvm.fl.ClientContext;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.ziniki.ziwsh.intf.EvalContext;
@@ -29,7 +30,7 @@ import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
-public class JVMRunner extends CommonTestRunner implements EvalContextFactory, FLEvalContextFactory, ErrorCollector {
+public class JVMRunner extends CommonTestRunner implements EvalContextFactory, FLEvalContextFactory, CardEnvironment {
 	// TODO: I don't think this needs to be a special thing in the modern world
 	private final ClassLoader loader;
 	private Document document;
@@ -54,7 +55,22 @@ public class JVMRunner extends CommonTestRunner implements EvalContextFactory, F
 
 	@Override
 	public FLEvalContext create() {
-		return new LoaderContext(loader, broker, this, dispatcher);
+		return new ClientContext(this);
+	}
+
+	@Override
+	public ClassLoader getLoader() {
+		return loader;
+	}
+
+	@Override
+	public ZiwshBroker getBroker() {
+		return broker;
+	}
+
+	@Override
+	public Dispatcher getDispatcher() {
+		return dispatcher;
 	}
 
 	public void clearBody(FLEvalContext cx) {
@@ -131,7 +147,7 @@ public class JVMRunner extends CommonTestRunner implements EvalContextFactory, F
 	}
 
 	public void assertSameValue(Object expected, Object actual) throws FlasTestException {
-		FLEvalContext cx = new LoaderContext();
+		FLEvalContext cx = new ClientContext();
 		expected = cx.full(expected);
 		actual = cx.full(actual);
 		if (!cx.compare(expected, actual))
