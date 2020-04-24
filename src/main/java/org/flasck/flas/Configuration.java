@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
+import org.zinutils.utils.FileUtils;
 
 public class Configuration {
 	public final ErrorReporter errors;
@@ -30,6 +31,7 @@ public class Configuration {
 	private File writeTestReportsTo;
 	private File writeErrorsTo;
 	public File writeTypesTo;
+	private String jstestdir;
 	public String specifiedTestName;
 
 	public Configuration(ErrorReporter errors, String[] args) {
@@ -68,6 +70,12 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeTestReportsTo = new File(root, args[++i]);
+				} else if (arg.equals("--store-html")) {
+					if (hasMore == 0) {
+						System.out.println("--store-html <dir>");
+						System.exit(1);
+					}
+					jstestdir = args[++i];
 				} else if (arg.equals("--testname")) {
 					if (hasMore == 0) {
 						System.out.println("--testname <name>");
@@ -162,6 +170,21 @@ public class Configuration {
 			return new File(".");
 	}
 
+	public String jsTestDir() {
+		File front;
+		if (root != null) {
+			if (root.isAbsolute())
+				front = root;
+			else
+				front = FileUtils.combine(System.getProperty("user.dir"), root);
+		} else
+			front = new File(System.getProperty("user.dir"));
+		if (jstestdir != null)
+			return new File(front, jstestdir).getPath();
+		else
+			return front.getPath();
+	}
+	
 	public File writeErrorsTo() {
 		return writeErrorsTo;
 	}

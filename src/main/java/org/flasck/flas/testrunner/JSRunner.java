@@ -2,12 +2,14 @@ package org.flasck.flas.testrunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -84,9 +86,18 @@ public class JSRunner extends CommonTestRunner {
 	private Page page;
 	private File html;
 	private boolean useCachebuster = false;
+	private String jstestdir;
+	private String specifiedTestName;
 	
 	public JSRunner(Configuration config, Repository repository, JSStorage jse, Map<String, String> templates) {
 		super(config, repository);
+		if (config != null) {
+			this.jstestdir = config.jsTestDir();
+			this.specifiedTestName = config.specifiedTestName;
+		} else {
+			this.jstestdir = System.getProperty("user.dir");
+			this.specifiedTestName = null;
+		}
 		this.jse = jse;
 		this.browser = BrowserFactory.getWebKit();
 
@@ -169,15 +180,16 @@ public class JSRunner extends CommonTestRunner {
 		try {
 			String testName;
 			String testDir;
-			if (config != null && config.specifiedTestName != null) {
+			if (specifiedTestName != null) {
 				testName = config.specifiedTestName;
-				testDir = System.getProperty("user.dir") + "/html/" + config.specifiedTestName + "/js";
+				testDir = jstestdir + "/html/" + specifiedTestName;
 			} else {
 				testName = "test";
-				testDir = System.getProperty("user.dir") + "/html/js";
+				testDir = jstestdir + "/html";
 			}
-			FileUtils.assertDirectory(new File(testDir));
-			html = new File(System.getProperty("user.dir") + "/html", testName + ".html");
+			String testDirJS = testDir + "/js";
+			FileUtils.assertDirectory(new File(testDirJS));
+			html = new File(testDir, testName + ".html");
 			PrintWriter pw = new PrintWriter(html);
 			pw.println("<!DOCTYPE html>");
 			pw.println("<html>");
@@ -186,12 +198,12 @@ public class JSRunner extends CommonTestRunner {
 				renderTemplate(pw, e.getKey(), e.getValue());
 
 			// probably wants to be config :-)
-			copyResourceIntoScript(pw, "javalogger.js", testDir);
-			copyResourceIntoScript(pw, "ziwsh.js", testDir);
-			copyResourceIntoScript(pw, "flas-runtime.js", testDir);
-			copyResourceIntoScript(pw, "flas-unittest.js", testDir);
+			copyResourceIntoScript(pw, "javalogger.js", testDirJS);
+			copyResourceIntoScript(pw, "ziwsh.js", testDirJS);
+			copyResourceIntoScript(pw, "flas-runtime.js", testDirJS);
+			copyResourceIntoScript(pw, "flas-unittest.js", testDirJS);
 			for (File f : jse.files())
-				includeFileAsScript(pw, f, testDir);
+				includeFileAsScript(pw, f, testDirJS);
 			pw.println("</head>");
 			pw.println("<body>");
 			pw.println("</body>");
@@ -206,7 +218,12 @@ public class JSRunner extends CommonTestRunner {
 
 	private void copyResourceIntoScript(PrintWriter pw, String resource, String testDir) {
 		File to = new File(testDir, resource);
-		FileUtils.copyStreamToFile(this.getClass().getResourceAsStream("/flasck/" + resource), to);
+		InputStream is = this.getClass().getResourceAsStream("/flasck/" + resource);
+		if (is == null) {
+			errors.add("Could not copy resource" + resource);
+			return;
+		}
+		FileUtils.copyStreamToFile(is, to);
 		pw.println("<script src='file:" + to.getPath() + "' type='text/javascript'></script>");
 	}
 
