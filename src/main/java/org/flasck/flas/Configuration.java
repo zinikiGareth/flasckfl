@@ -118,9 +118,9 @@ public class Configuration {
 //						System.exit(1);
 //					}
 //					writeDroid = new File(root, args[++i]);
-				} else if (arg.equals("--jvm")) {
+				} else if (arg.equals("--jvmout")) {
 					if (hasMore == 0) {
-						System.out.println("--jvm <build-dir>");
+						System.out.println("--jvmout <build-dir>");
 						System.exit(1);
 					}
 					writeJVM = new File(root, args[++i]);

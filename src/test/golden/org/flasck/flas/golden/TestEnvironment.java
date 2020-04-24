@@ -17,9 +17,9 @@ import org.zinutils.utils.FileUtils;
 
 public class TestEnvironment {
 
-	private File jsto;
+	private File jsout;
 	private File tc2;
-	private File droidTo;
+	private File jvmout;
 	public final File testReportTo;
 	private File errors;
 	private boolean useJSRunner;
@@ -37,10 +37,10 @@ public class TestEnvironment {
 		this.useJVMRunner = useJVMRunner;
 		this.checkNothing = checkNothing;
 		this.checkEverything = checkEverything;
-		jsto = new File(root, "jsout-tmp");
+		jsout = new File(root, "jsout");
+		jvmout = new File(root, "jvmout");
 		goldtc = new File(root, "tc");
 		tc2 = new File(root, "tc-tmp");
-		droidTo = new File(root, "droid-to");
 		testReports = new File(root, "testReports");
 		testReportTo = new File(root, "testReports-tmp");
 		errors = new File(root, "errors-tmp");
@@ -50,7 +50,6 @@ public class TestEnvironment {
 			jvmbin = new File(jvmdir, "jvm/qbout");
 		if (!jvmbin.exists())
 			throw new RuntimeException("No jvm bin directory could be found");
-
 	}
 
 	public boolean haveTests() {
@@ -59,8 +58,8 @@ public class TestEnvironment {
 
 	public void cleanUp() {
 		FileUtils.deleteDirectoryTree(errors);
-		clean(jsto);
-		clean(droidTo);
+		clean(jsout);
+		clean(jvmout);
 		clean(tc2);
 	}
 	
