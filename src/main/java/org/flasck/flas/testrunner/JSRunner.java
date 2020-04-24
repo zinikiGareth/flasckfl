@@ -186,14 +186,10 @@ public class JSRunner extends CommonTestRunner {
 				renderTemplate(pw, e.getKey(), e.getValue());
 
 			// probably wants to be config :-)
-			final String logfile = System.getProperty("user.dir") + "/src/test/resources/flasck/javalogger.js";
-			final String zfile = System.getProperty("user.dir") + "/src/test/resources/flasck/ziwsh.js";
-			final String jsfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-runtime.js";
-			final String utfile = System.getProperty("user.dir") + "/src/test/resources/flasck/flas-unittest.js";
-			pw.println("<script src='file:" + logfile + "' type='text/javascript'></script>");
-			pw.println("<script src='file:" + zfile + "' type='text/javascript'></script>");
-			pw.println("<script src='file:" + jsfile + "' type='text/javascript'></script>");
-			pw.println("<script src='file:" + utfile + "' type='text/javascript'></script>");
+			copyResourceIntoScript(pw, "javalogger.js", testDir);
+			copyResourceIntoScript(pw, "ziwsh.js", testDir);
+			copyResourceIntoScript(pw, "flas-runtime.js", testDir);
+			copyResourceIntoScript(pw, "flas-unittest.js", testDir);
 			for (File f : jse.files())
 				includeFileAsScript(pw, f, testDir);
 			pw.println("</head>");
@@ -206,6 +202,12 @@ public class JSRunner extends CommonTestRunner {
 		} catch (IOException ex) {
 			throw WrappedException.wrap(ex);
 		}
+	}
+
+	private void copyResourceIntoScript(PrintWriter pw, String resource, String testDir) {
+		File to = new File(testDir, resource);
+		FileUtils.copyStreamToFile(this.getClass().getResourceAsStream("/flasck/" + resource), to);
+		pw.println("<script src='file:" + to.getPath() + "' type='text/javascript'></script>");
 	}
 
 	private void renderTemplate(PrintWriter pw, String name, String template) {
