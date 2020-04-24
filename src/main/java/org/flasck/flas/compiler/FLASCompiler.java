@@ -68,14 +68,15 @@ public class FLASCompiler {
 	}
 	
 	public ErrorMark processInput(ErrorMark mark, File input) {
+		ErrorMark original = mark;
 		try {
-			mark = parse(mark, input);
+			parse(mark, input);
 		} catch (Throwable ex) {
 			reportException(ex);
 		} finally {
-			errors.showFromMark(mark, errorWriter, 0);
+			errors.showFromMark(original, errorWriter, 0);
 		}
-		return mark;
+		return errors.mark();
 	}
 
 	public ErrorMark splitWeb(ErrorMark mark, File web) {
@@ -88,14 +89,15 @@ public class FLASCompiler {
 			repository.webData(md);
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + web);
-			return errors.mark();
 		}
-		return mark;
+		return errors.mark();
 	}
 
-	public ErrorMark parse(ErrorMark mark, File dir) {
-		if (!dir.isDirectory())
-			throw new RuntimeException("there is no input directory " + dir);
+	public void parse(ErrorMark mark, File dir) {
+		if (!dir.isDirectory()) {
+			errors.message((InputPosition)null, "there is no input directory " + dir);
+			return;
+		}
 
 		String inPkg = dir.getName();
 		checkPackageName(inPkg);
@@ -106,8 +108,6 @@ public class FLASCompiler {
 		for (File f : files) {
 			System.out.println("    " + f.getName());
 			flp.process(f);
-			errors.showFromMark(mark, errorWriter, 4);
-			mark = errors.mark();
 		}
 		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
 			System.out.println("    " + f.getName());
@@ -117,12 +117,7 @@ public class FLASCompiler {
 			repository.unitTestPackage(errors, utp);
 			ParsingPhase parser = new ParsingPhase(errors, utfn, new ConsumeDefinitions(errors, repository, utp));
 			parser.process(f);
-			errors.showFromMark(mark, errorWriter, 4);
-			mark = errors.mark();
 		}
-		if (errors.hasErrors())
-			return mark;
-		return mark;
 	}
 	
 	public boolean resolve(ErrorMark mark) {

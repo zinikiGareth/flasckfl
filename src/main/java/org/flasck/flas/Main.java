@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorMark;
@@ -46,6 +47,10 @@ public class Main {
 		Repository repository = new Repository();
 		FLASCompiler compiler = new FLASCompiler(errors, repository, ew);
 		LoadBuiltins.applyTo(errors, repository);
+		if (config.inputs.isEmpty()) {
+			errors.message((InputPosition)null, "there are no input packages");
+			return true;
+		}
 		for (File input : config.inputs)
 			mark = compiler.processInput(mark, input);
 		for (File web : config.webs)
