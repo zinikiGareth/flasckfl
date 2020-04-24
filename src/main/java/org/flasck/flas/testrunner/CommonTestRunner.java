@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
@@ -68,6 +69,11 @@ public abstract class CommonTestRunner implements TestRunner {
 		});
 	}
 
+	public void reportErrors(ErrorReporter reporter) {
+		for (String s : errors) {
+			reporter.message((InputPosition)null, s);
+		}
+	}
 
 	public abstract void preparePackage(PrintWriter pw, UnitTestPackage e);
 	public abstract void runit(PrintWriter pw, UnitTestCase utc);

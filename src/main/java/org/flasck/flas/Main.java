@@ -17,13 +17,22 @@ import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
 import org.zinutils.streamedlogger.api.Level;
 
 public class Main {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		setLogLevels();
-		boolean failed = noExit(args);
+		boolean failed;
+		try {
+			failed = noExit(args);
+		} catch (Throwable e) {
+			Logger logger = LoggerFactory.getLogger("Compiler");
+			logger.error("exception thrown", e);
+			failed = true;
+		}
 		System.exit(failed?1:0);
 	}
 

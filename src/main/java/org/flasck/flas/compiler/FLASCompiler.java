@@ -202,11 +202,13 @@ public class FLASCompiler {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
 			jvmRunner.runAll(writers);
+			jvmRunner.reportErrors(errors);
 		}
 
 		if (config.generateJS && config.unitjs) {
 			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates);
 			jsRunner.runAll(writers);
+			jsRunner.reportErrors(errors);
 		}
 		writers.values().forEach(w -> w.close());
 
