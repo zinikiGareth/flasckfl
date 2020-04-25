@@ -220,7 +220,7 @@ public class JSRunner extends CommonTestRunner {
 		File to = new File(testDir, resource);
 		InputStream is = this.getClass().getResourceAsStream("/flasck/" + resource);
 		if (is == null) {
-			errors.add("Could not copy resource" + resource);
+			errors.add("Could not copy resource " + resource);
 			return;
 		}
 		FileUtils.copyStreamToFile(is, to);

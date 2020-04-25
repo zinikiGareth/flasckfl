@@ -1,6 +1,7 @@
 package org.flasck.flas;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -11,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.PhaseTo;
-import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
@@ -27,7 +27,7 @@ public class Main {
 		setLogLevels();
 		boolean failed;
 		try {
-			failed = noExit(args);
+			failed = standardCompiler(args);
 		} catch (Throwable e) {
 			Logger logger = LoggerFactory.getLogger("Compiler");
 			logger.error("exception thrown", e);
@@ -36,11 +36,35 @@ public class Main {
 		System.exit(failed?1:0);
 	}
 
-	// tested only by golden files
-	public static boolean noExit(String... args) throws IOException {
+	public static boolean standardCompiler(String... args) throws IOException {
 		ErrorResult errors = new ErrorResult();
-		ErrorMark mark = errors.mark();
 		Configuration config = new Configuration(errors, args);
+
+		commonCompiler(errors, config);
+		// This is to do with Android
+//		if (compiler.getBuilder() != null)
+//			compiler.getBuilder().build();
+		// TODO: option to upload to a Ziniki Server
+		
+		return errors.hasErrors();
+	}
+	
+	// If we are the embedded Ziniki compiler, store the resulting package in S3
+	public static boolean uploader(ErrorResult errors, Configuration config) throws IOException {
+		FLASCompiler compiler = commonCompiler(errors, config);
+		if (errors.hasErrors())
+			return true;
+
+		// TODO: check that all the hashes and signatures match
+		if (config.storer != null) {
+			compiler.storeAssemblies(config.storer);
+		}
+		
+		return errors.hasErrors();
+	}
+	
+
+	private static FLASCompiler commonCompiler(ErrorResult errors, Configuration config) throws IOException, FileNotFoundException {
 		Writer osw;
 		File f = config.writeErrorsTo();
 		if (f != null)
@@ -48,9 +72,17 @@ public class Main {
 		else
 			osw = new OutputStreamWriter(System.out, StandardCharsets.UTF_8);
 		PrintWriter ew = new PrintWriter(osw, true);
+		FLASCompiler compiler = doCompilation(errors, config, ew);
 		if (errors.hasErrors()) {
-			errors.showFromMark(mark, ew, 0);
-			return true;
+			errors.showTo(ew, 0);
+			return null;
+		}
+		return compiler;
+	}
+
+	private static FLASCompiler doCompilation(ErrorResult errors, Configuration config, PrintWriter ew) throws IOException, FileNotFoundException {
+		if (errors.hasErrors()) {
+			return null;
 		}
 
 		Repository repository = new Repository();
@@ -58,12 +90,12 @@ public class Main {
 		LoadBuiltins.applyTo(errors, repository);
 		if (config.inputs.isEmpty()) {
 			errors.message((InputPosition)null, "there are no input packages");
-			return true;
+			return null;
 		}
 		for (File input : config.inputs)
-			mark = compiler.processInput(mark, input);
+			compiler.processInput(input);
 		for (File web : config.webs)
-			mark = compiler.splitWeb(mark, web);
+			compiler.splitWeb(web);
 
 		if (config.dumprepo != null) {
 			try {
@@ -73,42 +105,39 @@ public class Main {
 			}
 		}
 		
-		if (errors.hasErrors()) {
-			errors.showFromMark(mark, ew, 0);
-			return true;
-		} else if (config.upto == PhaseTo.PARSING)
-			return false;
+		if (errors.hasErrors() || config.upto == PhaseTo.PARSING)
+			return null;
 		
 		if (config.upto == PhaseTo.TEST_TRAVERSAL) {
-			return testTraversal(repository);
+			testTraversal(repository);
+			return null;
 		}
 
-		if (compiler.resolve(mark))
-			return true;
+		if (compiler.resolve())
+			return null;
 		
 		FunctionGroups ordering = compiler.lift();
 		compiler.analyzePatterns();
 		if (errors.hasErrors())
-			return true;
+			return null;
 		
 		if (config.doTypeCheck) {
-			compiler.doTypeChecking(mark, ordering);
+			compiler.doTypeChecking(ordering);
 			compiler.dumpTypes(config.writeTypesTo);
 			if (errors.hasErrors())
-				return true;
+				return null;
 		}
 
-		if (compiler.convertMethods(mark))
-			return true;
+		if (compiler.convertMethods())
+			return null;
 		
-		if (compiler.generateCode(mark, config))
-			return true;
+		if (compiler.generateCode(config))
+			return null;
+		
+		if (compiler.generateAssemblies())
+			return null;
 
-		// This is to do with Android
-//		if (compiler.getBuilder() != null)
-//			compiler.getBuilder().build();
-		
-		return errors.hasErrors();
+		return compiler;
 	}
 
 	private static boolean testTraversal(Repository repository) {

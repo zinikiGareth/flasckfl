@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.assembly.AssemblyDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.stories.TDAMultiParser;
@@ -21,15 +22,21 @@ public class ParsingPhase implements ParserScanner {
 	private final ErrorReporter errors;
 	private final Blocker blocker;
 
-	public ParsingPhase(ErrorReporter errors, String inPkg, TopLevelDefinitionConsumer sb) {
+	public ParsingPhase(ErrorReporter errors, String inPkg, TopLevelDefinitionConsumer tldc) {
 		this.errors = errors;
-		TDANester story = new TDANester(TDAMultiParser.topLevelUnit(errors, new PackageNamer(inPkg), sb));
+		TDANester story = new TDANester(TDAMultiParser.topLevelUnit(errors, new PackageNamer(inPkg), tldc));
 		this.blocker = new Blocker(errors, story);
 	}
 
 	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, UnitTestDefinitionConsumer utdc) {
 		this.errors = errors;
 		TDANester story = new TDANester(TDAMultiParser.unitTestUnit(errors, new UnitTestPackageNamer(fn), utdc));
+		this.blocker = new Blocker(errors, story);
+	}
+
+	public ParsingPhase(ErrorReporter errors, String inPkg, AssemblyDefinitionConsumer adc) {
+		this.errors = errors;
+		TDANester story = new TDANester(TDAMultiParser.assemblyUnit(errors, new PackageNamer(inPkg), adc));
 		this.blocker = new Blocker(errors, story);
 	}
 

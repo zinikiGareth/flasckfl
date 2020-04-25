@@ -33,7 +33,7 @@ public class RandomSentenceTest {
 		p.sentence(seed, "unit-test-file", collector);
 //		System.out.println("MSS = " + matchers);
 		try {
-			boolean f = org.flasck.flas.Main.noExit(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), fd.toString() });
+			boolean f = org.flasck.flas.Main.standardCompiler(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), fd.toString() });
 			if (!f) {
 				if (!RepoChecker.checkRepo(repoFile, matchers))
 					failed.set(true);

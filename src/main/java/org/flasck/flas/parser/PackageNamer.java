@@ -1,5 +1,6 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.commonBase.names.AssemblyName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -22,5 +23,10 @@ public class PackageNamer extends InnerPackageNamer implements TopLevelNamer {
 	@Override
 	public SolidName solidName(String text) {
 		return new SolidName(pkg, text);
+	}
+	
+	@Override
+	public AssemblyName assemblyName(String name) {
+		return new AssemblyName(pkg, name);
 	}
 }

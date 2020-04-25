@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.repository.AssemblyVisitor;
 import org.zinutils.utils.FileUtils;
 
 public class Configuration {
@@ -33,6 +34,7 @@ public class Configuration {
 	public File writeTypesTo;
 	private String jstestdir;
 	public String specifiedTestName;
+	public AssemblyVisitor storer;
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;

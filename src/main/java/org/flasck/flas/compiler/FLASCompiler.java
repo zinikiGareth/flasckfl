@@ -21,14 +21,15 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
-import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.assembly.BuildAssembly;
 import org.flasck.flas.parser.ut.ConsumeDefinitions;
 import org.flasck.flas.patterns.PatternAnalyzer;
+import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Repository.Visitor;
@@ -67,22 +68,18 @@ public class FLASCompiler {
 		this.splitter = new Splitter();
 	}
 	
-	public ErrorMark processInput(ErrorMark mark, File input) {
-		ErrorMark original = mark;
+	public void processInput(File input) {
 		try {
-			parse(mark, input);
+			parse(input);
 		} catch (Throwable ex) {
 			reportException(ex);
-		} finally {
-			errors.showFromMark(original, errorWriter, 0);
 		}
-		return errors.mark();
 	}
 
-	public ErrorMark splitWeb(ErrorMark mark, File web) {
+	public void splitWeb(File web) {
 		if (!web.canRead()) {
 			errors.message((InputPosition) null, "there is no web input: " + web);
-			return errors.mark();
+			return;
 		}
 		try {
 			SplitMetaData md = splitter.split(web);
@@ -90,10 +87,9 @@ public class FLASCompiler {
 		} catch (IOException ex) {
 			errors.message((InputPosition) null, "error splitting: " + web);
 		}
-		return errors.mark();
 	}
 
-	public void parse(ErrorMark mark, File dir) {
+	public void parse(File dir) {
 		if (!dir.isDirectory()) {
 			errors.message((InputPosition)null, "there is no input directory " + dir);
 			return;
@@ -109,7 +105,9 @@ public class FLASCompiler {
 			System.out.println("    " + f.getName());
 			flp.process(f);
 		}
-		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
+		List<File> utfiles = FileUtils.findFilesMatching(dir, "*.ut");
+		utfiles.sort(new FileNameComparator());
+		for (File f : utfiles) {
 			System.out.println("    " + f.getName());
 			String file = FileUtils.dropExtension(f.getName());
 			UnitTestFileName utfn = new UnitTestFileName(new PackageName(inPkg), "_ut_" + file);
@@ -118,13 +116,19 @@ public class FLASCompiler {
 			ParsingPhase parser = new ParsingPhase(errors, utfn, new ConsumeDefinitions(errors, repository, utp));
 			parser.process(f);
 		}
+		List<File> fafiles = FileUtils.findFilesMatching(dir, "*.fa");
+		fafiles.sort(new FileNameComparator());
+		ParsingPhase fap = new ParsingPhase(errors, inPkg, new BuildAssembly(errors, repository));
+		for (File f : fafiles) {
+			System.out.println("    " + f.getName());
+			fap.process(f);
+		}
 	}
 	
-	public boolean resolve(ErrorMark mark) {
+	public boolean resolve() {
 		Resolver resolver = new RepositoryResolver(errors, repository);
 		repository.traverseWithImplementedMethods(resolver);
 		if (errors.hasErrors()) {
-			errors.showFromMark(mark, errorWriter, 0);
 			return true;
 		} else
 			return false;
@@ -140,12 +144,10 @@ public class FLASCompiler {
 		repository.traverseLifted(sv);
 	}
 
-	public void doTypeChecking(ErrorMark mark, FunctionGroups ordering) {
+	public void doTypeChecking(FunctionGroups ordering) {
 		StackVisitor sv = new StackVisitor();
 		new TypeChecker(errors, repository, sv);
 		repository.traverseInGroups(sv, ordering);
-		if (errors.hasErrors())
-			errors.showFromMark(mark, errorWriter, 0);
 	}
 
 	public void dumpTypes(File ty) throws FileNotFoundException {
@@ -159,18 +161,14 @@ public class FLASCompiler {
 		}
 	}
 
-	public boolean convertMethods(ErrorMark mark) {
+	public boolean convertMethods() {
 		StackVisitor sv = new StackVisitor();
 		new ConvertRepositoryMethods(sv, errors);
 		repository.traverseWithMemberFields(sv);
-		if (errors.hasErrors()) {
-			errors.showFromMark(mark, errorWriter, 0);
-			return true;
-		} else
-			return false;
+		return errors.hasErrors();
 	}
 	
-	public boolean generateCode(ErrorMark mark, Configuration config) {
+	public boolean generateCode(Configuration config) {
 		JSEnvironment jse = new JSEnvironment(config.jsDir());
 		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
 		ByteCodeEnvironment bce = new ByteCodeEnvironment();
@@ -187,7 +185,6 @@ public class FLASCompiler {
 			repository.traverseWithHSI(jvmstack);
 		
 		if (errors.hasErrors()) {
-			errors.showFromMark(mark, errorWriter, 0);
 			return true;
 		}
 		
@@ -212,11 +209,15 @@ public class FLASCompiler {
 		}
 		writers.values().forEach(w -> w.close());
 
-		if (errors.hasErrors()) {
-			errors.showFromMark(mark, errorWriter, 0);
-			return true;
-		}
+		return errors.hasErrors();
+	}
+
+	public boolean generateAssemblies() {
 		return false;
+	}
+
+	public void storeAssemblies(AssemblyVisitor storer) {
+		repository.traverseAssemblies(storer);
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {
@@ -290,5 +291,4 @@ public class FLASCompiler {
 	public void reportException(Throwable ex) {
 		errors.reportException(ex);
 	}
-
 }

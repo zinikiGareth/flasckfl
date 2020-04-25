@@ -153,7 +153,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		args.add("--testname");
 		args.add(s.replace("/", "-").replace("src-golden-", ""));
 		args.add("test.golden");
-		Main.noExit(args.toArray(new String[args.size()]));
+		Main.standardCompiler(args.toArray(new String[args.size()]));
 		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {
 			te.checkTestResults();
 			te.checkTypes();

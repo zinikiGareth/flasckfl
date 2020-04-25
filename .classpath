@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="src/test/golden"/>
 	<classpathentry kind="src" path="src/test/characterization"/>
 	<classpathentry kind="src" path="src/test/resources"/>
+	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="/flasjvmbuilder"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>

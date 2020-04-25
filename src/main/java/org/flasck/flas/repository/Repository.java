@@ -536,6 +536,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.doTraversal(this);
 	}
 
+	public void traverseAssemblies(AssemblyVisitor v) {
+		AssemblyTraverser t = new AssemblyTraverser(v);
+		t.doTraversal(this);
+	}
+
 	@Override
 	public CardData findWeb(String baseName) {
 		for (SplitMetaData web : webs) {
