@@ -134,7 +134,7 @@ public class Main {
 		if (compiler.generateCode(config))
 			return null;
 		
-		if (compiler.generateAssemblies())
+		if (compiler.generateAssemblies(config.storer))
 			return null;
 
 		return compiler;
