@@ -354,8 +354,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.doTraversal(this);
 	}
 
-	public void traverseAssemblies(JSEnvironment jse, AssemblyVisitor v) {
-		AssemblyTraverser t = new AssemblyTraverser(jse, v);
+	public void traverseAssemblies(ErrorReporter errors, JSEnvironment jse, AssemblyVisitor v) {
+		AssemblyTraverser t = new AssemblyTraverser(errors, jse, v);
 		t.doTraversal(this);
 	}
 

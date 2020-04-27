@@ -213,7 +213,7 @@ public class FLASCompiler {
 
 	public void storeAssemblies(AssemblyVisitor storer) {
 		if (jse != null)
-			repository.traverseAssemblies(jse, storer);
+			repository.traverseAssemblies(errors, jse, storer);
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {
