@@ -58,14 +58,13 @@ public class FLASCompiler {
 	public static boolean backwardCompatibilityMode = true;
 	private final ErrorReporter errors;
 	private final Repository repository;
-	private final PrintWriter errorWriter;
 	private final Splitter splitter;
 //	private final DroidBuilder builder = new DroidBuilder();
+	private JSEnvironment jse;
 
-	public FLASCompiler(ErrorReporter errors, Repository repository, PrintWriter errorWriter) {
+	public FLASCompiler(ErrorReporter errors, Repository repository) {
 		this.errors = errors;
 		this.repository = repository;
-		this.errorWriter = errorWriter;
 		this.splitter = new Splitter();
 	}
 	
@@ -170,7 +169,7 @@ public class FLASCompiler {
 	}
 	
 	public boolean generateCode(Configuration config) {
-		JSEnvironment jse = new JSEnvironment(config.jsDir());
+		jse = new JSEnvironment(config.jsDir());
 		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
 		ByteCodeEnvironment bce = new ByteCodeEnvironment();
 		populateBCE(bce);
@@ -214,12 +213,14 @@ public class FLASCompiler {
 	}
 
 	public boolean generateAssemblies(AssemblyVisitor storer) {
-		repository.traverseAssemblies(new AssemblyGenerator(storer));
+		if (jse != null)
+			repository.traverseAssemblies(jse, new AssemblyGenerator(storer));
 		return false;
 	}
 
 	public void storeAssemblies(AssemblyVisitor storer) {
-		repository.traverseAssemblies(storer);
+		if (jse != null)
+			repository.traverseAssemblies(jse, storer);
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {

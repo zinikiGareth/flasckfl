@@ -27,6 +27,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DuplicateNameException;
 import org.flasck.flas.compiler.StateNameException;
+import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.parsedForm.ActionMessage;
@@ -536,8 +537,8 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.doTraversal(this);
 	}
 
-	public void traverseAssemblies(AssemblyVisitor v) {
-		AssemblyTraverser t = new AssemblyTraverser(v);
+	public void traverseAssemblies(JSEnvironment jse, AssemblyVisitor v) {
+		AssemblyTraverser t = new AssemblyTraverser(jse, v);
 		t.doTraversal(this);
 	}
 

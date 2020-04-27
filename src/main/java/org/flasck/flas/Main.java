@@ -86,7 +86,7 @@ public class Main {
 		}
 
 		Repository repository = new Repository();
-		FLASCompiler compiler = new FLASCompiler(errors, repository, ew);
+		FLASCompiler compiler = new FLASCompiler(errors, repository);
 		LoadBuiltins.applyTo(errors, repository);
 		if (config.inputs.isEmpty()) {
 			errors.message((InputPosition)null, "there are no input packages");
