@@ -11,10 +11,13 @@ import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class AssemblyTraverser implements AssemblyVisitor {
+	public static final Logger logger = LoggerFactory.getLogger("assembler");
 	private final AssemblyVisitor v;
 	private final ErrorReporter errors;
 	private final JSEnvironment jse;
@@ -26,8 +29,6 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	}
 
 	public void doTraversal(Repository repository) {
-		for (RepositoryEntry e : repository.dict.values())
-			visitEntry(e);
 		for (SplitMetaData w : repository.allWebs()) {
 			try (ZipInputStream zis = w.processedZip()) {
 				ZipEntry ze;
@@ -46,9 +47,12 @@ public class AssemblyTraverser implements AssemblyVisitor {
 						System.out.println("Not yet handling " + name);
 				}
 			} catch (Exception ex) {
+				logger.error("Error uploading", ex);
 				errors.message((InputPosition)null, "error uploading web elements: " + ex);
 			}
 		}
+		for (RepositoryEntry e : repository.dict.values())
+			visitEntry(e);
 		try {
 			traversalDone();
 		} catch (Exception ex) {
@@ -63,18 +67,23 @@ public class AssemblyTraverser implements AssemblyVisitor {
 
 	@Override
 	public void visitAssembly(ApplicationAssembly a) {
-		v.visitAssembly(a);
-		for (File f : jse.files()) {
-			compiledPackageFile(f);
+		try {
+			v.visitAssembly(a);
+			for (File f : jse.files()) {
+				compiledPackageFile(f);
+			}
+			leaveAssembly(a);
+		} catch (Exception ex) {
+			logger.error("Error uploading", ex);
+			errors.message((InputPosition)null, "error uploading assembly: " + ex);
 		}
-		leaveAssembly(a);
 	}
 
 	public void compiledPackageFile(File f) {
 		v.compiledPackageFile(f);
 	}
 
-	public void leaveAssembly(Assembly a) {
+	public void leaveAssembly(Assembly a) throws IOException {
 		v.leaveAssembly(a);
 	}
 

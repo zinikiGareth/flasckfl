@@ -14,7 +14,7 @@ public class AssemblyLeaves implements AssemblyVisitor {
 	}
 
 	@Override
-	public void leaveAssembly(Assembly a) {
+	public void leaveAssembly(Assembly a) throws IOException {
 	}
 
 	@Override

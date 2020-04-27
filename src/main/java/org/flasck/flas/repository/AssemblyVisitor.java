@@ -11,7 +11,7 @@ import org.flasck.flas.parsedForm.assembly.Assembly;
 // but everything that is attached to them: FL code, web bits, etc.
 public interface AssemblyVisitor {
 	void visitAssembly(ApplicationAssembly a);
-	void leaveAssembly(Assembly a);
+	void leaveAssembly(Assembly a) throws IOException;
 	void compiledPackageFile(File f);
 	void visitCardTemplate(String cardName, InputStream is, long length) throws IOException;
 	void traversalDone() throws Exception;
