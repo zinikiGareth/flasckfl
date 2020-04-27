@@ -26,7 +26,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX 11"/>
 	<classpathentry kind="src" path="/streamedlogger"/>
 	<classpathentry kind="src" path="/splitter"/>
-	<classpathentry kind="src" path="/ziniki"/>
 	<classpathentry kind="src" path="/zin-intf"/>
+	<classpathentry kind="src" path="/zin-common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
