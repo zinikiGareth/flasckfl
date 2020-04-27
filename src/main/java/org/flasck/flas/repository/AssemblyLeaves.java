@@ -25,6 +25,6 @@ public class AssemblyLeaves implements AssemblyVisitor {
 	}
 
 	@Override
-	public void traversalDone() {
+	public void traversalDone() throws Exception {
 	}
 }

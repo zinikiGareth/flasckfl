@@ -13,5 +13,5 @@ public interface AssemblyVisitor {
 	void leaveAssembly(Assembly a);
 	void compiledPackageFile(File f);
 	void visitCardTemplate(String cardName, InputStream is, long length) throws IOException;
-	void traversalDone();
+	void traversalDone() throws Exception;
 }

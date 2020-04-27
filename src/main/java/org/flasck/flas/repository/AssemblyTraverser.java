@@ -11,6 +11,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.ziniki.splitter.SplitMetaData;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class AssemblyTraverser implements AssemblyVisitor {
 	private final AssemblyVisitor v;
@@ -30,18 +31,28 @@ public class AssemblyTraverser implements AssemblyVisitor {
 			try (ZipInputStream zis = w.processedZip()) {
 				ZipEntry ze;
 				while ((ze = zis.getNextEntry()) != null) {
-					if (ze.getName().startsWith("cards/")) {
-						// long length = ze.getSize(); // this does not work because of https://bugs.openjdk.java.net/browse/JDK-8080092
-						long length = w.getLength(ze.getName());
-						visitCardTemplate(ze.getName().replace("cards/", ""), zis, length);
+					String name = ze.getName();
+					if (name.startsWith("cards/")) {
+						if (name.endsWith(".html")) {
+							// long length = ze.getSize(); // this does not work because of https://bugs.openjdk.java.net/browse/JDK-8080092
+							long length = w.getLength(name);
+							visitCardTemplate(name.replace(".html", ""), zis, length);
+						} else if (name.endsWith(".json"))
+							;
+						else
+							throw new NotImplementedException("cannot handle " + name);
 					} else
-						System.out.println("Not yet handling " + ze.getName());
+						System.out.println("Not yet handling " + name);
 				}
 			} catch (Exception ex) {
 				errors.message((InputPosition)null, "error uploading web elements: " + ex);
 			}
 		}
-		traversalDone();
+		try {
+			traversalDone();
+		} catch (Exception ex) {
+			errors.message((InputPosition)null, "error uploading assembly: " + ex);
+		}
 	}
 
 	private void visitEntry(RepositoryEntry e) {
@@ -67,7 +78,7 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	}
 
 	@Override
-	public void traversalDone() {
+	public void traversalDone() throws Exception {
 		v.traversalDone();
 	}
 
