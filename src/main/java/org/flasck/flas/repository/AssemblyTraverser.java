@@ -9,6 +9,7 @@ import java.util.zip.ZipInputStream;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.NotImplementedException;
@@ -57,11 +58,11 @@ public class AssemblyTraverser implements AssemblyVisitor {
 
 	private void visitEntry(RepositoryEntry e) {
 		if (e instanceof Assembly)
-			visitAssembly((Assembly) e);
+			visitAssembly((ApplicationAssembly) e);
 	}
 
 	@Override
-	public void visitAssembly(Assembly a) {
+	public void visitAssembly(ApplicationAssembly a) {
 		v.visitAssembly(a);
 		for (File f : jse.files()) {
 			compiledPackageFile(f);

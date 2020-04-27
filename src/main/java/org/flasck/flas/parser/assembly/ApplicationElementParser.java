@@ -2,37 +2,35 @@ package org.flasck.flas.parser.assembly;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
-import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-public class TDAAssemblyUnitParser implements TDAParsing {
+public class ApplicationElementParser implements TDAParsing {
 	private final ErrorReporter errors;
-	private final TopLevelNamer namer;
-	private final AssemblyDefinitionConsumer adc;
+	private final ApplicationElementConsumer consumer;
 
-	public TDAAssemblyUnitParser(ErrorReporter errors, TopLevelNamer namer, AssemblyDefinitionConsumer adc) {
+	public ApplicationElementParser(ErrorReporter errors, ApplicationElementConsumer consumer) {
 		this.errors = errors;
-		this.namer = namer;
-		this.adc = adc;
+		this.consumer = consumer;
 	}
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
 		KeywordToken kw = KeywordToken.from(toks);
 		if (kw == null) {
-			errors.message(toks, "expected 'application' or 'card'");
+			errors.message(toks, "expected assembly keyword");
 			return new IgnoreNestedParser();
 		}
 		
 		switch (kw.text) {
-		case "application": {
-			ApplicationAssembly consumer = new ApplicationAssembly(kw.location, namer.assemblyName(null));
-			adc.assembly(consumer);
-			return new ApplicationElementParser(errors, consumer);
+		case "title": {
+			String s = StringToken.from(errors, toks);
+			consumer.title(s);
+			return new NoNestingParser(errors);
 		}
 		default: {
 			errors.message(toks, "expected 'application' or 'card'");

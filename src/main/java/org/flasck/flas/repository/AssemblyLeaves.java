@@ -4,12 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 
 public class AssemblyLeaves implements AssemblyVisitor {
 
 	@Override
-	public void visitAssembly(Assembly a) {
+	public void visitAssembly(ApplicationAssembly a) {
 	}
 
 	@Override
