@@ -69,7 +69,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
-import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 
@@ -77,7 +76,7 @@ import org.flasck.flas.tc3.Primitive;
  *
  *  This is not suitable for things that want to see (for example) 'apply' or 'dot' nodes in expressions, which should use the Pre or Post adapters 
  */
-public class LeafAdapter implements Visitor {
+public class LeafAdapter implements RepositoryVisitor {
 	@Override
 	public void visitEntry(RepositoryEntry entry) {
 	}

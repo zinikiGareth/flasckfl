@@ -74,25 +74,24 @@ import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
-import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 
 public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor {
-	private List<Visitor> stack = new LinkedList<>();
-	private Visitor top;
+	private List<RepositoryVisitor> stack = new LinkedList<>();
+	private RepositoryVisitor top;
 	private HSIVisitor hsi;
 	private TreeOrderVisitor tov;
 	
 	@Override
-	public void push(Visitor v) {
+	public void push(RepositoryVisitor v) {
 //		System.out.println("Pushing " + v.getClass().getName());
 		stack.add(0, v);
 		setTop(v);
 	}
 
-	private void setTop(Visitor v) {
+	private void setTop(RepositoryVisitor v) {
 		this.top = v;
 		if (v instanceof HSIVisitor)
 			this.hsi = (HSIVisitor) v;

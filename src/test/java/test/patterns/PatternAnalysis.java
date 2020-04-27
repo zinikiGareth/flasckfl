@@ -40,8 +40,8 @@ import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.FunctionHSICases;
 import org.flasck.flas.repository.LoadBuiltins;
-import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.flas.repository.Traverser.VarMapping;
@@ -59,7 +59,7 @@ public class PatternAnalysis {
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
 	final NumericLiteral number = new NumericLiteral(pos, 42);
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
-	final Visitor v = context.mock(Visitor.class);
+	final RepositoryVisitor v = context.mock(RepositoryVisitor.class);
 	final HSIVisitor hsi = context.mock(HSIVisitor.class);
 	final RepositoryReader repo = context.mock(RepositoryReader.class);
 

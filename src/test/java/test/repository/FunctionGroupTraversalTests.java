@@ -16,7 +16,7 @@ import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
@@ -29,7 +29,7 @@ public class FunctionGroupTraversalTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
-	final Visitor v = context.mock(Visitor.class);
+	final RepositoryVisitor v = context.mock(RepositoryVisitor.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
 	final FunctionName nameG = FunctionName.function(pos, pkg, "g");
 	final FunctionName nameH = FunctionName.function(pos, pkg, "h");

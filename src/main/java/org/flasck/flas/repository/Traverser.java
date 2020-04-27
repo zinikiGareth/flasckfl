@@ -94,13 +94,12 @@ import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIOptions.IntroTypeVar;
 import org.flasck.flas.patterns.HSIOptions.IntroVarName;
 import org.flasck.flas.patterns.HSITree;
-import org.flasck.flas.repository.Repository.Visitor;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class Traverser implements Visitor {
-	private final Visitor visitor;
+public class Traverser implements RepositoryVisitor {
+	private final RepositoryVisitor visitor;
 	private StandaloneDefn currentFunction;
 	private FunctionGroups functionOrder;
 	private boolean wantImplementedMethods = false;
@@ -109,7 +108,7 @@ public class Traverser implements Visitor {
 	private boolean patternsTree;
 	private boolean visitMemberFields = false;
 
-	public Traverser(Visitor visitor) {
+	public Traverser(RepositoryVisitor visitor) {
 		this.visitor = visitor;
 	}
 

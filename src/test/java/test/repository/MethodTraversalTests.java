@@ -23,7 +23,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
@@ -41,7 +41,7 @@ public class MethodTraversalTests {
 	final NumericLiteral number = new NumericLiteral(pos, 42);
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Repository r = new Repository();
-	final Visitor v = context.mock(Visitor.class);
+	final RepositoryVisitor v = context.mock(RepositoryVisitor.class);
 	final UnresolvedVar dest = new UnresolvedVar(pos, "dest");
 	final FunctionName nameF = FunctionName.standaloneMethod(pos, pkg, "meth");
 	ArrayList<Pattern> args = new ArrayList<>();

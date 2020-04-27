@@ -5,10 +5,10 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.tc3.Type;
 
-public interface TreeOrderVisitor extends Visitor {
+public interface TreeOrderVisitor extends RepositoryVisitor {
 	void argSlot(Slot s);
 	void matchConstructor(StructDefn ctor);
 	void matchField(StructField fld);

@@ -16,7 +16,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LoadBuiltins;
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
 import org.hamcrest.Matchers;
@@ -33,7 +33,7 @@ public class GuardGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final MethodDefiner meth = context.mock(MethodDefiner.class);
 	private final IExpr fcx = context.mock(IExpr.class, "fcx");
-	private Visitor v = context.mock(Visitor.class);
+	private RepositoryVisitor v = context.mock(RepositoryVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	@SuppressWarnings("unchecked")

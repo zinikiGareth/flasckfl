@@ -29,7 +29,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LoadBuiltins;
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -54,7 +54,7 @@ import flas.matchers.ExprResultMatcher;
 import flas.matchers.PosMatcher;
 
 public class MethodTests {
-	public interface RAV extends ResultAware, Visitor {	}
+	public interface RAV extends ResultAware, RepositoryVisitor {	}
 
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final InputPosition pos = new InputPosition("-", 1, 0, "hello");

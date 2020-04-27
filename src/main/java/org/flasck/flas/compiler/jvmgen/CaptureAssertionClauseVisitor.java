@@ -6,14 +6,14 @@ import java.util.List;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
-import org.flasck.flas.repository.Repository.Visitor;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 
-public class CaptureAssertionClauseVisitor extends LeafAdapter implements Visitor, ResultAware {
+public class CaptureAssertionClauseVisitor extends LeafAdapter implements RepositoryVisitor, ResultAware {
 	private final NestedVisitor sv;
 	private final FunctionState fs;
 	private final MethodDefiner meth;

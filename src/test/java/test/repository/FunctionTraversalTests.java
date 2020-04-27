@@ -17,7 +17,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -34,7 +34,7 @@ public class FunctionTraversalTests {
 	final NumericLiteral number = new NumericLiteral(pos, 42);
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final Repository r = new Repository();
-	final Visitor v = context.mock(Visitor.class);
+	final RepositoryVisitor v = context.mock(RepositoryVisitor.class);
 	final UnresolvedVar var = new UnresolvedVar(pos, "x");
 	final FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, var);
 	final FunctionCaseDefn fcd2 = new FunctionCaseDefn(null, new ApplyExpr(pos, var, number));

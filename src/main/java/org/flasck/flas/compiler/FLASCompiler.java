@@ -33,7 +33,7 @@ import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.AssemblyVisitor;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.resolver.RepositoryResolver;
 import org.flasck.flas.resolver.Resolver;
@@ -155,7 +155,7 @@ public class FLASCompiler {
 		if (ty != null) {
 			FileOutputStream fos = new FileOutputStream(ty);
 			PrintWriter pw = new PrintWriter(new OutputStreamWriter(fos));
-			Visitor dumper = new TypeDumper(pw);
+			RepositoryVisitor dumper = new TypeDumper(pw);
 			repository.traverse(dumper);
 			pw.close();
 		}

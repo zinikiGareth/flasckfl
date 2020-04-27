@@ -18,7 +18,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LoadBuiltins;
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.StackVisitor;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -28,7 +28,7 @@ import org.junit.Test;
 public class GuardGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
-	private Visitor v = context.mock(Visitor.class);
+	private RepositoryVisitor v = context.mock(RepositoryVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	JSFunctionState state = context.mock(JSFunctionState.class);

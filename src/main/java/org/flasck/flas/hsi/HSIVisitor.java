@@ -2,9 +2,9 @@ package org.flasck.flas.hsi;
 
 import java.util.List;
 
-import org.flasck.flas.repository.Repository.Visitor;
+import org.flasck.flas.repository.RepositoryVisitor;
 
-public interface HSIVisitor extends Visitor {
+public interface HSIVisitor extends RepositoryVisitor {
 	void hsiArgs(List<Slot> slots);
 	void switchOn(Slot slot);
 	void withConstructor(String string);
