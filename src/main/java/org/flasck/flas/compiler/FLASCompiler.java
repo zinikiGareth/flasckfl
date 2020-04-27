@@ -18,7 +18,6 @@ import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
-import org.flasck.flas.compiler.assemblies.AssemblyGenerator;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
@@ -210,12 +209,6 @@ public class FLASCompiler {
 		writers.values().forEach(w -> w.close());
 
 		return errors.hasErrors();
-	}
-
-	public boolean generateAssemblies(AssemblyVisitor storer) {
-		if (jse != null)
-			repository.traverseAssemblies(jse, new AssemblyGenerator(storer));
-		return false;
 	}
 
 	public void storeAssemblies(AssemblyVisitor storer) {
