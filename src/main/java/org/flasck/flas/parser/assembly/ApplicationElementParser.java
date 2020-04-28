@@ -8,13 +8,17 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class ApplicationElementParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final InputPosition startPos;
 	private final ApplicationElementConsumer consumer;
+	private boolean sawMainCard;
 
-	public ApplicationElementParser(ErrorReporter errors, ApplicationElementConsumer consumer) {
+	public ApplicationElementParser(ErrorReporter errors, InputPosition startPos, ApplicationElementConsumer consumer) {
 		this.errors = errors;
+		this.startPos = startPos;
 		this.consumer = consumer;
 	}
 
@@ -32,6 +36,16 @@ public class ApplicationElementParser implements TDAParsing {
 			consumer.title(s);
 			return new NoNestingParser(errors);
 		}
+		case "main": {
+			sawMainCard = true;
+			TypeNameToken main = TypeNameToken.unqualified(toks);
+			if (main == null) {
+				errors.message(toks, "no main card was specified");
+				return new IgnoreNestedParser();
+			}
+			consumer.mainCard(main.text);
+			return new NoNestingParser(errors);
+		}
 		default: {
 			errors.message(toks, "expected 'application' or 'card'");
 			return new IgnoreNestedParser();
@@ -41,8 +55,8 @@ public class ApplicationElementParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		// TODO Auto-generated method stub
-
+		if (!sawMainCard)
+			errors.message(startPos, "assembly must identify a main card");
 	}
 
 }

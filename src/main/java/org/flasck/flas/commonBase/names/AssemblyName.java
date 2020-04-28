@@ -47,7 +47,7 @@ public class AssemblyName implements NameOfThing {
 
 	@Override
 	public NameOfThing container() {
-		throw new NotImplementedException();
+		return pkg;
 	}
 
 	@Override

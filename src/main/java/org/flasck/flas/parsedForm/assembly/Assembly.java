@@ -8,7 +8,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.repository.RepositoryEntry;
 
 public class Assembly implements RepositoryEntry {
-	private final AssemblyName assemblyName;
+	protected final AssemblyName assemblyName;
 	private final InputPosition location;
 
 	public Assembly(InputPosition loc, AssemblyName assemblyName) {

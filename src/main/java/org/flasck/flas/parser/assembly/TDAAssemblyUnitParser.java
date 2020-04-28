@@ -32,7 +32,7 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 		case "application": {
 			ApplicationAssembly consumer = new ApplicationAssembly(kw.location, namer.assemblyName(null));
 			adc.assembly(consumer);
-			return new ApplicationElementParser(errors, consumer);
+			return new ApplicationElementParser(errors, kw.location, consumer);
 		}
 		default: {
 			errors.message(toks, "expected 'application' or 'card'");
@@ -43,8 +43,6 @@ public class TDAAssemblyUnitParser implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
