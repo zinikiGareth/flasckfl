@@ -1,5 +1,15 @@
-const JSEnv = function() {
-    this.logger = console;
+
+const JSEnv = function(broker) {
+	this.logger = console;
+	this.contracts = [];
+	if (broker != null)
+		this.broker = broker;
+	else
+		this.broker = new SimpleBroker(this, this, this.contracts);
+}
+
+JSEnv.prototype.newContext = function() {
+	return new FLContext(this, this.broker);
 }
 
 
@@ -324,6 +334,11 @@ FLContext.prototype.handleEvent = function(card, event) {
 	// When we have properly figured out message dispatch, we should handle the messages here ...
 	// But for now ...
 	return reply;
+}
+
+FLContext.prototype.localCard = function(cardClz, elt) {
+	const card = new cardClz(cx);
+	card._renderInto(cx, document.getElementById(elt));
 }
 
 FLContext.prototype.storeMock = function(value) {

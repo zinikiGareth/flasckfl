@@ -85,7 +85,7 @@ public class JSRunner extends CommonTestRunner {
 	private final BrowserEngine browser;
 	private Page page;
 	private File html;
-	private boolean useCachebuster = false;
+	private boolean useCachebuster = true;
 	private String jstestdir;
 	private String specifiedTestName;
 	
