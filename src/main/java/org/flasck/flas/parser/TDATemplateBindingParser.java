@@ -68,7 +68,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 			}
 			simple = new TemplateBindingOption(field, null, expr, sendsTo);
 		}
-		final TemplateBinding binding = new TemplateBinding(tok.text, simple);
+		final TemplateBinding binding = new TemplateBinding(tok.location, tok.text, simple);
 		consumer.addBinding(binding);
 		if (simple != null)
 			return new TDATemplateOptionsParser(errors, namer, simple);

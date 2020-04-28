@@ -25,6 +25,8 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -47,6 +49,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final List<NameOfThing> scopeStack = new ArrayList<>();
 	private NameOfThing scope;
 	private Implements currentlyImplementing;
+	private Template currentTemplate;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -358,6 +361,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void visitTemplate(Template t, boolean isFirst) {
+		currentTemplate = t;
+	}
+	
+	@Override
 	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
 		TemplateName name = refersTo.name;
 		CardData webInfo = repository.findWeb(name.baseName());
@@ -376,6 +384,23 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		// ALSO TODO: collect the references during traversal
 		// And drive from golden tests ...
 		refersTo.bindTo(webInfo);
+	}
+	
+	@Override
+	public void visitTemplateBinding(TemplateBinding b) {
+		System.out.println(b.slot);
+		System.out.println(currentTemplate);
+		System.out.println(currentTemplate.defines);
+		CardData ce = currentTemplate.defines.defn();
+		System.out.println(ce);
+		if (!ce.hasField(b.slot)) {
+			errors.message(b.slotLoc, "there is no slot " + b.slot + " in " + currentTemplate.defines.name.baseName());
+		}
+	}
+	
+	@Override
+	public void leaveTemplate(Template t) {
+		currentTemplate = null;
 	}
 	
 	@Override

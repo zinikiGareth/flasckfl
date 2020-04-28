@@ -640,7 +640,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			if (cd.templates.isEmpty())
 				rootTemplate = agentctor.as(agentctor.aNull(), J.STRING);
 			else
-				rootTemplate = agentctor.stringConst(cd.templates.get(0).refersTo.defn().id());
+				rootTemplate = agentctor.stringConst(cd.templates.get(0).defines.defn().id());
 			agentctor.callSuper("void", J.FLCARD, "<init>", agentcx, rootTemplate).flush();
 			currentBlock = new ArrayList<IExpr>();
 			this.structFieldHandler = sf -> {

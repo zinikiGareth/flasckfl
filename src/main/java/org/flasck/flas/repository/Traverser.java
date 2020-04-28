@@ -417,7 +417,7 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitTemplate(Template t, boolean isFirst) {
 		visitor.visitTemplate(t, isFirst);
-		visitTemplateReference(t.refersTo, isFirst);
+		visitTemplateReference(t.defines, isFirst);
 		for (TemplateBinding b : t.bindings()) {
 			visitTemplateBinding(b);
 		}
