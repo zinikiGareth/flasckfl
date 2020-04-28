@@ -33,10 +33,7 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 }
 UTRunner.prototype.event = function(_cxt, target, event) {
 	// TODO: when we have templates, this should indirect as an event through the DIV & its event handler
-	var reply = _cxt.handleEvent(target.card, event);
-	reply = _cxt.full(reply);
-	this.handleMessages(_cxt, reply);
-	this.updateCard(_cxt, target);
+	_cxt.handleEvent(target.card, event);
 }
 UTRunner.prototype.match = function(_cxt, target, what, selector, contains, expected) {
 	if (!target || !target.card || !target.card._currentDiv) {
