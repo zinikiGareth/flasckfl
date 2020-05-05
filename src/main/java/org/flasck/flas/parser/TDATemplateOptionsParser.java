@@ -102,11 +102,22 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			if (tc == null)
 				return new IgnoreNestedParser();
 			binding.defaultBinding = tc;
-		} else if (tok.type == ExprToken.IDENTIFIER) {
+		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
-			TemplateEvent ev = readEvent(tok, toks);
-			if (ev == null)
+			tok = ExprToken.from(errors, toks);
+			if (tok == null) {
+				errors.message(toks, "event handler name required");
 				return new IgnoreNestedParser();
+			}
+			else if (tok.type != ExprToken.IDENTIFIER) {
+				errors.message(tok.location, "event handler name required");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "surplus text at end of line");
+				return new IgnoreNestedParser();
+			}
+			TemplateEvent ev = new TemplateEvent(tok.location, tok.text);
 			customizer.events.add(ev);
 		} else {
 			errors.message(toks, "syntax error");
@@ -161,22 +172,6 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		return new TemplateStylingOption(expr, styles);
 	}
 
-	private TemplateEvent readEvent(ExprToken eventName, Tokenizable toks) {
-		ExprToken tok = ExprToken.from(errors, toks);
-		if (tok == null || !"=>".equals(tok.text)) {
-			errors.message(toks, "syntax error");
-			return null;
-		}
-		List<Expr> seen = new ArrayList<>();
-		new TDAExpressionParser(errors, t -> {
-			seen.add(t);
-		}).tryParsing(toks);
-		if (seen.isEmpty()) {
-			errors.message(toks, "missing event handler");
-			return null;
-		}
-		return new TemplateEvent(eventName.text, seen.get(0));
-	}
 
 	@Override
 	public void scopeComplete(InputPosition pos) {

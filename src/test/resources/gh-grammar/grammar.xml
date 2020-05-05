@@ -1452,7 +1452,6 @@
     <section title='Template Customization' />
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
-      <token type='event-name' />
       <token type='SENDTO'/>
       <token type='var-name'/>
       <many>

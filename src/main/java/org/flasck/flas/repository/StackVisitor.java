@@ -532,10 +532,6 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitTemplateEvent(te);
 	}
 
-	public void leaveTemplateEvent(TemplateEvent te) {
-		top.leaveTemplateEvent(te);
-	}
-
 	@Override
 	public void leaveTemplate(Template t) {
 		top.leaveTemplate(t);

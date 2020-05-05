@@ -483,12 +483,6 @@ public class Traverser implements RepositoryVisitor {
 	
 	public void visitTemplateEvent(TemplateEvent te) {
 		visitor.visitTemplateEvent(te);
-		visitExpr(te.expr, 0);
-		leaveTemplateEvent(te);
-	}
-
-	public void leaveTemplateEvent(TemplateEvent te) {
-		visitor.leaveTemplateEvent(te);
 	}
 
 	@Override

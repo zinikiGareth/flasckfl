@@ -208,5 +208,4 @@ public interface RepositoryVisitor {
 	void visitTemplateStyling(TemplateStylingOption tso);
 	void leaveTemplateStyling(TemplateStylingOption tso);
 	void visitTemplateEvent(TemplateEvent te);
-	void leaveTemplateEvent(TemplateEvent te);
 }

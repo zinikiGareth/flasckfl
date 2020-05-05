@@ -4,7 +4,7 @@
 
 		template message
 			target <- message
-				click => sayGoodbye
+				=> sayGoodbye
 			
 		event sayGoodbye (ClickEvent ce)
 			message <- "goodbye"

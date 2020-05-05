@@ -272,13 +272,12 @@ public class TDATemplateParsingTests {
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area"))); will(captureIt);
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
-		nested.tryParsing(TDABasicIntroParsingTests.line("click => handle x"));
+		nested.tryParsing(TDABasicIntroParsingTests.line("=> handle"));
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.events.size());
 		TemplateEvent db = binding.events.get(0);
-		assertEquals("click", db.event);
-		assertThat(db.expr, is(ExprMatcher.apply(ExprMatcher.unresolved("handle"), ExprMatcher.unresolved("x"))));
+		assertEquals("handle", db.handler);
 	}
 
 	@Test
@@ -289,15 +288,14 @@ public class TDATemplateParsingTests {
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
 		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
-		TDAParsing nomore = styling.tryParsing(TDABasicIntroParsingTests.line("click => handle x"));
+		TDAParsing nomore = styling.tryParsing(TDABasicIntroParsingTests.line("=> handle"));
 		assertTrue(nomore instanceof NoNestingParser);
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(1, binding.defaultBinding.events.size());
 		TemplateEvent db = binding.defaultBinding.events.get(0);
-		assertEquals("click", db.event);
-		assertThat(db.expr, is(ExprMatcher.apply(ExprMatcher.unresolved("handle"), ExprMatcher.unresolved("x"))));
+		assertEquals("handle", db.handler);
 	}
 
 	@Test

@@ -198,10 +198,6 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void leaveTemplateEvent(TemplateEvent te) {
-	}
-
-	@Override
 	public void leaveTemplate(Template t) {
 	}
 

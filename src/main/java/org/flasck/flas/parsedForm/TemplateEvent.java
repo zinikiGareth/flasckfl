@@ -1,13 +1,19 @@
 package org.flasck.flas.parsedForm;
 
-import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 
-public class TemplateEvent {
-	public final String event;
-	public final Expr expr;
+public class TemplateEvent implements Locatable {
+	public final InputPosition location;
+	public final String handler;
 
-	public TemplateEvent(String event, Expr cond) {
-		this.event = event;
-		this.expr = cond;
+	public TemplateEvent(InputPosition location, String handler) {
+		this.location = location;
+		this.handler = handler;
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
 	}
 }
