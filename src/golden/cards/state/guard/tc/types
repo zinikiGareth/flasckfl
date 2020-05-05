@@ -1,1 +1,1 @@
-test.golden.MessageHolder.ishello :: Any->Boolean
+test.golden.MessageHolder.ishello :: Boolean

@@ -2,6 +2,6 @@
 		state
 			String message <- 'hello'
 
-		ishello x
+		ishello
 			| (message == "hello") = True
 			|                      = False

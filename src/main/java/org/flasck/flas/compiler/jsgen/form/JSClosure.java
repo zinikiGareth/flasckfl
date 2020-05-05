@@ -3,15 +3,20 @@ package org.flasck.flas.compiler.jsgen.form;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClosure implements JSExpr {
+	private final boolean wantObject;
 	private final JSExpr[] args;
 
 	public JSClosure(boolean wantObject, JSExpr... args) {
+		this.wantObject = wantObject;
 		this.args = args;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("_cxt.closure(");
+		if (wantObject)
+			w.print("_cxt.oclosure(");
+		else
+			w.print("_cxt.closure(");
 		boolean isFirst = true;
 		for (JSExpr e : args) {
 			if (isFirst)
