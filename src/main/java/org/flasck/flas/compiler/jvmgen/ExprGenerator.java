@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -141,7 +142,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			FunctionDefinition fd = (FunctionDefinition) defn;
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
-				makeFunctionClosure(myName, fn.argCount());
+				makeFunctionClosure(fn.hasState(), fn.name(), fn.argCount());
 			} else if ("MakeTuple".equals(myName)) {
 				sv.result(null);
 			} else {
@@ -153,7 +154,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;
-				makeFunctionClosure(myName, fn.argCount());
+				makeFunctionClosure(false, fn.name(), fn.argCount());
 			} else
 				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 		} else if (defn instanceof StructDefn) {
@@ -223,7 +224,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			IExpr ret = meth.getField(state.container, rc.varName().var);
 			sv.result(ret);
 		} else if (defn instanceof TupleMember) {
-			makeFunctionClosure(myName, 0);
+			makeFunctionClosure(false, ((TupleMember) defn).exprFnName(), 0);
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
 		} else if (defn instanceof IntroduceVar) {
@@ -232,7 +233,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			ObjectCtor oc = (ObjectCtor) defn;
 			IExpr fn = meth.makeNew(J.CALLSTATIC, meth.classConst(oc.name().container().javaName()), meth.stringConst(oc.name().name), meth.intConst(nargs));
 			if (nargs == 0) {
-				Var v = makeClosure(fn, oc.argCountIncludingContracts());
+				Var v = makeClosure(false, fn, oc.argCountIncludingContracts());
 				sv.result(v);
 			} else
 				sv.result(fn);
@@ -248,19 +249,33 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		sv.result(meth.callVirtual(J.OBJECT, intr, "introduced"));
 	}
 
-	private void makeFunctionClosure(String name, int expArgs) {
-		IExpr fn = meth.makeNew(J.CALLEVAL, meth.classConst(name));
-		Var v = makeClosure(fn, expArgs);
+	private void makeFunctionClosure(boolean hasState, FunctionName name, int expArgs) {
+		IExpr fn;
+		if (hasState)
+			fn = meth.makeNew(J.CALLMETHOD, meth.classConst(name.inContext.javaName()), meth.stringConst(name.name), meth.intConst(expArgs));
+		else
+			fn = meth.makeNew(J.CALLEVAL, meth.classConst(name.javaClassName()));
+		Var v = makeClosure(hasState, fn, expArgs);
 		sv.result(v);
 	}
 
-	private Var makeClosure(IExpr fn, int expArgs) {
-		IExpr args = meth.arrayOf(J.OBJECT, new ArrayList<IExpr>());
+	private Var makeClosure(boolean hasState, IExpr fn, int expArgs) {
+		ArrayList<IExpr> iargs = new ArrayList<IExpr>();
+		if (hasState)
+			iargs.add(meth.myThis());
+		IExpr args = meth.arrayOf(J.OBJECT, iargs);
 		IExpr call;
-		if (expArgs > 0)
-			call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
-		else
-			call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
+		if (expArgs > 0) {
+			if (hasState)
+				call = meth.callInterface(J.FLCURRY, fcx, "ocurry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
+			else
+				call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
+		} else {
+			if (hasState)
+				call = meth.callInterface(J.FLCLOSURE, fcx, "oclosure", meth.as(fn, J.APPLICABLE), args);
+			else
+				call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
+		}
 		Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 		currentBlock.add(meth.assign(v, call));
 		return v;

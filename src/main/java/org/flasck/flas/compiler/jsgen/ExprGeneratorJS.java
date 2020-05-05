@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -128,7 +129,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (defn instanceof FunctionDefinition) {
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
-				makeFunctionClosure(myName, fn.argCount());
+				makeFunctionClosure(fn.hasState(), myName, fn.argCount());
 			} else if ("MakeTuple".equals(myName))
 				sv.result(null);
 			else
@@ -136,7 +137,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;
-				makeFunctionClosure(myName, fn.argCount());
+				makeFunctionClosure(false, myName, fn.argCount());
 			} else
 				sv.result(block.pushFunction(myName));
 		} else if (defn instanceof StructDefn) {
@@ -178,7 +179,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof ObjectContract) {
 			sv.result(block.member(((ObjectContract)defn).varName().var));
 		} else if (defn instanceof TupleMember) {
-			makeFunctionClosure(myName, 0);
+			makeFunctionClosure(false, myName, 0);
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
 		} else if (defn instanceof IntroduceVar) {
@@ -205,12 +206,16 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		sv.result(state.resolveMock(block, udd));
 	}
 
-	private void makeFunctionClosure(String func, int expArgs) {
-		JSExpr[] args = new JSExpr[] { block.pushFunction(func) };
-		if (expArgs > 0)
-			sv.result(block.curry(false, expArgs, args));
+	private void makeFunctionClosure(boolean hasState, String func, int expArgs) {
+		JSExpr[] args;
+		if (hasState)
+			args = new JSExpr[] { block.pushFunction(func), new JSThis() };
 		else
-			sv.result(block.closure(false, args));
+			args = new JSExpr[] { block.pushFunction(func) };
+		if (expArgs > 0) {
+			sv.result(block.curry(hasState, expArgs, args));
+		} else
+			sv.result(block.closure(hasState, args));
 	}
 
 	private String handleBuiltinName(RepositoryEntry defn) {

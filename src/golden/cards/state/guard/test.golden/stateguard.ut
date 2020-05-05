@@ -2,3 +2,7 @@
 		data MessageHolder h
 		assert (h.ishello)
 			True
+			
+	test that we can check this in an event handler
+		data MessageHolder h
+		event h (ClickEvent)

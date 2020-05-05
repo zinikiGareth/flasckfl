@@ -1,7 +1,12 @@
 	card MessageHolder
 		state
 			String message <- 'hello'
+			Boolean hi
 
 		ishello
 			| (message == "hello") = True
 			|                      = False
+
+		event check (ClickEvent ce)
+			hi <- ishello
+			
