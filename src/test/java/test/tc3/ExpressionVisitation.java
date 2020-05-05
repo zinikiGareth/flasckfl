@@ -78,7 +78,7 @@ public class ExpressionVisitation {
 	public void aPreviouslyDefinedVarWithNoArgsReturnsItsType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyX = context.mock(Type.class);
-		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0);
+		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0, false);
 		x.bindType(tyX);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyX))));
@@ -108,7 +108,7 @@ public class ExpressionVisitation {
 	public void aBuiltinOperatorReturnsItsType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyPlus = context.mock(Type.class);
-		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
+		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
@@ -123,7 +123,7 @@ public class ExpressionVisitation {
 	public void anExpressionCheckerTrampolinesResult() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyPlus = context.mock(Type.class);
-		TypeBinder plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
+		TypeBinder plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
@@ -199,7 +199,7 @@ public class ExpressionVisitation {
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, state, nv);
 		UnresolvedVar uv = new UnresolvedVar(pos, "f");
-		FunctionDefinition fnF = new FunctionDefinition(FunctionName.function(pos, null, "f"), 1);
+		FunctionDefinition fnF = new FunctionDefinition(FunctionName.function(pos, null, "f"), 1, false);
 		uv.bind(fnF);
 		tc.visitUnresolvedVar(uv, 0);
 	}

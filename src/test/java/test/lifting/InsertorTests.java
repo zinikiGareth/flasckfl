@@ -42,7 +42,7 @@ public class InsertorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 0);
+		FunctionDefinition fn = new FunctionDefinition(nameG, 0, false);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		fn.intro(fi);
 
@@ -66,7 +66,7 @@ public class InsertorTests {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x"));
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 0);
+		FunctionDefinition fn = new FunctionDefinition(nameG, 0, false);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		fn.intro(fi);
 
@@ -89,11 +89,11 @@ public class InsertorTests {
 	@Test
 	public void middlemenAreAlsoEnhanced() {
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
-		FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
+		FunctionDefinition fnF = new FunctionDefinition(nameF, 1, false);
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fnG = new FunctionDefinition(nameG, 0);
+		FunctionDefinition fnG = new FunctionDefinition(nameG, 0, false);
 		FunctionName nameH = FunctionName.function(pos, nameG, "h");
-		FunctionDefinition fnH = new FunctionDefinition(nameH, 0);
+		FunctionDefinition fnH = new FunctionDefinition(nameH, 0, false);
 
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), new VarName(pos, nameF, "x"));
 		tp.isDefinedBy(fnF);

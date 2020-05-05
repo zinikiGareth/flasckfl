@@ -51,7 +51,7 @@ public class TreeOrderTraversalTests {
 
 	@Test
 	public void aVeryDullFunctionHasAlmostNothingToDo() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 0);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 0, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		fn.bindHsi(new HSIArgsTree(0));
@@ -67,7 +67,7 @@ public class TreeOrderTraversalTests {
 
 	@Test
 	public void aFunctionWithTwoIntrosVisitsAllCasesEvenWithoutPatterns() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 0);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 0, false);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>());
 		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
 		fi1.functionCase(fcd1);
@@ -99,7 +99,7 @@ public class TreeOrderTraversalTests {
 
 	@Test
 	public void aFunctionWithTwoIntrosAndOneArgVisitsThePatternsFirstThenTheCases() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
 		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
 		fi1.functionCase(fcd1);
@@ -140,7 +140,7 @@ public class TreeOrderTraversalTests {
 
 	@Test
 	public void multipleArgumentsCanBeHandledInTurn() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
 		fi.functionCase(fcd);
@@ -173,7 +173,7 @@ public class TreeOrderTraversalTests {
 
 	@Test
 	public void structsCanMatchFields() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
 		fi.functionCase(fcd);
@@ -218,7 +218,7 @@ public class TreeOrderTraversalTests {
 	
 	@Test
 	public void typesAreOKToo() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, simpleExpr);
 		fi.functionCase(fcd);
@@ -246,7 +246,7 @@ public class TreeOrderTraversalTests {
 
 	@Test
 	public void aFunctionWithTwoIntrosGivesEachOneTheRightVariableArguments() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
 		FunctionIntro fi1 = new FunctionIntro(nameF, new ArrayList<>()); // Note this should have a pattern, but that duplicates creating the hsitree
 		FunctionCaseDefn fcd1 = new FunctionCaseDefn(null, simpleExpr);
 		fi1.functionCase(fcd1);

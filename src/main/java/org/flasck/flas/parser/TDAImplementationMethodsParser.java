@@ -70,7 +70,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 		consumer.addImplementationMethod(meth);
 		topLevel.newObjectMethod(errors, meth);
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);
-		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action");
+		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action", true);
 		return new TDAMethodMessageParser(errors, meth, nestedParser);
 	}
 

@@ -53,7 +53,7 @@ public class TDAMethodParser {
 		}
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null);
 		builder.addMethod(meth);
-		return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action"));
+		return new TDAMethodMessageParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action", true));
 	}
 
 	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {

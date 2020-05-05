@@ -17,11 +17,13 @@ public class TDATupleDeclarationParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final FunctionNameProvider functionNamer;
 	private final FunctionScopeUnitConsumer consumer;
+	private boolean stateAvailable;
 
-	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionScopeUnitConsumer consumer) {
+	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionScopeUnitConsumer consumer, boolean stateAvailable) {
 		this.errors = errors;
 		this.functionNamer = functionNamer;
 		this.consumer = consumer;
+		this.stateAvailable = stateAvailable;
 	}
 	
 	@Override
@@ -87,19 +89,19 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			consumer.tupleDefn(errors, vars, leadName, pkgName, e);
 		}).tryParsing(line);
 
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
-		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer);
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, stateAvailable);
+		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, stateAvailable);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
 	}
 
-	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel) {
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel, boolean stateAvailable) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDATupleDeclarationParser(errors, namer, topLevel);
+				return new TDATupleDeclarationParser(errors, namer, topLevel, stateAvailable);
 			}
 		};
 	}

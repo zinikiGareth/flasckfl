@@ -80,7 +80,7 @@ public class FunctionGeneration {
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
-		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 		fn.intro(fi);
 		sv.visitFunction(fn);
 		sv.bind(slot, "x");
@@ -116,7 +116,7 @@ public class FunctionGeneration {
 			oneOf(re).flush();
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new NumericLiteral(pos, 42));
 		fi.functionCase(fcd);
@@ -178,7 +178,7 @@ public class FunctionGeneration {
 			oneOf(blk1).flush();
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 		fi.functionCase(fcd);
@@ -254,7 +254,7 @@ public class FunctionGeneration {
 			oneOf(blk1).flush();
 		}});
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
 		{
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
@@ -758,7 +758,7 @@ public class FunctionGeneration {
 		new JVMGenerator(bce, sv);
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "x");
-			FunctionDefinition fn = new FunctionDefinition(name, 1);
+			FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 			FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
@@ -771,7 +771,7 @@ public class FunctionGeneration {
 		}
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "y");
-			FunctionDefinition fn = new FunctionDefinition(name, 1);
+			FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 			FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);

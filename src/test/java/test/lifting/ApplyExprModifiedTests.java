@@ -40,7 +40,7 @@ public class ApplyExprModifiedTests {
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1);
+		FunctionDefinition fn = new FunctionDefinition(nameG, 1, false);
 		List<Pattern> args = new ArrayList<>();
 		args.add(new TypedPattern(pos, new TypeReference(pos, "String"), new VarName(pos, nameG, "x")));
 		FunctionIntro fi = new FunctionIntro(nameG, args);
@@ -110,7 +110,7 @@ public class ApplyExprModifiedTests {
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 0);
+		FunctionDefinition fn = new FunctionDefinition(nameG, 0, false);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		fn.intro(fi);
 

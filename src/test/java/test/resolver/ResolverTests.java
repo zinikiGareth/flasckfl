@@ -70,12 +70,12 @@ public class ResolverTests {
 	private final FunctionName nameM = FunctionName.function(pos, nested, "meth");
 	private final FunctionName nameX = FunctionName.function(pos, pkg, "x");
 	private final FunctionName nameY = FunctionName.function(pos, pkg, "y");
-	private final FunctionDefinition fn = new FunctionDefinition(nameF, 0);
+	private final FunctionDefinition fn = new FunctionDefinition(nameF, 0, false);
 	private final ObjectMethod meth = new ObjectMethod(pos, nameM, new ArrayList<Pattern>(), null);
-	private final TypeBinder vx = new FunctionDefinition(nameX, 0);
-	private final TypeBinder vy = new FunctionDefinition(nameY, 0);
+	private final TypeBinder vx = new FunctionDefinition(nameX, 0, false);
+	private final TypeBinder vy = new FunctionDefinition(nameY, 0, false);
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
-	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2);
+	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2, false);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
 	private final ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
@@ -376,7 +376,7 @@ public class ResolverTests {
 		StructField fld = new StructField(pos, false, LoadBuiltins.stringTR, "fld");
 		state.addField(fld);
 		s.defineState(state);
-		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2);
+		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, false);
 		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
 		acorFn.intro(fi);
 		fi.functionCase(new FunctionCaseDefn(null, new UnresolvedVar(pos, "fld")));

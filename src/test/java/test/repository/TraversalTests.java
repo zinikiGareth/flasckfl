@@ -228,7 +228,7 @@ public class TraversalTests {
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
 		s.methods.add(meth);
-		ObjectAccessor oa = new ObjectAccessor(s, new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2));
+		ObjectAccessor oa = new ObjectAccessor(s, new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, false));
 		s.acors.add(oa);
 		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
@@ -361,7 +361,7 @@ public class TraversalTests {
 	public void traverseObjectAccessorFromTheRepository() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2);
+		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, false);
 		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
 		acorFn.intro(fi);
 		ObjectAccessor oa = new ObjectAccessor(s, acorFn);

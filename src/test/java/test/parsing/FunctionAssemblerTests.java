@@ -31,7 +31,7 @@ public class FunctionAssemblerTests {
 
 	@Test
 	public void nothingHappensWithoutSomethingHappening() {
-		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
+		FunctionAssembler asm = new FunctionAssembler(errors, consumer, false);
 		asm.moveOn();
 	}
 
@@ -42,7 +42,7 @@ public class FunctionAssemblerTests {
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.foo").args(0).intros(1)));
 			}
 		});
-		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
+		FunctionAssembler asm = new FunctionAssembler(errors, consumer, false);
 		asm.functionIntro(new FunctionIntro(caseName(asm, "foo"), new ArrayList<>()));
 		asm.moveOn();
 	}
@@ -55,7 +55,7 @@ public class FunctionAssemblerTests {
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 			}
 		});
-		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
+		FunctionAssembler asm = new FunctionAssembler(errors, consumer, false);
 		asm.functionIntro(new FunctionIntro(caseName(asm, "foo"), new ArrayList<>()));
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(p)));
 		asm.moveOn();
@@ -69,7 +69,7 @@ public class FunctionAssemblerTests {
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(2)));
 			}
 		});
-		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
+		FunctionAssembler asm = new FunctionAssembler(errors, consumer, false);
 		asm.functionIntro(new FunctionIntro(caseName(asm, "foo"), new ArrayList<>()));
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(p)));
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(p)));
@@ -87,7 +87,7 @@ public class FunctionAssemblerTests {
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 			}
 		});
-		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
+		FunctionAssembler asm = new FunctionAssembler(errors, consumer, false);
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(p)));
 		asm.functionIntro(new FunctionIntro(caseName(asm, "foo"), new ArrayList<>()));
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(p)));
@@ -104,7 +104,7 @@ public class FunctionAssemblerTests {
 				oneOf(consumer).functionDefn(with(errors), with(FunctionDefinitionMatcher.named("test.pkg.bar").args(1).intros(1)));
 			}
 		});
-		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
+		FunctionAssembler asm = new FunctionAssembler(errors, consumer, false);
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(p)));
 		asm.moveOn();
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(p)));
@@ -118,7 +118,7 @@ public class FunctionAssemblerTests {
 				oneOf(errors).message(pos, "inconsistent number of formal parameters");
 			}
 		});
-		FunctionAssembler asm = new FunctionAssembler(errors, consumer);
+		FunctionAssembler asm = new FunctionAssembler(errors, consumer, false);
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList()));
 		asm.functionIntro(new FunctionIntro(caseName(asm, "bar"), Arrays.asList(p)));
 		asm.moveOn();

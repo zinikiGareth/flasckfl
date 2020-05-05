@@ -173,9 +173,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			return;
 		}
 		GenericAnnotator ann;
-		if (oaClz != null) {
-			this.clz = oaClz;
-			ann = GenericAnnotator.newMethod(clz, false, currentOA.name().name);
+		if (fn.hasState()) {
+			this.clz = bce.get(fn.name().container().javaName());
+			ann = GenericAnnotator.newMethod(clz, false, fn.name().name);
 		} else {
 			this.clz = bce.newClass(fn.name().javaClassName());
 			this.clz.generateAssociatedSourceFile();
@@ -193,11 +193,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		switchVars.clear();
 		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner );
 		currentBlock = new ArrayList<IExpr>();
-		if (oaClz != null) {
-			StateHolder od = currentOA.getObject();
-			if (od.state() != null) {
+		if (fn.hasState()) {
+//			StateHolder od = currentOA.getObject();
+//			if (od.state() != null) {
 				fs.provideStateObject(meth.getField("state"));
-			}
+//			}
 		}
 	}
 	

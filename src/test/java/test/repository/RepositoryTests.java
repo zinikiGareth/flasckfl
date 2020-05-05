@@ -66,7 +66,7 @@ public class RepositoryTests {
 	@Test
 	public void canAddAFunctionToTheRepository() {
 		Repository r = new Repository();
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, false);
 		r.functionDefn(errors, fn);
 		assertEquals(fn, r.get("test.repo.fred"));
 	}
@@ -74,7 +74,7 @@ public class RepositoryTests {
 	@Test
 	public void cannotAddAFunctionToTheRepositoryTwice() {
 		Repository r = new Repository();
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, false);
 		r.functionDefn(errors, fn);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "test.repo.fred is defined multiple times: " + pos);
@@ -191,7 +191,7 @@ public class RepositoryTests {
 	@Test
 	public void cannotAddAStandaloneMethodToTheRepositoryIfAFunctionIsAlreadyThere() {
 		Repository r = new Repository();
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, false);
 		r.functionDefn(errors, fn);
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>(), null);
 		StandaloneMethod meth = new StandaloneMethod(om);
@@ -223,7 +223,7 @@ public class RepositoryTests {
 	public void canAddAnObjectAcorToTheRepository() {
 		Repository r = new Repository();
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
-		ObjectAccessor oa = new ObjectAccessor(od, new FunctionDefinition(FunctionName.function(pos, od.name(), "acor"), 2));
+		ObjectAccessor oa = new ObjectAccessor(od, new FunctionDefinition(FunctionName.function(pos, od.name(), "acor"), 2, false));
 		r.newObjectAccessor(errors, oa);
 		assertEquals(oa, r.get("test.repo.Obj.acor"));
 	}

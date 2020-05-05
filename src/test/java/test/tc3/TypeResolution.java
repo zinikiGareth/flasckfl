@@ -46,7 +46,7 @@ public class TypeResolution {
 	private final InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private final FunctionName nameF = FunctionName.function(pos, pkg, "f");
-	private final FunctionDefinition fnF = new FunctionDefinition(nameF, 1);
+	private final FunctionDefinition fnF = new FunctionDefinition(nameF, 1, false);
 	private CurrentTCState state;
 	private GroupChecker gc;
 

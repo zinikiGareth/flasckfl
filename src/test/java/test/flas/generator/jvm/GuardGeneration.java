@@ -46,7 +46,7 @@ public class GuardGeneration {
 		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
@@ -99,7 +99,7 @@ public class GuardGeneration {
 		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
@@ -157,7 +157,7 @@ public class GuardGeneration {
 		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
@@ -236,7 +236,7 @@ public class GuardGeneration {
 		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar t = new UnresolvedVar(pos, "True");
 		t.bind(LoadBuiltins.trueT);
@@ -323,7 +323,7 @@ public class GuardGeneration {
 		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		
 		UnresolvedVar t = new UnresolvedVar(pos, "True");

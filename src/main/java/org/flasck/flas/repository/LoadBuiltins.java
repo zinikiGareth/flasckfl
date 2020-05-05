@@ -91,16 +91,16 @@ public class LoadBuiltins {
 	public static UnresolvedVar prodState = new UnresolvedVar(pos, "_prod_state");
 	
 	// Builtin operators
-	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2);
-	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2);
-	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2);
-	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2);
-	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2);
-	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1);
-	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1);
-	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2);
-	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1);
-	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2);
+	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, false);
+	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
+	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, false);
+	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, false);
+	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, false);
+	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, false);
+	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, false);
+	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, false);
+	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, false);
+	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, false);
 
 	static {
 		// bind TRs
@@ -145,7 +145,7 @@ public class LoadBuiltins {
 		message.addCase(sendTR);
 		event.addCase(clickEventTR);
 		
-		prodState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_prod_state"), 2));
+		prodState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_prod_state"), 2, false));
 		
 		// specify function types
 		{

@@ -118,7 +118,7 @@ public class ExpressionGeneration {
 	public void aVar() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
-		expr.bind(new FunctionDefinition(nameX, 0));
+		expr.bind(new FunctionDefinition(nameX, 0, false));
 		IExpr ev = context.mock(IExpr.class, "ev");
 		IExpr mnf = context.mock(IExpr.class, "mnf");
 		context.checking(new Expectations() {{
@@ -249,7 +249,7 @@ public class ExpressionGeneration {
 	public void aVarWithNoArgsExpectingNoArgsBecomesAClosureByItself() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
-		expr.bind(new FunctionDefinition(nameX, 0));
+		expr.bind(new FunctionDefinition(nameX, 0, false));
 		IExpr x = context.mock(IExpr.class, "x");
 		IExpr mnf = context.mock(IExpr.class, "mnf");
 		IExpr xAsObj = context.mock(IExpr.class, "xAsObj");
@@ -281,7 +281,7 @@ public class ExpressionGeneration {
 	public void aVarWithNoArgsExpectingTwoArgsBecomesACurriedFunction() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
-		expr.bind(new FunctionDefinition(nameX, 2));
+		expr.bind(new FunctionDefinition(nameX, 2, false));
 		IExpr x = context.mock(IExpr.class, "x");
 		IExpr mnf = context.mock(IExpr.class, "mnf");
 		IExpr xAsObj = context.mock(IExpr.class, "xAsObj");
@@ -374,7 +374,7 @@ public class ExpressionGeneration {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
@@ -469,7 +469,7 @@ public class ExpressionGeneration {
 			oneOf(nv).result(mnf);
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
-		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2));
+		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false));
 		Traverser gen = new Traverser(new ExprGenerator(new FunctionState(meth, null, null, null, null), sv, block, false)).withHSI();
 		gen.visitExpr(expr, 2);
 	}
@@ -479,7 +479,7 @@ public class ExpressionGeneration {
 		ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 		ByteCodeSink bcc = context.mock(ByteCodeSink.class);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "[]");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, null, "Nil", true));
@@ -522,7 +522,7 @@ public class ExpressionGeneration {
 	public void aFunctionApplication() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-		fn.bind(new FunctionDefinition(fnName, 2));
+		fn.bind(new FunctionDefinition(fnName, 2, false));
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		IExpr f = context.mock(IExpr.class, "f");
 		IExpr mnf = context.mock(IExpr.class, "mnf");
@@ -617,10 +617,10 @@ public class ExpressionGeneration {
 	public void aNestedFunctionApplication() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-		fn.bind(new FunctionDefinition(fnName, 1));
+		fn.bind(new FunctionDefinition(fnName, 1, false));
 		UnresolvedVar var = new UnresolvedVar(pos, "x");
 		FunctionName varName = FunctionName.function(pos, pkg, "x");
-		var.bind(new FunctionDefinition(varName, 0));
+		var.bind(new FunctionDefinition(varName, 0, false));
 		ApplyExpr ae = new ApplyExpr(pos, fn, var);
 		IExpr f = context.mock(IExpr.class, "f");
 		IExpr mnf = context.mock(IExpr.class, "mnf");
@@ -742,7 +742,7 @@ public class ExpressionGeneration {
 	public void aFunctionApplicationWithExplicitCurrying() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-		fn.bind(new FunctionDefinition(fnName, 2));
+		fn.bind(new FunctionDefinition(fnName, 2, false));
 		AnonymousVar uv = new AnonymousVar(pos);
 		ApplyExpr ae = new ApplyExpr(pos, fn, uv, new StringLiteral(pos, "hello"));
 		context.checking(new Expectations() {{

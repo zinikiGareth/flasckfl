@@ -26,10 +26,12 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	private Type type;
 	private HSITree hsiTree;
 	private NestedVarReader nestedVars;
+	private boolean hasState;
 
-	public FunctionDefinition(FunctionName name, int nargs) {
+	public FunctionDefinition(FunctionName name, int nargs, boolean hasState) {
 		this.name = name;
 		this.nargs = nargs;
+		this.hasState = hasState;
 	}
 	
 	public void intro(FunctionIntro next) {
@@ -132,5 +134,9 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 		for (Pattern p : fi.args) {
 			p.isDefinedBy(this);
 		}
+	}
+
+	public boolean hasState() {
+		return hasState;
 	}
 }

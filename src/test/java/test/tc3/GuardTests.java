@@ -60,7 +60,7 @@ public class GuardTests {
 	@Test
 	public void weCanHandleASimpleCorrectCase() {
 		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		Expr test = new UnresolvedVar(pos, "True");
@@ -123,7 +123,7 @@ public class GuardTests {
 	@Test
 	public void theGuardTypeCanBeTrue() {
 		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		fc.visitFunction(fn);
@@ -137,7 +137,7 @@ public class GuardTests {
 	@Test
 	public void theGuardTypeCanBeFalse() {
 		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		fc.visitFunction(fn);
@@ -151,7 +151,7 @@ public class GuardTests {
 	@Test
 	public void theGuardTypeCanBeAUTForNowButWeDemandItIsBoolean() {
 		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		fc.visitFunction(fn);
@@ -167,7 +167,7 @@ public class GuardTests {
 	@Test
 	public void itsAnErrorForTheGuardTypeToBeNumber() {
 		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		fc.visitFunction(fn);

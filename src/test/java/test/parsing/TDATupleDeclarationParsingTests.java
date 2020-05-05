@@ -32,7 +32,7 @@ public class TDATupleDeclarationParsingTests {
 	public void aBlankLineReturnsNothingAndDoesNothing() {
 		context.checking(new Expectations() {{
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line(""));
 		assertNull(nested);
 	}
@@ -41,7 +41,7 @@ public class TDATupleDeclarationParsingTests {
 	public void aLineWithoutAnOpeningParenDoesNotMatch() {
 		context.checking(new Expectations() {{
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line("+x"));
 		assertNull(nested);
 	}
@@ -52,7 +52,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -63,7 +63,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -74,7 +74,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -85,7 +85,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "missing var in tuple declaration");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -96,7 +96,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "insufficient vars to make tuple declaration");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -107,7 +107,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -118,7 +118,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -129,7 +129,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -140,7 +140,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -151,7 +151,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -162,7 +162,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -173,7 +173,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "syntax error");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -184,7 +184,7 @@ public class TDATupleDeclarationParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(errors).message(line, "tuple assignment requires expression");
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNull(nested);
 	}
@@ -200,7 +200,7 @@ public class TDATupleDeclarationParsingTests {
 			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("x")); will(returnValue(fnName));
 			oneOf(builder).tupleDefn(with(tracker), with(any(List.class)), with(tnName), with(fnName), with(any(Expr.class)));
 		}});
-		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder);
+		TDATupleDeclarationParser parser = new TDATupleDeclarationParser(tracker, functionNamer, builder, false);
 		TDAParsing nested = parser.tryParsing(line);
 		assertNotNull(nested);
 	}

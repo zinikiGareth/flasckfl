@@ -12,11 +12,11 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 	private Tokenizable seenSomething;
 	private boolean reportedError;
 
-	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing) {
+	public LastActionScopeParser(ErrorReporter errors, FunctionScopeNamer namer, FunctionScopeUnitConsumer topLevel, String lastThing, boolean stateAvailable) {
 		this.errors = errors;
 		this.lastThing = lastThing;
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel);
-		this.parser = TDAMultiParser.functionScopeUnit(errors, namer, assembler, topLevel);
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, stateAvailable);
+		this.parser = TDAMultiParser.functionScopeUnit(errors, namer, assembler, topLevel, stateAvailable);
 	}
 
 	public void anotherParent() {

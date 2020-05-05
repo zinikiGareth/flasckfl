@@ -8,12 +8,14 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 public class FunctionAssembler implements FunctionIntroConsumer {
 	private final ErrorReporter errors;
 	private final FunctionScopeUnitConsumer consumer;
+	private final boolean stateAvailable;
 	private FunctionDefinition curr;
 	private boolean broken;
 
-	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer) {
+	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer, boolean stateAvailable) {
 		this.errors = errors;
 		this.consumer = consumer;
+		this.stateAvailable = stateAvailable;
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 		if (curr == null || !fname.equals(curr.name())) {
 			if (curr != null)
 				consumer.functionDefn(errors, curr);
-			curr = new FunctionDefinition(fname, next.args.size());
+			curr = new FunctionDefinition(fname, next.args.size(), stateAvailable);
 			broken = false;
 		}
 		if (curr.argCount() != next.args.size()) {

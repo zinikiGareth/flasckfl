@@ -33,7 +33,7 @@ public class TypeConsolidation {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final NestedVisitor nv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
-	FunctionDefinition f = new FunctionDefinition(FunctionName.function(pos, null, "f"), 0);
+	FunctionDefinition f = new FunctionDefinition(FunctionName.function(pos, null, "f"), 0, false);
 	FunctionIntro fi = new FunctionIntro(f.name(), new ArrayList<Pattern>());
 
 	@Before

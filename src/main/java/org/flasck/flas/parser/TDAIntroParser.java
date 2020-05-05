@@ -67,7 +67,7 @@ public class TDAIntroParser implements TDAParsing {
 			CardName qn = namer.cardName(tn.text);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
-			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
+			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, true);
 
 			TDAParserConstructor sh;
 			HandlerBuilder hb;
@@ -99,8 +99,8 @@ public class TDAIntroParser implements TDAParsing {
 			return new TDAMultiParser(errors, 
 				sh,
 				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, true),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, true)
 			);
 		}
 		case "struct":
@@ -198,13 +198,13 @@ public class TDAIntroParser implements TDAParsing {
 			consumer.newObject(errors, od);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
-			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer);
+			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, true);
 			ObjectNestedNamer onn = new ObjectNestedNamer(on);
 			return new TDAMultiParser(errors, 
 				errors -> {	return new TDAObjectElementsParser(errors, onn, od, consumer); },
 				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, true),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, true)
 			);
 		}
 		case "contract": {

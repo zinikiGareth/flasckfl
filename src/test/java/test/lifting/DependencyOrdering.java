@@ -235,7 +235,7 @@ public class DependencyOrdering {
 
 	private FunctionDefinition function(NameOfThing scope, String name) {
 		FunctionName fname = FunctionName.function(pos, scope, name);
-		FunctionDefinition fn = new FunctionDefinition(fname, 0);
+		FunctionDefinition fn = new FunctionDefinition(fname, 0, false);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
 		fn.intro(fi);
 		return fn;

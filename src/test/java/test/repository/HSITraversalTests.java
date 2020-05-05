@@ -42,7 +42,7 @@ public class HSITraversalTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aSimpleVarBindsItAndThenJustEvalsTheExpression() {
-		FunctionDefinition fn = new FunctionDefinition(fname, 1);
+		FunctionDefinition fn = new FunctionDefinition(fname, 1, false);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
 		VarName vx = new VarName(pos, fname, "x");
 		VarPattern vp = new VarPattern(pos, vx);
@@ -80,7 +80,7 @@ public class HSITraversalTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aConstantConstructorForcesATypeErrorCase() {
-		FunctionDefinition fn = new FunctionDefinition(fname, 1);
+		FunctionDefinition fn = new FunctionDefinition(fname, 1, false);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, number);
 		fi.functionCase(fcd);
@@ -117,7 +117,7 @@ public class HSITraversalTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aTypeAnnotationBehavesMuchLikeAConstructorWithoutArgs() {
-		FunctionDefinition fn = new FunctionDefinition(fname, 1);
+		FunctionDefinition fn = new FunctionDefinition(fname, 1, false);
 		FunctionIntro fi = new FunctionIntro(fname, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, number);
 		fi.functionCase(fcd);

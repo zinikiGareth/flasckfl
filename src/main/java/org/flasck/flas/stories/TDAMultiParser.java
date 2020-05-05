@@ -53,8 +53,8 @@ public class TDAMultiParser implements TDAParsing {
 	}
 
 	public static TDAParsing topLevelUnit(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer sb) {
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb);
-		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb), TDATupleDeclarationParser.constructor(namer, sb));
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb, false);
+		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, false), TDATupleDeclarationParser.constructor(namer, sb, false));
 	}
 	
 	public static TDAParsing unitTestUnit(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer utdc) {
@@ -65,8 +65,8 @@ public class TDAMultiParser implements TDAParsing {
 		return new TDAAssemblyUnitParser(errors, namer, adc);
 	}
 	
-	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
-		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel), TDAMethodParser.constructor(namer, sb, topLevel), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel), TDATupleDeclarationParser.constructor(namer, topLevel));
+	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, boolean stateAvailable) {
+		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel), TDAMethodParser.constructor(namer, sb, topLevel), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, stateAvailable), TDATupleDeclarationParser.constructor(namer, topLevel, stateAvailable));
 	}
 
 	// I added this method for testing purposes

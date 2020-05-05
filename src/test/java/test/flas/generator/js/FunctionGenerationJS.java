@@ -54,7 +54,7 @@ public class FunctionGenerationJS {
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new NumericLiteral(pos, "42", 2));
 		fi.functionCase(fcd);
@@ -89,7 +89,7 @@ public class FunctionGenerationJS {
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 		fi.functionCase(fcd);
@@ -120,7 +120,7 @@ public class FunctionGenerationJS {
 		VarPattern vp = new VarPattern(pos, vnx);
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
-		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
 		ex.bind(new VarPattern(pos, vnx));
@@ -162,7 +162,7 @@ public class FunctionGenerationJS {
 		VarPattern vp = new VarPattern(pos, vnx);
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
-		FunctionDefinition fn = new FunctionDefinition(name, 2);
+		FunctionDefinition fn = new FunctionDefinition(name, 2, false);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
 		ex.bind(new VarPattern(pos, vnx));
@@ -208,7 +208,7 @@ public class FunctionGenerationJS {
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(jss, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 1);
+		FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
 		{
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
@@ -643,7 +643,7 @@ public class FunctionGenerationJS {
 		Traverser trav = new Traverser(gen).withHSI();
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "x");
-			FunctionDefinition fn = new FunctionDefinition(name, 1);
+			FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 			FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
@@ -656,7 +656,7 @@ public class FunctionGenerationJS {
 		}
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "y");
-			FunctionDefinition fn = new FunctionDefinition(name, 1);
+			FunctionDefinition fn = new FunctionDefinition(name, 1, false);
 			FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
