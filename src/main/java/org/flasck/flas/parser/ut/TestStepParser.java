@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -19,6 +20,7 @@ import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.StringToken;
+import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -96,10 +98,17 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "must specify a card to receive event");
 				return new IgnoreNestedParser();
 			}
+			// TODO: I think this may need to be a compound name to identify sub-elements
+			TemplateNameToken targetZone = TemplateNameToken.from(toks);
+			if (targetZone == null) {
+				errors.message(toks, "you must specify an event target zone");
+				return new IgnoreNestedParser();
+			}
+			ErrorMark em = errors.mark();
 			List<Expr> eventObj = new ArrayList<>();
 			TDAExpressionParser expr = new TDAExpressionParser(errors, x -> eventObj.add(x));
 			expr.tryParsing(toks);
-			if (errors.hasErrors()){
+			if (em.hasMoreNow()){
 				return new IgnoreNestedParser();
 			}
 			if (eventObj.isEmpty()) {

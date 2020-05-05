@@ -1544,6 +1544,7 @@ match css ".body['height']"
     <seq>
       <token type='EVENT' />
       <token type='var-name' /> <!--  the card to receive the event -->
+      <token type='template-name' /> <!-- the event target (an area in the card's template); actually, I think with lists and all this could need to be a compound name with dots and possibly arrays (or we could just do list.3.x -->
       <token type='event-name' /> <!-- the event name -->
       <ref production='expression' /> <!-- the event object -->
     </seq>
