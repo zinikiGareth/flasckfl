@@ -9,20 +9,23 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 
 public class ConvertRepositoryMethods extends LeafAdapter {
 	private final NestedVisitor sv;
 	private final ErrorReporter errors;
+	private final RepositoryReader repository;
 
-	public ConvertRepositoryMethods(NestedVisitor sv, ErrorReporter errors) {
+	public ConvertRepositoryMethods(NestedVisitor sv, ErrorReporter errors, RepositoryReader repository) {
 		this.sv = sv;
 		this.errors = errors;
+		this.repository = repository;
 		sv.push(this);
 	}
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		new AccessorConvertor(sv, errors);
+		new AccessorConvertor(sv, errors, repository);
 	}
 	
 	@Override
@@ -42,7 +45,7 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert e) {
-		new AccessorConvertor(sv, errors);
+		new AccessorConvertor(sv, errors, repository);
 	}
 	
 	@Override

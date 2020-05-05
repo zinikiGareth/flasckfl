@@ -162,7 +162,7 @@ public class FLASCompiler {
 
 	public boolean convertMethods() {
 		StackVisitor sv = new StackVisitor();
-		new ConvertRepositoryMethods(sv, errors);
+		new ConvertRepositoryMethods(sv, errors, repository);
 		repository.traverseWithMemberFields(sv);
 		return errors.hasErrors();
 	}

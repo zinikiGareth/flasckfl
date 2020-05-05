@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
@@ -46,7 +47,8 @@ public class GuardTests {
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
-	
+	private RepositoryReader repository = context.mock(RepositoryReader.class);
+
 	@Before
 	public void allowFC() {
 		context.checking(new Expectations() {{
@@ -59,7 +61,7 @@ public class GuardTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanHandleASimpleCorrectCase() {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -122,7 +124,7 @@ public class GuardTests {
 
 	@Test
 	public void theGuardTypeCanBeTrue() {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -136,7 +138,7 @@ public class GuardTests {
 
 	@Test
 	public void theGuardTypeCanBeFalse() {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -150,7 +152,7 @@ public class GuardTests {
 
 	@Test
 	public void theGuardTypeCanBeAUTForNowButWeDemandItIsBoolean() {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -166,7 +168,7 @@ public class GuardTests {
 
 	@Test
 	public void itsAnErrorForTheGuardTypeToBeNumber() {
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);

@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -45,6 +46,7 @@ public class AccessorConversion {
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Test
 	public void weDelegateToAccessorConvertorOnVisitFunction() {
@@ -52,7 +54,7 @@ public class AccessorConversion {
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors, repository);
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "meth"), 4, false);
 		mc.visitFunction(fn);
 	}
@@ -63,7 +65,7 @@ public class AccessorConversion {
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors, repository);
 		UnitTestAssert e = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "hello"));
 		mc.visitUnitTestAssert(e);
 	}
@@ -74,7 +76,7 @@ public class AccessorConversion {
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
 			oneOf(nv).push(with(any(MessageConvertor.class)));
 		}});
-		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors, repository);
 		UnitTestInvoke e = new UnitTestInvoke(new StringLiteral(pos, "hello"));
 		mc.visitUnitTestInvoke(e);
 	}
@@ -84,7 +86,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
@@ -113,7 +115,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
@@ -142,7 +144,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
 		FunctionName an = FunctionName.function(pos, pkg, "f");
 		FunctionDefinition fn = new FunctionDefinition(an, 0, false);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Struct"), true, new ArrayList<>());
@@ -169,7 +171,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
@@ -198,7 +200,7 @@ public class AccessorConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
-		AccessorConvertor ac = new AccessorConvertor(nv, errors);
+		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");

@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -31,6 +32,7 @@ public class MethodConversion {
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Test
 	public void weDelegateToFullMethodConvertorOnVisitObjectMethod() {
@@ -38,7 +40,7 @@ public class MethodConversion {
 			oneOf(nv).push(with(any(ConvertRepositoryMethods.class)));
 			oneOf(nv).push(with(any(MethodConvertor.class)));
 		}});
-		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors);
+		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors, repository);
 		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
 		mc.visitObjectMethod(om);
 	}

@@ -101,7 +101,7 @@ public class PatternAnalysis {
 		new Traverser(sv).visitStandaloneMethod(meth);
 
 		StackVisitor mc = new StackVisitor();
-		new ConvertRepositoryMethods(mc, errors);
+		new ConvertRepositoryMethods(mc, errors, repo);
 		new Traverser(mc).visitStandaloneMethod(meth);
 		
 		List<FunctionIntro> conv = meth.converted();

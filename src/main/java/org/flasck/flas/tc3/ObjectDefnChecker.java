@@ -31,7 +31,7 @@ public class ObjectDefnChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		sv.push(new ExpressionChecker(errors, new FunctionGroupTCState(repository, new DependencyGroup()), sv));
+		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv));
 	}
 	
 	@Override

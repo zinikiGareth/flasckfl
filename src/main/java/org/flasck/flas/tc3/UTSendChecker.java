@@ -22,7 +22,7 @@ public class UTSendChecker extends LeafAdapter implements ResultAware {
 		this.send = s;
 		sv.push(this);
 		// push the expression checker immediately to capture the unresolved var
-		sv.push(new ExpressionChecker(errors, new FunctionGroupTCState(repository, new DependencyGroup()), sv));
+		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv));
 	}
 
 	@Override

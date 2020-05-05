@@ -29,6 +29,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -46,13 +47,15 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private final NestedVisitor nv;
+	private final RepositoryReader repository;
 	private final CurrentTCState state;
 	private final ErrorReporter errors;
 	private InputPosition guardPos;
 	private InputPosition exprPos;
 
-	public ExpressionChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor nv) {
+	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
+		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
 	}
@@ -147,19 +150,19 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
 		this.exprPos = location;
-		nv.push(new MessageHandlerExpressionChecker(errors, state, nv));
+		nv.push(new MessageHandlerExpressionChecker(errors, repository, state, nv));
 	}
 	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
 		this.exprPos = expr.location;
-		nv.push(new ApplyExpressionChecker(errors, state, nv));
+		nv.push(new ApplyExpressionChecker(errors, repository, state, nv));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
 		this.exprPos = expr.location;
-		nv.push(new MemberExpressionChecker(errors, state, nv));
+		nv.push(new MemberExpressionChecker(errors, repository, state, nv));
 	}
 	
 	@Override

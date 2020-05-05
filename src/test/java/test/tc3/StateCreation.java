@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.FunctionChecker;
@@ -21,11 +22,12 @@ public class StateCreation {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final StackVisitor nv = new StackVisitor();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Test
 	public void aSimpleNoArgConstructorSaysThisMustBeInTheArgType() {
 		UnifiableType arg = context.mock(UnifiableType.class);
-		nv.push(new FunctionChecker(errors, nv, state, null));
+		nv.push(new FunctionChecker(errors, repository, nv, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
@@ -42,7 +44,7 @@ public class StateCreation {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
 		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
 		UnifiableType head = context.mock(UnifiableType.class, "head");
-		nv.push(new FunctionChecker(errors, nv, state, null));
+		nv.push(new FunctionChecker(errors, repository, nv, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
@@ -65,7 +67,7 @@ public class StateCreation {
 	@Test
 	public void alternativeConstructorsCanBeOfferedForTheSameSlot() {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
-		nv.push(new FunctionChecker(errors, nv, state, null));
+		nv.push(new FunctionChecker(errors, repository, nv, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
@@ -89,7 +91,7 @@ public class StateCreation {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
 		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
 		UnifiableType head = context.mock(UnifiableType.class, "head");
-		nv.push(new FunctionChecker(errors, nv, state, null));
+		nv.push(new FunctionChecker(errors, repository, nv, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "unknown"); will(returnValue(arg));

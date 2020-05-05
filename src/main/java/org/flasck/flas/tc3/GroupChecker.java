@@ -11,17 +11,20 @@ import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 
 public class GroupChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
+	private final RepositoryReader repository; 
 	private final NestedVisitor sv;
 	private CurrentTCState state;
 	private TypeBinder currentFunction;
-	private final Map<TypeBinder, PosType> memberTypes = new HashMap<>(); 
+	private final Map<TypeBinder, PosType> memberTypes = new HashMap<>();
 
-	public GroupChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state) {
+	public GroupChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state) {
 		this.errors = errors;
+		this.repository = repository;
 		this.sv = sv;
 		this.state = state;
 		sv.push(this);
@@ -29,28 +32,28 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		new FunctionChecker(errors, sv, state, null);
+		new FunctionChecker(errors, repository, sv, state, null);
 		this.currentFunction = fn;
 	}
 
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		new FunctionChecker(errors, sv, state, meth);
+		new FunctionChecker(errors, repository, sv, state, meth);
 		this.currentFunction = meth;
 	}
 
 	@Override
 	public void visitTuple(TupleAssignment ta) {
-		new FunctionChecker(errors, sv, state, null);
+		new FunctionChecker(errors, repository, sv, state, null);
 		this.currentFunction = ta;
-		sv.push(new ExpressionChecker(errors, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv));
 	}
 
 	@Override
 	public void visitTupleMember(TupleMember tm) {
-		new FunctionChecker(errors, sv, state, null);
+		new FunctionChecker(errors, repository, sv, state, null);
 		this.currentFunction = tm;
-		sv.push(new ExpressionChecker(errors, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv));
 	}
 	
 	@Override

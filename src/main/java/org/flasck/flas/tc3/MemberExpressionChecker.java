@@ -6,11 +6,13 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -21,25 +23,29 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class MemberExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
+	private final RepositoryReader repository;
 	private final NestedVisitor nv;
 	private final List<Type> results = new ArrayList<>();
 	private final CurrentTCState state;
 
-	public MemberExpressionChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor nv) {
+	public MemberExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
+		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, state, nv));
+		nv.push(new ExpressionChecker(errors, repository, state, nv));
 	}
 	
 	@Override
@@ -117,7 +123,14 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		if (ty.state().hasMember(var)) {
 			nv.result(ty.state().findField(var).type.defn());
 		} else {
-			errors.message(loc, "there is no member '" + var + "' in the state of " + ty.name().uniqueName());
+			RepositoryEntry entry = repository.get(FunctionName.function(loc, ty.name(), var).uniqueName());
+			if (entry != null && entry instanceof FunctionDefinition)
+				nv.result(((FunctionDefinition)entry).type());
+			else {
+				errors.message(loc, "there is no state member or function '" + var + "' in " + ty.name().uniqueName());
+				nv.result(new ErrorType());
+				return;
+			}
 		}
 	}
 }

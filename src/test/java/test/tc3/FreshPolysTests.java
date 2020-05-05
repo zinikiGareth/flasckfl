@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -27,10 +28,11 @@ public class FreshPolysTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private CurrentTCState state = context.mock(CurrentTCState.class);
+	private RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Test
 	public void weCanIntroduceANewPolyInstanceForAPolyVar() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, repository, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));
@@ -42,7 +44,7 @@ public class FreshPolysTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void weCanReplaceAPolyVarInsideAnApply() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, repository, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));
@@ -54,7 +56,7 @@ public class FreshPolysTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void weReplaceASinglePolyVarWithTheSameUTEachTime() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, repository, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));
@@ -66,7 +68,7 @@ public class FreshPolysTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void weReplaceDifferentPolyVarsWithSeparateUTs() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, repository, state, null);
 		UnifiableType ut1 = context.mock(UnifiableType.class, "ut1");
 		UnifiableType ut2 = context.mock(UnifiableType.class, "ut2");
 		context.checking(new Expectations() {{
@@ -80,7 +82,7 @@ public class FreshPolysTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void weCanReplaceAPolyVarInsideAnStructDefn() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, state, null);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(null, repository, state, null);
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));

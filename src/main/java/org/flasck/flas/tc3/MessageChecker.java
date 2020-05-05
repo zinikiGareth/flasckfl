@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.zinutils.exceptions.NotImplementedException;
@@ -25,14 +26,14 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final ObjectActionHandler inMeth;
 	private ExprResult rhsType;
 
-	public MessageChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor sv, InputPosition pos, ObjectActionHandler inMeth) {
+	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, InputPosition pos, ObjectActionHandler inMeth) {
 		this.errors = errors;
 		this.state = state;
 		this.sv = sv;
 		this.pos = pos;
 		this.inMeth = inMeth;
 		sv.push(this);
-		sv.push(new ExpressionChecker(errors, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv));
 	}
 
 	@Override

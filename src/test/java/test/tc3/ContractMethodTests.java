@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.EnsureListMessage;
@@ -54,6 +55,7 @@ public class ContractMethodTests {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final StringLiteral str = new StringLiteral(pos, "yoyo");
 	private final RAV r = context.mock(RAV.class);
+	private RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Before
 	public void init() {
@@ -68,7 +70,7 @@ public class ContractMethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanMatchASimpleUntypedArgument() {
-		new FunctionChecker(errors, sv, state, meth);
+		new FunctionChecker(errors, repository, sv, state, meth);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		cmdargs.add(tp);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, meth.name(), "str"));
@@ -92,7 +94,7 @@ public class ContractMethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void theArgumentTypeMayBeSpecifiedIfItsTheSame() {
-		new FunctionChecker(errors, sv, state, meth);
+		new FunctionChecker(errors, repository, sv, state, meth);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		cmdargs.add(tp);
 		args.add(tp);
@@ -115,7 +117,7 @@ public class ContractMethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void itIsAnErrorToSpecifyADifferentArgumentType() {
-		new FunctionChecker(errors, sv, state, meth);
+		new FunctionChecker(errors, repository, sv, state, meth);
 		TypedPattern ctp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		cmdargs.add(ctp);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.numberTR, new VarName(pos, meth.name(), "str"));

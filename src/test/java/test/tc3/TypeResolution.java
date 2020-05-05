@@ -59,7 +59,7 @@ public class TypeResolution {
 			allowing(grp).functions(); will(returnValue(Arrays.asList(fnF)));
 		}});
 		state = new FunctionGroupTCState(repository, grp);
-		gc = new GroupChecker(errors, sv, state);
+		gc = new GroupChecker(errors, repository, sv, state);
 	}
 
 	@Test

@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.ExpressionChecker.GuardResult;
@@ -41,6 +42,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 
 	private final ErrorReporter errors;
+	private final RepositoryReader repository;
 	private final NestedVisitor sv;
 	private final List<PosType> argTypes = new ArrayList<>();
 	private final List<PosType> resultTypes = new ArrayList<>();
@@ -48,8 +50,9 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final ObjectActionHandler inMeth;
 	private final ContractSlotChecker csc;
 
-	public FunctionChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state, ObjectActionHandler inMeth) {
+	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state, ObjectActionHandler inMeth) {
 		this.errors = errors;
+		this.repository = repository;
 		this.sv = sv;
 		this.state = state;
 		this.inMeth = inMeth;
@@ -125,17 +128,17 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	@Override
 	public void visitCase(FunctionCaseDefn fcd) {
-		sv.push(new ExpressionChecker(errors, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv));
 	}
 	
 	@Override
 	public void visitSendMessage(SendMessage sm) {
-		new MessageChecker(errors,state, sv, sm.location(), inMeth);
+		new MessageChecker(errors,repository, state, sv, sm.location(), inMeth);
 	}
 	
 	@Override
 	public void visitAssignMessage(AssignMessage assign) {
-		new MessageChecker(errors,state, sv, assign.location(), inMeth);
+		new MessageChecker(errors,repository, state, sv, assign.location(), inMeth);
 	}
 	
 	@Override
@@ -151,7 +154,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 				errors.message(gr.location(), "guards must be booleans");
 			
 			// There will be an expression as well, so push another checker ...
-			sv.push(new ExpressionChecker(errors, state, sv));
+			sv.push(new ExpressionChecker(errors, repository, state, sv));
 		} else {
 			ExprResult exprResult = (ExprResult)r;
 			Type ret = exprResult.type;

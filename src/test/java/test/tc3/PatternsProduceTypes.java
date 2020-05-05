@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
@@ -40,14 +41,15 @@ public class PatternsProduceTypes {
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
-	
+	private RepositoryReader repository = context.mock(RepositoryReader.class);
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aConstantPatternIsANumber() {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class)));
 		}});
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -80,7 +82,7 @@ public class PatternsProduceTypes {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class)));
 		}});
-		FunctionChecker fc = new FunctionChecker(errors, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);

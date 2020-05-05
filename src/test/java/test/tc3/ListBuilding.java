@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.ApplyExpressionChecker;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.PosType;
@@ -29,10 +30,11 @@ public class ListBuilding {
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private CurrentTCState state = context.mock(CurrentTCState.class);
+	private RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Test
 	public void nilReturnsNil() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(LoadBuiltins.nil);
 		}});
@@ -47,7 +49,7 @@ public class ListBuilding {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void consOfASingleArgumentReturnsAPolyInstanceWithThatType() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number))); will(returnValue(new PosType(pos, LoadBuiltins.number)));
 			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.number))));
@@ -65,7 +67,7 @@ public class ListBuilding {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void consOfATwoStringsReturnsAPolyInstanceOfString() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.string), new PosType(pos, LoadBuiltins.string))); will(returnValue(new PosType(pos, LoadBuiltins.string)));
 			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.string))));

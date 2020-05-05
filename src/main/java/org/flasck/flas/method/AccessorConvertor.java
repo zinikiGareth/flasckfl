@@ -3,6 +3,7 @@ package org.flasck.flas.method;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
@@ -16,15 +17,20 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.RepositoryReader;
+import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class AccessorConvertor extends LeafAdapter {
 	private final NestedVisitor sv;
 	private final ErrorReporter errors;
+	private final RepositoryReader repository;
 
-	public AccessorConvertor(NestedVisitor sv, ErrorReporter errors) {
+	public AccessorConvertor(NestedVisitor sv, ErrorReporter errors, RepositoryReader repository) {
 		this.sv = sv;
 		this.errors = errors;
+		this.repository = repository;
 		sv.push(this);
 	}
 
@@ -45,15 +51,29 @@ public class AccessorConvertor extends LeafAdapter {
 		AccessorHolder od;
 		if (uv.defn() instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) uv.defn();
-			if (udd.ofType.defn() instanceof StateHolder) {
+			NamedType td = udd.ofType.defn();
+			if (td instanceof StateHolder) {
 				// UDDs can prod state directly on cards, agents and objects ...
-				StateHolder sh = (StateHolder)udd.ofType.defn();
+				StateHolder sh = (StateHolder)td;
 				if (sh.state() != null && sh.state().hasMember(meth.var)) {
 					expr.conversion(new ApplyExpr(expr.location, LoadBuiltins.prodState, expr.from, new StringLiteral(meth.location, meth.var)));
 					return;
 				}
 			}
-			od = (ObjectDefn) udd.ofType.defn();
+			RepositoryEntry entry = repository.get(FunctionName.function(meth.location, td.name(), meth.var).uniqueName());
+			if (entry != null && entry instanceof FunctionDefinition) {
+				UnresolvedVar call = new UnresolvedVar(meth.location, meth.var);
+				call.bind(entry);
+				expr.conversion(new ApplyExpr(expr.location, call, uv));
+				return;
+			}
+
+			if (td instanceof AccessorHolder && ((AccessorHolder)td).getAccessor(meth.var) != null) 
+				od = (AccessorHolder) td;
+			else {
+				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on '" + td.name().uniqueName());
+				return;
+			}
 		} else if (uv.defn() instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)uv.defn();
 			od = (ObjectDefn) tp.type();

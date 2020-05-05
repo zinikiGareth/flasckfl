@@ -9,29 +9,32 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 
 public class MessageHandlerExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
+	private final RepositoryReader repository;
 	private final NestedVisitor nv;
 	private final List<PosType> results = new ArrayList<>();
 	private final CurrentTCState state;
 
-	public MessageHandlerExpressionChecker(ErrorReporter errors, CurrentTCState state, NestedVisitor nv) {
+	public MessageHandlerExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
 		this.errors = errors;
+		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, state, nv));
+		nv.push(new ExpressionChecker(errors, repository, state, nv));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
-		nv.push(new MemberExpressionChecker(errors, state, nv));
+		nv.push(new MemberExpressionChecker(errors, repository, state, nv));
 	}
 	
 	@Override
