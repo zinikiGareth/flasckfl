@@ -150,7 +150,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			} else if (nargs > 0) {
 				sv.result(block.pushConstructor(myName));
 			} else {
-				sv.result(block.curry(sd.argCount(), block.pushConstructor(myName)));
+				sv.result(block.curry(false, sd.argCount(), block.pushConstructor(myName)));
 			}
 		} else if (defn instanceof HandlerImplements) {
 			// if the constructor has no args, eval it here
@@ -163,7 +163,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			} else if (nargs > 0) {
 				sv.result(block.pushConstructor(myName));
 			} else {
-				sv.result(block.curry(hi.argCount(), block.pushConstructor(myName)));
+				sv.result(block.curry(false, hi.argCount(), block.pushConstructor(myName)));
 			}
 		} else if (defn instanceof VarPattern) {
 			sv.result(block.boundVar(((VarPattern)defn).var));
@@ -191,9 +191,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				JSExpr[] args = new JSExpr[] { fn };
 				JSExpr call;
 				if (expArgs > 0)
-					call = block.curry(expArgs, args);
+					call = block.curry(false, expArgs, args);
 				else
-					call = block.closure(args);
+					call = block.closure(false, args);
 				sv.result(call);
 			} else
 				sv.result(fn);
@@ -208,9 +208,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	private void makeFunctionClosure(String func, int expArgs) {
 		JSExpr[] args = new JSExpr[] { block.pushFunction(func) };
 		if (expArgs > 0)
-			sv.result(block.curry(expArgs, args));
+			sv.result(block.curry(false, expArgs, args));
 		else
-			sv.result(block.closure(args));
+			sv.result(block.closure(false, args));
 	}
 
 	private String handleBuiltinName(RepositoryEntry defn) {
@@ -220,7 +220,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			if (un.equals("length"))
 				un = "arr_length";
 			return "FLBuiltin." + un;
-		} else
+		} else if (defn instanceof FunctionDefinition && ((FunctionDefinition)defn).hasState())
+			return ((FunctionName)name).jsPName();
+		else
 			return name.jsName();
 	}
 

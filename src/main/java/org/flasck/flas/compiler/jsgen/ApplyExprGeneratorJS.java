@@ -67,9 +67,11 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 					defn = (MakeAcor) fn;
 				else if (fn instanceof UnresolvedVar)
 					defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
-				else if (fn instanceof ApplyExpr)
+				else if (fn instanceof ApplyExpr) {
 					defn = (WithTypeSignature) ((UnresolvedVar) ((ApplyExpr)fn).fn).defn();
-				else
+					makeClosure(null, defn.argCount() - ((ApplyExpr)fn).args.size());
+					return;
+				} else
 					throw new NotImplementedException("unknown operator type: " + fn.getClass());
 			}
 			else
@@ -113,8 +115,13 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				stack.remove(0); // we are supplying the op directly here ...
 				sv.result(block.structArgs(fn, stack.toArray(new JSExpr[stack.size()])));
 			} else
-				sv.result(block.curry(expArgs, stack.toArray(new JSExpr[stack.size()])));
+				sv.result(block.curry(false, expArgs, stack.toArray(new JSExpr[stack.size()])));
 		} else {
+			boolean wantObject = false;
+			if (defn instanceof FunctionDefinition && ((FunctionDefinition)defn).hasState()) {
+				expArgs++;
+				wantObject = true;
+			}
 			JSExpr[] args = new JSExpr[stack.size()];
 			List<XCArg> xcs = new ArrayList<>();
 			int k = 0;
@@ -128,11 +135,11 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 			}
 			JSExpr call;
 			if (explicit)
-				call = block.xcurry(expArgs, xcs);
+				call = block.xcurry(wantObject, expArgs, xcs);
 			else if (stack.size() < expArgs+1)
-				call = block.curry(expArgs, args);
+				call = block.curry(wantObject, expArgs, args);
 			else
-				call = block.closure(args);
+				call = block.closure(wantObject, args);
 			sv.result(call);
 		}
 	}

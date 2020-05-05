@@ -89,6 +89,8 @@ public class LoadBuiltins {
 
 	// The function that prods state in UDDs
 	public static UnresolvedVar prodState = new UnresolvedVar(pos, "_prod_state");
+	public static UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
+
 	
 	// Builtin operators
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, false);
@@ -146,6 +148,7 @@ public class LoadBuiltins {
 		event.addCase(clickEventTR);
 		
 		prodState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_prod_state"), 2, false));
+		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, false));
 		
 		// specify function types
 		{

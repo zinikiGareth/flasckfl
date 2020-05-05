@@ -72,9 +72,11 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 					defn = (MakeAcor) fn;
 				else if (fn instanceof UnresolvedVar)
 					defn = (WithTypeSignature) ((UnresolvedVar)fn).defn();
-				else if (fn instanceof ApplyExpr)
+				else if (fn instanceof ApplyExpr) {
 					defn = (WithTypeSignature) ((UnresolvedVar) ((ApplyExpr)fn).fn).defn();
-				else
+					makeClosure(null, defn.argCount() - ((ApplyExpr)fn).args.size());
+					return;
+				} else
 					throw new NotImplementedException("unknown operator type: " + fn.getClass());
 			} else
 				throw new NotImplementedException("Cannot handle " + fn.getClass());
@@ -130,14 +132,29 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 				sv.result(v);
 			}
 		} else {
+			boolean wantObject = false;
+			if (defn instanceof FunctionDefinition && ((FunctionDefinition)defn).hasState()) {
+				wantObject = true;
+				expArgs++;
+			}
 			List<XCArg> xcs = checkExtendedCurry(stack);
 			IExpr call;
 			if (xcs != null) {
-				call = meth.callInterface(J.FLCURRY, fcx, "xcurry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), meth.arrayOf(J.OBJECT, asjvm(xcs)));
-			} else if (stack.size() < expArgs)
-				call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
-			else
-				call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
+				if (wantObject)
+					call = meth.callInterface(J.FLCURRY, fcx, "oxcurry", meth.intConst(expArgs-1), meth.as(fn, J.APPLICABLE), meth.arrayOf(J.OBJECT, asjvm(xcs)));
+				else
+					call = meth.callInterface(J.FLCURRY, fcx, "xcurry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), meth.arrayOf(J.OBJECT, asjvm(xcs)));
+			} else if (stack.size() < expArgs) {
+				if (wantObject)
+					call = meth.callInterface(J.FLCURRY, fcx, "ocurry", meth.intConst(expArgs-1), meth.as(fn, J.APPLICABLE), args);
+				else
+					call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
+			} else {
+				if (wantObject)
+					call = meth.callInterface(J.FLCLOSURE, fcx, "oclosure", meth.as(fn, J.APPLICABLE), args);
+				else
+					call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
+			}
 			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
 			currentBlock.add(meth.assign(v, call));
 			sv.result(v);

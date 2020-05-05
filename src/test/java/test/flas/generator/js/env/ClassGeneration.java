@@ -280,7 +280,7 @@ public class ClassGeneration {
 		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
-		meth.closure(meth.pushFunction("f"), meth.string("hello"));
+		meth.closure(false, meth.pushFunction("f"), meth.string("hello"));
 		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
@@ -290,7 +290,7 @@ public class ClassGeneration {
 		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
-		meth.curry(2, meth.pushFunction("f"), meth.string("hello"));
+		meth.curry(false, 2, meth.pushFunction("f"), meth.string("hello"));
 		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
@@ -300,7 +300,7 @@ public class ClassGeneration {
 		JSClass clz = new JSClass("test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
-		meth.xcurry(2, Arrays.asList(new XCArg(0, meth.pushFunction("f")), new XCArg(2, meth.string("hello"))));
+		meth.xcurry(false, 2, Arrays.asList(new XCArg(0, meth.pushFunction("f")), new XCArg(2, meth.string("hello"))));
 		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}

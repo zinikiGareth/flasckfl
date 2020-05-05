@@ -64,7 +64,7 @@ public class AccessorConvertor extends LeafAdapter {
 			if (entry != null && entry instanceof FunctionDefinition) {
 				UnresolvedVar call = new UnresolvedVar(meth.location, meth.var);
 				call.bind(entry);
-				expr.conversion(new ApplyExpr(expr.location, call, uv));
+				expr.conversion(new ApplyExpr(expr.location, call, new ApplyExpr(expr.location, LoadBuiltins.getUnderlying, uv)));
 				return;
 			}
 

@@ -138,13 +138,18 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 
 	private void generateFnOrCtor(RepositoryEntry defn, String myName, int nargs) {
 		if (defn instanceof FunctionDefinition) {
+			FunctionDefinition fd = (FunctionDefinition) defn;
 			if (nargs == 0) {
 				FunctionDefinition fn = (FunctionDefinition) defn;
 				makeFunctionClosure(myName, fn.argCount());
 			} else if ("MakeTuple".equals(myName)) {
 				sv.result(null);
-			} else
-				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
+			} else {
+				if (fd.hasState())
+					sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(fd.name().inContext.javaName()), meth.stringConst(fd.name().name), meth.intConst(fd.argCount())));
+				else
+					sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
+			}
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;

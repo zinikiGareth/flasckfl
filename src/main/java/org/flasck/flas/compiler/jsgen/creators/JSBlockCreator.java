@@ -79,9 +79,9 @@ public interface JSBlockCreator {
 	JSExpr loadField(JSExpr container, String name);
 	JSExpr contractByVar(JSExpr container, String name);
 	JSExpr structArgs(String string, JSExpr... args);
-	JSExpr closure(JSExpr... args);
-	JSExpr curry(int expArgs, JSExpr... args);
-	JSExpr xcurry(int expArgs, List<XCArg> posargs);
+	JSExpr closure(boolean wantObject, JSExpr... args);
+	JSExpr curry(boolean wantObject, int expArgs, JSExpr... args);
+	JSExpr xcurry(boolean wantObject, int expArgs, List<XCArg> posargs);
 	void returnObject(JSExpr jsExpr);
 
 	// templates

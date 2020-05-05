@@ -185,21 +185,21 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr closure(JSExpr... args) {
-		JSLocal stmt = new JSLocal(creating, new JSClosure(args));
+	public JSExpr closure(boolean wantObject, JSExpr... args) {
+		JSLocal stmt = new JSLocal(creating, new JSClosure(wantObject, args));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
-	public JSLocal curry(int expArgs, JSExpr... args) {
-		JSLocal stmt = new JSLocal(creating, new JSCurry(expArgs, args));
+	public JSLocal curry(boolean wantObject, int expArgs, JSExpr... args) {
+		JSLocal stmt = new JSLocal(creating, new JSCurry(wantObject, expArgs, args));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
-	public JSExpr xcurry(int expArgs, List<XCArg> posargs) {
+	public JSExpr xcurry(boolean wantObject, int expArgs, List<XCArg> posargs) {
 		JSLocal stmt = new JSLocal(creating, new JSXCurry(expArgs, posargs));
 		stmts.add(stmt);
 		return stmt;

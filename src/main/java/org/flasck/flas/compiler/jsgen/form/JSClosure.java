@@ -5,7 +5,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class JSClosure implements JSExpr {
 	private final JSExpr[] args;
 
-	public JSClosure(JSExpr... args) {
+	public JSClosure(boolean wantObject, JSExpr... args) {
 		this.args = args;
 	}
 

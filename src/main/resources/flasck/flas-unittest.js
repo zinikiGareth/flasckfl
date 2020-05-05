@@ -222,6 +222,10 @@ MockCard.prototype.sendTo = function(_cxt, contract, msg, args) {
 	return ctr[msg].apply(ctr, inv);
 };
 
+MockCard.prototype._underlying = function(_cxt) {
+	return this.card;
+}
+
 const ExplodingIdempotentHandler = function(cx) {
 	this.cx = cx;
 	this.successes = { expected: 0, actual: 0 };
