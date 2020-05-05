@@ -99,7 +99,7 @@ public class TDAIntroParser implements TDAParsing {
 			return new TDAMultiParser(errors, 
 				sh,
 				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, consumer),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer),
 				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer)
 			);
 		}

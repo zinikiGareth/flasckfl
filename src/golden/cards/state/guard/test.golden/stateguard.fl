@@ -1,0 +1,7 @@
+	card MessageHolder
+		state
+			String message <- 'hello'
+
+		ishello
+			| (message == "hello") = True
+			|                      = False

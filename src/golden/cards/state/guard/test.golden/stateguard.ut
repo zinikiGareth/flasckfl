@@ -1,0 +1,4 @@
+	test that by default ishello is true
+		data MessageHolder h
+.		assert (h.ishello)
+.			True
