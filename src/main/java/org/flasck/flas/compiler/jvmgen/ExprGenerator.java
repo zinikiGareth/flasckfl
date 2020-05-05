@@ -224,7 +224,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			IExpr ret = meth.getField(state.container, rc.varName().var);
 			sv.result(ret);
 		} else if (defn instanceof TupleMember) {
-			makeFunctionClosure(false, ((TupleMember) defn).exprFnName(), 0);
+			makeFunctionClosure(false, ((TupleMember) defn).name(), 0);
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
 		} else if (defn instanceof IntroduceVar) {

@@ -42,15 +42,29 @@ public class Configuration {
 	}
 
 	private void process(String[] args) {
+		for (int i=0;i<args.length-1;i++) {
+			if (args[i].equals("--root")) {
+				if (root != null) {
+					System.out.println("--root can only be specified once");
+					System.exit(1);
+				} else
+					root = new File(args[++i]);
+			}
+		}
 		for (int i=0;i<args.length;i++) {
 			String arg = args[i];
 			if (arg == null)
 				continue;
 			int hasMore = args.length-i-1;
 			if (arg.startsWith("-")) {
-				if (arg.equals("--root"))
-					root = new File(args[++i]);
-				else if (arg.equals("--phase"))
+				if (arg.equals("--root")) {
+					if (hasMore == 0) {
+						System.out.println("--root <dir>");
+						System.exit(1);
+					}
+					// was processed above
+					++i;
+				} else if (arg.equals("--phase"))
 					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--dumprepo"))
 					dumprepo = new File(root, args[++i]);

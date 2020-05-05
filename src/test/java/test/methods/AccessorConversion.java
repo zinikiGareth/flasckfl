@@ -122,6 +122,9 @@ public class AccessorConversion {
 		FunctionDefinition fn = new FunctionDefinition(an, 0, false);
 		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
+		context.checking(new Expectations() {{
+			oneOf(repository).get("test.repo.ObjDefn.acor"); will(returnValue(acor));
+		}});
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
 		tr.bind(od);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "udd"), null);
@@ -178,6 +181,9 @@ public class AccessorConversion {
 		FunctionDefinition fn = new FunctionDefinition(an, 3, false);
 		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
+		context.checking(new Expectations() {{
+			oneOf(repository).get("test.repo.ObjDefn.acor"); will(returnValue(acor));
+		}});
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
 		tr.bind(od);
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "udd"), null);
@@ -214,7 +220,8 @@ public class AccessorConversion {
 		from.bind(udd);
 		
 		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "there is no accessor 'notThere' on test.repo.ObjDefn");
+			oneOf(repository).get("test.repo.ObjDefn.notThere"); will(returnValue(null));
+			oneOf(errors).message(pos, "there is no suitable value for 'notThere' on test.repo.ObjDefn");
 		}});
 		
 		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "notThere"));

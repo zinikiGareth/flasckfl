@@ -71,7 +71,7 @@ public class AccessorConvertor extends LeafAdapter {
 			if (td instanceof AccessorHolder && ((AccessorHolder)td).getAccessor(meth.var) != null) 
 				od = (AccessorHolder) td;
 			else {
-				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on '" + td.name().uniqueName());
+				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on " + td.name().uniqueName());
 				return;
 			}
 		} else if (uv.defn() instanceof TypedPattern) {

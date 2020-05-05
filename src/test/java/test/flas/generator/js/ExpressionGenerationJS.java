@@ -499,7 +499,7 @@ public class ExpressionGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(meth).pushFunction("test.repo.f"); will(returnValue(f));
 			oneOf(meth).string("hello"); will(returnValue(sv));
-			oneOf(meth).xcurry(false, with(2), (List<XCArg>) with(Matchers.contains(Matchers.equalTo(new XCArg(0, f)), Matchers.equalTo(new XCArg(2, sv))))); will(returnValue(res));
+			oneOf(meth).xcurry(with(false), with(2), (List<XCArg>) with(Matchers.contains(Matchers.equalTo(new XCArg(0, f)), Matchers.equalTo(new XCArg(2, sv))))); will(returnValue(res));
 			oneOf(nv).result(res);
 		}});
 		StackVisitor stackv = new StackVisitor();
