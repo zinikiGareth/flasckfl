@@ -1,0 +1,10 @@
+	card Message
+		state
+			String message <- 'hello'
+
+		template message
+			target <- message
+				click => sayGoodbye
+			
+		event sayGoodbye (ClickEvent ce)
+			message <- "goodbye"

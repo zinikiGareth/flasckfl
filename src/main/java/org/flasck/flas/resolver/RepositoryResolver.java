@@ -42,6 +42,7 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
+import org.ziniki.splitter.NoMetaDataException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final ErrorReporter errors;
@@ -368,8 +369,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
 		TemplateName name = refersTo.name;
-		CardData webInfo = repository.findWeb(name.baseName());
-		if (webInfo == null) {
+		CardData webInfo;
+		try {
+			webInfo = repository.findWeb(name.baseName());
+		} catch (NoMetaDataException ex) {
 			errors.message(name.location(), "there is no web template defined for " + name.baseName());
 			return;
 		}
@@ -388,11 +391,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
-		System.out.println(b.slot);
-		System.out.println(currentTemplate);
-		System.out.println(currentTemplate.defines);
 		CardData ce = currentTemplate.defines.defn();
-		System.out.println(ce);
+		if (ce == null) { // an undefined template should already have been reported ...
+			return;
+		}
 		if (!ce.hasField(b.slot)) {
 			errors.message(b.slotLoc, "there is no slot " + b.slot + " in " + currentTemplate.defines.name.baseName());
 		}
@@ -486,7 +488,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (s == null) {
 			return repository.get(var);
 		}
-		final RepositoryEntry defn = repository.get(s.uniqueName() + "." + var);
+		String name = s.uniqueName() + "." + var;
+		final RepositoryEntry defn = repository.get(name);
 		if (defn != null)
 			return defn;
 		else
