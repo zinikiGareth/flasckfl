@@ -1,5 +1,7 @@
 package org.flasck.flas.compiler.jsgen.packaging;
 
+import java.util.List;
+
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.templates.EventPlacement.HandlerInfo;
@@ -34,21 +36,24 @@ public class EventMap {
 			IndentWriter lw = kw.indent();
 			boolean ft = true;
 			for (TemplateTarget tt : methods.targets(t)) {
-				if (!ft) {
-					lw.println(",");
-				} else
-					lw.println("");
-				HandlerInfo hi = methods.getHandler(tt.handler);
-				ft = false;
-				lw.print("{ type: ");
-				lw.print(new JSString(tt.type).asVar());
-				lw.print(", slot: ");
-				lw.print(new JSString(tt.slot).asVar());
-				lw.print(", event: ");
-				lw.print(hi.event);
-				lw.print(", handler: ");
-				lw.print(hi.name.jsPName());
-				lw.print(" }");
+				ft = writeHi(ft, lw, tt.type, tt.slot, methods.getHandler(tt.handler));
+			}
+			if (!ft)
+				kw.println("");
+			kw.println("]");
+			jw.newline();
+		}
+		List<HandlerInfo> unbound = methods.unboundHandlers();
+		if (!unbound.isEmpty()) {
+			if (!isFirst) {
+				kw.println(",");
+			} else
+				kw.println("");
+			kw.print("_: [");
+			boolean ft = true;
+			IndentWriter lw = kw.indent();
+			for (HandlerInfo hi : unbound) {
+				ft = writeHi(ft, lw, null, null, hi);
 			}
 			if (!ft)
 				kw.println("");
@@ -57,5 +62,26 @@ public class EventMap {
 		}
 		jw.println("};");
 		iw.println("};");
+	}
+
+	private boolean writeHi(boolean ft, IndentWriter lw, String type, String slot, HandlerInfo hi) {
+		if (!ft) {
+			lw.println(",");
+		} else
+			lw.println("");
+		lw.print("{ ");
+		if (type != null) {
+			lw.print("type: ");
+			lw.print(new JSString(type).asVar());
+			lw.print(", slot: ");
+			lw.print(new JSString(slot).asVar());
+			lw.print(", ");
+		}
+		lw.print("event: ");
+		lw.print(hi.event);
+		lw.print(", handler: ");
+		lw.print(hi.name.jsPName());
+		lw.print(" }");
+		return false;
 	}
 }

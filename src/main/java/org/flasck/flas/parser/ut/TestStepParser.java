@@ -101,6 +101,18 @@ public class TestStepParser implements TDAParsing {
 			// TODO: I think this may need to be a compound name to identify sub-elements
 			TemplateNameToken targetZone = TemplateNameToken.from(toks);
 			if (targetZone == null) {
+				InputPosition loc = toks.realinfo();
+				int mk = toks.at();
+				if (toks.hasMore() && toks.nextChar() == '_') {
+					toks.advance();
+					if (!toks.hasMore() || Character.isWhitespace(toks.nextChar()))
+						targetZone = new TemplateNameToken(loc, "_");
+					else {
+						toks.fromMark(mk);
+					}
+				}
+			}
+			if (targetZone == null) {
 				errors.message(toks, "must provide an event target");
 				return new IgnoreNestedParser();
 			}

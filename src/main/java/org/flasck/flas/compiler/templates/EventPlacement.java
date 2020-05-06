@@ -1,6 +1,9 @@
 package org.flasck.flas.compiler.templates;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -30,7 +33,6 @@ public class EventPlacement implements EventTargetZones {
 		}
 	}
 	
-	private ListMap<String, FunctionName> byEvent = new ListMap<>();
 	private Map<String, HandlerInfo> handlers = new TreeMap<>();
 	//     a map of template names to
 	//       a list of 'handlers' for that template, each handler being:
@@ -42,7 +44,6 @@ public class EventPlacement implements EventTargetZones {
 	
 	@Override
 	public void handler(String eventType, FunctionName handlerName) {
-		byEvent.add(eventType, handlerName);
 		handlers.put(handlerName.name, new HandlerInfo(eventType, handlerName));
 	}
 
@@ -51,15 +52,6 @@ public class EventPlacement implements EventTargetZones {
 		templates.add(id, new TemplateTarget(currentBinding.slot, currentBinding.fieldType().toString().toLowerCase(), handler));
 	}
 
-	@Override
-	public Iterable<String> handledEvents() {
-		return byEvent.keySet();
-	}
-
-	@Override
-	public Iterable<FunctionName> handling(String ev) {
-		return byEvent.get(ev);
-	}
 	@Override
 	public Iterable<String> templateNames() {
 		return templates.keySet();
@@ -73,5 +65,19 @@ public class EventPlacement implements EventTargetZones {
 	@Override
 	public HandlerInfo getHandler(String handler) {
 		return handlers.get(handler);
+	}
+
+	@Override
+	public List<HandlerInfo> unboundHandlers() {
+		List<HandlerInfo> ret = new ArrayList<>();
+		outer:
+		for (Entry<String, HandlerInfo> e : handlers.entrySet()) {
+			for (TemplateTarget tt : templates.values()) {
+				if (tt.handler.equals(e.getKey()))
+					continue outer;
+			}
+			ret.add(e.getValue());
+		}
+		return ret;
 	}
 }

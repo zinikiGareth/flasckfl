@@ -665,6 +665,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				cardevents.voidExpr(cardevents.callInterface(J.OBJECT, v, "put", cardevents.as(cardevents.stringConst(t), J.OBJECT), cardevents.as(hl, J.OBJECT))).flush();
 			}
 			
+			for (HandlerInfo hi : eventMethods.unboundHandlers()) {
+				Var hl = cardevents.avar(List.class.getName(), "hl");
+				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
+				IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT), cardevents.classConst("[L" + J.OBJECT + ";"));
+				IExpr ehm = cardevents.callVirtual(Method.class.getName(), cardevents.classConst(cd.name().javaName()), "getDeclaredMethod", cardevents.stringConst(hi.name.name), classArgs);
+				IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.as(cardevents.aNull(), J.STRING), cardevents.as(cardevents.aNull(), J.STRING), cardevents.stringConst(hi.event), ehm);
+				cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT))).flush();
+				cardevents.voidExpr(cardevents.callInterface(J.OBJECT, v, "put", cardevents.as(cardevents.stringConst("_"), J.OBJECT), cardevents.as(hl, J.OBJECT))).flush();
+			}
+			
 			cardevents.returnObject(v).flush();
 //			evhs.put(cd, new EventsMethod(cardevents, v));
 		}
@@ -801,7 +811,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void leaveCardDefn(CardDefinition cd) {
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			makeBlock(meth, currentBlock).flush();
+			makeBlock(agentctor, currentBlock).flush();
 		this.currentBlock = null;
 		agentctor.returnVoid().flush();
 		agentctor = null;

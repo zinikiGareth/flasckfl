@@ -220,10 +220,22 @@ public class JVMRunner extends CommonTestRunner implements EvalContextFactory, F
 	public void event(FLEvalContext cx, Object card, Object zone, Object event) throws Exception {
 		MockCard mc = (MockCard) card;
 		@SuppressWarnings("unchecked")
-		Element e = findDiv(cx, mc.card()._currentDiv(), (List<EventZone>) zone, 0);
-		if (e == null)
-			return; // nothing to do
-		HandlerInfo hi = findBubbledHandler(mc.card()._eventHandlers().get(mc.card()._rootTemplate()), mc.card()._currentDiv(), e, event);
+		List<EventZone> lz = (List<EventZone>) zone;
+		HandlerInfo hi = null;
+		if (lz.size() == 1 && lz.get(0).name.equals("_")) {
+			// it's on the card directly ... look at "_"
+			for (HandlerInfo h : mc.card()._eventHandlers().get("_")) {
+				if (h.event.equals(event.getClass().getSimpleName())) {
+					hi = h;
+					break;
+				}
+			}
+		} else {
+			Element e = findDiv(cx, mc.card()._currentDiv(), lz, 0);
+			if (e == null)
+				return; // nothing to do
+			hi = findBubbledHandler(mc.card()._eventHandlers().get(mc.card()._rootTemplate()), mc.card()._currentDiv(), e, event);
+		}
 		if (hi == null)
 			return; // could not find a handler
 		cx.handleEvent(mc.card(), hi.handler, (Event)event);

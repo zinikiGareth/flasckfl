@@ -328,7 +328,9 @@ FLContext.prototype.nextDocumentId = function() {
 
 FLContext.prototype.attachEventToCard = function(card, handlerInfo) {
 	const eventName = handlerInfo.event._eventName;
-	const div = card._currentDiv.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
+	var div = card._currentDiv;
+	if (handlerInfo.type)
+		div = div.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
 	if (div) {
 		div.addEventListener(eventName, () => {
 			console.log("js event " + eventName + " on " + div);
@@ -420,11 +422,16 @@ FLCard.prototype._renderInto = function(_cxt, div) {
     }
     this._currentDiv = div;
     if (this._eventHandlers) {
-        const evcs = this._eventHandlers()[this._template];
-        if (evcs) {
-            for (var i in evcs) {
-                _cxt.attachEventToCard(this, evcs[i]);
-            }
+        this._attachHandlers(_cxt, div, this._template);
+        this._attachHandlers(_cxt, div, "_"); // unbound ones
+    }
+}
+
+FLCard.prototype._attachHandlers = function(_cxt, div, key) {
+    const evcs = this._eventHandlers()[key];
+    if (evcs) {
+        for (var i in evcs) {
+            _cxt.attachEventToCard(this, evcs[i]);
         }
     }
 }

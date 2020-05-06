@@ -1,8 +1,13 @@
-	test that by default ishello is true
+	test that by default ishello is true and hi is false
 		data MessageHolder h
 		assert (h.ishello)
 			True
+		assert (h.hi)
+			False
 			
-	test that we can check this in an event handler
+	test that we can change state in an event handler
 		data MessageHolder h
-		event h (ClickEvent)
+		event h _ (ClickEvent)
+		assert (h.hi)
+			True
+		

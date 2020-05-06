@@ -1,4 +1,4 @@
-JVM PASS that by default ishello is true
-JVM PASS that we can check this in an event handler
-JS PASS that by default ishello is true
-JS PASS that we can check this in an event handler
+JVM PASS that by default ishello is true and hi is false
+JVM PASS that we can change state in an event handler
+JS PASS that by default ishello is true and hi is false
+JS PASS that we can change state in an event handler

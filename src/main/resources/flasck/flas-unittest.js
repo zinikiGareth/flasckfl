@@ -32,7 +32,11 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	this.updateCard(_cxt, target);
 }
 UTRunner.prototype.event = function(_cxt, target, zone, event) {
-	const div = this.findDiv(_cxt, target.card._currentDiv, zone, 0);
+	var div = null;
+	if (zone && zone.length == 1 && zone[0][1] == "_") {
+		div = target.card._currentDiv;
+	} else 
+		div = this.findDiv(_cxt, target.card._currentDiv, zone, 0);
 	if (div) {
 		div.dispatchEvent(event._makeJSEvent(_cxt));
 	}

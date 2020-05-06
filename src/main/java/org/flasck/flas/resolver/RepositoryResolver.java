@@ -430,6 +430,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void leaveUnitTestEvent(UnitTestEvent e) {
+		if (e.targetZone.text.equals("_")) {
+			// it's aimed at the whole card
+			e.targetZone.bindType(FieldType.CARD);
+			return;
+		}
 		// This code is subject to change because we haven't figured out entirely how to reference "nested" things
 		UnitDataDeclaration udd = (UnitDataDeclaration) e.card.defn();
 		CardDefinition card = (CardDefinition)udd.ofType.defn();
