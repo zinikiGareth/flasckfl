@@ -6,10 +6,12 @@ import java.util.List;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitTestStepConsumer;
+import org.flasck.flas.tokenizers.TemplateNameToken;
 
 public class UnitTestCase implements UnitTestStepConsumer {
 	public final UnitTestName name;
@@ -32,8 +34,8 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
-	public void event(UnresolvedVar card, Expr event) {
-		this.steps.add(new UnitTestEvent(card, event));
+	public void event(UnresolvedVar card, TemplateNameToken targetZone, Expr event) {
+		this.steps.add(new UnitTestEvent(card, new TargetZone(targetZone.location, targetZone.text), event));
 	}
 
 	@Override

@@ -31,9 +31,22 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	this.handleMessages(_cxt, reply);
 	this.updateCard(_cxt, target);
 }
-UTRunner.prototype.event = function(_cxt, target, event) {
-	// TODO: when we have templates, this should indirect as an event through the DIV & its event handler
-	_cxt.handleEvent(target.card, event);
+UTRunner.prototype.event = function(_cxt, target, zone, event) {
+	const div = this.findDiv(_cxt, target.card._currentDiv, zone);
+	if (div) {
+		div.dispatchEvent(event._makeJSEvent(_cxt));
+	}
+}
+UTRunner.prototype.findDiv = function(_cxt, div, zone) {
+	if (!zone.length) {
+		return div;
+	}
+	const first = zone.pop();
+	const qs = div.querySelector("[data-flas-" + first[0]+"='" + first[1] + "']");
+	if (!qs)
+		return null;
+	else
+		return this.findDiv(_cxt, div, zone);
 }
 UTRunner.prototype.match = function(_cxt, target, what, selector, contains, expected) {
 	if (!target || !target.card || !target.card._currentDiv) {

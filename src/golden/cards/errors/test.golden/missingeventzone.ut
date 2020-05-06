@@ -1,0 +1,3 @@
+	test there must be a zone with the given name
+		data ForLabel card
+		event card no-zone (ClickEvent)

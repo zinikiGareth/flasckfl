@@ -101,7 +101,7 @@ public class TestStepParser implements TDAParsing {
 			// TODO: I think this may need to be a compound name to identify sub-elements
 			TemplateNameToken targetZone = TemplateNameToken.from(toks);
 			if (targetZone == null) {
-				errors.message(toks, "you must specify an event target zone");
+				errors.message(toks, "must provide an event target");
 				return new IgnoreNestedParser();
 			}
 			ErrorMark em = errors.mark();
@@ -119,7 +119,7 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "only one event object is allowed");
 				return new IgnoreNestedParser();
 			}
-			builder.event(new UnresolvedVar(tok.location, tok.text), eventObj.get(0));
+			builder.event(new UnresolvedVar(tok.location, tok.text), targetZone, eventObj.get(0));
 			return new NoNestingParser(errors);
 		}
 		case "invoke": {

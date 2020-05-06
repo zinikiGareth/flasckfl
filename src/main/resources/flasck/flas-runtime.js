@@ -331,13 +331,14 @@ FLContext.prototype.attachEventToCard = function(card, eventClz) {
 	const div = card._currentDiv;
 	div.addEventListener(eventName, () => {
 		console.log("js event " + eventName + " on " + div);
-		const ecx = env.newContext();
+		const ecx = this.env.newContext();
 		ecx.handleEvent(card, eventClz.eval(ecx));
 	});
 }
 
 FLContext.prototype.handleEvent = function(card, event) {
 	const en = event.constructor.name;
+	debugger;
 	const handler = card._events()[en];
 	var reply = [];
 	if (handler) {
@@ -592,12 +593,12 @@ FLBuiltin._underlying.nfargs = function() { return 1; }
 
 
 
-const Event = function() {
+const FLEvent = function() {
 }
 
 const ClickEvent = function() {
 }
-ClickEvent.prototype = new Event();
+ClickEvent.prototype = new FLEvent();
 ClickEvent.prototype.constructor = ClickEvent;
 ClickEvent._eventName = 'click';
 
@@ -607,6 +608,11 @@ ClickEvent.eval = function(cx) {
 
 ClickEvent.prototype.areYouA = function(name) {
     return name == "ClickEvent" || name == "Event";
+}
+
+ClickEvent.prototype._makeJSEvent = function (_cxt) {
+    const ev = new Event("click");
+    return ev;
 }
 
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.parser.TemplateBindingConsumer;
 
 public class Template implements Locatable, TemplateBindingConsumer {
@@ -36,5 +37,9 @@ public class Template implements Locatable, TemplateBindingConsumer {
 	@Override
 	public String toString() {
 		return "Template[" + defines.name.uniqueName() + "]";
+	}
+
+	public TemplateName name() {
+		return defines.name;
 	}
 }

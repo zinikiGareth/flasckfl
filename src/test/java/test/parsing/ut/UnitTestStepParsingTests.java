@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ExprMatcher;
+import flas.matchers.TemplateNameTokenMatcher;
 import flas.matchers.TypeReferenceMatcher;
 import test.parsing.LocalErrorTracker;
 
@@ -111,10 +112,10 @@ public class UnitTestStepParsingTests {
 	@Test
 	public void testWeCanHandleASimpleEventStep() {
 		context.checking(new Expectations() {{
-			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(ExprMatcher.apply(ExprMatcher.unresolved("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class)))));
+			oneOf(builder).event((UnresolvedVar)with(ExprMatcher.unresolved("card")), with(TemplateNameTokenMatcher.named("target")), with(ExprMatcher.apply(ExprMatcher.unresolved("ClickEvent"), ExprMatcher.apply(ExprMatcher.operator("{}"), any(Expr.class), any(Expr.class)))));
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
-		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("event card (ClickEvent { x: 42, y: 31 })"));
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("event card target (ClickEvent { x: 42, y: 31 })"));
 		assertTrue(nested instanceof NoNestingParser);
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
@@ -151,8 +152,21 @@ public class UnitTestStepParsingTests {
 	}
 	
 	@Test
-	public void testAnEventNeedsEverything() {
+	public void testAnEventNeedsATarget() {
 		final Tokenizable toks = UnitTestTopLevelParsingTests.line("event myCard");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "must provide an event target");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testAnEventNeedsEverything() {
+		final Tokenizable toks = UnitTestTopLevelParsingTests.line("event myCard zone");
 		context.checking(new Expectations() {{
 			oneOf(errors).message(toks, "must provide an event object");
 		}});

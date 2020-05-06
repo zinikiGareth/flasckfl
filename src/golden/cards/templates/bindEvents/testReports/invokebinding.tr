@@ -1,0 +1,6 @@
+JVM PASS by default we have hello
+JVM PASS we can click on the bound target zone and it will change
+JVM PASS clicking on an unbound zone will not change it
+JS PASS by default we have hello
+JS PASS we can click on the bound target zone and it will change
+JS PASS clicking on an unbound zone will not change it

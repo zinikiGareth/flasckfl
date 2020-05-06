@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -42,7 +43,9 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
+import org.ziniki.splitter.FieldType;
 import org.ziniki.splitter.NoMetaDataException;
+import org.ziniki.splitter.NoMetaKeyException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final ErrorReporter errors;
@@ -423,6 +426,33 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		checkValidityOfUDDConstruction(udd);
 	}
 
+	@Override
+	public void leaveUnitTestEvent(UnitTestEvent e) {
+		// This code is subject to change because we haven't figured out entirely how to reference "nested" things
+		UnitDataDeclaration udd = (UnitDataDeclaration) e.card.defn();
+		CardDefinition card = (CardDefinition)udd.ofType.defn();
+		if (card.templates.isEmpty()) {
+			errors.message(e.targetZone.location, "cannot send event to card with no templates");
+			return;
+		}
+		Template template = card.templates.get(0);
+		CardData webInfo = template.defines.defn();
+		if (webInfo == null) {
+			// we failed to find the card's webinfo ... that should generate its own error
+			return;
+		}
+		try {
+			FieldType fieldType = webInfo.get(e.targetZone.text);
+			if (fieldType != FieldType.CONTENT && fieldType != FieldType.STYLE) {
+				errors.message(e.targetZone.location, "element " + fieldType + " '" + e.targetZone.text + "' is not a valid event target");
+				return;
+			}
+			e.targetZone.bindType(fieldType);
+		} catch (NoMetaKeyException ex) {
+			errors.message(e.targetZone.location, "there is no target '" + e.targetZone.text + "' on the card");
+		}
+	}
+	
 	@Override
 	public void visitUnitTestSend(UnitTestSend s) {
 		scopeStack.add(0, scope);
