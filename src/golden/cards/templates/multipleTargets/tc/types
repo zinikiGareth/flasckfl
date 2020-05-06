@@ -1,0 +1,2 @@
+test.golden.Zones.sayCruel :: ClickEvent->List[Message]
+test.golden.Zones.sayGoodbye :: ClickEvent->List[Message]

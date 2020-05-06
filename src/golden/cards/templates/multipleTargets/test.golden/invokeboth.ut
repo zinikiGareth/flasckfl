@@ -1,0 +1,23 @@
+	test by default we have hello world
+		data Zones card
+		assert (card.greeting)
+			"hello"
+		assert (card.world)
+			"world"
+			
+	test we can click on the greeting target zone and it will change
+		data Zones card
+		event card zone1 (ClickEvent)
+		assert (card.greeting)
+			"goodbye"
+		assert (card.world)
+			"world"
+			
+	test we can click on the world target zone and that will change
+		data Zones card
+		event card zone2 (ClickEvent)
+		assert (card.greeting)
+			"hello"
+		assert (card.world)
+			"cruel world"
+			

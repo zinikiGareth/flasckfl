@@ -1,0 +1,17 @@
+	card Zones
+		state
+			String greeting <- 'hello'
+			String world <- 'world'
+
+		template message
+			zone1 <- greeting
+				=> sayGoodbye
+			zone2 <- world
+				=> sayCruel
+			
+		event sayGoodbye (ClickEvent ce)
+			greeting <- "goodbye"
+
+		event sayCruel (ClickEvent ce)
+			world <- "cruel world"
+			
