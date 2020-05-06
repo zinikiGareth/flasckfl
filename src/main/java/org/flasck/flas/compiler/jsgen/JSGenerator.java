@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
@@ -66,6 +65,8 @@ import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.web.EventPlacement;
+import org.flasck.flas.web.EventTargetZones;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
@@ -108,11 +109,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
 	private Map<Object, List<FunctionName>> methodMap = new HashMap<>();
-	private Map<CardDefinition, Map<String, FunctionName>> eventMap = new HashMap<>();
+	private Map<CardDefinition, EventTargetZones> eventMap = new HashMap<>();
 	private JSClassCreator currentContract;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
+	private EventPlacement currentETZ;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv) {
 		this.jse = jse;
@@ -291,7 +293,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			// TODO: I think we should traverse the event type hierarchy & add for all subclasses which are not already defined
 			// Or have been defined by one of our base classes
 			// That is, eventMap should be a complete map for all classes which have been defined and we should use the closest one
-			this.eventMap.get(om.getCard()).put(tp.type.name(), om.name());
+			this.eventMap.get(om.getCard()).handler(tp.type.name(), om.name());
 			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
@@ -525,9 +527,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(cd, methods);
 		jse.methodList(cd.name(), methods);
-		Map<String, FunctionName> eventMethods = new TreeMap<>();
-		eventMap.put(cd, eventMethods);
-		jse.eventMap(cd.name(), eventMethods);
+		currentETZ = new EventPlacement();
+		eventMap.put(cd, currentETZ);
+		jse.eventMap(cd.name(), currentETZ);
 		this.structFieldHandler = sf -> {
 			if (sf.init != null) {
 				new StructFieldGeneratorJS(state, sv, ctor, sf.name, new JSThis());
@@ -598,12 +600,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator updateDisplay = agentCreator.createMethod("_updateDisplay", true);
 		updateDisplay.argument("_cxt");
 		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
-		new TemplateProcessorJS(state, sv, updateDisplay);
+		new TemplateProcessorJS(state, sv, updateDisplay, currentETZ, t.defines.defn().id());
 	}
 	
 	@Override
 	public void leaveCardDefn(CardDefinition s) {
 		agentCreator = null;
+		currentETZ = null;
 	}
 
 	@Override

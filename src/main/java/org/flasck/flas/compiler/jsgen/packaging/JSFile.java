@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -14,6 +13,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
+import org.flasck.flas.web.EventTargetZones;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSFile {
@@ -50,8 +50,8 @@ public class JSFile {
 		methodLists.add(new MethodList(name, methods));
 	}
 
-	public void eventMap(CardName name, Map<String, FunctionName> eventMethods) {
-		eventMaps.add(new EventMap(name, eventMethods));
+	public void eventMap(CardName name, EventTargetZones etz) {
+		eventMaps.add(new EventMap(name, etz));
 	}
 
 	// untested

@@ -400,7 +400,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		}
 		if (!ce.hasField(b.slot)) {
 			errors.message(b.slotLoc, "there is no slot " + b.slot + " in " + currentTemplate.defines.name.baseName());
+			return;
 		}
+		b.fieldType(ce.get(b.slot));
 	}
 	
 	@Override

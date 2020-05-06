@@ -20,6 +20,7 @@ import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.web.EventTargetZones;
 import org.zinutils.utils.FileUtils;
 
 /** The idea here is to create a set of "package" files in memory with abstract constructs.
@@ -75,7 +76,7 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public void eventMap(CardName name, Map<String, FunctionName> eventMethods) {
+	public void eventMap(CardName name, EventTargetZones eventMethods) {
 		JSFile inpkg = getPackage(name.packageName().uniqueName());
 		inpkg.eventMap(name, eventMethods);
 	}

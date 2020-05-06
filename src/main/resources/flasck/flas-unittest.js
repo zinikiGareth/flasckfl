@@ -46,7 +46,7 @@ UTRunner.prototype.findDiv = function(_cxt, div, zone) {
 	if (!qs)
 		return null;
 	else
-		return this.findDiv(_cxt, div, zone);
+		return this.findDiv(_cxt, qs, zone);
 }
 UTRunner.prototype.match = function(_cxt, target, what, selector, contains, expected) {
 	if (!target || !target.card || !target.card._currentDiv) {

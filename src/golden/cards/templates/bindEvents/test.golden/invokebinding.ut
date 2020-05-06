@@ -11,6 +11,6 @@
 			
 	test clicking on an unbound zone will not change it
 		data Message mc
-		event mc target (ClickEvent)
+		event mc other (ClickEvent)
 		assert (mc.message)
 			"hello"
