@@ -1,0 +1,6 @@
+	test content can be styled
+		data Styling sc
+		assert (sc.message)
+			'hello'
+
+	test style areas can be styled
