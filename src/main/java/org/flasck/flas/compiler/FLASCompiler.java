@@ -21,9 +21,12 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
+import org.flasck.flas.compiler.templates.EventBuilder;
+import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.assembly.BuildAssembly;
@@ -60,6 +63,7 @@ public class FLASCompiler {
 	private final Splitter splitter;
 //	private final DroidBuilder builder = new DroidBuilder();
 	private JSEnvironment jse;
+	private Map<CardDefinition, EventTargetZones> eventMap;
 
 	public FLASCompiler(ErrorReporter errors, Repository repository) {
 		this.errors = errors;
@@ -167,6 +171,15 @@ public class FLASCompiler {
 		return errors.hasErrors();
 	}
 	
+	public boolean buildEventMaps() {
+		StackVisitor stack = new StackVisitor();
+		eventMap = new HashMap<CardDefinition, EventTargetZones>();
+		new EventBuilder(stack, eventMap);
+		repository.traverse(stack);
+		
+		return errors.hasErrors();
+	}
+	
 	public boolean generateCode(Configuration config) {
 		jse = new JSEnvironment(config.jsDir());
 		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
@@ -174,9 +187,9 @@ public class FLASCompiler {
 		populateBCE(bce);
 		
 		StackVisitor jsstack = new StackVisitor();
-		new JSGenerator(jse, jsstack);
+		new JSGenerator(jse, jsstack, eventMap);
 		StackVisitor jvmstack = new StackVisitor();
-		new JVMGenerator(bce, jvmstack);
+		new JVMGenerator(bce, jvmstack, eventMap);
 
 		if (config.generateJS)
 			repository.traverseWithHSI(jsstack);

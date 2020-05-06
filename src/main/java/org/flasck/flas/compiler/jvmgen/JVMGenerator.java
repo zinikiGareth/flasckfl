@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -134,10 +135,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private Var agentcx;
 	private Var ocret;
 	private Map<CardDefinition, EventsMethod> evhs = new HashMap<>();
+	private Map<CardDefinition, EventTargetZones> eventMap;
 
-	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv) {
+	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
 		this.bce = bce;
 		this.sv = sv;
+		this.eventMap = eventMap;
 		sv.push(this);
 	}
 	

@@ -131,6 +131,9 @@ public class Main {
 		if (compiler.convertMethods())
 			return null;
 		
+		if (compiler.buildEventMaps())
+			return null;
+		
 		if (compiler.generateCode(config))
 			return null;
 		

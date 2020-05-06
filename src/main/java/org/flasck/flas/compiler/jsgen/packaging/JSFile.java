@@ -13,7 +13,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
-import org.flasck.flas.web.EventTargetZones;
+import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSFile {

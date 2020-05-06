@@ -22,6 +22,7 @@ import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -49,7 +50,6 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
-import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -65,8 +65,6 @@ import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.tc3.NamedType;
-import org.flasck.flas.web.EventPlacement;
-import org.flasck.flas.web.EventTargetZones;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
@@ -99,26 +97,26 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	private final JSStorage jse;
+	private final NestedVisitor sv;
+	private final Map<CardDefinition, EventTargetZones> eventMap;
 	private JSMethodCreator meth;
 	private JSBlockCreator block;
 	private JSExpr runner;
 	private final Map<Slot, String> switchVars = new HashMap<>();
-	private NestedVisitor sv;
 	private JSFunctionState state;
 	private JSExpr evalRet;
 	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
 	private Map<Object, List<FunctionName>> methodMap = new HashMap<>();
-	private Map<CardDefinition, EventTargetZones> eventMap = new HashMap<>();
 	private JSClassCreator currentContract;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
-	private EventPlacement currentETZ;
 
-	public JSGenerator(JSStorage jse, StackVisitor sv) {
+	public JSGenerator(JSStorage jse, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
 		this.jse = jse;
 		this.sv = sv;
+		this.eventMap = eventMap;
 		if (sv != null)
 			sv.push(this);
 	}
@@ -134,6 +132,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		if (sv != null)
 			sv.push(this);
 		this.state = state;
+		this.eventMap = null;
 	}
 
 	@Override
@@ -289,11 +288,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.methodMap.get(om.getObject()).add(om.name());
 			container = new JSThis();
 		} else if (om.isEvent()) {
-			TypedPattern tp = (TypedPattern) om.args().get(0);
-			// TODO: I think we should traverse the event type hierarchy & add for all subclasses which are not already defined
-			// Or have been defined by one of our base classes
-			// That is, eventMap should be a complete map for all classes which have been defined and we should use the closest one
-			this.eventMap.get(om.getCard()).handler(tp.type.name(), om.name());
 			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
@@ -527,9 +521,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(cd, methods);
 		jse.methodList(cd.name(), methods);
-		currentETZ = new EventPlacement();
-		eventMap.put(cd, currentETZ);
-		jse.eventMap(cd.name(), currentETZ);
+		jse.eventMap(cd.name(), eventMap.get(cd));
 		this.structFieldHandler = sf -> {
 			if (sf.init != null) {
 				new StructFieldGeneratorJS(state, sv, ctor, sf.name, new JSThis());
@@ -600,13 +592,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator updateDisplay = agentCreator.createMethod("_updateDisplay", true);
 		updateDisplay.argument("_cxt");
 		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
-		new TemplateProcessorJS(state, sv, updateDisplay, currentETZ, t.defines.defn().id());
+		new TemplateProcessorJS(state, sv, updateDisplay);
 	}
 	
 	@Override
 	public void leaveCardDefn(CardDefinition s) {
 		agentCreator = null;
-		currentETZ = null;
 	}
 
 	@Override

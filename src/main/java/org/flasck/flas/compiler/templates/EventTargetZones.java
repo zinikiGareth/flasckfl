@@ -1,9 +1,9 @@
-package org.flasck.flas.web;
+package org.flasck.flas.compiler.templates;
 
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.compiler.templates.EventPlacement.HandlerInfo;
+import org.flasck.flas.compiler.templates.EventPlacement.TemplateTarget;
 import org.flasck.flas.parsedForm.TemplateBinding;
-import org.flasck.flas.web.EventPlacement.HandlerInfo;
-import org.flasck.flas.web.EventPlacement.TemplateTarget;
 
 public interface EventTargetZones {
 	void handler(String eventType, FunctionName handlerName);

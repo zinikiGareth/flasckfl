@@ -1,4 +1,4 @@
-package org.flasck.flas.web;
+package org.flasck.flas.compiler.templates;
 
 import java.util.Map;
 import java.util.TreeMap;
