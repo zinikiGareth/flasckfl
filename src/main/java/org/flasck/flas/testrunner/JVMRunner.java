@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
+import org.flasck.jvm.builtin.Event;
 import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.container.CardEnvironment;
 import org.flasck.jvm.container.Dispatcher;
@@ -20,8 +21,12 @@ import org.flasck.jvm.container.MockAgent;
 import org.flasck.jvm.container.MockCard;
 import org.flasck.jvm.container.MockService;
 import org.flasck.jvm.fl.ClientContext;
+import org.flasck.jvm.fl.EventZone;
+import org.flasck.jvm.fl.HandlerInfo;
+import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.intf.EvalContext;
 import org.ziniki.ziwsh.intf.EvalContextFactory;
 import org.ziniki.ziwsh.intf.ZiwshBroker;
@@ -45,7 +50,6 @@ public class JVMRunner extends CommonTestRunner implements EvalContextFactory, F
 		this.loader = bcl;
 		this.templates = templates;
 		this.dispatcher = new JvmDispatcher(this);
-		
 	}
 	
 	@Override
@@ -207,23 +211,62 @@ public class JVMRunner extends CommonTestRunner implements EvalContextFactory, F
 			reply = mc.sendTo(cx, contract, meth, args);
 		} else
 			throw new NotImplementedException("cannot handle " + to.getClass());
-		reply = cx.full(reply);
-		dispatcher.invoke(cx, reply);
+		cx.handleMessages(reply);
 		if (mc != null)
-			updateCard(cx, mc);
+			mc.card()._updateDisplay(cx);
 	}
 
 	@Override
-	public void event(FLEvalContext cx, Object card, Object event) throws Exception {
+	public void event(FLEvalContext cx, Object card, Object zone, Object event) throws Exception {
 		MockCard mc = (MockCard) card;
-		Object reply = cx.handleEvent(mc.card(), event);
-		reply = cx.full(reply);
-		dispatcher.invoke(cx, reply);
-		updateCard(cx, mc);
+		@SuppressWarnings("unchecked")
+		Element e = findDiv(cx, mc.card()._currentDiv(), (List<EventZone>) zone, 0);
+		if (e == null)
+			return; // nothing to do
+		HandlerInfo hi = findBubbledHandler(mc.card()._eventHandlers().get(mc.card()._rootTemplate()), mc.card()._currentDiv(), e, event);
+		if (hi == null)
+			return; // could not find a handler
+		cx.handleEvent(mc.card(), hi.handler, (Event)event);
 	}
 
-	private void updateCard(FLEvalContext cx, MockCard mc) {
-		mc.card()._updateDisplay(cx);
+	private Element findDiv(FLEvalContext cx, Element div, List<EventZone> zone, int pos) {
+		if (pos >= zone.size())
+			return div;
+		
+		EventZone ez = zone.get(pos);
+		Elements qs = div.select("[data-flas-"+ez.type + "='" + ez.name + "']");
+		if (qs.size() == 0)
+			return null;
+		else
+			return findDiv(cx, qs.first(), zone, pos+1);
+	}
+
+	private HandlerInfo findBubbledHandler(List<HandlerInfo> handlers, Element top, Element curr, Object event) {
+		if (handlers == null)
+			return null;
+		
+		String type = null, name = null;
+		for (Attribute a : curr.attributes()) {
+			if (a.getKey().equals("data-flas-content")) {
+				type = "content";
+				name = a.getValue();
+				break;
+			} else if (a.getKey().equals("data-flas-style")) {
+				type = "style";
+				name = a.getValue();
+				break;
+			}
+		}
+		if (type != null) {
+			for (HandlerInfo hi : handlers) {
+				if (hi.type.equals(type) && hi.slot.equals(name) && hi.event.equals(event.getClass().getSimpleName()))
+					return hi;
+			}
+		}
+		// stop if this is the root div of the card
+		if (curr == top)
+			return null;
+		return findBubbledHandler(handlers, top, curr.parent(), event);
 	}
 
 	@Override

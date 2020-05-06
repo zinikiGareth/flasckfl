@@ -8,8 +8,10 @@ import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public class DoUTEventGenerator extends LeafAdapter implements ResultAware {
 	private final StackVisitor sv;
@@ -42,7 +44,10 @@ public class DoUTEventGenerator extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestEvent(UnitTestEvent e) {
 		if (args.size() != 2)
 			throw new RuntimeException("expected card & event");
-		this.meth.callInterface("void", runner, "event", fs.fcx, args.get(0), args.get(1)).flush();
+		Var eventZone = this.meth.avar(List.class.getName(), "ez");
+		this.meth.assign(eventZone, this.meth.makeNew(ArrayList.class.getName())).flush();
+		meth.voidExpr(meth.callInterface("boolean", eventZone, "add", meth.as(meth.makeNew(J.EVENTZONE, meth.stringConst(e.targetZone.type().toString().toLowerCase()), meth.stringConst(e.targetZone.text)), J.OBJECT))).flush();
+		this.meth.callInterface("void", runner, "event", fs.fcx, args.get(0), meth.as(eventZone, J.OBJECT), args.get(1)).flush();
 		sv.result(null);
 	}
 

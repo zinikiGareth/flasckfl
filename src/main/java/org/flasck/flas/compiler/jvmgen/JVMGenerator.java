@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.flasck.flas.compiler.templates.EventPlacement.HandlerInfo;
+import org.flasck.flas.compiler.templates.EventPlacement.TemplateTarget;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -25,7 +27,6 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
-import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -123,8 +124,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private final Map<Slot, IExpr> switchVars = new HashMap<>();
 	private FunctionState fs;
 	private List<IExpr> currentBlock;
-	private ByteCodeSink oaClz;
-	private ObjectAccessor currentOA;
 	private StructFieldHandler structFieldHandler;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<Var> explodingMocks = new ArrayList<>();
@@ -134,7 +133,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ByteCodeSink agentClass;
 	private Var agentcx;
 	private Var ocret;
-	private Map<CardDefinition, EventsMethod> evhs = new HashMap<>();
 	private Map<CardDefinition, EventTargetZones> eventMap;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
@@ -234,11 +232,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				CardDefinition card = om.getCard();
 				this.clz = bce.get(card.name().javaName());
 				wantParent = false;
-				TypedPattern tp = (TypedPattern) om.args().get(0);
-				EventsMethod em = evhs.get(card);
-				IExpr classArgs = em.meth.arrayOf(Class.class.getName(), em.meth.classConst(J.FLEVALCONTEXT), em.meth.classConst("[L" + J.OBJECT + ";"));
-				IExpr ehm = em.meth.callVirtual(Method.class.getName(), em.meth.classConst(card.name().javaName()), "getDeclaredMethod", em.meth.stringConst(om.name().name), classArgs);
-				em.meth.voidExpr(em.meth.callInterface(J.OBJECT, em.ret, "put", em.meth.as(em.meth.stringConst(tp.type.name()), J.OBJECT), em.meth.as(ehm, J.OBJECT))).flush();
 			} else
 				throw new NotImplementedException("Don't have one of those");
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "_nf_" + om.name().name);
@@ -383,12 +376,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
-	public void visitObjectAccessor(ObjectAccessor oa) {
-		this.currentOA = oa;
-		this.oaClz = bce.get(oa.name().container().javaName());
-	}
-	
-	@Override
 	public void hsiArgs(List<Slot> slots) {
 		for (Slot slot : slots) {
 			ArgSlot s = (ArgSlot) slot;
@@ -459,11 +446,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
-	}
-	
-	@Override
-	public void leaveObjectAccessor(ObjectAccessor oa) {
-		this.oaClz = null;
 	}
 	
 	@Override
@@ -656,15 +638,35 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		{
 			// _events()
+			EventTargetZones eventMethods = eventMap.get(cd);
+
 			// ideally, this would return a statically created map but I can't be bothered right now ...
-			GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, "_events");
+			GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, "_eventHandlers");
 			gen.returns(Map.class.getName());
 			MethodDefiner cardevents = gen.done();
 			cardevents.lenientMode(leniency);
-			IExpr eventsMap = cardevents.makeNew(TreeMap.class.getName());
 			Var v = cardevents.avar(Map.class.getName(), "ret");
-			cardevents.assign(v, eventsMap).flush();
-			evhs.put(cd, new EventsMethod(cardevents, v));
+			cardevents.assign(v, cardevents.makeNew(TreeMap.class.getName())).flush();
+//			TypedPattern tp = (TypedPattern) om.args().get(0);
+//			EventsMethod em = evhs.get(card);
+//			em.meth.voidExpr(em.meth.callInterface(J.OBJECT, em.ret, "put", em.meth.as(em.meth.stringConst(tp.type.name()), J.OBJECT), em.meth.as(ehm, J.OBJECT))).flush();
+
+			for (String t : eventMethods.templateNames()) {
+				Var hl = cardevents.avar(List.class.getName(), "hl");
+				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
+				for (TemplateTarget tt : eventMethods.targets(t)) {
+					HandlerInfo hi = eventMethods.getHandler(tt.handler);
+					IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT), cardevents.classConst("[L" + J.OBJECT + ";"));
+					IExpr ehm = cardevents.callVirtual(Method.class.getName(), cardevents.classConst(cd.name().javaName()), "getDeclaredMethod", cardevents.stringConst(hi.name.name), classArgs);
+
+					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.stringConst(tt.type), cardevents.stringConst(tt.slot), cardevents.stringConst(hi.event), ehm);
+					cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT))).flush();
+				}
+				cardevents.voidExpr(cardevents.callInterface(J.OBJECT, v, "put", cardevents.as(cardevents.stringConst(t), J.OBJECT), cardevents.as(hl, J.OBJECT))).flush();
+			}
+			
+			cardevents.returnObject(v).flush();
+//			evhs.put(cd, new EventsMethod(cardevents, v));
 		}
 	}
 
@@ -1045,12 +1047,5 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	public FunctionState state() {
 		return fs;
-	}
-	
-	@Override
-	public void traversalDone() {
-		for (EventsMethod e : evhs.values()) {
-			e.meth.returnObject(e.ret).flush();
-		}
 	}
 }

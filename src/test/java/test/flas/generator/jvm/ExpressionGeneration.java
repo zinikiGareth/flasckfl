@@ -407,7 +407,7 @@ public class ExpressionGeneration {
 			oneOf(rv).flush();
 		}});
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv);
+		new JVMGenerator(bce, sv, null);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitFunction(fn);
 	}
@@ -454,7 +454,7 @@ public class ExpressionGeneration {
 			oneOf(rv).flush();
 		}});
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv);
+		new JVMGenerator(bce, sv, null);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitStandaloneMethod(sm);
 	}
@@ -513,7 +513,7 @@ public class ExpressionGeneration {
 			oneOf(rx).flush();
 		}});
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv);
+		new JVMGenerator(bce, sv, null);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitFunction(fn);
 	}

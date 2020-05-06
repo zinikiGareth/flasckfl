@@ -42,7 +42,7 @@ public class ObjectGenerationJS {
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen);
+		new JSGenerator(jss, gen, null);
 		new Traverser(gen).visitObjectDefn(od);
 	}
 
@@ -61,7 +61,7 @@ public class ObjectGenerationJS {
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen);
+		new JSGenerator(jss, gen, null);
 		StateDefinition sd = new StateDefinition(pos);
 		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);

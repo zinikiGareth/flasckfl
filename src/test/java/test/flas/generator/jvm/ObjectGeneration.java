@@ -59,7 +59,7 @@ public class ObjectGeneration {
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen);
+		new JVMGenerator(bce, gen, null);
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		new Traverser(gen).visitObjectDefn(od);
 	}
@@ -93,7 +93,7 @@ public class ObjectGeneration {
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen);
+		new JVMGenerator(bce, gen, null);
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		StateDefinition sd = new StateDefinition(pos);
 		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));

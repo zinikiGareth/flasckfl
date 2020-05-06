@@ -32,21 +32,21 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	this.updateCard(_cxt, target);
 }
 UTRunner.prototype.event = function(_cxt, target, zone, event) {
-	const div = this.findDiv(_cxt, target.card._currentDiv, zone);
+	const div = this.findDiv(_cxt, target.card._currentDiv, zone, 0);
 	if (div) {
 		div.dispatchEvent(event._makeJSEvent(_cxt));
 	}
 }
-UTRunner.prototype.findDiv = function(_cxt, div, zone) {
-	if (!zone.length) {
+UTRunner.prototype.findDiv = function(_cxt, div, zone, pos) {
+	if (pos >= zone.length) {
 		return div;
 	}
-	const first = zone.pop();
+	const first = zone[pos];
 	const qs = div.querySelector("[data-flas-" + first[0]+"='" + first[1] + "']");
 	if (!qs)
 		return null;
 	else
-		return this.findDiv(_cxt, qs, zone);
+		return this.findDiv(_cxt, qs, zone, pos+1);
 }
 UTRunner.prototype.match = function(_cxt, target, what, selector, contains, expected) {
 	if (!target || !target.card || !target.card._currentDiv) {

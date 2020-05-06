@@ -2,11 +2,8 @@ package org.flasck.flas.compiler.jsgen;
 
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.templates.EventPlacement;
 import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
-import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;

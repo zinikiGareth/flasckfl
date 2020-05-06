@@ -12,10 +12,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/flasjdk"/>
 	<classpathentry kind="src" path="/flasjvm"/>
-	<classpathentry kind="src" path="/flasui4j"/>
-	<classpathentry kind="src" path="/flasjsoup"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Logging"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Testing"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>

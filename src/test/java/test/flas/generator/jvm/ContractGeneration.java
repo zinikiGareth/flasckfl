@@ -55,8 +55,8 @@ public class ContractGeneration {
 			oneOf(parent).implementsInterface(J.DOWN_CONTRACT);
 		}});
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv);
-		new JVMGenerator(bce, new StackVisitor());
+		new JVMGenerator(bce, sv, null);
+		new JVMGenerator(bce, new StackVisitor(), null);
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		new Traverser(sv).visitContractDecl(cd);

@@ -52,7 +52,7 @@ public class StructGenerationJS {
 			oneOf(eval).returnObject(obj);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen);
+		new JSGenerator(jss, gen, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		new Traverser(gen).visitStructDefn(sd);
 	}
@@ -81,7 +81,7 @@ public class StructGenerationJS {
 			oneOf(eval).returnObject(obj);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen);
+		new JSGenerator(jss, gen, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);
@@ -101,7 +101,7 @@ public class StructGenerationJS {
 			oneOf(sfacc).returnObject(obj);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen);
+		new JSGenerator(jss, gen, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		StructField sf = new StructField(pos, pos, true, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sf.fullName(new VarName(pos, sn, "s"));

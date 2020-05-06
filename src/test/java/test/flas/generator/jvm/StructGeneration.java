@@ -87,7 +87,7 @@ public class StructGeneration {
 			oneOf(doret).flush();
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen);
+		new JVMGenerator(bce, gen, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		new Traverser(gen).visitStructDefn(sd);
 	}
@@ -157,7 +157,7 @@ public class StructGeneration {
 			oneOf(doret).flush(); inSequence(flushes);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen);
+		new JVMGenerator(bce, gen, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);
@@ -187,7 +187,7 @@ public class StructGeneration {
 			oneOf(doret).flush();
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen);
+		new JVMGenerator(bce, gen, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		StructField sf = new StructField(pos, pos, true, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sf.fullName(new VarName(pos, sn, "s"));
