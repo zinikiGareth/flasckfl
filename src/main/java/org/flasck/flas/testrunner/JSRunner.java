@@ -13,10 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
-import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.Repository;
-import org.flasck.jvm.FLEvalContext;
-import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.utils.FileUtils;
@@ -62,24 +59,6 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 
-	/*
-	// Because of a bug in JDK8 (https://bugs.openjdk.java.net/browse/JDK-8088751), it's not possible
-	// to have the MockService directly implement both process methods and share that with JS/Webkit
-	// Thus we have a wrapper here to deal with the impedance mismatch
-	public class MockServiceWrapper {
-		public String _myAddr; // JSRunner depends on this; JVMRunner probably should need it as well :-)
-		private MockService wraps;
-
-		public MockServiceWrapper(String name) {
-			wraps = new MockService(name, errors, invocations, expectations);
-		}
-		
-		public void process(final JSObject msg) {
-			wraps.process(msg);
-		}
-	}
-	*/
-	
 	private final JSStorage jse;
 	private final JSJavaBridge st = new JSJavaBridge();
 	private final BrowserEngine browser;
@@ -120,10 +99,6 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 
-	@Override
-	public void preparePackage(PrintWriter pw, UnitTestPackage e) {
-	}
-	
 	// currently untested due to browser issues
 	@Override
 	public void runit(PrintWriter pw, UnitTestCase utc) {
@@ -171,11 +146,6 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 
-	@Override
-	public String name() {
-		return "js";
-	}
-	
 	private void buildHTML(Map<String, String> templates) {
 		try {
 			String testName;
@@ -244,28 +214,6 @@ public class JSRunner extends CommonTestRunner {
 		pw.println("<script src='file:" + path + "' type='text/javascript'></script>");
 	}
 
-	@Override
-	public void invoke(FLEvalContext cx, Object sendExpr) throws Exception {
-		throw new NotImplementedException();
-	}
-
-	@Override
-	public void send(FLEvalContext cxt, Object to, String contract, String meth, Object... args) {
-		throw new NotImplementedException();
-	}
-
-//	@Override
-//	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
-//		logger.info("Matching " + selector);
-////		System.out.println(page.getDocument().getBody().getOuterHTML());
-////		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new UI4JWrapperElement(page, e)).collect(Collectors.toList()));
-//		assertNoErrors();
-//	}
-
-	@Override
-	public void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches) {
-	}
-
 	protected JSObject getVar(String var) {
 		return (JSObject)page.executeScript(var);
 	}
@@ -275,75 +223,4 @@ public class JSRunner extends CommonTestRunner {
 		if (err != null)
 			throw new UtilException("Error processing javascript: " + err);
 	}
-
-	@Override
-	public void event(FLEvalContext cx, Object card, Object target, Object event) throws Exception {
-//		logger.info("Sending event " + methodName + " to " +  cardVar);
-//		CardHandle card = cards.get(cardVar);
-//		AtomicBoolean choke = new AtomicBoolean(false);
-//		Platform.runLater(() -> {
-//			// Or else just call "dispatchEvent()" on wrapper
-//			// But where do I find wrapper?
-//			// cf JVMRunner, where we call the hanlde and get it to do the dirty work
-//			// is that possible in this world?
-//			Object events = card.card.call(methodName);
-//			card.wrapper.call("evalAndProcess", events);
-//			choke.set(true);
-//		});
-//		waitForChoke(choke);
-//		processEvents();
-//		assertNoErrors();
-//		assertAllInvocationsCalled();
-	}
-
-//	@Override
-//	public void click(String selector) {
-//		List<Element> elts = page.getDocument().queryAll(selector);
-//		if (elts.isEmpty())
-//			throw new UtilException("No elements matched " + selector);
-//		else if (elts.size() > 1)
-//			throw new UtilException("Multiple elements matched " + selector);
-//		Element e = elts.get(0);
-//		if (!e.hasAttribute("onclick")) {
-//			String html;
-//			try {
-//				html = e.getOuterHTML();
-//			} catch (Throwable t) {
-//				html = "";
-//			}
-//			throw new UtilException("There is no 'onclick' attribute on " + selector + html);
-//		}
-//		e.click();
-//		processEvents();
-//		assertAllInvocationsCalled();
-//	}
-
-	/* There was an exception here telling me to do this some other way,
-	 * but I'm not sure what the problem was - although the code didn't compile.
-	 * I fixed the compilation problems, but kept the same logic.
-	 * 
-	 * If that's good enough, sobeit. Otherwise, fix this when it breaks or at
-	 * least add a really good comment.
-	 */
-//	private void processEvents() {
-//		Date waitUntil = new Date(new Date().getTime() + 5000);
-//		while (pendingAsyncs.get() != 0)
-//			try {
-//				if (new Date().after(waitUntil))
-//					throw new RuntimeException("After 5s still have " + pendingAsyncs.get() +" pending asyncs");
-//				synchronized (pendingAsyncs) {
-//					pendingAsyncs.wait(1000);
-//				}
-//			} catch (InterruptedException ex) {
-//				throw new UtilException("timed out waiting for pending async");
-//			}
-//	}
-//
-//	private void waitForChoke(AtomicBoolean choke) {
-//		for (int i=0;!choke.get() && i<100;i++) {
-//			try { Thread.sleep(10); } catch (InterruptedException ex) {}
-//		}
-//		if (!choke.get())
-//			fail("did not manage to run platform code");
-//	}
 }

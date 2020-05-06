@@ -12,9 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.compiler.templates.EventPlacement.HandlerInfo;
 import org.flasck.flas.compiler.templates.EventPlacement.TemplateTarget;
+import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -59,8 +59,8 @@ import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.tc3.NamedType;
-import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.jvm.J;
+import org.flasck.jvm.fl.TestHelper;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.FieldExpr;
@@ -76,16 +76,6 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
-	public class EventsMethod {
-		private final MethodDefiner meth;
-		private final IExpr ret;
-
-		public EventsMethod(MethodDefiner cardevents, IExpr eventsMap) {
-			this.meth = cardevents;
-			this.ret = eventsMap;
-		}
-	}
-
 	public static class XCArg {
 		public final int arg;
 		public final IExpr expr;
@@ -842,16 +832,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		clz = bce.newClass(clzName);
 		clz.generateAssociatedSourceFile();
 		GenericAnnotator ann = GenericAnnotator.newMethod(clz, true, "dotest");
-		PendingVar runner = ann.argument("org.flasck.flas.testrunner.JVMRunner", "runner");
+		PendingVar runner = ann.argument(J.TESTHELPER, "runner");
 		PendingVar pcx = ann.argument(J.FLEVALCONTEXT, "cxt");
 		ann.returns(JavaType.void_);
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
 		this.fcx = pcx.getVar();
-		this.fs = new FunctionState(meth, fcx, null, null, runner.getVar());
+		this.fs = new FunctionState(meth, fcx, null, null, this.runner);
 		this.currentBlock = new ArrayList<>();
-		meth.callVirtual("void", runner.getVar(), "clearBody", this.fcx).flush();
+		meth.callInterface("void", this.runner, "clearBody", this.fcx).flush();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
 			if (udd.ofType.defn() instanceof ContractDecl)
@@ -929,17 +919,17 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	
 	@Override
 	public void visitUnitTestSend(UnitTestSend uts) {
-		new DoSendGenerator(sv, this.fs, meth.as(this.runner, TestRunner.class.getName()));
+		new DoSendGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()));
 	}
 	
 	@Override
 	public void visitUnitTestEvent(UnitTestEvent uts) {
-		new DoUTEventGenerator(sv, this.fs, meth.as(this.runner, TestRunner.class.getName()));
+		new DoUTEventGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()));
 	}
 	
 	@Override
 	public void visitUnitTestMatch(UnitTestMatch utm) {
-		new DoUTMatchGenerator(sv, this.fs, meth.as(this.runner, TestRunner.class.getName()));
+		new DoUTMatchGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()));
 	}
 	
 	@Override
@@ -955,7 +945,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		for (Var v : explodingMocks) {
 			meth.callInterface("void", meth.castTo(v, J.EXPECTING), "assertSatisfied", this.fcx).flush();
 		}
-		meth.callVirtual("void", runner, "testComplete").flush();
+		meth.callInterface("void", runner, "testComplete").flush();
 		meth.returnVoid().flush();
 		meth = null;
 		this.currentBlock = null;

@@ -29,7 +29,7 @@ public class DoInvocationGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void result(Object r) {
 		IExpr expr = meth.as((IExpr) r, J.OBJECT);
-		IExpr ret = meth.callVirtual("void", runner, "invoke", cx, expr);
+		IExpr ret = meth.callInterface("void", runner, "invoke", cx, expr);
 		block.add(ret);
 		sv.result(JVMGenerator.makeBlock(meth, block));
 	}

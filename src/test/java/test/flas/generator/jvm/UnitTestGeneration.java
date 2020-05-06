@@ -14,9 +14,9 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -61,9 +61,9 @@ public class UnitTestGeneration {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("test.something._ut_package._ut4"); will(returnValue(bcc));
 			oneOf(bcc).createMethod(true, "void", "dotest"); will(returnValue(meth));
-			oneOf(meth).argument("org.flasck.flas.testrunner.JVMRunner", "runner"); will(returnValue(arg));
+			oneOf(meth).argument(J.TESTHELPER, "runner"); will(returnValue(arg));
 			oneOf(meth).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(arg));
-			oneOf(meth).callVirtual("void", arg, "clearBody", arg);
+			oneOf(meth).callInterface("void", arg, "clearBody", arg);
 		}});
 		StackVisitor sv = new StackVisitor();
 		JVMGenerator gen = new JVMGenerator(bce, sv, null);
@@ -72,7 +72,7 @@ public class UnitTestGeneration {
 		UnitTestCase utc = new UnitTestCase(utn , "do something");
 		gen.visitUnitTest(utc);
 		context.checking(new Expectations() {{
-			oneOf(meth).callVirtual("void", arg, "testComplete");
+			oneOf(meth).callInterface("void", arg, "testComplete");
 			oneOf(meth).returnVoid();
 			oneOf(bcc).generate();
 		}});
@@ -187,7 +187,7 @@ public class UnitTestGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(r1));
 			oneOf(meth).as(l1, "java.lang.Object"); will(returnValue(la));
 			oneOf(meth).as(r1, "java.lang.Object"); will(returnValue(ra));
-			oneOf(meth).callVirtual("void", runner, "assertSameValue", ra, la); will(returnValue(asv));
+			oneOf(meth).callInterface("void", runner, "assertSameValue", ra, la); will(returnValue(asv));
 			oneOf(asv).flush();
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner, null).stackVisitor());

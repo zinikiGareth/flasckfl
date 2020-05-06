@@ -42,7 +42,7 @@ public class CaptureAssertionClauseVisitor extends LeafAdapter implements Reposi
 		else {
 			IExpr lhs = meth.as(value, J.OBJECT);
 			IExpr rhs = meth.as((IExpr) r, J.OBJECT);
-			IExpr ret = meth.callVirtual("void", runner, "assertSameValue", lhs, rhs);
+			IExpr ret = meth.callInterface("void", runner, "assertSameValue", lhs, rhs);
 			block.add(ret);
 			sv.result(JVMGenerator.makeBlock(meth, block));
 		}

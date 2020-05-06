@@ -16,13 +16,12 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.Repository;
-import org.flasck.jvm.FLEvalContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
 
-public abstract class CommonTestRunner implements TestRunner {
+public abstract class CommonTestRunner {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected final Configuration config;
 	protected final String compiledPkg;
@@ -55,7 +54,6 @@ public abstract class CommonTestRunner implements TestRunner {
 						pw = new PrintWriter(out);
 						writers.put(f, pw);
 					}
-					preparePackage(pw, e);
 				} catch (FileNotFoundException ex) {
 					config.errors.message(((InputPosition)null), "cannot create output file " + out);
 				}
@@ -75,9 +73,7 @@ public abstract class CommonTestRunner implements TestRunner {
 		}
 	}
 
-	public abstract void preparePackage(PrintWriter pw, UnitTestPackage e);
 	public abstract void runit(PrintWriter pw, UnitTestCase utc);
-	public abstract void match(FLEvalContext cx, Object target, String selector, boolean contains, String matches) throws NotMatched;
 
 	protected void assertAllInvocationsCalled() {
 		for (Invocation ii : invocations)
