@@ -1,9 +1,14 @@
 package org.flasck.flas.compiler.jsgen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
@@ -14,6 +19,7 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final JSBlockCreator currentBlock;
 	private JSExpr expr;
+	private final List<JSStyleIf> styles = new ArrayList<>();
 
 	public TemplateProcessorJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator currentBlock) {
 		this.state = state;
@@ -21,32 +27,41 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 		this.currentBlock = currentBlock;
 		sv.push(this);
 	}
+	
+	@Override
+	public void result(Object r) {
+		if (r instanceof JSStyleIf) {
+			styles.add((JSStyleIf)r);
+		} else {
+			// TODO: need to consider "cond" as well ...
+			expr = (JSExpr) r;
+		}
+	}
 
 	@Override
 	public void visitTemplateBindingOption(TemplateBindingOption tbo) {
 		new ExprGeneratorJS(state, sv, currentBlock, false);
 	}
+	
 	@Override
-	public void result(Object r) {
-		// TODO: need to consider "cond" as well ...
-		expr = (JSExpr) r;
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+		new TemplateStylingJS(state, sv, currentBlock, tso);
 	}
 	
 	@Override
 	public void leaveTemplateBindingOption(TemplateBindingOption tbo) {
 		currentBlock.updateContent(tbo.assignsTo, expr);
+		if (!styles.isEmpty())
+			currentBlock.updateStyle(tbo.assignsTo, styles);
 	}
 	
 	@Override
-	public void visitTemplateStyling(TemplateStylingOption tso) {
-		if (tso.cond != null)
-			new ExprGeneratorJS(state, sv, currentBlock, false);
-	}
-	
-	@Override
-	public void leaveTemplateStyling(TemplateStylingOption tso) {
-//		System.out.println("leaving " + tso.styleField.type() + " " + tso.styleField.text + " if " + tso.cond + " with " + expr + " will " + tso.styles);
-		currentBlock.updateStyle(tso.styleField, expr, tso.styleString());
+	public void leaveTemplateBinding(TemplateBinding tb) {
+		if (!styles.isEmpty()) {
+			TemplateField assignsTo = new TemplateField(tb.slotLoc, tb.slot);
+			assignsTo.fieldType(tb.fieldType());
+			currentBlock.updateStyle(assignsTo, styles);
+		}
 	}
 	
 	@Override

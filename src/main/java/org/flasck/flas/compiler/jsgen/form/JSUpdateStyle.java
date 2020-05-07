@@ -1,20 +1,34 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.List;
+
+import org.flasck.flas.compiler.jsgen.JSStyleIf;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSUpdateStyle implements JSExpr {
 	private final TemplateField field;
-	private final JSExpr expr;
-	private final String styles;
+	private final String constant;
+	private final List<JSStyleIf> vars;
 
-	public JSUpdateStyle(TemplateField field, JSExpr expr, String styles) {
+	public JSUpdateStyle(TemplateField field, List<JSStyleIf> styles) {
 		this.field = field;
-		this.expr = expr;
-		this.styles = styles;
+		StringBuilder sb = new StringBuilder();
+		for (int i=0;i<styles.size();i++) {
+			JSStyleIf si = styles.get(i);
+			if (si.cond == null) {
+				if (sb.length() > 0)
+					sb.append(" ");
+				sb.append(si.styles);
+				styles.remove(i);
+				i--;
+			}
+		}
+		this.constant = sb.toString();
+		this.vars = styles;
 	}
-
+	
 	@Override
 	public String asVar() {
 		throw new NotImplementedException("not for use");
@@ -22,22 +36,20 @@ public class JSUpdateStyle implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		IndentWriter iw = w;
-		if (expr != null) {
-			w.print("if (_cxt.isTruthy(");
-			w.print(expr.asVar());
-			w.println(")) {");
-			iw = w.indent();
+		w.print("this._updateStyle(_cxt, '");
+		w.print(field.type().toString().toLowerCase());
+		w.print("', '");
+		w.print(field.text);
+		w.print("', '");
+		w.print(constant);
+		w.print("'");
+		for (JSStyleIf si : vars) {
+			w.print(", ");
+			w.print(si.cond.asVar());
+			w.print(", '");
+			w.print(si.styles);
+			w.print("'");
 		}
-		iw.print("this._updateStyle(_cxt, '");
-		iw.print(field.type().toString().toLowerCase());
-		iw.print("', '");
-		iw.print(field.text);
-		iw.print("', '");
-		iw.print(styles);
-		iw.println("');");
-		if (expr != null) {
-			w.println("}");
-		}
+		w.println(");");
 	}
 }

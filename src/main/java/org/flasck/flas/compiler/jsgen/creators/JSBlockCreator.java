@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
+import org.flasck.flas.compiler.jsgen.JSStyleIf;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
@@ -86,7 +87,7 @@ public interface JSBlockCreator {
 
 	// templates
 	void updateContent(TemplateField assignsTo, JSExpr expr);
-	void updateStyle(TemplateField field, JSExpr expr, String styles);
+	void updateStyle(TemplateField assignsTo, List<JSStyleIf> styles);
 	
 	// unit testing
 	void assertable(JSExpr runner, String assertion, JSExpr... args);

@@ -1,0 +1,12 @@
+	card Multi
+		state
+			Boolean important <- True
+			Boolean due
+
+		template message
+			styleme
+				| => 'boring'
+				| => 'multiple-constants' 'always-here'
+				| important => 'do-this-now'
+				| due => 'already-due'
+				

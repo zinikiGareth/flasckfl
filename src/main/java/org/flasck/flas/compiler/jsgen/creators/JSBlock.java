@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
+import org.flasck.flas.compiler.jsgen.JSStyleIf;
 import org.flasck.flas.compiler.jsgen.form.ExtractField;
 import org.flasck.flas.compiler.jsgen.form.IsAExpr;
 import org.flasck.flas.compiler.jsgen.form.IsConstExpr;
@@ -293,8 +294,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void updateStyle(TemplateField field, JSExpr expr, String styles) {
-		stmts.add(new JSUpdateStyle(field, expr, styles));
+	public void updateStyle(TemplateField field, List<JSStyleIf> styles) {
+		stmts.add(new JSUpdateStyle(field, styles));
 	}
 
 	@Override

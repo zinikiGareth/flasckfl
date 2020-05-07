@@ -500,7 +500,15 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		UnitDataDeclaration udd = (UnitDataDeclaration) m.card.defn();
+		if (udd == null) {
+			// the variable was not a card.  We cannot proceed and there should already be an error about this
+			return;
+		}
 		CardDefinition card = (CardDefinition)udd.ofType.defn();
+		if (card == null) {
+			// the card itself could not be resolved.  We cannot proceed and there should already be an error about this
+			return;
+		}
 		if (card.templates.isEmpty()) {
 			errors.message(m.targetZone.location, "cannot send event to card with no templates");
 			return;

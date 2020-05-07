@@ -448,9 +448,14 @@ FLCard.prototype._updateContent = function(_cxt, field, value) {
     }
 }
 
-FLCard.prototype._updateStyle = function(_cxt, type, field, styles) {
-    if (!styles)
-        styles = '';
+FLCard.prototype._updateStyle = function(_cxt, type, field, constant, ...rest) {
+    var styles = '';
+    if (constant)
+        styles = constant;
+    for (var i=0;i<rest.length;i+=2) {
+        if (_cxt.isTruthy(rest[i]))
+            styles += ' ' + rest[i+1];
+    }
     const nodes = this._currentDiv.querySelectorAll("[data-flas-" + type + "='" + field + "']");
     for (var i=0;i<nodes.length;i++) {
         nodes[i].className = styles;
