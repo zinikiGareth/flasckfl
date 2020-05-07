@@ -1,0 +1,8 @@
+	card Urgent
+		state
+			String message <- 'hello, world'
+			Boolean urgent <- False
+
+		template message
+			styleme <- message
+				| urgent => 'notice-me'

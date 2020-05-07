@@ -6,10 +6,12 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class JSUpdateStyle implements JSExpr {
 	private final TemplateField field;
+	private final JSExpr expr;
 	private final String styles;
 
-	public JSUpdateStyle(TemplateField field, String styles) {
+	public JSUpdateStyle(TemplateField field, JSExpr expr, String styles) {
 		this.field = field;
+		this.expr = expr;
 		this.styles = styles;
 	}
 
@@ -20,11 +22,20 @@ public class JSUpdateStyle implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("this._updateStyle(_cxt, '");
-		w.print(field.text);
-		w.print("', '");
-		w.print(styles);
-		w.println("');");
+		IndentWriter iw = w;
+		if (expr != null) {
+			w.print("if (_cxt.isTruthy(");
+			w.print(expr.asVar());
+			w.println(")) {");
+			iw = w.indent();
+		}
+		iw.print("this._updateStyle(_cxt, '");
+		iw.print(field.text);
+		iw.print("', '");
+		iw.print(styles);
+		iw.println("');");
+		if (expr != null) {
+			w.println("}");
+		}
 	}
-
 }

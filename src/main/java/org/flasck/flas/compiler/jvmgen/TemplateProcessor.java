@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 
 public class TemplateProcessor extends LeafAdapter implements ResultAware {
@@ -39,6 +40,7 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	public void leaveTemplateBindingOption(TemplateBindingOption tbo) {
 		currentBlock.add(fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.meth.stringConst(tbo.assignsTo.text), expr));
 		JVMGenerator.makeBlock(fs.meth, currentBlock).flush();
+		currentBlock.clear();
 	}
 
 	@Override
@@ -49,8 +51,15 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveTemplateStyling(TemplateStylingOption tso) {
-		currentBlock.add(fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.meth.stringConst(tso.styleField.text), fs.meth.stringConst(tso.styleString())));
+		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.meth.stringConst(tso.styleField.text), fs.meth.stringConst(tso.styleString()));
+		if (expr != null) {
+			IExpr isTruthy = fs.meth.callInterface("boolean", fs.fcx, "isTruthy", expr);
+			currentBlock.add(fs.meth.ifBoolean(isTruthy, doUpdate, null));
+		} else {
+			currentBlock.add(doUpdate);
+		}
 		JVMGenerator.makeBlock(fs.meth, currentBlock).flush();
+		currentBlock.clear();
 	}
 
 	@Override

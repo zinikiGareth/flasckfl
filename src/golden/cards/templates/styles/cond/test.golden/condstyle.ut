@@ -1,0 +1,5 @@
+	test initially the message is not urgent
+		data Urgent card
+		assert (card.message)
+			'hello, world'
+		match card style styleme

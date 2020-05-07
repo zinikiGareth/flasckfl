@@ -134,6 +134,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		final File actualErrors = new File(s, "errors-tmp");
 		final File expectedErrors = new File(s, "errors");
 		final File tr = new File(s, "testReports-tmp");
+		FileUtils.cleanDirectory(actualErrors);
+		FileUtils.cleanDirectory(tr);
 		FileUtils.assertDirectory(actualErrors);
 		FileUtils.assertDirectory(tr);
 		List<String> args = new ArrayList<String>();
