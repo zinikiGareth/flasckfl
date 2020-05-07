@@ -52,7 +52,7 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveTemplateStyling(TemplateStylingOption tso) {
 		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.meth.stringConst(tso.styleField.text), fs.meth.stringConst(tso.styleString()));
-		if (expr != null) {
+		if (tso.cond != null) {
 			IExpr isTruthy = fs.meth.callInterface("boolean", fs.fcx, "isTruthy", expr);
 			currentBlock.add(fs.meth.ifBoolean(isTruthy, doUpdate, null));
 		} else {
