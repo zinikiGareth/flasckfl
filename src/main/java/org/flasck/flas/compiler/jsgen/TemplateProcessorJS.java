@@ -45,7 +45,7 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveTemplateStyling(TemplateStylingOption tso) {
-//		System.out.println("leaving " + tso.styleField.text + " if " + tso.cond + " with " + expr + " will " + tso.styles);
+//		System.out.println("leaving " + tso.styleField.type() + " " + tso.styleField.text + " if " + tso.cond + " with " + expr + " will " + tso.styles);
 		currentBlock.updateStyle(tso.styleField, expr, tso.styleString());
 	}
 	

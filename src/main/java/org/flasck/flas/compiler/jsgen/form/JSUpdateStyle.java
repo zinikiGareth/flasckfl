@@ -30,6 +30,8 @@ public class JSUpdateStyle implements JSExpr {
 			iw = w.indent();
 		}
 		iw.print("this._updateStyle(_cxt, '");
+		iw.print(field.type().toString().toLowerCase());
+		iw.print("', '");
 		iw.print(field.text);
 		iw.print("', '");
 		iw.print(styles);

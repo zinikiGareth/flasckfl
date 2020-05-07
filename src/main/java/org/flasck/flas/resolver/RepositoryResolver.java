@@ -27,7 +27,9 @@ import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -404,6 +406,22 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		b.fieldType(ce.get(b.slot));
+	}
+	
+	@Override
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+		CardData ce = currentTemplate.defines.defn();
+		if (ce == null) { // an undefined template should already have been reported ...
+			return;
+		}
+		TemplateField fld = tso.styleField;
+		if (!ce.hasField(fld.text)) {
+			// I _think_ it should already have been reported, but if there are no errors report it anyway ...
+			if (!errors.hasErrors())
+				errors.message(fld.location(), "there is no slot " + fld.text + " in " + currentTemplate.defines.name.baseName());
+			return;
+		}
+		fld.fieldType(ce.get(fld.text));
 	}
 	
 	@Override

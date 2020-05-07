@@ -1,0 +1,9 @@
+	card Styling
+		state
+			String message <- 'hello'
+
+		template message
+			styleme <- message
+				| => 'notice-me'
+			andme
+				| True => 'less-important' 'but-praiseworthy'

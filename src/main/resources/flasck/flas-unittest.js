@@ -92,9 +92,9 @@ UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected)
 		failed |= clzlist.length != explist.length;
 	if (failed) {
 		if (contains)
-			throw new Error("MATCH\n  expected to contain: " + explist + "\n  actual: " + clzlist);
+			throw new Error("MATCH\n  expected to contain: " + explist.join(' ') + "\n  actual: " + clzlist.join(' '));
 		else
-			throw new Error("MATCH\n  expected: " + explist + "\n  actual:   " + clzlist);
+			throw new Error("MATCH\n  expected: " + explist.join(' ') + "\n  actual:   " + clzlist.join(' '));
 	}
 }
 UTRunner.prototype.handleMessages = function(_cxt, msg) {
