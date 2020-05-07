@@ -81,8 +81,8 @@ UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected)
 	var clzlist = div.getAttribute("class");
 	if (!clzlist)
 		clzlist = "";
-	clzlist = clzlist.split(" ").sort();
-	var explist = expected.split(" ").sort();
+	clzlist = clzlist.trim().split(" ").sort();
+	var explist = expected.trim().split(" ").sort();
 	var failed = false;
 	for (var i=0;i<explist.length;i++) {
 		var exp = explist[i];

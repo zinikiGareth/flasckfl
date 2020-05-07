@@ -51,16 +51,19 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveTemplateBindingOption(TemplateBindingOption tbo) {
 		currentBlock.updateContent(tbo.assignsTo, expr);
-		if (!styles.isEmpty())
+		if (!styles.isEmpty()) {
 			currentBlock.updateStyle(tbo.assignsTo, styles);
+			styles.clear();
+		}
 	}
 	
 	@Override
 	public void leaveTemplateBinding(TemplateBinding tb) {
+		TemplateField assignsTo = new TemplateField(tb.slotLoc, tb.slot);
+		assignsTo.fieldType(tb.fieldType());
 		if (!styles.isEmpty()) {
-			TemplateField assignsTo = new TemplateField(tb.slotLoc, tb.slot);
-			assignsTo.fieldType(tb.fieldType());
 			currentBlock.updateStyle(assignsTo, styles);
+			styles.clear();
 		}
 	}
 	

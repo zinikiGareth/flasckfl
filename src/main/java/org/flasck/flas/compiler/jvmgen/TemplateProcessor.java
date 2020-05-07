@@ -64,6 +64,8 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	}
 
 	public void updateStyling(TemplateField assignsTo) {
+		if (styles.isEmpty())
+			return;
 		StringBuilder sb = new StringBuilder();
 		List<IExpr> arr = new ArrayList<>();
 		for (JVMStyleIf si : styles) {
@@ -86,6 +88,7 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 //		}
 		JVMGenerator.makeBlock(fs.meth, currentBlock).flush();
 		currentBlock.clear();
+		styles.clear();
 	}
 
 	@Override

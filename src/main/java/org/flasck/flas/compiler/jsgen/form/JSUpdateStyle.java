@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.compiler.jsgen.JSStyleIf;
@@ -10,23 +11,20 @@ import org.zinutils.exceptions.NotImplementedException;
 public class JSUpdateStyle implements JSExpr {
 	private final TemplateField field;
 	private final String constant;
-	private final List<JSStyleIf> vars;
+	private final List<JSStyleIf> vars = new ArrayList<>();
 
 	public JSUpdateStyle(TemplateField field, List<JSStyleIf> styles) {
 		this.field = field;
 		StringBuilder sb = new StringBuilder();
-		for (int i=0;i<styles.size();i++) {
-			JSStyleIf si = styles.get(i);
+		for (JSStyleIf si : styles) {
 			if (si.cond == null) {
 				if (sb.length() > 0)
 					sb.append(" ");
 				sb.append(si.styles);
-				styles.remove(i);
-				i--;
-			}
+			} else
+				vars.add(si);
 		}
 		this.constant = sb.toString();
-		this.vars = styles;
 	}
 	
 	@Override
