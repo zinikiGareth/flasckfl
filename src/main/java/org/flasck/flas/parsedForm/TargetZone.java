@@ -27,4 +27,8 @@ public class TargetZone implements Locatable {
 		return type;
 	}
 
+	@Override
+	public String toString() {
+		return "Zone[" + text + "]";
+	}
 }

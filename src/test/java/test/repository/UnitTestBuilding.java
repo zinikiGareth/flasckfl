@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
+import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -21,7 +22,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
-import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.junit.Test;
 
 import flas.matchers.ExprMatcher;
@@ -87,7 +87,7 @@ public class UnitTestBuilding {
 	@Test
 	public void addingAnEventStep() {
 		UnitTestCase utc = new UnitTestCase(name, "this is a test");
-		utc.event(new UnresolvedVar(pos, "x"), new TemplateNameToken(pos, "zone"), new StringLiteral(pos, "goodbye"));
+		utc.event(new UnresolvedVar(pos, "x"), new TargetZone(pos, "zone"), new StringLiteral(pos, "goodbye"));
 		assertEquals(1, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestEvent);
 		UnitTestEvent ev = (UnitTestEvent) utc.steps.get(0);

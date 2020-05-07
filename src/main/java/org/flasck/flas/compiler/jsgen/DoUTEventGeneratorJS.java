@@ -47,9 +47,6 @@ public class DoUTEventGeneratorJS extends LeafAdapter implements ResultAware {
 	}
 
 	public static JSExpr makeSelector(JSBlockCreator block, TargetZone targetZone) {
-		if (targetZone == null) {
-			return block.literal("null");
-		}
 		String ty = targetZone.type().toString().toLowerCase();
 		return block.makeArray(block.makeArray(block.string(ty), block.string(targetZone.text)));
 	}

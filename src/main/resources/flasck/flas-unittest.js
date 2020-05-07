@@ -44,6 +44,8 @@ UTRunner.prototype.event = function(_cxt, target, zone, event) {
 UTRunner.prototype.findDiv = function(_cxt, div, zone, pos) {
 	if (pos >= zone.length) {
 		return div;
+	} else if (pos == 0 && zone.length == 1 && zone[0][1] == "_") {
+		return div;
 	}
 	const first = zone[pos];
 	const qs = div.querySelector("[data-flas-" + first[0]+"='" + first[1] + "']");

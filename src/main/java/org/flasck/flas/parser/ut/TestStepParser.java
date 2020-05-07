@@ -99,7 +99,6 @@ public class TestStepParser implements TDAParsing {
 			}
 			TargetZone targetZone = parseTargetZone(toks);
 			if (targetZone == null) {
-				errors.message(toks, "must provide an event target");
 				return new IgnoreNestedParser();
 			}
 			ErrorMark em = errors.mark();
@@ -188,7 +187,7 @@ public class TestStepParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			
-			TargetZone targetZone1 = null;
+			TargetZone targetZone1 = new TargetZone(toks.realinfo(), "_");
 			boolean contains1 = false;
 			if (toks.hasMore()) {
 				targetZone1 = parseTargetZone(toks);
@@ -216,21 +215,24 @@ public class TestStepParser implements TDAParsing {
 
 	private TargetZone parseTargetZone(Tokenizable toks) {
 		// TODO: I think this may need to be a compound name to identify sub-elements
+		InputPosition loc = toks.realinfo();
+		int mk = toks.at();
 		TemplateNameToken targetZone = TemplateNameToken.from(toks);
 		if (targetZone == null) {
-			InputPosition loc = toks.realinfo();
-			int mk = toks.at();
 			if (toks.hasMore() && toks.nextChar() == '_') {
 				toks.advance();
 				if (!toks.hasMore() || Character.isWhitespace(toks.nextChar()))
-					targetZone = new TemplateNameToken(loc, "_");
+					return new TargetZone(loc, "_");
 				else {
-					toks.fromMark(mk);
+					toks.reset(mk);
 				}
 			} else {
 				errors.message(loc, "valid target zone expected");
 				return null;
 			}
+		} else if (targetZone.text.equals("contains")) {
+			toks.reset(mk);
+			return new TargetZone(loc, "_");
 		}
 		return new TargetZone(targetZone.location, targetZone.text);
 	}
