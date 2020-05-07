@@ -129,6 +129,11 @@ public class JSRunner extends CommonTestRunner {
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
+					} else if (jsex.startsWith("Error: MATCH\n")) {
+						pw.println("JS FAIL " + utc.description);
+						pw.println(jsex.substring(jsex.indexOf('\n')+1));
+						cdl.countDown();
+						return;
 					}
 				}
 				pw.println("JS ERROR " + utc.description);

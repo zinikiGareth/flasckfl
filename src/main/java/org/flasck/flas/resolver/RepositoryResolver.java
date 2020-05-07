@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
+import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -435,7 +436,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			e.targetZone.bindType(FieldType.CARD);
 			return;
 		}
-		// This code is subject to change because we haven't figured out entirely how to reference "nested" things
 		UnitDataDeclaration udd = (UnitDataDeclaration) e.card.defn();
 		CardDefinition card = (CardDefinition)udd.ofType.defn();
 		if (card.templates.isEmpty()) {
@@ -472,6 +472,37 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveUnitTestSend(UnitTestSend s) {
 		this.scope = scopeStack.remove(0);
+	}
+	
+	@Override
+	public void leaveUnitTestMatch(UnitTestMatch m) {
+		if (m.targetZone.text.equals("_")) {
+			// it's aimed at the whole card
+			m.targetZone.bindType(FieldType.CARD);
+			return;
+		}
+		UnitDataDeclaration udd = (UnitDataDeclaration) m.card.defn();
+		CardDefinition card = (CardDefinition)udd.ofType.defn();
+		if (card.templates.isEmpty()) {
+			errors.message(m.targetZone.location, "cannot send event to card with no templates");
+			return;
+		}
+		Template template = card.templates.get(0);
+		CardData webInfo = template.defines.defn();
+		if (webInfo == null) {
+			// we failed to find the card's webinfo ... that should generate its own error
+			return;
+		}
+		try {
+			FieldType fieldType = webInfo.get(m.targetZone.text);
+			if (fieldType != FieldType.CONTENT && fieldType != FieldType.STYLE) {
+				errors.message(m.targetZone.location, "element " + fieldType + " '" + m.targetZone.text + "' is not a valid event target");
+				return;
+			}
+			m.targetZone.bindType(fieldType);
+		} catch (NoMetaKeyException ex) {
+			errors.message(m.targetZone.location, "there is no target '" + m.targetZone.text + "' on the card");
+		}
 	}
 	
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {

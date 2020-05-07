@@ -158,5 +158,7 @@ public class Main {
 		StaticLoggerBinder.setLevel("HSIE", Level.WARN);
 		StaticLoggerBinder.setLevel("Rewriter", Level.ERROR);
 		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
+		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
+		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);
 	}
 }

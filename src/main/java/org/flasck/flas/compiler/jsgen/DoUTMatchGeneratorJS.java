@@ -39,7 +39,14 @@ public class DoUTMatchGeneratorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveUnitTestMatch(UnitTestMatch m) {
-		block.assertable(runner, "match", args.get(0), block.string(m.what.toString()), m.selector != null?block.string(m.selector.text) : block.literal("null"), block.literal(Boolean.toString(m.contains)), block.string(m.text));
+		switch (m.what) {
+		case TEXT:
+			block.assertable(runner, "matchText", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(m.text));
+			break;
+		case STYLE:
+			block.assertable(runner, "matchStyle", args.get(0), DoUTEventGeneratorJS.makeSelector(block, m.targetZone), block.literal(Boolean.toString(m.contains)), block.string(m.text));
+			break;
+		}
 		sv.result(null);
 	}
 }

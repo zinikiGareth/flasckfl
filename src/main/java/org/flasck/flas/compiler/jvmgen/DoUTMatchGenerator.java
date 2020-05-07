@@ -8,7 +8,6 @@ import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
-import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 
@@ -42,8 +41,14 @@ public class DoUTMatchGenerator extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestMatch(UnitTestMatch m) {
 		if (args.size() != 1)
 			throw new RuntimeException("expected card");
-		this.meth.callInterface("void", runner, "match", fs.fcx, args.get(0), this.meth.as(m.selector != null ? this.meth.stringConst(m.selector.text) : this.meth.aNull(), J.STRING), this.meth.boolConst(m.contains), this.meth.stringConst(m.text)).flush();
+		switch (m.what) {
+		case TEXT:
+			this.meth.callInterface("void", runner, "matchText", fs.fcx, args.get(0), DoUTEventGenerator.makeSelector(meth, m.targetZone), this.meth.boolConst(m.contains), this.meth.stringConst(m.text)).flush();
+			break;
+		case STYLE:
+			this.meth.callInterface("void", runner, "matchStyle", fs.fcx, args.get(0), DoUTEventGenerator.makeSelector(meth, m.targetZone), this.meth.boolConst(m.contains), this.meth.stringConst(m.text)).flush();
+			break;
+		}
 		sv.result(null);
 	}
-
 }

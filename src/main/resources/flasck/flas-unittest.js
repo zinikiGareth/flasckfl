@@ -52,11 +52,18 @@ UTRunner.prototype.findDiv = function(_cxt, div, zone, pos) {
 	else
 		return this.findDiv(_cxt, qs, zone, pos+1);
 }
-UTRunner.prototype.match = function(_cxt, target, what, selector, contains, expected) {
+UTRunner.prototype.getZoneDiv = function(_cxt, target, zone) {
 	if (!target || !target.card || !target.card._currentDiv) {
 		throw Error("MATCH\nThe card has no rendered content");
 	}
-	var actual = target.card._currentDiv.innerText.trim();
+	var div = this.findDiv(_cxt, target.card._currentDiv, zone, 0);
+	if (!div)
+		throw Error("MATCH\nThe card has no rendered content");
+	return div;
+}
+UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) {
+	var div = this.getZoneDiv(_cxt, target, zone);
+	var actual = div.innerText.trim();
 	actual = actual.replace(/\n/g, ' ');
 	actual = actual.replace(/ +/, ' ');
 	if (contains) {
@@ -65,6 +72,27 @@ UTRunner.prototype.match = function(_cxt, target, what, selector, contains, expe
 	} else {
 		if (actual != expected)
 			throw new Error("MATCH\n  expected: " + expected + "\n  actual:   " + actual);
+	}
+}
+UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected) {
+	var div = this.getZoneDiv(_cxt, target, zone);
+	var clzlist = div.getAttribute("class");
+	if (!clzlist)
+		clzlist = "";
+	clzlist = clzlist.split(" ").sort();
+	var explist = expected.split(" ").sort();
+	var failed = false;
+	for (var i=0;i<explist.length;i++) {
+		var exp = expected[i];
+		failed |= !clzlist.includes(exp);
+	}
+	if (!contains)
+		failed |= clzlist.length != explist.length;
+	if (failed) {
+		if (contains)
+			throw new Error("MATCH\n  expected to contain: " + explist + "\n  actual: " + clzlist);
+		else
+			throw new Error("MATCH\n  expected: " + explist + "\n  actual:   " + clzlist);
 	}
 }
 UTRunner.prototype.handleMessages = function(_cxt, msg) {

@@ -13,6 +13,7 @@ import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.fl.AssertFailed;
 import org.flasck.jvm.fl.JVMTestHelper;
+import org.flasck.jvm.fl.NotMatched;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
@@ -47,6 +48,9 @@ public class JVMRunner extends CommonTestRunner  {
 					pw.println("JVM FAIL " + utc.description);
 					pw.println("  expected: " + af.expected);
 					pw.println("  actual:   " + af.actual);
+				} else if (e2 instanceof NotMatched) {
+					pw.println("JVM FAIL " + utc.description);
+					pw.println("  " + e2.getMessage());
 				} else {
 					pw.println("JVM ERROR " + utc.description);
 					e2.printStackTrace(pw);
