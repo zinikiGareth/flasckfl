@@ -448,6 +448,15 @@ FLCard.prototype._updateContent = function(_cxt, field, value) {
     }
 }
 
+FLCard.prototype._updateStyle = function(_cxt, field, styles) {
+    if (!styles)
+        styles = '';
+    const nodes = this._currentDiv.querySelectorAll("[data-flas-content='" + field + "']");
+    for (var i=0;i<nodes.length;i++) {
+        nodes[i].className = styles;
+    }
+}
+
 
 class FLError extends Error {
 	constructor(msg) {

@@ -4,6 +4,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
@@ -34,6 +35,18 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveTemplateBindingOption(TemplateBindingOption tbo) {
 		currentBlock.updateContent(tbo.assignsTo, expr);
+	}
+	
+	@Override
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+		if (tso.cond != null)
+			new ExprGeneratorJS(state, sv, currentBlock, false);
+	}
+	
+	@Override
+	public void leaveTemplateStyling(TemplateStylingOption tso) {
+		currentBlock.updateStyle(tso.styleField, tso.styleString());
+//		System.out.println("leaving " + tso.styleField.text + " if " + tso.cond + " with " + expr + " will " + tso.styles);
 	}
 	
 	@Override

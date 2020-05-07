@@ -4,10 +4,3 @@
 			'hello'
 		match sc style styleme
 			notice-me
-
-	test style areas can be styled
-		data Styling sc
-		match sc style andme
-			less-important
-			but-praiseworthy
-	

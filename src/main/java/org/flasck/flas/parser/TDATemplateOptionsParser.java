@@ -24,20 +24,23 @@ public class TDATemplateOptionsParser implements TDAParsing {
 	private final TemplateNamer namer;
 	private final TemplateBinding binding;
 	private final TemplateCustomization customizer;
+	private final TemplateField field;
 	private boolean seenContent;
 
-	public TDATemplateOptionsParser(ErrorReporter errors, TemplateNamer namer, TemplateBinding binding) {
+	public TDATemplateOptionsParser(ErrorReporter errors, TemplateNamer namer, TemplateBinding binding, TemplateField field) {
 		this.errors = errors;
 		this.namer = namer;
 		this.binding = binding;
 		this.customizer = binding;
+		this.field = field;
 	}
 
-	public TDATemplateOptionsParser(ErrorReporter errors, TemplateNamer namer, TemplateBindingOption option) {
+	public TDATemplateOptionsParser(ErrorReporter errors, TemplateNamer namer, TemplateBindingOption option, TemplateField field) {
 		this.errors = errors;
 		this.namer = namer;
-		this.binding = null;
 		this.customizer = option;
+		this.field = field;
+		this.binding = null;
 	}
 
 	// This has to handle both options and customization because they are so similar
@@ -50,7 +53,6 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
-		TemplateField field = new TemplateField(tok.location, tok.text);
 		TemplateBindingOption tc = null;
 		if ("|".equals(tok.text)) {
 			if ((binding == null || binding.defaultBinding != null) && toksHasSend(toks)) {
@@ -64,23 +66,23 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			new TDAExpressionParser(errors, t -> {
 				seen.add(t);
 			}).tryParsing(toks);
-			if (seen.isEmpty()) {
-				errors.message(toks, "no conditional expression");
-				return new IgnoreNestedParser();
-			}
 			tok = ExprToken.from(errors, toks);
 			if (tok == null) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
 			if ("<-".equals(tok.text)) {
+				if (seen.isEmpty()) {
+					errors.message(toks, "no conditional expression");
+					return new IgnoreNestedParser();
+				}
 				TemplateBindingOption tbo = readTemplateBinding(toks, field);
 				if (tbo == null)
 					return new IgnoreNestedParser();
 				tc = tbo.conditionalOn(seen.get(0));
 				binding.conditionalBindings.add(tc);
 			} else if ("=>".equals(tok.text)) {
-				TemplateStylingOption tso = readTemplateStyles(seen.get(0), toks);
+				TemplateStylingOption tso = readTemplateStyles(field, seen.size() == 0 ? null : seen.get(0), toks);
 				if (tso == null)
 					return new IgnoreNestedParser();
 				customizer.conditionalStylings.add(tso);
@@ -124,7 +126,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		if (tc != null)
-			return new TDATemplateOptionsParser(errors, namer, tc);
+			return new TDATemplateOptionsParser(errors, namer, tc, field);
 		else
 			return new NoNestingParser(errors);
 	}
@@ -158,7 +160,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 		return new TemplateBindingOption(field, null, seen.get(0), sendTo);
 	}
 
-	private TemplateStylingOption readTemplateStyles(Expr expr, Tokenizable toks) {
+	private TemplateStylingOption readTemplateStyles(TemplateField field, Expr expr, Tokenizable toks) {
 		List<StringLiteral> styles = new ArrayList<>();
 		while (toks.hasMore()) {
 			InputPosition pos = toks.realinfo();
@@ -169,7 +171,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			}
 			styles.add(new StringLiteral(pos, s));
 		}
-		return new TemplateStylingOption(expr, styles);
+		return new TemplateStylingOption(field, expr, styles);
 	}
 
 

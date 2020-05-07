@@ -439,6 +439,7 @@ public class Traverser implements RepositoryVisitor {
 		}
 		if (b.defaultBinding != null)
 			visitTemplateBindingOption(b.defaultBinding);
+		visitTemplateCustomization(b);
 		for (TemplateEvent e : b.events) {
 			visitTemplateEvent(e);
 		}

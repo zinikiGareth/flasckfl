@@ -85,7 +85,7 @@ UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected)
 	var explist = expected.split(" ").sort();
 	var failed = false;
 	for (var i=0;i<explist.length;i++) {
-		var exp = expected[i];
+		var exp = explist[i];
 		failed |= !clzlist.includes(exp);
 	}
 	if (!contains)
