@@ -1,2 +1,4 @@
 JVM PASS to begin with the block is important but not due and all the constants are there
+JVM PASS setting the due flag adds the past-due flag
 JS PASS to begin with the block is important but not due and all the constants are there
+JS PASS setting the due flag adds the past-due flag

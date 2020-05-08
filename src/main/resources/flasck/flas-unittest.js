@@ -21,6 +21,16 @@ UTRunner.prototype.assertSameValue = function(_cxt, e, a) {
 		throw new Error("NSV\n  expected: " + e + "\n  actual:   " + a);
 	}
 }
+UTRunner.prototype.shove = function(_cxt, dest, slot, val) {
+	dest = _cxt.full(dest);
+	val = _cxt.full(val);
+	if (dest instanceof MockCard) {
+		dest = dest.card;
+	}
+	dest.state.set(slot, val);
+	if (dest._updateDisplay)
+		dest._updateDisplay(_cxt);
+}
 UTRunner.prototype.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
 	this.handleMessages(_cxt, inv);

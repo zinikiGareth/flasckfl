@@ -2,6 +2,8 @@ package test.parsing.ut;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -106,6 +108,88 @@ public class UnitTestStepParsingTests {
 		nested.tryParsing(UnitTestTopLevelParsingTests.line("32"));
 		nested.scopeComplete(pos);
 		utp.scopeComplete(pos);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanHandleASimpleShoveStep() {
+		context.checking(new Expectations() {{
+			oneOf(builder).shove((List<UnresolvedVar>) with(Matchers.contains(ExprMatcher.unresolved("card"), ExprMatcher.unresolved("x"))), with(ExprMatcher.number(86)));
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(UnitTestTopLevelParsingTests.line("shove card.x"));
+		assertTrue(nested instanceof SingleExpressionParser);
+		TDAParsing nnp = nested.tryParsing(UnitTestTopLevelParsingTests.line("86"));
+		assertTrue(nnp instanceof NoNestingParser);
+		nnp.scopeComplete(pos);
+		nested.scopeComplete(pos);
+		utp.scopeComplete(pos);
+	}
+	
+	@Test
+	public void testShoveNeedsSomething() {
+		Tokenizable toks = UnitTestTopLevelParsingTests.line("shove");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "field path expected");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+	
+	@Test
+	public void testShoveNeedsMoreThanJustOneSymbol() {
+		Tokenizable toks = UnitTestTopLevelParsingTests.line("shove card");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, ". expected");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+	
+	@Test
+	public void testShoveExprCannotEndOnADot() {
+		Tokenizable toks = UnitTestTopLevelParsingTests.line("shove card.");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "field path expected");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+	
+	@Test
+	public void testShoveExprCannotHaveDollarNotDot() {
+		Tokenizable toks = UnitTestTopLevelParsingTests.line("shove card$");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, ". expected");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void testShoveExprCannotBeANumber() {
+		Tokenizable toks = UnitTestTopLevelParsingTests.line("shove card.3");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "field path expected");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
+	}
+
+	@Test
+	public void testShoveExprCannotHaveTwoDots() {
+		Tokenizable toks = UnitTestTopLevelParsingTests.line("shove card..");
+		context.checking(new Expectations() {{
+			oneOf(errors).message(toks, "field path expected");
+		}});
+		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
+		TDAParsing nested = utp.tryParsing(toks);
+		assertTrue(nested instanceof IgnoreNestedParser);
 	}
 
 	@Test

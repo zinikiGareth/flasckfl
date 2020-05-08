@@ -597,7 +597,7 @@ FLBuiltin.isEqual = function(_cxt, a, b) {
 
 FLBuiltin.isEqual.nfargs = function() { return 2; }
 
-FLBuiltin._prod_state = function(_cxt, mock, v) {
+FLBuiltin._probe_state = function(_cxt, mock, v) {
 	// mock should be a MockCard or MockAgent (or MockObject or something?)
 	const sh = mock.card ? mock.card : mock.agent;
 	if (sh.state.dict[v] === undefined)
@@ -605,7 +605,7 @@ FLBuiltin._prod_state = function(_cxt, mock, v) {
 	return sh.state.dict[v];
 }
 
-FLBuiltin._prod_state.nfargs = function() { return 2; }
+FLBuiltin._probe_state.nfargs = function() { return 2; }
 
 FLBuiltin._underlying = function(_cxt, mock) {
 	return mock._underlying(_cxt);

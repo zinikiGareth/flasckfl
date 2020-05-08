@@ -157,5 +157,6 @@ public class UnitTestGenerationJS {
 		CaptureAssertionClauseVisitorJS capture = new CaptureAssertionClauseVisitorJS(state, nv, meth, runner);
 		capture.result(la);
 		capture.result(ra);
+		capture.postUnitTestAssert(null);
 	}
 }

@@ -66,6 +66,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
+import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
@@ -208,4 +209,8 @@ public interface RepositoryVisitor {
 	void visitTemplateStyling(TemplateStylingOption tso);
 	void leaveTemplateStyling(TemplateStylingOption tso);
 	void visitTemplateEvent(TemplateEvent te);
+	void visitUnitTestShove(UnitTestShove s);
+	void visitShoveSlot(UnresolvedVar v);
+	void visitShoveExpr(Expr value);
+	void leaveUnitTestShove(UnitTestShove s);
 }

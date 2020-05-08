@@ -27,6 +27,11 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
+	public void shove(List<UnresolvedVar> slots, Expr value) {
+		this.steps.add(new UnitTestShove(slots, value));
+	}
+
+	@Override
 	public void data(UnitDataDeclaration dd) {
 		this.steps.add(dd);
 	}

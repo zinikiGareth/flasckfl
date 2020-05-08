@@ -57,6 +57,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
+import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -686,6 +687,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	@Override
+	public void visitUnitTestShove(UnitTestShove a) {
+		new HandleShoveClauseVisitorJS(state, sv, this.block, this.runner);
+	}
+
+	@Override
 	public void visitUnitTestExpect(UnitTestExpect ute) {
 		new DoExpectationGeneratorJS(state, sv, this.block);
 	}
@@ -720,10 +726,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		state = null;
 	}
 
-	@Override
-	public void postUnitTestAssert(UnitTestAssert a) {
-	}
-	
 	@Override
 	public void traversalDone() {
 		jse.complete();

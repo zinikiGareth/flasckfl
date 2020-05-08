@@ -86,6 +86,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
+import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
@@ -1295,6 +1296,8 @@ public class Traverser implements RepositoryVisitor {
 		visitor.visitUnitTestStep(s);
 		if (s instanceof UnitTestAssert)
 			visitUnitTestAssert((UnitTestAssert) s);
+		else if (s instanceof UnitTestShove)
+			visitUnitTestShove((UnitTestShove)s);
 		else if (s instanceof UnitTestInvoke)
 			visitUnitTestInvoke((UnitTestInvoke) s);
 		else if (s instanceof UnitDataDeclaration)
@@ -1360,6 +1363,32 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
 		visitor.postUnitTestAssert(a);
+	}
+
+	@Override
+	public void visitUnitTestShove(UnitTestShove s) {
+		visitor.visitUnitTestShove(s);
+		for (UnresolvedVar v : s.slots) {
+			visitShoveSlot(v);
+		}
+		visitShoveExpr(s.value);
+		leaveUnitTestShove(s);
+	}
+
+	@Override
+	public void visitShoveSlot(UnresolvedVar v) {
+		visitor.visitShoveSlot(v);
+	}
+
+	@Override
+	public void visitShoveExpr(Expr value) {
+		visitor.visitShoveExpr(value);
+		visitExpr(value, 0);
+	}
+
+	@Override
+	public void leaveUnitTestShove(UnitTestShove s) {
+		visitor.leaveUnitTestShove(s);
 	}
 
 	@Override

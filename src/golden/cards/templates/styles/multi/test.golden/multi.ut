@@ -2,3 +2,12 @@
 		data Multi ut
 		match ut style styleme
 			boring multiple-constants always-here do-this-now
+
+	test setting the due flag adds the past-due flag
+		data Multi ut
+		shove ut.due
+			True
+		match ut style styleme
+			boring multiple-constants always-here do-this-now already-due
+
+			

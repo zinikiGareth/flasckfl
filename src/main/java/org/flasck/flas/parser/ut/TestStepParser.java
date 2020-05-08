@@ -18,7 +18,9 @@ import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.PuncToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -59,6 +61,35 @@ public class TestStepParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			return new SingleExpressionParser(errors, ex -> { builder.assertion(test.get(0), ex); });
+		}
+		case "shove": {
+			List<UnresolvedVar> slots = new ArrayList<>();
+			boolean haveDot = false;
+			while (true) {
+				ExprToken tok = ExprToken.from(errors, toks);
+				if (tok == null || tok.type != ExprToken.IDENTIFIER) {
+					errors.message(toks, "field path expected");
+					return new IgnoreNestedParser();
+				}
+				UnresolvedVar v = new UnresolvedVar(tok.location, tok.text);
+				slots.add(v);
+				PuncToken dot = PuncToken.from(errors, toks);
+				if (dot == null) {
+					if (!haveDot) {
+						errors.message(toks, ". expected");
+						return new IgnoreNestedParser();
+					}
+					break;
+				}
+				if (".".equals(dot.text)) {
+					haveDot = true;
+				} else {
+					errors.message(toks, "syntax error");
+					return new IgnoreNestedParser();
+				}
+			}
+
+			return new SingleExpressionParser(errors, expr -> { builder.shove(slots, expr); });
 		}
 		case "contract": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);

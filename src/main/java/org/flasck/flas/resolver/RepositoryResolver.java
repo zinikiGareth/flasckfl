@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateField;
@@ -39,6 +40,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
+import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -49,6 +51,7 @@ import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
 import org.ziniki.splitter.NoMetaDataException;
 import org.ziniki.splitter.NoMetaKeyException;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private final ErrorReporter errors;
@@ -57,6 +60,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private NameOfThing scope;
 	private Implements currentlyImplementing;
 	private Template currentTemplate;
+	private UnresolvedVar currShoveExpr;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -445,6 +449,41 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void leaveUnitDataDeclaration(UnitDataDeclaration udd) {
 		this.scope = scopeStack.remove(0);
 		checkValidityOfUDDConstruction(udd);
+	}
+	
+	@Override
+	public void visitUnitTestShove(UnitTestShove s) {
+		currShoveExpr = null;
+	}
+	
+	@Override
+	public void visitShoveSlot(UnresolvedVar v) {
+		if (currShoveExpr == null) {
+			visitUnresolvedVar(v, 0);
+			currShoveExpr = v;
+		} else if (currShoveExpr.defn() instanceof UnitDataDeclaration) {
+			UnitDataDeclaration udd = (UnitDataDeclaration) currShoveExpr.defn();
+			NamedType ty = udd.ofType.defn();
+			if (ty instanceof StateHolder) {
+				StateHolder st = (StateHolder) ty;
+				if (st.state() == null) {
+					errors.message(v.location, v.var + " does not have state");
+					return;
+				}
+				StructField f = st.state().findField(v.var);
+				if (f == null) {
+					errors.message(v.location, "there is no field " + v.var + " in " + ty.name().uniqueName());
+					return;
+				}
+				v.bind(f);
+				currShoveExpr = v;
+			} else {
+				errors.message(v.location, "cannot shove into " + v.var);
+			}
+		} else {
+			// I'm sure there are some legitimate cases here, but we should probably also recognize that others are sensible compile-time errors
+			throw new NotImplementedException("Cannot handle shove of var " + currShoveExpr.defn());
+		}
 	}
 
 	@Override

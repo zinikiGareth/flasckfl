@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryVisitor;
@@ -44,7 +45,12 @@ public class CaptureAssertionClauseVisitor extends LeafAdapter implements Reposi
 			IExpr rhs = meth.as((IExpr) r, J.OBJECT);
 			IExpr ret = meth.callInterface("void", runner, "assertSameValue", lhs, rhs);
 			block.add(ret);
-			sv.result(JVMGenerator.makeBlock(meth, block));
+			JVMGenerator.makeBlock(meth, block).flush();
 		}
+	}
+	
+	@Override
+	public void postUnitTestAssert(UnitTestAssert a) {
+		sv.result(null);
 	}
 }

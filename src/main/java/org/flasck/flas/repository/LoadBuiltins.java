@@ -87,8 +87,8 @@ public class LoadBuiltins {
 	// The type "operator"
 	private static StructDefn type = new StructDefn(pos, FieldsType.STRUCT, null, "Type", false);
 
-	// The function that prods state in UDDs
-	public static UnresolvedVar prodState = new UnresolvedVar(pos, "_prod_state");
+	// The function that probes state in UDDs
+	public static UnresolvedVar probeState = new UnresolvedVar(pos, "_probe_state");
 	public static UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
 
 	
@@ -147,7 +147,7 @@ public class LoadBuiltins {
 		message.addCase(sendTR);
 		event.addCase(clickEventTR);
 		
-		prodState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_prod_state"), 2, false));
+		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, false));
 		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, false));
 		
 		// specify function types

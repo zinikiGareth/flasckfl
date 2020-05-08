@@ -66,6 +66,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
+import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
@@ -611,6 +612,22 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void visitStateDefinition(StateDefinition state) {
+	}
+
+	@Override
+	public void visitUnitTestShove(UnitTestShove s) {
+	}
+
+	@Override
+	public void visitShoveSlot(UnresolvedVar v) {
+	}
+
+	@Override
+	public void visitShoveExpr(Expr value) {
+	}
+
+	@Override
+	public void leaveUnitTestShove(UnitTestShove s) {
 	}
 
 	@Override

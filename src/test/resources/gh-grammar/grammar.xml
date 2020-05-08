@@ -128,6 +128,9 @@
   <lex token='SEND' pattern='&lt;-'>
   	<p>Method actions, variable assignments and template definitions are defined using the SEND operator.</p>
   </lex>
+  <lex token='SHOVE' pattern='shove'>
+  	<p>The <tt>shove</tt> keyword is used in unit tests to directly affect object or card state.</p>
+  </lex>
   <lex token='SENDTO' pattern='=&gt;'>
   	<p>The SENDTO operator is used to pass things around in templates.</p>
   </lex>
@@ -1485,6 +1488,8 @@
         <li>on the behaviour of a card event handler.</li>
         </ul>
         <p>In order to make all these cases easy, the unit test language allows values and messages to be easily defined and has special syntax for isolating and testing message outputs and template orchestration, independent of the actual template HTML provided.</p>
+        <p>The <tt>assert</tt> action tests an expression and compares it to an expected value.  For convenience, this assertion allows the user to penetrate encapsulation and directly probe card or object state.</p>
+        <p>The <tt>shove</tt> action allows a user to directly update card or object state for test purposes.  Note that this may allow the test to put the object in a state which cannot be reached by normal operations.  This is both a "bug" and a "feature".</p>
         <p>The <tt>event</tt> action simulates a UI input event and dispatches it to the card.  The first argument is a variable which is a reference to the card to receive the event.  The second is the name of an event handler. The expression will probably construct an event, but it could also be a reference to a data object.</p>
         <p>The <tt>invoke</tt> action invokes a method on an object.  This is just described as an "expression" but the semantics are that it must be a valid object method invocation.</p>
         <p>The <tt>contract</tt> action is supposed to invoke a method in a contract on a card.  The first argument is a data variable which is a reference to the card to receive the event.  The second argument is the name of the contract which will have the event.  The third var is the name of the method to invoke on the contract.  The expressions are the data elements to send.</p>
@@ -1499,16 +1504,17 @@
 
 all based on the "match" command
 
-text or html or css
-allow an optional selector
+text or styles (the ones specified by the program)
+IT DOES NOT REFERENCE HTML
+allow an optional selector - which is a path through the fields in the split HTML
 allow the keyword "contains"
 Subsequent indented lines are white-space approximation of the content or value
 Examples:
 match text
 match html
 match html contains
-match html ".body" contains
-match css ".body['height']"
+match html ... contains
+match style ...
         
         </p>
       </description>
@@ -1534,6 +1540,7 @@ match css ".body['height']"
       <ref production='unit-invoke-action' />
       <ref production='unit-contract-action' />
       <ref production='unit-test-assert' />
+      <ref production='unit-test-shove' />
       <ref production='unit-test-expect' />
       <ref production='unit-test-match' />
     </or>
@@ -1576,6 +1583,17 @@ match css ".body['height']"
     <seq>
       <token type='ASSERT' />
       <ref production='expression' />
+      <indent-one>
+    	    <ref production='expression' />
+      </indent-one>
+    </seq>
+  </production>
+  <production name='unit-test-shove'>
+    <section title='Unit Tests' />
+    <tested by='test.parsing.ut.UnitTestStepParsingTests' />
+    <seq>
+      <token type='SHOVE' />
+      <ref production='member-path' />
       <indent-one>
     	    <ref production='expression' />
       </indent-one>

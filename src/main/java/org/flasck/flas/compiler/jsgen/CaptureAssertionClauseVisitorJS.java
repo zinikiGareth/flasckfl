@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
@@ -27,7 +28,6 @@ public class CaptureAssertionClauseVisitorJS extends LeafAdapter implements Resu
 		new ExprGeneratorJS(state, sv, block, false);
 	}
 
-
 	@Override
 	public void result(Object r) {
 		if (value == null)
@@ -36,8 +36,11 @@ public class CaptureAssertionClauseVisitorJS extends LeafAdapter implements Resu
 			JSExpr lhs = value;
 			JSExpr rhs = (JSExpr) r;
 			block.assertable(runner, "assertSameValue", lhs, rhs);
-			sv.result(null);
 		}
 	}
 
+	@Override
+	public void postUnitTestAssert(UnitTestAssert a) {
+		sv.result(null);
+	}
 }
