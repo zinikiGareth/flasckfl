@@ -505,6 +505,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitTemplateBindingOption(option);
 	}
 
+	public void visitTemplateBindingCondition(Expr cond) {
+		top.visitTemplateBindingCondition(cond);
+	}
+
+	public void visitTemplateBindingExpr(Expr expr) {
+		top.visitTemplateBindingExpr(expr);
+	}
+
 	public void leaveTemplateBindingOption(TemplateBindingOption option) {
 		top.leaveTemplateBindingOption(option);
 	}

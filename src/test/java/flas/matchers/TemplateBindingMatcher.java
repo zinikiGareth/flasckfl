@@ -41,7 +41,7 @@ public class TemplateBindingMatcher extends TypeSafeMatcher<TemplateBinding> {
 
 	@Override
 	protected boolean matchesSafely(TemplateBinding bind) {
-		if (!name.equals(bind.slot))
+		if (!name.equals(bind.assignsTo.text))
 			return false;
 		if ((expr == null) != (bind.defaultBinding == null || bind.defaultBinding.expr == null))
 			return false;

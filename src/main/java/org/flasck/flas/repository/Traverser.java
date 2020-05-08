@@ -449,11 +449,22 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitTemplateBindingOption(TemplateBindingOption option) {
 		visitor.visitTemplateBindingOption(option);
-		if (option.cond != null)
+		if (option.cond != null) {
+			visitTemplateBindingCondition(option.cond);
 			visitExpr(option.cond, 0);
+		}
+		visitTemplateBindingExpr(option.expr);
 		visitExpr(option.expr, 0);
 		visitTemplateCustomization(option);
 		leaveTemplateBindingOption(option);
+	}
+
+	public void visitTemplateBindingExpr(Expr expr) {
+		visitor.visitTemplateBindingExpr(expr);
+	}
+
+	public void visitTemplateBindingCondition(Expr cond) {
+		visitor.visitTemplateBindingCondition(cond);
 	}
 
 	public void leaveTemplateBindingOption(TemplateBindingOption option) {

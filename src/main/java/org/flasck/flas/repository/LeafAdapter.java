@@ -171,6 +171,14 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitTemplateBindingCondition(Expr cond) {
+	}
+	
+	@Override
+	public void visitTemplateBindingExpr(Expr expr) {
+	}
+
+	@Override
 	public void leaveTemplateBindingOption(TemplateBindingOption option) {
 	}
 

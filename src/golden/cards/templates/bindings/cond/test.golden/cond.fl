@@ -1,0 +1,8 @@
+	card CondBinding
+		state
+			Boolean displayed
+
+		template label
+			show-message
+				| displayed <- 'read this message'
+				<- ''

@@ -213,4 +213,6 @@ public interface RepositoryVisitor {
 	void visitShoveSlot(UnresolvedVar v);
 	void visitShoveExpr(Expr value);
 	void leaveUnitTestShove(UnitTestShove s);
+	void visitTemplateBindingCondition(Expr cond);
+	void visitTemplateBindingExpr(Expr expr);
 }

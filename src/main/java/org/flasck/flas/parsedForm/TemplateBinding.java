@@ -3,19 +3,13 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.blockForm.InputPosition;
-import org.ziniki.splitter.FieldType;
-
 public class TemplateBinding extends TemplateCustomization {
-	public final InputPosition slotLoc;
-	public final String slot;
-	public TemplateBindingOption defaultBinding;
+	public final TemplateField assignsTo;
 	public final List<TemplateBindingOption> conditionalBindings = new ArrayList<>();
-	private FieldType fieldType;
+	public TemplateBindingOption defaultBinding;
 
-	public TemplateBinding(InputPosition slotLoc, String slot, TemplateBindingOption simple) {
-		this.slotLoc = slotLoc;
-		this.slot = slot;
+	public TemplateBinding(TemplateField assignsTo, TemplateBindingOption simple) {
+		this.assignsTo = assignsTo;
 		this.defaultBinding = simple;
 	}
 	
@@ -27,16 +21,8 @@ public class TemplateBinding extends TemplateCustomization {
 		return defaultBinding;
 	}
 	
-	public void fieldType(FieldType fieldType) {
-		this.fieldType = fieldType;
-	}
-	
-	public FieldType fieldType() {
-		return this.fieldType;
-	}
-	
 	@Override
 	public String toString() {
-		return "Binding[" + slot + "<-"+ defaultBinding.expr + "=>" + defaultBinding.sendsTo+"]";
+		return "Binding[" + assignsTo.text + "<-"+ defaultBinding.expr + "=>" + defaultBinding.sendsTo+"]";
 	}
 }

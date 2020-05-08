@@ -409,16 +409,18 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (ce == null) { // an undefined template should already have been reported ...
 			return;
 		}
-		if (!ce.hasField(b.slot)) {
-			errors.message(b.slotLoc, "there is no slot " + b.slot + " in " + currentTemplate.defines.name.baseName());
+		String slot = b.assignsTo.text;
+		InputPosition slotLoc = b.assignsTo.location();
+		if (!ce.hasField(slot)) {
+			errors.message(slotLoc, "there is no slot " + slot + " in " + currentTemplate.defines.name.baseName());
 			return;
 		}
-		if (currentBindings.contains(b.slot)) {
-			errors.message(b.slotLoc, "cannot bind to " + b.slot + " multiple times");
+		if (currentBindings.contains(slot)) {
+			errors.message(slotLoc, "cannot bind to " + slot + " multiple times");
 			return;
 		}
-		currentBindings.add(b.slot);
-		b.fieldType(ce.get(b.slot));
+		currentBindings.add(slot);
+		b.assignsTo.fieldType(ce.get(slot));
 	}
 	
 	@Override

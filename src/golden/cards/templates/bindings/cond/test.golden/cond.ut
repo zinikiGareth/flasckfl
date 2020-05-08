@@ -1,0 +1,11 @@
+	test by default there is no message
+		data CondBinding cb
+		match cb text show-message
+			
+	test with displayed set the message shows up
+		data CondBinding cb
+		shove cb.displayed
+			True
+		match cb text show-message
+			read this message
+			
