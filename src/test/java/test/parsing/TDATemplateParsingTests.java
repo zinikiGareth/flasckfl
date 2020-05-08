@@ -242,7 +242,7 @@ public class TDATemplateParsingTests {
 		TemplateStylingOption db = binding.conditionalStylings.get(0);
 		assertThat(db.cond, is(ExprMatcher.unresolved("true")));
 		assertEquals(1, db.styles.size());
-		assertThat(db.styles.get(0), is(new StringLiteralMatcher("style1")));
+		assertThat((StringLiteral)db.styles.get(0), is(new StringLiteralMatcher("style1")));
 	}
 
 	@Test
@@ -262,7 +262,7 @@ public class TDATemplateParsingTests {
 		TemplateStylingOption db = binding.defaultBinding.conditionalStylings.get(0);
 		assertThat(db.cond, is(ExprMatcher.unresolved("true")));
 		assertEquals(1, db.styles.size());
-		assertThat(db.styles.get(0), is(new StringLiteralMatcher("style1")));
+		assertThat((StringLiteral)db.styles.get(0), is(new StringLiteralMatcher("style1")));
 	}
 
 	@Test

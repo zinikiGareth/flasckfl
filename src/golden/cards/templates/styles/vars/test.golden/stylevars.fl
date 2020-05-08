@@ -1,0 +1,8 @@
+	card StylingWithVars
+		state
+			String styling1 <- 'hello-style'
+			String styling2
+
+		template message
+			styleme
+				| => styling1 styling2

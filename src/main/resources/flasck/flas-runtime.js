@@ -580,6 +580,19 @@ FLBuiltin.concat = function(_cxt, a, b) {
 
 FLBuiltin.concat.nfargs = function() { return 2; }
 
+FLBuiltin.concatMany = function(_cxt, ...rest) {
+	var ret = "";
+	for (var i=0;i<rest.length;i++) {
+		var tmp = _cxt.full(rest[i]);
+		if (!tmp)
+			continue;
+		if (ret.length > 0)
+			ret += " ";
+		ret += tmp;
+	}
+	return ret;
+}
+
 FLBuiltin.strlen = function(_cxt, str) {
 	str = _cxt.head(str);
 	if (typeof(str) != "string")

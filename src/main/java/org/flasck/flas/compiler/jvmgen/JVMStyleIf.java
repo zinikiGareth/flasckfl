@@ -4,11 +4,10 @@ import org.zinutils.bytecode.IExpr;
 
 public class JVMStyleIf {
 	public final IExpr cond;
-	public final String styles;
+	public final IExpr style;
 
-	public JVMStyleIf(IExpr cond, String styleString) {
+	public JVMStyleIf(IExpr cond, IExpr style) {
 		this.cond = cond;
-		this.styles = styleString;
+		this.style = style;
 	}
-
 }

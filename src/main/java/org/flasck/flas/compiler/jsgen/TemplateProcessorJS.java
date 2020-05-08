@@ -9,7 +9,6 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
-import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.repository.LeafAdapter;
@@ -27,6 +26,7 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final JSBlockCreator templateBlock;
 	private final List<JSStyleIf> styles = new ArrayList<>();
+	private final List<JSExpr> cexpr = new ArrayList<>();
 	private JSBlockCreator bindingBlock;
 	private TemplateField assignsTo;
 
@@ -49,7 +49,6 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 		new ExprGeneratorJS(state, sv, condBlock, false);
 	}
 	
-	
 	@Override
 	public void visitTemplateBindingExpr(Expr expr) {
 		exprBlock = bindingBlock;
@@ -64,7 +63,11 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void result(Object r) {
 		if (r instanceof JSStyleIf) {
-			styles.add((JSStyleIf)r);
+			JSStyleIf si = (JSStyleIf)r;
+			if (si.cond != null)
+				styles.add(si);
+			else
+				cexpr.add(si.style);
 		} else {
 			if (exprBlock != null) {
 				expr = (JSExpr) r;
@@ -82,9 +85,18 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveTemplateBinding(TemplateBinding tb) {
 		assignsTo = null;
-		if (!styles.isEmpty()) {
-			templateBlock.updateStyle(tb.assignsTo, styles);
+		if (!styles.isEmpty() || !cexpr.isEmpty()) {
+			JSExpr ce;
+			if (cexpr.isEmpty())
+				ce = templateBlock.literal("null");
+			else if (cexpr.size() == 1)
+				ce = cexpr.get(0);
+			else
+				ce = templateBlock.callMethod(templateBlock.literal("FLBuiltin"), "concatMany", cexpr.toArray(new JSExpr[cexpr.size()]));
+
+			templateBlock.updateStyle(tb.assignsTo, ce, styles);
 			styles.clear();
+			cexpr.clear();
 		}
 	}
 	

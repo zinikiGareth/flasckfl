@@ -29,6 +29,7 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	private final List<IExpr> currentBlock;
 	private List<IExpr> bindingBlock;
 	private final List<JVMStyleIf> styles = new ArrayList<>();
+	private final List<IExpr> cexpr = new ArrayList<>();
 	private final List<JVMBinding> bindings = new ArrayList<>();
 	private TemplateField assignsTo;
 	private boolean collectingCond;
@@ -75,7 +76,11 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	@Override
 	public void result(Object r) {
 		if (r instanceof JVMStyleIf) {
-			styles.add((JVMStyleIf)r);
+			JVMStyleIf si = (JVMStyleIf)r;
+			if (si.cond != null)
+				styles.add(si);
+			else
+				cexpr.add(si.style);
 		} else {
 			if (collectingCond) {
 				curr.cond = (IExpr) r;
@@ -85,11 +90,6 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 			} else
 				curr.expr = (IExpr) r;
 		}
-	}
-
-	@Override
-	public void leaveTemplateBindingOption(TemplateBindingOption tbo) {
-//		updateStyling(tbo.assignsTo);
 	}
 
 	@Override
@@ -114,31 +114,28 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	}
 	
 	public void updateStyling(TemplateField assignsTo) {
-		if (styles.isEmpty())
+		if (styles.isEmpty() && cexpr.isEmpty())
 			return;
-		StringBuilder sb = new StringBuilder();
+		IExpr ce;
+		if (cexpr.isEmpty())
+			ce = fs.meth.as(fs.meth.aNull(), J.STRING);
+		else if (cexpr.size() == 1)
+			ce = cexpr.get(0);
+		else
+			ce = fs.meth.callStatic(J.BUILTINPKG+".PACKAGEFUNCTIONS", J.STRING, "concatMany", fs.fcx, fs.meth.arrayOf(J.OBJECT, cexpr));
+		
 		List<IExpr> arr = new ArrayList<>();
 		for (JVMStyleIf si : styles) {
-			if (si.cond == null) {
-				if (sb.length() > 0)
-					sb.append(" ");
-				sb.append(si.styles);
-			} else {
-				arr.add(si.cond);
-				arr.add(fs.meth.stringConst(si.styles));
-			}
+			arr.add(si.cond);
+			arr.add(si.style);
 		}
 		
-		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text), fs.meth.stringConst(sb.toString()), fs.meth.arrayOf(J.OBJECT, arr));
-//		if (tso.cond != null) {
-//			IExpr isTruthy = fs.meth.callInterface("boolean", fs.fcx, "isTruthy", expr);
-//			currentBlock.add(fs.meth.ifBoolean(isTruthy, doUpdate, null));
-//		} else {
-			currentBlock.add(doUpdate);
-//		}
+		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text), ce, fs.meth.arrayOf(J.OBJECT, arr));
+		currentBlock.add(doUpdate);
 		JVMGenerator.makeBlock(fs.meth, currentBlock).flush();
 		currentBlock.clear();
 		styles.clear();
+		cexpr.clear();
 	}
 
 	@Override

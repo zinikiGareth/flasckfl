@@ -215,4 +215,6 @@ public interface RepositoryVisitor {
 	void leaveUnitTestShove(UnitTestShove s);
 	void visitTemplateBindingCondition(Expr cond);
 	void visitTemplateBindingExpr(Expr expr);
+	void visitTemplateStyleExpr(Expr e);
+	void visitTemplateStyleCond(Expr cond);
 }

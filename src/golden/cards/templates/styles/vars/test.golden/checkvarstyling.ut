@@ -1,0 +1,13 @@
+	test variables can be used to style
+		data StylingWithVars sv
+		match sv style styleme
+			hello-style
+
+	test the styling changes when you assign the vars
+		data StylingWithVars sv
+		shove sv.styling2
+			'my-format'
+		match sv style styleme
+			hello-style
+			my-format
+	

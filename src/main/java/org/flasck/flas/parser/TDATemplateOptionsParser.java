@@ -14,10 +14,13 @@ import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.StringToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
+import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDATemplateOptionsParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -161,15 +164,21 @@ public class TDATemplateOptionsParser implements TDAParsing {
 	}
 
 	private TemplateStylingOption readTemplateStyles(TemplateField field, Expr expr, Tokenizable toks) {
-		List<StringLiteral> styles = new ArrayList<>();
+		List<Expr> styles = new ArrayList<>();
 		while (toks.hasMore()) {
 			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
-			if (s == null) {
-				errors.message(toks, "invalid style");
-				return null;
+			if (s != null) {
+				styles.add(new StringLiteral(pos, s));
+				continue;
 			}
-			styles.add(new StringLiteral(pos, s));
+			ValidIdentifierToken var = VarNameToken.from(toks);
+			if (var != null) {
+				styles.add(new UnresolvedVar(var.location, var.text));
+				continue;
+			}
+			errors.message(toks, "invalid style");
+			return null;
 		}
 		return new TemplateStylingOption(field, expr, styles);
 	}

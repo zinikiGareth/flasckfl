@@ -10,21 +10,13 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class JSUpdateStyle implements JSExpr {
 	private final TemplateField field;
-	private final String constant;
-	private final List<JSStyleIf> vars = new ArrayList<>();
+	private final JSExpr constant;
+	private final List<JSStyleIf> vars;
 
-	public JSUpdateStyle(TemplateField field, List<JSStyleIf> styles) {
+	public JSUpdateStyle(TemplateField field, JSExpr c, List<JSStyleIf> styles) {
 		this.field = field;
-		StringBuilder sb = new StringBuilder();
-		for (JSStyleIf si : styles) {
-			if (si.cond == null) {
-				if (sb.length() > 0)
-					sb.append(" ");
-				sb.append(si.styles);
-			} else
-				vars.add(si);
-		}
-		this.constant = sb.toString();
+		this.constant = c;
+		this.vars = new ArrayList<>(styles);
 	}
 	
 	@Override
@@ -38,15 +30,13 @@ public class JSUpdateStyle implements JSExpr {
 		w.print(field.type().toString().toLowerCase());
 		w.print("', '");
 		w.print(field.text);
-		w.print("', '");
-		w.print(constant);
-		w.print("'");
+		w.print("', ");
+		w.print(constant.asVar());
 		for (JSStyleIf si : vars) {
 			w.print(", ");
 			w.print(si.cond.asVar());
-			w.print(", '");
-			w.print(si.styles);
-			w.print("'");
+			w.print(", ");
+			w.print(si.style.asVar());
 		}
 		w.println(");");
 	}

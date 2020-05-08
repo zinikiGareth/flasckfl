@@ -87,7 +87,7 @@ public interface JSBlockCreator {
 
 	// templates
 	void updateContent(TemplateField assignsTo, JSExpr expr);
-	void updateStyle(TemplateField assignsTo, List<JSStyleIf> styles);
+	void updateStyle(TemplateField field, JSExpr constant, List<JSStyleIf> styles);
 	
 	// unit testing
 	void assertable(JSExpr runner, String assertion, JSExpr... args);

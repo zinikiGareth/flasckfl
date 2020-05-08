@@ -294,8 +294,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void updateStyle(TemplateField field, List<JSStyleIf> styles) {
-		stmts.add(new JSUpdateStyle(field, styles));
+	public void updateStyle(TemplateField field, JSExpr constant, List<JSStyleIf> styles) {
+		stmts.add(new JSUpdateStyle(field, constant, styles));
 	}
 
 	@Override
