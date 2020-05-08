@@ -2,6 +2,8 @@ package org.flasck.flas.resolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -61,6 +63,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private Implements currentlyImplementing;
 	private Template currentTemplate;
 	private UnresolvedVar currShoveExpr;
+	private Set<String> currentBindings;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -374,6 +377,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitTemplate(Template t, boolean isFirst) {
 		currentTemplate = t;
+		currentBindings = new TreeSet<>();
 	}
 	
 	@Override
@@ -409,6 +413,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			errors.message(b.slotLoc, "there is no slot " + b.slot + " in " + currentTemplate.defines.name.baseName());
 			return;
 		}
+		if (currentBindings.contains(b.slot)) {
+			errors.message(b.slotLoc, "cannot bind to " + b.slot + " multiple times");
+			return;
+		}
+		currentBindings.add(b.slot);
 		b.fieldType(ce.get(b.slot));
 	}
 	

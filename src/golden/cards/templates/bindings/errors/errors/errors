@@ -1,0 +1,2 @@
+nomulti.fl:   4.0:     _ show-message <- 'hello'
+                          cannot bind to show-message multiple times

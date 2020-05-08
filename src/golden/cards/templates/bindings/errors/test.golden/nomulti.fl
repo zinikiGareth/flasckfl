@@ -1,0 +1,4 @@
+	card NoMultipleBindings
+		template label
+			show-message <- 'hello'
+			show-message <- 'hello'
