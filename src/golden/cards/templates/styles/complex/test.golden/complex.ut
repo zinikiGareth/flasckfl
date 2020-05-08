@@ -11,3 +11,44 @@
 			greetings
 		match c style content
 			my-style
+			
+	test in the default state andme is styled correctly
+		data Complex c
+		match c style andme
+			a-style
+			
+	test the message can change
+		data Complex c
+		shove c.message
+			'goodbye'
+		match c text styleme
+			goodbye
+		match c style styleme
+			notice-me
+
+	test changing value makes a difference to content and andme
+		data Complex c
+		shove c.value
+			False
+		match c text content
+			salutations
+		match c style content
+			fine
+		match c style andme
+			
+
+	test we can add variable styling to andme
+		data Complex c
+		shove c.somestyle
+			'foo-chin mumsy'
+		match c text content
+			greetings
+		match c style content
+			my-style
+		match c style andme
+			a-style
+			foo-chin
+			mumsy
+			
+			
+	

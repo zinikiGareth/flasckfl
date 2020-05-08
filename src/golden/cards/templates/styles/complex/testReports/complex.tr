@@ -1,4 +1,12 @@
 JVM PASS in the default state styleme is defined correctly
 JVM PASS in the default state content is defined correctly
+JVM PASS in the default state andme is styled correctly
+JVM PASS the message can change
+JVM PASS changing value makes a difference to content and andme
+JVM PASS we can add variable styling to andme
 JS PASS in the default state styleme is defined correctly
 JS PASS in the default state content is defined correctly
+JS PASS in the default state andme is styled correctly
+JS PASS the message can change
+JS PASS changing value makes a difference to content and andme
+JS PASS we can add variable styling to andme
