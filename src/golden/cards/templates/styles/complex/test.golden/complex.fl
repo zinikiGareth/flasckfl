@@ -1,0 +1,17 @@
+	card Complex
+		state
+			String message <- 'hello'
+			Boolean value <- True
+			String somestyle
+
+		template message
+			styleme <- message
+				| => 'notice-me'
+			content
+				| value <- 'greetings'
+					| => 'my-style'
+				<- 'salutations'
+					| value => 'something-mumble'
+					| => 'fine'
+			andme
+				| value => 'a-style' somestyle

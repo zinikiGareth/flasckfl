@@ -1,0 +1,13 @@
+	test in the default state styleme is defined correctly
+		data Complex c
+		match c text styleme
+			hello
+		match c style styleme
+			notice-me
+			
+	test in the default state content is defined correctly
+		data Complex c
+		match c text content
+			greetings
+		match c style content
+			my-style
