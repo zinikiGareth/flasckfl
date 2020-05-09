@@ -98,6 +98,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, false);
 	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, false);
 	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, false);
+	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, null, "!"), 1, false);
 	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, false);
 	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, false);
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, false);
@@ -159,6 +160,7 @@ public class LoadBuiltins {
 		minus.bindType(new Apply(number, number, number));
 		mul.bindType(new Apply(number, number, number));
 		div.bindType(new Apply(number, number, number));
+		not.bindType(new Apply(bool, bool));
 		length.bindType(new Apply(list, number));
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
@@ -170,6 +172,7 @@ public class LoadBuiltins {
 		allFunctions.add(minus);
 		allFunctions.add(mul);
 		allFunctions.add(div);
+		allFunctions.add(not);
 		allFunctions.add(length);
 		allFunctions.add(strlen);
 		allFunctions.add(concat);
@@ -205,6 +208,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, minus);
 		repository.functionDefn(errors, mul);
 		repository.functionDefn(errors, div);
+		repository.functionDefn(errors, not);
 		repository.functionDefn(errors, length);
 		repository.functionDefn(errors, strlen);
 		repository.functionDefn(errors, concat);

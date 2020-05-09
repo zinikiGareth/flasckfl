@@ -113,7 +113,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	@Override
 	public void leaveTemplateBinding(TemplateBinding tb) {
 		IExpr ret = null;
-		if (bindings.isEmpty())
+		if (bindings.isEmpty() && !bindingBlock.isEmpty())
 			ret = JVMGenerator.makeBlock(fs.meth, bindingBlock);
 		for (JVMBinding b : bindings) {
 			b.trueBlock.add(fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.meth.stringConst(assignsTo.text), fs.meth.as(b.expr, J.OBJECT)));

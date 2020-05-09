@@ -299,6 +299,9 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		case "/":
 			inner = "Div";
 			break;
+		case "!":
+			inner = "Not";
+			break;
 		case "++":
 			inner = "strAppend";
 			break;
