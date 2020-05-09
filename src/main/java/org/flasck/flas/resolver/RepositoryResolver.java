@@ -30,6 +30,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
@@ -420,7 +421,22 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		currentBindings.add(slot);
-		b.assignsTo.fieldType(ce.get(slot));
+		FieldType type = ce.get(slot);
+		switch (type) {
+		case STYLE:
+			if (b.doesAssignment())
+				errors.message(slotLoc, "style field cannot be assigned to");
+			break;
+		case CONTENT:
+			if (!b.doesAssignment())
+				errors.message(slotLoc, "content field must be assigned to");
+			break;
+		default:
+			// It's possible that I have missed some cases that are valid
+			errors.message(slotLoc, "cannot add bindings for field of type " + type.toString().toLowerCase());
+			break;
+		}
+		b.assignsTo.fieldType(type);
 	}
 	
 	@Override
@@ -437,6 +453,27 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		fld.fieldType(ce.get(fld.text));
+	}
+	
+	@Override
+	public void visitTemplateEvent(TemplateEvent te) {
+		RepositoryEntry defn = find(scope, te.handler);
+		boolean isEH = false;
+		if (defn == null) {
+			errors.message(te.location(), "cannot resolve '" + te.handler + "'");
+			return;
+		}
+		if (defn instanceof ObjectMethod) {
+			ObjectMethod om = (ObjectMethod) defn;
+			if (om.isEvent()) {
+				isEH = true;
+				te.bindHandler(om);
+			}
+		}
+		if (!isEH) {
+			errors.message(te.location(), defn.name().uniqueName() + " is not an event handler");
+			return;
+		}
 	}
 	
 	@Override

@@ -320,11 +320,13 @@ public class TDATemplateParsingTests {
 
 	@Test
 	public void aNameByItselfMustHaveSomeNestedContent() {
+		Tokenizable line = TDABasicIntroParsingTests.line("styling-area");
+		InputPosition ep = line.realinfo().copySetEnd(12);
 		context.checking(new Expectations() {{
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("styling-area")));
-			oneOf(errors).message(pos, "simple template name must have options or customization");
+			oneOf(errors).message(ep, "simple template name must have options or customization");
 		}});
-		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
+		TDAParsing nested = parser.tryParsing(line);
 		nested.scopeComplete(pos);
 	}
 

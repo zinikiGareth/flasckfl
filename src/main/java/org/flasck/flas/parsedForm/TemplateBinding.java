@@ -21,6 +21,12 @@ public class TemplateBinding extends TemplateCustomization {
 		return defaultBinding;
 	}
 	
+	public boolean doesAssignment() {
+		if (!conditionalBindings.isEmpty())
+			return true;
+		return defaultBinding != null && defaultBinding.expr != null;
+	}
+	
 	@Override
 	public String toString() {
 		return "Binding[" + assignsTo.text + "<-"+ defaultBinding.expr + "=>" + defaultBinding.sendsTo+"]";

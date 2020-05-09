@@ -1,0 +1,3 @@
+	card DontAssignToStyles
+		template label
+			styleme <- 'not allowed'

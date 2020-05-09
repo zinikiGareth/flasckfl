@@ -1,2 +1,16 @@
+cards/label.  0.0:     _ <div id="flas-style-dupl">
+                          duplicate field in 'cards/label': dupl
+fieldneedsso  3.0:     _ show-message
+                          content field must be assigned to
+fieldneedsso  3.0:     _ show-message
+                          simple template name must have options or customization
+fieldneedsso 10.0:     _ show-message
+                          content field must be assigned to
+fieldneedsso 10.0:     _ show-message
+                          simple template name must have options or customization
+needhandlers  4.3:    =>  _ needToDefineThis
+                          cannot resolve 'needToDefineThis'
 nomulti.fl:   4.0:     _ show-message <- 'hello'
                           cannot bind to show-message multiple times
+nostyleassig  3.0:     _ styleme <- 'not allowed'
+                          style field cannot be assigned to

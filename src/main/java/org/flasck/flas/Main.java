@@ -14,7 +14,6 @@ import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.FunctionGroups;
-import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.slf4j.Logger;
@@ -105,14 +104,9 @@ public class Main {
 			}
 		}
 		
-		if (errors.hasErrors() || config.upto == PhaseTo.PARSING)
+		if (config.upto == PhaseTo.PARSING)
 			return null;
 		
-		if (config.upto == PhaseTo.TEST_TRAVERSAL) {
-			testTraversal(repository);
-			return null;
-		}
-
 		if (compiler.resolve())
 			return null;
 		
@@ -138,16 +132,6 @@ public class Main {
 			return null;
 		
 		return compiler;
-	}
-
-	private static boolean testTraversal(Repository repository) {
-		try {
-			repository.traverse(new LeafAdapter());
-			return false;
-		} catch (Throwable t) {
-			t.printStackTrace(System.out);
-			return true;
-		}
 	}
 
 	public static void setLogLevels() {

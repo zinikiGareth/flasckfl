@@ -68,7 +68,7 @@ public class FLASCompiler {
 	public FLASCompiler(ErrorReporter errors, Repository repository) {
 		this.errors = errors;
 		this.repository = repository;
-		this.splitter = new Splitter();
+		this.splitter = new Splitter(x -> errors.message(new InputPosition(x.file, 0, 0, x.text), x.message));
 	}
 	
 	public void processInput(File input) {

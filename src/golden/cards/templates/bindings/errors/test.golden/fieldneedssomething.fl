@@ -1,0 +1,10 @@
+	card FieldNeedsSomethingNext
+		template label
+			show-message
+			styleme
+				| => 'something'
+				
+				
+	card FieldNeedsSomethingEnd
+		template label
+			show-message
