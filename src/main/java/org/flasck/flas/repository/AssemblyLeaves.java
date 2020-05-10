@@ -7,7 +7,6 @@ import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
-import org.ziniki.interfaces.ContentObject;
 
 public class AssemblyLeaves implements AssemblyVisitor {
 
@@ -28,12 +27,11 @@ public class AssemblyLeaves implements AssemblyVisitor {
 	}
 
 	@Override
-	public void visitCSS(String name, ContentObject co) {
+	public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {
 	}
 
 	@Override
-	public ContentObject visitResource(String name, ZipInputStream zis) throws IOException {
-		return null;
+	public void visitResource(String name, ZipInputStream zis) throws IOException {
 	}
 
 	@Override

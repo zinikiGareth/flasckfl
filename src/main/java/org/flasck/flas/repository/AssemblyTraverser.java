@@ -13,7 +13,6 @@ import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ziniki.interfaces.ContentObject;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -53,11 +52,10 @@ public class AssemblyTraverser implements AssemblyVisitor {
 						;
 					else
 						throw new NotImplementedException("cannot handle " + name);
-				} else {
-					ContentObject co = visitResource(name, zis);
-					if (name.endsWith(".css"))
-						visitCSS(name, co);
-				}
+				} else if (name.endsWith(".css"))
+					visitCSS(name, zis, ze.getSize());
+				else
+					visitResource(name, zis);
 			}
 		} catch (Exception ex) {
 			logger.error("Error uploading", ex);
@@ -99,12 +97,12 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		v.visitCardTemplate(replace, zis, length);
 	}
 
-	public void visitCSS(String name, ContentObject co) {
-		v.visitCSS(name, co);
+	public void visitCSS(String name, ZipInputStream zis, long length) throws IOException {
+		v.visitCSS(name, zis, length);
 	}
 
-	public ContentObject visitResource(String name, ZipInputStream zis) throws IOException {
-		return v.visitResource(name, zis);
+	public void visitResource(String name, ZipInputStream zis) throws IOException {
+		v.visitResource(name, zis);
 	}
 
 	public void leaveAssembly(Assembly a) throws IOException {
