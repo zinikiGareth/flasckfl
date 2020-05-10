@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.interfaces.ContentObject;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -29,30 +30,8 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	}
 
 	public void doTraversal(Repository repository) {
-		for (SplitMetaData w : repository.allWebs()) {
-			try (ZipInputStream zis = w.processedZip()) {
-				ZipEntry ze;
-				while ((ze = zis.getNextEntry()) != null) {
-					String name = ze.getName();
-					if (name.startsWith("cards/")) {
-						if (name.endsWith(".html")) {
-							// long length = ze.getSize(); // this does not work because of https://bugs.openjdk.java.net/browse/JDK-8080092
-							long length = w.getLength(name);
-							visitCardTemplate(name.replace(".html", ""), zis, length);
-						} else if (name.endsWith(".json"))
-							;
-						else
-							throw new NotImplementedException("cannot handle " + name);
-					} else
-						System.out.println("Not yet handling " + name);
-				}
-			} catch (Exception ex) {
-				logger.error("Error uploading", ex);
-				errors.message((InputPosition)null, "error uploading web elements: " + ex);
-			}
-		}
 		for (RepositoryEntry e : repository.dict.values())
-			visitEntry(e);
+			visitEntry(repository, e);
 		try {
 			traversalDone();
 		} catch (Exception ex) {
@@ -60,18 +39,46 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		}
 	}
 
-	private void visitEntry(RepositoryEntry e) {
-		if (e instanceof Assembly)
-			visitAssembly((ApplicationAssembly) e);
+	private void visitWebInfo(SplitMetaData w) {
+		try (ZipInputStream zis = w.processedZip()) {
+			ZipEntry ze;
+			while ((ze = zis.getNextEntry()) != null) {
+				String name = ze.getName();
+				if (name.startsWith("cards/")) {
+					if (name.endsWith(".html")) {
+						// long length = ze.getSize(); // this does not work because of https://bugs.openjdk.java.net/browse/JDK-8080092
+						long length = w.getLength(name);
+						visitCardTemplate(name.replace(".html", ""), zis, length);
+					} else if (name.endsWith(".json"))
+						;
+					else
+						throw new NotImplementedException("cannot handle " + name);
+				} else {
+					ContentObject co = visitResource(name, zis);
+					if (name.endsWith(".css"))
+						visitCSS(name, co);
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("Error uploading", ex);
+			errors.message((InputPosition)null, "error uploading web elements: " + ex);
+		}
 	}
 
-	@Override
-	public void visitAssembly(ApplicationAssembly a) {
+	private void visitEntry(Repository repository, RepositoryEntry e) {
+		if (e instanceof Assembly)
+			traverseAssemblyWithWebs(repository, (ApplicationAssembly) e);
+	}
+
+	public void traverseAssemblyWithWebs(Repository repository, ApplicationAssembly a) {
 		try {
-			v.visitAssembly(a);
+			visitAssembly(a);
 			for (File f : jse.files()) {
 				compiledPackageFile(f);
 			}
+			Iterable<SplitMetaData> allWebs = repository.allWebs();
+			for (SplitMetaData w : allWebs)
+				visitWebInfo(w);
 			leaveAssembly(a);
 		} catch (Exception ex) {
 			logger.error("Error uploading", ex);
@@ -79,8 +86,25 @@ public class AssemblyTraverser implements AssemblyVisitor {
 		}
 	}
 
+	public void visitAssembly(ApplicationAssembly a) {
+		v.visitAssembly(a);
+	}
+
 	public void compiledPackageFile(File f) {
 		v.compiledPackageFile(f);
+	}
+
+	@Override
+	public void visitCardTemplate(String replace, InputStream zis, long length) throws IOException {
+		v.visitCardTemplate(replace, zis, length);
+	}
+
+	public void visitCSS(String name, ContentObject co) {
+		v.visitCSS(name, co);
+	}
+
+	public ContentObject visitResource(String name, ZipInputStream zis) throws IOException {
+		return v.visitResource(name, zis);
 	}
 
 	public void leaveAssembly(Assembly a) throws IOException {
@@ -90,11 +114,6 @@ public class AssemblyTraverser implements AssemblyVisitor {
 	@Override
 	public void traversalDone() throws Exception {
 		v.traversalDone();
-	}
-
-	@Override
-	public void visitCardTemplate(String replace, InputStream zis, long length) throws IOException {
-		v.visitCardTemplate(replace, zis, length);
 	}
 	
 }

@@ -103,7 +103,6 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 			arr.add(si.style);
 		}
 		
-		System.out.println("Styling " + assignsTo.text + (curr == null ? " styling": " " + (bindingBlock == curr.trueBlock)));
 		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text), ce, fs.meth.arrayOf(J.OBJECT, arr));
 		bindingBlock.add(doUpdate);
 		styles.clear();

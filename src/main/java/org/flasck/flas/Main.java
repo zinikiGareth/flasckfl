@@ -144,5 +144,9 @@ public class Main {
 		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
 		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
 		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);
+		StaticLoggerBinder.setLevel("GLS", Level.WARN);
+		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
+		StaticLoggerBinder.setLevel("awstxstore", Level.WARN);
+		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", Level.WARN);
 	}
 }
