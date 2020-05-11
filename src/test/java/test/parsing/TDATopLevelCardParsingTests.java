@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
@@ -87,6 +88,9 @@ public class TDATopLevelCardParsingTests {
 
 	@Test
 	public void theCardCanHaveASingleTemplateDeclaration() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newTemplate(with(tracker), with(any(Template.class)));
+		}});
 		TDAParsing nested = cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 		assertEquals(1, card.templates.size());
 		assertTrue(nested instanceof TDATemplateBindingParser);
@@ -105,6 +109,9 @@ public class TDATopLevelCardParsingTests {
 
 	@Test
 	public void theCardCanHaveMultipleTemplateDeclarations() {
+		context.checking(new Expectations() {{
+			exactly(2).of(builder).newTemplate(with(tracker), with(any(Template.class)));
+		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
 		assertEquals(2, card.templates.size());

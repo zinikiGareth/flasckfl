@@ -1,0 +1,3 @@
+	card NoStateValue
+		template top
+			hold <- x

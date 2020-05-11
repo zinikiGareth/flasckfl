@@ -1,0 +1,8 @@
+	struct MyX
+	
+	card UndefinedTemplate
+		state 
+			MyX x
+		
+		template top
+			hold <- x => inner

@@ -199,7 +199,7 @@ public interface RepositoryVisitor {
 	void leaveTemplate(Template t);
 	void visitUnitTestMatch(UnitTestMatch m);
 	void leaveUnitTestMatch(UnitTestMatch m);
-	void visitTemplateReference(TemplateReference refersTo, boolean isFirst);
+	void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining);
 	void visitTemplateBinding(TemplateBinding b);
 	void visitTemplateBindingOption(TemplateBindingOption option);
 	void leaveTemplateBindingOption(TemplateBindingOption option);

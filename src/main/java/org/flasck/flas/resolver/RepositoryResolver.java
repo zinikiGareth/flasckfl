@@ -30,6 +30,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateReference;
@@ -57,6 +58,17 @@ import org.ziniki.splitter.NoMetaKeyException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
+	public class BindingInfo {
+		private final TemplateBinding b;
+		private final FieldType type;
+
+		public BindingInfo(TemplateBinding b, FieldType type) {
+			this.b = b;
+			this.type = type;
+		}
+
+	}
+
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final List<NameOfThing> scopeStack = new ArrayList<>();
@@ -65,6 +77,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private Template currentTemplate;
 	private UnresolvedVar currShoveExpr;
 	private Set<String> currentBindings;
+	private BindingInfo currentBinding;
+	private ArrayList<String> currentTemplates;
+	private ArrayList<String> referencedTemplates;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -181,6 +196,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitCardDefn(CardDefinition cd) {
 		scopeStack.add(0, scope);
 		this.scope = cd.name();
+		currentTemplates = new ArrayList<>();
+		referencedTemplates = new ArrayList<>();
 	}
 	
 	@Override
@@ -302,6 +319,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveCardDefn(CardDefinition cd) {
 		this.scope = scopeStack.remove(0);
+		currentTemplates = null;
+		referencedTemplates = null;
 	}
 
 	@Override
@@ -379,15 +398,21 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitTemplate(Template t, boolean isFirst) {
 		currentTemplate = t;
 		currentBindings = new TreeSet<>();
+		if (!isFirst && !referencedTemplates.contains(t.name().baseName()))
+			errors.message(t.location(), "template " + t.name().baseName() + " has not been referenced yet");
+		currentTemplates.add(t.name().baseName());
 	}
 	
 	@Override
-	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
+	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
 		TemplateName name = refersTo.name;
-		CardData webInfo;
+		CardData webInfo = null;
 		try {
 			webInfo = repository.findWeb(name.baseName());
 		} catch (NoMetaDataException ex) {
+			// webInfo will be null and be caught below
+		}
+		if (webInfo == null) {
 			errors.message(name.location(), "there is no web template defined for " + name.baseName());
 			return;
 		}
@@ -431,12 +456,36 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			if (!b.doesAssignment())
 				errors.message(slotLoc, "content field must be assigned to");
 			break;
-		default:
-			// It's possible that I have missed some cases that are valid
+		case CONTAINER:
+			if (!b.doesAssignment())
+				errors.message(slotLoc, "container field must be assigned to");
+			break;
+		case PUNNET:
+			throw new NotImplementedException();
+		case CARD:
+		case ITEM:
 			errors.message(slotLoc, "cannot add bindings for field of type " + type.toString().toLowerCase());
 			break;
 		}
 		b.assignsTo.fieldType(type);
+		currentBinding = new BindingInfo(b, type);
+	}
+	
+	@Override
+	public void visitTemplateBindingOption(TemplateBindingOption option) {
+		if (option.sendsTo != null) {
+			RepositoryEntry defn = find(scope, option.sendsTo.name.baseName());
+			if (defn == null)
+				errors.message(option.sendsTo.location(), "template " + option.sendsTo.name.baseName() + " is not defined");
+			else if (!(defn instanceof Template))
+				errors.message(option.sendsTo.location(), "cannot send to " + option.sendsTo.name.baseName() + " which is not a template");
+			else {
+				CardData td = ((Template)defn).defines.defn();
+				if (td != null && td.type() != CardType.ITEM)
+					errors.message(option.sendsTo.location(), "cannot send to " + option.sendsTo.name.baseName() + " which is not an item template");
+			}
+			referencedTemplates.add(option.sendsTo.name.baseName());
+		}
 	}
 	
 	@Override
@@ -474,6 +523,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			errors.message(te.location(), defn.name().uniqueName() + " is not an event handler");
 			return;
 		}
+	}
+	
+	@Override
+	public void leaveTemplateBinding(TemplateBinding b) {
+		this.currentBinding = null;
 	}
 	
 	@Override

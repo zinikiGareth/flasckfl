@@ -1,0 +1,12 @@
+	card DefinedBeforeReferenced
+		state 
+			MyX x
+			MyX y
+		
+		template top
+			hold <- x => referer
+		
+		template inner
+		
+		template referer
+			other <- y => inner

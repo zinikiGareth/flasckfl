@@ -1,11 +1,11 @@
 	card Complex
 		state
-			String message <- 'hello'
+			String msg <- 'hello'
 			Boolean value <- True
 			String somestyle
 
 		template message
-			styleme <- message
+			styleme <- msg
 				| => 'notice-me'
 			content
 				| value <- 'greetings'

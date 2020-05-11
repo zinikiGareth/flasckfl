@@ -1,0 +1,5 @@
+most things must be primitives
+objects can be handled with their own syntax
+structs/unions must be "sentTo" another template
+cannot assign a card in a item
+cannot assign an item in a card

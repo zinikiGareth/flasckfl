@@ -30,6 +30,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 			}
 			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, consumer.templateName(tn.location, tn.text)));
 			consumer.addTemplate(template);
+			topLevel.newTemplate(errors, template);
 			return new TDATemplateBindingParser(errors, namer, template);
 		}
 		case "event": {

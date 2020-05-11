@@ -213,7 +213,8 @@ public class Traverser implements RepositoryVisitor {
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof IntroduceVar || e instanceof HandlerLambda ||
-				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract) {
+				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract ||
+				   e instanceof Template) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof Assembly) {
 			;
@@ -333,6 +334,11 @@ public class Traverser implements RepositoryVisitor {
 			visitHandlerImplements(ic, cd);
 		boolean isFirst = true;
 		for (Template t : cd.templates) {
+			visitTemplateReference(t.defines, isFirst, false);
+			isFirst = false;
+		}
+		isFirst = true;
+		for (Template t : cd.templates) {
 			visitTemplate(t, isFirst);
 			isFirst = false;
 		}
@@ -418,15 +424,15 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitTemplate(Template t, boolean isFirst) {
 		visitor.visitTemplate(t, isFirst);
-		visitTemplateReference(t.defines, isFirst);
+		visitTemplateReference(t.defines, isFirst, true);
 		for (TemplateBinding b : t.bindings()) {
 			visitTemplateBinding(b);
 		}
 		leaveTemplate(t);
 	}
 
-	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
-		visitor.visitTemplateReference(refersTo, isFirst);
+	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
+		visitor.visitTemplateReference(refersTo, isFirst, isDefining);
 	}
 
 	public void leaveTemplate(Template t) {

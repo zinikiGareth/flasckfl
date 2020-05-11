@@ -159,7 +159,7 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst) {
+	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
 	}
 
 	@Override

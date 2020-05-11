@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +8,9 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.parser.TemplateBindingConsumer;
+import org.flasck.flas.repository.RepositoryEntry;
 
-public class Template implements Locatable, TemplateBindingConsumer {
+public class Template implements Locatable, RepositoryEntry, TemplateBindingConsumer {
 	public final InputPosition kw;
 	private final InputPosition loc;
 	public final TemplateReference defines;
@@ -32,6 +34,11 @@ public class Template implements Locatable, TemplateBindingConsumer {
 	
 	public Iterable<TemplateBinding> bindings() {
 		return bindings;
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println(this);
 	}
 
 	@Override

@@ -1,0 +1,14 @@
+	card CannotSendToVar
+		state 
+			MyX x
+		
+		template top
+			hold <- x => x
+
+	card CannotSendToCardTemplate
+		state 
+			MyX x
+		
+		template top
+			hold <- x => top
+			

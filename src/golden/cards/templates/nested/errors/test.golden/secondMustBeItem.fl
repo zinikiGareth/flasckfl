@@ -1,0 +1,4 @@
+	card SecondMustBeItem
+		template top
+			
+		template other-card

@@ -43,6 +43,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -185,6 +186,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void newIntroduction(ErrorReporter errors, IntroduceVar var) {
 		addEntry(errors, var.name(), var);
+	}
+
+	@Override
+	public void newTemplate(ErrorReporter errors, Template template) {
+		addEntry(errors, template.name(), template);
 	}
 
 	public void addEntry(ErrorReporter errors, final NameOfThing name, final RepositoryEntry entry) {

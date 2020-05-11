@@ -1,0 +1,13 @@
+	struct MyStruct
+		String msg
+		
+	card StructsNeedSendingToRegularFields
+		state
+			MyStruct s
+			
+		template top
+			field1 <- s
+			field2 <- s => format
+			hold <- s
+			
+		template format 

@@ -1,0 +1,10 @@
+	card NoDuplicate
+		state 
+			MyX x
+		
+		template top
+			hold <- x => inner
+		
+		template inner
+		
+		template inner

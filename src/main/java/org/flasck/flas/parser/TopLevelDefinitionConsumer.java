@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -29,5 +30,6 @@ public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer, I
 	void newObjectAccessor(ErrorReporter errors, ObjectAccessor oa);
 	void newRequiredContract(ErrorReporter errors, RequiresContract rc);
 	void newObjectContract(ErrorReporter errors, ObjectContract oc);
+	void newTemplate(ErrorReporter errors, Template template);
 	void replaceDefinition(HandlerLambda hl);
 }

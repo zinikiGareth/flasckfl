@@ -19,7 +19,7 @@
 			
 	test the message can change
 		data Complex c
-		shove c.message
+		shove c.msg
 			'goodbye'
 		match c text styleme
 			goodbye

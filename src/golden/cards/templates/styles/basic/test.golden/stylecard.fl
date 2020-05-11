@@ -1,7 +1,7 @@
 	card Styling
 		state
-			String message <- 'hello'
+			String msg <- 'hello'
 
 		template message
-			styleme <- message
+			styleme <- msg
 				| => 'notice-me'

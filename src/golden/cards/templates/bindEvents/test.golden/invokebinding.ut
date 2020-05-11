@@ -1,16 +1,16 @@
 	test by default we have hello
 		data Message mc
-		assert (mc.message)
+		assert (mc.msg)
 			"hello"
 			
 	test we can click on the bound target zone and it will change
 		data Message mc
 		event mc target (ClickEvent)
-		assert (mc.message)
+		assert (mc.msg)
 			"goodbye"
 			
 	test clicking on an unbound zone will not change it
 		data Message mc
 		event mc other (ClickEvent)
-		assert (mc.message)
+		assert (mc.msg)
 			"hello"
