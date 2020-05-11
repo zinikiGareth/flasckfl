@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.PolyType;
@@ -104,7 +105,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public PolyType nextPoly(InputPosition pos) {
 		if (polyCount >= 26)
 			throw new NotImplementedException("Cannot handle more than 26 poly types at once");
-		return new PolyType(pos, new String(new char[] { (char)('A' + polyCount++) }));
+		return new PolyType(pos, new SolidName(null, new String(new char[] { (char)('A' + polyCount++) })));
 	}
 	
 	

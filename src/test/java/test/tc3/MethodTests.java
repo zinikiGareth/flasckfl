@@ -406,7 +406,7 @@ public class MethodTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void anyOtherPolyIsNotFine() {
-		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, "A")));
+		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, new SolidName(null, "A"))));
 		new MessageChecker(errors, repository, state, sv, pos, meth);
 		PolyInstance pi = new PolyInstance(pos, sda, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{

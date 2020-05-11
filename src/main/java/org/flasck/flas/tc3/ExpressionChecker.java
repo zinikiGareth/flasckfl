@@ -52,12 +52,14 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private InputPosition guardPos;
 	private InputPosition exprPos;
+	private final boolean inTemplate;
 
-	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, boolean inTemplate) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
+		this.inTemplate = inTemplate;
 	}
 	
 	@Override
@@ -156,13 +158,13 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
 		this.exprPos = expr.location;
-		nv.push(new ApplyExpressionChecker(errors, repository, state, nv));
+		nv.push(new ApplyExpressionChecker(errors, repository, state, nv, inTemplate));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
 		this.exprPos = expr.location;
-		nv.push(new MemberExpressionChecker(errors, repository, state, nv));
+		nv.push(new MemberExpressionChecker(errors, repository, state, nv, inTemplate));
 	}
 	
 	@Override

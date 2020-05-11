@@ -6,19 +6,24 @@ import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.PattToken;
+import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class TDATypeReferenceParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final VarNamer namer;
 	private final Consumer<TypeReference> consumer;
+	private final FunctionScopeUnitConsumer topLevel;
 	
-	public TDATypeReferenceParser(ErrorReporter errors, Consumer<TypeReference> consumer) {
-		super();
+	public TDATypeReferenceParser(ErrorReporter errors, VarNamer namer, Consumer<TypeReference> consumer, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
+		this.namer = namer;
 		this.consumer = consumer;
+		this.topLevel = topLevel;
 	}
 
 	@Override
@@ -36,7 +41,7 @@ public class TDATypeReferenceParser implements TDAParsing {
 		}
 		List<TypeReference> andTypeParameters = new ArrayList<>();
 		if (tok.type == PattToken.OSB) {
-			TDATypeReferenceParser inner = new TDATypeReferenceParser(errors, x -> andTypeParameters.add(x));
+			TDATypeReferenceParser inner = new TDATypeReferenceParser(errors, namer, x -> andTypeParameters.add(x), topLevel);
 			while (true) {
 				if (inner.tryParsing(toks) == null) {
 					// it failed, we fail ...
@@ -57,6 +62,9 @@ public class TDATypeReferenceParser implements TDAParsing {
 			toks.reset(mark);
 		}
 		consumer.accept(new TypeReference(qn.location, qn.text, andTypeParameters));
+		PolyType pt = PolyTypeToken.fromToken(tok.location, namer, qn.text);
+		if (pt != null)
+			topLevel.polytype(errors, pt);
 		return new NoNestingParser(errors);
 	}
 

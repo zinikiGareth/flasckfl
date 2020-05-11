@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -96,7 +97,7 @@ public class ConstraintUnification {
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.isReturned(pos);
 
-		PolyType polyA = new PolyType(pos, "A");
+		PolyType polyA = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
 			oneOf(state).nextPoly(pos); will(returnValue(polyA));
 		}});

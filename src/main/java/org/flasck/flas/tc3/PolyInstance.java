@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -72,7 +71,7 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 		if (!this.ty.incorporates(pos, o.ty))
 			return false;
 		for (int i=0;i<polys.size();i++)
-			if (polys.get(i) != LoadBuiltins.any && polys.get(i) != o.polys.get(i))
+			if (!polys.get(i).incorporates(pos, o.polys.get(i)))
 				return false;
 		return true;
 	}

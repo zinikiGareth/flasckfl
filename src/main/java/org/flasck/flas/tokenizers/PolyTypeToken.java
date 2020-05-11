@@ -1,6 +1,8 @@
 package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parser.VarNamer;
 
 public class PolyTypeToken {
 	public final InputPosition location;
@@ -24,11 +26,33 @@ public class PolyTypeToken {
 			return null;
 		}
 		ValidIdentifierToken tok = ValidIdentifierToken.from(line);
-		if (tok.text.length() > 2 || (tok.text.length() == 2 && !Character.isUpperCase(tok.text.charAt(1)) && !Character.isDigit(tok.text.charAt(1)))) {
+		String tx = tok.text;
+		if (!validate(tx)) {
 			// would be a real type
 			line.reset(mark);
 			return null;
 		}
 		return new PolyTypeToken(tok);
+	}
+
+	public static PolyType fromToken(InputPosition pos, VarNamer namer, String tok) {
+		if (validate(tok))
+			return new PolyType(pos, namer.namePoly(pos, tok));
+		else
+			return null;
+	}
+	
+	private static boolean validate(String tx) {
+		if (tx.length() > 2)
+			return false;
+		if (!Character.isUpperCase(tx.charAt(0)))
+			return false;
+		if (tx.length() == 2 && !Character.isUpperCase(tx.charAt(1)) && !Character.isDigit(tx.charAt(1)))
+			return false;
+		return true;
+	}
+
+	public PolyType asType(VarNamer namer) {
+		return new PolyType(location, namer.namePoly(location, text));
 	}
 }

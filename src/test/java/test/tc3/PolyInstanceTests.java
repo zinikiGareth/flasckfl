@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.tc3.PolyInstance;
@@ -58,7 +59,7 @@ public class PolyInstanceTests {
 	@Test
 	public void aListOfAnyCanIncorporateAConsOfSomethingElse() {
 		PolyInstance listS = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.any));
-		PolyInstance listN = new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(new PolyType(pos, "X")));
+		PolyInstance listN = new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(new PolyType(pos, new SolidName(null, "A"))));
 		assertTrue(listS.incorporates(pos, listN));
 		assertFalse(listN.incorporates(pos, listS));
 	}

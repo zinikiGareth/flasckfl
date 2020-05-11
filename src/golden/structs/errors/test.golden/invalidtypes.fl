@@ -1,0 +1,5 @@
+	struct InvalidTypes
+		Undefined foo
+		List nopolys
+		List[String, String] tooManyPolys
+		List[Undefined] invalidPolys

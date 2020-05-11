@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -39,7 +38,7 @@ public class TDAMethodParser {
 		}
 		FunctionName fnName = methodNamer.functionName(var.location, var.text);
 		List<Pattern> args = new ArrayList<>();
-		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), p -> {
+		TDAPatternParser pp = new TDAPatternParser(errors, new SimpleVarNamer(fnName), p -> {
 			args.add(p);
 		}, topLevel);
 		while (pp.tryParsing(toks) != null)

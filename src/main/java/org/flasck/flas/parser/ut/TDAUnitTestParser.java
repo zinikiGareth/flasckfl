@@ -3,6 +3,7 @@ package org.flasck.flas.parser.ut;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parser.FunctionScopeUnitConsumer;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -12,11 +13,13 @@ public class TDAUnitTestParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final UnitTestNamer namer;
 	private final UnitTestDefinitionConsumer builder;
+	private final FunctionScopeUnitConsumer topLevel;
 
-	public TDAUnitTestParser(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer builder) {
+	public TDAUnitTestParser(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer builder, FunctionScopeUnitConsumer topLevel) {
 		this.errors = errors;
 		this.namer = namer;
 		this.builder = builder;
+		this.topLevel = topLevel;
 	}
 
 	@Override
@@ -29,7 +32,7 @@ public class TDAUnitTestParser implements TDAParsing {
 		}
 		switch (tok.text) {
 		case "data": {
-			return new TDAUnitTestDataParser(errors, false, namer, dd -> builder.data(dd)).tryParsing(toks);
+			return new TDAUnitTestDataParser(errors, false, namer, dd -> builder.data(dd), topLevel).tryParsing(toks);
 		}
 		case "test": {
 			final String desc = toks.remainder().trim();

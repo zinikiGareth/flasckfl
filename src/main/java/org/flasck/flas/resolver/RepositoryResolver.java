@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -23,6 +24,8 @@ import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PolyHolder;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -50,6 +53,8 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
@@ -58,16 +63,15 @@ import org.ziniki.splitter.NoMetaKeyException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
-	public class BindingInfo {
-		private final TemplateBinding b;
-		private final FieldType type;
-
-		public BindingInfo(TemplateBinding b, FieldType type) {
-			this.b = b;
-			this.type = type;
-		}
-
-	}
+//	public class BindingInfo {
+//		private final TemplateBinding b;
+//		private final FieldType type;
+//
+//		public BindingInfo(TemplateBinding b, FieldType type) {
+//			this.b = b;
+//			this.type = type;
+//		}
+//	}
 
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
@@ -77,7 +81,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private Template currentTemplate;
 	private UnresolvedVar currShoveExpr;
 	private Set<String> currentBindings;
-	private BindingInfo currentBinding;
+//	private BindingInfo currentBinding;
 	private ArrayList<String> currentTemplates;
 	private ArrayList<String> referencedTemplates;
 
@@ -354,18 +358,43 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference var) {
-		String tn = var.name();
+	public void visitTypeReference(TypeReference ref) {
+		String tn = ref.name();
 		final RepositoryEntry defn = find(scope, tn);
 		if (defn == null) {
-			errors.message(var.location(), "cannot resolve '" + tn + "'");
+			errors.message(ref.location(), "cannot resolve '" + tn + "'");
 			return;
 		} else if (!(defn instanceof NamedType)) {
-			errors.message(var.location(), defn.name().uniqueName() + " is not a type");
+			errors.message(ref.location(), defn.name().uniqueName() + " is not a type");
 			return;
 		}
 		
-		var.bind((NamedType) defn);
+		NamedType nt = (NamedType) defn;
+		if (nt instanceof PolyHolder) {
+			PolyHolder ph = (PolyHolder)nt;
+			if (ph.hasPolys()) {
+				List<PolyType> nd = ph.polys();
+				List<TypeReference> nu = ref.polys();
+				int ndp = nd.size();
+				if (ndp != nu.size()) {
+					errors.message(ref.location(), "expected " + ndp + " poly vars");
+					return;
+				}
+				ErrorMark mark = errors.mark();
+				List<Type> bound = new ArrayList<>();
+				for (TypeReference tr : nu) {
+					visitTypeReference(tr);
+					if (mark.hasMoreNow())
+						return;
+					bound.add(tr.defn());
+				}
+				// it needs to bind to a polyinstance
+				ref.bind(new PolyInstance(ref.location(), (NamedType) defn, bound));
+				return;
+			}
+		}
+		
+		ref.bind((NamedType) defn);
 	}
 	
 	@Override
@@ -461,14 +490,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				errors.message(slotLoc, "container field must be assigned to");
 			break;
 		case PUNNET:
-			throw new NotImplementedException();
+			if (!b.doesAssignment())
+				errors.message(slotLoc, "container field must be assigned to");
+			break;
 		case CARD:
 		case ITEM:
 			errors.message(slotLoc, "cannot add bindings for field of type " + type.toString().toLowerCase());
 			break;
 		}
 		b.assignsTo.fieldType(type);
-		currentBinding = new BindingInfo(b, type);
+//		currentBinding = new BindingInfo(b, type);
 	}
 	
 	@Override
@@ -527,7 +558,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void leaveTemplateBinding(TemplateBinding b) {
-		this.currentBinding = null;
+//		this.currentBinding = null;
 	}
 	
 	@Override

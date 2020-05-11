@@ -200,7 +200,7 @@ public class StackVisitation {
 
 	@Test
 	public void applyExpressionsPushAnotherMatcher() {
-		ExpressionChecker ec = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker ec = new ExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ApplyExpressionChecker.class)));
 		}});
@@ -213,7 +213,7 @@ public class StackVisitation {
 
 	@Test
 	public void memberExpressionsPushAnotherMatcher() {
-		ExpressionChecker ec = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker ec = new ExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(MemberExpressionChecker.class)));
 		}});
@@ -225,7 +225,7 @@ public class StackVisitation {
 
 	@Test
 	public void applyExpressionCheckerAutoPushesOnExpr() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(ExpressionChecker.class)));
 		}});
@@ -235,7 +235,7 @@ public class StackVisitation {
 
 	@Test
 	public void applyCheckerPushesOnMemberExpr() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(MemberExpressionChecker.class)));
 		}});
@@ -247,7 +247,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionWithValidTypesReturnsResult() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		context.checking(new Expectations() {{
@@ -274,8 +274,8 @@ public class StackVisitation {
 
 	@Test
 	public void applyExpressionWithPolyApplyInstantiatesFreshUTs() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
-		PolyType pt = new PolyType(pos, "A");
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
+		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
 		Type fnt = new Apply(pt, pt);
 		Type nbr = LoadBuiltins.number;
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "ut_A", "unknown");
@@ -298,7 +298,7 @@ public class StackVisitation {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void leaveApplyExpressionWithInsufficientButValidTypesReturnsAnApply() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		Type string = context.mock(Type.class, "string");
@@ -324,7 +324,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionWithInvalidTypesThrowsAnError() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type str = context.mock(Type.class, "str");
 		Type nbr = context.mock(Type.class, "nbr");
@@ -354,7 +354,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionWithEarlierErrorTypesReturnsAnErrorTypeButDoesNotCascade() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type err = new ErrorType();
 		Type nbr = context.mock(Type.class, "nbr");
@@ -377,7 +377,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionAttachesConstraintsToPolyVarHolders() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = LoadBuiltins.number;
 		UnifiableType ut = context.mock(UnifiableType.class);
@@ -407,7 +407,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveApplyExpressionCanHandleUnifiableTypesAsFunctionsProducingApplications() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		Type nbr = context.mock(Type.class, "nbr");
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		FunctionName func = FunctionName.function(pos, null, "f");
@@ -428,7 +428,7 @@ public class StackVisitation {
 
 	@Test
 	public void aUnifiableTypeCanBeAppliedToAUnifiableTypeWhichCreatesABond() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "func", "unknown");
 		UnifiableType utV = context.mock(UnifiableType.class);
 		FunctionName fname = FunctionName.function(pos, null, "f");
@@ -453,7 +453,7 @@ public class StackVisitation {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void leaveApplyExpressionCanDealWithExplicitCurrying() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		Type fnt = context.mock(Type.class, "fn/2");
 		Type nbr = context.mock(Type.class, "nbr");
 		context.checking(new Expectations() {{
@@ -478,7 +478,7 @@ public class StackVisitation {
 
 	@Test
 	public void leaveMemberExpressionCanFindAFieldInAStructDefn() {
-		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv);
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(LoadBuiltins.polyA);
 		}});
@@ -498,7 +498,7 @@ public class StackVisitation {
 		cd.addMethod(cmd);
 		cmd.bindType();
 		
-		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv);
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.contract), Matchers.is(LoadBuiltins.send))));
 		}});
@@ -517,7 +517,7 @@ public class StackVisitation {
 		cd.addMethod(cmd);
 		cmd.bindType();
 		
-		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv);
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "there is no method 'q' in test.repo.AContract");
 			oneOf(nv).result(with(any(ErrorType.class)));
@@ -542,7 +542,7 @@ public class StackVisitation {
 		cd.addMethod(cmd);
 		cmd.bindType();
 		
-		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv);
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.contract), Matchers.is(LoadBuiltins.send))));
 		}});
@@ -565,7 +565,7 @@ public class StackVisitation {
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
 		tr.bind(od);
 		
-		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv);
+		MemberExpressionChecker mec = new MemberExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(LoadBuiltins.string);
 		}});

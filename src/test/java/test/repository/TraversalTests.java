@@ -154,7 +154,7 @@ public class TraversalTests {
 
 	@Test
 	public void traverserDoesNotVisitPolyTypes() {
-		PolyType pa = new PolyType(pos, "A");
+		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
 		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "MyStruct"), true, Arrays.asList(pa));
 		r.newStruct(errors, s);
 		context.checking(new Expectations() {{

@@ -44,6 +44,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.ConsumeStructFields;
+import org.flasck.flas.parser.SimpleVarNamer;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -212,8 +213,9 @@ public class RepositoryTests {
 	@Test
 	public void aPolyObjectDefnAddsItsVars() {
 		Repository r = new Repository();
-		PolyType pa = new PolyType(pos, "A");
-		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, Arrays.asList(pa));
+		SolidName sn = new SolidName(pkg, "Obj");
+		PolyType pa = new PolyType(pos, new SolidName(sn, "A"));
+		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, Arrays.asList(pa));
 		r.newObject(errors, od);
 		assertEquals(pa, r.get("test.repo.Obj.A"));
 	}
@@ -257,8 +259,9 @@ public class RepositoryTests {
 	@Test
 	public void aPolyStructDefnAddsItsVars() {
 		Repository r = new Repository();
-		PolyType pa = new PolyType(pos, "A");
-		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructName"), true, Arrays.asList(pa));
+		SolidName sn = new SolidName(pkg, "StructName");
+		PolyType pa = new PolyType(pos, new SolidName(sn, "A"));
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, Arrays.asList(pa));
 		r.newStruct(errors, sd);
 		assertEquals(pa, r.get("test.repo.StructName.A"));
 	}
@@ -291,7 +294,7 @@ public class RepositoryTests {
 	public void structFieldsAreGivenNamesAndAddedToTheRepo() {
 		Repository r = new Repository();
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "TheStruct"), true, new ArrayList<>());
-		ConsumeStructFields csf = new ConsumeStructFields(errors, r, (loc, t) -> new VarName(loc, sd.name(), t), sd);
+		ConsumeStructFields csf = new ConsumeStructFields(errors, r, new SimpleVarNamer(sd.name()), sd);
 		r.newStruct(errors, sd);
 		final StructField sf = new StructField(pos, true, new TypeReference(pos, "A"), "x");
 		csf.addField(sf);

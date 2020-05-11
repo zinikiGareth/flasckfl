@@ -8,6 +8,7 @@ import java.util.Set;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
@@ -54,7 +55,7 @@ public class PatternExtraction {
 	@Test
 	public void aPolymorphicVariable() {
 		UnifiableType xv = context.mock(UnifiableType.class);
-		PolyType pa = new PolyType(pos, "A");
+		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
 			oneOf(state).hasVar("test.repo.fred.x"); will(returnValue(xv));
 			oneOf(xv).resolve(errors, true); will(returnValue(pa));

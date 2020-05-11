@@ -1,0 +1,17 @@
+	object Obj
+		ctor makeMe
+		
+		template format
+	
+	card UseObjects
+		state
+			Obj o
+
+		template top
+			field1 <- o
+			field2 <- o => format
+			field3 <- o.format
+			hold <- o
+			hold2 <- o.format
+			
+		template format 

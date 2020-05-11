@@ -33,7 +33,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		this.pos = pos;
 		this.inMeth = inMeth;
 		sv.push(this);
-		sv.push(new ExpressionChecker(errors, repository, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 	}
 
 	@Override

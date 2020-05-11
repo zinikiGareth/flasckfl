@@ -12,19 +12,16 @@ import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class PolyType implements RepositoryEntry, Locatable, NamedType, Comparable<PolyType> {
-	private InputPosition location;
-	private String shortName;
-	private NameOfThing fullName;
+	private final InputPosition location;
+	private final SolidName fullName;
+	private final String shortName;
 
-	public PolyType(InputPosition location, String name) {
+	public PolyType(InputPosition location, SolidName solidName) {
 		this.location = location;
-		this.shortName = name;
+		this.fullName = solidName;
+		this.shortName = solidName.baseName();
 	}
 
-	public void containedIn(NameOfThing container) {
-		this.fullName = new SolidName(container, shortName);
-	}
-	
 	public String shortName() {
 		return shortName;
 	}

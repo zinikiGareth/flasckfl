@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -45,8 +46,9 @@ public class LoadBuiltins {
 	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
 	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
 	
+	
 	// "Primitive" types
-	public static final PolyType polyA = new PolyType(pos, "A"); 
+	public static final PolyType polyA = new PolyType(pos, new SolidName(null, "A")); 
 	public static final Primitive any = new Primitive(pos, "Any");
 	// TODO: I think we want subclasses of Any called "Entity", "Deal", "Offer", etc
 	// Not quite sure what etc. includes because I don't think "Primitive" and "Struct" hold any value
@@ -58,6 +60,7 @@ public class LoadBuiltins {
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
 	public static final Type idempotentHandler = contract; // This may or may not be correct ...
+	public static final Type template = new Primitive(pos, "Template");
 	
 	// This is another really weird thing ... it has arguments really, so needs to be parameterized a variable amount
 	// Probably needs its own class to handle it properly
@@ -73,6 +76,9 @@ public class LoadBuiltins {
 	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, polyA);
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), polyA);
 	public static final PolyInstance listAny = new PolyInstance(pos, list, Arrays.asList(any));
+
+	// Crobags
+	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new SolidName(null, "Crobag"), false, Arrays.asList(polyA));
 	
 	// Messages
 	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
@@ -153,7 +159,7 @@ public class LoadBuiltins {
 		
 		// specify function types
 		{
-			Type pa = new PolyType(pos, "A");
+			Type pa = new PolyType(pos, new SolidName(null, "A"));
 			isEqual.bindType(new Apply(pa, pa, bool));
 		}
 		plus.bindType(new Apply(number, number, number));

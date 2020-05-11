@@ -33,12 +33,12 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 		this.sv = sv;
 		sv.push(this);
 		state = new FunctionGroupTCState(repository, new DependencyGroup());
-		sv.push(new ExpressionChecker(errors, repository, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 	}
 	
 	@Override
 	public void visitExpr(Expr e, int nargs) {
-		sv.push(new ExpressionChecker(errors, repository, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 	}
 	
 	@Override

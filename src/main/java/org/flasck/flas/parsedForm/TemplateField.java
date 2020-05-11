@@ -30,5 +30,4 @@ public class TemplateField implements Locatable {
 	public void fieldType(FieldType fieldType) {
 		this.type = fieldType;
 	}
-
 }

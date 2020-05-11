@@ -128,7 +128,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	@Override
 	public void visitCase(FunctionCaseDefn fcd) {
-		sv.push(new ExpressionChecker(errors, repository, state, sv));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 	}
 	
 	@Override
@@ -154,7 +154,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 				errors.message(gr.location(), "guards must be booleans");
 			
 			// There will be an expression as well, so push another checker ...
-			sv.push(new ExpressionChecker(errors, repository, state, sv));
+			sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 		} else {
 			ExprResult exprResult = (ExprResult)r;
 			Type ret = exprResult.type;

@@ -3,6 +3,7 @@
 			String msg <- 'hello'
 			Boolean value <- True
 			String somestyle
+			List[String] manyStyles <- ['hello, world']
 
 		template message
 			styleme <- msg
@@ -11,7 +12,7 @@
 				| value <- 'greetings'
 					| => 'my-style'
 				<- 'salutations'
-					| value => 'something-mumble'
+					| value => 'something-mumble' manyStyles
 					| => 'fine'
 			andme
 				| value => 'a-style' somestyle

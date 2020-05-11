@@ -9,5 +9,15 @@
 			field1 <- s
 			field2 <- s => format
 			hold <- s
+			for-cards <- s
+			
+		template format 
+		
+	card CannotSendIfDestinationIsAContainer
+		state
+			MyStruct s
+			
+		template top
+			hold <- s => format
 			
 		template format 

@@ -7,7 +7,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -59,7 +58,7 @@ public class ContractMethodParser implements TDAParsing {
 		FunctionName fnName = FunctionName.contractDecl(name.location, cname, name.text);
 
 		List<Pattern> args = new ArrayList<>();
-		TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), x-> args.add(x), topLevel);
+		TDAPatternParser pp = new TDAPatternParser(errors, new SimpleVarNamer(fnName), x-> args.add(x), topLevel);
 		while (pp.tryParsing(toks) != null)
 			;
 		List<TypedPattern> targs = new ArrayList<>();
@@ -81,7 +80,7 @@ public class ContractMethodParser implements TDAParsing {
 			}
 			
 			List<Pattern> hdlrs = new ArrayList<>();
-			TDAPatternParser hp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), x-> hdlrs.add(x), topLevel);
+			TDAPatternParser hp = new TDAPatternParser(errors, new SimpleVarNamer(fnName), x-> hdlrs.add(x), topLevel);
 			hp.tryParsing(toks);
 			if (hdlrs.size() != 1) {
 				errors.message(toks, "no handler specified");

@@ -4,6 +4,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
@@ -43,6 +44,11 @@ public class TypeChecker extends LeafAdapter {
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
 		new GroupChecker(errors, repository, sv, new FunctionGroupTCState(repository, grp));
+	}
+	
+	@Override
+	public void visitTemplate(Template t, boolean isFirst) {
+		new TemplateChecker(errors, repository, sv, t);
 	}
 	
 	@Override

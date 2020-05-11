@@ -27,7 +27,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		TemplateNameToken tok = TemplateNameToken.from(toks);
+		final TemplateNameToken tok = TemplateNameToken.from(toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
@@ -68,7 +68,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 			}
 			simple = new TemplateBindingOption(field, null, expr, sendsTo);
 		}
-		final TemplateBinding binding = new TemplateBinding(new TemplateField(tok.location, tok.text), simple);
+		final TemplateBinding binding = new TemplateBinding(field, simple);
 		consumer.addBinding(binding);
 		if (simple != null)
 			return new TDATemplateOptionsParser(errors, namer, simple, field);

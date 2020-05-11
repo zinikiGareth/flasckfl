@@ -12,9 +12,12 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -39,9 +42,11 @@ public class UnitDataDeclTypesTests {
 
 	@Test
 	public void testThereMustBeAtLeastOneFieldAssignmentInAUTData() {
+		StructDefn sd = new StructDefn(pos, FieldsType.STRUCT, "test.repo", "StructThing", false);
+		sd.ctorfields.add(new StructField(pos, false, LoadBuiltins.stringTR, "fld"));
 		context.checking(new Expectations() {{
-			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(LoadBuiltins.cons));
-			oneOf(errors).message(pos, "either an expression or at least one field assignment must be specified for Cons");
+			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(sd));
+			oneOf(errors).message(pos, "either an expression or at least one field assignment must be specified for test.repo.StructThing");
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), null);
@@ -51,8 +56,10 @@ public class UnitDataDeclTypesTests {
 
 	@Test
 	public void testOneAssignmentIsEnough() {
+		StructDefn sd = new StructDefn(pos, FieldsType.STRUCT, "test.repo", "StructThing", false);
+		sd.ctorfields.add(new StructField(pos, false, LoadBuiltins.stringTR, "fld"));
 		context.checking(new Expectations() {{
-			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(LoadBuiltins.cons));
+			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(sd));
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), null);
@@ -63,8 +70,10 @@ public class UnitDataDeclTypesTests {
 
 	@Test
 	public void noFieldsAreNeededIfThereIsAnAssignment() {
+		StructDefn sd = new StructDefn(pos, FieldsType.STRUCT, "test.repo", "StructThing", false);
+		sd.ctorfields.add(new StructField(pos, false, LoadBuiltins.stringTR, "fld"));
 		context.checking(new Expectations() {{
-			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(LoadBuiltins.cons));
+			oneOf(rr).get("test.repo.ut.StructThing"); will(returnValue(sd));
 		}});
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), new StringLiteral(pos, "foo"));

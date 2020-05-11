@@ -10,8 +10,10 @@ import java.util.function.Consumer;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.FunctionScopeUnitConsumer;
@@ -264,6 +266,8 @@ public class TDAPatternParsingTests {
 	public void parensCanContainPolyTypedThings() {
 		final Tokenizable line = line("(A x)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).namePoly(with(any(InputPosition.class)), with("A")); will(returnValue(new SolidName(null, "A")));
+			oneOf(topLevel).polytype(with(errors), with(any(PolyType.class)));
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("x")); will(returnValue(new VarName(pos, null, "x")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("A", "x")));
 			oneOf(topLevel).argument(with(errors), with(any(TypedPattern.class)));
@@ -459,6 +463,8 @@ public class TDAPatternParsingTests {
 	public void aTypeCanHaveParametersWithParameters() {
 		final Tokenizable line = line("(Map[A,List[A]] map)");
 		context.checking(new Expectations() {{
+			exactly(2).of(vnamer).namePoly(with(any(InputPosition.class)), with("A")); will(returnValue(new SolidName(null, "A")));
+			exactly(2).of(topLevel).polytype(with(errors), with(any(PolyType.class)));
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("map")); will(returnValue(new VarName(pos, null, "map")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Map", "map").typevar("A").typevar("List")));
 			oneOf(topLevel).argument(with(errors), with(any(TypedPattern.class)));
@@ -498,6 +504,8 @@ public class TDAPatternParsingTests {
 	public void aTypeWithParametersMustBeInParensAndHaveAVarToGetTheRightResult() {
 		final Tokenizable line = line("(Type[A] var)");
 		context.checking(new Expectations() {{
+			oneOf(vnamer).namePoly(with(any(InputPosition.class)), with("A")); will(returnValue(new SolidName(null, "A")));
+			oneOf(topLevel).polytype(with(errors), with(any(PolyType.class)));
 			oneOf(vnamer).nameVar(with(any(InputPosition.class)), with("var")); will(returnValue(new VarName(pos, null, "var")));
 			oneOf(builder).accept(with(TypedPatternMatcher.typed("Type", "var").typevar("A")));
 			oneOf(topLevel).argument(with(errors), with(any(TypedPattern.class)));

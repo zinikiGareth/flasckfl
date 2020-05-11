@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -113,6 +112,8 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
+			SolidName sn = namer.solidName(tn.text);
+			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
 			while (toks.hasMore()) {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
@@ -120,16 +121,16 @@ public class TDAIntroParser implements TDAParsing {
 					errors.message(toks, "invalid type argument");
 					return new IgnoreNestedParser();
 				} else
-					polys.add(new PolyType(ta.location, ta.text));
+					polys.add(ta.asType(svn));
 			}
 			if (toks.hasMore()) {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
 			final FieldsType ty = FieldsDefn.FieldsType.valueOf(kw.text.toUpperCase());
-			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, namer.solidName(tn.text), true, polys);
+			final StructDefn sd = new StructDefn(kw.location, tn.location, ty, sn, true, polys);
 			consumer.newStruct(errors, sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), ty, true);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), ty, true);
 		}
 		case "wraps": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -151,9 +152,11 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
+			SolidName sn = namer.solidName(tn.text);
+			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			final StructDefn sd = new StructDefn(kw.location, tn.location, FieldsType.WRAPS, namer.solidName(tn.text), true, new ArrayList<>());
 			consumer.newStruct(errors, sd);
-			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, (loc, t) -> new VarName(loc, sd.name(), t), sd), FieldsType.WRAPS, false);
+			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, consumer, svn, sd), FieldsType.WRAPS, false);
 		}
 		case "union": {
 			TypeNameToken tn = TypeNameToken.unqualified(toks);
@@ -161,6 +164,8 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
+			SolidName sn = namer.solidName(tn.text);
+			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
 			while (toks.hasMore()) {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
@@ -168,7 +173,7 @@ public class TDAIntroParser implements TDAParsing {
 					errors.message(toks, "invalid type argument");
 					return new IgnoreNestedParser();
 				} else
-					polys.add(new PolyType(ta.location, ta.text));
+					polys.add(ta.asType(svn));
 			}
 			final UnionTypeDefn ud = new UnionTypeDefn(tn.location, true, namer.solidName(tn.text), polys);
 			consumer.newUnion(errors, ud);
@@ -180,6 +185,8 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
+			SolidName sn = namer.solidName(tn.text);
+			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
 			while (toks.hasMore()) {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
@@ -187,7 +194,7 @@ public class TDAIntroParser implements TDAParsing {
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser();
 				} else
-					polys.add(new PolyType(ta.location, ta.text));
+					polys.add(ta.asType(svn));
 			}
 			if (toks.hasMore()) {
 				errors.message(toks, "tokens after end of line");

@@ -38,6 +38,11 @@ public class ObjectNestedNamer extends InnerPackageNamer implements TemplateName
 	public VarName nameVar(InputPosition loc, String name) {
 		return new VarName(loc, pkg, name);
 	}
+	
+	@Override
+	public SolidName namePoly(InputPosition pos, String tok) {
+		return new SolidName(pkg, tok);
+	}
 
 	@Override
 	public TypeReference contract(InputPosition location, String text) {

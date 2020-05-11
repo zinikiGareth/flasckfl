@@ -138,9 +138,4 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 				return pt;
 		return null;
 	}
-
-	public void completePolyNames() {
-		for (PolyType pa : polys)
-			pa.containedIn(name);
-	}
 }

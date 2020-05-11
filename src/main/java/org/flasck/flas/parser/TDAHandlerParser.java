@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
-import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -65,7 +64,7 @@ public class TDAHandlerParser implements TDAParsing {
 		}
 		List<HandlerLambda> lambdas = new ArrayList<>();
 		final HandlerName hn = namer.handlerName(named.text);
-		VarNamer vn = (loc, t) -> new VarName(loc, hn, t); 
+		VarNamer vn = new SimpleVarNamer(hn); 
 		while (line.hasMore() && !errors.hasErrors()) {
 			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(new HandlerLambda(patt)), topLevel);
 			pp.tryParsing(line);

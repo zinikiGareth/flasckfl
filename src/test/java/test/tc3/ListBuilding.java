@@ -34,7 +34,7 @@ public class ListBuilding {
 
 	@Test
 	public void nilReturnsNil() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(LoadBuiltins.nil);
 		}});
@@ -49,7 +49,7 @@ public class ListBuilding {
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void consOfASingleArgumentReturnsAPolyInstanceWithThatType() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number))); will(returnValue(new PosType(pos, LoadBuiltins.number)));
 			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.number))));
@@ -67,7 +67,7 @@ public class ListBuilding {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void consOfATwoStringsReturnsAPolyInstanceOfString() {
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		context.checking(new Expectations() {{
 			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.string), new PosType(pos, LoadBuiltins.string))); will(returnValue(new PosType(pos, LoadBuiltins.string)));
 			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.string))));

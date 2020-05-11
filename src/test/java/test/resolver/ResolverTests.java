@@ -268,7 +268,7 @@ public class ResolverTests {
 
 	@Test
 	public void weCanResolveAPolyTypeNameInAStructField() {
-		PolyType pa = new PolyType(pos, "A");
+		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.MyStruct.A"); will(returnValue(pa));
 		}});
@@ -288,7 +288,7 @@ public class ResolverTests {
 
 	@Test
 	public void weCanResolveAPolyTypeNameInAnObjectStateDecl() {
-		PolyType pa = new PolyType(pos, "A");
+		PolyType pa = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.MyObject.A"); will(returnValue(pa));
 		}});

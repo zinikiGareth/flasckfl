@@ -31,22 +31,24 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor nv;
 	private final List<PosType> results = new ArrayList<>();
 	private final CurrentTCState state;
+	private final boolean inTemplate;
 
-	public ApplyExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+	public ApplyExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, boolean inTemplate) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
+		this.inTemplate = inTemplate;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, repository, state, nv));
+		nv.push(new ExpressionChecker(errors, repository, state, nv, inTemplate));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
-		nv.push(new MemberExpressionChecker(errors, repository, state, nv));
+		nv.push(new MemberExpressionChecker(errors, repository, state, nv, false));
 	}
 	
 	@Override
@@ -82,6 +84,23 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			for (Type t : sd.polys())
 				polys.add(instantiateFreshPolys(uts, new PosType(pos, t)).type);
 			PolyInstance pi = new PolyInstance(pos, sd, polys);
+			if (type instanceof FieldsDefn) {
+				List<Type> types = new ArrayList<>();
+				for (StructField sf : ((FieldsDefn)type).fields)
+					types.add(instantiateFreshPolys(uts, new PosType(pos, sf.type.defn())).type);
+				if (types.isEmpty())
+					return new PosType(pos, pi);
+				else
+					return new PosType(pos, new Apply(types, pi));
+			} else {
+				return new PosType(pos, pi);
+			}
+		} else if (type instanceof PolyInstance) {
+			PolyInstance inst = (PolyInstance) type;
+			List<Type> polys = new ArrayList<>();
+			for (Type t : inst.getPolys())
+				polys.add(instantiateFreshPolys(uts, new PosType(pos, t)).type);
+			PolyInstance pi = new PolyInstance(pos, inst.struct(), polys);
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn)type).fields)

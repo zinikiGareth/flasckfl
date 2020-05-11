@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -17,4 +18,5 @@ public interface FunctionScopeUnitConsumer extends FunctionDefnConsumer, Handler
 	void newObjectMethod(ErrorReporter errors, ObjectActionHandler om);
 	void argument(ErrorReporter errors, VarPattern parm);
 	void argument(ErrorReporter errors, TypedPattern with);
+	void polytype(ErrorReporter errors, PolyType pt);
 }

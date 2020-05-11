@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parser.LastOneOnlyNestedParser;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TDAParsing;
@@ -49,6 +50,7 @@ public class TDAFunctionParsingNestingTests {
 	public void errorsFromPatternsShouldntCascade() {
 		final Tokenizable line = line("f (T T) = 42");
 		context.checking(new Expectations() {{
+			oneOf(builder).polytype(with(tracker), with(any(PolyType.class)));
 			oneOf(errors).message(line, "invalid pattern");
 //			oneOf(builder).functionCase(with(any(FunctionCaseDefn.class)));
 //			oneOf(functionNamer).functionName(with(any(InputPosition.class)), with("g")); will(returnValue(FunctionName.function(pos, null, "g")));

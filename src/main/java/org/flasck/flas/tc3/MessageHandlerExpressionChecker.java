@@ -29,12 +29,12 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, repository, state, nv));
+		nv.push(new ExpressionChecker(errors, repository, state, nv, false));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
-		nv.push(new MemberExpressionChecker(errors, repository, state, nv));
+		nv.push(new MemberExpressionChecker(errors, repository, state, nv, false));
 	}
 	
 	@Override

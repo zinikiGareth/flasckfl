@@ -50,7 +50,7 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.number))));
 		}});
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitNumericLiteral(new NumericLiteral(pos, "42", 2));
 	}
 
@@ -60,7 +60,7 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
 		}});
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitStringLiteral(new StringLiteral(pos, "yoyo"));
 	}
 
@@ -72,7 +72,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "Nil");
 		uv.bind(LoadBuiltins.nil);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -87,7 +87,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(x);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -102,7 +102,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(x);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -117,7 +117,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedOperator uv = new UnresolvedOperator(pos, "+");
 		uv.bind(plus);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitUnresolvedOperator(uv, 2);
 	}
 
@@ -130,7 +130,7 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
 		}});
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.result(tyPlus);
 	}
 
@@ -143,7 +143,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(sf);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -159,7 +159,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -175,7 +175,7 @@ public class ExpressionVisitation {
 		}});
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
 		uv.bind(funcVar);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitUnresolvedVar(uv, 0);
 	}
 
@@ -187,7 +187,7 @@ public class ExpressionVisitation {
 			oneOf(nv).result(with(ExprResultMatcher.expr((Matcher)any(CurryArgumentType.class))));
 		}});
 		AnonymousVar uv = new AnonymousVar(pos);
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		tc.visitAnonymousVar(uv);
 	}
 	
@@ -199,7 +199,7 @@ public class ExpressionVisitation {
 			oneOf(state).requireVarConstraints(pos, "f"); will(returnValue(ut));
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(ut))));
 		}});
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		UnresolvedVar uv = new UnresolvedVar(pos, "f");
 		FunctionDefinition fnF = new FunctionDefinition(FunctionName.function(pos, null, "f"), 1, false);
 		uv.bind(fnF);
@@ -212,7 +212,7 @@ public class ExpressionVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.string))));
 		}});
-		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv);
+		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		UnresolvedVar xx = new UnresolvedVar(pos, "x");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, LoadBuiltins.stringTR, FunctionName.function(pos, null, "udd"), new StringLiteral(pos, "hello"));
 		xx.bind(udd);

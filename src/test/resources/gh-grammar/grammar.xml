@@ -296,7 +296,7 @@
       <token type='STRUCT'/>
     	  <token type='type-name' names='STRUCT\[${name}.*\]' />
       <many>
-        <token type='poly-var'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]'/>
       </many>
       <indent>
         <ref production='struct-field-list'/>
@@ -310,7 +310,7 @@
       <token type='ENTITY'/>
     	  <token type='type-name' names='ENTITY\[${name}.*\]' />
       <many>
-        <token type='poly-var'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]'/>
       </many>
       <indent>
         <ref production='struct-field-list'/>
@@ -324,7 +324,7 @@
       <token type='DEAL'/>
     	  <token type='type-name' names='DEAL\[${name}.*\]' />
       <many>
-        <token type='poly-var'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]'/>
       </many>
       <indent>
         <ref production='struct-field-list'/>
@@ -338,7 +338,7 @@
       <token type='OFFER'/>
     	  <token type='type-name' names='OFFER\[${name}.*\]' />
       <many>
-        <token type='poly-var'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]'/>
       </many>
       <indent>
         <ref production='struct-field-list'/>
@@ -398,7 +398,7 @@
       <token type='ENVELOPE'/>
       <token type='type-name' names='ENVELOPE\[${name}.*\]'/>
       <many>
-        <token type='poly-var'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]'/>
       </many>
       <indent>
         <ref production='envelope-field-list'/>
@@ -779,7 +779,7 @@
         </optional>
       </seq>
       <seq>
-        <token type='poly-var'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]'/>
       </seq>
     </or>
   </production>

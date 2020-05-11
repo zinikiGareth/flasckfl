@@ -19,9 +19,11 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
@@ -35,17 +37,19 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 	private final NestedVisitor nv;
 	private final List<Type> results = new ArrayList<>();
 	private final CurrentTCState state;
+	private boolean inTemplate;
 
-	public MemberExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+	public MemberExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, boolean inTemplate) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
+		this.inTemplate = inTemplate;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, repository, state, nv));
+		nv.push(new ExpressionChecker(errors, repository, state, nv, inTemplate));
 	}
 	
 	@Override
@@ -96,6 +100,13 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			if (meth != null) {
 				nv.result(meth.type());
 				return;
+			}
+			if (inTemplate) {
+				Template t = od.getTemplate(fld.var);
+				if (t != null) {
+					nv.result(LoadBuiltins.template);
+					return;
+				}
 			}
 			if (expr.from instanceof UnresolvedVar && ((UnresolvedVar)expr.from).defn() instanceof UnitDataDeclaration) {
 				handleStateHolderUDD((StateHolder) ty, fld.location, fld.var);

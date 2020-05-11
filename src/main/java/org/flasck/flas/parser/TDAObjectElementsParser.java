@@ -96,7 +96,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			ValidIdentifierToken var = VarNameToken.from(toks);
 			FunctionName fnName = namer.ctor(var.location, var.text);
 			List<Pattern> args = new ArrayList<>();
-			TDAPatternParser pp = new TDAPatternParser(errors, (loc, v) -> new VarName(loc, fnName, v), p -> {
+			TDAPatternParser pp = new TDAPatternParser(errors, new SimpleVarNamer(fnName), p -> {
 				args.add(p);
 			}, topLevel);
 			while (pp.tryParsing(toks) != null)

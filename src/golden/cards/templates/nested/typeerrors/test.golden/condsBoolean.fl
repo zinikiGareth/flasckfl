@@ -1,0 +1,4 @@
+	card CondsMustBeBoolean
+		template top
+			field1
+				| 'hello' <- 'world'

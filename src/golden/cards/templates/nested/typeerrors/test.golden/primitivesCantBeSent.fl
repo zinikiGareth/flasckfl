@@ -1,0 +1,7 @@
+	card PrimitivesCantBeSent
+		template top
+			field1 <- 'hello'
+			field2 <- 'hello' => format
+			hold <- 'hello'
+			
+		template format 

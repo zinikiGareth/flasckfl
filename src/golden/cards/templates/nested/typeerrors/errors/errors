@@ -1,5 +1,18 @@
-most things must be primitives
-objects can be handled with their own syntax
-structs/unions must be "sentTo" another template
-cannot assign a card in a item
-cannot assign an item in a card
+condsBoolean  4.2:    |  _ 'hello' <- 'world'
+                          conditions must be Boolean
+objects.fl:  11.10:   field1 <-  _ o
+                          must use templates to render object test.golden.Obj
+objects.fl:  12.10:   field2 <-  _ o => format
+                          must use templates to render object test.golden.Obj
+objects.fl:  14.8:    hold <-  _ o
+                          must use templates to render object test.golden.Obj
+primitivesCa  4.21:   field2 <- 'hello' =>  _ format
+                          cannot specify sendsTo operator when value is a primitive
+primitivesCa  5.8:    hold <-  _ 'hello'
+                          cannot render primitive object in container hold
+structsNeedS  9.10:   field1 <-  _ s
+                          cannot render compound object in field field1
+structsNeedS 12.13:   for-cards <-  _ s
+                          cannot render test.golden.MyStruct in punnet
+structsNeedS 21.13:   hold <- s =>  _ format
+                          cannot specify sendsTo operator when target is a container

@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -48,5 +49,10 @@ public class CaptureFunctionDefinition implements FunctionScopeUnitConsumer {
 
 	public void argument(ErrorReporter errors, TypedPattern with) {
 		topLevel.argument(errors, with);
+	}
+
+	@Override
+	public void polytype(ErrorReporter errors, PolyType pt) {
+		topLevel.polytype(errors, pt);
 	}
 }

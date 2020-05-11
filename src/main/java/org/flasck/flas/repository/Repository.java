@@ -140,7 +140,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	
 	@Override
 	public void newStruct(ErrorReporter errors, StructDefn sd) {
-		sd.completePolyNames();
 		addEntry(errors, sd.name(), sd);
 		for (PolyType p : sd.polys())
 			addEntry(errors, p.name(), p);
@@ -163,7 +162,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public void newObject(ErrorReporter errors, ObjectDefn od) {
-		od.completePolyNames();
 		addEntry(errors, od.name(), od);
 		for (PolyType p : od.polys())
 			addEntry(errors, p.name(), p);
@@ -191,6 +189,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void newTemplate(ErrorReporter errors, Template template) {
 		addEntry(errors, template.name(), template);
+	}
+	
+	@Override
+	public void polytype(ErrorReporter errors, PolyType pt) {
+		addEntry(errors, pt.name(), pt);
 	}
 
 	public void addEntry(ErrorReporter errors, final NameOfThing name, final RepositoryEntry entry) {

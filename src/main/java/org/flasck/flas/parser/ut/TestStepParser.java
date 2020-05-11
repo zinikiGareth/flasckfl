@@ -120,7 +120,7 @@ public class TestStepParser implements TDAParsing {
 			return new NoNestingParser(errors);
 		}
 		case "data": {
-			return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }).tryParsing(toks);
+			return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
 		}
 		case "event": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);
