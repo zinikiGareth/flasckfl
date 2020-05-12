@@ -1312,6 +1312,12 @@
         <p>Each card can have zero or more templates.  If it has no templates, it cannot have any visual representation.</p>
         <p>If it has at least one template, the first template name must be defined as a <tt>card</tt> in an associated webzip file.  Other templates must be associated with <tt>item</tt>s in a webzip file.</p>
         <p>Each template consists of a set of binding of values to portions of the template.</p>
+        <p>Nested templates may have issues accessing their various state members.  Ideally, the nested chain of scoped variables should be inferred.
+        However, in certain circumstances, this may not be possible; and in other circumstances shadowing or anonymity of variables may come into play.
+        To solve these problmes, a template may specify variables that are in its enclosing chain.
+        In all circumstances, the validity of the claims made here will be checked by the typechecker.
+        The card's own template will <b>not</b> have any of these problems, and so cannot have this syntax.
+        </p>
       </description>
     </section>
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
@@ -1325,9 +1331,32 @@
     <seq>
       <token type='TEMPLATE'/>
       <token type='template-name'/>
+      <optional>
+      	<ref production='define-template-chain'/>
+      </optional>
       <indent>
         <ref production='template-bind'/>
       </indent>
+    </seq>
+  </production>
+  <production name='define-template-chain'>
+    <section title='Templates' />
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
+    <seq>
+    	<token type='SEND' />
+    	<one-or-more>
+    		<ref production='template-chain-var' />
+    	</one-or-more>
+    </seq>
+  </production>
+  <production name='template-chain-var'>
+    <section title='Templates' />
+    <tested by='test.parsing.TDATopLevelCardParsingTests' />
+    <seq>
+    	<token type='ORB' />
+    	<token type='type-name' />
+    	<token type='var-name' />
+    	<token type='CRB' />
     </seq>
   </production>
   <production name='template-bind'>

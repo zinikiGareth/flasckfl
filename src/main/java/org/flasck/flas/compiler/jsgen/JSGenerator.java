@@ -65,6 +65,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
+import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -594,8 +595,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator updateDisplay = agentCreator.createMethod(name, true);
 		updateDisplay.argument("_cxt");
 		if (!isFirst) {
-			// TODO: in order to support full chaining, this will need to be much more complex
-			updateDisplay.argument("_expr1");
+			for (Link l : t.nestingChain())
+				updateDisplay.argument(l.name().var);
 		}
 		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
 		new TemplateProcessorJS(state, sv, updateDisplay);

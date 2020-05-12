@@ -7,9 +7,11 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
@@ -88,7 +90,12 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
-			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, namer.template(tn.location, tn.text)), builder.templatePosn());
+			ErrorMark em = errors.mark();
+			int pos = builder.templatePosn();
+			NestingChain chain = TDACardElementsParser.parseChain(errors, namer, toks, pos);
+			if (em.hasMoreNow())
+				return new IgnoreNestedParser();
+			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, namer.template(tn.location, tn.text)), pos, chain);
 			builder.addTemplate(template);
 			return new TDATemplateBindingParser(errors, namer, template);
 		}

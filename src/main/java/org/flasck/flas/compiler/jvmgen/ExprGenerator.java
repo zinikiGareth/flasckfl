@@ -219,9 +219,14 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof TemplateNestedField) {
 			if (state.templateObj == null)
 				throw new NotImplementedException("templateObj has not been bound");
-			TemplateNestedField sf = (TemplateNestedField) defn;
-			IExpr ret = meth.callInterface(J.OBJECT, state.templateObj, "get", meth.stringConst(sf.name().var));
-			sv.result(ret);
+			TemplateNestedField tnf = (TemplateNestedField) defn;
+			StructField sf = tnf.getField();
+			IExpr from = state.templateObj.get(tnf.name().var);
+			if (sf != null) {
+				sv.result(meth.callInterface(J.OBJECT, from, "get", meth.stringConst(sf.name)));
+			} else {
+				sv.result(from);
+			}
 		} else if (defn instanceof RequiresContract) {
 			RequiresContract rc = (RequiresContract) defn;
 			IExpr ret = meth.callInterface(J.OBJECT, meth.as(state.container, J.CONTRACT_RETRIEVER), "require", state.fcx, meth.stringConst(rc.referAsVar));

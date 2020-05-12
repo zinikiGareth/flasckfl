@@ -1,0 +1,9 @@
+	card ListTemplate
+		state 
+			List[String] msgs <- [ 'hello', 'there', 'world' ]
+		
+		template top
+			messages <- msgs => inner
+			
+		template inner <- (String greeting)
+			message <- greeting

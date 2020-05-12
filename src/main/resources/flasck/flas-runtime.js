@@ -455,12 +455,21 @@ FLCard.prototype._updateTemplate = function(_cxt, type, field, fn, templateName,
         node.innerHTML = '';
         var t = document.getElementById(templateName);
         if (t != null) {
-            this._currentDiv = t.content.cloneNode(true);
-            fn.call(this, _cxt, value);
-            node.appendChild(this._currentDiv);
+            if (Array.isArray(value)) {
+                for (var i=0;i<value.length;i++) {
+                    this._addItem(_cxt, node, t, fn, value[i]);
+                }
+            } else
+                this._addItem(_cxt, node, t, fn, value);
+            this._currentDiv = tmp;
         }
-        this._currentDiv = tmp;
     }
+}
+
+FLCard.prototype._addItem = function(_cxt, parent, template, fn, value) {
+    this._currentDiv = template.content.cloneNode(true);
+    fn.call(this, _cxt, value);
+    parent.appendChild(this._currentDiv);
 }
 
 FLCard.prototype._updateStyle = function(_cxt, type, field, constant, ...rest) {

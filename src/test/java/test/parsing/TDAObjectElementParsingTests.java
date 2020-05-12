@@ -195,11 +195,10 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveASingleTemplateDeclaration() {
 		context.checking(new Expectations() {{
-			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).templatePosn(); will(returnValue(0));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		/*TDAParsing nested = */ parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 //		assertTrue(nested instanceof TDAMethodMessageParser);
 	}
@@ -207,13 +206,12 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveMultipleTemplateDeclarations() {
 		context.checking(new Expectations() {{
-			allowing(errors).hasErrors(); will(returnValue(false));
 			oneOf(builder).templatePosn(); will(returnValue(0));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 			oneOf(builder).templatePosn(); will(returnValue(1));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 		}});
-		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
+		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
 		parser.tryParsing(TDABasicIntroParsingTests.line("template other-template-name"));
 //		assertTrue(nested instanceof TDAMethodMessageParser);

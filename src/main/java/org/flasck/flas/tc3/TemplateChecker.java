@@ -82,7 +82,18 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		mode = null;
 	}
 	
-	// I feel that this may be useful enough to possibly be more central
+	// I feel that these may be useful enough to possibly be more central
+	private boolean isList(Type type) {
+		if (!(type instanceof PolyInstance))
+			return false;
+		
+		PolyInstance pi = (PolyInstance) type;
+		if (!pi.struct().equals(LoadBuiltins.list))
+			return false;
+		
+		return true;
+	}
+
 	private boolean isListString(Type type) {
 		if (!(type instanceof PolyInstance))
 			return false;
@@ -123,7 +134,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			if (isPrimitive(exprType.type)) {
 				errors.message(exprType.location(), "cannot render primitive object in container " + option.assignsTo.text);
 			}
-			if (option.sendsTo != null) {
+			if (option.sendsTo != null && !isList(exprType.type)) {
 				errors.message(option.sendsTo.location(), "cannot specify sendsTo operator when target is a container");
 			}
 			break;

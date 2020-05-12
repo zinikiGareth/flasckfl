@@ -1,0 +1,4 @@
+	test that we can have a nested list of greetings
+		data ListTemplate lt
+		match lt text messages
+			hello there world

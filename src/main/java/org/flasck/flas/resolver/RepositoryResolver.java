@@ -50,10 +50,12 @@ import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
@@ -467,7 +469,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			errors.message(name.location(), "secondary web templates must be item templates, not card " + name.baseName());
 			return;
 		}
-		if (!isFirst) {
+		if (!isFirst && isDefining) {
 			// we want to add the item type onto the resolution chain
 			// Note that it's not a strict error for it not to be there, but if it's not, you will get undefined errors if you assume it is
 			// Note that this really should be a chain:
@@ -590,10 +592,18 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 					defn = ((UnresolvedVar)option.expr).defn();
 					if (defn instanceof StructField) {
 						Type st = ((StructField)defn).type();
+						if (st instanceof PolyInstance) {
+							PolyInstance pi = (PolyInstance)st;
+							NamedType pis = pi.struct();
+							if (pis.equals(LoadBuiltins.list))
+								st = pi.getPolys().get(0);
+						}
 						if (st instanceof StructDefn)
 							ty = st;
+						else if (st instanceof Primitive)
+							ty = st;
 						else // TODO: there may be other cases
-							errors.message(option.expr.location(), "expected a struct value");
+							errors.message(option.expr.location(), "expected a struct value, not " + st.signature());
 					}
 				}
 				if (ty != null)
@@ -740,8 +750,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		}
 		try {
 			FieldType fieldType = webInfo.get(m.targetZone.text);
-			if (fieldType != FieldType.CONTENT && fieldType != FieldType.STYLE) {
-				errors.message(m.targetZone.location, "element " + fieldType + " '" + m.targetZone.text + "' is not a valid event target");
+			if (fieldType != FieldType.CONTENT && fieldType != FieldType.STYLE && fieldType != FieldType.CONTAINER) {
+				errors.message(m.targetZone.location, "element " + fieldType.toString().toLowerCase() + " '" + m.targetZone.text + "' is not a valid match target");
 				return;
 			}
 			m.targetZone.bindType(fieldType);

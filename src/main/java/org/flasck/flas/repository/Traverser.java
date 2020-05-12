@@ -95,6 +95,7 @@ import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIOptions.IntroTypeVar;
 import org.flasck.flas.patterns.HSIOptions.IntroVarName;
 import org.flasck.flas.patterns.HSITree;
+import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.zinutils.exceptions.NotImplementedException;
@@ -433,6 +434,14 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
 		visitor.visitTemplateReference(refersTo, isFirst, isDefining);
+		if (refersTo.template() != null) { // defensive against resolution errors
+			NestingChain chain = refersTo.template().nestingChain();
+			if (chain != null) {
+				for (TypeReference ty : chain.types())
+					visitTypeReference(ty);
+				chain.resolvedTypes();
+			}
+		}
 	}
 
 	public void leaveTemplate(Template t) {

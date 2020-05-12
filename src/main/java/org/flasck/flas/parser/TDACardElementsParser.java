@@ -4,14 +4,21 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.resolver.NestingChain;
+import org.flasck.flas.resolver.TemplateNestingChain;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class TDACardElementsParser extends TDAAgentElementsParser {
 	public TDACardElementsParser(ErrorReporter errors, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel) {
@@ -28,7 +35,12 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				errors.message(toks, "template must have a name");
 				return new IgnoreNestedParser();
 			}
-			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, consumer.templateName(tn.location, tn.text)), consumer.templatePosn());
+			int pos = consumer.templatePosn();
+			ErrorMark em = errors.mark();
+			NestingChain chain = parseChain(errors, namer, toks, pos);
+			if (em.hasMoreNow())
+				return new IgnoreNestedParser();
+			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, consumer.templateName(tn.location, tn.text)), pos, chain);
 			consumer.addTemplate(template);
 			topLevel.newTemplate(errors, template);
 			return new TDATemplateBindingParser(errors, namer, template);
@@ -54,6 +66,53 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		default:
 			return null;
 		}
+	}
+
+	public static NestingChain parseChain(ErrorReporter errors, TemplateNamer namer, Tokenizable toks, int pos) {
+		NestingChain chain = null;
+		if (pos > 0)
+			chain = new TemplateNestingChain(namer);
+		if (toks.hasMore()) {
+			ExprToken send = ExprToken.from(errors, toks);
+			if (!"<-".equals(send.text)) {
+				errors.message(toks, "syntax error");
+				return null;
+			}
+			if (pos == 0) {
+				errors.message(toks, "main template cannot declare chain");
+				return null;
+			}
+			while (toks.hasMore()) {
+				if (!readChainElement(errors, namer, toks, chain))
+					return null;
+			}
+		}
+		return chain;
+	}
+
+	private static boolean readChainElement(ErrorReporter errors, TemplateNamer namer, Tokenizable toks, NestingChain chain) {
+		ExprToken tok = ExprToken.from(errors, toks);
+		if (!"(".equals(tok.text)) {
+			errors.message(toks, "( expected");
+			return false;
+		}
+		TypeNameToken type = TypeNameToken.qualified(toks);
+		if (type == null) {
+			errors.message(toks, "type name expected");
+			return false;
+		}
+		ValidIdentifierToken var = ValidIdentifierToken.from(toks);
+		if (var == null) {
+			errors.message(toks, "var name expected");
+			return false;
+		}
+		tok = ExprToken.from(errors, toks);
+		if (!")".equals(tok.text)) {
+			errors.message(toks, ") expected");
+			return false;
+		}
+		chain.declare(new TypeReference(type.location, type.text), namer.nameVar(var.location, var.text));
+		return true;
 	}
 
 	@Override

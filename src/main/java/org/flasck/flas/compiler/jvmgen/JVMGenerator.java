@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +60,9 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
+import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.jvm.J;
 import org.flasck.jvm.fl.TestHelper;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -768,18 +771,32 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		
 		GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, name);
 		PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
-		PendingVar to = null;
-		if (!isFirst)
-			to = gen.argument(J.OBJECT, "_e1");
+		List<PendingVar> pvs = new ArrayList<>();
+		if (!isFirst) {
+			for (Link l : t.nestingChain())
+				pvs.add(gen.argument(J.OBJECT, l.name().var));
+		}
 		gen.returns("void");
 		MethodDefiner tf = gen.done();
 		fs = new FunctionState(tf, fcx.getVar(), tf.myThis(), null, runner);
 		fs.provideStateObject(agentctor.getField("state"));
-		if (to != null) {
-			// it is actually a t.nestingChain().type().name().javaName(), but it prefers an interface
-			Var v = fs.meth.avar(J.FIELDS_CONTAINER_WRAPPER, "_expr1");
-			fs.meth.assign(v, fs.meth.castTo(to.getVar(), J.FIELDS_CONTAINER_WRAPPER)).flush();
-			fs.provideTemplateObject(v);
+		if (!pvs.isEmpty()) {
+			Map<String, Var> tom = new TreeMap<String, Var>();
+			Iterator<Link> links = t.nestingChain().iterator();
+			for (PendingVar pv : pvs) {
+				Link l = links.next();
+				if (l.type() instanceof Primitive) {
+					tom.put(l.name().var, pv.getVar());
+				} else {
+					// the code prefers the interface to the actual type for some reason
+					String asty;
+					asty = J.FIELDS_CONTAINER_WRAPPER;
+					Var v = fs.meth.avar(asty, l.name().var);
+					fs.meth.assign(v, fs.meth.castTo(pv.getVar(), asty)).flush();
+					tom.put(l.name().var, v);
+				}
+			}
+			fs.provideTemplateObject(tom);
 		}
 		new TemplateProcessor(fs, sv);
 	}

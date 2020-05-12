@@ -177,7 +177,13 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.loadField(state.container(), ((StructField)defn).name));
 		} else if (defn instanceof TemplateNestedField) {
 			TemplateNestedField tnf = (TemplateNestedField)defn;
-			sv.result(block.loadField(block.literal(tnf.reminder()), tnf.name().var));
+			StructField sf = tnf.getField();
+			JSExpr from = block.boundVar(tnf.name().var);
+			if (sf != null) {
+				sv.result(block.loadField(from, sf.name));
+			} else {
+				sv.result(from);
+			}
 		} else if (defn instanceof RequiresContract) {
 			sv.result(block.contractByVar(state.container(), ((RequiresContract)defn).referAsVar));
 		} else if (defn instanceof ObjectContract) {
