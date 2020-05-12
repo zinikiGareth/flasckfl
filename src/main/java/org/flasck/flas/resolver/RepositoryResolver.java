@@ -84,6 +84,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 //	private BindingInfo currentBinding;
 	private ArrayList<String> currentTemplates;
 	private ArrayList<String> referencedTemplates;
+	private NestingChain templateNestingChain;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -339,7 +340,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
-		RepositoryEntry defn = find(scope, var.var);
+		RepositoryEntry defn = null;
+		if (templateNestingChain != null) {
+			defn = templateNestingChain.resolve(var);
+		}
+		if (defn == null)
+			defn = find(scope, var.var);
 		if (defn == null) {
 			errors.message(var.location, "cannot resolve '" + var.var + "'");
 			return;
@@ -432,9 +438,18 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		currentTemplates.add(t.name().baseName());
 	}
 	
+	// TODO: this increasingly assumes that the templateReference being referred to is only the one in the definition
+	// If that is the case, it should probably be renamed
+	// If it is not, I think there are bugs ...
 	@Override
 	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
 		TemplateName name = refersTo.name;
+		RepositoryEntry t1 = repository.get(name.uniqueName());
+		if (t1 == null || !(t1 instanceof Template)) {
+			// if this isn't defined, I think that should have been reported elsewhere
+			return;
+		}
+		Template template = (Template) t1;
 		CardData webInfo = null;
 		try {
 			webInfo = repository.findWeb(name.baseName());
@@ -452,9 +467,15 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			errors.message(name.location(), "secondary web templates must be item templates, not card " + name.baseName());
 			return;
 		}
-		// TODO: if !isFirst, it must already be referred to
-		// ALSO TODO: collect the references during traversal
-		// And drive from golden tests ...
+		if (!isFirst) {
+			// we want to add the item type onto the resolution chain
+			// Note that it's not a strict error for it not to be there, but if it's not, you will get undefined errors if you assume it is
+			// Note that this really should be a chain:
+			// for templates nested inside templates, each one is in the list
+			// it should also allow a var
+			// basically this type is not good enough, but get there through tests
+			templateNestingChain = template.nestingChain();
+		}
 		refersTo.bindTo(webInfo);
 	}
 	
@@ -557,6 +578,29 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void leaveTemplateBindingOption(TemplateBindingOption option) {
+		if (option.sendsTo != null) {
+			RepositoryEntry template = repository.get(option.sendsTo.name.uniqueName());
+			if (template instanceof Template) {
+				Type ty = null;
+				if (option.expr instanceof UnresolvedVar) {
+					RepositoryEntry defn;
+					defn = ((UnresolvedVar)option.expr).defn();
+					if (defn instanceof StructField) {
+						Type st = ((StructField)defn).type();
+						if (st instanceof StructDefn)
+							ty = st;
+						else // TODO: there may be other cases
+							errors.message(option.expr.location(), "expected a struct value");
+					}
+				}
+				if (ty != null)
+					((Template)template).canUse(ty);
+			}
+		}
+	}
+
+	@Override
 	public void leaveTemplateBinding(TemplateBinding b) {
 //		this.currentBinding = null;
 	}
@@ -564,6 +608,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveTemplate(Template t) {
 		currentTemplate = null;
+		templateNestingChain = null;
 	}
 	
 	@Override

@@ -2,9 +2,7 @@ condsBoolean  4.2:    |  _ 'hello' <- 'world'
                           conditions must be Boolean
 objects.fl:  11.10:   field1 <-  _ o
                           must use templates to render object test.golden.Obj
-objects.fl:  12.10:   field2 <-  _ o => format
-                          must use templates to render object test.golden.Obj
-objects.fl:  14.8:    hold <-  _ o
+objects.fl:  15.8:    hold <-  _ o
                           must use templates to render object test.golden.Obj
 primitivesCa  4.21:   field2 <- 'hello' =>  _ format
                           cannot specify sendsTo operator when value is a primitive

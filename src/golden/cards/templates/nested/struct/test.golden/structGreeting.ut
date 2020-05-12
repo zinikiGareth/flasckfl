@@ -1,0 +1,4 @@
+	test that a greeting comes out from a struct
+		data StructTemplate t1
+.		match t1 text text
+.			hello

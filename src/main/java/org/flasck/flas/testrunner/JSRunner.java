@@ -157,7 +157,7 @@ public class JSRunner extends CommonTestRunner {
 			String testDir;
 			if (specifiedTestName != null) {
 				testName = config.specifiedTestName;
-				testDir = jstestdir + "/html/" + specifiedTestName;
+				testDir = jstestdir + "/html";
 			} else {
 				testName = "test";
 				testDir = jstestdir + "/html";

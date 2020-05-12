@@ -1,0 +1,12 @@
+	struct MyX
+		String greeting <- 'hello'
+	
+	card StructTemplate
+		state 
+			MyX x <- MyX
+		
+		template top
+			text <- x => inner
+			
+		template inner
+			message <- greeting
