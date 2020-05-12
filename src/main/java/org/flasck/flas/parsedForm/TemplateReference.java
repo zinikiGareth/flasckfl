@@ -9,6 +9,7 @@ public class TemplateReference implements Locatable {
 	public final TemplateName name;
 	private InputPosition location;
 	private CardData webInfo;
+	private Template template;
 
 	public TemplateReference(InputPosition location, TemplateName name) {
 		this.location = location;
@@ -20,8 +21,13 @@ public class TemplateReference implements Locatable {
 		return location;
 	}
 
-	public void bindTo(CardData webInfo) {
+	public void bindTo(Template template, CardData webInfo) {
+		this.template = template;
 		this.webInfo = webInfo;
+	}
+	
+	public Template template() {
+		return template;
 	}
 	
 	public CardData defn() {

@@ -447,6 +447,22 @@ FLCard.prototype._updateContent = function(_cxt, field, value) {
     }
 }
 
+FLCard.prototype._updateTemplate = function(_cxt, type, field, fn, templateName, value) {
+    const node = this._currentDiv.querySelector("[data-flas-" + type + "='" + field + "']");
+    if (node != null) {
+        var tmp = this._currentDiv;
+        // TODO: this is always deleting & appending - but the name of the method is "update"
+        node.innerHTML = '';
+        var t = document.getElementById(templateName);
+        if (t != null) {
+            this._currentDiv = t.content.cloneNode(true);
+            fn.call(this, _cxt, value);
+            node.appendChild(this._currentDiv);
+        }
+        this._currentDiv = tmp;
+    }
+}
+
 FLCard.prototype._updateStyle = function(_cxt, type, field, constant, ...rest) {
     var styles = '';
     if (constant)

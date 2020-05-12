@@ -8,6 +8,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.repository.LeafAdapter;
@@ -27,6 +28,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 	private Mode mode;
 	private JSIfExpr ie;
 	private JSBlockCreator bindingBlock;
+	private TemplateBindingOption currentTBO;
 
 	public TemplateBindingProcessorJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator templateBlock, TemplateBinding b) {
 		this.state = state;
@@ -36,6 +38,11 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 		sv.push(this);
 	}
 
+	@Override
+	public void visitTemplateBindingOption(TemplateBindingOption option) {
+		currentTBO = option;
+	}
+	
 	@Override
 	public void visitTemplateBindingCondition(Expr cond) {
 		mode = Mode.COND;
@@ -66,7 +73,10 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 				ie = bindingBlock.ifTrue((JSExpr) r);
 				bindingBlock = ie.trueCase();
 			} else {
-				bindingBlock.updateContent(b.assignsTo, (JSExpr) r);
+				if (currentTBO.sendsTo != null)
+					bindingBlock.updateTemplate(b.assignsTo, currentTBO.sendsTo.template().position(), currentTBO.sendsTo.defn().id(), (JSExpr) r);
+				else
+					bindingBlock.updateContent(b.assignsTo, (JSExpr) r);
 			}
 		}
 	}
@@ -88,6 +98,11 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 		}
 		if (ie != null)
 			bindingBlock = ie.falseCase();
+	}
+	
+	@Override
+	public void leaveTemplateBindingOption(TemplateBindingOption option) {
+		currentTBO = null;
 	}
 	
 	@Override

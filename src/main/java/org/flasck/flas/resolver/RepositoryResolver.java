@@ -476,7 +476,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			// basically this type is not good enough, but get there through tests
 			templateNestingChain = template.nestingChain();
 		}
-		refersTo.bindTo(webInfo);
+		refersTo.bindTo(template, webInfo);
 	}
 	
 	@Override
@@ -532,9 +532,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			else if (!(defn instanceof Template))
 				errors.message(option.sendsTo.location(), "cannot send to " + option.sendsTo.name.baseName() + " which is not a template");
 			else {
-				CardData td = ((Template)defn).defines.defn();
-				if (td != null && td.type() != CardType.ITEM)
+				Template template = (Template)defn;
+				CardData card = template.defines.defn();
+				if (card != null && card.type() != CardType.ITEM)
 					errors.message(option.sendsTo.location(), "cannot send to " + option.sendsTo.name.baseName() + " which is not an item template");
+				option.sendsTo.bindTo(template, card);
 			}
 			referencedTemplates.add(option.sendsTo.name.baseName());
 		}

@@ -29,6 +29,7 @@ public class FunctionState {
 	private Map<IntroduceVar, Var> ivars = new TreeMap<>(IntroduceVar.comparator);
 	public Var evalRet;
 	public IExpr stateObj;
+	public IExpr templateObj;
 	private Var ocret;
 
 	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs, IExpr runner) {
@@ -40,6 +41,10 @@ public class FunctionState {
 	
 	public void provideStateObject(IExpr expr) {
 		this.stateObj = expr;
+	}
+
+	public void provideTemplateObject(IExpr expr) {
+		this.templateObj = expr;
 	}
 
 	public void provideOcret(Var ocret) {

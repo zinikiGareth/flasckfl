@@ -45,6 +45,11 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	}
 
 	@Override
+	public int templatePosn() {
+		return templates.size();
+	}
+
+	@Override
 	public FieldAccessor getAccessor(String called) {
 		for (ObjectAccessor ret : acors)
 			if (ret.name().name.equals(called))

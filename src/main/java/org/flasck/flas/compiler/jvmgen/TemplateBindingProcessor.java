@@ -22,8 +22,8 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	}
 	public class JVMBinding {
 		public IExpr cond;
-		public IExpr expr;
 		public List<IExpr> trueBlock = new ArrayList<IExpr>();
+		public IExpr du;
 	}
 	private final FunctionState fs;
 	private final StackVisitor sv;
@@ -35,6 +35,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	private Mode mode;
 	private JVMBinding curr;
 	private List<IExpr> bindingBlock;
+	private TemplateBindingOption currentTBO;
 
 	public TemplateBindingProcessor(FunctionState fs, StackVisitor sv, TemplateBinding b) {
 		this.fs = fs;
@@ -48,6 +49,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	public void visitTemplateBindingOption(TemplateBindingOption option) {
 		curr = new JVMBinding();
 		bindings.add(0, curr);
+		currentTBO = option;
 	}
 	
 	@Override
@@ -79,8 +81,13 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 			if (mode == Mode.COND) {
 				curr.cond = (IExpr) r;
 				curr.trueBlock = new ArrayList<>();
-			} else
-				curr.expr = (IExpr) r;
+			} else {
+				IExpr expr = (IExpr) r;
+				if (currentTBO.sendsTo != null)
+					curr.du = fs.meth.callVirtual("void", fs.container, "_updateTemplate", fs.fcx, fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text), fs.meth.intConst(currentTBO.sendsTo.template().position()), fs.meth.stringConst(currentTBO.sendsTo.defn().id()), fs.meth.as(expr, J.OBJECT));
+				else
+					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT));
+			}
 			this.bindingBlock = curr.trueBlock;
 		}
 	}
@@ -110,12 +117,17 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	}
 
 	@Override
+	public void leaveTemplateBindingOption(TemplateBindingOption option) {
+		currentTBO = null;
+	}
+	
+	@Override
 	public void leaveTemplateBinding(TemplateBinding tb) {
 		IExpr ret = null;
 		if (bindings.isEmpty() && !bindingBlock.isEmpty())
 			ret = JVMGenerator.makeBlock(fs.meth, bindingBlock);
 		for (JVMBinding b : bindings) {
-			b.trueBlock.add(fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.meth.stringConst(assignsTo.text), fs.meth.as(b.expr, J.OBJECT)));
+			b.trueBlock.add(b.du);
 			IExpr truth = JVMGenerator.makeBlock(fs.meth, b.trueBlock);
 			if (b.cond == null)
 				ret = truth;

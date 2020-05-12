@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -214,6 +215,12 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				throw new NotImplementedException("stateObj has not been bound");
 			StructField sf = (StructField) defn;
 			IExpr ret = meth.callInterface(J.OBJECT, state.stateObj, "get", meth.stringConst(sf.name));
+			sv.result(ret);
+		} else if (defn instanceof TemplateNestedField) {
+			if (state.templateObj == null)
+				throw new NotImplementedException("templateObj has not been bound");
+			TemplateNestedField sf = (TemplateNestedField) defn;
+			IExpr ret = meth.callInterface(J.OBJECT, state.templateObj, "get", meth.stringConst(sf.name().var));
 			sv.result(ret);
 		} else if (defn instanceof RequiresContract) {
 			RequiresContract rc = (RequiresContract) defn;

@@ -58,7 +58,9 @@ import org.flasck.flas.compiler.jsgen.form.JSStoreField;
 import org.flasck.flas.compiler.jsgen.form.JSStoreMock;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSTupleMember;
+import org.flasck.flas.compiler.jsgen.form.JSUpdateContent;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateStyle;
+import org.flasck.flas.compiler.jsgen.form.JSUpdateTemplate;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -291,6 +293,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void updateContent(TemplateField field, JSExpr expr) {
 		stmts.add(new JSUpdateContent(field, expr));
+	}
+
+	@Override
+	public void updateTemplate(TemplateField field, int posn, String templateName, JSExpr expr) {
+		stmts.add(new JSUpdateTemplate(field, posn, templateName, expr));
 	}
 
 	@Override

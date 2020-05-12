@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -115,6 +116,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof StructField) {
 			StructField sf = (StructField) defn;
 			announce(pos, (Type) sf.type.defn());
+		} else if (defn instanceof TemplateNestedField) {
+			TemplateNestedField tnf = (TemplateNestedField) defn;
+			announce(pos, tnf.type());
 		} else if (defn instanceof RequiresContract) {
 			announce(pos, ((RequiresContract)defn).implementsType().defn());
 		} else if (defn instanceof ObjectContract) {

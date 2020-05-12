@@ -15,4 +15,5 @@ public interface ObjectElementsConsumer extends MethodConsumer, HandlerBuilder {
 	ObjectElementsConsumer addAccessor(ObjectAccessor acor);
 	ObjectElementsConsumer requireContract(ObjectContract oc);
 	void complete(ErrorReporter errors, InputPosition location);
+	int templatePosn();
 }

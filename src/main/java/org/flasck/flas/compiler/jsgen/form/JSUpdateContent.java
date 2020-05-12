@@ -1,6 +1,5 @@
-package org.flasck.flas.compiler.jsgen.creators;
+package org.flasck.flas.compiler.jsgen.form;
 
-import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;

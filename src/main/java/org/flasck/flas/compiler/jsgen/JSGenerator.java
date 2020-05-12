@@ -586,12 +586,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void visitTemplate(Template t, boolean isFirst) {
-		// NOTE: TDD - this probably actually wants to do something, but it doesn't want to be _updateDisplay but probably "_update_<templateName>"
-		if (!isFirst)
-			return;
+		String name = "_updateDisplay";
+		if (!isFirst) {
+			name = "_updateTemplate" + t.position();
+		}
 		
-		JSMethodCreator updateDisplay = agentCreator.createMethod("_updateDisplay", true);
+		JSMethodCreator updateDisplay = agentCreator.createMethod(name, true);
 		updateDisplay.argument("_cxt");
+		if (!isFirst) {
+			// TODO: in order to support full chaining, this will need to be much more complex
+			updateDisplay.argument("_expr1");
+		}
 		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
 		new TemplateProcessorJS(state, sv, updateDisplay);
 	}

@@ -21,16 +21,26 @@ public class Template implements Locatable, RepositoryEntry, TemplateBindingCons
 	public final TemplateReference defines;
 	private final List<TemplateBinding> bindings = new ArrayList<TemplateBinding>();
 	private final Set<Type> types = new LinkedHashSet<>();
+	private final int posn;
 
-	public Template(InputPosition kw, InputPosition loc, TemplateReference defines) {
+	public Template(InputPosition kw, InputPosition loc, TemplateReference defines, int posn) {
 		this.kw = kw;
 		this.loc = loc;
 		this.defines = defines;
+		this.posn = posn;
 	}
 
 	@Override
 	public InputPosition location() {
 		return loc;
+	}
+
+	public TemplateName name() {
+		return defines.name;
+	}
+
+	public int position() {
+		return posn;
 	}
 
 	@Override
@@ -65,9 +75,5 @@ public class Template implements Locatable, RepositoryEntry, TemplateBindingCons
 	@Override
 	public String toString() {
 		return "Template[" + defines.name.uniqueName() + "]";
-	}
-
-	public TemplateName name() {
-		return defines.name;
 	}
 }

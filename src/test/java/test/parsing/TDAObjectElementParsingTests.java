@@ -196,6 +196,7 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveASingleTemplateDeclaration() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			oneOf(builder).templatePosn(); will(returnValue(0));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);
@@ -207,7 +208,9 @@ public class TDAObjectElementParsingTests {
 	public void objectsCanHaveMultipleTemplateDeclarations() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			oneOf(builder).templatePosn(); will(returnValue(0));
 			oneOf(builder).addTemplate(with(any(Template.class)));
+			oneOf(builder).templatePosn(); will(returnValue(1));
 			oneOf(builder).addTemplate(with(any(Template.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);

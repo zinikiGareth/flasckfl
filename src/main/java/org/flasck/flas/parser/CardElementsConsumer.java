@@ -12,4 +12,5 @@ public interface CardElementsConsumer extends AgentElementsConsumer {
 	TemplateName templateName(InputPosition location, String text);
 	void addTemplate(Template template);
 	void addEventHandler(ObjectMethod meth);
+	int templatePosn();
 }

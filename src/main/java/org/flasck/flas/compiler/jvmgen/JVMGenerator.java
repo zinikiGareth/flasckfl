@@ -762,15 +762,25 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void visitTemplate(Template t, boolean isFirst) {
+		String name = "_updateDisplay";
 		if (!isFirst)
-			return; // will need dealing with in some way at some point
+			name = "_updateTemplate" + t.position();
 		
-		GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, "_updateDisplay");
+		GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, name);
 		PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
+		PendingVar to = null;
+		if (!isFirst)
+			to = gen.argument(J.OBJECT, "_e1");
 		gen.returns("void");
 		MethodDefiner tf = gen.done();
 		fs = new FunctionState(tf, fcx.getVar(), tf.myThis(), null, runner);
 		fs.provideStateObject(agentctor.getField("state"));
+		if (to != null) {
+			// it is actually a t.nestingChain().type().name().javaName(), but it prefers an interface
+			Var v = fs.meth.avar(J.FIELDS_CONTAINER_WRAPPER, "_expr1");
+			fs.meth.assign(v, fs.meth.castTo(to.getVar(), J.FIELDS_CONTAINER_WRAPPER)).flush();
+			fs.provideTemplateObject(v);
+		}
 		new TemplateProcessor(fs, sv);
 	}
 	

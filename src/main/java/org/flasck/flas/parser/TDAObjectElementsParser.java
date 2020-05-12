@@ -88,7 +88,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 		case "template": {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
-			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, namer.template(tn.location, tn.text)));
+			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, namer.template(tn.location, tn.text)), builder.templatePosn());
 			builder.addTemplate(template);
 			return new TDATemplateBindingParser(errors, namer, template);
 		}

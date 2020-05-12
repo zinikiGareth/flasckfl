@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -174,6 +175,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.lambda((HandlerLambda)defn));
 		} else if (defn instanceof StructField) {
 			sv.result(block.loadField(state.container(), ((StructField)defn).name));
+		} else if (defn instanceof TemplateNestedField) {
+			TemplateNestedField tnf = (TemplateNestedField)defn;
+			sv.result(block.loadField(block.literal(tnf.reminder()), tnf.name().var));
 		} else if (defn instanceof RequiresContract) {
 			sv.result(block.contractByVar(state.container(), ((RequiresContract)defn).referAsVar));
 		} else if (defn instanceof ObjectContract) {
