@@ -178,7 +178,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof TemplateNestedField) {
 			TemplateNestedField tnf = (TemplateNestedField)defn;
 			StructField sf = tnf.getField();
-			JSExpr from = block.boundVar(tnf.name().var);
+			JSExpr from = state.templateObj().get(tnf.name().var);
 			if (sf != null) {
 				sv.result(block.loadField(from, sf.name));
 			} else {

@@ -9,12 +9,14 @@ public class JSUpdateTemplate implements JSExpr {
 	private final int posn;
 	private final String templateName;
 	private final JSExpr expr;
+	private final JSExpr tc;
 
-	public JSUpdateTemplate(TemplateField field, int posn, String templateName, JSExpr expr) {
+	public JSUpdateTemplate(TemplateField field, int posn, String templateName, JSExpr expr, JSExpr tc) {
 		this.field = field;
 		this.posn = posn;
 		this.templateName = templateName;
 		this.expr = expr;
+		this.tc = tc;
 	}
 
 	@Override
@@ -34,6 +36,8 @@ public class JSUpdateTemplate implements JSExpr {
 		w.print(templateName);
 		w.print("', ");
 		w.print(expr.asVar());
+		w.print(", ");
+		w.print(tc.asVar());
 		w.println(");");
 	}
 

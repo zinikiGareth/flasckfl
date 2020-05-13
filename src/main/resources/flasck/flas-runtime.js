@@ -447,7 +447,7 @@ FLCard.prototype._updateContent = function(_cxt, field, value) {
     }
 }
 
-FLCard.prototype._updateTemplate = function(_cxt, type, field, fn, templateName, value) {
+FLCard.prototype._updateTemplate = function(_cxt, type, field, fn, templateName, value, _tc) {
     value = _cxt.full(value);
     const node = this._currentDiv.querySelector("[data-flas-" + type + "='" + field + "']");
     if (node != null) {
@@ -460,18 +460,18 @@ FLCard.prototype._updateTemplate = function(_cxt, type, field, fn, templateName,
             var tmp = this._currentDiv;
             if (Array.isArray(value)) {
                 for (var i=0;i<value.length;i++) {
-                    this._addItem(_cxt, node, t, fn, value[i]);
+                    this._addItem(_cxt, node, t, fn, value[i], _tc);
                 }
             } else
-                this._addItem(_cxt, node, t, fn, value);
+                this._addItem(_cxt, node, t, fn, value, _tc);
             this._currentDiv = tmp;
         }
     }
 }
 
-FLCard.prototype._addItem = function(_cxt, parent, template, fn, value) {
+FLCard.prototype._addItem = function(_cxt, parent, template, fn, value, _tc) {
     this._currentDiv = template.content.cloneNode(true);
-    fn.call(this, _cxt, value);
+    fn.call(this, _cxt, value, _tc);
     parent.appendChild(this._currentDiv);
 }
 

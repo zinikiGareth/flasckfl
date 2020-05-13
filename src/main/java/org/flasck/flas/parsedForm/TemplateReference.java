@@ -1,5 +1,7 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.TemplateName;
@@ -10,6 +12,7 @@ public class TemplateReference implements Locatable {
 	private InputPosition location;
 	private CardData webInfo;
 	private Template template;
+	private List<Integer> bindPosns;
 
 	public TemplateReference(InputPosition location, TemplateName name) {
 		this.location = location;
@@ -32,5 +35,13 @@ public class TemplateReference implements Locatable {
 	
 	public CardData defn() {
 		return webInfo;
+	}
+
+	public void bindPosns(List<Integer> posns) {
+		this.bindPosns = posns;
+	}
+	
+	public List<Integer> contextPosns() {
+		return bindPosns;
 	}
 }

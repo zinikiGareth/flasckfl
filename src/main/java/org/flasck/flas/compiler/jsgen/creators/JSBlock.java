@@ -15,6 +15,7 @@ import org.flasck.flas.compiler.jsgen.form.IsAExpr;
 import org.flasck.flas.compiler.jsgen.form.IsConstExpr;
 import org.flasck.flas.compiler.jsgen.form.IsTrueExpr;
 import org.flasck.flas.compiler.jsgen.form.JSArray;
+import org.flasck.flas.compiler.jsgen.form.JSArrayElt;
 import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
 import org.flasck.flas.compiler.jsgen.form.JSBoundVar;
@@ -217,6 +218,18 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr makeArray(List<JSExpr> args) {
+		JSLocal ma = new JSLocal(creating, new JSMakeArray(args));
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
+	public JSExpr arrayElt(JSExpr tc, int i) {
+		return new JSArrayElt(tc, i);
+	}
+
+	@Override
 	public JSExpr introduceVar(String var) {
 		JSExpr iv = new JSIntroducedVar();
 		if (var != null) {
@@ -296,8 +309,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void updateTemplate(TemplateField field, int posn, String templateName, JSExpr expr) {
-		stmts.add(new JSUpdateTemplate(field, posn, templateName, expr));
+	public void updateTemplate(TemplateField field, int posn, String templateName, JSExpr expr, JSExpr tc) {
+		stmts.add(new JSUpdateTemplate(field, posn, templateName, expr, tc));
 	}
 
 	@Override

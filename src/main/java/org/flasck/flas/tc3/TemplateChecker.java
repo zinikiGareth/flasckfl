@@ -1,6 +1,8 @@
 package org.flasck.flas.tc3;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
@@ -145,13 +147,18 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 					break;
 				}
 				// we must have all its remaining context types in our context
+				List<Integer> posns = new ArrayList<>();
 				checkContextVars:
 				while (it.hasNext()) {
 					Link contextVar = it.next();
 					if (currentTemplate.nestingChain() != null) {
+						int mp = 0;
 						for (Link mine : currentTemplate.nestingChain()) {
-							if (mine.type().incorporates(pos, contextVar.type()))
+							if (mine.type().incorporates(pos, contextVar.type())) {
+								posns.add(mp);
 								continue checkContextVars;
+							}
+							mp++;
 						}
 					}
 					String cv = contextVar.name().var;
@@ -160,6 +167,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 					else
 						errors.message(pos, "cannot provide a template context var of type " + contextVar.type().signature() + " required by " + option.sendsTo.name.uniqueName());
 				}
+				option.sendsTo.bindPosns(posns);
 			}
 			break;
 		case PUNNET:

@@ -772,7 +772,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		
 		GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, name);
 		PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
-//		List<PendingVar> pvs = new ArrayList<>();
 		PendingVar item = null;
 		PendingVar tc = null;
 		Iterator<Link> links = null;
@@ -782,8 +781,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			n1 = links.next();
 			item = gen.argument(J.OBJECT, n1.name().var);
 			tc = gen.argument("[" + J.OBJECT, "templateContext");
-//			for (Link l : t.nestingChain())
-//				pvs.add(gen.argument(J.OBJECT, l.name().var));
 		}
 		gen.returns("void");
 		MethodDefiner tf = gen.done();

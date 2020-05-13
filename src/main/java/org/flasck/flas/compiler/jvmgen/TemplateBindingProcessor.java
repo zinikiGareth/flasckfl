@@ -15,6 +15,7 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
+import org.zinutils.collections.CollectionUtils;
 
 public class TemplateBindingProcessor extends LeafAdapter implements ResultAware {
 	enum Mode {
@@ -83,17 +84,24 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 				curr.trueBlock = new ArrayList<>();
 			} else {
 				IExpr expr = (IExpr) r;
-
-				// TODO: should come from chain ...
-				IExpr tc;
-				if (fs.templateObj == null)
-					tc = fs.meth.arrayOf(J.OBJECT);
-				else
-					tc = fs.meth.arrayOf(J.OBJECT, new ArrayList<>(fs.templateObj.values()));
-				
-				if (currentTBO.sendsTo != null)
-					curr.du = fs.meth.callVirtual("void", fs.container, "_updateTemplate", fs.fcx, fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text), fs.meth.intConst(currentTBO.sendsTo.template().position()), fs.meth.stringConst(currentTBO.sendsTo.defn().id()), fs.meth.as(expr, J.OBJECT), tc);
-				else
+				if (currentTBO.sendsTo != null) {
+					IExpr tc;
+					if (fs.templateObj == null)
+						tc = fs.meth.arrayOf(J.OBJECT);
+					else {
+						ArrayList<IExpr> wanted = new ArrayList<>();
+						for (int i : currentTBO.sendsTo.contextPosns()) {
+							wanted.add(CollectionUtils.nth(fs.templateObj.values(), i));
+						}
+						tc = fs.meth.arrayOf(J.OBJECT, wanted);
+					}
+					curr.du = fs.meth.callVirtual("void", fs.container, "_updateTemplate",
+						fs.fcx, fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text),
+						fs.meth.intConst(currentTBO.sendsTo.template().position()),
+						fs.meth.stringConst(currentTBO.sendsTo.defn().id()),
+						fs.meth.as(expr, J.OBJECT),
+						tc);
+				} else
 					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT));
 			}
 			this.bindingBlock = curr.trueBlock;

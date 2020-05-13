@@ -14,6 +14,7 @@ public class JSFunctionStateStore implements JSFunctionState {
 	public final Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
 	public final Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
 	private final JSExpr container;
+	private Map<String, JSExpr> templateObj;
 	private final JSMethodCreator meth;
 	private JSExpr ocret;
 
@@ -32,6 +33,15 @@ public class JSFunctionStateStore implements JSFunctionState {
 		return container;
 	}
 	
+	public void provideTemplateObject(Map<String, JSExpr> tc) {
+		this.templateObj = tc;
+	}
+
+	@Override
+	public Map<String, JSExpr> templateObj() {
+		return templateObj;
+	}
+
 	@Override
 	public void objectCtor(JSExpr ocret) {
 		this.ocret = ocret;

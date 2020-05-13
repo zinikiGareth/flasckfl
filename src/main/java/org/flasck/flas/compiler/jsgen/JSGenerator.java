@@ -3,6 +3,8 @@ package org.flasck.flas.compiler.jsgen;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,6 +69,7 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
@@ -594,14 +597,31 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		
 		JSMethodCreator updateDisplay = agentCreator.createMethod(name, true);
 		updateDisplay.argument("_cxt");
+		Iterator<Link> links = null;
+		Link n1 = null;
 		if (!isFirst) {
-			for (Link l : t.nestingChain())
-				updateDisplay.argument(l.name().var);
+			links = t.nestingChain().iterator();
+			n1 = links.next();
+			updateDisplay.argument(n1.name().var);
+			updateDisplay.argument("_tc");
 		}
 		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
+		if (n1 != null) {
+			Map<String, JSExpr> tom = new LinkedHashMap<>();
+			popVar(tom, n1, updateDisplay.boundVar(n1.name().var));
+			JSExpr tc = updateDisplay.boundVar("_tc");
+			int pos = 0;
+			while (links.hasNext())
+				popVar(tom, links.next(), updateDisplay.arrayElt(tc, pos++));
+			state.provideTemplateObject(tom);
+		}
 		new TemplateProcessorJS(state, sv, updateDisplay);
 	}
 	
+	private void popVar(Map<String, JSExpr> tom, Link l, JSExpr expr) {
+		tom.put(l.name().var, expr);
+	}
+
 	@Override
 	public void leaveCardDefn(CardDefinition s) {
 		agentCreator = null;

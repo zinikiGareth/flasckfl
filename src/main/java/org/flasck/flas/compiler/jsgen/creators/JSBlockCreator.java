@@ -24,7 +24,9 @@ public interface JSBlockCreator {
 	JSExpr newOf(NameOfThing clz);
 	JSExpr newOf(NameOfThing clz, List<JSExpr> args);
 	JSExpr makeArray(JSExpr... args);
+	JSExpr makeArray(List<JSExpr> args);
 	JSExpr jsArray(Iterable<JSExpr> arr);
+	JSExpr arrayElt(JSExpr tc, int i);
 	JSExpr makeTuple(JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr callStatic(String clz, String meth);
@@ -87,7 +89,7 @@ public interface JSBlockCreator {
 
 	// templates
 	void updateContent(TemplateField assignsTo, JSExpr expr);
-	void updateTemplate(TemplateField field, int posn, String templateName, JSExpr expr);
+	void updateTemplate(TemplateField field, int posn, String templateName, JSExpr expr, JSExpr tc);
 	void updateStyle(TemplateField field, JSExpr constant, List<JSStyleIf> styles);
 	
 	// unit testing

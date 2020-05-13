@@ -1,12 +1,20 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMakeArray implements JSExpr {
-	private final JSExpr[] args;
+	private final List<JSExpr> args;
 
 	public JSMakeArray(JSExpr... args) {
-		this.args = args;
+		this.args = Arrays.asList(args);
+	}
+
+	public JSMakeArray(List<JSExpr> args) {
+		this.args = new ArrayList<>(args);
 	}
 
 	@Override

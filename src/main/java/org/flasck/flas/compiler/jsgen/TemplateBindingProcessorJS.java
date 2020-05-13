@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.zinutils.collections.CollectionUtils;
 
 public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAware {
 	enum Mode {
@@ -73,9 +74,18 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 				ie = bindingBlock.ifTrue((JSExpr) r);
 				bindingBlock = ie.trueCase();
 			} else {
-				if (currentTBO.sendsTo != null)
-					bindingBlock.updateTemplate(b.assignsTo, currentTBO.sendsTo.template().position(), currentTBO.sendsTo.defn().id(), (JSExpr) r);
-				else
+				if (currentTBO.sendsTo != null) {
+					ArrayList<JSExpr> wanted = new ArrayList<>();
+					if (state.templateObj() != null) {
+						for (int i : currentTBO.sendsTo.contextPosns()) {
+							wanted.add(CollectionUtils.nth(state.templateObj().values(), i));
+						}
+					}
+					bindingBlock.updateTemplate(b.assignsTo, currentTBO.sendsTo.template().position(),
+						currentTBO.sendsTo.defn().id(),
+						(JSExpr) r,
+						bindingBlock.makeArray(wanted));
+				} else
 					bindingBlock.updateContent(b.assignsTo, (JSExpr) r);
 			}
 		}
