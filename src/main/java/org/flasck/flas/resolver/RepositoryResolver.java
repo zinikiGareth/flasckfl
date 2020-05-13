@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateField;
+import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
@@ -57,6 +58,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.TypeHelpers;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
@@ -480,7 +482,13 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		}
 		refersTo.bindTo(template, webInfo);
 	}
-	
+
+	@Override
+	public void leaveTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
+		if (refersTo.template() != null && refersTo.template().nestingChain() != null)
+			refersTo.template().nestingChain().resolvedTypes();
+	}
+
 	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
 		CardData ce = currentTemplate.defines.defn();
@@ -604,7 +612,17 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 							ty = st;
 						else // TODO: there may be other cases
 							errors.message(option.expr.location(), "expected a struct value, not " + st.signature());
-					}
+					} else if (defn instanceof TemplateNestedField) {
+						TemplateNestedField tnf = (TemplateNestedField) defn;
+						ty = tnf.type();
+						if (ty == null) {
+							errors.message(option.expr.location(), "cannot infer types here; explicitly type chained element " + ((UnresolvedVar)option.expr).var);
+						} else if (TypeHelpers.isList(ty)) {
+							ty = TypeHelpers.extractListPoly(ty);
+						}
+							 
+					} else
+						throw new NotImplementedException("not handling " + defn.getClass());
 				}
 				if (ty != null)
 					((Template)template).canUse(ty);

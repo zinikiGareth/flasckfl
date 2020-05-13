@@ -439,9 +439,13 @@ public class Traverser implements RepositoryVisitor {
 			if (chain != null) {
 				for (TypeReference ty : chain.types())
 					visitTypeReference(ty);
-				chain.resolvedTypes();
 			}
 		}
+		leaveTemplateReference(refersTo, isFirst, isDefining);
+	}
+
+	public void leaveTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
+		visitor.leaveTemplateReference(refersTo, isFirst, isDefining);
 	}
 
 	public void leaveTemplate(Template t) {

@@ -1,0 +1,23 @@
+	struct Tree
+		List[Item] items
+		
+	struct Item
+		String name
+		
+	struct NotThere
+
+	card MismatchedContext
+		state
+			List[String] msgs
+			List[Item] trees
+			
+		template top
+			hold <- msgs => format
+			hold2 <- trees => format2
+			
+		template format <- (Tree t)
+			rows <- items => row
+		
+		template row
+
+		template format2 <- (Item i) (NotThere nt)

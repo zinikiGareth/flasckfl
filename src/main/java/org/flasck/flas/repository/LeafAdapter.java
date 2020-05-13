@@ -163,6 +163,10 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void leaveTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
+	}
+
+	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
 	}
 
