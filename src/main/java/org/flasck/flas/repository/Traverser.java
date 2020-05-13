@@ -434,7 +434,7 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
 		visitor.visitTemplateReference(refersTo, isFirst, isDefining);
-		if (refersTo.template() != null) { // defensive against resolution errors
+		if (refersTo.template() != null && !isDefining) { // defensive against resolution errors
 			NestingChain chain = refersTo.template().nestingChain();
 			if (chain != null) {
 				for (TypeReference ty : chain.types())

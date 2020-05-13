@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TemplateNestedField implements RepositoryEntry {
 	private final InputPosition loc;
@@ -16,6 +17,8 @@ public class TemplateNestedField implements RepositoryEntry {
 	public TemplateNestedField(InputPosition loc, VarName name, Type type, StructField field) {
 		this.loc = loc;
 		this.name = name;
+		if (type == null)
+			throw new NotImplementedException("cannot be null");
 		this.type = type;
 		this.field = field;
 	}

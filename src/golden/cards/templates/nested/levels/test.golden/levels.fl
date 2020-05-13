@@ -1,0 +1,24 @@
+	struct Tree
+		String label
+		List[String] items
+
+	card ManyLevels
+		state
+			String title
+			List[Tree] tree
+			
+		template top
+			heading <- title
+			table <- tree => tree-item
+			
+		template tree-item
+			inside <- title
+			called <- label
+			rows <- items => tree-row
+			
+		template tree-row <- (Tree tree) (String item)
+			fromtop <- title
+			having <- tree.label
+			me <- item
+			
+				

@@ -4,6 +4,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -37,7 +38,11 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	public void visitObjectCtor(ObjectCtor e) {
 		sv.push(new MethodConvertor(errors, sv, e));
 	}
-	
+
+	@Override
+	public void visitTemplateBindingOption(TemplateBindingOption option) {
+		new TemplateConvertor(errors, sv);
+	}
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		new UDDConvertor(sv, errors);

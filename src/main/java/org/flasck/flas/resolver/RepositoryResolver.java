@@ -344,7 +344,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = null;
 		if (templateNestingChain != null) {
-			defn = templateNestingChain.resolve(var);
+			defn = templateNestingChain.resolve(this, var);
 		}
 		if (defn == null)
 			defn = find(scope, var.var);

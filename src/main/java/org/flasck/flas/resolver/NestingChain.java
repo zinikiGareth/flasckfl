@@ -10,7 +10,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
 public interface NestingChain extends Iterable<TemplateNestingChain.Link> {
-	RepositoryEntry resolve(UnresolvedVar var);
+	RepositoryEntry resolve(RepositoryResolver resolver, UnresolvedVar var);
 	void addInferred(InputPosition loc, Type ty);
 	void declare(TypeReference typeReference, VarName nameVar);
 	List<TypeReference> types();

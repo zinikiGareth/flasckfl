@@ -83,23 +83,29 @@ public class TemplateNestingChain implements NestingChain {
 	@Override
 	public void resolvedTypes() {
 		for (Link l : links) {
+			if (l.actual != null)
+				continue;
 			if (l.decl != null && l.decl.defn() != null)
 				l.actual = l.decl.defn();
+			else {
+				throw new NotImplementedException("type of " + l.name.uniqueName() + " was not resolved");
+			}
 		}
 	}
 	
 	@Override
-	public RepositoryEntry resolve(UnresolvedVar var) {
+	public RepositoryEntry resolve(RepositoryResolver resolver, UnresolvedVar var) {
 		for (Link l : links) {
 			if (l.name != null && l.name.var.equals(var.var))
 				return new TemplateNestedField(var.location, l.name, l.actual, null);
 			else if (l.actual instanceof StructDefn) {
 				StructDefn ty = (StructDefn) l.actual;
 				StructField field = ty.findField(var.var);
-				if (field != null)
+				if (field != null) {
+					resolver.visitTypeReference(field.type);
 					return new TemplateNestedField(var.location, l.name, field.type(), field);
-			} else
-				throw new NotImplementedException("cannot resolve template var " + var.var + " from link " + l.actual);
+				}
+			}
 		}
 		return null;
 	}
