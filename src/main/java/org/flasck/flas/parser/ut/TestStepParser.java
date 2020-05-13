@@ -60,7 +60,7 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "assert requires expression to evaluate");
 				return new IgnoreNestedParser();
 			}
-			return new SingleExpressionParser(errors, ex -> { builder.assertion(test.get(0), ex); });
+			return new SingleExpressionParser(errors, "assert", ex -> { builder.assertion(test.get(0), ex); });
 		}
 		case "shove": {
 			List<UnresolvedVar> slots = new ArrayList<>();
@@ -89,7 +89,7 @@ public class TestStepParser implements TDAParsing {
 				}
 			}
 
-			return new SingleExpressionParser(errors, expr -> { builder.shove(slots, expr); });
+			return new SingleExpressionParser(errors, "shove", expr -> { builder.shove(slots, expr); });
 		}
 		case "contract": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);

@@ -436,8 +436,8 @@ FLCard.prototype._attachHandlers = function(_cxt, div, key) {
 }
 
 FLCard.prototype._updateContent = function(_cxt, field, value) {
-    // it should not be necesary to evaluate anything
-    // we should not store partially evaluated items
+    // In general, everything should already be fully evaluated, but we do allow expressions in templates
+    value = _cxt.full(value);
     if (!value)
         value = '';
     const nodes = this._currentDiv.querySelectorAll("[data-flas-content='" + field + "']");
@@ -448,13 +448,16 @@ FLCard.prototype._updateContent = function(_cxt, field, value) {
 }
 
 FLCard.prototype._updateTemplate = function(_cxt, type, field, fn, templateName, value) {
+    value = _cxt.full(value);
     const node = this._currentDiv.querySelector("[data-flas-" + type + "='" + field + "']");
     if (node != null) {
-        var tmp = this._currentDiv;
         // TODO: this is always deleting & appending - but the name of the method is "update"
         node.innerHTML = '';
+        if (!value) // if undefined, we want nothing - even when we get around to updating, so make sure that still blanks it
+        return;
         var t = document.getElementById(templateName);
         if (t != null) {
+            var tmp = this._currentDiv;
             if (Array.isArray(value)) {
                 for (var i=0;i<value.length;i++) {
                     this._addItem(_cxt, node, t, fn, value[i]);

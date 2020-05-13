@@ -187,7 +187,7 @@ public class UnitTestGeneration {
 			oneOf(meth).stringConst("hello"); will(returnValue(r1));
 			oneOf(meth).as(l1, "java.lang.Object"); will(returnValue(la));
 			oneOf(meth).as(r1, "java.lang.Object"); will(returnValue(ra));
-			oneOf(meth).callInterface("void", runner, "assertSameValue", ra, la); will(returnValue(asv));
+			oneOf(meth).callInterface("void", runner, "assertSameValue", runner, ra, la); will(returnValue(asv));
 			oneOf(asv).flush();
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner, null).stackVisitor());

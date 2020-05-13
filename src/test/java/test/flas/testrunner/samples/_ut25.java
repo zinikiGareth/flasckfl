@@ -9,6 +9,6 @@ import org.flasck.jvm.fl.TestHelper;
 public class _ut25 {
 	public static void dotest(TestHelper runner, FLEvalContext cx) throws Exception {
 		Object v1 = FLClosure.simple(new CallEval(EvaluateTo42.class));
-		runner.assertSameValue(v1, new FLNumber(42, null));
+		runner.assertSameValue(cx, v1, new FLNumber(42, null));
 	}
 }

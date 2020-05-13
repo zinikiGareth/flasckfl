@@ -16,7 +16,7 @@
 			called <- label
 			rows <- items => tree-row
 			
-		template tree-row <- (Tree tree) (String item)
+		template tree-row <- (String item) (Tree tree) 
 			fromtop <- title
 			having <- tree.label
 			me <- item

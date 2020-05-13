@@ -669,6 +669,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		} else if (objty instanceof CardDefinition) {
 			JSExpr obj = meth.createCard((CardName) objty.name());
 			state.addMock(udd, obj);
+		} else if (objty instanceof StructDefn) {
+			new UDDGeneratorJS(sv, meth, state, this.block);
 		} else if (objty instanceof ObjectDefn) {
 			new UDDGeneratorJS(sv, meth, state, this.block);
 		} else if (objty instanceof HandlerImplements) {
@@ -683,7 +685,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			 * But probably have individual visit/leave combos for uddExpr and each uddField
 			 * All ended by leaveUDD
 			 */
-			throw new RuntimeException("not handled: " + objty);
+			throw new RuntimeException("not handled: " + objty + " of " + objty.getClass());
 		}
 	}
 	

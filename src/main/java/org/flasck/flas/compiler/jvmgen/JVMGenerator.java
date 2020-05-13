@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -771,34 +772,45 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		
 		GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, name);
 		PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
-		List<PendingVar> pvs = new ArrayList<>();
+//		List<PendingVar> pvs = new ArrayList<>();
+		PendingVar item = null;
+		PendingVar tc = null;
+		Iterator<Link> links = null;
+		Link n1 = null;
 		if (!isFirst) {
-			for (Link l : t.nestingChain())
-				pvs.add(gen.argument(J.OBJECT, l.name().var));
+			links = t.nestingChain().iterator();
+			n1 = links.next();
+			item = gen.argument(J.OBJECT, n1.name().var);
+			tc = gen.argument("[" + J.OBJECT, "templateContext");
+//			for (Link l : t.nestingChain())
+//				pvs.add(gen.argument(J.OBJECT, l.name().var));
 		}
 		gen.returns("void");
 		MethodDefiner tf = gen.done();
 		fs = new FunctionState(tf, fcx.getVar(), tf.myThis(), null, runner);
 		fs.provideStateObject(agentctor.getField("state"));
-		if (!pvs.isEmpty()) {
-			Map<String, Var> tom = new TreeMap<String, Var>();
-			Iterator<Link> links = t.nestingChain().iterator();
-			for (PendingVar pv : pvs) {
-				Link l = links.next();
-				if (l.type() instanceof Primitive) {
-					tom.put(l.name().var, pv.getVar());
-				} else {
-					// the code prefers the interface to the actual type for some reason
-					String asty;
-					asty = J.FIELDS_CONTAINER_WRAPPER;
-					Var v = fs.meth.avar(asty, l.name().var);
-					fs.meth.assign(v, fs.meth.castTo(pv.getVar(), asty)).flush();
-					tom.put(l.name().var, v);
-				}
-			}
+		if (item != null) {
+			Map<String, IExpr> tom = new LinkedHashMap<>();
+			popVar(tom, n1, item.getVar());
+			int pos = 0;
+			while (links.hasNext())
+				popVar(tom, links.next(), fs.meth.arrayElt(tc.getVar(), fs.meth.intConst(pos++)));
 			fs.provideTemplateObject(tom);
 		}
 		new TemplateProcessor(fs, sv);
+	}
+
+	private void popVar(Map<String, IExpr> tom, Link l, IExpr expr) {
+		if (l.type() instanceof Primitive) {
+			tom.put(l.name().var, expr);
+		} else {
+			// the code prefers the interface to the actual type for some reason
+			String asty;
+			asty = J.FIELDS_CONTAINER_WRAPPER;
+			Var v = fs.meth.avar(asty, l.name().var);
+			fs.meth.assign(v, fs.meth.castTo(expr, asty)).flush();
+			tom.put(l.name().var, v);
+		}
 	}
 	
 	@Override
@@ -895,11 +907,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);
 			this.explodingMocks.add(v);
+		} else if (objty instanceof StructDefn) {
+			new UDDGenerator(sv, fs, currentBlock);
 		} else if (objty instanceof ObjectDefn) {
-//			IExpr mc = meth.callStatic(objty.name().javaName(), J.OBJECT, "eval", this.fcx);
-//			Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
-//			meth.assign(v, mc).flush();
-//			this.fs.addMock(udd, v);
 			new UDDGenerator(sv, fs, currentBlock);
 		} else if (objty instanceof HandlerImplements) {
 			new UDDGenerator(sv, fs, currentBlock);
@@ -926,7 +936,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			this.fs.addMock(udd, v);
 		} else {
 			// see comment in JSGenerator
-			throw new RuntimeException("not handled: " + objty);
+			throw new RuntimeException("not handled: " + objty + " of " + objty.getClass());
 		}
 	}
 	
