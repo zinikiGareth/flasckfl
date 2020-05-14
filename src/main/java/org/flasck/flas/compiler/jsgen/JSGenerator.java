@@ -67,6 +67,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
+import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.NotImplementedException;
@@ -116,6 +117,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
+	private JSClassCreator templateCreator;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
 		this.jse = jse;
@@ -233,8 +235,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = ((SolidName)obj.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, obj.name().container().jsName());
 		jse.object(obj);
-		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
-		JSBlockCreator ctor = ctr.constructor();
+		templateCreator = jse.newClass(pkg, obj.name().jsName());
+		JSBlockCreator ctor = templateCreator.constructor();
 		ctor.stateField();
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(obj, methods);
@@ -439,6 +441,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		this.meth = null;
 		this.state = null;
+		this.templateCreator = null;
 	}
 
 	@Override
@@ -509,11 +512,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = cd.name().container().jsName();
 		jse.ensurePackageExists(pkg, pkg);
 		agentCreator = jse.newClass(pkg, cd.name().jsName());
+		templateCreator = agentCreator;
 		agentCreator.inheritsFrom(new PackageName("FLCard"));
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.fieldObject("_contracts", "ContractStore");
 		if (!cd.templates.isEmpty()) {
-			ctor.setField(new JSThis(), "_template", ctor.string(cd.templates.get(0).defines.defn().id()));
+			ctor.setField(new JSThis(), "_template", ctor.string(cd.templates.get(0).webinfo().id()));
 		}
 		ctor.stateField();
 		JSMethodCreator meth = agentCreator.createMethod("name", true);
@@ -594,13 +598,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			name = "_updateTemplate" + t.position();
 		}
 		
-		JSMethodCreator updateDisplay = agentCreator.createMethod(name, true);
+		JSMethodCreator updateDisplay = templateCreator.createMethod(name, true);
 		updateDisplay.argument("_cxt");
 		updateDisplay.argument("_renderTree");
 		Iterator<Link> links = null;
 		Link n1 = null;
-		if (!isFirst) {
-			links = t.nestingChain().iterator();
+		NestingChain chain = t.nestingChain();
+		if (chain != null) {
+			links = chain.iterator();
 			n1 = links.next();
 			updateDisplay.argument(n1.name().var);
 			updateDisplay.argument("_tc");
@@ -625,6 +630,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void leaveCardDefn(CardDefinition s) {
 		agentCreator = null;
+		templateCreator = null;
 	}
 
 	@Override

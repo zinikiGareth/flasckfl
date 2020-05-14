@@ -19,11 +19,9 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
-import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
@@ -100,13 +98,6 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			if (meth != null) {
 				nv.result(meth.type());
 				return;
-			}
-			if (inTemplate) {
-				Template t = od.getTemplate(fld.var);
-				if (t != null) {
-					nv.result(LoadBuiltins.template);
-					return;
-				}
 			}
 			if (expr.from instanceof UnresolvedVar && ((UnresolvedVar)expr.from).defn() instanceof UnitDataDeclaration) {
 				handleStateHolderUDD((StateHolder) ty, fld.location, fld.var);

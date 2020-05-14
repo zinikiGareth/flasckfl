@@ -217,5 +217,5 @@ public interface RepositoryVisitor {
 	void visitTemplateBindingExpr(Expr expr);
 	void visitTemplateStyleExpr(Expr e);
 	void visitTemplateStyleCond(Expr cond);
-	void leaveTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining);
+	void afterTemplateChainTypes(Template t);
 }

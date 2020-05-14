@@ -61,6 +61,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
+import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
@@ -125,7 +126,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private boolean isStandalone;
 	private static final boolean leniency = false;
 	private MethodDefiner agentctor;
+	private MethodDefiner templatector;
 	private ByteCodeSink agentClass;
+	private ByteCodeSink templateClass;
 	private Var agentcx;
 	private Var ocret;
 	private Map<CardDefinition, EventTargetZones> eventMap;
@@ -561,19 +564,18 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		if (!od.generate)
 			return;
 		String clzName = od.name().javaName();
-		ByteCodeSink bcc = bce.newClass(clzName);
-		bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
-		bcc.generateAssociatedSourceFile();
-		bcc.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+		templateClass = bce.newClass(clzName);
+		templateClass.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
+		templateClass.generateAssociatedSourceFile();
+		templateClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		for (ObjectContract oc : od.contracts) {
-			bcc.defineField(false, Access.PRIVATE, J.OBJECT, oc.varName().var);
+			templateClass.defineField(false, Access.PRIVATE, J.OBJECT, oc.varName().var);
 		}
 		{ // ctor(cx)
-			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			GenericAnnotator gen = GenericAnnotator.newConstructor(templateClass, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
-			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
-			ctor.returnVoid().flush();
+			templatector = gen.done();
+			templatector.callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 		}
 	}
 	
@@ -606,6 +608,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void visitCardDefn(CardDefinition cd) {
 		String clzName = cd.name().javaName();
 		agentClass = bce.newClass(clzName);
+		templateClass = agentClass;
 		agentClass.superclass(J.FLCARD);
 		agentClass.implementsInterface(J.EVENTS_HOLDER);
 		agentClass.generateAssociatedSourceFile();
@@ -615,12 +618,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			GenericAnnotator gen = GenericAnnotator.newConstructor(agentClass, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			agentctor = gen.done();
+			templatector = agentctor;
 			agentcx = cx.getVar();
 			IExpr rootTemplate;
 			if (cd.templates.isEmpty())
 				rootTemplate = agentctor.as(agentctor.aNull(), J.STRING);
 			else
-				rootTemplate = agentctor.stringConst(cd.templates.get(0).defines.defn().id());
+				rootTemplate = agentctor.stringConst(cd.templates.get(0).webinfo().id());
 			agentctor.callSuper("void", J.FLCARD, "<init>", agentcx, rootTemplate).flush();
 			currentBlock = new ArrayList<IExpr>();
 			this.structFieldHandler = sf -> {
@@ -770,15 +774,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		if (!isFirst)
 			name = "_updateTemplate" + t.position();
 		
-		GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, name);
+		GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, name);
 		PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
 		PendingVar rt = gen.argument(Map.class.getName(), "_renderTree");
 		PendingVar item = null;
 		PendingVar tc = null;
+		NestingChain chain = t.nestingChain();
 		Iterator<Link> links = null;
 		Link n1 = null;
-		if (!isFirst) {
-			links = t.nestingChain().iterator();
+		if (chain != null) {
+			links = chain.iterator();
 			n1 = links.next();
 			item = gen.argument(J.OBJECT, n1.name().var);
 			tc = gen.argument("[" + J.OBJECT, "templateContext");
@@ -786,7 +791,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		gen.returns("void");
 		MethodDefiner tf = gen.done();
 		fs = new FunctionState(tf, fcx.getVar(), tf.myThis(), null, runner);
-		fs.provideStateObject(agentctor.getField("state"));
+		fs.provideStateObject(templatector.getField("state"));
 		fs.provideRenderTree(rt.getVar());
 		if (item != null) {
 			Map<String, IExpr> tom = new LinkedHashMap<>();
@@ -838,12 +843,23 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 	
 	@Override
+	public void leaveObjectDefn(ObjectDefn od) {
+		if (this.currentBlock != null && !this.currentBlock.isEmpty())
+			makeBlock(templatector, currentBlock).flush();
+		this.currentBlock = null;
+		templatector.returnVoid().flush();
+		templatector = null;
+		templatector = null;
+	}
+	
+	@Override
 	public void leaveCardDefn(CardDefinition cd) {
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
 			makeBlock(agentctor, currentBlock).flush();
 		this.currentBlock = null;
 		agentctor.returnVoid().flush();
 		agentctor = null;
+		templatector = null;
 	}
 	
 	@Override

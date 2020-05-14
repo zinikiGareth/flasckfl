@@ -286,6 +286,12 @@ public class Traverser implements RepositoryVisitor {
 			visitObjectContract(oc);
 		for (HandlerImplements ic : obj.handlers)
 			visitHandlerImplements(ic, obj);
+//		for (Template t : obj.templates) {
+//			visitTemplateReference(t.defines, false, false);
+//		}
+		for (Template t : obj.templates) {
+			visitTemplate(t, false);
+		}
 		leaveObjectDefn(obj);
 	}
 
@@ -335,15 +341,9 @@ public class Traverser implements RepositoryVisitor {
 			visitHandlerImplements(ic, cd);
 		boolean isFirst = true;
 		for (Template t : cd.templates) {
-			visitTemplateReference(t.defines, isFirst, false);
-			isFirst = false;
-		}
-		isFirst = true;
-		for (Template t : cd.templates) {
 			visitTemplate(t, isFirst);
 			isFirst = false;
 		}
-		// TODO: events
 		leaveCardDefn(cd);
 	}
 
@@ -425,7 +425,16 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitTemplate(Template t, boolean isFirst) {
 		visitor.visitTemplate(t, isFirst);
-		visitTemplateReference(t.defines, isFirst, true);
+		if (t.nestingChain() != null) {
+			for (TypeReference ty : t.nestingChain().types())
+				visitTypeReference(ty);
+		}
+		afterTemplateChainTypes(t);
+		NestingChain chain = t.nestingChain();
+		if (chain != null) {
+			for (TypeReference ty : chain.types())
+				visitTypeReference(ty);
+		}
 		for (TemplateBinding b : t.bindings()) {
 			visitTemplateBinding(b);
 		}
@@ -434,18 +443,10 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
 		visitor.visitTemplateReference(refersTo, isFirst, isDefining);
-		if (refersTo.template() != null && !isDefining) { // defensive against resolution errors
-			NestingChain chain = refersTo.template().nestingChain();
-			if (chain != null) {
-				for (TypeReference ty : chain.types())
-					visitTypeReference(ty);
-			}
-		}
-		leaveTemplateReference(refersTo, isFirst, isDefining);
 	}
 
-	public void leaveTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
-		visitor.leaveTemplateReference(refersTo, isFirst, isDefining);
+	public void afterTemplateChainTypes(Template t) {
+		visitor.afterTemplateChainTypes(t);
 	}
 
 	public void leaveTemplate(Template t) {

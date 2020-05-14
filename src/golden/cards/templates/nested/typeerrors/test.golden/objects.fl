@@ -9,8 +9,6 @@
 
 		template top
 			field1 <- o
-# this now produces an error in resolution (qv)
-#			field2 <- o => format
-			field3 <- o.format
+			field2 <- o.format
 			hold <- o
 			hold2 <- o.format

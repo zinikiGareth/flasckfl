@@ -39,7 +39,6 @@ import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateNestedField;
-import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -70,16 +69,6 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
-//	public class BindingInfo {
-//		private final TemplateBinding b;
-//		private final FieldType type;
-//
-//		public BindingInfo(TemplateBinding b, FieldType type) {
-//			this.b = b;
-//			this.type = type;
-//		}
-//	}
-
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final List<NameOfThing> scopeStack = new ArrayList<>();
@@ -88,7 +77,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private Template currentTemplate;
 	private UnresolvedVar currShoveExpr;
 	private Set<String> currentBindings;
-//	private BindingInfo currentBinding;
 	private ArrayList<String> currentTemplates;
 	private ArrayList<String> referencedTemplates;
 	private NestingChain templateNestingChain;
@@ -440,23 +428,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitTemplate(Template t, boolean isFirst) {
 		currentTemplate = t;
 		currentBindings = new TreeSet<>();
-		if (!isFirst && !referencedTemplates.contains(t.name().baseName()))
+		TemplateName name = t.name();
+		// for cards, check that the templates form a mutually-referring set
+		if (!isFirst && referencedTemplates != null && !referencedTemplates.contains(t.name().baseName()))
 			errors.message(t.location(), "template " + t.name().baseName() + " has not been referenced yet");
-		currentTemplates.add(t.name().baseName());
-	}
-	
-	// TODO: this increasingly assumes that the templateReference being referred to is only the one in the definition
-	// If that is the case, it should probably be renamed
-	// If it is not, I think there are bugs ...
-	@Override
-	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
-		TemplateName name = refersTo.name;
-		RepositoryEntry t1 = repository.get(name.uniqueName());
-		if (t1 == null || !(t1 instanceof Template)) {
-			// if this isn't defined, I think that should have been reported elsewhere
-			return;
-		}
-		Template template = (Template) t1;
+		if (currentTemplates != null)
+			currentTemplates.add(t.name().baseName());
 		CardData webInfo = null;
 		try {
 			webInfo = repository.findWeb(name.baseName());
@@ -474,34 +451,33 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			errors.message(name.location(), "secondary web templates must be item templates, not card " + name.baseName());
 			return;
 		}
-		if (!isFirst && isDefining) {
+		t.bindWebInfo(webInfo);
+	}
+	
+	@Override
+	public void afterTemplateChainTypes(Template t) {
+		if (t.nestingChain() != null) {
 			// we want to add the item type onto the resolution chain
 			// Note that it's not a strict error for it not to be there, but if it's not, you will get undefined errors if you assume it is
 			// Note that this really should be a chain:
 			// for templates nested inside templates, each one is in the list
 			// it should also allow a var
 			// basically this type is not good enough, but get there through tests
-			templateNestingChain = template.nestingChain();
+			templateNestingChain = t.nestingChain();
+			t.nestingChain().resolvedTypes();
 		}
-		refersTo.bindTo(template, webInfo);
-	}
-
-	@Override
-	public void leaveTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
-		if (refersTo.template() != null && refersTo.template().nestingChain() != null)
-			refersTo.template().nestingChain().resolvedTypes();
 	}
 
 	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
-		CardData ce = currentTemplate.defines.defn();
+		CardData ce = currentTemplate.webinfo();
 		if (ce == null) { // an undefined template should already have been reported ...
 			return;
 		}
 		String slot = b.assignsTo.text;
 		InputPosition slotLoc = b.assignsTo.location();
 		if (!ce.hasField(slot)) {
-			errors.message(slotLoc, "there is no slot " + slot + " in " + currentTemplate.defines.name.baseName());
+			errors.message(slotLoc, "there is no slot " + slot + " in " + currentTemplate.name().baseName());
 			return;
 		}
 		if (currentBindings.contains(slot)) {
@@ -533,31 +509,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			break;
 		}
 		b.assignsTo.fieldType(type);
-//		currentBinding = new BindingInfo(b, type);
-	}
-	
-	@Override
-	public void visitTemplateBindingOption(TemplateBindingOption option) {
-		if (option.sendsTo != null) {
-			RepositoryEntry defn = find(scope, option.sendsTo.name.baseName());
-			if (defn == null)
-				errors.message(option.sendsTo.location(), "template " + option.sendsTo.name.baseName() + " is not defined");
-			else if (!(defn instanceof Template))
-				errors.message(option.sendsTo.location(), "cannot send to " + option.sendsTo.name.baseName() + " which is not a template");
-			else {
-				Template template = (Template)defn;
-				CardData card = template.defines.defn();
-				if (card != null && card.type() != CardType.ITEM)
-					errors.message(option.sendsTo.location(), "cannot send to " + option.sendsTo.name.baseName() + " which is not an item template");
-				option.sendsTo.bindTo(template, card);
-			}
-			referencedTemplates.add(option.sendsTo.name.baseName());
-		}
 	}
 	
 	@Override
 	public void visitTemplateStyling(TemplateStylingOption tso) {
-		CardData ce = currentTemplate.defines.defn();
+		CardData ce = currentTemplate.webinfo();
 		if (ce == null) { // an undefined template should already have been reported ...
 			return;
 		}
@@ -565,7 +521,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (!ce.hasField(fld.text)) {
 			// I _think_ it should already have been reported, but if there are no errors report it anyway ...
 			if (!errors.hasErrors())
-				errors.message(fld.location(), "there is no slot " + fld.text + " in " + currentTemplate.defines.name.baseName());
+				errors.message(fld.location(), "there is no slot " + fld.text + " in " + currentTemplate.name().baseName());
 			return;
 		}
 		fld.fieldType(ce.get(fld.text));
@@ -595,49 +551,69 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveTemplateBindingOption(TemplateBindingOption option) {
 		if (option.sendsTo != null) {
-			RepositoryEntry template = repository.get(option.sendsTo.name.uniqueName());
-			if (template instanceof Template) {
-				Type ty = null;
-				if (option.expr instanceof UnresolvedVar) {
-					RepositoryEntry defn;
-					defn = ((UnresolvedVar)option.expr).defn();
-					if (defn instanceof StructField) {
-						Type st = ((StructField)defn).type();
-						if (st instanceof PolyInstance) {
-							PolyInstance pi = (PolyInstance)st;
-							NamedType pis = pi.struct();
-							if (pis.equals(LoadBuiltins.list))
-								st = pi.getPolys().get(0);
-						}
-						if (st instanceof StructDefn)
-							ty = st;
-						else if (st instanceof Primitive)
-							ty = st;
-						else // TODO: there may be other cases
-							errors.message(option.expr.location(), "expected a struct value, not " + st.signature());
-					} else if (defn instanceof TemplateNestedField) {
-						TemplateNestedField tnf = (TemplateNestedField) defn;
-						ty = tnf.type();
-						if (ty == null) {
-							errors.message(option.expr.location(), "cannot infer types here; explicitly type chained element " + ((UnresolvedVar)option.expr).var);
-						} else if (TypeHelpers.isList(ty)) {
-							ty = TypeHelpers.extractListPoly(ty);
-						}
-							 
-					} else
-						throw new NotImplementedException("not handling " + defn.getClass());
+			// consider that it might be an object sending to an object template
+			ObjectDefn object = null;
+			if (option.expr instanceof UnresolvedVar) {
+				UnresolvedVar uv = (UnresolvedVar) option.expr;
+				if (uv.defn() instanceof StructField && ((StructField)uv.defn()).type.defn() instanceof ObjectDefn)
+					object = (ObjectDefn) ((StructField)uv.defn()).type.defn();
+			}
+			String tname = option.sendsTo.name.baseName();
+			if (object != null) {
+				Template otd = object.getTemplate(tname);
+				if (otd == null)
+					errors.message(option.sendsTo.location(), "template " + tname + " is not defined for object " + object.name().baseName());
+				option.sendsTo.bindTo(otd);
+			} else {
+				RepositoryEntry defn = find(scope, tname);
+				if (defn == null)
+					errors.message(option.sendsTo.location(), "template " + tname + " is not defined");
+				else if (!(defn instanceof Template))
+					errors.message(option.sendsTo.location(), "cannot send to " + tname + " which is not a template");
+				else if (defn instanceof Template) {
+					Template template = (Template)defn;
+					option.sendsTo.bindTo(template);
+					referencedTemplates.add(tname);
+					Type ty = null;
+					if (option.expr instanceof UnresolvedVar) {
+						RepositoryEntry rd;
+						rd = ((UnresolvedVar)option.expr).defn();
+						if (rd instanceof StructField) {
+							StructField sf = (StructField)rd;
+							Type st = sf.type();
+							if (st == null) // it could not be resolved
+								return;
+							if (st instanceof PolyInstance) {
+								PolyInstance pi = (PolyInstance)st;
+								NamedType pis = pi.struct();
+								if (pis.equals(LoadBuiltins.list))
+									st = pi.getPolys().get(0);
+							}
+							if (st instanceof StructDefn)
+								ty = st;
+							else if (st instanceof Primitive)
+								ty = st;
+							else // TODO: there may be other cases
+								errors.message(option.expr.location(), "expected a struct value, not " + st.signature());
+						} else if (rd instanceof TemplateNestedField) {
+							TemplateNestedField tnf = (TemplateNestedField) rd;
+							ty = tnf.type();
+							if (ty == null) {
+								errors.message(option.expr.location(), "cannot infer types here; explicitly type chained element " + ((UnresolvedVar)option.expr).var);
+							} else if (TypeHelpers.isList(ty)) {
+								ty = TypeHelpers.extractListPoly(ty);
+							}
+								 
+						} else
+							throw new NotImplementedException("not handling " + rd.getClass());
+					}
+					if (ty != null)
+						((Template)template).canUse(ty);
 				}
-				if (ty != null)
-					((Template)template).canUse(ty);
 			}
 		}
 	}
 
-	@Override
-	public void leaveTemplateBinding(TemplateBinding b) {
-//		this.currentBinding = null;
-	}
-	
 	@Override
 	public void leaveTemplate(Template t) {
 		currentTemplate = null;
@@ -721,7 +697,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		}
 		// TODO: I think all (or most) of this should be extracted to "getValidEventTarget" or something very similar
 		Template template = card.templates.get(0);
-		CardData webInfo = template.defines.defn();
+		CardData webInfo = template.webinfo();
 		if (webInfo == null) {
 			// we failed to find the card's webinfo ... that should generate its own error
 			return;
@@ -744,7 +720,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 					curr = webInfo.get((String)idx);
 					if (curr == FieldType.CONTAINER) {
 						ct = findCBO(ct, tz, (String)idx);
-						webInfo = ct.defines.defn();
+						webInfo = ct.webinfo();
 					}
 					types.add(curr);
 				}
@@ -784,10 +760,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitUnitTestSend(UnitTestSend s) {
 		scopeStack.add(0, scope);
-//		RepositoryEntry defn = find(scope, s.contract.name());
-//		if (defn != null)
-//			this.scope = defn.name();
-		// otherwise it is left as it is, which will fail, but errors will occur when the traverser vistri
 	}
 	
 	@Override

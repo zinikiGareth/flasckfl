@@ -8,7 +8,6 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.resolver.NestingChain;
@@ -36,11 +35,18 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				return new IgnoreNestedParser();
 			}
 			int pos = consumer.templatePosn();
-			ErrorMark em = errors.mark();
-			NestingChain chain = parseChain(errors, namer, toks, pos);
-			if (em.hasMoreNow())
+			if (pos == 0 && toks.hasMore()) {
+				errors.message(toks, "main template cannot declare chain");
 				return new IgnoreNestedParser();
-			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, consumer.templateName(tn.location, tn.text)), pos, chain);
+			}
+			ErrorMark em = errors.mark();
+			NestingChain chain = null;
+			if (pos > 0) {
+				chain = parseChain(errors, namer, toks);
+				if (em.hasMoreNow())
+					return new IgnoreNestedParser();
+			}
+			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.location, tn.text), pos, chain);
 			consumer.addTemplate(template);
 			topLevel.newTemplate(errors, template);
 			return new TDATemplateBindingParser(errors, namer, template);
@@ -68,18 +74,12 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		}
 	}
 
-	public static NestingChain parseChain(ErrorReporter errors, TemplateNamer namer, Tokenizable toks, int pos) {
-		NestingChain chain = null;
-		if (pos > 0)
-			chain = new TemplateNestingChain(namer);
+	public static NestingChain parseChain(ErrorReporter errors, TemplateNamer namer, Tokenizable toks) {
+		NestingChain chain = new TemplateNestingChain(namer);
 		if (toks.hasMore()) {
 			ExprToken send = ExprToken.from(errors, toks);
 			if (!"<-".equals(send.text)) {
 				errors.message(toks, "syntax error");
-				return null;
-			}
-			if (pos == 0) {
-				errors.message(toks, "main template cannot declare chain");
 				return null;
 			}
 			while (toks.hasMore()) {

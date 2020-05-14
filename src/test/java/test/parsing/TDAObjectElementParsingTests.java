@@ -197,6 +197,7 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).templatePosn(); will(returnValue(0));
 			oneOf(builder).addTemplate(with(any(Template.class)));
+			oneOf(topLevel).newTemplate(with(tracker), with(any(Template.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		/*TDAParsing nested = */ parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));
@@ -208,8 +209,10 @@ public class TDAObjectElementParsingTests {
 		context.checking(new Expectations() {{
 			oneOf(builder).templatePosn(); will(returnValue(0));
 			oneOf(builder).addTemplate(with(any(Template.class)));
+			oneOf(topLevel).newTemplate(with(tracker), with(any(Template.class)));
 			oneOf(builder).templatePosn(); will(returnValue(1));
 			oneOf(builder).addTemplate(with(any(Template.class)));
+			oneOf(topLevel).newTemplate(with(tracker), with(any(Template.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(tracker, namer, builder, topLevel);
 		parser.tryParsing(TDABasicIntroParsingTests.line("template my-template-name"));

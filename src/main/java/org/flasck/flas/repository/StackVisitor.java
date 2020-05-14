@@ -497,8 +497,8 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitTemplateReference(refersTo, isFirst, true);
 	}
 
-	public void leaveTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
-		top.leaveTemplateReference(refersTo, isFirst, isDefining);
+	public void afterTemplateChainTypes(Template t) {
+		top.afterTemplateChainTypes(t);
 	}
 
 	public void visitTemplateBinding(TemplateBinding b) {

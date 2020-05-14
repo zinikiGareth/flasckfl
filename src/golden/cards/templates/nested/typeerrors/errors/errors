@@ -1,3 +1,5 @@
+cannotSendTo  8.13:   hold <- x =>  _ top
+                          cannot send to top which is not an item template
 condsBoolean  4.2:    |  _ 'hello' <- 'world'
                           conditions must be Boolean
 mismatchedco 15.16:   hold <- msgs =>  _ format
@@ -6,8 +8,12 @@ mismatchedco 16.18:   hold2 <- trees =>  _ format2
                           cannot provide required context var nt required by test.golden.MismatchedContext.format2
 objects.fl:  11.10:   field1 <-  _ o
                           must use templates to render object test.golden.Obj
-objects.fl:  15.8:    hold <-  _ o
+objects.fl:  12.12:   field2 <- o. _ format
+                          object test.golden.Obj does not have a method, ctor or acor format
+objects.fl:  13.8:    hold <-  _ o
                           must use templates to render object test.golden.Obj
+objects.fl:  14.11:   hold2 <- o. _ format
+                          object test.golden.Obj does not have a method, ctor or acor format
 primitivesCa  4.21:   field2 <- 'hello' =>  _ format
                           cannot specify sendsTo operator when value is a primitive
 primitivesCa  5.8:    hold <-  _ 'hello'

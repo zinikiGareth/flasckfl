@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -19,6 +20,8 @@ import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.ziniki.splitter.CardData;
+import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -104,12 +107,21 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		FieldType dest = option.assignsTo.type();
 		InputPosition pos = exprType.location();
 		Type etype = exprType.type;
+		if (etype instanceof ErrorType)
+			return;
 		switch (dest) {
 		case CONTENT:
-			if (etype == LoadBuiltins.template)
-				; // It's fine to use an object template to render into a string cell
-			else if (etype instanceof ObjectDefn) {
-				errors.message(pos, "must use templates to render object " + etype.signature());
+			if (etype instanceof ObjectDefn) {
+				if (option.sendsTo == null || option.sendsTo.template() == null) {
+					errors.message(pos, "must use templates to render object " + etype.signature());
+					break;
+				}
+				NameOfThing tdb = option.sendsTo.template().name();
+				NameOfThing obj = ((ObjectDefn)etype).name();
+				if (!obj.equals(tdb.container())) {
+					errors.message(pos, "cannot use template '" + tdb.uniqueName() + "' to render object of type '" + obj.uniqueName());
+					break;
+				}
 			} else if (!TypeHelpers.isPrimitive(etype) && option.sendsTo == null) {
 				errors.message(pos, "cannot render compound object in field " + option.assignsTo.text);
 			} else if (TypeHelpers.isPrimitive(etype) && option.sendsTo != null) {
@@ -117,11 +129,24 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			}
 			break;
 		case CONTAINER:
-			if (etype == LoadBuiltins.template)
-				break; // It's fine to use an object template to render into a string cell
-			else if (etype instanceof ObjectDefn) {
-				errors.message(pos, "must use templates to render object " + etype.signature());
-				break;
+			if (option.sendsTo != null) {
+				CardData card = option.sendsTo.template().webinfo();
+				if (card != null && card.type() != CardType.ITEM) {
+					errors.message(option.sendsTo.location(), "cannot send to " + option.sendsTo.name.baseName() + " which is not an item template");
+					break;
+				}
+			}
+			if (etype instanceof ObjectDefn) {
+				if (option.sendsTo == null || option.sendsTo.template() == null) {
+					errors.message(pos, "must use templates to render object " + etype.signature());
+					break;
+				}
+				NameOfThing tdb = option.sendsTo.template().name();
+				NameOfThing obj = ((ObjectDefn)etype).name();
+				if (!obj.equals(tdb.container())) {
+					errors.message(pos, "cannot use template '" + tdb.uniqueName() + "' to render object of type '" + obj.uniqueName());
+					break;
+				}
 			}
 			if (TypeHelpers.isPrimitive(etype)) {
 				errors.message(pos, "cannot render primitive object in container " + option.assignsTo.text);

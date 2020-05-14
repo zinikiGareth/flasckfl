@@ -10,19 +10,21 @@ import org.flasck.flas.parser.TemplateBindingConsumer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.tc3.Type;
+import org.ziniki.splitter.CardData;
 
 public class Template implements Locatable, RepositoryEntry, TemplateBindingConsumer {
 	public final InputPosition kw;
 	private final InputPosition loc;
-	public final TemplateReference defines;
 	private final List<TemplateBinding> bindings = new ArrayList<TemplateBinding>();
+	private final TemplateName name;
 	private final int posn;
 	private final NestingChain chain;
+	private CardData webInfo;
 
-	public Template(InputPosition kw, InputPosition loc, TemplateReference defines, int posn, NestingChain chain) {
+	public Template(InputPosition kw, InputPosition loc, TemplateName name, int posn, NestingChain chain) {
 		this.kw = kw;
 		this.loc = loc;
-		this.defines = defines;
+		this.name = name;
 		this.posn = posn;
 		this.chain = chain;
 	}
@@ -33,7 +35,15 @@ public class Template implements Locatable, RepositoryEntry, TemplateBindingCons
 	}
 
 	public TemplateName name() {
-		return defines.name;
+		return name;
+	}
+
+	public void bindWebInfo(CardData webInfo) {
+		this.webInfo = webInfo;
+	}
+
+	public CardData webinfo() {
+		return webInfo;
 	}
 
 	public int position() {
@@ -68,6 +78,6 @@ public class Template implements Locatable, RepositoryEntry, TemplateBindingCons
 
 	@Override
 	public String toString() {
-		return "Template[" + defines.name.uniqueName() + "]";
+		return "Template[" + name.uniqueName() + "]";
 	}
 }

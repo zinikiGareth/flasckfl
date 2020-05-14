@@ -6,11 +6,11 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.ziniki.splitter.CardData;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TemplateReference implements Locatable {
 	public final TemplateName name;
 	private InputPosition location;
-	private CardData webInfo;
 	private Template template;
 	private List<Integer> bindPosns;
 
@@ -24,9 +24,8 @@ public class TemplateReference implements Locatable {
 		return location;
 	}
 
-	public void bindTo(Template template, CardData webInfo) {
+	public void bindTo(Template template) {
 		this.template = template;
-		this.webInfo = webInfo;
 	}
 	
 	public Template template() {
@@ -34,7 +33,9 @@ public class TemplateReference implements Locatable {
 	}
 	
 	public CardData defn() {
-		return webInfo;
+		if (template.webinfo() == null)
+			throw new NotImplementedException("The card data has not been bound");
+		return template.webinfo();
 	}
 
 	public void bindPosns(List<Integer> posns) {

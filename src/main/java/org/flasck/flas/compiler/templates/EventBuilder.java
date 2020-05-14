@@ -41,7 +41,7 @@ public class EventBuilder extends LeafAdapter {
 	
 	@Override
 	public void visitTemplate(Template t, boolean isFirst) {
-		templateId = t.defines.defn().id();
+		templateId = t.webinfo().id();
 	}
 	
 	@Override

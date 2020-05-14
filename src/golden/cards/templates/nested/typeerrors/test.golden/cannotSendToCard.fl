@@ -1,10 +1,5 @@
-	card CannotSendToVar
-		state 
-			MyX x
-		
-		template top
-			hold <- x => x
-
+	struct MyX
+	
 	card CannotSendToCardTemplate
 		state 
 			MyX x

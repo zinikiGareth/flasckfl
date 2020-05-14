@@ -20,7 +20,6 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -92,11 +91,14 @@ public class TDAObjectElementsParser implements TDAParsing {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
 			ErrorMark em = errors.mark();
 			int pos = builder.templatePosn();
-			NestingChain chain = TDACardElementsParser.parseChain(errors, namer, toks, pos);
+			// TODO: we could have "internal" private templates that could have chains, but we don't currently support that
+			// all these chains are for calling from elsewhere
+			NestingChain chain = null; // TDACardElementsParser.parseChain(errors, namer, toks);
 			if (em.hasMoreNow())
 				return new IgnoreNestedParser();
-			final Template template = new Template(kw.location, tn.location, new TemplateReference(tn.location, namer.template(tn.location, tn.text)), pos, chain);
+			final Template template = new Template(kw.location, tn.location, namer.template(tn.location, tn.text), pos, chain);
 			builder.addTemplate(template);
+			topLevel.newTemplate(errors, template);
 			return new TDATemplateBindingParser(errors, namer, template);
 		}
 		case "ctor": {

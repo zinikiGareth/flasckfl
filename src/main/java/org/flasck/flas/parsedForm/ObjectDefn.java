@@ -19,7 +19,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder {
 	private StateDefinition state;
-	private final List<Template> templates = new ArrayList<>();
+	public final List<Template> templates = new ArrayList<>();
 	public final List<ObjectContract> contracts = new ArrayList<>();
 	public final List<ObjectCtor> ctors = new ArrayList<>();
 	public final List<ObjectAccessor> acors = new ArrayList<>();

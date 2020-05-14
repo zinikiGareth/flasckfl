@@ -60,7 +60,6 @@ public class LoadBuiltins {
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
 	public static final Type idempotentHandler = contract; // This may or may not be correct ...
-	public static final Type template = new Primitive(pos, "Template");
 	
 	// This is another really weird thing ... it has arguments really, so needs to be parameterized a variable amount
 	// Probably needs its own class to handle it properly
