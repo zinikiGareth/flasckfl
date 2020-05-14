@@ -86,6 +86,12 @@ public class Tokenizable {
 			return null;
 		return line.locationAtText(pos);
 	}
+
+	public InputPosition locationAtText(int i) {
+		if (line == null)
+			return null;
+		return line.locationAtText(i);
+	}
 	
 	@Override
 	public String toString() {

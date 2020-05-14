@@ -238,7 +238,7 @@ public class UnitTestStepParsingTests {
 	public void testAnEventNeedsATarget() {
 		final Tokenizable toks = UnitTestTopLevelParsingTests.line("event myCard");
 		context.checking(new Expectations() {{
-			oneOf(errors).message(with(any(InputPosition.class)), with("valid target zone expected"));
+			oneOf(errors).message(toks, "valid target zone expected");
 		}});
 		TestStepParser utp = new TestStepParser(tracker, namer, builder, topLevel);
 		TDAParsing nested = utp.tryParsing(toks);

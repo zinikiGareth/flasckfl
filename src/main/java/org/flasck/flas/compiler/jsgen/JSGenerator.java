@@ -69,7 +69,6 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
-import org.zinutils.bytecode.IExpr;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {

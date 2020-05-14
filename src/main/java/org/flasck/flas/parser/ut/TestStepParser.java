@@ -18,10 +18,10 @@ import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAExpressionParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.stories.TDAMultiParser;
+import org.flasck.flas.tokenizers.EventZoneToken;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PuncToken;
-import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -60,6 +60,10 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "assert requires expression to evaluate");
 				return new IgnoreNestedParser();
 			}
+			if (toks.hasMore()) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
 			return new SingleExpressionParser(errors, "assert", ex -> { builder.assertion(test.get(0), ex); });
 		}
 		case "shove": {
@@ -89,6 +93,11 @@ public class TestStepParser implements TDAParsing {
 				}
 			}
 
+			if (toks.hasMore()) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
+
 			return new SingleExpressionParser(errors, "shove", expr -> { builder.shove(slots, expr); });
 		}
 		case "contract": {
@@ -113,7 +122,7 @@ public class TestStepParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			if (toks.hasMore()) {
-				errors.message(toks, "garbage at end of line");
+				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
 			builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
@@ -147,6 +156,10 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "only one event object is allowed");
 				return new IgnoreNestedParser();
 			}
+			if (toks.hasMore()) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
 			builder.event(new UnresolvedVar(tok.location, tok.text), targetZone, eventObj.get(0));
 			return new NoNestingParser(errors);
 		}
@@ -159,6 +172,10 @@ public class TestStepParser implements TDAParsing {
 			}
 			if (eventObj.isEmpty()) {
 				errors.message(toks, "missing expression");
+				return new IgnoreNestedParser();
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
 			builder.invokeObjectMethod(eventObj.get(0));
@@ -191,6 +208,10 @@ public class TestStepParser implements TDAParsing {
 			}
 			if (handler == null)
 				handler = new AnonymousVar(meth.location);
+			if (toks.hasMore()) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
 			builder.expect(new UnresolvedVar(svc.location, svc.text), new UnresolvedVar(meth.location, meth.text), args.toArray(new Expr[args.size()]), handler);
 			return new TDAMultiParser(errors);
 		}
@@ -218,7 +239,7 @@ public class TestStepParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			
-			TargetZone targetZone1 = new TargetZone(toks.realinfo(), "_");
+			TargetZone targetZone1 = new TargetZone(toks.realinfo(), "_", new ArrayList<>());
 			boolean contains1 = false;
 			if (toks.hasMore()) {
 				targetZone1 = parseTargetZone(toks);
@@ -234,6 +255,10 @@ public class TestStepParser implements TDAParsing {
 			}
 			TargetZone targetZone = targetZone1;
 			boolean contains = contains1;
+			if (toks.hasMore()) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
 			return new FreeTextParser(errors, text -> { builder.match(new UnresolvedVar(card.location, card.text), what, targetZone, contains, text); });
 		}
 		default: {
@@ -244,28 +269,59 @@ public class TestStepParser implements TDAParsing {
 		}
 	}
 
-	private TargetZone parseTargetZone(Tokenizable toks) {
-		// TODO: I think this may need to be a compound name to identify sub-elements
-		InputPosition loc = toks.realinfo();
-		int mk = toks.at();
-		TemplateNameToken targetZone = TemplateNameToken.from(toks);
-		if (targetZone == null) {
-			if (toks.hasMore() && toks.nextChar() == '_') {
-				toks.advance();
-				if (!toks.hasMore() || Character.isWhitespace(toks.nextChar()))
-					return new TargetZone(loc, "_");
+	public TargetZone parseTargetZone(Tokenizable toks) {
+		ArrayList<Object> tz = new ArrayList<>();
+		int start = toks.at();
+		InputPosition first = null;
+		while (true) {
+			EventZoneToken tok = EventZoneToken.from(toks);
+			if (tok == null) {
+				errors.message(toks, "valid target zone expected");
+				return null;
+			} else if (tok.type == EventZoneToken.CARD) {
+				if (tz.isEmpty())
+					return new TargetZone(tok.location, "_", new ArrayList<>());
 				else {
-					toks.reset(mk);
+					errors.message(tok.location, "valid target zone expected");
+					return null;
 				}
+			} else if (tok.type == EventZoneToken.NAME) {
+				tz.add(tok.text);
+			} else if (tok.type == EventZoneToken.NUMBER) {
+				if (tz.isEmpty()) {
+					errors.message(tok.location, "valid target zone expected");
+					return null;
+				}
+				tz.add(Integer.parseInt(tok.text));
 			} else {
-				errors.message(loc, "valid target zone expected");
+				errors.message(tok.location, "valid target zone expected");
 				return null;
 			}
-		} else if (targetZone.text.equals("contains")) {
-			toks.reset(mk);
-			return new TargetZone(loc, "_");
+			if (first == null) {
+				first = tok.location;
+			}
+				
+			if (toks.hasMore()) {
+				int mark = toks.at();
+				EventZoneToken dot = EventZoneToken.from(toks);
+				if (dot == null)
+					break;
+				else if (dot.type != EventZoneToken.DOT) {
+					toks.reset(mark);
+					break;
+				}
+			} else
+				break;
 		}
-		return new TargetZone(targetZone.location, targetZone.text);
+		if (tz.isEmpty()) {
+			errors.message(toks, "valid target zone expected");
+			return null;
+		}
+		if (tz.size() == 1 && "contains".equals(tz.get(0))) {
+			toks.reset(start);
+			return new TargetZone(first, "_", new ArrayList<>());
+		}
+		return new TargetZone(first, (String) tz.get(0), tz);
 	}
 
 	@Override
