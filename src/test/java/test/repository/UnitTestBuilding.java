@@ -89,7 +89,7 @@ public class UnitTestBuilding {
 	@Test
 	public void addingAnEventStep() {
 		UnitTestCase utc = new UnitTestCase(name, "this is a test");
-		utc.event(new UnresolvedVar(pos, "x"), new TargetZone(pos, "zone", Arrays.asList("zone")), new StringLiteral(pos, "goodbye"));
+		utc.event(new UnresolvedVar(pos, "x"), new TargetZone(pos, Arrays.asList("zone")), new StringLiteral(pos, "goodbye"));
 		assertEquals(1, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestEvent);
 		UnitTestEvent ev = (UnitTestEvent) utc.steps.get(0);

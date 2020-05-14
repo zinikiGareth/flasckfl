@@ -239,7 +239,7 @@ public class TestStepParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			
-			TargetZone targetZone1 = new TargetZone(toks.realinfo(), "_", new ArrayList<>());
+			TargetZone targetZone1 = new TargetZone(toks.realinfo(), new ArrayList<>());
 			boolean contains1 = false;
 			if (toks.hasMore()) {
 				targetZone1 = parseTargetZone(toks);
@@ -280,7 +280,7 @@ public class TestStepParser implements TDAParsing {
 				return null;
 			} else if (tok.type == EventZoneToken.CARD) {
 				if (tz.isEmpty())
-					return new TargetZone(tok.location, "_", new ArrayList<>());
+					return new TargetZone(tok.location, new ArrayList<>());
 				else {
 					errors.message(tok.location, "valid target zone expected");
 					return null;
@@ -319,9 +319,9 @@ public class TestStepParser implements TDAParsing {
 		}
 		if (tz.size() == 1 && "contains".equals(tz.get(0))) {
 			toks.reset(start);
-			return new TargetZone(first, "_", new ArrayList<>());
+			return new TargetZone(first, new ArrayList<>());
 		}
-		return new TargetZone(first, (String) tz.get(0), tz);
+		return new TargetZone(first, tz);
 	}
 
 	@Override

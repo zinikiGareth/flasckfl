@@ -31,6 +31,7 @@ import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
@@ -696,17 +697,27 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void leaveUnitTestEvent(UnitTestEvent e) {
-		if (e.targetZone.text.equals("_")) {
+		resolveTargetZone(e.card.defn(), e.targetZone, "event", false);
+	}
+
+	@Override
+	public void leaveUnitTestMatch(UnitTestMatch m) {
+		resolveTargetZone(m.card.defn(), m.targetZone, "match", true);
+	}
+	
+	private void resolveTargetZone(RepositoryEntry re, TargetZone tz, String type, boolean allowContainer) {
+		if (tz.isWholeCard()) {
 			// it's aimed at the whole card
-			e.targetZone.bindType(FieldType.CARD);
+			tz.bindTypes(new ArrayList<>());
 			return;
 		}
-		UnitDataDeclaration udd = (UnitDataDeclaration) e.card.defn();
+		UnitDataDeclaration udd = (UnitDataDeclaration) re;
 		CardDefinition card = (CardDefinition)udd.ofType.defn();
 		if (card.templates.isEmpty()) {
-			errors.message(e.targetZone.location, "cannot send event to card with no templates");
+			errors.message(tz.location, "cannot send " + type + " to card with no templates");
 			return;
 		}
+		// TODO: I think all (or most) of this should be extracted to "getValidEventTarget" or something very similar
 		Template template = card.templates.get(0);
 		CardData webInfo = template.defines.defn();
 		if (webInfo == null) {
@@ -714,14 +725,18 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		try {
-			FieldType fieldType = webInfo.get(e.targetZone.text);
-			if (fieldType != FieldType.CONTENT && fieldType != FieldType.STYLE) {
-				errors.message(e.targetZone.location, "element " + fieldType + " '" + e.targetZone.text + "' is not a valid event target");
+			List<FieldType> types = new ArrayList<>();
+			// TODO: need to traverse the fields
+			String key = (String) tz.fields.get(0);
+			FieldType fieldType = webInfo.get(key);
+			if (fieldType != FieldType.CONTENT && fieldType != FieldType.STYLE && (!allowContainer || fieldType != FieldType.CONTAINER)) {
+				errors.message(tz.location, "element " + fieldType + " '" + key + "' is not a valid " + type + " target");
 				return;
 			}
-			e.targetZone.bindType(fieldType);
+			types.add(fieldType);
+			tz.bindTypes(types);
 		} catch (NoMetaKeyException ex) {
-			errors.message(e.targetZone.location, "there is no target '" + e.targetZone.text + "' on the card");
+			errors.message(tz.location, "there is no target '" + tz + "' on the card");
 		}
 	}
 	
@@ -737,45 +752,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveUnitTestSend(UnitTestSend s) {
 		this.scope = scopeStack.remove(0);
-	}
-	
-	@Override
-	public void leaveUnitTestMatch(UnitTestMatch m) {
-		if (m.targetZone.text.equals("_")) {
-			// it's aimed at the whole card
-			m.targetZone.bindType(FieldType.CARD);
-			return;
-		}
-		UnitDataDeclaration udd = (UnitDataDeclaration) m.card.defn();
-		if (udd == null) {
-			// the variable was not a card.  We cannot proceed and there should already be an error about this
-			return;
-		}
-		CardDefinition card = (CardDefinition)udd.ofType.defn();
-		if (card == null) {
-			// the card itself could not be resolved.  We cannot proceed and there should already be an error about this
-			return;
-		}
-		if (card.templates.isEmpty()) {
-			errors.message(m.targetZone.location, "cannot send event to card with no templates");
-			return;
-		}
-		Template template = card.templates.get(0);
-		CardData webInfo = template.defines.defn();
-		if (webInfo == null) {
-			// we failed to find the card's webinfo ... that should generate its own error
-			return;
-		}
-		try {
-			FieldType fieldType = webInfo.get(m.targetZone.text);
-			if (fieldType != FieldType.CONTENT && fieldType != FieldType.STYLE && fieldType != FieldType.CONTAINER) {
-				errors.message(m.targetZone.location, "element " + fieldType.toString().toLowerCase() + " '" + m.targetZone.text + "' is not a valid match target");
-				return;
-			}
-			m.targetZone.bindType(fieldType);
-		} catch (NoMetaKeyException ex) {
-			errors.message(m.targetZone.location, "there is no target '" + m.targetZone.text + "' on the card");
-		}
 	}
 	
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {

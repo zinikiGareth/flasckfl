@@ -8,14 +8,11 @@ import org.ziniki.splitter.FieldType;
 
 public class TargetZone implements Locatable {
 	public final InputPosition location;
-	@Deprecated
-	public final String text;
-	private FieldType type;
-	private final List<Object> fields;
+	private List<FieldType> types;
+	public final List<Object> fields;
 
-	public TargetZone(InputPosition location, String text, List<Object> fields) {
+	public TargetZone(InputPosition location, List<Object> fields) {
 		this.location = location;
-		this.text = text;
 		this.fields = fields;
 	}
 
@@ -24,12 +21,16 @@ public class TargetZone implements Locatable {
 		return location;
 	}
 
-	public void bindType(FieldType fieldType) {
-		this.type = fieldType;
+	public boolean isWholeCard() {
+		return fields.isEmpty();
 	}
 
-	public FieldType type() {
-		return type;
+	public void bindTypes(List<FieldType> fieldTypes) {
+		this.types = fieldTypes;
+	}
+
+	public List<FieldType> types() {
+		return types;
 	}
 	
 	public int length() {
@@ -42,6 +43,14 @@ public class TargetZone implements Locatable {
 
 	@Override
 	public String toString() {
-		return "Zone[" + text + "]";
+		String[] fs = new String[fields.size()];
+		for (int i=0;i<fields.size();i++) {
+			Object o = fields.get(i);
+			if (o instanceof String)
+				fs[i] = (String) o;
+			else
+				fs[i] = Integer.toString((Integer)o);
+		}
+		return String.join(".", fs);
 	}
 }

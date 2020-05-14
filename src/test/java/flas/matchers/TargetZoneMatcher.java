@@ -8,9 +8,9 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 public class TargetZoneMatcher extends TypeSafeMatcher<TargetZone> {
-	private final List<String> path;
+	private final List<Object> path;
 
-	public TargetZoneMatcher(List<String> path) {
+	public TargetZoneMatcher(List<Object> path) {
 		this.path = path;
 	}
 
@@ -22,10 +22,18 @@ public class TargetZoneMatcher extends TypeSafeMatcher<TargetZone> {
 
 	@Override
 	protected boolean matchesSafely(TargetZone tz) {
-		return path.size() == 1 && path.get(0).equals(tz.text);
+		if (path.size() != tz.fields.size())
+			return false;
+		
+		for (int i=0;i<path.size();i++) {
+			if (!path.get(i).equals(tz.fields.get(i)))
+				return false;
+		}
+		
+		return true;
 	}
 
-	public static TargetZoneMatcher path(String... path) {
+	public static TargetZoneMatcher path(Object... path) {
 		return new TargetZoneMatcher(Arrays.asList(path));
 	}
 

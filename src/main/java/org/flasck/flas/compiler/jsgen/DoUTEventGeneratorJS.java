@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
@@ -47,8 +48,19 @@ public class DoUTEventGeneratorJS extends LeafAdapter implements ResultAware {
 	}
 
 	public static JSExpr makeSelector(JSBlockCreator block, TargetZone targetZone) {
-		String ty = targetZone.type().toString().toLowerCase();
-		return block.makeArray(block.makeArray(block.string(ty), block.string(targetZone.text)));
+		List<JSExpr> al = new ArrayList<JSExpr>();
+		for (int i=0;i<targetZone.fields.size();i++) {
+			String ty = targetZone.types().get(i).toString().toLowerCase();
+			JSExpr je = makeEventZone(block, targetZone.fields.get(i));
+			al.add(block.makeArray(Arrays.asList(block.string(ty), je)));
+		}
+		return block.makeArray(al);
 	}
 
+	public static JSExpr makeEventZone(JSBlockCreator block, Object o) {
+		if (o instanceof String)
+			return block.string((String)o);
+		else
+			return block.literal(Integer.toString((Integer)o));
+	}
 }

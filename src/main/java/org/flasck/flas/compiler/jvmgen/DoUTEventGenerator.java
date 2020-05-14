@@ -53,8 +53,17 @@ public class DoUTEventGenerator extends LeafAdapter implements ResultAware {
 	public static IExpr makeSelector(MethodDefiner meth, TargetZone targetZone) {
 		Var eventZone = meth.avar(List.class.getName(), "ez");
 		meth.assign(eventZone, meth.makeNew(ArrayList.class.getName())).flush();
-		meth.voidExpr(meth.callInterface("boolean", eventZone, "add", meth.as(meth.makeNew(J.EVENTZONE, meth.stringConst(targetZone.type().toString().toLowerCase()), meth.stringConst(targetZone.text)), J.OBJECT))).flush();
+		
+		for (int i=0;i<targetZone.fields.size();i++) {
+			meth.voidExpr(meth.callInterface("boolean", eventZone, "add", meth.as(meth.makeNew(J.EVENTZONE, meth.stringConst(targetZone.types().get(i).toString().toLowerCase()), makeEventZone(meth, targetZone.fields.get(i))), J.OBJECT))).flush();
+		}
 		return eventZone;
 	}
 
+	public static IExpr makeEventZone(MethodDefiner meth, Object o) {
+		if (o instanceof String)
+			return meth.as(meth.stringConst((String)o), J.OBJECT);
+		else
+			return meth.as(meth.intConst((Integer)o), J.OBJECT);
+	}
 }
