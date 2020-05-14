@@ -22,7 +22,8 @@ public class TemplateConvertor extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
 		remember = expr;
-		nv.push(new MemberExprConvertor(errors, nv, null));
+		AccessorConvertor acor = new AccessorConvertor(nv, errors, null);
+		acor.visitMemberExpr(expr);
 	}
 
 	@Override

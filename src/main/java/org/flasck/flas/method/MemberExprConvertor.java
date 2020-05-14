@@ -127,8 +127,6 @@ public class MemberExprConvertor extends LeafAdapter {
 			dt = ((UnitDataDeclaration)defn).ofType.defn();
 		} else if (defn instanceof IntroduceVar) {
 			dt = (NamedType) ((IntroduceVar)defn).introducedAs();
-		} else if (defn instanceof TemplateNestedField) {
-			dt = (NamedType) ((TemplateNestedField)defn).type();
 		} else
 			throw new NotImplementedException("cannot handle svc var of type " + (defn == null ? "NULL" : defn.getClass()));
 		if (dt instanceof ContractDecl)
