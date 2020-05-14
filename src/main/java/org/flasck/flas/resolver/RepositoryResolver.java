@@ -739,7 +739,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 					}
 					// I feel we ought to do something here, but I'm not sure what
 					// If nothing else, we ought to not allow it to go around to another index
-					types.add(curr);
+					types.add(FieldType.ITEM);
 				} else {
 					curr = webInfo.get((String)idx);
 					if (curr == FieldType.CONTAINER) {

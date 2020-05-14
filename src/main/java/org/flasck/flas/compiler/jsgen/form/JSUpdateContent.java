@@ -20,7 +20,7 @@ public class JSUpdateContent implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("this._updateContent(_cxt, '");
+		w.print("this._updateContent(_cxt, _renderTree, '");
 		w.print(field.text);
 		w.print("', ");
 		w.print(expr.asVar());

@@ -1,6 +1,8 @@
 JVM PASS by default we have hello
 JVM PASS we can click on the bound target zone and it will change
-JVM PASS clicking on an unbound zone will not change it
+JVM FAIL clicking on an unbound zone will fail because the zone has not been rendered
+  Matcher failed on 'other': There is no element other in card
 JS PASS by default we have hello
 JS PASS we can click on the bound target zone and it will change
-JS PASS clicking on an unbound zone will not change it
+JS FAIL clicking on an unbound zone will fail because the zone has not been rendered
+There is no element other in card

@@ -346,7 +346,7 @@ FLContext.prototype.handleEvent = function(card, handler, event) {
 	}
 	this.handleMessages(reply);
 	if (card._updateDisplay)
-		card._updateDisplay(this);
+		card._updateDisplay(this, card._renderTree);
 }
 
 FLContext.prototype.handleMessages = function(msg) {
@@ -407,6 +407,7 @@ FLContext.prototype.mockHandler = function(contract) {
 
 const FLCard = function(cx) {
     this._currentDiv = null;
+    this._renderTree = {};
 }
 
 FLCard.prototype._renderInto = function(_cxt, div) {
@@ -415,7 +416,10 @@ FLCard.prototype._renderInto = function(_cxt, div) {
         var t = document.getElementById(this._template);
         if (t != null) {
             this._currentDiv = t.content.cloneNode(true);
-            this._updateDisplay(_cxt);
+            var ncid = _cxt.nextDocumentId();
+            this._currentDiv.firstElementChild.id = ncid;
+            this._renderTree['_id'] = ncid;
+            this._updateDisplay(_cxt, this._renderTree);
             div.appendChild(this._currentDiv);
         }
     }
@@ -435,47 +439,20 @@ FLCard.prototype._attachHandlers = function(_cxt, div, key) {
     }
 }
 
-FLCard.prototype._updateContent = function(_cxt, field, value) {
+FLCard.prototype._updateContent = function(_cxt, _renderTree, field, value) {
     // In general, everything should already be fully evaluated, but we do allow expressions in templates
     value = _cxt.full(value);
     if (!value)
         value = '';
-    const nodes = this._currentDiv.querySelectorAll("[data-flas-content='" + field + "']");
-    for (var i=0;i<nodes.length;i++) {
-        nodes[i].innerHTML = '';
-        nodes[i].appendChild(document.createTextNode(value));
-    }
+    const node = this._currentDiv.querySelector("[data-flas-content='" + field + "']");
+    var ncid = _cxt.nextDocumentId();
+    node.id = ncid;
+    _renderTree[field] = { _id: ncid };
+    node.innerHTML = '';
+    node.appendChild(document.createTextNode(value));
 }
 
-FLCard.prototype._updateTemplate = function(_cxt, type, field, fn, templateName, value, _tc) {
-    value = _cxt.full(value);
-    const node = this._currentDiv.querySelector("[data-flas-" + type + "='" + field + "']");
-    if (node != null) {
-        // TODO: this is always deleting & appending - but the name of the method is "update"
-        node.innerHTML = '';
-        if (!value) // if undefined, we want nothing - even when we get around to updating, so make sure that still blanks it
-        return;
-        var t = document.getElementById(templateName);
-        if (t != null) {
-            var tmp = this._currentDiv;
-            if (Array.isArray(value)) {
-                for (var i=0;i<value.length;i++) {
-                    this._addItem(_cxt, node, t, fn, value[i], _tc);
-                }
-            } else
-                this._addItem(_cxt, node, t, fn, value, _tc);
-            this._currentDiv = tmp;
-        }
-    }
-}
-
-FLCard.prototype._addItem = function(_cxt, parent, template, fn, value, _tc) {
-    this._currentDiv = template.content.cloneNode(true);
-    fn.call(this, _cxt, value, _tc);
-    parent.appendChild(this._currentDiv);
-}
-
-FLCard.prototype._updateStyle = function(_cxt, type, field, constant, ...rest) {
+FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constant, ...rest) {
     var styles = '';
     if (constant)
         styles = constant;
@@ -483,10 +460,51 @@ FLCard.prototype._updateStyle = function(_cxt, type, field, constant, ...rest) {
         if (_cxt.isTruthy(rest[i]))
             styles += ' ' + rest[i+1];
     }
-    const nodes = this._currentDiv.querySelectorAll("[data-flas-" + type + "='" + field + "']");
-    for (var i=0;i<nodes.length;i++) {
-        nodes[i].className = styles;
+    const node = this._currentDiv.querySelector("[data-flas-" + type + "='" + field + "']");
+    var ncid = _cxt.nextDocumentId();
+    node.id = ncid;
+    _renderTree[field] = { _id: ncid };
+    node.className = styles;
+}
+
+FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, templateName, value, _tc) {
+    value = _cxt.full(value);
+    const node = this._currentDiv.querySelector("[data-flas-" + type + "='" + field + "']");
+    if (node != null) {
+        var ncid = _cxt.nextDocumentId();
+        node.id = ncid;
+        _renderTree[field] = { _id: ncid };
+        // TODO: this is always deleting & appending - but the name of the method is "update"
+        node.innerHTML = '';
+        if (!value) // if undefined, we want nothing - even when we get around to updating, so make sure that still blanks it
+            return;
+        var t = document.getElementById(templateName);
+        if (t != null) {
+            var tmp = this._currentDiv;
+            if (Array.isArray(value)) {
+                _renderTree[field].children = [];
+                for (var i=0;i<value.length;i++) {
+                    var rt  = {};
+                    _renderTree[field].children.push(rt);
+                    this._addItem(_cxt, rt, node, t, fn, value[i], _tc);
+                }
+            } else {
+                var rt  = {};
+                _renderTree[field].single = rt;
+                this._addItem(_cxt, rt, node, t, fn, value, _tc);
+            }
+            this._currentDiv = tmp;
+        }
     }
+}
+
+FLCard.prototype._addItem = function(_cxt, _renderTree, parent, template, fn, value, _tc) {
+    this._currentDiv = template.content.cloneNode(true);
+    var ncid = _cxt.nextDocumentId();
+    this._currentDiv.firstElementChild.id = ncid;
+    _renderTree._id = ncid;
+    fn.call(this, _cxt, _renderTree, value, _tc);
+    parent.appendChild(this._currentDiv);
 }
 
 

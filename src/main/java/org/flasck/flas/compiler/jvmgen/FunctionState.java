@@ -30,6 +30,7 @@ public class FunctionState {
 	public Var evalRet;
 	public IExpr stateObj;
 	public Map<String, IExpr> templateObj;
+	private Var renderTree;
 	private Var ocret;
 
 	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs, IExpr runner) {
@@ -47,10 +48,18 @@ public class FunctionState {
 		this.templateObj = tom;
 	}
 
+	public void provideRenderTree(Var var) {
+		this.renderTree = var;
+	}
+
 	public void provideOcret(Var ocret) {
 		this.ocret = ocret;
 	}
 
+	public Var renderTree() {
+		return renderTree;
+	}
+	
 	public String nextVar(String pfx) {
 		return pfx + nextVar++;
 	}

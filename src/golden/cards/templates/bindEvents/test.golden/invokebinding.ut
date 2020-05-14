@@ -9,7 +9,7 @@
 		assert (mc.msg)
 			"goodbye"
 			
-	test clicking on an unbound zone will not change it
+	test clicking on an unbound zone will fail because the zone has not been rendered
 		data Message mc
 		event mc other (ClickEvent)
 		assert (mc.msg)

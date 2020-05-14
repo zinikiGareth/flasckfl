@@ -6,7 +6,7 @@
 			"Blue Spruce"
 		shove ml.tree
 			[t1,t2]
-		match ml text heading
-			Blue Spruce
+.		match ml text heading
+.			Blue Spruce
 		match ml text table.0.inside
 			Blue Spruce

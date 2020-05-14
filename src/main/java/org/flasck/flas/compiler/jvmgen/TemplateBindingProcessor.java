@@ -96,13 +96,14 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 						tc = fs.meth.arrayOf(J.OBJECT, wanted);
 					}
 					curr.du = fs.meth.callVirtual("void", fs.container, "_updateTemplate",
-						fs.fcx, fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text),
+						fs.fcx, fs.renderTree(), 
+						fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text),
 						fs.meth.intConst(currentTBO.sendsTo.template().position()),
 						fs.meth.stringConst(currentTBO.sendsTo.defn().id()),
 						fs.meth.as(expr, J.OBJECT),
 						tc);
 				} else
-					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT));
+					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.renderTree(), fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT));
 			}
 			this.bindingBlock = curr.trueBlock;
 		}
@@ -126,7 +127,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 			arr.add(si.style);
 		}
 		
-		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text), ce, fs.meth.arrayOf(J.OBJECT, arr));
+		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text), ce, fs.meth.arrayOf(J.OBJECT, arr));
 		bindingBlock.add(doUpdate);
 		styles.clear();
 		cexpr.clear();

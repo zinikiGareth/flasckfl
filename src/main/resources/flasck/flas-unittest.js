@@ -29,7 +29,7 @@ UTRunner.prototype.shove = function(_cxt, dest, slot, val) {
 	}
 	dest.state.set(slot, val);
 	if (dest._updateDisplay)
-		dest._updateDisplay(_cxt);
+		dest._updateDisplay(_cxt, dest._renderTree);
 }
 UTRunner.prototype.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
@@ -43,35 +43,48 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 }
 UTRunner.prototype.event = function(_cxt, target, zone, event) {
 	var div = null;
-	if (zone && zone.length == 1 && zone[0][1] == "_") {
+	if (!zone || zone.length == 0) {
 		div = target.card._currentDiv;
 	} else 
-		div = this.findDiv(_cxt, target.card._currentDiv, zone, 0);
+		div = this.findDiv(_cxt, target.card._renderTree, zone, 0);
 	if (div) {
 		div.dispatchEvent(event._makeJSEvent(_cxt));
 	}
 }
-UTRunner.prototype.findDiv = function(_cxt, div, zone, pos) {
+UTRunner.prototype.findDiv = function(_cxt, rt, zone, pos) {
 	if (pos >= zone.length) {
-		return div;
-	} else if (pos == 0 && zone.length == 1 && zone[0][1] == "_") {
-		return div;
+		return document.getElementById(rt._id);
 	}
 	const first = zone[pos];
-	const qs = div.querySelector("[data-flas-" + first[0]+"='" + first[1] + "']");
-	if (!qs)
-		return null;
-	else
-		return this.findDiv(_cxt, qs, zone, pos+1);
+	if (first[0] == "item") {
+		if (!rt.children || first[1] >= rt.children.length) {
+			throw Error("MATCH\nThere is no child " + first[1] + " in " + this._nameOf(zone, pos));
+		}
+		return this.findDiv(_cxt, rt.children[first[1]], zone, pos+1);
+	} else {
+		if (!rt[first[1]]) {
+			throw Error("MATCH\nThere is no element " + first[1] + " in " + this._nameOf(zone, pos));
+		}
+		return this.findDiv(_cxt, rt[first[1]], zone, pos+1);
+	}
+}
+UTRunner.prototype._nameOf = function(zone, pos) {
+	if (pos == 0)
+		return "card";
+	var ret = "";
+	for (var i=0;i<pos;i++) {
+		if (ret)
+			ret += '.';
+		ret += zone[pos][1];
+	}
+	return ret;
 }
 UTRunner.prototype.getZoneDiv = function(_cxt, target, zone) {
 	if (!target || !target.card || !target.card._currentDiv) {
 		throw Error("MATCH\nThe card has no rendered content");
 	}
-	var div = this.findDiv(_cxt, target.card._currentDiv, zone, 0);
-	if (!div)
-		throw Error("MATCH\nThe card has no rendered content");
-	return div;
+	// will throw error if not found
+	return this.findDiv(_cxt, target.card._renderTree, zone, 0);
 }
 UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) {
 	var div = this.getZoneDiv(_cxt, target, zone);
@@ -127,7 +140,7 @@ UTRunner.prototype.updateCard = function(_cxt, card) {
 	if (!(card instanceof MockCard))
 		return;
 	if (card.card._updateDisplay)
-		card.card._updateDisplay(_cxt);
+		card.card._updateDisplay(_cxt, card.card._renderTree);
 }
 UTRunner.prototype.newContext = function() {
 	return new FLContext(this, this.broker);

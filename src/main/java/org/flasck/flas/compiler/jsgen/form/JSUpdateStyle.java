@@ -26,7 +26,7 @@ public class JSUpdateStyle implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("this._updateStyle(_cxt, '");
+		w.print("this._updateStyle(_cxt, _renderTree, '");
 		w.print(field.type().toString().toLowerCase());
 		w.print("', '");
 		w.print(field.text);

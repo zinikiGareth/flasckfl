@@ -596,6 +596,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		
 		JSMethodCreator updateDisplay = agentCreator.createMethod(name, true);
 		updateDisplay.argument("_cxt");
+		updateDisplay.argument("_renderTree");
 		Iterator<Link> links = null;
 		Link n1 = null;
 		if (!isFirst) {

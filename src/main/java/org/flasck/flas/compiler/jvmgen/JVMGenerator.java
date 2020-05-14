@@ -772,6 +772,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		
 		GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, name);
 		PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
+		PendingVar rt = gen.argument(Map.class.getName(), "_renderTree");
 		PendingVar item = null;
 		PendingVar tc = null;
 		Iterator<Link> links = null;
@@ -786,6 +787,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		MethodDefiner tf = gen.done();
 		fs = new FunctionState(tf, fcx.getVar(), tf.myThis(), null, runner);
 		fs.provideStateObject(agentctor.getField("state"));
+		fs.provideRenderTree(rt.getVar());
 		if (item != null) {
 			Map<String, IExpr> tom = new LinkedHashMap<>();
 			popVar(tom, n1, item.getVar());
