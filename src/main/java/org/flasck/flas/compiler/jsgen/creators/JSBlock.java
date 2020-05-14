@@ -309,8 +309,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void updateTemplate(TemplateField field, int posn, String templateName, JSExpr expr, JSExpr tc) {
-		stmts.add(new JSUpdateTemplate(field, posn, templateName, expr, tc));
+	public void updateTemplate(TemplateField field, int posn, boolean isOtherObject, String templateName, JSExpr expr, JSExpr tc) {
+		stmts.add(new JSUpdateTemplate(field, posn, isOtherObject, templateName, expr, tc));
 	}
 
 	@Override

@@ -1,13 +1,12 @@
 	object Thing
 		state
 			String label
-			List[String] items
 			
 		ctor fred (String mylabel)
 			label <- mylabel
 			
 		template thing
-			
+			message <- label
 
 	card RenderObject
 		state

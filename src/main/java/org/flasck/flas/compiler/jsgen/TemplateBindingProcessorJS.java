@@ -7,10 +7,13 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
@@ -81,7 +84,11 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 							wanted.add(CollectionUtils.nth(state.templateObj().values(), i));
 						}
 					}
+					boolean isOtherObject = (currentTBO.expr instanceof UnresolvedVar) &&
+						((UnresolvedVar)currentTBO.expr).defn() instanceof StructField &&
+						((StructField)((UnresolvedVar)currentTBO.expr).defn()).type.defn() instanceof ObjectDefn;
 					bindingBlock.updateTemplate(b.assignsTo, currentTBO.sendsTo.template().position(),
+						isOtherObject,
 						currentTBO.sendsTo.defn().id(),
 						(JSExpr) r,
 						bindingBlock.makeArray(wanted));

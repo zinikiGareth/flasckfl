@@ -7,15 +7,17 @@ import org.zinutils.exceptions.NotImplementedException;
 public class JSUpdateTemplate implements JSExpr {
 	private final TemplateField field;
 	private final int posn;
+	private final JSExpr onObj;
 	private final String templateName;
 	private final JSExpr expr;
 	private final JSExpr tc;
 
-	public JSUpdateTemplate(TemplateField field, int posn, String templateName, JSExpr expr, JSExpr tc) {
+	public JSUpdateTemplate(TemplateField field, int posn, boolean isOtherObject, String templateName, JSExpr expr, JSExpr tc) {
 		this.field = field;
 		this.posn = posn;
+		this.onObj = isOtherObject ? expr : new JSLiteral("this");
 		this.templateName = templateName;
-		this.expr = expr;
+		this.expr = isOtherObject ? null : expr;
 		this.tc = tc;
 	}
 
@@ -26,19 +28,34 @@ public class JSUpdateTemplate implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("this._updateTemplate(_cxt, _renderTree, '");
-		w.print(field.type().toString().toLowerCase());
-		w.print("', '");
-		w.print(field.text);
-		w.print("', ");
-		w.print("this._updateTemplate" + posn);
-		w.print(", '");
-		w.print(templateName);
-		w.print("', ");
-		w.print(expr.asVar());
-		w.print(", ");
-		w.print(tc.asVar());
-		w.println(");");
+		IndentWriter iw = w;
+		if (expr == null) {
+			// we need to be sure that onObj is defined
+			w.print("if (");
+			w.print(onObj.asVar());
+			w.println(") {");
+			iw = w.indent();
+		}
+		iw.print("this._updateTemplate(_cxt, _renderTree, '");
+		iw.print(field.type().toString().toLowerCase());
+		iw.print("', '");
+		iw.print(field.text);
+		iw.print("', ");
+		iw.print(onObj.asVar());
+		iw.print("._updateTemplate" + posn);
+		iw.print(", '");
+		iw.print(templateName);
+		iw.print("'");
+		if (expr != null) { // this is only necessary if onObj is true
+			iw.print(", ");
+			iw.print(expr.asVar());
+			iw.print(", ");
+			iw.print(tc.asVar());
+		}
+		iw.println(");");
+		if (expr == null) {
+			w.println("}");
+		}
 	}
 
 }
