@@ -95,11 +95,22 @@ public class TargetZoneParsingTests {
 	}
 	
 	@Test
+	public void weCannotHaveConsecutiveListEntries() {
+		Tokenizable line = UnitTestTopLevelParsingTests.line("x.3.1.y");
+		InputPosition pos = line.locationAtText(4).copySetEnd(5);
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "cannot have consecutive list indices");
+		}});
+		TargetZone tz = utp.parseTargetZone(line);
+		assertNull(tz);
+	}
+	
+	@Test
 	public void weCannotStartWithAListEntry() {
 		Tokenizable line = UnitTestTopLevelParsingTests.line("3.y");
 		InputPosition pos = line.realinfo().copySetEnd(1);
 		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "valid target zone expected");
+			oneOf(errors).message(pos, "first entry in target cannot be list index");
 		}});
 		TargetZone tz = utp.parseTargetZone(line);
 		assertNull(tz);

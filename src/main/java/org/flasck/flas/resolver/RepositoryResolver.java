@@ -1,6 +1,7 @@
 package org.flasck.flas.resolver;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -65,6 +66,7 @@ import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
 import org.ziniki.splitter.NoMetaDataException;
 import org.ziniki.splitter.NoMetaKeyException;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
@@ -726,20 +728,59 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		}
 		try {
 			List<FieldType> types = new ArrayList<>();
-			// TODO: need to traverse the fields
-			String key = (String) tz.fields.get(0);
-			FieldType fieldType = webInfo.get(key);
-			if (fieldType != FieldType.CONTENT && fieldType != FieldType.STYLE && (!allowContainer || fieldType != FieldType.CONTAINER)) {
-				errors.message(tz.location, "element " + fieldType + " '" + key + "' is not a valid " + type + " target");
+			FieldType curr = FieldType.CARD;
+			Template ct = template;
+			for (int i=0;i<tz.fields.size();i++) {
+				Object idx = tz.fields.get(i);
+				if (idx instanceof Integer) {
+					if (curr != FieldType.CONTAINER) {
+						errors.message(tz.location, "can only use indices to index containers");
+						return;
+					}
+					// I feel we ought to do something here, but I'm not sure what
+					// If nothing else, we ought to not allow it to go around to another index
+					types.add(curr);
+				} else {
+					curr = webInfo.get((String)idx);
+					if (curr == FieldType.CONTAINER) {
+						ct = findCBO(ct, tz, (String)idx);
+						webInfo = ct.defines.defn();
+					}
+					types.add(curr);
+				}
+			}
+			if (curr != FieldType.CONTENT && curr != FieldType.STYLE && (!allowContainer || curr != FieldType.CONTAINER)) {
+				errors.message(tz.location, "element " + curr + " '" + tz + "' is not a valid " + type + " target");
 				return;
 			}
-			types.add(fieldType);
 			tz.bindTypes(types);
 		} catch (NoMetaKeyException ex) {
 			errors.message(tz.location, "there is no target '" + tz + "' on the card");
 		}
 	}
 	
+	private Template findCBO(Template ct, TargetZone tz, String idx) {
+		Set<Template> sendsTo = new HashSet<>();
+		for (TemplateBinding b : ct.bindings()) {
+			if (!b.assignsTo.text.equals(idx))
+				continue;
+			for (TemplateBindingOption cb : b.conditionalBindings)
+				if (cb.sendsTo != null)
+					sendsTo.add(cb.sendsTo.template());
+			if (b.defaultBinding.sendsTo != null)
+				sendsTo.add(b.defaultBinding.sendsTo.template());
+		}
+		if (sendsTo.isEmpty()) {
+			errors.message(tz.location, "template " + ct.name().uniqueName() + " does not send to for " + idx);
+			return null;
+		}
+		if (sendsTo.size() > 1) {
+			errors.message(tz.location, idx + " is ambiguous for template " + ct.name().uniqueName());
+			return null;
+		}
+		return CollectionUtils.nth(sendsTo, 0);
+	}
+
 	@Override
 	public void visitUnitTestSend(UnitTestSend s) {
 		scopeStack.add(0, scope);

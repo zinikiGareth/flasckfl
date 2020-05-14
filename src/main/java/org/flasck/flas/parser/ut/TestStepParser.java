@@ -273,6 +273,7 @@ public class TestStepParser implements TDAParsing {
 		ArrayList<Object> tz = new ArrayList<>();
 		int start = toks.at();
 		InputPosition first = null;
+		boolean lastWasNumber = false;
 		while (true) {
 			EventZoneToken tok = EventZoneToken.from(toks);
 			if (tok == null) {
@@ -287,12 +288,17 @@ public class TestStepParser implements TDAParsing {
 				}
 			} else if (tok.type == EventZoneToken.NAME) {
 				tz.add(tok.text);
+				lastWasNumber = false;
 			} else if (tok.type == EventZoneToken.NUMBER) {
 				if (tz.isEmpty()) {
-					errors.message(tok.location, "valid target zone expected");
+					errors.message(tok.location, "first entry in target cannot be list index");
+					return null;
+				} else if (lastWasNumber) {
+					errors.message(tok.location, "cannot have consecutive list indices");
 					return null;
 				}
 				tz.add(Integer.parseInt(tok.text));
+				lastWasNumber = true;
 			} else {
 				errors.message(tok.location, "valid target zone expected");
 				return null;

@@ -64,6 +64,6 @@ public class DoUTEventGenerator extends LeafAdapter implements ResultAware {
 		if (o instanceof String)
 			return meth.as(meth.stringConst((String)o), J.OBJECT);
 		else
-			return meth.as(meth.intConst((Integer)o), J.OBJECT);
+			return meth.as(meth.box(meth.intConst((Integer)o)), J.OBJECT);
 	}
 }
