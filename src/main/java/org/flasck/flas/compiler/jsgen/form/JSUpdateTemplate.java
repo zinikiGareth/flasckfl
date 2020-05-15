@@ -36,7 +36,8 @@ public class JSUpdateTemplate implements JSExpr {
 			w.println(") {");
 			iw = w.indent();
 		}
-		iw.print("this._updateTemplate(_cxt, _renderTree, '");
+		iw.print(onObj.asVar());
+		iw.print("._updateTemplate(_cxt, _renderTree, '");
 		iw.print(field.type().toString().toLowerCase());
 		iw.print("', '");
 		iw.print(field.text);
@@ -51,7 +52,11 @@ public class JSUpdateTemplate implements JSExpr {
 			iw.print(expr.asVar());
 			iw.print(", ");
 			iw.print(tc.asVar());
+		} else {
+			// something is currently needed by the library to make it fire a foreign template ...
+			iw.print(", true");
 		}
+			
 		iw.println(");");
 		if (expr == null) {
 			w.println("}");

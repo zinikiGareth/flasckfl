@@ -3,4 +3,5 @@
 		data Thing t <- Thing.fred 'hello'
 		shove r.thing1
 			t
-		
+		match r text
+			hello

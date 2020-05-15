@@ -40,7 +40,7 @@ public class ObjectGeneration {
 		IExpr doret = context.mock(IExpr.class, "doret");
 		context.checking(new Expectations() {{ // clz
 			oneOf(bce).newClass(ename); will(returnValue(eclz));
-			oneOf(eclz).superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
+			oneOf(eclz).superclass(J.FLOBJECT);
 			allowing(eclz).generateAssociatedSourceFile();
 			allowing(eclz).getCreatedName(); will(returnValue(ename));
 		}});
@@ -53,7 +53,7 @@ public class ObjectGeneration {
 		context.checking(new Expectations() {{ // ctor
 			oneOf(eclz).createMethod(false, "void", "<init>"); will(returnValue(ctor));
 			oneOf(ctor).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ccxt));
-			oneOf(ctor).callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", ccxt);
+			oneOf(ctor).callSuper("void", J.FLOBJECT, "<init>", ccxt);
 			oneOf(ctor).returnVoid(); will(returnValue(doret));
 			oneOf(doret).flush();
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
@@ -74,7 +74,7 @@ public class ObjectGeneration {
 		IExpr doret = context.mock(IExpr.class, "doret");
 		context.checking(new Expectations() {{ // clz
 			oneOf(bce).newClass(ename); will(returnValue(eclz));
-			oneOf(eclz).superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
+			oneOf(eclz).superclass(J.FLOBJECT);
 			allowing(eclz).generateAssociatedSourceFile();
 			allowing(eclz).getCreatedName(); will(returnValue(ename));
 		}});
@@ -87,7 +87,7 @@ public class ObjectGeneration {
 		context.checking(new Expectations() {{ // ctor
 			oneOf(eclz).createMethod(false, "void", "<init>"); will(returnValue(ctor));
 			oneOf(ctor).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ccxt));
-			oneOf(ctor).callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", ccxt);
+			oneOf(ctor).callSuper("void", J.FLOBJECT, "<init>", ccxt);
 			oneOf(ctor).returnVoid(); will(returnValue(doret));
 			oneOf(doret).flush();
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");

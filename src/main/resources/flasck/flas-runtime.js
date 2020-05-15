@@ -328,7 +328,7 @@ FLContext.prototype.nextDocumentId = function() {
 
 FLContext.prototype.attachEventToCard = function(card, handlerInfo) {
 	const eventName = handlerInfo.event._eventName;
-	var div = card._currentDiv;
+	var div = card._currentDiv();
 	if (handlerInfo.type)
 		div = div.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
 	if (div) {
@@ -406,28 +406,36 @@ FLContext.prototype.mockHandler = function(contract) {
 
 
 const FLCard = function(cx) {
-    this._currentDiv = null;
-    this._renderTree = {};
+    this._renderTree = null;
+    this._containedIn = null;
 }
 
 FLCard.prototype._renderInto = function(_cxt, div) {
+    this._containedIn = div;
     div.innerHTML = '';
     if (this._template) {
+        this._renderTree = {}
         var t = document.getElementById(this._template);
         if (t != null) {
-            this._currentDiv = t.content.cloneNode(true);
+            var cloned = t.content.cloneNode(true);
             var ncid = _cxt.nextDocumentId();
-            this._currentDiv.firstElementChild.id = ncid;
+            cloned.firstElementChild.id = ncid;
             this._renderTree['_id'] = ncid;
+            div.appendChild(cloned);
             this._updateDisplay(_cxt, this._renderTree);
-            div.appendChild(this._currentDiv);
         }
     }
-    this._currentDiv = div;
     if (this._eventHandlers) {
         this._attachHandlers(_cxt, div, this._template);
         this._attachHandlers(_cxt, div, "_"); // unbound ones
     }
+}
+
+FLCard.prototype._currentDiv = function(cx) {
+    if (this._renderTree)
+        return document.getElementById(this._renderTree._id);
+    else
+        return this._containedIn;
 }
 
 FLCard.prototype._attachHandlers = function(_cxt, div, key) {
@@ -444,7 +452,8 @@ FLCard.prototype._updateContent = function(_cxt, _renderTree, field, value) {
     value = _cxt.full(value);
     if (!value)
         value = '';
-    const node = this._currentDiv.querySelector("[data-flas-content='" + field + "']");
+    var div = document.getElementById(_renderTree._id);
+    const node = div.querySelector("[data-flas-content='" + field + "']");
     var ncid = _cxt.nextDocumentId();
     node.id = ncid;
     _renderTree[field] = { _id: ncid };
@@ -460,7 +469,8 @@ FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constan
         if (_cxt.isTruthy(rest[i]))
             styles += ' ' + rest[i+1];
     }
-    const node = this._currentDiv.querySelector("[data-flas-" + type + "='" + field + "']");
+    var div = document.getElementById(_renderTree._id);
+    const node = div.querySelector("[data-flas-" + type + "='" + field + "']");
     var ncid = _cxt.nextDocumentId();
     node.id = ncid;
     _renderTree[field] = { _id: ncid };
@@ -469,7 +479,8 @@ FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constan
 
 FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, templateName, value, _tc) {
     value = _cxt.full(value);
-    const node = this._currentDiv.querySelector("[data-flas-" + type + "='" + field + "']");
+    var div = document.getElementById(_renderTree._id);
+    const node = div.querySelector("[data-flas-" + type + "='" + field + "']");
     if (node != null) {
         var ncid = _cxt.nextDocumentId();
         node.id = ncid;
@@ -480,7 +491,6 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
             return;
         var t = document.getElementById(templateName);
         if (t != null) {
-            var tmp = this._currentDiv;
             if (Array.isArray(value)) {
                 _renderTree[field].children = [];
                 for (var i=0;i<value.length;i++) {
@@ -493,19 +503,28 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
                 _renderTree[field].single = rt;
                 this._addItem(_cxt, rt, node, t, fn, value, _tc);
             }
-            this._currentDiv = tmp;
         }
     }
 }
 
 FLCard.prototype._addItem = function(_cxt, _renderTree, parent, template, fn, value, _tc) {
-    this._currentDiv = template.content.cloneNode(true);
+    var div = template.content.cloneNode(true);
     var ncid = _cxt.nextDocumentId();
-    this._currentDiv.firstElementChild.id = ncid;
+    div.firstElementChild.id = ncid;
     _renderTree._id = ncid;
+    parent.appendChild(div);
     fn.call(this, _cxt, _renderTree, value, _tc);
-    parent.appendChild(this._currentDiv);
 }
+
+
+
+const FLObject = function(cx) {
+}
+FLObject.prototype._updateTemplate = FLCard.prototype._updateTemplate;
+FLObject.prototype._addItem = FLCard.prototype._addItem;
+FLObject.prototype._updateContent = FLCard.prototype._updateContent;
+FLObject.prototype._updateStyle = FLCard.prototype._updateStyle;
+
 
 
 class FLError extends Error {

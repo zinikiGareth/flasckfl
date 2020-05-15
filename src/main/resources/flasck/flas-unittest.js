@@ -44,7 +44,7 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 UTRunner.prototype.event = function(_cxt, target, zone, event) {
 	var div = null;
 	if (!zone || zone.length == 0) {
-		div = target.card._currentDiv;
+		div = target.card._currentDiv();
 	} else 
 		div = this.findDiv(_cxt, target.card._renderTree, zone, 0);
 	if (div) {
@@ -80,7 +80,7 @@ UTRunner.prototype._nameOf = function(zone, pos) {
 	return ret;
 }
 UTRunner.prototype.getZoneDiv = function(_cxt, target, zone) {
-	if (!target || !target.card || !target.card._currentDiv) {
+	if (!target || !target.card || !target.card._renderTree) {
 		throw Error("MATCH\nThe card has no rendered content");
 	}
 	// will throw error if not found

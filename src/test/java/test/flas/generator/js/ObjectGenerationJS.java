@@ -37,6 +37,7 @@ public class ObjectGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).object(od);
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
+			oneOf(clz).inheritsFrom(with(any(PackageName.class)));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
 			oneOf(jss).methodList(sn, new ArrayList<>());
@@ -56,6 +57,7 @@ public class ObjectGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).object(od);
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
+			oneOf(clz).inheritsFrom(with(any(PackageName.class)));
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
 			oneOf(jss).methodList(sn, new ArrayList<>());

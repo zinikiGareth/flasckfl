@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
@@ -95,13 +98,30 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 						}
 						tc = fs.meth.arrayOf(J.OBJECT, wanted);
 					}
-					curr.du = fs.meth.callVirtual("void", fs.container, "_updateTemplate",
+					boolean isOtherObject = (currentTBO.expr instanceof UnresolvedVar) &&
+						((UnresolvedVar)currentTBO.expr).defn() instanceof StructField &&
+						((StructField)((UnresolvedVar)currentTBO.expr).defn()).type.defn() instanceof ObjectDefn;
+
+					IExpr invokeOn;
+					IExpr send;
+					if (isOtherObject) {
+						invokeOn = fs.meth.as(expr, J.TEMPLATE_HOLDER);
+						send = fs.meth.makeNew(J.OBJECT);
+					} else {
+						invokeOn = fs.meth.as(fs.container, J.TEMPLATE_HOLDER);
+						send = fs.meth.as(expr, J.OBJECT);
+					}
+					
+					curr.du = fs.meth.callInterface("void", invokeOn, "_updateTemplate",
 						fs.fcx, fs.renderTree(), 
 						fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text),
 						fs.meth.intConst(currentTBO.sendsTo.template().position()),
 						fs.meth.stringConst(currentTBO.sendsTo.defn().id()),
-						fs.meth.as(expr, J.OBJECT),
+						send,
 						tc);
+					if (isOtherObject) {
+						curr.du = fs.meth.ifNotNull(invokeOn, curr.du, null);
+					}
 				} else
 					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.renderTree(), fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT));
 			}

@@ -50,15 +50,6 @@ public class JSClass implements JSClassCreator {
 	}
 
 	public void writeTo(IndentWriter iw) {
-		/*
-		iw.println("");
-		iw.print(name);
-		iw.print(" = function(");
-		iw.print(String.join(", ", ctorArgs ));
-		iw.print(") ");
-		ctor.write(iw);
-		iw.println("");
-		*/
 		ctor.write(iw);
 		if (this.baseClass != null) {
 			iw.println(name + ".prototype = new " + this.baseClass.jsName() + "();");

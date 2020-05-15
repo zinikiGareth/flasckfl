@@ -565,7 +565,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			return;
 		String clzName = od.name().javaName();
 		templateClass = bce.newClass(clzName);
-		templateClass.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
+		templateClass.superclass(J.FLOBJECT);
 		templateClass.generateAssociatedSourceFile();
 		templateClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		for (ObjectContract oc : od.contracts) {
@@ -575,7 +575,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			GenericAnnotator gen = GenericAnnotator.newConstructor(templateClass, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
 			templatector = gen.done();
-			templatector.callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
+			templatector.callSuper("void", J.FLOBJECT, "<init>", cx.getVar()).flush();
 		}
 	}
 	
