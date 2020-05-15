@@ -171,13 +171,18 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 			((UnifiableType)other).incorporatedBy(pos, this);
 			return true;
 		}
-		while (other instanceof PolyInstance) {
-			other = ((PolyInstance)other).struct();
-		}
+		other = removePoly(other);
 		for (TypeReference ty : cases)
-			if (ty.defn() == other)
+			if (removePoly(ty.defn()) == other)
 				return true;
 		// TODO: should we check the poly vars?
 		return false;
+	}
+	
+	public Type removePoly(Type other) {
+		while (other instanceof PolyInstance) {
+			other = ((PolyInstance)other).struct();
+		}
+		return other;
 	}
 }
