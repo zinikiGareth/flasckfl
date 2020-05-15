@@ -91,9 +91,9 @@ public class TDAObjectElementsParser implements TDAParsing {
 			TemplateNameToken tn = TemplateNameToken.from(toks);
 			ErrorMark em = errors.mark();
 			int pos = builder.templatePosn();
-			// TODO: we could have "internal" private templates that could have chains, but we don't currently support that
-			// all these chains are for calling from elsewhere
-			NestingChain chain = null; // TDACardElementsParser.parseChain(errors, namer, toks);
+			NestingChain chain = null;
+			if (toks.hasMore()) 
+				chain = TDACardElementsParser.parseChain(errors, namer, toks);
 			if (em.hasMoreNow())
 				return new IgnoreNestedParser();
 			final Template template = new Template(kw.location, tn.location, namer.template(tn.location, tn.text), pos, chain);

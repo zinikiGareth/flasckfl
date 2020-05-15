@@ -1,0 +1,7 @@
+	test an object can be rendered
+		data RenderObject r
+		data Thing t <- Thing.fred 'hello'
+		shove r.thing1
+			t
+		match r text
+			hello and then some

@@ -561,9 +561,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			String tname = option.sendsTo.name.baseName();
 			if (object != null) {
 				Template otd = object.getTemplate(tname);
-				if (otd == null)
+				if (otd == null) {
 					errors.message(option.sendsTo.location(), "template " + tname + " is not defined for object " + object.name().baseName());
-				option.sendsTo.bindTo(otd);
+				} else if (otd.nestingChain() != null) {
+					errors.message(option.sendsTo.location(), "cannot send to internal template " + tname + " for " + object.name().baseName());
+				} else
+					option.sendsTo.bindTo(otd);
 			} else {
 				RepositoryEntry defn = find(scope, tname);
 				if (defn == null)
@@ -573,7 +576,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				else if (defn instanceof Template) {
 					Template template = (Template)defn;
 					option.sendsTo.bindTo(template);
-					referencedTemplates.add(tname);
+					if (referencedTemplates != null)
+						referencedTemplates.add(tname);
 					Type ty = null;
 					if (option.expr instanceof UnresolvedVar) {
 						RepositoryEntry rd;

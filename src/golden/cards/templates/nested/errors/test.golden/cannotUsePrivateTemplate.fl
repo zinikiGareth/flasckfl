@@ -1,0 +1,12 @@
+	object Thing
+		ctor fred
+			
+		template inner <- (String m)
+			field <- m
+
+	card RenderObject
+		state
+			Thing thing1
+			
+		template top
+			hold <- thing1 => inner

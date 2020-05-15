@@ -1,5 +1,7 @@
 cannotSendTo  6.13:   hold <- x =>  _ x
                           cannot send to x which is not a template
+cannotUsePri 12.18:   hold <- thing1 =>  _ inner
+                          cannot send to internal template inner for Thing
 definedBefor  9.9:    template  _ inner
                           template inner has not been referenced yet
 firstMustBeC  2.9:    template  _ inner

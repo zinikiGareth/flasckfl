@@ -1,0 +1,22 @@
+	object Thing
+		state
+			String label
+			List[String] children
+			
+		ctor fred (String mylabel)
+			label <- mylabel
+			children <- ['and', 'then', 'some']
+			
+		template thing
+			message <- label
+			fellows <- children => inner
+
+		template inner <- (String m)
+			member <- m
+
+	card RenderObject
+		state
+			Thing thing1
+			
+		template top
+			field <- thing1 => thing
