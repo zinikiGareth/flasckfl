@@ -43,6 +43,7 @@ import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -77,8 +78,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private Template currentTemplate;
 	private UnresolvedVar currShoveExpr;
 	private Set<String> currentBindings;
-	private ArrayList<String> currentTemplates;
-	private ArrayList<String> referencedTemplates;
 	private NestingChain templateNestingChain;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
@@ -187,6 +186,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
+	public void visitUnionTypeDefn(UnionTypeDefn ud) {
+		scopeStack.add(0, scope);
+		this.scope = ud.name();
+	}
+	
+	@Override
 	public void visitObjectDefn(ObjectDefn sd) {
 		scopeStack.add(0, scope);
 		this.scope = sd.name();
@@ -196,8 +201,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitCardDefn(CardDefinition cd) {
 		scopeStack.add(0, scope);
 		this.scope = cd.name();
-		currentTemplates = new ArrayList<>();
-		referencedTemplates = new ArrayList<>();
 	}
 	
 	@Override
@@ -312,6 +315,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
+	public void leaveUnionTypeDefn(UnionTypeDefn ud) {
+		this.scope = scopeStack.remove(0);
+	}
+	
+	@Override
 	public void leaveObjectDefn(ObjectDefn sd) {
 		this.scope = scopeStack.remove(0);
 	}
@@ -319,8 +327,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveCardDefn(CardDefinition cd) {
 		this.scope = scopeStack.remove(0);
-		currentTemplates = null;
-		referencedTemplates = null;
 	}
 
 	@Override
@@ -429,11 +435,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		currentTemplate = t;
 		currentBindings = new TreeSet<>();
 		TemplateName name = t.name();
-		// for cards, check that the templates form a mutually-referring set
-		if (!isFirst && referencedTemplates != null && !referencedTemplates.contains(t.name().baseName()))
-			errors.message(t.location(), "template " + t.name().baseName() + " has not been referenced yet");
-		if (currentTemplates != null)
-			currentTemplates.add(t.name().baseName());
 		CardData webInfo = null;
 		try {
 			webInfo = repository.findWeb(name.baseName());
@@ -576,8 +577,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				else if (defn instanceof Template) {
 					Template template = (Template)defn;
 					option.sendsTo.bindTo(template);
-					if (referencedTemplates != null)
-						referencedTemplates.add(tname);
 					Type ty = null;
 					if (option.expr instanceof UnresolvedVar) {
 						RepositoryEntry rd;

@@ -2,6 +2,8 @@ cannotSendTo  8.13:   hold <- x =>  _ top
                           cannot send to top which is not an item template
 condsBoolean  4.2:    |  _ 'hello' <- 'world'
                           conditions must be Boolean
+definedBefor  9.9:    template  _ inner
+                          template inner has not been referenced yet
 mismatchedco 15.16:   hold <- msgs =>  _ format
                           template 'test.golden.MismatchedContext.format' requires test.golden.Tree not String
 mismatchedco 16.18:   hold2 <- trees =>  _ format2
@@ -24,3 +26,5 @@ structsNeedS 12.13:   for-cards <-  _ s
                           cannot render test.golden.MyStruct in punnet
 structsNeedS 21.13:   hold <- s =>  _ format
                           cannot specify sendsTo operator for a single item when target is a container
+unreferenced  4.9:    template  _ inner
+                          template inner has not been referenced yet

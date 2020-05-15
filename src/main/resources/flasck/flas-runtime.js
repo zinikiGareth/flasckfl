@@ -461,6 +461,19 @@ FLCard.prototype._updateContent = function(_cxt, _renderTree, field, value) {
     node.appendChild(document.createTextNode(value));
 }
 
+FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value) {
+    value = _cxt.full(value);
+    var div = document.getElementById(_renderTree._id);
+    const node = div.querySelector("[data-flas-container='" + field + "']");
+    var ncid = _cxt.nextDocumentId();
+    node.id = ncid;
+    _renderTree[field] = { _id: ncid };
+    node.innerHTML = '';
+    if (!value)
+        return;
+    debugger;
+}
+
 FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constant, ...rest) {
     var styles = '';
     if (constant)
@@ -523,6 +536,7 @@ const FLObject = function(cx) {
 FLObject.prototype._updateTemplate = FLCard.prototype._updateTemplate;
 FLObject.prototype._addItem = FLCard.prototype._addItem;
 FLObject.prototype._updateContent = FLCard.prototype._updateContent;
+FLObject.prototype._updateContainer = FLCard.prototype._updateContainer;
 FLObject.prototype._updateStyle = FLCard.prototype._updateStyle;
 
 

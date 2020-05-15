@@ -88,7 +88,8 @@ public interface JSBlockCreator {
 	void returnObject(JSExpr jsExpr);
 
 	// templates
-	void updateContent(TemplateField assignsTo, JSExpr expr);
+	void updateContent(TemplateField field, JSExpr expr);
+	void updateContainer(TemplateField field, JSExpr expr);
 	void updateTemplate(TemplateField field, int posn, boolean isOtherObject, String templateName, JSExpr expr, JSExpr tc);
 	void updateStyle(TemplateField field, JSExpr constant, List<JSStyleIf> styles);
 	

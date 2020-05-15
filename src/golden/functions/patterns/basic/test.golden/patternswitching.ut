@@ -49,7 +49,7 @@
 			3
 	
 	test any False case will always be 3
-		assert (e False ['hello', 'world'])
+		assert (e False [True, False])
 			3
 
 	test we can switch on a constant

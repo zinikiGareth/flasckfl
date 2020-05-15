@@ -10,8 +10,11 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -37,23 +40,19 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 	private Mode mode;
 	private InputPosition eloc;
 	private ExprResult exprType;
+	private List<String> referencedTemplates;
+	private List<Template> allTemplates;
 
-	public TemplateChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, Template t) {
+	public TemplateChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, Template t, List<Template> allTemplates, List<String> referencedTemplates) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
 		this.currentTemplate = t;
+		this.allTemplates = allTemplates;
+		this.referencedTemplates = referencedTemplates;
 		sv.push(this);
 	}
 
-//	@Override
-//	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
-//		if (isFirst)
-//			return;
-//		if (isDefining) // only interested the first time through
-//			return;
-//	}
-	
 	@Override
 	public void visitTemplateBindingCondition(Expr cond) {
 		mode = Mode.COND;
@@ -111,6 +110,10 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			return;
 		switch (dest) {
 		case CONTENT:
+			if (option.sendsTo != null) {
+				if (referencedTemplates != null)
+					referencedTemplates.add(option.sendsTo.name.baseName());
+			}
 			if (etype instanceof ObjectDefn) {
 				if (option.sendsTo == null || option.sendsTo.template() == null) {
 					errors.message(pos, "must use templates to render object " + etype.signature());
@@ -126,7 +129,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				errors.message(pos, "cannot render compound object in field " + option.assignsTo.text);
 			} else if (TypeHelpers.isPrimitive(etype) && option.sendsTo != null) {
 				errors.message(option.sendsTo.location(), "cannot specify sendsTo operator when value is a primitive");
-			}
+			} 
 			break;
 		case CONTAINER:
 			if (option.sendsTo != null) {
@@ -135,6 +138,8 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 					errors.message(option.sendsTo.location(), "cannot send to " + option.sendsTo.name.baseName() + " which is not an item template");
 					break;
 				}
+				if (referencedTemplates != null)
+					referencedTemplates.add(option.sendsTo.name.baseName());
 			}
 			if (etype instanceof ObjectDefn) {
 				if (option.sendsTo == null || option.sendsTo.template() == null) {
@@ -156,7 +161,24 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				errors.message(option.sendsTo.location(), "cannot specify sendsTo operator for a single item when target is a container");
 				break;
 			}
-			if (option.sendsTo != null) { // need to test that we have compatible chains
+			if (option.sendsTo == null && TypeHelpers.isList(etype)) {
+				/* In this case, we have specified a list of items we want rendered into a container, 
+				 * but we haven't specified how we want it done.  In that case, the items must be of a type
+				 * that we can identify and must either be STRUCT or UNION.
+				 * We can then go through each one and find the appropriate template to use, checking that it is compatible,
+				 * marking it as used, and recording the fact that we want to do this for this template (or something)
+				 */
+				etype = TypeHelpers.extractListPoly(etype);
+				
+				// TODO: note that this could also be a PolyInstance of one of these ...
+				if (etype instanceof StructDefn) {
+					resolveTemplateForItem(pos, (StructDefn) etype);
+				} else if (etype instanceof UnionTypeDefn) {
+					for (TypeReference ty : ((UnionTypeDefn)etype).cases) {
+						resolveTemplateForItem(pos, (StructDefn)ty.defn());
+					}
+				}
+			} else if (option.sendsTo != null) { // need to test that we have compatible chains
 				if (TypeHelpers.isList(etype)) {
 					etype = TypeHelpers.extractListPoly(etype);
 				}
@@ -207,6 +229,27 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			errors.message(option.assignsTo.location(), "cannot handle dest type " + dest);
 			break;
 		}
+	}
+
+	private Template resolveTemplateForItem(InputPosition pos, StructDefn etype) {
+		Template ret = null;
+		for (Template t : allTemplates) {
+			if (t.nestingChain() == null)
+				continue;
+			if (t.nestingChain().iterator().next().type().incorporates(pos, etype)) {
+				// TODO: check we can handle rest of chain
+				
+				if (ret != null) {
+					errors.message(pos, "ambiguous templates for " + etype.signature());
+				}
+				ret = t;
+			}
+		}
+		if (ret == null) {
+			errors.message(pos, "there is no compatible template for " + etype.signature());
+		} else
+			referencedTemplates.add(ret.name().baseName());
+		return ret;
 	}
 
 	@Override

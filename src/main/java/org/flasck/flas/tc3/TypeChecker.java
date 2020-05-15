@@ -1,6 +1,10 @@
 package org.flasck.flas.tc3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -18,6 +22,9 @@ public class TypeChecker extends LeafAdapter {
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
+	private ArrayList<String> currentTemplates;
+	private ArrayList<String> referencedTemplates;
+	private List<Template> allTemplates;
 
 	public TypeChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
 		this.errors = errors;
@@ -47,10 +54,29 @@ public class TypeChecker extends LeafAdapter {
 	}
 	
 	@Override
+	public void visitCardDefn(CardDefinition cd) {
+		currentTemplates = new ArrayList<>();
+		referencedTemplates = new ArrayList<>();
+		allTemplates = cd.templates;
+	}
+
+	@Override
 	public void visitTemplate(Template t, boolean isFirst) {
-		new TemplateChecker(errors, repository, sv, t);
+		// for cards, check that the templates form a mutually-referring set
+		if (!isFirst && referencedTemplates != null && !referencedTemplates.contains(t.name().baseName()))
+			errors.message(t.location(), "template " + t.name().baseName() + " has not been referenced yet");
+		if (currentTemplates != null)
+			currentTemplates.add(t.name().baseName());
+		new TemplateChecker(errors, repository, sv, t, allTemplates, referencedTemplates);
 	}
 	
+	@Override
+	public void leaveCardDefn(CardDefinition s) {
+		currentTemplates = null;
+		referencedTemplates = null;
+		allTemplates = null;
+	}
+
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		new UDDChecker(errors, repository, sv);

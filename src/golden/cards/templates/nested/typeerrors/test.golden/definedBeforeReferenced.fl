@@ -4,7 +4,7 @@
 			MyX y
 		
 		template top
-			hold <- x => referer
+			field1 <- x => referer
 		
 		template inner
 		

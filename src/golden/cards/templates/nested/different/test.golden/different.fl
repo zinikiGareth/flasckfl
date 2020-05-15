@@ -1,0 +1,24 @@
+	struct Entry
+		String desc
+		Number amount
+		
+	struct Total
+		Number total
+	
+	union Record
+		Entry
+		Total
+		
+	card HandleDifferent
+		state
+			List[Record] records
+			
+		template top
+			entries <- records
+			
+		template entry <- (Entry e)
+			desc <- e.desc
+			amount <- e.amount
+			
+		template total <- (Total t)
+			summary <- t.total

@@ -1,0 +1,4 @@
+	test we can render some accounts
+		data HandleDifferent hd
+		shove hd.records
+			[Entry "first" 22, Entry "second" 13, Total 35]

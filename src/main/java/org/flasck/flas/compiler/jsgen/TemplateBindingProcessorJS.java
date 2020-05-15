@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.ziniki.splitter.FieldType;
 import org.zinutils.collections.CollectionUtils;
 
 public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAware {
@@ -92,6 +93,8 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 						currentTBO.sendsTo.defn().id(),
 						(JSExpr) r,
 						bindingBlock.makeArray(wanted));
+				} else if (currentTBO.assignsTo.type() == FieldType.CONTAINER) {
+					bindingBlock.updateContainer(b.assignsTo, (JSExpr) r);
 				} else
 					bindingBlock.updateContent(b.assignsTo, (JSExpr) r);
 			}

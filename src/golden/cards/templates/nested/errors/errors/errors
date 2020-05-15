@@ -2,8 +2,6 @@ cannotSendTo  6.13:   hold <- x =>  _ x
                           cannot send to x which is not a template
 cannotUsePri 12.18:   hold <- thing1 =>  _ inner
                           cannot send to internal template inner for Thing
-definedBefor  9.9:    template  _ inner
-                          template inner has not been referenced yet
 firstMustBeC  2.9:    template  _ inner
                           first web template must be a card template, not item inner
 index.html:   0.0:    
@@ -14,11 +12,7 @@ nostatevalue  3.8:    hold <-  _ x
                           cannot resolve 'x'
 secondMustBe  4.9:    template  _ other-card
                           secondary web templates must be item templates, not card other-card
-secondMustBe  4.9:    template  _ other-card
-                          template other-card has not been referenced yet
 topCannotHav  2.12:   template top _  <- (String x)
                           main template cannot declare chain
 undefined.fl  8.13:   hold <- x =>  _ inner
                           template inner is not defined
-unreferenced  4.9:    template  _ inner
-                          template inner has not been referenced yet

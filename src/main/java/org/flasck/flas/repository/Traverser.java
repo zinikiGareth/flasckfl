@@ -270,6 +270,8 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
 		visitor.visitUnionTypeDefn(ud);
+		for (TypeReference c : ud.cases)
+			visitTypeReference(c);
 		leaveUnionTypeDefn(ud);
 	}
 	
@@ -286,9 +288,6 @@ public class Traverser implements RepositoryVisitor {
 			visitObjectContract(oc);
 		for (HandlerImplements ic : obj.handlers)
 			visitHandlerImplements(ic, obj);
-//		for (Template t : obj.templates) {
-//			visitTemplateReference(t.defines, false, false);
-//		}
 		for (Template t : obj.templates) {
 			visitTemplate(t, false);
 		}
