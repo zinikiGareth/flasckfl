@@ -148,7 +148,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			ExprToken sendToTok = ExprToken.from(errors, toks);
 			if (sendToTok != null) {
 				if ("=>".equals(sendToTok.text)) {
-					TemplateNameToken tnt = TemplateNameToken.from(toks);
+					TemplateNameToken tnt = TemplateNameToken.from(errors, toks);
 					sendTo = new TemplateReference(tnt.location, namer.template(tnt.location, tnt.text));
 				} else {
 					errors.message(toks, "syntax error");

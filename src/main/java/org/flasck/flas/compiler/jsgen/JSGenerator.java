@@ -119,6 +119,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private final List<JSExpr> explodingMocks = new ArrayList<>();
 	private JSClassCreator agentCreator;
 	private JSClassCreator templateCreator;
+	private AtomicInteger containerIdx;
 
 	public JSGenerator(JSStorage jse, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
 		this.jse = jse;
@@ -245,6 +246,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(obj, methods);
 		jse.methodList(obj.name(), methods);
+		containerIdx = new AtomicInteger(1);
 	}
 	
 	@Override
@@ -539,6 +541,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 				new StructFieldGeneratorJS(state, sv, ctor, sf.name, new JSThis());
 			}
 		};
+		containerIdx = new AtomicInteger(1);
 	}
 	
 	@Override
@@ -624,7 +627,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 				popVar(tom, links.next(), updateDisplay.arrayElt(tc, pos++));
 			state.provideTemplateObject(tom);
 		}
-		new TemplateProcessorJS(state, sv, templateCreator, new AtomicInteger(1), updateDisplay);
+		new TemplateProcessorJS(state, sv, templateCreator, containerIdx, updateDisplay);
 	}
 	
 	private void popVar(Map<String, JSExpr> tom, Link l, JSExpr expr) {
@@ -635,6 +638,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public void leaveCardDefn(CardDefinition s) {
 		agentCreator = null;
 		templateCreator = null;
+		containerIdx = null;
+	}
+
+	@Override
+	public void leaveObjectDefn(ObjectDefn s) {
+		templateCreator = null;
+		containerIdx = null;
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.TemplateNamer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.TypeHelpers;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TemplateNestingChain implements NestingChain {
@@ -50,6 +51,11 @@ public class TemplateNestingChain implements NestingChain {
 		this.namer = namer;
 	}
 
+	@Override
+	public boolean isEmpty() {
+		return links.isEmpty();
+	}
+	
 	@Override
 	public Iterator<Link> iterator() {
 		return links.iterator();
@@ -104,6 +110,16 @@ public class TemplateNestingChain implements NestingChain {
 				if (field != null) {
 					resolver.visitTypeReference(field.type);
 					return new TemplateNestedField(var.location, l.name, field.type(), field);
+				}
+			} else if (TypeHelpers.isList(l.actual)) {
+				Type ty = TypeHelpers.extractListPoly(l.actual);
+				if (ty instanceof StructDefn) {
+					StructDefn sd = (StructDefn) ty;
+					StructField field = sd.findField(var.var);
+					if (field != null) {
+						resolver.visitTypeReference(field.type);
+						return new TemplateNestedField(var.location, l.name, field.type(), field);
+					}
 				}
 			}
 		}

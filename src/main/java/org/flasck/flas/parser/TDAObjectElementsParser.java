@@ -88,7 +88,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			return new NoNestingParser(errors);
 		}
 		case "template": {
-			TemplateNameToken tn = TemplateNameToken.from(toks);
+			TemplateNameToken tn = TemplateNameToken.from(errors, toks);
 			ErrorMark em = errors.mark();
 			int pos = builder.templatePosn();
 			NestingChain chain = null;

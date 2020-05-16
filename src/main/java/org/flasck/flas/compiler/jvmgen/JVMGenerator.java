@@ -132,6 +132,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private Var agentcx;
 	private Var ocret;
 	private Map<CardDefinition, EventTargetZones> eventMap;
+	private AtomicInteger containerIdx;
 
 	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
 		this.bce = bce;
@@ -585,6 +586,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			templatector = gen.done();
 			templatector.callSuper("void", J.FLOBJECT, "<init>", cx.getVar()).flush();
 		}
+		containerIdx = new AtomicInteger(1);
 	}
 	
 	@Override
@@ -685,6 +687,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			cardevents.returnObject(v).flush();
 //			evhs.put(cd, new EventsMethod(cardevents, v));
 		}
+		containerIdx = new AtomicInteger(1);
 	}
 
 	@Override
@@ -810,7 +813,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			fs.provideTemplateObject(tom);
 			tf.ifNull(item.getVar(), tf.returnVoid(), null).flush();
 		}
-		new TemplateProcessor(fs, sv, templateClass, new AtomicInteger(1));
+		new TemplateProcessor(fs, sv, templateClass, containerIdx);
 	}
 
 	private void popVar(Map<String, IExpr> tom, Link l, IExpr expr) {
@@ -859,6 +862,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		templatector.returnVoid().flush();
 		templatector = null;
 		templatector = null;
+		containerIdx = null;
 	}
 	
 	@Override
@@ -869,6 +873,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		agentctor.returnVoid().flush();
 		agentctor = null;
 		templatector = null;
+		containerIdx = null;
 	}
 	
 	@Override

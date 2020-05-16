@@ -140,8 +140,10 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 		if (state.templateObj() != null) {
 			// TODO: this cannot use "sendsTo" since it is null
 			// I think it needs to read from the template passed in
-			for (int i : currentTBO.sendsTo.contextPosns()) {
-				wanted.add(CollectionUtils.nth(state.templateObj().values(), i));
+			if (currentTBO.sendsTo != null) {
+				for (int i : currentTBO.sendsTo.contextPosns()) {
+					wanted.add(CollectionUtils.nth(state.templateObj().values(), i));
+				}
 			}
 		}
 		block.addItem(e.position(),

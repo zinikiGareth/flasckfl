@@ -29,7 +29,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		CardElementsConsumer consumer = (CardElementsConsumer) this.consumer;
 		switch (kw.text) {
 		case "template": {
-			TemplateNameToken tn = TemplateNameToken.from(toks);
+			TemplateNameToken tn = TemplateNameToken.from(errors, toks);
 			if (tn == null) {
 				errors.message(toks, "template must have a name");
 				return new IgnoreNestedParser();
@@ -79,7 +79,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 		if (toks.hasMore()) {
 			ExprToken send = ExprToken.from(errors, toks);
 			if (!"<-".equals(send.text)) {
-				errors.message(toks, "syntax error");
+				errors.message(send.location, "expected <-");
 				return null;
 			}
 			while (toks.hasMore()) {

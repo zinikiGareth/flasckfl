@@ -7,6 +7,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorMark;
@@ -342,13 +346,21 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = null;
+		// If we are in a nested template and we have *NO* chain information, then
+		// we failed to bind it and should have generated an error at source, so
+		// suppress the cascade here
+		boolean suppress = false;
 		if (templateNestingChain != null) {
 			defn = templateNestingChain.resolve(this, var);
+			suppress = templateNestingChain.isEmpty();
+			if (suppress && !errors.hasErrors())
+				throw new RuntimeException("we planned on suppressing the error but no error message had previously been produced");
 		}
 		if (defn == null)
 			defn = find(scope, var.var);
 		if (defn == null) {
-			errors.message(var.location, "cannot resolve '" + var.var + "'");
+			if (!suppress)
+				errors.message(var.location, "cannot resolve '" + var.var + "'");
 			return;
 		}
 		var.bind(defn);
@@ -554,8 +566,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (option.sendsTo != null) {
 			// consider that it might be an object sending to an object template
 			ObjectDefn object = null;
-			if (option.expr instanceof UnresolvedVar) {
-				UnresolvedVar uv = (UnresolvedVar) option.expr;
+			Expr oe = option.expr;
+			if (oe instanceof UnresolvedVar) {
+				UnresolvedVar uv = (UnresolvedVar) oe;
 				if (uv.defn() instanceof StructField && ((StructField)uv.defn()).type.defn() instanceof ObjectDefn)
 					object = (ObjectDefn) ((StructField)uv.defn()).type.defn();
 			}
@@ -574,46 +587,75 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 					errors.message(option.sendsTo.location(), "template " + tname + " is not defined");
 				else if (!(defn instanceof Template))
 					errors.message(option.sendsTo.location(), "cannot send to " + tname + " which is not a template");
-				else if (defn instanceof Template) {
+				else {
 					Template template = (Template)defn;
 					option.sendsTo.bindTo(template);
-					Type ty = null;
-					if (option.expr instanceof UnresolvedVar) {
-						RepositoryEntry rd;
-						rd = ((UnresolvedVar)option.expr).defn();
-						if (rd instanceof StructField) {
-							StructField sf = (StructField)rd;
-							Type st = sf.type();
-							if (st == null) // it could not be resolved
-								return;
-							if (st instanceof PolyInstance) {
-								PolyInstance pi = (PolyInstance)st;
-								NamedType pis = pi.struct();
-								if (pis.equals(LoadBuiltins.list))
-									st = pi.getPolys().get(0);
-							}
-							if (st instanceof StructDefn)
-								ty = st;
-							else if (st instanceof Primitive)
-								ty = st;
-							else // TODO: there may be other cases
-								errors.message(option.expr.location(), "expected a struct value, not " + st.signature());
-						} else if (rd instanceof TemplateNestedField) {
-							TemplateNestedField tnf = (TemplateNestedField) rd;
-							ty = tnf.type();
-							if (ty == null) {
-								errors.message(option.expr.location(), "cannot infer types here; explicitly type chained element " + ((UnresolvedVar)option.expr).var);
-							} else if (TypeHelpers.isList(ty)) {
-								ty = TypeHelpers.extractListPoly(ty);
-							}
-								 
-						} else
-							throw new NotImplementedException("not handling " + rd.getClass());
-					}
+					Type ty = figureTemplateValueType(oe);
 					if (ty != null)
 						((Template)template).canUse(ty);
 				}
 			}
+		}
+	}
+
+	private Type figureTemplateValueType(Expr oe) {
+		if (oe instanceof StringLiteral)
+			return LoadBuiltins.string;
+		else if (oe instanceof NumericLiteral)
+			return LoadBuiltins.number;
+		else if (oe instanceof UnresolvedVar) {
+			RepositoryEntry rd = ((UnresolvedVar)oe).defn();
+			if (rd instanceof StructField) {
+				StructField sf = (StructField)rd;
+				Type st = sf.type();
+				if (st == null) // it could not be resolved
+					return null;
+				if (st instanceof PolyInstance) {
+					PolyInstance pi = (PolyInstance)st;
+					NamedType pis = pi.struct();
+					if (pis.equals(LoadBuiltins.list))
+						st = pi.getPolys().get(0);
+				}
+				if (st instanceof StructDefn)
+					return st;
+				else if (st instanceof Primitive)
+					return st;
+				else {// TODO: there may be other cases
+					errors.message(oe.location(), "expected a struct value, not " + st.signature());
+					return null;
+				}
+			} else if (rd instanceof TemplateNestedField) {
+				TemplateNestedField tnf = (TemplateNestedField) rd;
+				Type ty = tnf.type();
+				if (ty == null) {
+					errors.message(oe.location(), "cannot infer types here; explicitly type chained element " + ((UnresolvedVar)oe).var);
+				} else if (TypeHelpers.isList(ty)) {
+					ty = TypeHelpers.extractListPoly(ty);
+				}
+				return ty;	 
+			} else
+				throw new NotImplementedException("not handling " + rd.getClass());
+		} else if (oe instanceof MemberExpr) {
+			MemberExpr me = (MemberExpr) oe;
+			if (me.from instanceof UnresolvedVar) {
+				Type ty = figureTemplateValueType(me.from);
+				if (ty instanceof StructDefn) {
+					StructDefn sd = (StructDefn) ty;
+					StructField fld = sd.findField(((UnresolvedVar)me.fld).var);
+					if (fld == null) {
+						errors.message(fld.location(), "no field " + ((UnresolvedVar)me.fld).var);
+						return null;
+					}
+					return fld.type();
+				} else {
+					errors.message(oe.location(), "insufficient information to deduce type of expression");
+					return null;
+				}
+			}
+			return null;
+		} else {
+			errors.message(oe.location(), "insufficient information to deduce type of expression");
+			return null;
 		}
 	}
 

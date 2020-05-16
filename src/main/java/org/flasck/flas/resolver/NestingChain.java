@@ -15,4 +15,5 @@ public interface NestingChain extends Iterable<TemplateNestingChain.Link> {
 	void declare(TypeReference typeReference, VarName nameVar);
 	List<TypeReference> types();
 	void resolvedTypes();
+	boolean isEmpty();
 }

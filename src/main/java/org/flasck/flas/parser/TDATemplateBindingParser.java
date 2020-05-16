@@ -27,7 +27,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		final TemplateNameToken tok = TemplateNameToken.from(toks);
+		final TemplateNameToken tok = TemplateNameToken.from(errors, toks);
 		if (tok == null) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
@@ -59,7 +59,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 					errors.message(toks, "syntax error");
 					return new IgnoreNestedParser();
 				}
-				TemplateNameToken dest = TemplateNameToken.from(toks);
+				TemplateNameToken dest = TemplateNameToken.from(errors, toks);
 				if (dest == null) {
 					errors.message(toks, "missing template name");
 					return new IgnoreNestedParser();

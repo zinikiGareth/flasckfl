@@ -195,12 +195,17 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				Template t = option.sendsTo.template();
 				NestingChain chain = t.nestingChain();
 				Iterator<Link> it = chain.iterator();
-				pos = option.sendsTo.location(); 
-				Link first = it.next();
-				// first.actualType must match what we have in mind
-				if (!first.type().incorporates(pos, etype)) {
-					errors.message(pos, "template '" + t.name().uniqueName() + "' requires " + first.type().signature() + " not " + etype.signature());
-					break;
+				pos = option.sendsTo.location();
+				{
+					Link first = it.next();
+					Type lp = null;
+					if (TypeHelpers.isList(first.type()))
+						lp = TypeHelpers.extractListPoly(first.type());
+					// first.actualType must match what we have in mind
+					if (!first.type().incorporates(pos, etype) && !(lp != null && lp.incorporates(pos, etype))) {
+						errors.message(pos, "template '" + t.name().uniqueName() + "' requires " + first.type().signature() + " not " + etype.signature());
+						break;
+					}
 				}
 				// we must have all its remaining context types in our context
 				List<Integer> posns = new ArrayList<>();
