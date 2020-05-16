@@ -41,6 +41,11 @@ public class AccessorConvertor extends LeafAdapter {
 	}
 	
 	@Override
+	public void leaveMemberExpr(MemberExpr expr) {
+		sv.result(null);
+	}
+	
+	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
 		sv.result(null);
 	}
