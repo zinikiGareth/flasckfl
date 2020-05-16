@@ -808,6 +808,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			while (links.hasNext())
 				popVar(tom, links.next(), fs.meth.arrayElt(tc.getVar(), fs.meth.intConst(pos++)));
 			fs.provideTemplateObject(tom);
+			tf.ifNull(item.getVar(), tf.returnVoid(), null).flush();
 		}
 		new TemplateProcessor(fs, sv, templateClass, new AtomicInteger(1));
 	}

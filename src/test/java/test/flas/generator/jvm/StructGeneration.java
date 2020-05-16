@@ -64,6 +64,11 @@ public class StructGeneration {
 			oneOf(doret).flush();
 		}});
 
+		MethodDefiner aya = context.mock(MethodDefiner.class, "aya");
+		IExpr mt = context.mock(IExpr.class, "mt");
+		IExpr ty = context.mock(IExpr.class, "ty");
+		IExpr val = context.mock(IExpr.class, "val");
+
 		MethodDefiner eval = context.mock(MethodDefiner.class, "eval");
 		context.checking(new Expectations() {{
 			oneOf(eval).nextLocal(); will(returnValue(6));
@@ -76,6 +81,13 @@ public class StructGeneration {
 		context.checking(new Expectations() {{ // eval
 			oneOf(eclz).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+			oneOf(eclz).implementsInterface(J.AREYOUA);
+			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aya));
+			oneOf(aya).argument(J.STRING, "ty"); will(returnValue(args));
+			oneOf(aya).stringConst("test.repo.Struct"); will(returnValue(mt));
+			oneOf(aya).as(args, J.OBJECT); will(returnValue(ty));
+			oneOf(aya).callVirtual("boolean", mt, "equals", ty); will(returnValue(val));
+			oneOf(aya).returnBool(val);
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(eval).argument("[" + J.OBJECT, "args"); will(returnValue(args));
@@ -122,6 +134,9 @@ public class StructGeneration {
 			oneOf(doret).flush();
 		}});
 
+		MethodDefiner aya = context.mock(MethodDefiner.class, "aya");
+		IExpr mt = context.mock(IExpr.class, "mt");
+		IExpr ty = context.mock(IExpr.class, "ty");
 		MethodDefiner eval = context.mock(MethodDefiner.class, "eval");
 		context.checking(new Expectations() {{
 			oneOf(eval).nextLocal(); will(returnValue(6));
@@ -140,6 +155,13 @@ public class StructGeneration {
 		context.checking(new Expectations() {{ // eval
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
+			oneOf(eclz).implementsInterface(J.AREYOUA);
+			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aya));
+			oneOf(aya).argument(J.STRING, "ty"); will(returnValue(args));
+			oneOf(aya).stringConst("test.repo.Struct"); will(returnValue(mt));
+			oneOf(aya).as(args, J.OBJECT); will(returnValue(ty));
+			oneOf(aya).callVirtual("boolean", mt, "equals", ty); will(returnValue(val));
+			oneOf(aya).returnBool(val);
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(eval).argument("[" + J.OBJECT, "args"); will(returnValue(args));

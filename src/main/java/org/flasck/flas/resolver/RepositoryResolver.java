@@ -725,6 +725,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 						ct = findCBO(ct, tz, (String)idx);
 						if (ct == null) // will have produced an error
 							return;
+						webInfo = ct.webinfo();
 					}
 					types.add(curr);
 				}
