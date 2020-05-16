@@ -1,8 +1,10 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
@@ -170,14 +172,21 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				 */
 				etype = TypeHelpers.extractListPoly(etype);
 				
-				// TODO: note that this could also be a PolyInstance of one of these ...
+				Map<StructDefn, Template> mapping = new HashMap<>();
 				if (etype instanceof StructDefn) {
-					resolveTemplateForItem(pos, (StructDefn) etype);
+					Template which = resolveTemplateForItem(pos, (StructDefn) etype);
+					mapping.put((StructDefn) etype, which);
 				} else if (etype instanceof UnionTypeDefn) {
 					for (TypeReference ty : ((UnionTypeDefn)etype).cases) {
-						resolveTemplateForItem(pos, (StructDefn)ty.defn());
+						StructDefn sd = (StructDefn)ty.defn();
+						Template which = resolveTemplateForItem(pos, sd);
+						mapping.put(sd, which);
 					}
+				} else {
+					// TODO: note that this could also be a PolyInstance of one of these ...
+					throw new NotImplementedException("must be struct or union");
 				}
+				option.attachMapping(mapping);
 			} else if (option.sendsTo != null) { // need to test that we have compatible chains
 				if (TypeHelpers.isList(etype)) {
 					etype = TypeHelpers.extractListPoly(etype);

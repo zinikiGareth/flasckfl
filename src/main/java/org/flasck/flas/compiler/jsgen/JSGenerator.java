@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
@@ -211,6 +212,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSBlockCreator ctor = ctr.constructor();
 		ctor.stateField();
 		ctor.storeField(this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
+		JSMethodCreator areYouA = ctr.createMethod("_areYouA", true);
+		areYouA.argument("ty");
+		areYouA.returnCompare(areYouA.arg(0), areYouA.string(obj.name().jsName()));
 		this.meth = ctr.createMethod("eval", false);
 		this.meth.argument("_cxt");
 		this.evalRet = meth.newOf(obj.name());
@@ -224,7 +228,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			} else {
 				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
 			}
-			
 		};
 	}
 	
@@ -621,7 +624,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 				popVar(tom, links.next(), updateDisplay.arrayElt(tc, pos++));
 			state.provideTemplateObject(tom);
 		}
-		new TemplateProcessorJS(state, sv, updateDisplay);
+		new TemplateProcessorJS(state, sv, templateCreator, new AtomicInteger(1), updateDisplay);
 	}
 	
 	private void popVar(Map<String, JSExpr> tom, Link l, JSExpr expr) {

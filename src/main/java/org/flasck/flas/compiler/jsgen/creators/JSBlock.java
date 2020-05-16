@@ -305,13 +305,24 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public void returnCompare(JSExpr lhs, JSExpr rhs) {
+		JSReturn stmt = new JSReturn(new JSCompare(lhs, rhs));
+		stmts.add(stmt);
+	}
+
+	@Override
 	public void updateContent(TemplateField field, JSExpr expr) {
 		stmts.add(new JSUpdateContent(field, expr));
 	}
 
 	@Override
-	public void updateContainer(TemplateField field, JSExpr expr) {
-		stmts.add(new JSUpdateContainer(field, expr));
+	public void updateStyle(TemplateField field, JSExpr constant, List<JSStyleIf> styles) {
+		stmts.add(new JSUpdateStyle(field, constant, styles));
+	}
+	
+	@Override
+	public void updateContainer(TemplateField field, JSExpr expr, int ucidx) {
+		stmts.add(new JSUpdateContainer(field, expr, ucidx));
 	}
 
 	@Override
@@ -320,8 +331,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void updateStyle(TemplateField field, JSExpr constant, List<JSStyleIf> styles) {
-		stmts.add(new JSUpdateStyle(field, constant, styles));
+	public void addItem(int posn, String templateName, JSExpr expr, JSExpr tc) {
+		stmts.add(new JSAddItem(posn, templateName, expr, tc));
 	}
 
 	@Override
@@ -342,6 +353,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSIfExpr ifCtor(String var, String ctor) {
 		JSIfExpr ret = new JSIfExpr(new IsAExpr(var, ctor), new JSBlock(this.creating), new JSBlock(this.creating));
+		stmts.add(ret);
+		return ret;
+	}
+
+	@Override
+	public JSIfExpr ifCtor(JSExpr expr, SolidName ctor) {
+		JSIfExpr ret = new JSIfExpr(new IsAExpr(expr, ctor), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);
 		return ret;
 	}

@@ -34,6 +34,8 @@ public interface JSBlockCreator {
 	JSExpr pushFunction(String meth);
 	JSExpr pushConstructor(String clz);
 	JSExpr defineTupleMember(TupleMember e);
+	void returnObject(JSExpr jsExpr);
+	void returnCompare(JSExpr lhs, JSExpr rhs);
 
 	// creating more complex things
 	JSExpr structConst(String name);
@@ -70,6 +72,7 @@ public interface JSBlockCreator {
 	void head(String var);
 	void field(String asVar, String fromVar, String field);
 	JSIfExpr ifCtor(String var, String ctor);
+	JSIfExpr ifCtor(JSExpr expr, SolidName type);
 	JSIfExpr ifConst(String string, int cnst);
 	JSIfExpr ifConst(String string, String cnst);
 	JSIfExpr ifTrue(JSExpr ge);
@@ -85,13 +88,13 @@ public interface JSBlockCreator {
 	JSExpr closure(boolean wantObject, JSExpr... args);
 	JSExpr curry(boolean wantObject, int expArgs, JSExpr... args);
 	JSExpr xcurry(boolean wantObject, int expArgs, List<XCArg> posargs);
-	void returnObject(JSExpr jsExpr);
 
 	// templates
 	void updateContent(TemplateField field, JSExpr expr);
-	void updateContainer(TemplateField field, JSExpr expr);
-	void updateTemplate(TemplateField field, int posn, boolean isOtherObject, String templateName, JSExpr expr, JSExpr tc);
 	void updateStyle(TemplateField field, JSExpr constant, List<JSStyleIf> styles);
+	void updateTemplate(TemplateField field, int posn, boolean isOtherObject, String templateName, JSExpr expr, JSExpr tc);
+	void updateContainer(TemplateField field, JSExpr expr, int ucidx);
+	void addItem(int position, String templateName, JSExpr expr, JSExpr makeArray);
 	
 	// unit testing
 	void assertable(JSExpr runner, String assertion, JSExpr... args);

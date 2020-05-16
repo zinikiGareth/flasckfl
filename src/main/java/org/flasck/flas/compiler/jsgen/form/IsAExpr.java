@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.commonBase.names.SolidName;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class IsAExpr implements JSExpr {
@@ -9,6 +10,11 @@ public class IsAExpr implements JSExpr {
 	public IsAExpr(String var, String ctor) {
 		this.var = var;
 		this.ctor = ctor;
+	}
+
+	public IsAExpr(JSExpr var, SolidName ctor) {
+		this.var = var.asVar();
+		this.ctor = ctor.jsName();
 	}
 
 	@Override

@@ -7,10 +7,12 @@ import org.zinutils.exceptions.NotImplementedException;
 public class JSUpdateContainer implements JSExpr {
 	private final TemplateField field;
 	private final JSExpr expr;
+	private final int ucidx;
 
-	public JSUpdateContainer(TemplateField field, JSExpr expr) {
+	public JSUpdateContainer(TemplateField field, JSExpr expr, int ucidx) {
 		this.field = field;
 		this.expr = expr;
+		this.ucidx = ucidx;
 	}
 
 	@Override
@@ -24,6 +26,9 @@ public class JSUpdateContainer implements JSExpr {
 		w.print(field.text);
 		w.print("', ");
 		w.print(expr.asVar());
+		w.print(", ");
+		w.print("this._updateContainer");
+		w.print(Integer.toString(ucidx));
 		w.println(");");
 	}
 }

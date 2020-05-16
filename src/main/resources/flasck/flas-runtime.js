@@ -258,8 +258,8 @@ FLContext.prototype.isTruthy = function(val) {
 }
 
 FLContext.prototype.isA = function(val, ty) {
-	if (val instanceof Object && 'areYouA' in val) {
-		return val.areYouA(ty);
+	if (val instanceof Object && '_areYouA' in val) {
+		return val._areYouA(ty);
 	}
 	switch (ty) {
 	case 'True':
@@ -461,19 +461,6 @@ FLCard.prototype._updateContent = function(_cxt, _renderTree, field, value) {
     node.appendChild(document.createTextNode(value));
 }
 
-FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value) {
-    value = _cxt.full(value);
-    var div = document.getElementById(_renderTree._id);
-    const node = div.querySelector("[data-flas-container='" + field + "']");
-    var ncid = _cxt.nextDocumentId();
-    node.id = ncid;
-    _renderTree[field] = { _id: ncid };
-    node.innerHTML = '';
-    if (!value)
-        return;
-    debugger;
-}
-
 FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constant, ...rest) {
     var styles = '';
     if (constant)
@@ -527,6 +514,25 @@ FLCard.prototype._addItem = function(_cxt, _renderTree, parent, template, fn, va
     _renderTree._id = ncid;
     parent.appendChild(div);
     fn.call(this, _cxt, _renderTree, value, _tc);
+}
+
+FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn) {
+    value = _cxt.full(value);
+    var div = document.getElementById(_renderTree._id);
+    const node = div.querySelector("[data-flas-container='" + field + "']");
+    var ncid = _cxt.nextDocumentId();
+    node.id = ncid;
+    _renderTree[field] = { _id: ncid };
+    node.innerHTML = '';
+    if (!value)
+        return;
+    _renderTree[field].children = [];
+    for (var i=0;i<value.length;i++) {
+        var e = value[i];
+        var rt  = {};
+        _renderTree[field].children.push(rt);
+        fn.call(this, _cxt, rt, node, e);
+    }
 }
 
 
@@ -726,7 +732,7 @@ ClickEvent.eval = function(cx) {
     return new ClickEvent();
 }
 
-ClickEvent.prototype.areYouA = function(name) {
+ClickEvent.prototype._areYouA = function(name) {
     return name == "ClickEvent" || name == "Event";
 }
 

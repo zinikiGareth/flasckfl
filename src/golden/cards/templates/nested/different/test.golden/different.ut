@@ -2,3 +2,13 @@
 		data HandleDifferent hd
 		shove hd.records
 			[Entry "first" 22, Entry "second" 13, Total 35]
+		match hd text
+			first 22 second 13 35
+
+I would like to be able to do this, but it is tricky
+How do you know what gets rendered in 0 to know what should be there?
+It's presumably possible to handle the ambiguity somehow
+Put it on the backlog
+
+.		match hd text entries.0.desc
+.			first

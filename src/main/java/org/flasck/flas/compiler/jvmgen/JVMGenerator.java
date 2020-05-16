@@ -521,6 +521,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		String clzName = sd.name().javaName();
 		ByteCodeSink bcc = bce.newClass(clzName);
 		bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
+		bcc.implementsInterface(J.AREYOUA);
 		bcc.generateAssociatedSourceFile();
 		bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs").constValue(sd.argCount());
 		bcc.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
@@ -530,6 +531,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", cx.getVar()).flush();
 			ctor.returnVoid().flush();
+		}
+		{ // _areYouA()
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_areYouA");
+			PendingVar ty = gen.argument(J.STRING, "ty");
+			gen.returns("boolean");
+			NewMethodDefiner areYouA = gen.done();
+			areYouA.returnBool(areYouA.callVirtual("boolean", areYouA.stringConst(clzName), "equals", areYouA.as(ty.getVar(), J.OBJECT))).flush();
 		}
 		{ // eval(cx)
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
@@ -801,7 +809,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				popVar(tom, links.next(), fs.meth.arrayElt(tc.getVar(), fs.meth.intConst(pos++)));
 			fs.provideTemplateObject(tom);
 		}
-		new TemplateProcessor(fs, sv);
+		new TemplateProcessor(fs, sv, templateClass, new AtomicInteger(1));
 	}
 
 	private void popVar(Map<String, IExpr> tom, Link l, IExpr expr) {

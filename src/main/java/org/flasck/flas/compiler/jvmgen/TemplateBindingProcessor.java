@@ -2,10 +2,15 @@ package org.flasck.flas.compiler.jvmgen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
@@ -16,9 +21,16 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
+import org.ziniki.splitter.FieldType;
+import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.collections.CollectionUtils;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TemplateBindingProcessor extends LeafAdapter implements ResultAware {
 	enum Mode {
@@ -31,6 +43,8 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	}
 	private final FunctionState fs;
 	private final StackVisitor sv;
+	private final ByteCodeSink templateClass;
+	private final AtomicInteger containerIdx;
 	private final TemplateField assignsTo;
 	private final List<JVMStyleIf> styles = new ArrayList<>();
 	private final List<IExpr> cexpr = new ArrayList<>();
@@ -41,9 +55,11 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	private List<IExpr> bindingBlock;
 	private TemplateBindingOption currentTBO;
 
-	public TemplateBindingProcessor(FunctionState fs, StackVisitor sv, TemplateBinding b) {
+	public TemplateBindingProcessor(FunctionState fs, StackVisitor sv, ByteCodeSink templateClass, AtomicInteger containerIdx, TemplateBinding b) {
 		this.fs = fs;
 		this.sv = sv;
+		this.templateClass = templateClass;
+		this.containerIdx = containerIdx;
 		this.bindingBlock = new ArrayList<IExpr>();
 		assignsTo = b.assignsTo;
 		sv.push(this);
@@ -122,6 +138,33 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 					if (isOtherObject) {
 						curr.du = fs.meth.ifNotNull(invokeOn, curr.du, null);
 					}
+				} else if (currentTBO.assignsTo.type() == FieldType.CONTAINER) {
+					Map<StructDefn, Template> mapping = currentTBO.mapping();
+					if (mapping == null)
+						throw new NotImplementedException("No mapping");
+					int ucidx = containerIdx.getAndIncrement();
+					{
+						GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_updateContainer" + ucidx);
+						PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
+						PendingVar rt = gen.argument(Map.class.getName(), "_renderTree");
+						PendingVar parent = gen.argument(J.ELEMENT, "parent");
+						PendingVar e = gen.argument(J.OBJECT, "e");
+						gen.returns("void");
+						MethodDefiner uc = gen.done();
+						IExpr ret = null;
+						for (Entry<StructDefn, Template> m : mapping.entrySet()) {
+							IExpr curr = templateMember(uc, fcx.getVar(), rt.getVar(), parent.getVar(), m.getValue(), e.getVar());
+							if (ret == null)
+								ret = curr;
+							else {
+								IExpr isIt = uc.callInterface("boolean", fcx.getVar(), "isA", e.getVar(), uc.stringConst(m.getKey().name().uniqueName()));
+								ret = uc.ifBoolean(isIt, curr, ret);
+							}
+						}
+						ret.flush();
+						uc.returnVoid().flush();
+					}
+					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContainer", fs.fcx, fs.renderTree(), fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT), fs.meth.intConst(ucidx));
 				} else
 					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.renderTree(), fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT));
 			}
@@ -129,6 +172,14 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 		}
 	}
 	
+	private IExpr templateMember(MethodDefiner uc, Var cx, Var rt, Var parent, Template t, Var e) {
+		ArrayList<IExpr> wanted = new ArrayList<>();
+		// TODO: the context needs to be considered properly
+		IExpr tc = fs.meth.arrayOf(J.OBJECT, wanted);
+		
+		return uc.callVirtual("void", uc.myThis(), "_addItemWithName", cx, rt, parent, uc.stringConst(t.webinfo().id()), uc.intConst(t.position()), e, tc);
+	}
+
 	@Override
 	public void leaveTemplateCustomization(TemplateCustomization tc) {
 		if (styles.isEmpty() && cexpr.isEmpty())

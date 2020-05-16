@@ -198,7 +198,7 @@ const MockContract = function(ctr) {
 	}
 };
 
-MockContract.prototype.areYouA = function(ty) {
+MockContract.prototype._areYouA = function(ty) {
 	return this.ctr.name() == ty;
 }
 
@@ -358,7 +358,7 @@ const MockHandler = function(ctr) {
 MockHandler.prototype = new ExplodingIdempotentHandler();
 MockHandler.prototype.constructor = MockHandler;
 
-MockHandler.prototype.areYouA = MockContract.prototype.areYouA;
+MockHandler.prototype._areYouA = MockContract.prototype.areYouA;
 MockHandler.prototype.expect = MockContract.prototype.expect;
 MockHandler.prototype.serviceMethod = MockContract.prototype.serviceMethod;
 MockHandler.prototype.assertSatisfied = MockContract.prototype.assertSatisfied;
