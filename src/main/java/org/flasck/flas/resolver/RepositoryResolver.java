@@ -643,7 +643,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 					StructDefn sd = (StructDefn) ty;
 					StructField fld = sd.findField(((UnresolvedVar)me.fld).var);
 					if (fld == null) {
-						errors.message(fld.location(), "no field " + ((UnresolvedVar)me.fld).var);
+						errors.message(me.fld.location(), "no field " + ((UnresolvedVar)me.fld).var);
 						return null;
 					}
 					return fld.type();

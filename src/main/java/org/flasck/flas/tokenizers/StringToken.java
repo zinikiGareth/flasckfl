@@ -10,23 +10,29 @@ public class StringToken {
 	 * in the string if doubled, e.g. 'Fred''s world' is the same as "Fred's world"
 	 */
 	public static String from(ErrorReporter errors, Tokenizable line) {
+		int k = 100000;
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
 		char oq = line.nextChar();
 		if (oq != '"' && oq != '\'')
 			return null;
+		InputPosition start = line.realinfo();
+		int actualLine = line.actualLine();
 		
 		StringBuilder ret = new StringBuilder();
 		while (true) {
-			InputPosition position = line.realinfo();
 			line.advance();
 			int mark = line.at();
 			while (line.hasMore() && line.nextChar() != oq) {
+				if (line.actualLine() > actualLine) {
+					errors.message(start, "unterminated string");
+					return null;
+				}
 				line.advance();
 			}
 			if (!line.hasMore()) {
-				errors.message(position, "unterminated string");
+				errors.message(start, "unterminated string");
 				return null;
 			}
 			if (line.at() > mark)

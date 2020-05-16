@@ -32,4 +32,15 @@ public class ContinuedLine {
 	public String toString() {
 		return "CL[" + text() + "]";
 	}
+
+	public int actualLine(int pos) {
+		int off = 0;
+		for (SingleLine l : lines) {
+			String trim = l.line.trim();
+			if (pos < off + trim.length())
+				return l.lineNo;
+			off += trim.length()+1;
+		}
+		return lines.size()-1;
+	}
 }

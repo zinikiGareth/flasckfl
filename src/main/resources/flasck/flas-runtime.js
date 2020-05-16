@@ -6,6 +6,11 @@ const JSEnv = function(broker) {
 		this.broker = broker;
 	else
 		this.broker = new SimpleBroker(this, this, this.contracts);
+	this.nextDivId = 1;
+}
+
+JSEnv.prototype.clear = function() {
+	document.body.innerHTML = '';
 }
 
 JSEnv.prototype.newContext = function() {

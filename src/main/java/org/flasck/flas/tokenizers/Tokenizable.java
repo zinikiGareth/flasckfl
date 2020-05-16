@@ -101,4 +101,8 @@ public class Tokenizable {
 	public int length() {
 		return input.length();
 	}
+
+	public int actualLine() {
+		return line.actualLine(pos);
+	}
 }

@@ -52,6 +52,15 @@ public class AssemblyTraverser implements AssemblyVisitor {
 						;
 					else
 						throw new NotImplementedException("cannot handle " + name);
+				} else if (name.startsWith("items/")) {
+					if (name.endsWith(".html")) {
+						// long length = ze.getSize(); // this does not work because of https://bugs.openjdk.java.net/browse/JDK-8080092
+						long length = w.getLength(name);
+						visitCardTemplate(name.replace(".html", ""), zis, length);
+					} else if (name.endsWith(".json"))
+						;
+					else
+						throw new NotImplementedException("cannot handle " + name);
 				} else if (name.endsWith(".css"))
 					visitCSS(name, zis, ze.getSize());
 				else
