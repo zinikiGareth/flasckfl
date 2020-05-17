@@ -1,1 +1,2 @@
+test.golden.UpdateSource.onTop :: ClickEvent->List[Message]
 test.golden.UpdateSource.updateMe :: ClickEvent->List[Message]

@@ -1,11 +1,13 @@
 package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
@@ -14,6 +16,8 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 	private ContractMethodDecl contractMethod;
 	public final VarPattern handler;
 	private CardDefinition eventCard;
+	private List<Template> eventSources = new ArrayList<>();
+	private List<Type> eventSourceTypes = new ArrayList<>();
 
 	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args, VarPattern handler) {
 		super(location, name, args);
@@ -24,6 +28,24 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 		this.eventCard = card;
 	}
 	
+	public void eventSource(Template t) {
+		this.eventSources.add(t);
+	}
+	
+	public List<Template> eventSourceExprs() {
+		return eventSources;
+	}
+	
+	public void bindEventSource(Type t) {
+		this.eventSourceTypes.add(t);
+	}
+	
+	public List<Type> sources() {
+		if (eventSources.size() != eventSourceTypes.size())
+			throw new NotImplementedException("I don't think the event sources have been typechecked");
+		return eventSourceTypes;
+	}
+
 	public void bindToObject(ObjectDefn od) {
 		this.od = od;
 	}

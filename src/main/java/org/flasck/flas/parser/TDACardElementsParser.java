@@ -49,7 +49,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 			final Template template = new Template(kw.location, tn.location, consumer.templateName(tn.location, tn.text), pos, chain);
 			consumer.addTemplate(template);
 			topLevel.newTemplate(errors, template);
-			return new TDATemplateBindingParser(errors, namer, template);
+			return new TDATemplateBindingParser(errors, template, namer, template);
 		}
 		case "event": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, consumer.cardName(), text);

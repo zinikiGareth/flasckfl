@@ -347,6 +347,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		t.withNestedPatterns();
 		t.withFunctionsInDependencyGroups(groups);
 		t.withPatternsInTreeOrder();
+		t.withEventSources();
 		t.doTraversal(this);
 	}
 

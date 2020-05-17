@@ -8,11 +8,14 @@
 		
 		template top
 			compound <- from
+				=> onTop
 		
 		template inner <- (Source s)
 			message <- msg
 				=> updateMe
 		
-		event updateMe (ClickEvent ev)
+		event onTop (ClickEvent ev)
 			foo <- 'foo'
+
+		event updateMe (ClickEvent ev)
 			ev.source.msg <- 'updated'

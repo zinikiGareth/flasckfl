@@ -6,8 +6,10 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -60,19 +62,35 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		} else
 			throw new NotImplementedException("cannot handle " + vardefn);
 		boolean isEvent = inMeth.isEvent() && LoadBuiltins.event.incorporates(slots.get(0).location(), container); 
-//		if (inMeth.hasObject())
-//			container = inMeth.getObject();
-//		else if (inMeth.hasImplements())
-//			container = inMeth.getImplements().getParent();
-//		else if (inMeth.isEvent())
-//			container = inMeth.getCard();
-//		else
-//			throw new NotImplementedException("Cannot find container in " + inMeth + " " + inMeth.getClass() + " with no object or implements");
 		for (int i=1;i<slots.size();i++) {
 			UnresolvedVar slot = slots.get(i);
 			pos = slot.location();
 			// TODO: I think we also need to "remember" what we find here, because we have only resolved slot 0
-			if (container instanceof StateHolder) {
+			if (isEvent && i == 1) {
+				if ("source".equals(slot.var)) {
+					List<Type> sources = ((ObjectMethod)inMeth).sources();
+					if (sources.size() != 1) {
+						// if it's empty, I think that means the event handler is not used
+						//   that SHOULD be an error
+						// if there are more than one, then they all need to be: the same (?) consistent in some way (?)
+						throw new NotImplementedException("we need to check the consistency of sources");
+					}
+					container = sources.get(0);
+				} else 
+					throw new NotImplementedException("cannot handle event var " + slot.var);
+			} else if (container instanceof StructDefn) {
+				StructDefn sd = (StructDefn) container;
+				curr = sd.name().uniqueName();
+				var = slot.var;
+				StructField fld = sd.findField(var);
+				if (fld == null) {
+					errors.message(slot.location(), "there is no field " + var + " in " + sd.name().uniqueName());
+					rhsType = new ExprResult(rhsType.pos, new ErrorType());
+					return;
+				}
+				container = fld.type();
+			}
+			else if (container instanceof StateHolder) {
 				StateHolder type = (StateHolder)container;
 				curr = type.name().uniqueName();
 				StateDefinition state = type.state();
@@ -89,11 +107,6 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 					return;
 				}
 				container = fld.type();
-			} else if (isEvent) {
-				if ("source".equals(slot.var)) {
-					throw new NotImplementedException("we need to be able to determine the bound event type");
-				} else
-					throw new NotImplementedException("cannot handle event var " + slot.var);
 			} else {
 				if (var == null)
 					throw new NotImplementedException("there is no state at the top level in: " + container.getClass());

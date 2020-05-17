@@ -50,7 +50,7 @@ public class TDATemplateParsingTests {
 	public void setup() {
 		context.checking(new Expectations() {{
 		}});
-		parser = new TDATemplateBindingParser(tracker, namer, consumer);
+		parser = new TDATemplateBindingParser(tracker, null, namer, consumer);
 	}
 
 	@Test

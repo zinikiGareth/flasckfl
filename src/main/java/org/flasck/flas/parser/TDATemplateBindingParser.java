@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateField;
@@ -16,11 +17,13 @@ import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDATemplateBindingParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final Template source;
 	private final TemplateNamer namer;
 	private final TemplateBindingConsumer consumer;
 
-	public TDATemplateBindingParser(ErrorReporter errors, TemplateNamer namer, TemplateBindingConsumer consumer) {
+	public TDATemplateBindingParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingConsumer consumer) {
 		this.errors = errors;
+		this.source = source;
 		this.namer = namer;
 		this.consumer = consumer;
 	}
@@ -71,9 +74,9 @@ public class TDATemplateBindingParser implements TDAParsing {
 		final TemplateBinding binding = new TemplateBinding(field, simple);
 		consumer.addBinding(binding);
 		if (simple != null)
-			return new TDATemplateOptionsParser(errors, namer, simple, field);
+			return new TDATemplateOptionsParser(errors, source, namer, simple, field);
 		else
-			return new TDATemplateOptionsParser(errors, namer, binding, field);
+			return new TDATemplateOptionsParser(errors, source, namer, binding, field);
 	}
 
 	@Override

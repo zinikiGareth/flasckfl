@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
@@ -24,22 +25,25 @@ import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDATemplateOptionsParser implements TDAParsing {
 	private final ErrorReporter errors;
+	private final Template source;
 	private final TemplateNamer namer;
 	private final TemplateBinding binding;
 	private final TemplateCustomization customizer;
 	private final TemplateField field;
 	private boolean seenContent;
 
-	public TDATemplateOptionsParser(ErrorReporter errors, TemplateNamer namer, TemplateBinding binding, TemplateField field) {
+	public TDATemplateOptionsParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBinding binding, TemplateField field) {
 		this.errors = errors;
+		this.source = source;
 		this.namer = namer;
 		this.binding = binding;
 		this.customizer = binding;
 		this.field = field;
 	}
 
-	public TDATemplateOptionsParser(ErrorReporter errors, TemplateNamer namer, TemplateBindingOption option, TemplateField field) {
+	public TDATemplateOptionsParser(ErrorReporter errors, Template source, TemplateNamer namer, TemplateBindingOption option, TemplateField field) {
 		this.errors = errors;
+		this.source = source;
 		this.namer = namer;
 		this.customizer = option;
 		this.field = field;
@@ -122,14 +126,14 @@ public class TDATemplateOptionsParser implements TDAParsing {
 				errors.message(toks, "surplus text at end of line");
 				return new IgnoreNestedParser();
 			}
-			TemplateEvent ev = new TemplateEvent(tok.location, tok.text);
+			TemplateEvent ev = new TemplateEvent(tok.location, tok.text, source);
 			customizer.events.add(ev);
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
 		if (tc != null)
-			return new TDATemplateOptionsParser(errors, namer, tc, field);
+			return new TDATemplateOptionsParser(errors, source, namer, tc, field);
 		else
 			return new NoNestingParser(errors);
 	}

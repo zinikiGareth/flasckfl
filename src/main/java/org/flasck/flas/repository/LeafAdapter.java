@@ -279,6 +279,10 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitEventSource(Template t) {
+	}
+
+	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
 	}
 

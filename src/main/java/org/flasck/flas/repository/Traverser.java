@@ -107,6 +107,7 @@ public class Traverser implements RepositoryVisitor {
 	private boolean wantImplementedMethods = false;
 	private boolean wantNestedPatterns;
 	private boolean wantHSI;
+	private boolean wantEventSources = false;
 	private boolean patternsTree;
 	private boolean visitMemberFields = false;
 
@@ -141,6 +142,11 @@ public class Traverser implements RepositoryVisitor {
 
 	public Traverser withMemberFields() {
 		this.visitMemberFields = true;
+		return this;
+	}
+
+	public Traverser withEventSources() {
+		this.wantEventSources = true;
 		return this;
 	}
 
@@ -603,12 +609,22 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
 		visitor.visitObjectMethod(meth);
+		if (wantEventSources && meth.isEvent()) {
+			for (Template e : meth.eventSourceExprs()) {
+				visitEventSource(e);
+			}
+		}
 		if (!meth.args().isEmpty() || !meth.messages().isEmpty()) {
 			if (meth.hasImplements() && meth.getImplements() instanceof HandlerImplements)
 				traverseHandlerLambdas((HandlerImplements)meth.getImplements());
 			traverseFnOrMethod(meth);
 		}
 		leaveObjectMethod(meth);
+	}
+
+	@Override
+	public void visitEventSource(Template t) {
+		visitor.visitEventSource(t);
 	}
 
 	private void traverseHandlerLambdas(HandlerImplements hi) {

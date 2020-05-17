@@ -218,4 +218,5 @@ public interface RepositoryVisitor {
 	void visitTemplateStyleExpr(Expr e);
 	void visitTemplateStyleCond(Expr cond);
 	void afterTemplateChainTypes(Template t);
+	void visitEventSource(Template t);
 }

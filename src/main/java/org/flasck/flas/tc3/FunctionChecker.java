@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -61,6 +62,14 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		} else
 			csc = null;
 		sv.push(this);
+	}
+	
+	@Override
+	public void visitEventSource(Template t) {
+		if (t.nestingChain() == null)
+			((ObjectMethod)inMeth).bindEventSource(inMeth.getCard());
+		else
+			((ObjectMethod)inMeth).bindEventSource(t.nestingChain().iterator().next().type());
 	}
 	
 	@Override

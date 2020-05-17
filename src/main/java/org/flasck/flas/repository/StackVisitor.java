@@ -615,6 +615,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitObjectMethod(e);
 	}
 
+	public void visitEventSource(Template t) {
+		top.visitEventSource(t);
+	}
+
 	public void visitStandaloneMethod(StandaloneMethod meth) {
 		top.visitStandaloneMethod(meth);
 	}
