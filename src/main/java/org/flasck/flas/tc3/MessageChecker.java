@@ -76,6 +76,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 						throw new NotImplementedException("we need to check the consistency of sources");
 					}
 					container = sources.get(0);
+					slot.bind(LoadBuiltins.event); // This probably wants to be something more precise, but I think it will get trampled by traits
 				} else 
 					throw new NotImplementedException("cannot handle event var " + slot.var);
 			} else if (container instanceof StructDefn) {
@@ -89,6 +90,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 					return;
 				}
 				container = fld.type();
+				slot.bind(fld);
 			}
 			else if (container instanceof StateHolder) {
 				StateHolder type = (StateHolder)container;
@@ -107,6 +109,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 					return;
 				}
 				container = fld.type();
+				slot.bind(fld);
 			} else {
 				if (var == null)
 					throw new NotImplementedException("there is no state at the top level in: " + container.getClass());

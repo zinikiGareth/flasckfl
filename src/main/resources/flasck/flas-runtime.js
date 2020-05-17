@@ -519,6 +519,9 @@ FLCard.prototype._addItem = function(_cxt, _renderTree, parent, template, fn, va
     _renderTree._id = ncid;
     parent.appendChild(div);
     fn.call(this, _cxt, _renderTree, value, _tc);
+    if (this._eventHandlers) {
+        this._attachHandlers(_cxt, div, template.id);
+    }
 }
 
 FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn) {
