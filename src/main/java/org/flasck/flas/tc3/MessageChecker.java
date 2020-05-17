@@ -9,10 +9,12 @@ import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
@@ -22,15 +24,13 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final ErrorReporter errors;
 	private final CurrentTCState state;
-	private final InputPosition pos;
 	private final ObjectActionHandler inMeth;
 	private ExprResult rhsType;
 
-	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, InputPosition pos, ObjectActionHandler inMeth) {
+	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, ObjectActionHandler inMeth) {
 		this.errors = errors;
 		this.state = state;
 		this.sv = sv;
-		this.pos = pos;
 		this.inMeth = inMeth;
 		sv.push(this);
 		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
@@ -41,19 +41,37 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		if (rhsType.type instanceof ErrorType)
 			return;
 
+		InputPosition pos = slots.get(0).location();
+		String var = slots.get(0).var;
 		Type container;
-		if (inMeth.hasObject())
-			container = inMeth.getObject();
-		else if (inMeth.hasImplements())
-			container = inMeth.getImplements().getParent();
-		else if (inMeth.isEvent())
-			container = inMeth.getCard();
-		else
-			throw new NotImplementedException("Cannot find container in " + inMeth + " " + inMeth.getClass() + " with no object or implements");
-		String curr = null;
-		String var = null;
-		for (int i=0;i<slots.size();i++) {
+		RepositoryEntry vardefn = slots.get(0).defn();
+		String curr;
+		if (vardefn instanceof StructField) {
+			StructField sf = (StructField)vardefn;
+			if (!(sf.container() instanceof StateDefinition)) {
+				errors.message(pos, "cannot use " + var + " as the main slot in assignment");
+				return;
+			}
+			container = sf.type();
+			curr = ((NamedType)sf.container()).name().uniqueName();
+		} else if (vardefn instanceof TypedPattern) {
+			container = ((TypedPattern)vardefn).type.defn();
+			curr = ((NamedType)container).name().uniqueName();
+		} else
+			throw new NotImplementedException("cannot handle " + vardefn);
+		boolean isEvent = inMeth.isEvent() && LoadBuiltins.event.incorporates(slots.get(0).location(), container); 
+//		if (inMeth.hasObject())
+//			container = inMeth.getObject();
+//		else if (inMeth.hasImplements())
+//			container = inMeth.getImplements().getParent();
+//		else if (inMeth.isEvent())
+//			container = inMeth.getCard();
+//		else
+//			throw new NotImplementedException("Cannot find container in " + inMeth + " " + inMeth.getClass() + " with no object or implements");
+		for (int i=1;i<slots.size();i++) {
 			UnresolvedVar slot = slots.get(i);
+			pos = slot.location();
+			// TODO: I think we also need to "remember" what we find here, because we have only resolved slot 0
 			if (container instanceof StateHolder) {
 				StateHolder type = (StateHolder)container;
 				curr = type.name().uniqueName();
@@ -71,6 +89,11 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 					return;
 				}
 				container = fld.type();
+			} else if (isEvent) {
+				if ("source".equals(slot.var)) {
+					throw new NotImplementedException("we need to be able to determine the bound event type");
+				} else
+					throw new NotImplementedException("cannot handle event var " + slot.var);
 			} else {
 				if (var == null)
 					throw new NotImplementedException("there is no state at the top level in: " + container.getClass());
@@ -90,7 +113,10 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveMessage(ActionMessage msg) {
-		check();
+		InputPosition pos = null;
+		if (msg != null)
+			pos = msg.location();
+		check(pos);
 	}
 	
 	@Override
@@ -98,7 +124,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		rhsType = (ExprResult) r;
 	}
 
-	private void check() {
+	private void check(InputPosition pos) {
 		if (!state.hasGroup())
 			state.resolveAll(errors, true);
 		

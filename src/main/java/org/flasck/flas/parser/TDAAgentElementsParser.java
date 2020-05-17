@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.Provides;
@@ -45,7 +46,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				errors.message(kw.location, "multiple state declarations");
 				return new IgnoreNestedParser();
 			}
-			final StateDefinition state = new StateDefinition(toks.realinfo());
+			final StateDefinition state = new StateDefinition(toks.realinfo(), ((NamedType)consumer).name());
 			consumer.defineState(state);
 			seenState = true;
 			

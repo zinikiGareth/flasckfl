@@ -47,7 +47,7 @@ public class TDAStructFieldParser implements TDAParsing {
 				errors.message(toks, "wraps fields must have initializers");
 				return new IgnoreNestedParser();
 			}
-			builder.addField(new StructField(field.location, createAsAccessors, type, field.text));
+			builder.addField(new StructField(field.location, builder.holder(), createAsAccessors, type, field.text));
 			ret.noNest(errors);
 		} else {
 			if (fieldsType == FieldsType.ENVELOPE) {
@@ -68,7 +68,7 @@ public class TDAStructFieldParser implements TDAParsing {
 					ret.ignore();
 				} else {
 					ret.noNest(errors);
-					builder.addField(new StructField(field.location, assOp, createAsAccessors, ft, field.text, expr));
+					builder.addField(new StructField(field.location, assOp, builder.holder(), createAsAccessors, ft, field.text, expr));
 				}
 			}).tryParsing(toks);
 			if (errors.hasErrors())

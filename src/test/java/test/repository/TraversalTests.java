@@ -114,7 +114,7 @@ public class TraversalTests {
 	public void traverseStructDefnWithFieldVisitsTheField() {
 		StructDefn s = new StructDefn(pos, FieldsType.STRUCT, "foo.bar", "MyStruct", true);
 		TypeReference tr = new TypeReference(pos, "X", new ArrayList<>());
-		StructField sf = new StructField(pos, false, tr, "x");
+		StructField sf = new StructField(pos, s, false, tr, "x");
 		s.addField(sf);
 		sf.fullName(new VarName(sf.loc,s.name, sf.name));
 		r.addEntry(errors, s.name(), s);
@@ -134,7 +134,7 @@ public class TraversalTests {
 	public void traverseStructDefnWithFieldAccessorVisitsTheFieldAsAnAccessor() {
 		StructDefn s = new StructDefn(pos, FieldsType.STRUCT, "foo.bar", "MyStruct", true);
 		TypeReference tr = new TypeReference(pos, "X", new ArrayList<>());
-		StructField sf = new StructField(pos, true, tr, "x");
+		StructField sf = new StructField(pos, s, true, tr, "x");
 		s.addField(sf);
 		sf.fullName(new VarName(sf.loc,s.name, sf.name));
 		r.addEntry(errors, s.name(), s);
@@ -181,7 +181,7 @@ public class TraversalTests {
 	public void traverseObjectDefnWithFieldsVisitsTheState() {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
 		StateDefinition sd = new StateDefinition(pos);
-		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "s");
+		StructField sf = new StructField(pos, sd, false, LoadBuiltins.stringTR, "s");
 		sd.addField(sf);
 		s.defineState(sd);
 		r.addEntry(errors, s.name(), s);
@@ -203,7 +203,7 @@ public class TraversalTests {
 		ObjectDefn s = new ObjectDefn(pos, pos, new SolidName(pkg, "MyObject"), true, new ArrayList<>());
 		StateDefinition sd = new StateDefinition(pos);
 		StringLiteral sl = new StringLiteral(pos, "hello");
-		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", sl);
+		StructField sf = new StructField(pos, pos, sd, false, LoadBuiltins.stringTR, "s", sl);
 		sd.addField(sf);
 		s.defineState(sd);
 		r.addEntry(errors, s.name(), s);
@@ -256,7 +256,7 @@ public class TraversalTests {
 		AgentDefinition s = new AgentDefinition(pos, pos, new CardName(pkg, "AnAgent"));
 		StateDefinition sd = new StateDefinition(pos);
 		StringLiteral sl = new StringLiteral(pos, "hello");
-		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", sl);
+		StructField sf = new StructField(pos, pos, s, false, LoadBuiltins.stringTR, "s", sl);
 		sd.addField(sf);
 		s.defineState(sd);
 		r.addEntry(errors, s.name(), s);

@@ -20,19 +20,21 @@ public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 	};
 	public final InputPosition loc;
 	public final InputPosition assOp;
+	public final FieldsHolder container;
 	public final boolean accessor;
 	public final TypeReference type;
 	public final String name;
 	public final Expr init;
 	private VarName myName;
 
-	public StructField(InputPosition loc, boolean accessor, TypeReference type, String name) {
-		this(loc, null, accessor, type, name, null);
+	public StructField(InputPosition loc, FieldsHolder container, boolean accessor, TypeReference type, String name) {
+		this(loc, null, container, accessor, type, name, null);
 	}
 
-	public StructField(InputPosition loc, InputPosition assOp, boolean accessor, TypeReference type, String name, Expr init) {
+	public StructField(InputPosition loc, InputPosition assOp, FieldsHolder container, boolean accessor, TypeReference type, String name, Expr init) {
 		this.loc = loc;
 		this.assOp = assOp;
+		this.container = container;
 		this.accessor = accessor;
 		this.type = type;
 		this.name = name;
@@ -73,5 +75,9 @@ public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println("StructField[" + myName.uniqueName() + "]");
+	}
+
+	public FieldsHolder container() {
+		return container;
 	}
 }

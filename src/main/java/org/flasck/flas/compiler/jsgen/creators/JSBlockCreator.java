@@ -72,7 +72,7 @@ public interface JSBlockCreator {
 	void head(String var);
 	void field(String asVar, String fromVar, String field);
 	JSIfExpr ifCtor(String var, String ctor);
-	JSIfExpr ifCtor(JSExpr expr, SolidName type);
+	JSIfExpr ifCtor(JSExpr expr, NameOfThing type);
 	JSIfExpr ifConst(String string, int cnst);
 	JSIfExpr ifConst(String string, String cnst);
 	JSIfExpr ifTrue(JSExpr ge);

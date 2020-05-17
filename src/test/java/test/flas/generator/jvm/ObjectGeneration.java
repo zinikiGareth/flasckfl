@@ -96,7 +96,7 @@ public class ObjectGeneration {
 		new JVMGenerator(bce, gen, null);
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		StateDefinition sd = new StateDefinition(pos);
-		StructField sf = new StructField(pos, pos, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
+		StructField sf = new StructField(pos, pos, sd, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);
 		od.defineState(sd);
 		new Traverser(gen).visitObjectDefn(od);

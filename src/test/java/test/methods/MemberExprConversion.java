@@ -109,7 +109,7 @@ public class MemberExprConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		TypeReference tr = new TypeReference(pos, "StructDefn");
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructDefn"), true, new ArrayList<>());
-		sd.addField(new StructField(pos, pos, true, LoadBuiltins.stringTR, "fred", null));
+		sd.addField(new StructField(pos, pos, sd, true, LoadBuiltins.stringTR, "fred", null));
 		tr.bind(sd);
 		TypedPattern tp = new TypedPattern(pos, tr, new VarName(pos, sd.name(), "from"));
 		from.bind(tp);

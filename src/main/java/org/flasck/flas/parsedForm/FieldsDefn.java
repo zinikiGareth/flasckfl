@@ -6,9 +6,9 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 
-public abstract class FieldsDefn implements AsString, Locatable, PolyHolder {
+public abstract class FieldsDefn implements AsString, Locatable, PolyHolder, FieldsHolder {
 	public enum FieldsType { 
 		STRUCT,
 		ENTITY,
@@ -22,12 +22,12 @@ public abstract class FieldsDefn implements AsString, Locatable, PolyHolder {
 	public final boolean generate;
 	public final InputPosition kw;
 	protected final InputPosition location;
-	public final SolidName name;
+	public final NameOfThing name;
 	public final FieldsType type;
 	protected final List<PolyType> polys;
 	public final List<StructField> fields = new ArrayList<StructField>();
 
-	public FieldsDefn(InputPosition kw, InputPosition location, FieldsType structType, SolidName tn, boolean generate,	List<PolyType> polys) {
+	public FieldsDefn(InputPosition kw, InputPosition location, FieldsType structType, NameOfThing tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
 		this.location = location;
 		this.type = structType;
@@ -41,7 +41,7 @@ public abstract class FieldsDefn implements AsString, Locatable, PolyHolder {
 		return location;
 	}
 	
-	public SolidName name() {
+	public NameOfThing name() {
 		return name;
 	}
 

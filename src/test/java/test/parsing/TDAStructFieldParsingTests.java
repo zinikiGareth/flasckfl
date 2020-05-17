@@ -28,6 +28,7 @@ public class TDAStructFieldParsingTests {
 	@Test
 	public void aSimpleFieldDefinitionIsAdded() {
 		context.checking(new Expectations() {{
+			allowing(builder).holder(); will(returnValue(null));
 			oneOf(builder).addField(with(StructFieldMatcher.match("A", "head")));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true);
@@ -38,6 +39,7 @@ public class TDAStructFieldParsingTests {
 	@Test
 	public void aDefinitionRemembersWhereItCameFrom() {
 		context.checking(new Expectations() {{
+			allowing(builder).holder(); will(returnValue(null));
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").locs(0, 7)));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true);
@@ -93,6 +95,7 @@ public class TDAStructFieldParsingTests {
 	public void aFieldMayHaveAnInitializer() {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
+			allowing(builder).holder(); will(returnValue(null));
 			oneOf(builder).addField(with(StructFieldMatcher.match("String", "msg").assign(11, new StringLiteralMatcher("foo"))));
 		}});
 		TDAStructFieldParser parser = new TDAStructFieldParser(tracker, builder, FieldsType.STRUCT, true);

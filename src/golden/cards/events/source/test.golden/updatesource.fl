@@ -1,0 +1,18 @@
+	struct Source
+		String msg
+
+	card UpdateSource
+		state
+			String foo
+			List[Source] from
+		
+		template top
+			compound <- from
+		
+		template inner <- (Source s)
+			message <- msg
+				=> updateMe
+		
+		event updateMe (ClickEvent ev)
+			foo <- 'foo'
+			ev.source.msg <- 'updated'

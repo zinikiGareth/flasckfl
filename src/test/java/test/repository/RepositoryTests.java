@@ -296,7 +296,7 @@ public class RepositoryTests {
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "TheStruct"), true, new ArrayList<>());
 		ConsumeStructFields csf = new ConsumeStructFields(errors, r, new SimpleVarNamer(sd.name()), sd);
 		r.newStruct(errors, sd);
-		final StructField sf = new StructField(pos, true, new TypeReference(pos, "A"), "x");
+		final StructField sf = new StructField(pos, sd, true, new TypeReference(pos, "A"), "x");
 		csf.addField(sf);
 		assertEquals("test.repo.TheStruct.x", sf.name().uniqueName());
 		assertEquals(sf, r.get("test.repo.TheStruct.x"));

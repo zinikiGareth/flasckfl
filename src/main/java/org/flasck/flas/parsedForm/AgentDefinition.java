@@ -14,7 +14,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class AgentDefinition implements Locatable, AgentElementsConsumer, RepositoryEntry, NamedType, StateHolder, ContractImplementor, ContractProvider {
+public class AgentDefinition implements Locatable, AgentElementsConsumer, RepositoryEntry, NamedType, StateHolder, ContractImplementor, ContractProvider, FieldsHolder {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;

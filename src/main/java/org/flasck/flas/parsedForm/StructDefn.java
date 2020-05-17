@@ -15,7 +15,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 
-public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType, AccessorHolder {
+public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType, AccessorHolder, FieldsHolder {
 	public static Comparator<StructDefn> nameComparator = new Comparator<StructDefn>() {
 		@Override
 		public int compare(StructDefn l, StructDefn r) {
@@ -35,11 +35,11 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 	public StructDefn(InputPosition kw, InputPosition location, FieldsDefn.FieldsType structType, SolidName tn, boolean generate, List<PolyType> polys) {
 		super(kw, location, structType, tn, generate, polys);
 		if (structType.equals(FieldsDefn.FieldsType.ENTITY))
-			this.fields.add(new StructField(location, true, new TypeReference(location, "Id"), "id"));
+			this.fields.add(new StructField(location, this, true, new TypeReference(location, "Id"), "id"));
 	}
 
 	public SolidName name() {
-		return name;
+		return (SolidName) name;
 	}
 
 	@Override

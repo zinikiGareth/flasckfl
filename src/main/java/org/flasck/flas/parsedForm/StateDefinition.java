@@ -4,19 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class StateDefinition extends FieldsDefn {
 
 	public StateDefinition(InputPosition loc) {
-		this(loc, new ArrayList<>());
+		this(null, loc, null, false, new ArrayList<>());
 	}
 	
-	public StateDefinition(InputPosition loc, List<PolyType> polys) {
-		super(null, loc, FieldsType.STATE, null, false, polys);
+	public StateDefinition(InputPosition loc, NameOfThing nameOfThing) {
+		this(null, loc, nameOfThing, false, new ArrayList<>());
 	}
 	
+	public StateDefinition(InputPosition kwloc, InputPosition loc, NameOfThing name, boolean generate, List<PolyType> polys) {
+		super(null, loc, FieldsType.STATE, name, false, polys);
+	}
+
 	@Override
 	public String signature() {
 		throw new NotImplementedException();

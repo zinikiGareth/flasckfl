@@ -1,0 +1,14 @@
+	struct MyX
+		String x
+
+	card TargetMustBeDefined
+		state
+			String s
+			MyX x
+		
+		event ok (ClickEvent ev)
+			s <- 'hello'
+			x.x <- 'hello'
+			
+		event notok (ClickEvent ev)
+			m <- 'not there'

@@ -256,7 +256,7 @@ public class ResolverTests {
 		}});
 		SolidName str = new SolidName(pkg, "MyStruct");
 		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, str, true, new ArrayList<>());
-		StructField fld = new StructField(pos, false, LoadBuiltins.stringTR, "fld");
+		StructField fld = new StructField(pos, s, false, LoadBuiltins.stringTR, "fld");
 		s.addField(fld);
 
 		Resolver r = new RepositoryResolver(errors, rr);
@@ -276,7 +276,7 @@ public class ResolverTests {
 		pv.bind(pa);
 		SolidName str = new SolidName(pkg, "MyStruct");
 		StructDefn s = new StructDefn(pos, pos, FieldsType.STRUCT, str, true, Arrays.asList(pa));
-		StructField fld = new StructField(pos, false, pv , "fld");
+		StructField fld = new StructField(pos, s, false, pv , "fld");
 		s.addField(fld);
 
 		Resolver r = new RepositoryResolver(errors, rr);
@@ -297,7 +297,7 @@ public class ResolverTests {
 		SolidName str = new SolidName(pkg, "MyObject");
 		ObjectDefn od = new ObjectDefn(pos, pos, str, true, Arrays.asList(pa));
 		StateDefinition sd = new StateDefinition(pos);
-		StructField fld = new StructField(pos, false, pv , "fld");
+		StructField fld = new StructField(pos, sd, false, pv , "fld");
 		sd.addField(fld);
 		od.defineState(sd);
 
@@ -373,7 +373,7 @@ public class ResolverTests {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
 		StateDefinition state = new StateDefinition(pos);
-		StructField fld = new StructField(pos, false, LoadBuiltins.stringTR, "fld");
+		StructField fld = new StructField(pos, state, false, LoadBuiltins.stringTR, "fld");
 		state.addField(fld);
 		s.defineState(state);
 		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, false);

@@ -129,19 +129,19 @@ public class LoadBuiltins {
 		clickEventTR.bind(clickEvent);
 	
 		// add fields to structs
-		error.addField(new StructField(pos, false, stringTR, "message"));
-		cons.addField(new StructField(pos, false, polyATR, "head"));
-		cons.addField(new StructField(pos, false, listATR, "tail"));
-		debug.addField(new StructField(pos, false, stringTR, "message"));
-		send.addField(new StructField(pos, false, contractTR, "sendto"));
-		send.addField(new StructField(pos, false, stringTR, "meth"));
-		send.addField(new StructField(pos, false, listAnyTR, "args"));
-		assign.addField(new StructField(pos, false, anyTR, "on"));
-		assign.addField(new StructField(pos, false, stringTR, "fld"));
-		assign.addField(new StructField(pos, false, anyTR, "value"));
+		error.addField(new StructField(pos, error, false, stringTR, "message"));
+		cons.addField(new StructField(pos, cons, false, polyATR, "head"));
+		cons.addField(new StructField(pos, cons, false, listATR, "tail"));
+		debug.addField(new StructField(pos, debug, false, stringTR, "message"));
+		send.addField(new StructField(pos, send, false, contractTR, "sendto"));
+		send.addField(new StructField(pos, send, false, stringTR, "meth"));
+		send.addField(new StructField(pos, send, false, listAnyTR, "args"));
+		assign.addField(new StructField(pos, assign, false, anyTR, "on"));
+		assign.addField(new StructField(pos, assign, false, stringTR, "fld"));
+		assign.addField(new StructField(pos, assign, false, anyTR, "value"));
 		
 		// is this ok as a string or should it be something else?
-		type.addField(new StructField(pos, false, stringTR, "type"));
+		type.addField(new StructField(pos, type, false, stringTR, "type"));
 
 		// add cases to unions
 		bool.addCase(falseTR);

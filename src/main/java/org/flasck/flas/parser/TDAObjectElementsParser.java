@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
@@ -56,7 +57,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 				errors.message(toks, "extra characters at end of line");
 				return new IgnoreNestedParser();
 			}
-			StateDefinition state = new StateDefinition(toks.realinfo());
+			StateDefinition state = new StateDefinition(toks.realinfo(), ((NamedType)builder).name());
 			builder.defineState(state);
 			return new TDAStructFieldParser(errors, new ConsumeStructFields(errors, topLevel, namer, state), FieldsType.STATE, false);
 		}

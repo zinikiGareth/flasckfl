@@ -56,6 +56,7 @@ public class TDAObjectElementParsingTests {
 	@Test
 	public void objectsCanHaveAStateParser() {
 		context.checking(new Expectations() {{
+			allowing(builder).name();
 			oneOf(builder).defineState(with(any(StateDefinition.class)));
 		}});
 		TDAObjectElementsParser parser = new TDAObjectElementsParser(errors, namer, builder, topLevel);

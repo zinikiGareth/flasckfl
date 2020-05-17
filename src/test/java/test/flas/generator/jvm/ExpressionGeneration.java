@@ -184,7 +184,7 @@ public class ExpressionGeneration {
 	@Test
 	public void aVarBoundToAStructFieldInsideAnAccessor() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
-		StructField sf = new StructField(pos, false, LoadBuiltins.stringTR, "x");
+		StructField sf = new StructField(pos, null, false, LoadBuiltins.stringTR, "x");
 		sf.fullName(new VarName(pos, pkg, "x"));
 		expr.bind(sf);
 		IExpr cx = context.mock(IExpr.class, "cx");
@@ -675,8 +675,8 @@ public class ExpressionGeneration {
 		UnresolvedVar fn = new UnresolvedVar(pos, "Cons");
 		StructDefn nilT = new StructDefn(pos, FieldsType.STRUCT, null, "Nil", false);
 		StructDefn consT = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false);
-		consT.addField(new StructField(pos, false, new TypeReference(pos, "A"), "head"));
-		consT.addField(new StructField(pos, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
+		consT.addField(new StructField(pos, consT, false, new TypeReference(pos, "A"), "head"));
+		consT.addField(new StructField(pos, consT, false, new TypeReference(pos, "List", new TypeReference(pos, "A")), "tail"));
 		fn.bind(consT);
 		nilOp.bind(nilT);
 		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"), nilOp);

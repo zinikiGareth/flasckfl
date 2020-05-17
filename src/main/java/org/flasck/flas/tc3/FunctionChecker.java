@@ -133,12 +133,12 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void visitSendMessage(SendMessage sm) {
-		new MessageChecker(errors,repository, state, sv, sm.location(), inMeth);
+		new MessageChecker(errors,repository, state, sv, inMeth);
 	}
 	
 	@Override
 	public void visitAssignMessage(AssignMessage assign) {
-		new MessageChecker(errors,repository, state, sv, assign.location(), inMeth);
+		new MessageChecker(errors,repository, state, sv, inMeth);
 	}
 	
 	@Override

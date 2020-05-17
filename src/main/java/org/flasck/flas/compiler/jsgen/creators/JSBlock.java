@@ -358,7 +358,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSIfExpr ifCtor(JSExpr expr, SolidName ctor) {
+	public JSIfExpr ifCtor(JSExpr expr, NameOfThing ctor) {
 		JSIfExpr ret = new JSIfExpr(new IsAExpr(expr, ctor), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);
 		return ret;

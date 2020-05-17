@@ -151,7 +151,7 @@ public class AccessorConversion {
 		FunctionName an = FunctionName.function(pos, pkg, "f");
 		FunctionDefinition fn = new FunctionDefinition(an, 0, false);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Struct"), true, new ArrayList<>());
-		StructField sf = new StructField(pos, true, LoadBuiltins.stringTR, "fld");
+		StructField sf = new StructField(pos, sd, true, LoadBuiltins.stringTR, "fld");
 		sf.fullName(new VarName(pos, sd.name(), "x"));
 		sd.addField(sf);
 		fn.bindType(sd);

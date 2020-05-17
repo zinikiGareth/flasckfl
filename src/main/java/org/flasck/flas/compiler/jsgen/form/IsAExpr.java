@@ -1,6 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
-import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class IsAExpr implements JSExpr {
@@ -12,7 +12,7 @@ public class IsAExpr implements JSExpr {
 		this.ctor = ctor;
 	}
 
-	public IsAExpr(JSExpr var, SolidName ctor) {
+	public IsAExpr(JSExpr var, NameOfThing ctor) {
 		this.var = var.asVar();
 		this.ctor = ctor.jsName();
 	}

@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsDefn;
+import org.flasck.flas.parsedForm.FieldsHolder;
 import org.flasck.flas.parsedForm.StructField;
 
 public class ConsumeStructFields implements StructFieldConsumer {
@@ -24,4 +25,8 @@ public class ConsumeStructFields implements StructFieldConsumer {
 		consumer.newStructField(errors, sf);
 	}
 
+	@Override
+	public FieldsHolder holder() {
+		return sd;
+	}
 }
