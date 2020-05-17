@@ -1,0 +1,11 @@
+	test we can update based on source
+		data UpdateSource us
+		shove us.foo
+			'hello'
+		shove us.from
+			[Source 'hello', Source 'world']
+		match us text
+			hello world
+		event us compound.0.message (ClickEvent)
+		match us text
+			updated world 

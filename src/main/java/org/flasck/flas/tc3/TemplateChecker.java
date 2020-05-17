@@ -174,13 +174,19 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				
 				Map<StructDefn, Template> mapping = new HashMap<>();
 				if (etype instanceof StructDefn) {
-					Template which = resolveTemplateForItem(pos, (StructDefn) etype);
-					mapping.put((StructDefn) etype, which);
+					Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, (StructDefn) etype);
+					if (which != null) {
+						referencedTemplates.add(which.name().baseName());
+						mapping.put((StructDefn) etype, which);
+					}
 				} else if (etype instanceof UnionTypeDefn) {
 					for (TypeReference ty : ((UnionTypeDefn)etype).cases) {
 						StructDefn sd = (StructDefn)ty.defn();
-						Template which = resolveTemplateForItem(pos, sd);
-						mapping.put(sd, which);
+						Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, sd);
+						if (which != null) {
+							referencedTemplates.add(which.name().baseName());
+							mapping.put(sd, which);
+						}
 					}
 				} else {
 					// TODO: note that this could also be a PolyInstance of one of these ...
@@ -243,27 +249,6 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 			errors.message(option.assignsTo.location(), "cannot handle dest type " + dest);
 			break;
 		}
-	}
-
-	private Template resolveTemplateForItem(InputPosition pos, StructDefn etype) {
-		Template ret = null;
-		for (Template t : allTemplates) {
-			if (t.nestingChain() == null)
-				continue;
-			if (t.nestingChain().iterator().next().type().incorporates(pos, etype)) {
-				// TODO: check we can handle rest of chain
-				
-				if (ret != null) {
-					errors.message(pos, "ambiguous templates for " + etype.signature());
-				}
-				ret = t;
-			}
-		}
-		if (ret == null) {
-			errors.message(pos, "there is no compatible template for " + etype.signature());
-		} else
-			referencedTemplates.add(ret.name().baseName());
-		return ret;
 	}
 
 	@Override

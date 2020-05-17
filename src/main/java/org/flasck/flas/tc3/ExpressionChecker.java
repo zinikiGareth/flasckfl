@@ -32,6 +32,8 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.repository.Traverser;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExpressionChecker extends LeafAdapter implements ResultAware {
@@ -183,5 +185,13 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(new GuardResult(guardPos, ty));
 		else
 			nv.result(new ExprResult(pos, ty));
+	}
+
+	public static Type check(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, boolean inTemplate, Expr expr) {
+		StackVisitor sv = new StackVisitor();
+		CaptureChecker cc = new CaptureChecker(errors, repository, state, sv, inTemplate);
+		Traverser t = new Traverser(sv);
+		t.visitExpr(expr, 0);
+		return ((ExprResult) cc.get()).type;
 	}
 }
