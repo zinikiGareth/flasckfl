@@ -344,6 +344,8 @@ FLContext.prototype.attachEventToCard = function(card, handlerInfo, div, wrapper
 			const evt = new FLEventSourceTrait(div, wrapper.value);
 			fev["EventSource"] = evt;
 			ecx.handleEvent(card, handlerInfo.handler, fev);
+			ev.stopPropagation();
+			ev.preventDefault();
 		});
 	}
 }
