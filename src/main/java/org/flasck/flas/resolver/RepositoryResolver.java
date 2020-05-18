@@ -15,7 +15,6 @@ import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
-import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -435,11 +434,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
 		this.scope = scopeStack.remove(0);
-	}
-	
-	@Override
-	public void visitAssignMessage(AssignMessage msg) {
-		visitUnresolvedVar(msg.slot.get(0), 0);
 	}
 	
 	@Override

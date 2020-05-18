@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.SendMessage;
@@ -29,8 +30,13 @@ public class TDAMethodMessageParser implements TDAParsing {
 		ExprToken tok = ExprToken.from(errors, toks);
 		if ("<-".equals(tok.text))
 			return handleSend(tok.location, toks);
-		else
+		else if (tok.type == ExprToken.IDENTIFIER)
 			return handleAssign(tok, toks);
+		else {
+			errors.message(toks, "expected assign or send message");
+			return new IgnoreNestedParser();
+		}
+			
 	}
 
 	private TDAParsing handleSend(InputPosition arrowPos, Tokenizable toks) {
@@ -48,44 +54,43 @@ public class TDAMethodMessageParser implements TDAParsing {
 	}
 
 	private TDAParsing handleAssign(ExprToken tok, Tokenizable toks) {
-		List<UnresolvedVar> slots = new ArrayList<>();
-		boolean haveDot = true;
-		while (tok != null && tok.type == ExprToken.IDENTIFIER) {
-			haveDot = false;
-			UnresolvedVar v = new UnresolvedVar(tok.location, tok.text);
-			slots.add(v);
+		Expr slot = null;
+		while (true) {
+			UnresolvedVar var = new UnresolvedVar(tok.location, tok.text);
+			if (slot == null) {
+				slot = var;
+			} else
+				slot = new MemberExpr(tok.location, slot, var);
+			// read . or <-
 			tok = ExprToken.from(errors, toks);
 			if (tok == null) {
-				errors.message(toks, "syntax error");
+				errors.message(toks, "expected . or <-");
 				return new IgnoreNestedParser();
 			}
 			if (tok.type == ExprToken.PUNC && ".".equals(tok.text)) {
+				// read another identifier
 				tok = ExprToken.from(errors, toks);
-				haveDot = true;
+				if (tok == null || tok.type != ExprToken.IDENTIFIER) {
+					errors.message(toks, "expected identifier");
+					return new IgnoreNestedParser();
+				}
 			} else
 				break;
 		}
-		if (tok == null) {
-			errors.message(toks, "syntax error");
+		if (!"<-".equals(tok.text)) {
+			errors.message(toks, "expected <-");
 			return new IgnoreNestedParser();
 		}
-		if ("<-".equals(tok.text)) {
-			InputPosition pos = tok.location;
-			List<Expr> seen = new ArrayList<>();
-			new TDAExpressionParser(errors, t -> {
-				seen.add(t);
-				AssignMessage msg = new AssignMessage(pos, slots, t);
-				builder.assignMessage(msg);
-			}).tryParsing(toks);
-			if (seen.isEmpty()) {
-				errors.message(toks, "no expression to send");
-				return new IgnoreNestedParser();
-			}
-		} else {
-			if (haveDot)
-				errors.message(toks, "expected identifier");
-			else
-				errors.message(toks, "expected <-");
+		InputPosition pos = tok.location;
+		List<Expr> seen = new ArrayList<>();
+		final Expr slotExpr = slot;
+		new TDAExpressionParser(errors, t -> {
+			seen.add(t);
+			AssignMessage msg = new AssignMessage(pos, slotExpr, t);
+			builder.assignMessage(msg);
+		}).tryParsing(toks);
+		if (seen.isEmpty()) {
+			errors.message(toks, "no expression to send");
 			return new IgnoreNestedParser();
 		}
 		return nestedParser;

@@ -3,6 +3,8 @@ package org.flasck.flas.tc3;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
@@ -35,39 +37,74 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		this.sv = sv;
 		this.inMeth = inMeth;
 		sv.push(this);
+		// push this for the value on the rhs
 		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 	}
 
+	// The first thing that should happen is the RHS returns a result
 	@Override
-	public void visitAssignSlot(List<UnresolvedVar> slots) {
+	public void result(Object r) {
+		if (rhsType != null)
+			throw new NotImplementedException("was not expecting multiple results");
+		rhsType = (ExprResult) r;
+	}
+
+	// a slot is 0-or-more MemberExprs wrapped around an UnresolvedVar.  Unpack it recursively
+	@Override
+	public void visitAssignSlot(Expr toSlot) {
 		if (rhsType.type instanceof ErrorType)
 			return;
 
-		InputPosition pos = slots.get(0).location();
-		String var = slots.get(0).var;
-		Type container;
-		RepositoryEntry vardefn = slots.get(0).defn();
-		String curr;
-		if (vardefn instanceof StructField) {
-			StructField sf = (StructField)vardefn;
-			if (!(sf.container() instanceof StateDefinition)) {
-				errors.message(pos, "cannot use " + var + " as the main slot in assignment");
-				return;
+		ExprResult container = unpackMembers(toSlot);
+		if (container.type instanceof ErrorType) {
+			rhsType = container;
+			return;
+		}
+		
+		if (!(container.type.incorporates(rhsType.pos, rhsType.type))) {
+			if (toSlot instanceof UnresolvedVar) {
+				UnresolvedVar uv = (UnresolvedVar) toSlot;
+				errors.message(rhsType.pos, "the field " + uv.var + " is of type " + container.type.signature() + ", not " + rhsType.type.signature());
+			} else {
+				MemberExpr me = (MemberExpr) toSlot;
+				UnresolvedVar fld = (UnresolvedVar) me.fld;
+				errors.message(rhsType.pos, "the field " + fld.var + " in " + me.containerType() + " is of type " + container.type.signature() + ", not " + rhsType.type.signature());
 			}
-			container = sf.type();
-			curr = ((NamedType)sf.container()).name().uniqueName();
-		} else if (vardefn instanceof TypedPattern) {
-			container = ((TypedPattern)vardefn).type.defn();
-			curr = ((NamedType)container).name().uniqueName();
-		} else
-			throw new NotImplementedException("cannot handle " + vardefn);
-		boolean isEvent = inMeth.isEvent() && LoadBuiltins.event.incorporates(slots.get(0).location(), container); 
-		for (int i=1;i<slots.size();i++) {
-			UnresolvedVar slot = slots.get(i);
-			pos = slot.location();
-			// TODO: I think we also need to "remember" what we find here, because we have only resolved slot 0
-			if (isEvent && i == 1) {
-				if ("source".equals(slot.var)) {
+			rhsType = new ExprResult(rhsType.pos, new ErrorType());
+			return;
+		}
+		rhsType = new ExprResult(rhsType.pos, LoadBuiltins.message);
+	}
+	
+	private ExprResult unpackMembers(Expr toSlot) {
+		InputPosition pos = toSlot.location();
+		if (toSlot instanceof UnresolvedVar) {
+			UnresolvedVar var = (UnresolvedVar)toSlot;
+			RepositoryEntry vardefn = var.defn();
+			if (vardefn instanceof StructField) {
+				StructField sf = (StructField)vardefn;
+				if (!(sf.container() instanceof StateDefinition)) {
+					errors.message(pos, "cannot use " + var.var + " as the main slot in assignment");
+					return null;
+				}
+//				curr = ((NamedType)sf.container()).name().uniqueName();
+				return new ExprResult(var.location, sf.type());
+			} else if (vardefn instanceof TypedPattern) {
+//				curr = ((NamedType)container).name().uniqueName();
+				return new ExprResult(var.location, ((TypedPattern)vardefn).type.defn());
+			} else
+				throw new NotImplementedException("cannot handle " + vardefn);
+		} else if (toSlot instanceof MemberExpr) {
+			MemberExpr me = (MemberExpr) toSlot;
+			ExprResult res = unpackMembers(me.from);
+			Type ty = res.type;
+			if (ty instanceof ErrorType)
+				return res;
+			UnresolvedVar v = (UnresolvedVar) me.fld;
+			boolean isEvent = inMeth.isEvent() && LoadBuiltins.event.incorporates(pos, ty); 
+			if (isEvent) {
+				// handle trait data - this is kind of a hack right now
+				if ("source".equals(v.var)) {
 					List<Type> sources = ((ObjectMethod)inMeth).sources();
 					if (sources.size() != 1) {
 						// if it's empty, I think that means the event handler is not used
@@ -75,69 +112,50 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 						// if there are more than one, then they all need to be: the same (?) consistent in some way (?)
 						throw new NotImplementedException("we need to check the consistency of sources");
 					}
-					container = sources.get(0);
-					slot.bind(LoadBuiltins.event); // This probably wants to be something more precise, but I think it will get trampled by traits
+					me.bindContainerType(LoadBuiltins.event); // This probably wants to be something more precise, but I think it needs more from traits
+					return new ExprResult(v.location, sources.get(0));
 				} else 
-					throw new NotImplementedException("cannot handle event var " + slot.var);
-			} else if (container instanceof StructDefn) {
-				StructDefn sd = (StructDefn) container;
-				curr = sd.name().uniqueName();
-				var = slot.var;
-				StructField fld = sd.findField(var);
+					throw new NotImplementedException("cannot handle event var " + v.var);
+			} else if (ty instanceof StructDefn) {
+				StructDefn sd = (StructDefn) ty;
+				StructField fld = sd.findField(v.var);
 				if (fld == null) {
-					errors.message(slot.location(), "there is no field " + var + " in " + sd.name().uniqueName());
-					rhsType = new ExprResult(rhsType.pos, new ErrorType());
-					return;
+					errors.message(toSlot.location(), "there is no field " + v.var + " in " + sd.name().uniqueName());
+					return new ExprResult(rhsType.pos, new ErrorType());
 				}
-				container = fld.type();
-				slot.bind(fld);
+				me.bindContainerType(fld.type());
+				return new ExprResult(v.location, fld.type());
 			}
-			else if (container instanceof StateHolder) {
-				StateHolder type = (StateHolder)container;
-				curr = type.name().uniqueName();
+			else if (ty instanceof StateHolder) {
+				StateHolder type = (StateHolder)ty;
 				StateDefinition state = type.state();
 				if (state == null) {
 					errors.message(pos, type.name().uniqueName() + " does not have state");
-					rhsType = new ExprResult(rhsType.pos, new ErrorType());
-					return;
+					return new ExprResult(rhsType.pos, new ErrorType());
 				}
-				var = slot.var;
-				StructField fld = state.findField(var);
+				StructField fld = state.findField(v.var);
 				if (fld == null) {
-					errors.message(slot.location(), "there is no field " + var + " in " + type.name().uniqueName());
-					rhsType = new ExprResult(rhsType.pos, new ErrorType());
-					return;
+					errors.message(toSlot.location(), "there is no field " + v.var + " in " + type.name().uniqueName());
+					return new ExprResult(rhsType.pos, new ErrorType());
 				}
-				container = fld.type();
-				slot.bind(fld);
+				me.bindContainerType(fld.type());
+				return new ExprResult(v.location, fld.type());
 			} else {
-				if (var == null)
-					throw new NotImplementedException("there is no state at the top level in: " + container.getClass());
-				errors.message(slot.location, "field " + var + " in " + curr + " is not a container");
-				rhsType = new ExprResult(rhsType.pos, new ErrorType());
-				return;
+				if (v.var == null)
+					throw new NotImplementedException("there is no state at the top level in: " + ty.getClass());
+				errors.message(toSlot.location(), "field " + v.var + " in " + ty.signature() + " is not a container");
+				return new ExprResult(rhsType.pos, new ErrorType());
 			}
-		}
-		
-		if (!(container.incorporates(rhsType.pos, rhsType.type))) {
-			errors.message(rhsType.pos, "the field " + var + " in " + curr + " is of type " + container.signature() + ", not " + rhsType.type.signature());
-			rhsType = new ExprResult(rhsType.pos, new ErrorType());
-			return;
-		}
-		rhsType = new ExprResult(rhsType.pos, LoadBuiltins.message);
+		} else
+			throw new NotImplementedException();
 	}
-	
+
 	@Override
 	public void leaveMessage(ActionMessage msg) {
 		InputPosition pos = null;
 		if (msg != null)
 			pos = msg.location();
 		check(pos);
-	}
-	
-	@Override
-	public void result(Object r) {
-		rhsType = (ExprResult) r;
 	}
 
 	private void check(InputPosition pos) {

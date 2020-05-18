@@ -982,8 +982,9 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitAssignSlot(List<UnresolvedVar> slot) {
+	public void visitAssignSlot(Expr slot) {
 		visitor.visitAssignSlot(slot);
+		visitExpr(slot, 0);
 	}
 
 	@Override

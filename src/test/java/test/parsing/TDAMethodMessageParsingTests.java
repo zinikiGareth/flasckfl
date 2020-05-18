@@ -149,7 +149,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void fieldCantBeConstant() {
 		context.checking(new Expectations() {{
-			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected identifier"));
+			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected assign or send message"));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("'hello' <- 42"));

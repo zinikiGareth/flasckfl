@@ -22,10 +22,17 @@ import org.flasck.flas.repository.ResultAware;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class MessageConvertor extends LeafAdapter implements ResultAware {
+	public enum Mode {
+		RHS, SLOT
+	}
+
 	private final ErrorReporter errors;
 	private final NestedVisitor nv;
 	private final ObjectActionHandler oah;
 	private final List<Object> stack = new ArrayList<>();
+	private Mode mode = Mode.RHS;
+	private Expr slotContainer;
+	private UnresolvedVar slotField;
 
 	public MessageConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah) {
 		this.errors = errors;
@@ -39,24 +46,43 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 			nv.push(new MessageConvertor(errors, nv, oah));
 		else if (expr instanceof MemberExpr)
 			nv.push(new MemberExprConvertor(errors, nv, oah));
-		else
+		else if (mode == Mode.RHS)
 			stack.add(expr);
+		else if (mode == Mode.SLOT) {
+			if (slotField != null)
+				throw new NotImplementedException();
+			slotField = (UnresolvedVar) expr;
+		}
 	}
 
 	@Override
+	public void visitAssignSlot(Expr slot) {
+		mode = Mode.SLOT;
+	}
+	
+	@Override
 	public void result(Object r) {
-		stack.add((Expr) r);
+		if (mode == Mode.RHS)
+			stack.add((Expr) r);
+		else {
+			if (slotContainer != null)
+				throw new NotImplementedException();
+			slotContainer = (Expr) r;
+		}
 	}
 	
 	@Override
 	public void leaveAssignMessage(AssignMessage msg) {
 		if (stack.size() != 1)
-			throw new NotImplementedException("should be 1");
+			throw new NotImplementedException("stack size should be 1 but was " + stack.size());
 		Expr expr = (Expr) stack.remove(0);
 		UnresolvedVar op = new UnresolvedVar(msg.kw, "Assign");
 		op.bind(LoadBuiltins.assign);
-		UnresolvedVar first = msg.slot.get(0);
-		stack.add(new ApplyExpr(msg.kw, op, new CurrentContainer(msg.kw), new StringLiteral(first.location, first.var), expr));
+		UnresolvedVar inner = (UnresolvedVar) slotField;
+		if (slotContainer == null) {
+			stack.add(new ApplyExpr(msg.kw, op, new CurrentContainer(msg.kw), new StringLiteral(inner.location, inner.var), expr));
+		} else
+			stack.add(new ApplyExpr(msg.kw, op, slotContainer, new StringLiteral(inner.location, inner.var), expr));
 	}
 	
 	@Override

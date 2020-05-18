@@ -28,9 +28,11 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class MemberExprConvertor extends LeafAdapter {
@@ -46,11 +48,17 @@ public class MemberExprConvertor extends LeafAdapter {
 	private int expargs;
 	private Expr handler;
 	private ObjectActionHandler odctor;
+	private Type containerType;
 
 	public MemberExprConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah) {
 		this.errors = errors;
 		this.nv = nv;
 		this.oah = oah;
+	}
+	
+	@Override
+	public void visitMemberExpr(MemberExpr expr) {
+		containerType = expr.containerType();
 	}
 	
 	@Override
@@ -82,11 +90,16 @@ public class MemberExprConvertor extends LeafAdapter {
 					expargs = om.argCount();
 				}
 			} else if (sd != null) {
-				FieldAccessor acor = this.sd.getAccessor(var.var);
-				if (acor == null)
-					throw new NotImplementedException("There is no acor " + var.var);
-				sendMeth = FunctionName.function(var.location(), this.sd.name(), var.var);
-				expargs = 0;
+				if (containerType == LoadBuiltins.event && var.var.equals("source")) {
+					sendMeth = FunctionName.function(var.location(), null, "_eventSource");
+					expargs = 0;
+				} else {
+					FieldAccessor acor = this.sd.getAccessor(var.var);
+					if (acor == null)
+						throw new NotImplementedException("There is no acor " + var.var);
+					sendMeth = FunctionName.function(var.location(), this.sd.name(), var.var);
+					expargs = 0;
+				}
 			} else if (hi != null) {
 				ObjectMethod hm = this.hi.getMethod(var.var);
 				if (hm == null)

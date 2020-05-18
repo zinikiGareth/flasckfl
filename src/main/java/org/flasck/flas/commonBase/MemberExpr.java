@@ -2,6 +2,7 @@ package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
@@ -11,6 +12,7 @@ public class MemberExpr implements Expr {
 	public final Expr fld;
 	private Expr conversion;
 	private ContractMethodDecl contractMethod;
+	private Type containerType;
 
 	public MemberExpr(InputPosition location, Expr from, Expr fld) {
 		if (location == null)
@@ -23,6 +25,14 @@ public class MemberExpr implements Expr {
 	@Override
 	public InputPosition location() {
 		return location;
+	}
+	
+	public void bindContainerType(Type ty) {
+		this.containerType = ty;
+	}
+	
+	public Type containerType() {
+		return this.containerType;
 	}
 	
 	public void showTree(int ind) {

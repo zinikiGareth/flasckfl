@@ -1,7 +1,5 @@
 package org.flasck.flas.repository;
 
-import java.util.List;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
@@ -150,7 +148,7 @@ public interface RepositoryVisitor {
 	void visitMessages(Messages messages);
 	void visitMessage(ActionMessage msg);
 	void visitAssignMessage(AssignMessage msg);
-	void visitAssignSlot(List<UnresolvedVar> slot);
+	void visitAssignSlot(Expr slot);
 	void leaveAssignMessage(AssignMessage msg);
 	void visitSendMessage(SendMessage msg);
 	void leaveSendMessage(SendMessage msg);

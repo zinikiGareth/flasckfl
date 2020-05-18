@@ -331,15 +331,15 @@ FLContext.prototype.nextDocumentId = function() {
 	return "flaselt_" + (this.env.nextDivId++);
 }
 
-FLContext.prototype.attachEventToCard = function(card, handlerInfo) {
+FLContext.prototype.attachEventToCard = function(card, handlerInfo, div, wrapper) {
 	const eventName = handlerInfo.event._eventName;
-	var div = card._currentDiv();
-	if (handlerInfo.type)
-		div = div.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
 	if (div) {
 		div.addEventListener(eventName, ev => {
 			const ecx = this.env.newContext();
-			ecx.handleEvent(card, handlerInfo.handler, handlerInfo.event.eval(ecx));
+			const fev = handlerInfo.event.eval(ecx);
+			const evt = new FLEventSourceTrait(div, wrapper.value);
+			fev["EventSource"] = evt;
+			ecx.handleEvent(card, handlerInfo.handler, fev);
 		});
 	}
 }
@@ -431,8 +431,8 @@ FLCard.prototype._renderInto = function(_cxt, div) {
         }
     }
     if (this._eventHandlers) {
-        this._attachHandlers(_cxt, div, this._template);
-        this._attachHandlers(_cxt, div, "_"); // unbound ones
+        this._attachHandlers(_cxt, div, this._template, this);
+        this._attachHandlers(_cxt, div, "_", this); // unbound ones
     }
 }
 
@@ -443,11 +443,14 @@ FLCard.prototype._currentDiv = function(cx) {
         return this._containedIn;
 }
 
-FLCard.prototype._attachHandlers = function(_cxt, div, key) {
+FLCard.prototype._attachHandlers = function(_cxt, div, key, source) {
     const evcs = this._eventHandlers()[key];
     if (evcs) {
         for (var i in evcs) {
-            _cxt.attachEventToCard(this, evcs[i]);
+            var handlerInfo = evcs[i];
+            if (handlerInfo.type)
+                div = div.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
+            _cxt.attachEventToCard(this, handlerInfo, div, { value: source });
         }
     }
 }
@@ -515,12 +518,13 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
 FLCard.prototype._addItem = function(_cxt, _renderTree, parent, template, fn, value, _tc) {
     var div = template.content.cloneNode(true);
     var ncid = _cxt.nextDocumentId();
-    div.firstElementChild.id = ncid;
+    div = div.firstElementChild;
+    div.id = ncid;
     _renderTree._id = ncid;
     parent.appendChild(div);
     fn.call(this, _cxt, _renderTree, value, _tc);
     if (this._eventHandlers) {
-        this._attachHandlers(_cxt, div, template.id);
+        this._attachHandlers(_cxt, div, template.id, value);
     }
 }
 
@@ -730,6 +734,21 @@ FLBuiltin._underlying.nfargs = function() { return 1; }
 const FLEvent = function() {
 }
 
+const FLEventSourceTrait = function(elt, source) {
+    this.elt = elt;
+    this.source = source;
+}
+
+FLEvent.prototype._eventSource = function(cx, tih) {
+    return this.EventSource.source;
+}
+
+FLEvent.prototype.methods = function() {
+    return {
+        _eventSource: FLEvent.prototype._eventSource
+    };
+}
+
 const ClickEvent = function() {
 }
 ClickEvent.prototype = new FLEvent();
@@ -838,8 +857,16 @@ Assign.prototype._compare = function(cx, other) {
 		return false;
 }
 Assign.prototype.dispatch = function(cx) {
-	this.obj.state.set(this.slot, this.expr);
-	return null;
+	// it's possible that obj is a send or something so consider dispatching it first
+	var msgs = null;
+	var target = this.obj;
+	if (target.dispatch) {
+		// TODO: I feel this *could* return a RWM, but it currently doesn't
+		var rwm = this.obj.dispatch(cx);
+		target = rwm;
+	}
+	target.state.set(this.slot, this.expr);
+	return msgs;
 }
 Assign.prototype.toString = function() {
 	return "Assign[" + "]";

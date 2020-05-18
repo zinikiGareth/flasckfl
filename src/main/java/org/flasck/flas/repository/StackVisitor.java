@@ -639,7 +639,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitAssignMessage(msg);
 	}
 
-	public void visitAssignSlot(List<UnresolvedVar> slot) {
+	public void visitAssignSlot(Expr slot) {
 		top.visitAssignSlot(slot);
 	}
 
