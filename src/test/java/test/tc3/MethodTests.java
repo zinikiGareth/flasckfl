@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -17,8 +18,8 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AssignMessage;
-import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.SendMessage;
@@ -145,7 +146,7 @@ public class MethodTests {
 		UnresolvedVar var = new UnresolvedVar(pos, "s");
 		var.bind(sf);
 		Expr sl = new StringLiteral(pos, "hello");
-		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
+		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
 		new FunctionChecker(errors, repository, sv, state, meth);
 		sv.visitAssignMessage(msg);
@@ -166,7 +167,7 @@ public class MethodTests {
 		UnresolvedVar var = new UnresolvedVar(pos, "x");
 		var.bind(new StructField(pos, null, false, LoadBuiltins.stringTR, "x"));
 		Expr sl = new StringLiteral(pos, "hello");
-		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
+		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
 		new FunctionChecker(errors, repository, sv, state, meth);
 		sv.visitAssignMessage(msg);
@@ -189,7 +190,7 @@ public class MethodTests {
 		StructDefn sd = new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Struct", false);
 		var.bind(new StructField(pos, sd, false, LoadBuiltins.stringTR, "x"));
 		Expr sl = new StringLiteral(pos, "hello");
-		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
+		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
 		new FunctionChecker(errors, repository, sv, state, meth);
 		sv.visitAssignMessage(msg);
@@ -209,7 +210,7 @@ public class MethodTests {
 		s.addMethod(meth);
 		UnresolvedVar var = new UnresolvedVar(pos, "x");
 		Expr sl = new StringLiteral(pos, "hello");
-		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), sl);
+		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
 		new FunctionChecker(errors, repository, sv, state, meth);
 		sv.visitAssignMessage(msg);
@@ -230,13 +231,13 @@ public class MethodTests {
 		UnresolvedVar var = new UnresolvedVar(pos, "s");
 		var.bind(sf);
 		Expr nl = new NumericLiteral(pos, "42", 2);
-		AssignMessage msg = new AssignMessage(pos, Arrays.asList(var), nl);
+		AssignMessage msg = new AssignMessage(pos, var, nl);
 		meth.assignMessage(msg);
 		new FunctionChecker(errors, repository, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.number));
 		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "the field s in test.repo.MyObject is of type String, not Number");
+			oneOf(errors).message(pos, "the field s is of type String, not Number");
 		}});
 		sv.visitAssignSlot(msg.slot);
 		sv.leaveMessage(msg);
@@ -254,13 +255,13 @@ public class MethodTests {
 		lead.bind(sf);
 		UnresolvedVar second = new UnresolvedVar(pos, "x");
 		Expr sl = new StringLiteral(pos, "hello");
-		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
+		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
 		new FunctionChecker(errors, repository, sv, state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "field s in test.repo.MyObject is not a container");
+			oneOf(errors).message(pos, "field s is not a container");
 		}});
 		sv.visitAssignSlot(msg.slot);
 	}
@@ -280,7 +281,7 @@ public class MethodTests {
 		lead.bind(sf);
 		UnresolvedVar second = new UnresolvedVar(pos, "x");
 		Expr sl = new StringLiteral(pos, "hello");
-		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
+		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
 		new FunctionChecker(errors, repository, sv, state, meth);
 		sv.visitAssignMessage(msg);
@@ -308,7 +309,7 @@ public class MethodTests {
 		lead.bind(sf);
 		UnresolvedVar second = new UnresolvedVar(pos, "x");
 		Expr sl = new StringLiteral(pos, "hello");
-		AssignMessage msg = new AssignMessage(pos, Arrays.asList(lead, second), sl);
+		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
 		new FunctionChecker(errors, repository, sv, state, meth);
 		sv.visitAssignMessage(msg);

@@ -97,7 +97,7 @@ public class StackVisitation {
 	public void whenWeVisitAnObjectMethodWePushAFunctionChecker() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
-		meth.assignMessage(new AssignMessage(pos, new ArrayList<UnresolvedVar>(), new StringLiteral(pos, "hello")));
+		meth.assignMessage(new AssignMessage(pos, null, new StringLiteral(pos, "hello")));
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(TypeChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
@@ -179,7 +179,7 @@ public class StackVisitation {
 	public void weBindTheTypeAfterVisitingAnObjectMethod() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
-		meth.assignMessage(new AssignMessage(pos, new ArrayList<UnresolvedVar>(), new StringLiteral(pos, "hello")));
+		meth.assignMessage(new AssignMessage(pos, null, new StringLiteral(pos, "hello")));
 		CaptureAction captureSFC = new CaptureAction(null);
 		Type ty = context.mock(Type.class, "ty");
 		context.checking(new Expectations() {{

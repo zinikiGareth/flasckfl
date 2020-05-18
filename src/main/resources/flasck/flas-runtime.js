@@ -447,10 +447,11 @@ FLCard.prototype._attachHandlers = function(_cxt, div, key, source) {
     const evcs = this._eventHandlers()[key];
     if (evcs) {
         for (var i in evcs) {
+            var ldiv = div;
             var handlerInfo = evcs[i];
             if (handlerInfo.type)
-                div = div.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
-            _cxt.attachEventToCard(this, handlerInfo, div, { value: source });
+                ldiv = div.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
+            _cxt.attachEventToCard(this, handlerInfo, ldiv, { value: source });
         }
     }
 }

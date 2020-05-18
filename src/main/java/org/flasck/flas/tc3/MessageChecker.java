@@ -85,7 +85,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 				StructField sf = (StructField)vardefn;
 				if (!(sf.container() instanceof StateDefinition)) {
 					errors.message(pos, "cannot use " + var.var + " as the main slot in assignment");
-					return null;
+					return new ExprResult(rhsType.pos, new ErrorType());
 				}
 //				curr = ((NamedType)sf.container()).name().uniqueName();
 				return new ExprResult(var.location, sf.type());
@@ -143,7 +143,14 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 			} else {
 				if (v.var == null)
 					throw new NotImplementedException("there is no state at the top level in: " + ty.getClass());
-				errors.message(toSlot.location(), "field " + v.var + " in " + ty.signature() + " is not a container");
+				if (me.from instanceof UnresolvedVar) {
+					UnresolvedVar uvf = (UnresolvedVar) me.from;
+					errors.message(toSlot.location(), "field " + uvf.var + " is not a container");
+				} else {
+					MemberExpr inner = (MemberExpr) me.from;
+					UnresolvedVar uvf = (UnresolvedVar) inner.fld;
+					errors.message(toSlot.location(), "field " + uvf.var + " in " + inner.containerType().signature() + " is not a container");
+				}
 				return new ExprResult(rhsType.pos, new ErrorType());
 			}
 		} else

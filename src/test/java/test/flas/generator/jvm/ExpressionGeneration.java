@@ -907,7 +907,6 @@ public class ExpressionGeneration {
 		IExpr ai = context.mock(IExpr.class, "ai");
 		IExpr ass = context.mock(IExpr.class, "ass");
 		Var fargs = new AVar(meth, J.OBJECT, "v1");
-		IExpr sendClz = context.mock(IExpr.class, "clz");
 		IExpr sendMeth = context.mock(IExpr.class, "meth");
 		IExpr i0 = context.mock(IExpr.class, "0");
 		IExpr n1 = context.mock(IExpr.class, "n1");
@@ -918,13 +917,12 @@ public class ExpressionGeneration {
 			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
-			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(0); will(returnValue(i0));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).as(n1, J.OBJECT); will(returnValue(n1));
 			oneOf(meth).as(with(VarMatcher.local(23)), with(J.OBJECT)); will(returnValue(n2));
-			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), Matchers.is(n2), Matchers.is(i0), Matchers.is(n1))));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendMeth), Matchers.is(n2), Matchers.is(i0), Matchers.is(n1))));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
 		state.bindVar(block, "from", new ArgSlot(0, null), null);
@@ -957,7 +955,6 @@ public class ExpressionGeneration {
 		IExpr ass = context.mock(IExpr.class, "ass");
 		Var fargs = new AVar(meth, J.OBJECT, "fargs");
 		Var v1 = new AVar(meth, J.OBJECT, "v1");
-		IExpr sendClz = context.mock(IExpr.class, "clz");
 		IExpr sendMeth = context.mock(IExpr.class, "meth");
 		IExpr i2 = context.mock(IExpr.class, "2");
 		IExpr msi = context.mock(IExpr.class, "msi");
@@ -973,13 +970,12 @@ public class ExpressionGeneration {
 			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
-			oneOf(meth).classConst("test.repo.Ctr"); will(returnValue(sendClz));
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
 			oneOf(meth).intConst(2); will(returnValue(i2));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).as(n1, J.OBJECT); will(returnValue(n1));
 			oneOf(meth).as(with(VarMatcher.local(23)), with(J.OBJECT)); will(returnValue(n2));
-			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), Matchers.is(n2), Matchers.is(i2), Matchers.is(n1)))); will(returnValue(msi));
+			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendMeth), Matchers.is(n2), Matchers.is(i2), Matchers.is(n1)))); will(returnValue(msi));
 			oneOf(meth).aNull(); will(returnValue(n1));
 			oneOf(meth).intConst(42); will(returnValue(n1));
 			oneOf(meth).box(n1); will(returnValue(n1));

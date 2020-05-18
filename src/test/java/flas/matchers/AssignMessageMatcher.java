@@ -1,7 +1,10 @@
 package flas.matchers;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.parsedForm.AssignMessage;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
@@ -32,11 +35,13 @@ public abstract class AssignMessageMatcher extends TypeSafeMatcher<AssignMessage
 
 				@Override
 				protected boolean matchesSafely(AssignMessage msg) {
-					if (msg.slot.size() != vars.length)
+					if (!matchFrom(msg.slot, vars.length-1))
 						return false;
-					for (int i=0;i<msg.slot.size();i++)
-						if (!vars[i].equals(msg.slot.get(i).var))
-							return false;
+//					if (msg.slot.size() != vars.length)
+//						return false;
+//					for (int i=0;i<msg.slot.size();i++)
+//						if (!vars[i].equals(msg.slot.get(i).var))
+//							return false;
 					if (!matcher.matches(msg.expr))
 						return false;
 					if (super.pos != null) {
@@ -46,6 +51,23 @@ public abstract class AssignMessageMatcher extends TypeSafeMatcher<AssignMessage
 							return false;
 					}
 					return true;
+				}
+
+				private boolean matchFrom(Expr slot, int vi) {
+					if (vi == 0) {
+						if (!(slot instanceof UnresolvedVar))
+							return false;
+						UnresolvedVar uv = (UnresolvedVar) slot;
+						return vars[vi].equals(uv.var);
+					} else {
+						if (!(slot instanceof MemberExpr))
+							return false;
+						MemberExpr me = (MemberExpr) slot;
+						if (!matchFrom(me.from, vi-1))
+							return false;
+						
+						return vars[vi].equals(((UnresolvedVar)me.fld).var);
+					}
 				}
 			};
 		}

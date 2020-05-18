@@ -1,7 +1,6 @@
 package test.repository;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -50,8 +49,7 @@ public class MethodTraversalTests {
 
 	private SendMessage msg1 = new SendMessage(pos, new ApplyExpr(pos, dest, str));
 	private UnresolvedVar slotX = new UnresolvedVar(pos, "x");
-	private List<UnresolvedVar> slotName = new ArrayList<>();
-	private AssignMessage msg2 = new AssignMessage(pos, slotName, new ApplyExpr(pos, dest, str));
+	private AssignMessage msg2 = new AssignMessage(pos, slotX, new ApplyExpr(pos, dest, str));
 	private VarPattern destP = new VarPattern(pos, new VarName(pos, nameF, "dest"));
 	final ErrorReporter errors = context.mock(ErrorReporter.class);
 
@@ -108,7 +106,9 @@ public class MethodTraversalTests {
 			oneOf(v).visitExpr(str, 0); inSequence(s);
 			oneOf(v).visitStringLiteral(str); inSequence(s);
 			oneOf(v).leaveApplyExpr((ApplyExpr) with(ae)); inSequence(s);
-			oneOf(v).visitAssignSlot(slotName);
+			oneOf(v).visitAssignSlot(msg2.slot); inSequence(s);
+			oneOf(v).visitExpr(slotX, 0); inSequence(s);
+			oneOf(v).visitUnresolvedVar(slotX, 0); inSequence(s);
 			oneOf(v).leaveAssignMessage(msg2); inSequence(s);
 			oneOf(v).leaveMessage(msg2); inSequence(s);
 			oneOf(v).leaveObjectMethod(om); inSequence(s);
@@ -118,7 +118,6 @@ public class MethodTraversalTests {
 		args.add(destP);
 		dest.bind(destP);
 		om.assignMessage(msg2);
-		slotName.add(slotX);
 		r.newStandaloneMethod(errors, sm);
 		r.traverse(v);
 	}
