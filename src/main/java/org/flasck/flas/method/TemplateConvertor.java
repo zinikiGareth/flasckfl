@@ -3,6 +3,7 @@ package org.flasck.flas.method;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 
@@ -24,6 +25,11 @@ public class TemplateConvertor extends LeafAdapter {
 
 	@Override
 	public void leaveTemplateBindingOption(TemplateBindingOption option) {
+		nv.result(null);
+	}
+
+	@Override
+	public void leaveTemplateStyling(TemplateStylingOption option) {
 		nv.result(null);
 	}
 }

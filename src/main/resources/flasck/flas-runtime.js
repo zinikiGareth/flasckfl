@@ -154,6 +154,7 @@ FLMakeSend.prototype.toString = function() {
 
 const FLContext = function(env, broker) {
 	EvalContext.call(this, env, broker);
+	this.evid = 1;
 }
 
 FLContext.prototype = new EvalContext();
@@ -334,7 +335,10 @@ FLContext.prototype.nextDocumentId = function() {
 FLContext.prototype.attachEventToCard = function(card, handlerInfo, div, wrapper) {
 	const eventName = handlerInfo.event._eventName;
 	if (div) {
+		var id1 = this.evid++;
+		this.env.logger.log("adding handler " + id1 + " to " + div.id + " for " + eventName);
 		div.addEventListener(eventName, ev => {
+			this.env.logger.log("firing handler " + id1 + " to " + div.id + " for " + eventName);
 			const ecx = this.env.newContext();
 			const fev = handlerInfo.event.eval(ecx);
 			const evt = new FLEventSourceTrait(div, wrapper.value);
