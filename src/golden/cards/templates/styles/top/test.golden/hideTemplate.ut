@@ -1,0 +1,7 @@
+	test hide the whole template
+		data StyleTemplate c
+		match c style
+		shove c.hide
+			True
+		match c style
+			hidden

@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TDATemplateBindingParser implements TDAParsing {
 	private final ErrorReporter errors;
@@ -32,8 +33,13 @@ public class TDATemplateBindingParser implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		final TemplateNameToken tok = TemplateNameToken.from(errors, toks);
 		if (tok == null) {
-			errors.message(toks, "syntax error");
-			return new IgnoreNestedParser();
+			ExprToken et = ExprToken.from(errors, toks);
+			if (et != null && et.text.equals("|")) {
+				return TDAParseTemplateElements.parseStyling(errors, namer, toks, x -> consumer.addStyling(x));
+			} else {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
 		}
 		TemplateField field = new TemplateField(tok.location, tok.text);
 		TemplateBindingOption simple = null;

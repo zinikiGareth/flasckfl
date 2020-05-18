@@ -39,9 +39,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
-import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateNestedField;
-import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -519,22 +517,6 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
-	public void visitTemplateStyling(TemplateStylingOption tso) {
-		CardData ce = currentTemplate.webinfo();
-		if (ce == null) { // an undefined template should already have been reported ...
-			return;
-		}
-		TemplateField fld = tso.styleField;
-		if (!ce.hasField(fld.text)) {
-			// I _think_ it should already have been reported, but if there are no errors report it anyway ...
-			if (!errors.hasErrors())
-				errors.message(fld.location(), "there is no slot " + fld.text + " in " + currentTemplate.name().baseName());
-			return;
-		}
-		fld.fieldType(ce.get(fld.text));
-	}
-	
-	@Override
 	public void visitTemplateEvent(TemplateEvent te) {
 		RepositoryEntry defn = find(scope, te.handler);
 		boolean isEH = false;
@@ -686,6 +668,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitShoveSlot(UnresolvedVar v) {
 		if (currShoveExpr == null) {
 			visitUnresolvedVar(v, 0);
+			if (v.defn() == null) {
+				// v itself was not resolved
+				// an error probably occurred
+				return;
+			}
 			currShoveExpr = v;
 		} else if (currShoveExpr.defn() instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) currShoveExpr.defn();

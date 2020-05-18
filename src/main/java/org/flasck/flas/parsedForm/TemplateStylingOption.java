@@ -8,10 +8,8 @@ import org.flasck.flas.commonBase.StringLiteral;
 public class TemplateStylingOption {
 	public final Expr cond;
 	public final List<Expr> styles;
-	public final TemplateField styleField;
 
-	public TemplateStylingOption(TemplateField field, Expr cond, List<Expr> styles) {
-		this.styleField = field;
+	public TemplateStylingOption(Expr cond, List<Expr> styles) {
 		this.cond = cond;
 		this.styles = styles;
 	}

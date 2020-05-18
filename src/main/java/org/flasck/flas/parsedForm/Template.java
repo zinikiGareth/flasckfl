@@ -16,6 +16,7 @@ public class Template implements Locatable, RepositoryEntry, TemplateBindingCons
 	public final InputPosition kw;
 	private final InputPosition loc;
 	private final List<TemplateBinding> bindings = new ArrayList<TemplateBinding>();
+	private final List<TemplateStylingOption> stylings = new ArrayList<TemplateStylingOption>();
 	private final TemplateName name;
 	private final int posn;
 	private final NestingChain chain;
@@ -57,6 +58,15 @@ public class Template implements Locatable, RepositoryEntry, TemplateBindingCons
 	
 	public Iterable<TemplateBinding> bindings() {
 		return bindings;
+	}
+
+	@Override
+	public void addStyling(TemplateStylingOption x) {
+		stylings.add(x);
+	}
+	
+	public Iterable<TemplateStylingOption> stylings() {
+		return stylings;
 	}
 
 	// Because we are doing this very early (resolution), it's possible there is more than one entry here.

@@ -182,6 +182,10 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 
 	@Override
 	public void leaveTemplateCustomization(TemplateCustomization tc) {
+		applyStyles(fs, bindingBlock, assignsTo, styles, cexpr);
+	}
+
+	static void applyStyles(FunctionState fs, List<IExpr> bindingBlock, TemplateField field, List<JVMStyleIf> styles, List<IExpr> cexpr) {
 		if (styles.isEmpty() && cexpr.isEmpty())
 			return;
 		IExpr ce;
@@ -198,7 +202,16 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 			arr.add(si.style);
 		}
 		
-		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(assignsTo.type().toString().toLowerCase()), fs.meth.stringConst(assignsTo.text), ce, fs.meth.arrayOf(J.OBJECT, arr));
+		IExpr ty;
+		IExpr tx;
+		if (field == null) {
+			ty = fs.meth.as(fs.meth.aNull(), J.STRING);
+			tx = fs.meth.as(fs.meth.aNull(), J.STRING);
+		} else {
+			ty = fs.meth.stringConst(field.type().toString().toLowerCase());
+			tx = fs.meth.stringConst(field.text);
+		}
+		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), ty, tx, ce, fs.meth.arrayOf(J.OBJECT, arr));
 		bindingBlock.add(doUpdate);
 		styles.clear();
 		cexpr.clear();

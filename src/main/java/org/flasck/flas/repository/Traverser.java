@@ -443,6 +443,8 @@ public class Traverser implements RepositoryVisitor {
 		for (TemplateBinding b : t.bindings()) {
 			visitTemplateBinding(b);
 		}
+		for (TemplateStylingOption tso : t.stylings())
+			visitTemplateStyling(tso);
 		leaveTemplate(t);
 	}
 

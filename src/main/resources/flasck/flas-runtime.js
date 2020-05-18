@@ -479,11 +479,14 @@ FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constan
             styles += ' ' + rest[i+1];
     }
     var div = document.getElementById(_renderTree._id);
-    const node = div.querySelector("[data-flas-" + type + "='" + field + "']");
-    var ncid = _cxt.nextDocumentId();
-    node.id = ncid;
-    _renderTree[field] = { _id: ncid };
-    node.className = styles;
+    if (type != null) {
+        const node = div.querySelector("[data-flas-" + type + "='" + field + "']");
+        var ncid = _cxt.nextDocumentId();
+        node.id = ncid;
+        _renderTree[field] = { _id: ncid };
+        div = node;
+    }
+    div.className = styles;
 }
 
 FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, templateName, value, _tc) {

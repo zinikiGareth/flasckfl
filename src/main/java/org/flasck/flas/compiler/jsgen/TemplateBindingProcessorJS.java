@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
+import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
@@ -154,6 +155,12 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 
 	@Override
 	public void leaveTemplateCustomization(TemplateCustomization tc) {
+		applyStyles(bindingBlock, b.assignsTo, styles, cexpr);
+		if (ie != null)
+			bindingBlock = ie.falseCase();
+	}
+
+	static void applyStyles(JSBlockCreator bindingBlock, TemplateField update, List<JSStyleIf> styles, List<JSExpr> cexpr) {
 		if (!styles.isEmpty() || !cexpr.isEmpty()) {
 			JSExpr ce;
 			if (cexpr.isEmpty())
@@ -163,12 +170,10 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 			else
 				ce = bindingBlock.callMethod(bindingBlock.literal("FLBuiltin"), "concatMany", cexpr.toArray(new JSExpr[cexpr.size()]));
 
-			bindingBlock.updateStyle(b.assignsTo, ce, styles);
+			bindingBlock.updateStyle(update, ce, styles);
 			styles.clear();
 			cexpr.clear();
 		}
-		if (ie != null)
-			bindingBlock = ie.falseCase();
 	}
 	
 	@Override

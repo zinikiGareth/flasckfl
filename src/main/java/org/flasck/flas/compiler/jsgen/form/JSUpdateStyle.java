@@ -26,11 +26,16 @@ public class JSUpdateStyle implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("this._updateStyle(_cxt, _renderTree, '");
-		w.print(field.type().toString().toLowerCase());
-		w.print("', '");
-		w.print(field.text);
-		w.print("', ");
+		w.print("this._updateStyle(_cxt, _renderTree, ");
+		if (field == null)
+			w.print("null, null, ");
+		else {
+			w.print("'");
+			w.print(field.type().toString().toLowerCase());
+			w.print("', '");
+			w.print(field.text);
+			w.print("', ");
+		}
 		w.print(constant.asVar());
 		for (JSStyleIf si : vars) {
 			w.print(", ");

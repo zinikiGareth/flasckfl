@@ -1,0 +1,6 @@
+	card StyleTemplate
+		state
+			Boolean hide
+			
+		template hello
+			| hide => 'hidden'
