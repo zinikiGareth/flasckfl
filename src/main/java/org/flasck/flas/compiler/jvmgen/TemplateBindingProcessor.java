@@ -45,6 +45,8 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	private final StackVisitor sv;
 	private final ByteCodeSink templateClass;
 	private final AtomicInteger containerIdx;
+	private final Template t;
+	private final IExpr source;
 	private final TemplateField assignsTo;
 	private final List<JVMStyleIf> styles = new ArrayList<>();
 	private final List<IExpr> cexpr = new ArrayList<>();
@@ -54,12 +56,15 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	private JVMBinding curr;
 	private List<IExpr> bindingBlock;
 	private TemplateBindingOption currentTBO;
+	private int option = 0;
 
-	public TemplateBindingProcessor(FunctionState fs, StackVisitor sv, ByteCodeSink templateClass, AtomicInteger containerIdx, TemplateBinding b) {
+	public TemplateBindingProcessor(FunctionState fs, StackVisitor sv, ByteCodeSink templateClass, AtomicInteger containerIdx, Template t, IExpr source, TemplateBinding b) {
 		this.fs = fs;
 		this.sv = sv;
 		this.templateClass = templateClass;
 		this.containerIdx = containerIdx;
+		this.t = t;
+		this.source = source;
 		this.bindingBlock = new ArrayList<IExpr>();
 		assignsTo = b.assignsTo;
 		sv.push(this);
@@ -70,6 +75,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 		curr = new JVMBinding();
 		bindings.add(0, curr);
 		currentTBO = option;
+		this.option++;
 	}
 	
 	@Override
@@ -146,7 +152,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 					{
 						GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_updateContainer" + ucidx);
 						PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
-						PendingVar rt = gen.argument(Map.class.getName(), "_renderTree");
+						PendingVar rt = gen.argument(J.RENDERTREE, "_renderTree");
 						PendingVar parent = gen.argument(J.ELEMENT, "parent");
 						PendingVar e = gen.argument(J.OBJECT, "e");
 						gen.returns("void");
@@ -166,7 +172,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 					}
 					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContainer", fs.fcx, fs.renderTree(), fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT), fs.meth.intConst(ucidx));
 				} else
-					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.renderTree(), fs.meth.stringConst(assignsTo.text), fs.meth.as(expr, J.OBJECT));
+					curr.du = fs.meth.callVirtual("void", fs.container, "_updateContent", fs.fcx, fs.renderTree(), fs.meth.stringConst(t.webinfo().id()), fs.meth.stringConst(assignsTo.text), fs.meth.intConst(this.option), this.source, fs.meth.as(expr, J.OBJECT));
 			}
 			this.bindingBlock = curr.trueBlock;
 		}

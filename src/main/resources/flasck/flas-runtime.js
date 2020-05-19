@@ -337,7 +337,7 @@ FLContext.prototype.attachEventToCard = function(card, handlerInfo, div, wrapper
 	if (div) {
 		var id1 = this.evid++;
 		this.env.logger.log("adding handler " + id1 + " to " + div.id + " for " + eventName);
-		div.addEventListener(eventName, ev => {
+		var handler = ev => {
 			this.env.logger.log("firing handler " + id1 + " to " + div.id + " for " + eventName);
 			const ecx = this.env.newContext();
 			const fev = handlerInfo.event.eval(ecx);
@@ -346,8 +346,11 @@ FLContext.prototype.attachEventToCard = function(card, handlerInfo, div, wrapper
 			ecx.handleEvent(card, handlerInfo.handler, fev);
 			ev.stopPropagation();
 			ev.preventDefault();
-		});
+		};
+		div.addEventListener(eventName, handler);
+		return handler;
 	}
+	return null;
 }
 
 FLContext.prototype.handleEvent = function(card, handler, event) {
@@ -436,9 +439,9 @@ FLCard.prototype._renderInto = function(_cxt, div) {
             this._updateDisplay(_cxt, this._renderTree);
         }
     }
+    // attach the default handlers to the card
     if (this._eventHandlers) {
-        this._attachHandlers(_cxt, div, this._template, this);
-        this._attachHandlers(_cxt, div, "_", this); // unbound ones
+        this._attachHandlers(_cxt, this._renderTree, div, "_", 1, this); // unbound ones
     }
 }
 
@@ -449,31 +452,51 @@ FLCard.prototype._currentDiv = function(cx) {
         return this._containedIn;
 }
 
-FLCard.prototype._attachHandlers = function(_cxt, div, key, source) {
+FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, option, source) {
     const evcs = this._eventHandlers()[key];
     if (evcs) {
         for (var i in evcs) {
             var ldiv = div;
             var handlerInfo = evcs[i];
+            if (handlerInfo.option && handlerInfo.option != option)
+                continue;
             if (handlerInfo.type)
                 ldiv = div.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
-            _cxt.attachEventToCard(this, handlerInfo, ldiv, { value: source });
+            if (rt && rt.handlers) {
+                for (var i=0;i<rt.handlers.length;i++) {
+                    var rh = rt.handlers[i];
+                    ldiv.removeEventListener(rh.hi.event._eventName, rh.eh);
+                }
+                delete rt.handlers;
+            }
+            var eh = _cxt.attachEventToCard(this, handlerInfo, ldiv, { value: source });
+            if (eh && rt) {
+                if (!rt.handlers) {
+                    rt.handlers = [];
+                }
+                rt.handlers.push({ hi: handlerInfo, eh: eh });
+            }
         }
     }
 }
 
-FLCard.prototype._updateContent = function(_cxt, _renderTree, field, value) {
+FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option, source, value) {
     // In general, everything should already be fully evaluated, but we do allow expressions in templates
     value = _cxt.full(value);
     if (!value)
         value = '';
-    var div = document.getElementById(_renderTree._id);
+    var div = document.getElementById(rt._id);
     const node = div.querySelector("[data-flas-content='" + field + "']");
-    var ncid = _cxt.nextDocumentId();
-    node.id = ncid;
-    _renderTree[field] = { _id: ncid };
+    if (!node.id) {
+        var ncid = _cxt.nextDocumentId();
+        node.id = ncid;
+        rt[field] = { _id: ncid };
+    }
     node.innerHTML = '';
     node.appendChild(document.createTextNode(value));
+    if (this._eventHandlers) {
+        this._attachHandlers(_cxt, rt[field], div, templateName, option, source);
+    }
 }
 
 FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constant, ...rest) {
@@ -525,16 +548,16 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
     }
 }
 
-FLCard.prototype._addItem = function(_cxt, _renderTree, parent, template, fn, value, _tc) {
+FLCard.prototype._addItem = function(_cxt, rt, parent, template, fn, value, _tc) {
     var div = template.content.cloneNode(true);
     var ncid = _cxt.nextDocumentId();
     div = div.firstElementChild;
     div.id = ncid;
-    _renderTree._id = ncid;
+    rt._id = ncid;
     parent.appendChild(div);
-    fn.call(this, _cxt, _renderTree, value, _tc);
+    fn.call(this, _cxt, rt, value, _tc);
     if (this._eventHandlers) {
-        this._attachHandlers(_cxt, div, template.id, value);
+        this._attachHandlers(_cxt, rt, div, template.id, null, value);
     }
 }
 

@@ -90,7 +90,7 @@ public interface JSBlockCreator {
 	JSExpr xcurry(boolean wantObject, int expArgs, List<XCArg> posargs);
 
 	// templates
-	void updateContent(TemplateField field, JSExpr expr);
+	void updateContent(String templateName, TemplateField field, int option, JSExpr source, JSExpr expr);
 	void updateStyle(TemplateField field, JSExpr constant, List<JSStyleIf> styles);
 	void updateTemplate(TemplateField field, int posn, boolean isOtherObject, String templateName, JSExpr expr, JSExpr tc);
 	void updateContainer(TemplateField field, JSExpr expr, int ucidx);

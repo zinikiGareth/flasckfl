@@ -1,0 +1,4 @@
+JVM PASS we can fire the right event on a condition
+JVM PASS we can then undo that by clicking again
+JS PASS we can fire the right event on a condition
+JS PASS we can then undo that by clicking again

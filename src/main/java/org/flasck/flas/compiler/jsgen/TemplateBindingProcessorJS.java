@@ -36,9 +36,11 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 	}
 	private final JSFunctionState state;
 	private final NestedVisitor sv;
-	private JSClassCreator templateCreator;
+	private final String templateName;
+	private final JSClassCreator templateCreator;
 	private final AtomicInteger containerIdx;
 	private final TemplateBinding b;
+	private final JSExpr source;
 	private final List<JSStyleIf> styles = new ArrayList<>();
 	private final List<JSExpr> cexpr = new ArrayList<>();
 
@@ -46,10 +48,13 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 	private JSIfExpr ie;
 	private JSBlockCreator bindingBlock;
 	private TemplateBindingOption currentTBO;
+	private int option = 0;
 
-	public TemplateBindingProcessorJS(JSFunctionState state, NestedVisitor sv, JSClassCreator templateCreator, AtomicInteger containerIdx, JSBlockCreator templateBlock, TemplateBinding b) {
+	public TemplateBindingProcessorJS(JSFunctionState state, NestedVisitor sv, JSClassCreator templateCreator, AtomicInteger containerIdx, JSBlockCreator templateBlock, Template t, JSExpr source, TemplateBinding b) {
 		this.state = state;
 		this.sv = sv;
+		this.source = source;
+		this.templateName = t.webinfo().id();
 		this.templateCreator = templateCreator;
 		this.containerIdx = containerIdx;
 		this.bindingBlock = templateBlock;
@@ -60,6 +65,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 	@Override
 	public void visitTemplateBindingOption(TemplateBindingOption option) {
 		currentTBO = option;
+		this.option++;
 	}
 	
 	@Override
@@ -131,7 +137,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 					}
 					bindingBlock.updateContainer(b.assignsTo, (JSExpr) r, ucidx);
 				} else
-					bindingBlock.updateContent(b.assignsTo, (JSExpr) r);
+					bindingBlock.updateContent(templateName, b.assignsTo, option, source, (JSExpr) r);
 			}
 		}
 	}

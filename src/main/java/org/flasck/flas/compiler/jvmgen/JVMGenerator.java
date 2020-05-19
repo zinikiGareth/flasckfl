@@ -668,7 +668,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 					IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT), cardevents.classConst("[L" + J.OBJECT + ";"));
 					IExpr ehm = cardevents.callVirtual(Method.class.getName(), cardevents.classConst(cd.name().javaName()), "getDeclaredMethod", cardevents.stringConst(hi.name.name), classArgs);
 
-					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.stringConst(tt.type), cardevents.stringConst(tt.slot), cardevents.stringConst(hi.event), ehm);
+					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.stringConst(tt.type), cardevents.stringConst(tt.slot), cardevents.box(cardevents.intConst(tt.option)), cardevents.stringConst(hi.event), ehm);
 					cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT))).flush();
 				}
 				cardevents.voidExpr(cardevents.callInterface(J.OBJECT, v, "put", cardevents.as(cardevents.stringConst(t), J.OBJECT), cardevents.as(hl, J.OBJECT))).flush();
@@ -679,7 +679,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
 				IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT), cardevents.classConst("[L" + J.OBJECT + ";"));
 				IExpr ehm = cardevents.callVirtual(Method.class.getName(), cardevents.classConst(cd.name().javaName()), "getDeclaredMethod", cardevents.stringConst(hi.name.name), classArgs);
-				IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.as(cardevents.aNull(), J.STRING), cardevents.as(cardevents.aNull(), J.STRING), cardevents.stringConst(hi.event), ehm);
+				IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.as(cardevents.aNull(), J.STRING), cardevents.as(cardevents.aNull(), J.STRING), cardevents.as(cardevents.aNull(), J.INTEGER), cardevents.stringConst(hi.event), ehm);
 				cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT))).flush();
 				cardevents.voidExpr(cardevents.callInterface(J.OBJECT, v, "put", cardevents.as(cardevents.stringConst("_"), J.OBJECT), cardevents.as(hl, J.OBJECT))).flush();
 			}
@@ -787,7 +787,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		
 		GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, name);
 		PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
-		PendingVar rt = gen.argument(Map.class.getName(), "_renderTree");
+		PendingVar rt = gen.argument(J.RENDERTREE, "_renderTree");
 		PendingVar item = null;
 		PendingVar tc = null;
 		NestingChain chain = t.nestingChain();
@@ -804,16 +804,19 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fs = new FunctionState(tf, fcx.getVar(), tf.myThis(), null, runner);
 		fs.provideStateObject(templatector.getField("state"));
 		fs.provideRenderTree(rt.getVar());
+		IExpr source;
 		if (item != null) {
 			Map<String, IExpr> tom = new LinkedHashMap<>();
-			popVar(tom, n1, item.getVar());
+			source = item.getVar();
+			popVar(tom, n1, source);
 			int pos = 0;
 			while (links.hasNext())
 				popVar(tom, links.next(), fs.meth.arrayElt(tc.getVar(), fs.meth.intConst(pos++)));
 			fs.provideTemplateObject(tom);
 			tf.ifNull(item.getVar(), tf.returnVoid(), null).flush();
-		}
-		new TemplateProcessor(fs, sv, templateClass, containerIdx);
+		} else
+			source = tf.aNull();
+		new TemplateProcessor(fs, sv, templateClass, containerIdx, source, t);
 	}
 
 	private void popVar(Map<String, IExpr> tom, Link l, IExpr expr) {

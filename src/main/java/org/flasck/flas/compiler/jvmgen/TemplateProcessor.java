@@ -18,22 +18,26 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	private final StackVisitor sv;
 	private final ByteCodeSink templateClass;
 	private final AtomicInteger containerIdx;
+	private final IExpr source;
+	private final Template t;
 	private final List<IExpr> block;
 	private final List<JVMStyleIf> styles = new ArrayList<>();
 	private final List<IExpr> cexpr = new ArrayList<>();
 
-	public TemplateProcessor(FunctionState functionState, StackVisitor sv, ByteCodeSink templateClass, AtomicInteger containerIdx) {
+	public TemplateProcessor(FunctionState functionState, StackVisitor sv, ByteCodeSink templateClass, AtomicInteger containerIdx, IExpr source, Template t) {
 		this.fs = functionState;
 		this.sv = sv;
 		this.templateClass = templateClass;
 		this.containerIdx = containerIdx;
+		this.source = source;
+		this.t = t;
 		this.block = new ArrayList<IExpr>();
 		sv.push(this);
 	}
 	
 	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
-		new TemplateBindingProcessor(fs, sv, templateClass, containerIdx, b);
+		new TemplateBindingProcessor(fs, sv, templateClass, containerIdx, t, source, b);
 	}
 	
 	@Override

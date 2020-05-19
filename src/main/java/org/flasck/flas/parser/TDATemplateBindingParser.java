@@ -14,7 +14,6 @@ import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TDATemplateBindingParser implements TDAParsing {
 	private final ErrorReporter errors;

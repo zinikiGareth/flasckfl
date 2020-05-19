@@ -17,24 +17,28 @@ import org.flasck.flas.repository.ResultAware;
 public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	private final JSFunctionState state;
 	private final NestedVisitor sv;
-	private final JSBlockCreator templateBlock;
 	private final JSClassCreator templateCreator;
 	private final AtomicInteger containerIdx;
+	private final JSBlockCreator templateBlock;
+	private final JSExpr source;
+	private final Template t;
 	private final List<JSStyleIf> styles = new ArrayList<>();
 	private final List<JSExpr> cexpr = new ArrayList<>();
 
-	public TemplateProcessorJS(JSFunctionState state, NestedVisitor sv, JSClassCreator templateCreator, AtomicInteger containerIdx, JSBlockCreator currentBlock) {
+	public TemplateProcessorJS(JSFunctionState state, NestedVisitor sv, JSClassCreator templateCreator, AtomicInteger containerIdx, JSBlockCreator currentBlock, JSExpr source, Template t) {
 		this.state = state;
 		this.sv = sv;
 		this.templateCreator = templateCreator;
 		this.containerIdx = containerIdx;
 		this.templateBlock = currentBlock;
+		this.source = source;
+		this.t = t;
 		sv.push(this);
 	}
 	
 	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
-		new TemplateBindingProcessorJS(state, sv, templateCreator, containerIdx, templateBlock, b);
+		new TemplateBindingProcessorJS(state, sv, templateCreator, containerIdx, templateBlock, t, source, b);
 	}
 	
 	@Override

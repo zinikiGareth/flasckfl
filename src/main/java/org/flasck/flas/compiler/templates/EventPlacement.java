@@ -24,11 +24,13 @@ public class EventPlacement implements EventTargetZones {
 	public class TemplateTarget {
 		public final String slot;
 		public final String type;
+		public final int option;
 		public final String handler;
 
-		public TemplateTarget(String slot, String type, String handler) {
+		public TemplateTarget(String slot, String type, int option, String handler) {
 			this.slot = slot;
 			this.type = type;
+			this.option = option;
 			this.handler = handler;
 		}
 	}
@@ -48,8 +50,8 @@ public class EventPlacement implements EventTargetZones {
 	}
 
 	@Override
-	public void binding(String id, TemplateBinding currentBinding, String handler) {
-		templates.add(id, new TemplateTarget(currentBinding.assignsTo.text, currentBinding.assignsTo.type().toString().toLowerCase(), handler));
+	public void binding(String id, TemplateBinding currentBinding, int option, String handler) {
+		templates.add(id, new TemplateTarget(currentBinding.assignsTo.text, currentBinding.assignsTo.type().toString().toLowerCase(), option, handler));
 	}
 
 	@Override

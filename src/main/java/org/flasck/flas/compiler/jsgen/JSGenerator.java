@@ -618,16 +618,19 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			updateDisplay.argument("_tc");
 		}
 		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
+		JSExpr source;
 		if (n1 != null) {
 			Map<String, JSExpr> tom = new LinkedHashMap<>();
-			popVar(tom, n1, updateDisplay.boundVar(n1.name().var));
+			source = updateDisplay.boundVar(n1.name().var);
+			popVar(tom, n1, source);
 			JSExpr tc = updateDisplay.boundVar("_tc");
 			int pos = 0;
 			while (links.hasNext())
 				popVar(tom, links.next(), updateDisplay.arrayElt(tc, pos++));
 			state.provideTemplateObject(tom);
-		}
-		new TemplateProcessorJS(state, sv, templateCreator, containerIdx, updateDisplay);
+		} else
+			source = updateDisplay.literal("null");
+		new TemplateProcessorJS(state, sv, templateCreator, containerIdx, updateDisplay, source, t);
 	}
 	
 	private void popVar(Map<String, JSExpr> tom, Link l, JSExpr expr) {

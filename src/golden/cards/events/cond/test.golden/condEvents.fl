@@ -1,0 +1,21 @@
+	card CondEvents
+		state
+			Boolean cond <- False
+			Number counter <- 0
+			
+		template hello
+			message
+				| cond <- 'hello'
+					=> makeNo
+				<- 'goodbye'
+					=> makeYes
+					
+					
+		event makeNo (ClickEvent e)
+			cond <- False
+			counter <- counter + 1
+		
+		event makeYes (ClickEvent e)
+			cond <- True
+			counter <- counter + 1
+			

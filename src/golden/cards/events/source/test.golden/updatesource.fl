@@ -3,19 +3,14 @@
 
 	card UpdateSource
 		state
-			String foo
 			List[Source] from
 		
 		template top
 			compound <- from
-				=> onTop
 		
 		template inner <- (Source s)
 			message <- msg
 				=> updateMe
 		
-		event onTop (ClickEvent ev)
-			foo <- 'foo'
-
 		event updateMe (ClickEvent ev)
 			ev.source.msg <- 'updated'

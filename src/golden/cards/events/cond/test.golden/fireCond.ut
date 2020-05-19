@@ -1,0 +1,23 @@
+	test we can fire the right event on a condition
+		data CondEvents ce
+		event ce message (ClickEvent)
+		assert (ce.counter)
+			1
+		assert (ce.cond)
+			True
+		match ce text _
+			hello
+
+	test we can then undo that by clicking again
+		data CondEvents ce
+		event ce message (ClickEvent)
+		assert (ce.counter)
+			1
+		event ce message (ClickEvent)
+		assert (ce.counter)
+			2
+		assert (ce.cond)
+			False
+		match ce text _
+			goodbye
+		

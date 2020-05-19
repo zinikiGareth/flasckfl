@@ -6,6 +6,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.repository.LeafAdapter;
@@ -16,6 +17,7 @@ public class EventBuilder extends LeafAdapter {
 	private EventPlacement currentETZ;
 	private String templateId;
 	private TemplateBinding currentBinding;
+	private int option = 0;
 
 	public EventBuilder(StackVisitor stack, Map<CardDefinition, EventTargetZones> etz) {
 		eventMap = etz;
@@ -47,11 +49,17 @@ public class EventBuilder extends LeafAdapter {
 	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
 		currentBinding = b;
+		option = 0;
+	}
+	
+	@Override
+	public void visitTemplateBindingOption(TemplateBindingOption tbo) {
+		this.option++;
 	}
 	
 	@Override
 	public void visitTemplateEvent(TemplateEvent te) {
-		currentETZ.binding(templateId, currentBinding, te.handler);
+		currentETZ.binding(templateId, currentBinding, option, te.handler);
 	}
 	
 	@Override

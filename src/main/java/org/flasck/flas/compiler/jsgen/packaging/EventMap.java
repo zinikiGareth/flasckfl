@@ -36,7 +36,7 @@ public class EventMap {
 			IndentWriter lw = kw.indent();
 			boolean ft = true;
 			for (TemplateTarget tt : methods.targets(t)) {
-				ft = writeHi(ft, lw, tt.type, tt.slot, methods.getHandler(tt.handler));
+				ft = writeHi(ft, lw, tt.type, tt.slot, tt.option, methods.getHandler(tt.handler));
 			}
 			if (!ft)
 				kw.println("");
@@ -53,7 +53,7 @@ public class EventMap {
 			boolean ft = true;
 			IndentWriter lw = kw.indent();
 			for (HandlerInfo hi : unbound) {
-				ft = writeHi(ft, lw, null, null, hi);
+				ft = writeHi(ft, lw, null, null, 0, hi);
 			}
 			if (!ft)
 				kw.println("");
@@ -64,7 +64,7 @@ public class EventMap {
 		iw.println("};");
 	}
 
-	private boolean writeHi(boolean ft, IndentWriter lw, String type, String slot, HandlerInfo hi) {
+	private boolean writeHi(boolean ft, IndentWriter lw, String type, String slot, int option, HandlerInfo hi) {
 		if (!ft) {
 			lw.println(",");
 		} else
@@ -75,6 +75,9 @@ public class EventMap {
 			lw.print(new JSString(type).asVar());
 			lw.print(", slot: ");
 			lw.print(new JSString(slot).asVar());
+			lw.print(", ");
+			lw.print("option: ");
+			lw.print(Integer.toString(option));
 			lw.print(", ");
 		}
 		lw.print("event: ");
