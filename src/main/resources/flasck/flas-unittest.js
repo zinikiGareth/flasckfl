@@ -7,6 +7,7 @@ const UTRunner = function(logger) {
 	this.broker = new SimpleBroker(logger, this, this.contracts);
 	this.errors = [];
 	this.nextDivId = 1;
+	this.evid = 1;
 }
 UTRunner.prototype.clear = function() {
 	document.body.innerHTML = '';

@@ -9,7 +9,8 @@
 					=> makeNo
 				<- 'goodbye'
 					=> makeYes
-					
+			other <- 'hello'
+				=> upCounter
 					
 		event makeNo (ClickEvent e)
 			cond <- False
@@ -18,4 +19,6 @@
 		event makeYes (ClickEvent e)
 			cond <- True
 			counter <- counter + 1
-			
+
+		event upCounter (ClickEvent e)
+			counter <- counter + 1

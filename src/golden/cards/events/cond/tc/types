@@ -1,2 +1,3 @@
 test.golden.CondEvents.makeNo :: ClickEvent->List[Message]
 test.golden.CondEvents.makeYes :: ClickEvent->List[Message]
+test.golden.CondEvents.upCounter :: ClickEvent->List[Message]
