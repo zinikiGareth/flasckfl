@@ -1,10 +1,15 @@
 package org.flasck.flas.tc3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
@@ -15,12 +20,18 @@ public class ObjectDefnChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
+	private final List<Template> allTemplates;
+	private final boolean checkReferencing;
 	private ExprResult result;
+	private final List<String> currentTemplates = new ArrayList<String>();
+	private final List<String> referencedTemplates = new ArrayList<String>();
 
-	public ObjectDefnChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, ObjectDefn obj) {
+	public ObjectDefnChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, List<Template> templates, boolean checkReferencing) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
+		allTemplates = templates;
+		this.checkReferencing = checkReferencing;
 		sv.push(this);
 	}
 
@@ -44,7 +55,21 @@ public class ObjectDefnChecker extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
+	public void visitTemplate(Template t, boolean isFirst) {
+		// for cards, check that the templates form a mutually-referring set
+		if (!isFirst && checkReferencing && !referencedTemplates.contains(t.name().baseName()))
+			errors.message(t.location(), "template " + t.name().baseName() + " has not been referenced yet");
+		currentTemplates.add(t.name().baseName());
+		new TemplateChecker(errors, repository, sv, t, allTemplates, referencedTemplates);
+	}
+	
+	@Override
 	public void leaveObjectDefn(ObjectDefn obj) {
+		sv.result(null);
+	}
+
+	@Override
+	public void leaveCardDefn(CardDefinition obj) {
 		sv.result(null);
 	}
 

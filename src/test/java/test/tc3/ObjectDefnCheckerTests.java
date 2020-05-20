@@ -36,7 +36,7 @@ public class ObjectDefnCheckerTests {
 			oneOf(sv).push(with(any(ObjectDefnChecker.class)));
 			oneOf(sv).result(null);
 		}});
-		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, od);
+		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, new ArrayList<>(), false);
 		tc.leaveObjectDefn(od);
 	}
 
@@ -50,7 +50,7 @@ public class ObjectDefnCheckerTests {
 			oneOf(sv).push(with(any(ObjectDefnChecker.class)));
 			oneOf(sv).result(null);
 		}});
-		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, od);
+		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, new ArrayList<>(), false);
 		tc.visitStructField(sf);
 		tc.leaveStructField(sf);
 		tc.leaveObjectDefn(od);
@@ -68,7 +68,7 @@ public class ObjectDefnCheckerTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 			oneOf(sv).result(null);
 		}});
-		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, od);
+		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, new ArrayList<>(), false);
 		tc.visitStructField(sf);
 		tc.visitExpr(sl, 0);
 		tc.result(new ExprResult(pos, LoadBuiltins.string));
@@ -89,7 +89,7 @@ public class ObjectDefnCheckerTests {
 			oneOf(errors).message(pos, "cannot initialize x from String");
 			oneOf(sv).result(null);
 		}});
-		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, od);
+		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, new ArrayList<>(), false);
 		tc.visitStructField(sf);
 		tc.visitExpr(sl, 0);
 		tc.result(new ExprResult(pos, LoadBuiltins.string));

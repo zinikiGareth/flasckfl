@@ -1,2 +1,8 @@
 missingevent  3.11:   event card  _ no-zone (ClickEvent)
                           there is no target 'no-zone' on the card
+structlist.f  7.12:   Number k <-  _ 'hello'
+                          cannot initialize k from String
+structlist.f  8.27:   List[Happy] joy <- [ Happy  _ 42 ]
+                          function 'Happy' was expecting String not Number
+structlist.f 10.12:   c = [ Happy  _ 42 ]
+                          function 'Happy' was expecting String not Number

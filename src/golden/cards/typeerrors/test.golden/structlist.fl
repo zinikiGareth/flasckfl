@@ -1,0 +1,10 @@
+	struct Happy
+		String first
+		Number second
+	
+	card Sad
+		state
+			Number k <- 'hello'
+			List[Happy] joy <- [ Happy 42 ]
+			
+		c = [ Happy 42 ]
