@@ -34,7 +34,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 		if (tok == null) {
 			ExprToken et = ExprToken.from(errors, toks);
 			if (et != null && et.text.equals("|")) {
-				return TDAParseTemplateElements.parseStyling(errors, namer, toks, x -> consumer.addStyling(x));
+				return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, x -> consumer.addStyling(x));
 			} else {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();

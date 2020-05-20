@@ -1,0 +1,17 @@
+	card StyleEvents
+		state
+			Boolean clicked <- False
+			
+		template styling
+			message
+				| clicked => 'isclicked'
+					=> clickFalse
+				| => 'hello'
+				=> clickTrue
+			other
+				=> clickFalse
+				
+		event clickTrue (ClickEvent ev)
+			clicked <- True
+		event clickFalse (ClickEvent ev)
+			clicked <- False

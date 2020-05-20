@@ -5,7 +5,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.StringLiteral;
 
-public class TemplateStylingOption {
+public class TemplateStylingOption extends TemplateCustomization {
 	public final Expr cond;
 	public final List<Expr> styles;
 

@@ -22,6 +22,7 @@ import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.parser.TDATemplateBindingParser;
 import org.flasck.flas.parser.TDATemplateOptionsParser;
+import org.flasck.flas.parser.TDATemplateStylingParser;
 import org.flasck.flas.parser.TemplateBindingConsumer;
 import org.flasck.flas.parser.TemplateNamer;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -234,7 +235,7 @@ public class TDATemplateParsingTests {
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
 		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("| true => 'style1'"));
-		assertTrue(styling instanceof NoNestingParser);
+		assertTrue(styling instanceof TDATemplateStylingParser);
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
@@ -253,8 +254,8 @@ public class TDATemplateParsingTests {
 		}});
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("styling-area"));
 		TDAParsing styling = nested.tryParsing(TDABasicIntroParsingTests.line("<- 'hello'"));
-		TDAParsing nomore = styling.tryParsing(TDABasicIntroParsingTests.line("| true => 'style1'"));
-		assertTrue(nomore instanceof NoNestingParser);
+		TDAParsing nestedStyling = styling.tryParsing(TDABasicIntroParsingTests.line("| true => 'style1'"));
+		assertTrue(nestedStyling instanceof TDATemplateStylingParser);
 		styling.scopeComplete(pos);
 		nested.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
@@ -305,8 +306,8 @@ public class TDATemplateParsingTests {
 			oneOf(consumer).addBinding(with(TemplateBindingMatcher.called("mmhhezj").expr("(- true eg)"))); will(captureIt);
 		}});
 		TDAParsing styling = parser.tryParsing(TDABasicIntroParsingTests.line("mmhhezj <- true - eg"));
-		TDAParsing nomore = styling.tryParsing(TDABasicIntroParsingTests.line("| 'bsCy+/n5r7Rh-VjPK' => 'yhbLy_?e.7<sn'"));
-		assertTrue(nomore instanceof NoNestingParser);
+		TDAParsing nested = styling.tryParsing(TDABasicIntroParsingTests.line("| 'bsCy+/n5r7Rh-VjPK' => 'yhbLy_?e.7<sn'"));
+		assertTrue(nested instanceof TDATemplateStylingParser);
 		styling.scopeComplete(pos);
 		final TemplateBinding binding = (TemplateBinding)captureIt.get(0);
 		assertEquals(0, binding.defaultBinding.events.size());

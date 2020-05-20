@@ -1,0 +1,5 @@
+	test styles can be clicked
+		data StyleEvents se
+		event se message (ClickEvent)
+		assert (se.clicked)
+			True

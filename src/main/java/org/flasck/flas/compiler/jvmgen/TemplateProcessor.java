@@ -23,6 +23,7 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	private final List<IExpr> block;
 	private final List<JVMStyleIf> styles = new ArrayList<>();
 	private final List<IExpr> cexpr = new ArrayList<>();
+	private boolean hasStylingEvents = false;
 
 	public TemplateProcessor(FunctionState functionState, StackVisitor sv, ByteCodeSink templateClass, AtomicInteger containerIdx, IExpr source, Template t) {
 		this.fs = functionState;
@@ -58,7 +59,7 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveTemplate(Template t) {
-		TemplateBindingProcessor.applyStyles(fs, block, null, styles, cexpr);
+		TemplateBindingProcessor.applyStyles(fs, block, t.webinfo().id(), null, 0, source, styles, cexpr, hasStylingEvents);
 		if (!block.isEmpty())
 			JVMGenerator.makeBlock(fs.meth, block).flush();
 		fs.meth.returnVoid().flush();

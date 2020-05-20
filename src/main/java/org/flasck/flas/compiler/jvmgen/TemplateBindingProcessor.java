@@ -188,26 +188,10 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 
 	@Override
 	public void leaveTemplateCustomization(TemplateCustomization tc) {
-		applyStyles(fs, bindingBlock, assignsTo, styles, cexpr);
+		applyStyles(fs, bindingBlock, t.webinfo().id(), assignsTo, option, source, styles, cexpr, !tc.events.isEmpty());
 	}
 
-	static void applyStyles(FunctionState fs, List<IExpr> bindingBlock, TemplateField field, List<JVMStyleIf> styles, List<IExpr> cexpr) {
-		if (styles.isEmpty() && cexpr.isEmpty())
-			return;
-		IExpr ce;
-		if (cexpr.isEmpty())
-			ce = fs.meth.as(fs.meth.aNull(), J.STRING);
-		else if (cexpr.size() == 1)
-			ce = cexpr.get(0);
-		else
-			ce = fs.meth.callStatic(J.BUILTINPKG+".PACKAGEFUNCTIONS", J.STRING, "concatMany", fs.fcx, fs.meth.arrayOf(J.OBJECT, cexpr));
-		
-		List<IExpr> arr = new ArrayList<>();
-		for (JVMStyleIf si : styles) {
-			arr.add(si.cond);
-			arr.add(si.style);
-		}
-		
+	static void applyStyles(FunctionState fs, List<IExpr> bindingBlock, String templateName, TemplateField field, int option, IExpr source, List<JVMStyleIf> styles, List<IExpr> cexpr, boolean hasStylingEvents) {
 		IExpr ty;
 		IExpr tx;
 		if (field == null) {
@@ -217,10 +201,29 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 			ty = fs.meth.stringConst(field.type().toString().toLowerCase());
 			tx = fs.meth.stringConst(field.text);
 		}
-		IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), ty, tx, ce, fs.meth.arrayOf(J.OBJECT, arr));
-		bindingBlock.add(doUpdate);
-		styles.clear();
-		cexpr.clear();
+		if (!styles.isEmpty() || !cexpr.isEmpty()) {
+			IExpr ce;
+			if (cexpr.isEmpty())
+				ce = fs.meth.as(fs.meth.aNull(), J.STRING);
+			else if (cexpr.size() == 1)
+				ce = cexpr.get(0);
+			else
+				ce = fs.meth.callStatic(J.BUILTINPKG+".PACKAGEFUNCTIONS", J.STRING, "concatMany", fs.fcx, fs.meth.arrayOf(J.OBJECT, cexpr));
+			
+			List<IExpr> arr = new ArrayList<>();
+			for (JVMStyleIf si : styles) {
+				arr.add(si.cond);
+				arr.add(si.style);
+			}
+			
+			IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(templateName), ty, tx, fs.meth.intConst(option), source, ce, fs.meth.arrayOf(J.OBJECT, arr));
+			bindingBlock.add(doUpdate);
+			styles.clear();
+			cexpr.clear();
+		} else if (hasStylingEvents) {
+			IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(templateName), ty, tx, fs.meth.intConst(option), source, fs.meth.as(fs.meth.aNull(), J.STRING), fs.meth.arrayOf(J.OBJECT));
+			bindingBlock.add(doUpdate);
+		}
 	}
 
 	@Override

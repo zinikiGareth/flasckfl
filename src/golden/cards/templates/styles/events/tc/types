@@ -1,0 +1,2 @@
+test.golden.StyleEvents.clickFalse :: ClickEvent->List[Message]
+test.golden.StyleEvents.clickTrue :: ClickEvent->List[Message]

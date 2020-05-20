@@ -24,6 +24,7 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	private final Template t;
 	private final List<JSStyleIf> styles = new ArrayList<>();
 	private final List<JSExpr> cexpr = new ArrayList<>();
+	private boolean hasStylingEvents = false;
 
 	public TemplateProcessorJS(JSFunctionState state, NestedVisitor sv, JSClassCreator templateCreator, AtomicInteger containerIdx, JSBlockCreator currentBlock, JSExpr source, Template t) {
 		this.state = state;
@@ -59,7 +60,7 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveTemplate(Template t) {
-		TemplateBindingProcessorJS.applyStyles(templateBlock, null, styles, cexpr);
+		TemplateBindingProcessorJS.applyStyles(templateBlock, t.webinfo().id(), null, 0, source, styles, cexpr, hasStylingEvents);
 		sv.result(null);
 	}
 }

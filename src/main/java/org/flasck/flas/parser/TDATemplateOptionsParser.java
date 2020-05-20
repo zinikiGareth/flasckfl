@@ -59,7 +59,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 			if (toksHasSend(toks))
 				return TDAParseTemplateElements.parseConditionalBindingOption(errors, source, namer, toks, field, tbo -> binding.conditionalBindings.add(tbo));
 			else
-				return TDAParseTemplateElements.parseStyling(errors, namer, toks, tso -> customizer.conditionalStylings.add(tso));
+				return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, tso -> customizer.conditionalStylings.add(tso));
 		} else if ("<-".equals(tok.text)) {
 			// It's a default send binding
 			if (binding == null) {

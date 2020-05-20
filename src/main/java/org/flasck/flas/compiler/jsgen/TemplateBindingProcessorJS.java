@@ -161,12 +161,12 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 
 	@Override
 	public void leaveTemplateCustomization(TemplateCustomization tc) {
-		applyStyles(bindingBlock, b.assignsTo, styles, cexpr);
+		applyStyles(bindingBlock, templateName, b.assignsTo, option, source, styles, cexpr, !tc.events.isEmpty());
 		if (ie != null)
 			bindingBlock = ie.falseCase();
 	}
 
-	static void applyStyles(JSBlockCreator bindingBlock, TemplateField update, List<JSStyleIf> styles, List<JSExpr> cexpr) {
+	static void applyStyles(JSBlockCreator bindingBlock, String templateName, TemplateField update, int option, JSExpr source, List<JSStyleIf> styles, List<JSExpr> cexpr, boolean hasStylingEvents) {
 		if (!styles.isEmpty() || !cexpr.isEmpty()) {
 			JSExpr ce;
 			if (cexpr.isEmpty())
@@ -176,10 +176,11 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 			else
 				ce = bindingBlock.callMethod(bindingBlock.literal("FLBuiltin"), "concatMany", cexpr.toArray(new JSExpr[cexpr.size()]));
 
-			bindingBlock.updateStyle(update, ce, styles);
+			bindingBlock.updateStyle(templateName, update, option, source, ce, styles);
 			styles.clear();
 			cexpr.clear();
-		}
+		} else if (hasStylingEvents)
+			bindingBlock.updateStyle(templateName, update, option, source, bindingBlock.literal("null"), styles);
 	}
 	
 	@Override

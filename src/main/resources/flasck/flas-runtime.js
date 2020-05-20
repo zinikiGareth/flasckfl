@@ -507,7 +507,7 @@ FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option
     }
 }
 
-FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constant, ...rest) {
+FLCard.prototype._updateStyle = function(_cxt, rt, templateName, type, field, option, source, constant, ...rest) {
     var styles = '';
     if (constant)
         styles = constant;
@@ -515,15 +515,21 @@ FLCard.prototype._updateStyle = function(_cxt, _renderTree, type, field, constan
         if (_cxt.isTruthy(rest[i]))
             styles += ' ' + rest[i+1];
     }
-    var div = document.getElementById(_renderTree._id);
+    var div = document.getElementById(rt._id);
+    var node;
     if (type != null) {
-        const node = div.querySelector("[data-flas-" + type + "='" + field + "']");
-        var ncid = _cxt.nextDocumentId();
-        node.id = ncid;
-        _renderTree[field] = { _id: ncid };
-        div = node;
+        node = div.querySelector("[data-flas-" + type + "='" + field + "']");
+        if (!node.id) {
+            var ncid = _cxt.nextDocumentId();
+            node.id = ncid;
+            rt[field] = { _id: ncid };
+        }
+    } else
+        node = div;
+    node.className = styles;
+    if (this._eventHandlers) {
+        this._attachHandlers(_cxt, rt[field], node, templateName, field, option, source);
     }
-    div.className = styles;
 }
 
 FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, templateName, value, _tc) {

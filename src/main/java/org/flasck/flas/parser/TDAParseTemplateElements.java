@@ -58,7 +58,7 @@ public class TDAParseTemplateElements {
 		return new TDATemplateOptionsParser(errors, source, namer, tc, field);
 	}
 
-	public static TDAParsing parseStyling(ErrorReporter errors, TemplateNamer namer, Tokenizable toks, Consumer<TemplateStylingOption> consumer) {
+	public static TDAParsing parseStyling(ErrorReporter errors, Template source, TemplateNamer namer, Tokenizable toks, Consumer<TemplateStylingOption> consumer) {
 		List<Expr> seen = new ArrayList<>();
 		new TDAExpressionParser(errors, t -> {
 			seen.add(t);
@@ -73,7 +73,7 @@ public class TDAParseTemplateElements {
 			if (tso == null)
 				return new IgnoreNestedParser();
 			consumer.accept(tso);
-			return new NoNestingParser(errors);
+			return new TDATemplateStylingParser(errors, source, namer, tso);
 		} else {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
