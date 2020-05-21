@@ -541,10 +541,13 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
     var div = document.getElementById(_renderTree._id);
     const node = div.querySelector("[data-flas-" + type + "='" + field + "']");
     if (node != null) {
-        var ncid = _cxt.nextDocumentId();
-        node.id = ncid;
-        _renderTree[field] = { _id: ncid };
-        // TODO: this is always deleting & appending - but the name of the method is "update"
+        var crt;
+        if (!node.id) {
+            var ncid = _cxt.nextDocumentId();
+            node.id = ncid;
+            crt = _renderTree[field] = { _id: ncid };
+        } else
+            crt = _renderTree[field];
         node.innerHTML = '';
         if (!value) // if undefined, we want nothing - even when we get around to updating, so make sure that still blanks it
             return;
@@ -558,9 +561,12 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
                     this._addItem(_cxt, rt, node, null, t, fn, value[i], _tc);
                 }
             } else {
-                var rt  = {};
-                _renderTree[field].single = rt;
-                this._addItem(_cxt, rt, node, null, t, fn, value, _tc);
+                if (crt.single) { // updating
+                    this._addItem(_cxt, crt.single, node, node.firstElementChild, t, fn, value, _tc);
+                } else { // creating
+                    var rt = crt.single = {};
+                    this._addItem(_cxt, rt, node, null, t, fn, value, _tc);
+                }
             }
         }
     }

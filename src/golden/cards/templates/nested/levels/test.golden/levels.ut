@@ -1,9 +1,11 @@
 	test that levels come out as we expect
 		data ManyLevels ml
+		newdiv 4
 		data Tree t1 <- Tree "hello" ["there", "world"]
 		data Tree t2 <- Tree "goodbye" ["cruel", "galaxy"]
 		shove ml.title
 			"Blue Spruce"
+		newdiv 0
 		shove ml.tree
 			[t1,t2]
 		match ml text heading
