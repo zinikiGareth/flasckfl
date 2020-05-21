@@ -4,17 +4,25 @@
 		newdiv 3
 		shove hd.records
 			[e1, Entry "second" 13, Total 35]
-		newdiv 9
-		match hd text
-			first 22 second 13 35
+		newdiv 8
 
 Support ambiguous event zones (see backlog)
 
 .		match hd text entries.0:entry.desc
 .			first
-
+		match hd text
+			first 22 second 13 35
+		
+	test we can update one of them and minimally redraw
+		data Entry e1 <- Entry "first" 22
+		data HandleDifferent hd
+		shove hd.records
+			[e1, Entry "second" 13, Total 35]
+		newdiv 11
 		shove e1.desc
 			"updated"
+.		match hd text entries.0:entry.desc
+.			updated
 		match hd text
 			updated 22 second 13 35
 		newdiv 0
