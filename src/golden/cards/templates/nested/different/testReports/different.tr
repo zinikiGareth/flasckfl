@@ -1,2 +1,4 @@
 JVM PASS we can render some accounts
+JVM PASS we can update one of them and minimally redraw
 JS PASS we can render some accounts
+JS PASS we can update one of them and minimally redraw

@@ -555,24 +555,26 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
                 for (var i=0;i<value.length;i++) {
                     var rt  = {};
                     _renderTree[field].children.push(rt);
-                    this._addItem(_cxt, rt, node, t, fn, value[i], _tc);
+                    this._addItem(_cxt, rt, node, null, t, fn, value[i], _tc);
                 }
             } else {
                 var rt  = {};
                 _renderTree[field].single = rt;
-                this._addItem(_cxt, rt, node, t, fn, value, _tc);
+                this._addItem(_cxt, rt, node, null, t, fn, value, _tc);
             }
         }
     }
 }
 
-FLCard.prototype._addItem = function(_cxt, rt, parent, template, fn, value, _tc) {
-    var div = template.content.cloneNode(true);
-    var ncid = _cxt.nextDocumentId();
-    div = div.firstElementChild;
-    div.id = ncid;
-    rt._id = ncid;
-    parent.appendChild(div);
+FLCard.prototype._addItem = function(_cxt, rt, parent, currNode, template, fn, value, _tc) {
+    if (!currNode) {
+        var div = template.content.cloneNode(true);
+        var ncid = _cxt.nextDocumentId();
+        currNode = div.firstElementChild;
+        currNode.id = ncid;
+        rt._id = ncid;
+        parent.appendChild(currNode);
+    }
     fn.call(this, _cxt, rt, value, _tc);
     if (this._eventHandlers) {
         this._attachHandlers(_cxt, rt, div, template.id, null, null, value);
@@ -583,18 +585,28 @@ FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn
     value = _cxt.full(value);
     var div = document.getElementById(_renderTree._id);
     const node = div.querySelector("[data-flas-container='" + field + "']");
-    var ncid = _cxt.nextDocumentId();
-    node.id = ncid;
-    _renderTree[field] = { _id: ncid };
-    node.innerHTML = '';
-    if (!value)
-        return;
-    _renderTree[field].children = [];
-    for (var i=0;i<value.length;i++) {
-        var e = value[i];
-        var rt  = {};
-        _renderTree[field].children.push(rt);
-        fn.call(this, _cxt, rt, node, e);
+    if (!node.id) {
+        var ncid = _cxt.nextDocumentId();
+        node.id = ncid;
+        _renderTree[field] = { _id: ncid };
+    }
+    var crt = _renderTree[field];
+    // TODO: this is the "perfect" case but this is not the *test* for the perfect case
+    if (value && node.children.length == value.length) {
+        for (var i=0;i<value.length;i++) {
+        	fn.call(this, _cxt, _renderTree[field].children[i], node, node.children[i], value[i]);
+        }
+    } else {
+		node.innerHTML = '';
+		if (!value)
+			return;
+		_renderTree[field].children = [];
+		for (var i=0;i<value.length;i++) {
+			var e = value[i];
+			var rt  = {};
+			_renderTree[field].children.push(rt);
+			fn.call(this, _cxt, rt, node, null, e);
+		}
     }
 }
 

@@ -24,7 +24,7 @@ public class JSAddItem implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("this._addItem(_cxt, _renderTree, parent, ");
+		w.print("this._addItem(_cxt, _renderTree, parent, currNode, ");
 		w.print("document.getElementById('");
 		w.print(templateName);
 		w.print("'), ");

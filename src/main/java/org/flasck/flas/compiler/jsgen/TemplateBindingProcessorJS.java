@@ -122,8 +122,9 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 					uc.argument("_cxt");
 					uc.argument("_renderTree");
 					uc.argument("parent");
+					uc.argument("currNode");
 					uc.argument("e");
-					JSVar expr = uc.arg(3);
+					JSVar expr = uc.arg(4);
 					if (mapping.size() == 1) {
 						templateMember(uc, mapping.values().iterator().next(), expr);
 					} else {

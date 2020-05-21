@@ -154,12 +154,13 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 						PendingVar fcx = gen.argument(J.FLEVALCONTEXT, "_cxt");
 						PendingVar rt = gen.argument(J.RENDERTREE, "_renderTree");
 						PendingVar parent = gen.argument(J.ELEMENT, "parent");
+						PendingVar currNode = gen.argument(J.ELEMENT, "curr");
 						PendingVar e = gen.argument(J.OBJECT, "e");
 						gen.returns("void");
 						MethodDefiner uc = gen.done();
 						IExpr ret = null;
 						for (Entry<StructDefn, Template> m : mapping.entrySet()) {
-							IExpr curr = templateMember(uc, fcx.getVar(), rt.getVar(), parent.getVar(), m.getValue(), e.getVar());
+							IExpr curr = templateMember(uc, fcx.getVar(), rt.getVar(), parent.getVar(), currNode.getVar(), m.getValue(), e.getVar());
 							if (ret == null)
 								ret = curr;
 							else {
@@ -178,12 +179,12 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 		}
 	}
 	
-	private IExpr templateMember(MethodDefiner uc, Var cx, Var rt, Var parent, Template t, Var e) {
+	private IExpr templateMember(MethodDefiner uc, Var cx, Var rt, Var parent, IExpr currNode, Template t, Var e) {
 		ArrayList<IExpr> wanted = new ArrayList<>();
 		// TODO: the context needs to be considered properly
 		IExpr tc = fs.meth.arrayOf(J.OBJECT, wanted);
 		
-		return uc.callVirtual("void", uc.myThis(), "_addItemWithName", cx, rt, parent, uc.stringConst(t.webinfo().id()), uc.intConst(t.position()), e, tc);
+		return uc.callVirtual("void", uc.myThis(), "_addItemWithName", cx, rt, parent, currNode, uc.stringConst(t.webinfo().id()), uc.intConst(t.position()), e, tc);
 	}
 
 	@Override
