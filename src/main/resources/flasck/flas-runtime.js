@@ -554,11 +554,27 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
         var t = document.getElementById(templateName);
         if (t != null) {
             if (Array.isArray(value)) {
-                _renderTree[field].children = [];
+                var create = false;
+                var chn;
+                if (!crt.children) {
+                    chn = crt.children = [];
+                    create = true;
+                } else {
+                    chn = crt.children;
+                    elts = node.children;
+                }
                 for (var i=0;i<value.length;i++) {
-                    var rt  = {};
-                    _renderTree[field].children.push(rt);
-                    this._addItem(_cxt, rt, node, null, t, fn, value[i], _tc);
+                    var rt;
+                    var curr;
+                    if (create) {
+                        rt  = {};
+                        chn.push(rt);
+                        curr = null;
+                    } else {
+                        rt = chn[i];
+                        curr = elts[i];
+                    }
+                    this._addItem(_cxt, rt, node, curr, t, fn, value[i], _tc);
                 }
             } else {
                 if (crt.single) { // updating

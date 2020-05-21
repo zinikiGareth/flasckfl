@@ -8,6 +8,7 @@
 		newdiv 0
 		shove ml.tree
 			[t1,t2]
+		newdiv 24
 		match ml text heading
 			Blue Spruce
 		match ml text table.0.inside
