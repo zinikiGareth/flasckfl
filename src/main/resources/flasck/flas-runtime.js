@@ -401,11 +401,11 @@ FLContext.prototype.mockContract = function(contract) {
 }
 
 FLContext.prototype.mockAgent = function(agent) {
-	return new MockAgent(agent);
+	return this.env.mockAgent(this, agent);
 }
 
 FLContext.prototype.mockCard = function(card) {
-	return new MockCard(this, card);
+	return this.env.mockCard(this, card);
 }
 
 FLContext.prototype.explodingHandler = function() {

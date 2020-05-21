@@ -8,6 +8,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.repository.LeafAdapter;
@@ -49,6 +50,9 @@ public class ShoveChecker extends LeafAdapter implements ResultAware {
 		} else if (curr instanceof StateHolder) {
 			StateDefinition state = ((StateHolder)curr).state();
 			curr = state.findField(v.var).type();
+		} else if (curr instanceof StructDefn) {
+			StructDefn sd = (StructDefn) curr;
+			curr = sd.findField(v.var).type();
 		} else
 			throw new NotImplementedException("cannot shove member " + v.var + " into " + curr);
 	}

@@ -690,6 +690,15 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				}
 				v.bind(f);
 				currShoveExpr = v;
+			} else if (ty instanceof StructDefn) {
+				StructDefn sd = (StructDefn) ty;
+				StructField f = sd.findField(v.var);
+				if (f == null) {
+					errors.message(v.location, "there is no field " + v.var + " in " + ty.name().uniqueName());
+					return;
+				}
+				v.bind(f);
+				currShoveExpr = v;
 			} else {
 				errors.message(v.location, "cannot shove into " + v.var);
 			}

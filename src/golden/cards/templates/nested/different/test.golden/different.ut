@@ -1,14 +1,20 @@
 	test we can render some accounts
+		data Entry e1 <- Entry "first" 22
 		data HandleDifferent hd
+		newdiv 3
 		shove hd.records
-			[Entry "first" 22, Entry "second" 13, Total 35]
+			[e1, Entry "second" 13, Total 35]
+		newdiv 9
 		match hd text
 			first 22 second 13 35
 
-I would like to be able to do this, but it is tricky
-How do you know what gets rendered in 0 to know what should be there?
-It's presumably possible to handle the ambiguity somehow
-Put it on the backlog
+Support ambiguous event zones (see backlog)
 
-.		match hd text entries.0.desc
+.		match hd text entries.0:entry.desc
 .			first
+
+		shove e1.desc
+			"updated"
+		match hd text
+			updated 22 second 13 35
+		newdiv 0

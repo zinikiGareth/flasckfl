@@ -1,11 +1,14 @@
 	test by default there is no message
 		data CondBinding cb
 		match cb text show-message
+		newdiv 3
 			
 	test with displayed set the message shows up
 		data CondBinding cb
+		newdiv 3
 		shove cb.displayed
 			True
+		newdiv 0
 		match cb text show-message
 			read this message
 			

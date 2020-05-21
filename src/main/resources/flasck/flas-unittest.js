@@ -9,6 +9,7 @@ const UTRunner = function(logger) {
 	this.nextDivId = 1;
 	this.divSince = this.nextDivId;
 	this.evid = 1;
+	this.cards = [];
 }
 UTRunner.prototype.clear = function() {
 	document.body.innerHTML = '';
@@ -32,6 +33,10 @@ UTRunner.prototype.shove = function(_cxt, dest, slot, val) {
 	dest.state.set(slot, val);
 	if (dest._updateDisplay)
 		dest._updateDisplay(_cxt, dest._renderTree);
+	else {
+		// we don't have a lot of choice but to update all cards
+		this.updateAllCards(_cxt);
+	}
 }
 UTRunner.prototype.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
@@ -152,12 +157,27 @@ UTRunner.prototype.checkAtEnd = function() {
 		throw this.errors[0];
 }
 UTRunner.prototype.newdiv = function(cnt) {
-	if (cnt) {
+	if (cnt != null) { // specifically null, because we want to check on 0
 		if (cnt != this.nextDivId - this.divSince) {
 			throw Error("NEWDIV\n  expected: " + cnt + "\n  actual:   " + (this.nextDivId - this.divSince));
 		}
 	}
 	this.divSince = this.nextDivId;
+}
+UTRunner.prototype.mockAgent = function(_cxt, agent) {
+	return new MockAgent(agent);
+}
+UTRunner.prototype.mockCard = function(_cxt, card) {
+	var ret = new MockCard(_cxt, card);
+	this.cards.push(ret);
+	return ret;
+}
+UTRunner.prototype.updateAllCards = function(_cxt) {
+	for (var i=0;i<this.cards.length;i++) {
+		var c = this.cards[i].card;
+		if (c._updateDisplay)
+			c._updateDisplay(_cxt, c._renderTree);
+	}
 }
 
 	window.UTRunner = UTRunner;
