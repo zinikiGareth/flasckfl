@@ -101,6 +101,7 @@ public interface JSBlockCreator {
 	void expect(JSExpr mock, String var, List<JSExpr> args, JSExpr handler);
 	JSExpr storeMockObject(UnitDataDeclaration udd, JSExpr value);
 	void assertSatisfied(String var);
+	void newdiv(Integer cnt);
 
 	// Send the block to disk
 	void write(IndentWriter w);

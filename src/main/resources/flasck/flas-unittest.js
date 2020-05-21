@@ -7,6 +7,7 @@ const UTRunner = function(logger) {
 	this.broker = new SimpleBroker(logger, this, this.contracts);
 	this.errors = [];
 	this.nextDivId = 1;
+	this.divSince = this.nextDivId;
 	this.evid = 1;
 }
 UTRunner.prototype.clear = function() {
@@ -149,6 +150,14 @@ UTRunner.prototype.newContext = function() {
 UTRunner.prototype.checkAtEnd = function() {
 	if (this.errors.length > 0)
 		throw this.errors[0];
+}
+UTRunner.prototype.newdiv = function(cnt) {
+	if (cnt) {
+		if (cnt != this.nextDivId - this.divSince) {
+			throw Error("NEWDIV\n  expected: " + cnt + "\n  actual:   " + (this.nextDivId - this.divSince));
+		}
+	}
+	this.divSince = this.nextDivId;
 }
 
 	window.UTRunner = UTRunner;

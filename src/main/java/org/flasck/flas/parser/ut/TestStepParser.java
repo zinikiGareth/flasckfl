@@ -131,6 +131,27 @@ public class TestStepParser implements TDAParsing {
 		case "data": {
 			return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
 		}
+		case "newdiv":
+			Integer cnt = null;
+			if (toks.hasMore()) {
+				ExprToken tok = ExprToken.from(errors, toks);
+				if (tok.type != ExprToken.NUMBER) {
+					errors.message(toks, "integer required");
+					return new IgnoreNestedParser();
+				}
+				try {
+					cnt = Integer.parseInt(tok.text);
+				} catch (NumberFormatException ex) {
+					errors.message(toks, "integer required");
+					return new IgnoreNestedParser();
+				}
+			}
+			if (toks.hasMore()) {
+				errors.message(toks, "syntax error");
+				return new IgnoreNestedParser();
+			}
+			builder.newdiv(cnt);
+			return new NoNestingParser(errors);
 		case "event": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);
 			if (tok == null) {

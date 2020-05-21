@@ -62,6 +62,11 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	}
 
 	@Override
+	public void newdiv(Integer cnt) {
+		this.steps.add(new UnitTestNewDiv(cnt));
+	}
+
+	@Override
 	public String toString() {
 		return "UnitTestCase[" + description + "]";
 	}

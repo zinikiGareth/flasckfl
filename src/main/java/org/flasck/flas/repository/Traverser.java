@@ -84,6 +84,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
+import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
@@ -1372,8 +1373,15 @@ public class Traverser implements RepositoryVisitor {
 			visitUnitTestEvent((UnitTestEvent)s);
 		else if (s instanceof UnitTestMatch)
 			visitUnitTestMatch((UnitTestMatch)s);
+		else if (s instanceof UnitTestNewDiv)
+			visitUnitTestNewDiv((UnitTestNewDiv)s);
 		else
 			throw new NotImplementedException("cannot handle " + s.getClass());
+	}
+
+	@Override
+	public void visitUnitTestNewDiv(UnitTestNewDiv s) {
+		visitor.visitUnitTestNewDiv(s);
 	}
 
 	@Override

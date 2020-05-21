@@ -1,5 +1,8 @@
 	test that the label says hello
-		data Hello h 
+		newdiv
+		data Hello h
 		match h text
 			hello,
 			world
+		newdiv 2
+		

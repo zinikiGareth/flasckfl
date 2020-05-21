@@ -47,6 +47,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMockCard;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSMockHandler;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
+import org.flasck.flas.compiler.jsgen.form.JSNewDiv;
 import org.flasck.flas.compiler.jsgen.form.JSNewState;
 import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
@@ -295,6 +296,12 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void assertSatisfied(String var) {
 		JSSatisfaction stmt = new JSSatisfaction(var);
+		stmts.add(stmt);
+	}
+
+	@Override
+	public void newdiv(Integer cnt) {
+		JSNewDiv stmt = new JSNewDiv(cnt);
 		stmts.add(stmt);
 	}
 

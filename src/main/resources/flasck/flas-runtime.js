@@ -418,6 +418,10 @@ FLContext.prototype.mockHandler = function(contract) {
 	return ret;
 }
 
+FLContext.prototype.newdiv = function(cnt) {
+	this.env.newdiv(cnt);
+}
+
 
 const FLCard = function(cx) {
     this._renderTree = null;

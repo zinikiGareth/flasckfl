@@ -53,6 +53,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
+import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -1007,6 +1008,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		new DoUTMatchGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()));
 	}
 	
+	@Override
+	public void visitUnitTestNewDiv(UnitTestNewDiv s) {
+		IExpr expr; 
+		if (s.cnt == null) {
+			expr = fs.meth.as(fs.meth.aNull(), J.INTEGER);
+		} else
+			expr = fs.meth.box(fs.meth.intConst(s.cnt));
+		this.fs.meth.callInterface("void", this.runner, "newdiv", expr).flush();
+	}
+
 	@Override
 	public void leaveUnitTestInvoke(UnitTestInvoke uti) {
 		if (currentBlock.size() != 1)
