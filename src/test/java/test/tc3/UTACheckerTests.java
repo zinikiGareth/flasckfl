@@ -45,7 +45,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 		}});
@@ -58,7 +58,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
@@ -77,7 +77,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
@@ -92,7 +92,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "value is of type Number that cannot be the result of an expression of type String");
 			oneOf(sv).result(null);
@@ -108,7 +108,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "value is of type Nil that cannot be the result of an expression of type Cons");
 			oneOf(sv).result(null);
@@ -124,7 +124,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
@@ -139,7 +139,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
@@ -154,7 +154,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "value is of type Cons[Number] that cannot be the result of an expression of type Cons[String]");
 			oneOf(sv).result(null);
@@ -170,7 +170,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(sv).result(null);
 		}});
@@ -188,7 +188,7 @@ public class UTACheckerTests {
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});
 		UnitTestAssert uta = new UnitTestAssert(new StringLiteral(pos, "hello"), new StringLiteral(pos, "world"));
-		UTAChecker tc = new UTAChecker(errors, repository, sv, uta);
+		UTAChecker tc = new UTAChecker(errors, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "value is of type List[Number] that cannot be the result of an expression of type Nil");
 			oneOf(sv).result(null);

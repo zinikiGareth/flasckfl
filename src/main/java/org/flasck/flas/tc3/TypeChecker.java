@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
+import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LeafAdapter;
@@ -76,9 +77,14 @@ public class TypeChecker extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-		new UTAChecker(errors, repository, sv, a);
+		new UTAChecker(errors, repository, sv);
 	}
 
+	@Override
+	public void visitUnitTestShove(UnitTestShove s) {
+		new ShoveChecker(errors, repository, sv);
+	}
+	
 	@Override
 	public void visitUnitTestExpect(UnitTestExpect e) {
 		new ExpectChecker(errors, repository, sv, e);

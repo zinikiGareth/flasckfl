@@ -21,7 +21,7 @@ public class UTAChecker extends LeafAdapter implements ResultAware {
 	private RepositoryReader repository;
 	private List<Type> results = new ArrayList<>();
 
-	public UTAChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, UnitTestAssert a) {
+	public UTAChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;

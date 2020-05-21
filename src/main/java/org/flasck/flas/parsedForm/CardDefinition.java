@@ -133,7 +133,7 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 
 	@Override
 	public String signature() {
-		throw new NotImplementedException();
+		return this.cardName.uniqueName();
 	}
 
 	@Override

@@ -1,0 +1,4 @@
+	test shove cannot assign a number to a string
+		data Support card
+		shove card.x
+			42
