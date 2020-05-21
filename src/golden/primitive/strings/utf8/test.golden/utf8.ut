@@ -1,0 +1,3 @@
+	test utf-8 handling
+		assert s
+			'▼'
