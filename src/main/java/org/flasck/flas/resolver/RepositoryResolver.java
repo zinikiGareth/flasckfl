@@ -338,21 +338,13 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = null;
-		// If we are in a nested template and we have *NO* chain information, then
-		// we failed to bind it and should have generated an error at source, so
-		// suppress the cascade here
-		boolean suppress = false;
 		if (templateNestingChain != null) {
 			defn = templateNestingChain.resolve(this, var);
-			suppress = templateNestingChain.isEmpty();
-			if (suppress && !errors.hasErrors())
-				throw new RuntimeException("we planned on suppressing the error but no error message had previously been produced");
 		}
 		if (defn == null)
 			defn = find(scope, var.var);
 		if (defn == null) {
-			if (!suppress)
-				errors.message(var.location, "cannot resolve '" + var.var + "'");
+			errors.message(var.location, "cannot resolve '" + var.var + "'");
 			return;
 		}
 		var.bind(defn);

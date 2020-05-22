@@ -1,0 +1,251 @@
+	test we can do a minimal update when we change the title
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		shove mr.items
+			[e1]
+		match mr text
+			hello
+		newdiv 3
+		shove e1.name
+			"goodbye"
+		newdiv 0
+		match mr text
+			goodbye
+
+	test we can do a minimal update when we add to the end of the list
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		shove mr.items
+			[e1]
+		match mr text
+			hello
+		newdiv 3
+		data Item e2 <- Item "world" []
+		shove mr.items
+			[e1, e2]
+		newdiv 3
+		match mr text
+			hello world
+
+	test we can do a minimal update when we insert into the list
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		shove mr.items
+			[e1]
+		newdiv 3
+		match mr text
+			hello
+		data Item e2 <- Item "world" []
+		shove mr.items
+			[e2, e1]
+		match mr text
+			world hello
+		newdiv 3
+		
+	test we can do a minimal update when we insert and append
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		shove mr.items
+			[e1]
+		newdiv 3
+		match mr text
+			hello
+		data Item e2 <- Item "world" []
+		data Item e3 <- Item "there" []
+		shove mr.items
+			[e2, e1, e3]
+		newdiv 6
+		match mr text
+			world hello there
+
+	test a complex insertion case
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		data Item e3 <- Item "there" []
+		data Item e4 <- Item "people" []
+		shove mr.items
+			[e1, e2, e3, e4]
+		newdiv 12
+		match mr text
+			hello world there people
+		data Item e5 <- Item "more" []
+		data Item e6 <- Item "data" []
+		shove mr.items
+			[e1, e5, e2, e3, e6, e4]
+		newdiv 6
+		match mr text
+			hello more world there data people
+
+	test we can do a minimal update when we remove the end of the list
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		shove mr.items
+			[e1, e2]
+		newdiv 6
+		match mr text
+			hello world
+		shove mr.items
+			[e1]
+		newdiv 0
+		match mr text
+			hello
+	
+	test we can do a minimal update when we remove the start of the list
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		shove mr.items
+			[e1, e2]
+		newdiv 6
+		match mr text
+			hello world
+		shove mr.items
+			[e2]
+		newdiv 0
+		match mr text
+			world
+
+	test we can do a minimal update when we remove first and last
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "there" []
+		data Item e3 <- Item "world" []
+		shove mr.items
+			[e1, e2, e3]
+		newdiv 9
+		match mr text
+			hello there world
+		shove mr.items
+			[e2]
+		newdiv 0
+		match mr text
+			there
+		
+	test it looks like a disaster when we switch two elements but we can do still a minimal update
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		shove mr.items
+			[e1, e2]
+		newdiv 6
+		match mr text
+			hello world
+		shove mr.items
+			[e2, e1]
+		newdiv 0
+		match mr text
+			world hello
+
+	test in the midst of disaster we can add a new element at the end
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		shove mr.items
+			[e1, e2]
+		newdiv 6
+		match mr text
+			hello world
+		data Item e3 <- Item "there" []
+		shove mr.items
+			[e2, e1, e3]
+		newdiv 3
+		match mr text
+			world hello there
+
+	test in the midst of disaster we can add a new element in the middle
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		shove mr.items
+			[e1, e2]
+		newdiv 6
+		match mr text
+			hello world
+		data Item e3 <- Item "there" []
+		shove mr.items
+			[e2, e3, e1]
+		newdiv 3
+		match mr text
+			world there hello
+
+	test we can cope with multiple existing objects
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		data Item e3 <- Item "there" []
+		shove mr.items
+			[e1, e2, e3, e3, e2, e1]
+		newdiv 18
+		match mr text
+			hello world there there world hello
+		shove mr.items
+			[e3, e2, e1, e3]
+		newdiv 0
+		match mr text
+			there world hello there
+
+	test in the midst of disaster we can add an existing element
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		data Item e3 <- Item "there" []
+		shove mr.items
+			[e1, e2, e3]
+		newdiv 9
+		match mr text
+			hello world there
+		shove mr.items
+			[e3, e2, e1, e2]
+		newdiv 3
+		match mr text
+			there world hello world
+
+	test in the midst of disaster we can remove an element at the end
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		data Item e3 <- Item "there" []
+		shove mr.items
+			[e1, e2, e3]
+		newdiv 9
+		match mr text
+			hello world there
+		shove mr.items
+			[e2, e1]
+		newdiv 0
+		match mr text
+			world hello
+
+	test in the midst of disaster we can remove an element from the middle
+		data TestMinimalRender mr
+		newdiv 3
+		data Item e1 <- Item "hello" []
+		data Item e2 <- Item "world" []
+		data Item e3 <- Item "there" []
+		shove mr.items
+			[e1, e2, e3]
+		newdiv 9
+		match mr text
+			hello world there
+		shove mr.items
+			[e3, e1]
+		newdiv 0
+		match mr text
+			there hello
+		

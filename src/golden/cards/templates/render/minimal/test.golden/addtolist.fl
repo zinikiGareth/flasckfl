@@ -1,0 +1,20 @@
+	struct Item
+		String name
+		List[Thing] things
+		
+	struct Thing
+		String desc
+	
+	card TestMinimalRender
+		state
+			List[Item] items
+			
+		template top
+			table <- items
+		
+		template item <- (Item i)
+			text <- i.name
+			rows <- i.things => row
+			
+		template row
+			info <- desc

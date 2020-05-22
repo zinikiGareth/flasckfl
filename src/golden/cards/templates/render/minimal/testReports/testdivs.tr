@@ -1,0 +1,30 @@
+JVM PASS we can do a minimal update when we change the title
+JVM PASS we can do a minimal update when we add to the end of the list
+JVM PASS we can do a minimal update when we insert into the list
+JVM PASS we can do a minimal update when we insert and append
+JVM PASS a complex insertion case
+JVM PASS we can do a minimal update when we remove the end of the list
+JVM PASS we can do a minimal update when we remove the start of the list
+JVM PASS we can do a minimal update when we remove first and last
+JVM PASS it looks like a disaster when we switch two elements but we can do still a minimal update
+JVM PASS in the midst of disaster we can add a new element at the end
+JVM PASS in the midst of disaster we can add a new element in the middle
+JVM PASS we can cope with multiple existing objects
+JVM PASS in the midst of disaster we can add an existing element
+JVM PASS in the midst of disaster we can remove an element at the end
+JVM PASS in the midst of disaster we can remove an element from the middle
+JS PASS we can do a minimal update when we change the title
+JS PASS we can do a minimal update when we add to the end of the list
+JS PASS we can do a minimal update when we insert into the list
+JS PASS we can do a minimal update when we insert and append
+JS PASS a complex insertion case
+JS PASS we can do a minimal update when we remove the end of the list
+JS PASS we can do a minimal update when we remove the start of the list
+JS PASS we can do a minimal update when we remove first and last
+JS PASS it looks like a disaster when we switch two elements but we can do still a minimal update
+JS PASS in the midst of disaster we can add a new element at the end
+JS PASS in the midst of disaster we can add a new element in the middle
+JS PASS we can cope with multiple existing objects
+JS PASS in the midst of disaster we can add an existing element
+JS PASS in the midst of disaster we can remove an element at the end
+JS PASS in the midst of disaster we can remove an element from the middle
