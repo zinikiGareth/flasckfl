@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StateHolder;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -88,6 +89,8 @@ public class AccessorConvertor extends LeafAdapter {
 			if (fn.argCount() != 0)
 				throw new NotImplementedException("cannot extract object from " + uv.defn().getClass() + " with " + fn.argCount());
 			od = (AccessorHolder) fn.type();
+		} else if (uv.defn() instanceof StructField) {
+			od = (AccessorHolder) ((StructField)uv.defn()).type();
 		} else if (uv.defn() instanceof TemplateNestedField) {
 			od = (AccessorHolder) ((TemplateNestedField)uv.defn()).type();
 		} else

@@ -1,0 +1,17 @@
+	object Inner
+		state
+			Number n <- 42
+
+		ctor create
+		
+		acor number = n
+			
+		
+	object Outer
+		state
+			Inner x
+		
+		ctor fred
+			x <- Inner.create
+			
+		acor value = x.number

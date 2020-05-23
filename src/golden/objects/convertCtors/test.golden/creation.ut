@@ -1,0 +1,4 @@
+	test we can initialize an object in a constructor
+		data Outer outer <- Outer.fred
+		assert outer.value
+			42

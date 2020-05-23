@@ -1,3 +1,4 @@
 invalidbindi 19.20:   obj <- CallContract. _ init
                           there is no available implementation of test.golden.Up
-                          
+nomethodsini 10.11:   Inner x <-  _ Inner.create
+                          cannot call a method initializer in a field initializer

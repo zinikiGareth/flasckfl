@@ -1,0 +1,16 @@
+	object Inner
+		ctor create
+		
+	object Outer
+	
+We can have initializers, but they can't be object initializers (i.e. with messages)
+
+		state
+			Number n <- 42
+			Inner x <- Inner.create
+			Inner y
+		
+But we can do it here
+
+		ctor fred
+			y  <- Inner.create

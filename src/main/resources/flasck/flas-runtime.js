@@ -1102,12 +1102,16 @@ Assign.prototype._compare = function(cx, other) {
 }
 Assign.prototype.dispatch = function(cx) {
 	// it's possible that obj is a send or something so consider dispatching it first
-	var msgs = null;
+	var msgs = [];
 	var target = this.obj;
 	if (target.dispatch) {
 		// TODO: I feel this *could* return a RWM, but it currently doesn't
 		var rwm = this.obj.dispatch(cx);
 		target = rwm;
+	}
+	if (this.expr instanceof ResponseWithMessages) {
+		msgs.unshift(ResponseWithMessages.messages(cx, this.expr));
+		this.expr = ResponseWithMessages.response(cx, this.expr);
 	}
 	target.state.set(this.slot, this.expr);
 	return msgs;

@@ -13,12 +13,14 @@ import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.repository.Traverser;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class MessageConvertor extends LeafAdapter implements ResultAware {
@@ -97,6 +99,16 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		Expr h = (Expr) stack.remove(0);
 		ms.handler = h;
 		nv.result(ms);
+	}
+	
+	@Override
+	public void leaveStructField(StructField sf) {
+		if (stack.isEmpty())
+			return;
+		if (stack.size() != 1)
+			throw new NotImplementedException("when sending messages, should only have 1 arg");
+		new Traverser(new CheckNoMessages(errors)).visitExpr(sf.init, 0);
+		nv.result(null);
 	}
 	
 	@Override
