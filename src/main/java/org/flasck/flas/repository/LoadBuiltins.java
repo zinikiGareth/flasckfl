@@ -1,5 +1,6 @@
 package org.flasck.flas.repository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
@@ -8,6 +9,9 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -16,6 +20,7 @@ import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tc3.Apply;
@@ -45,7 +50,6 @@ public class LoadBuiltins {
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
 	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
 	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
-	
 	
 	// "Primitive" types
 	public static final PolyType polyA = new PolyType(pos, new SolidName(null, "A")); 
@@ -96,6 +100,8 @@ public class LoadBuiltins {
 	public static UnresolvedVar probeState = new UnresolvedVar(pos, "_probe_state");
 	public static UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
 
+	// Contracts
+	public static final ContractDecl lifecycle = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Lifecycle"), false);
 	
 	// Builtin operators
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, false);
@@ -155,6 +161,10 @@ public class LoadBuiltins {
 		
 		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, false));
 		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, false));
+
+		// add methods to contracts
+		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "init"), new ArrayList<TypedPattern>(), null));
+		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "closing"), new ArrayList<TypedPattern>(), null));
 		
 		// specify function types
 		{
@@ -229,7 +239,9 @@ public class LoadBuiltins {
 		repository.newStruct(errors, map);
 		repository.newStruct(errors, type);
 
-
+		// builtin contracts
+		repository.newContract(errors, lifecycle);
+		
 		// dubious backward compatibility
 
 		StructDefn crokeys = new StructDefn(pos, FieldsType.STRUCT, null, "Crokeys", false);

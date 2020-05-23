@@ -28,11 +28,15 @@ public class ContractDecl implements Locatable, ContractMethodConsumer, Reposito
 	private final SolidName contractName;
 
 	public ContractDecl(InputPosition kw, InputPosition location, ContractType type, SolidName ctrName) {
+		this(kw, location, type, ctrName, true);
+	}
+
+	public ContractDecl(InputPosition kw, InputPosition location, ContractType type, SolidName ctrName, boolean generate) {
 		this.kw = kw;
 		this.loc = location;
 		this.type = type;
 		this.contractName = ctrName;
-		this.generate = true;
+		this.generate = generate;
 		if (type == ContractType.HANDLER) {
 			addMethod(new ContractMethodDecl(kw, kw, location, false, FunctionName.contractMethod(location, ctrName, "success"), new ArrayList<TypedPattern>(), null));
 			addMethod(new ContractMethodDecl(kw, kw, location, false, FunctionName.contractMethod(location, ctrName, "failure"), Arrays.asList(new TypedPattern(location, LoadBuiltins.stringTR, new VarName(location, ctrName, "msg"))), null));

@@ -1,0 +1,2 @@
+	tl (Cons { head : h, tail : t }) = tail
+		tail = t

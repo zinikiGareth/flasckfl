@@ -1,0 +1,2 @@
+test.golden.tl :: Cons[A]->List[A]
+test.golden.tl._1.tail :: A->A

@@ -1,0 +1,5 @@
+	test that we can take the tail
+		assert (tl [3])
+			Nil
+		assert (tl ["hello", "world"])
+			["world"]

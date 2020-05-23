@@ -52,6 +52,9 @@ public class ConstructorMatch implements Pattern {
 
 	public void isDefinedBy(StandaloneDefn definedBy) {
 		this.definedBy = definedBy;
+		for (Field f : args) {
+			f.patt.isDefinedBy(definedBy);
+		}
 	}
 
 	public ConstructorMatch bind(StructDefn defn) {

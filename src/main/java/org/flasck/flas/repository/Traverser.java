@@ -1575,6 +1575,8 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitContractDecl(ContractDecl cd) {
+		if (!cd.generate)
+			return;
 		visitor.visitContractDecl(cd);
 		for (ContractMethodDecl m : cd.methods)
 			visitContractMethod(m);
