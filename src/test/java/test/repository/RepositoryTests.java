@@ -41,6 +41,7 @@ import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.UnionTypeDefn.Unifier;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.ConsumeStructFields;
@@ -63,6 +64,7 @@ public class RepositoryTests {
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final ErrorReporter errors = context.mock(ErrorReporter.class);
+	final Unifier unifier = context.mock(Unifier.class);
 
 	@Test
 	public void canAddAFunctionToTheRepository() {
@@ -353,7 +355,7 @@ public class RepositoryTests {
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
-		UnionTypeDefn b = (UnionTypeDefn) r.findUnionWith(ms);
+		UnionTypeDefn b = (UnionTypeDefn) r.findUnionWith(ms, unifier);
 		assertEquals(LoadBuiltins.bool, b);
 	}
 	
@@ -364,7 +366,7 @@ public class RepositoryTests {
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.number);
 		ms.add(LoadBuiltins.any);
-		Type t = r.findUnionWith(ms);
+		Type t = r.findUnionWith(ms, unifier);
 		assertEquals(LoadBuiltins.any, t);
 	}
 	
@@ -376,7 +378,7 @@ public class RepositoryTests {
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
 		ms.add(LoadBuiltins.nil);
-		assertNull(r.findUnionWith(ms));
+		assertNull(r.findUnionWith(ms, unifier));
 	}
 	
 	@Test
@@ -385,7 +387,7 @@ public class RepositoryTests {
 		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
-		assertEquals(LoadBuiltins.trueT, r.findUnionWith(ms));
+		assertEquals(LoadBuiltins.trueT, r.findUnionWith(ms, unifier ));
 	}
 
 	@Test
@@ -395,9 +397,10 @@ public class RepositoryTests {
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.nil);
-		assertNull(r.findUnionWith(ms));
+		assertNull(r.findUnionWith(ms, unifier));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void unionsCanBeFormedOfPolyInstances() {
 		Repository r = new Repository();
@@ -405,7 +408,10 @@ public class RepositoryTests {
 		Set<Type> ms = new HashSet<>();
 		ms.add(new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.bool)));
 		ms.add(LoadBuiltins.nil);
-		Type u = r.findUnionWith(ms);
+		context.checking(new Expectations() {{
+			oneOf(unifier).unify(with(any(Set.class))); will(returnValue(LoadBuiltins.bool));
+		}});
+		Type u = r.findUnionWith(ms, unifier);
 		assertNotNull(u);
 		assertTrue(u instanceof PolyInstance);
 		PolyInstance pi = (PolyInstance) u;

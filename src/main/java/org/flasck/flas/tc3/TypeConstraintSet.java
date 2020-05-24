@@ -88,12 +88,6 @@ public class TypeConstraintSet implements UnifiableType {
 		this.pos = pos;
 		this.id = id;
 		comments.add(new Comment(pos, id + " created because " + motive, null));
-//		try {
-//			if (motive == null || motive.contentEquals("unknown"))
-//				throw new RuntimeException(pos + " " + id + " " + motive);
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//		}
 	}
 
 	public boolean isResolved() {
@@ -141,6 +135,8 @@ public class TypeConstraintSet implements UnifiableType {
 		Set<PosType> tys = new HashSet<>();
 		for (PosType pt : types) {
 			Type t = pt.type;
+			if (t == null)
+				throw new NotImplementedException("should not be null");
 			if (t instanceof StructDefn && ((StructDefn)t).hasPolys()) {
 				StructDefn sd = (StructDefn) t;
 				List<Type> polys = new ArrayList<>();
@@ -210,20 +206,23 @@ public class TypeConstraintSet implements UnifiableType {
 		tys.addAll(incorporatedBys);
 		
 		List<UnifiableType> sameAs = new ArrayList<>();
-		HashSet<PosType> all = new HashSet<>();
+		HashSet<PosType> resolved = new HashSet<>();
 		for (PosType ty : tys) {
 			if (ty.type instanceof UnifiableType) {
 				TypeConstraintSet ut = (TypeConstraintSet) ty.type;
 				if (ut.isResolved()) {
 					Type res = ut.resolve(errors, true);
-					all.add(new PosType(ut.pos, res));
+					if (res instanceof ErrorType) {
+						sameAs.add(ut);
+					} else
+						resolved.add(new PosType(ut.pos, res));
 				} else
 					sameAs.add(ut);
 			} else
-				all.add(ty);
+				resolved.add(ty);
 		}
 
-		if (all.isEmpty()) {
+		if (resolved.isEmpty()) {
 			if (!hard) { // don't resolve just yet ...
 				return null;
 			}
@@ -231,27 +230,34 @@ public class TypeConstraintSet implements UnifiableType {
 				resolvedTo = state.nextPoly(pos);
 			else
 				resolvedTo = LoadBuiltins.any;
-		} else if (all.size() == 1)
-			resolvedTo = all.iterator().next().type;
+		} else if (resolved.size() == 1)
+			resolvedTo = resolved.iterator().next().type;
 		else {
 			Set<Type> alltys = new HashSet<>();
-			for (PosType pt : all)
+			for (PosType pt : resolved) {
+				if (pt.type instanceof ErrorType)
+					return pt.type;
 				alltys.add(pt.type);
-			resolvedTo = repository.findUnionWith(alltys);
-			if (resolvedTo == null) {
-				System.out.println("Cannot resolve " + asTCS() + " " + comments);
-				TreeSet<String> msg = new TreeSet<>();
+			}
+			resolvedTo = repository.findUnionWith(alltys, new ResolveAndUnify(errors, repository));
+			if (resolvedTo == null && hard) {
+				TreeSet<String> msgs = new TreeSet<>();
 				for (Type ty : alltys)
-					msg.add(ty.signature());
-				for (Comment c : comments)
+					msgs.add(ty.signature());
+				for (Comment c : comments) {
 					if (c.type != null && !(c.type instanceof UnifiableType)) {
-//						System.out.println("cannot unify: " + asTCS());
-						errors.message(c.pos, "cannot unify types: " + c.msg + " " + c.type.signature());
+						String msg = "cannot unify types: " + c.msg;
+						msg += " " + c.type.signature();
+						errors.message(c.pos,  msg);
 					}
+				}
 				resolvedTo = new ErrorType();
 			}
 		}
 
+		if (resolvedTo == null || resolvedTo instanceof ErrorType)
+			return resolvedTo;
+		
 		for (UnifiableType ut : sameAs) {
 			if (!ut.isResolved())
 				ut.incorporatedBy(this.pos, resolvedTo);
@@ -274,24 +280,12 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public void incorporatedBy(InputPosition pos, Type incorporator) {
-//		if (pos == null) {
-//			try {
-//				throw new RuntimeException(incorporator.toString());
-//			} catch (Exception ex) {
-//				ex.printStackTrace();
-//			}
-//		}
+		if (incorporator instanceof ErrorType)
+			return;
+		if (incorporator == null)
+			throw new NotImplementedException("incorporator shoud not be null");
 		incorporatedBys.add(new PosType(pos, incorporator));
-		String t;
-		if (incorporator instanceof TypeConstraintSet)
-			t = ((TypeConstraintSet)incorporator).id;
-		else if (incorporator instanceof PolyType)
-			t = ((PolyType)incorporator).shortName();
-		else if (incorporator instanceof NamedType)
-			t = ((NamedType)incorporator).name().uniqueName();
-		else
-			t = incorporator.signature();
-		comments.add(new Comment(pos, "incorporated by ", incorporator));
+		comments.add(new Comment(pos, "incorporated by", incorporator));
 	}
 
 	@Override

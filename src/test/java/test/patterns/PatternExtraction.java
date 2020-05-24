@@ -14,6 +14,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn.Unifier;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -117,7 +118,7 @@ public class PatternExtraction {
 	@Test
 	public void caseWithTwoConstructorsThatArePartOfASingleUnion() {
 		context.checking(new Expectations() {{
-			oneOf(r).findUnionWith((Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
+			oneOf(r).findUnionWith((Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT)), with(aNull(Unifier.class))); will(returnValue(LoadBuiltins.bool));
 		}});
 		HSIPatternOptions po = new HSIPatternOptions();
 		po.requireCM(LoadBuiltins.trueT);

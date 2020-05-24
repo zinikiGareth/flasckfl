@@ -1,0 +1,1 @@
+	merge l k = Cons k l

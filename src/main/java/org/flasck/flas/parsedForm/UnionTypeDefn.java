@@ -21,6 +21,10 @@ import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, PolyHolder {
+	public interface Unifier {
+		Type unify(Set<Type> tr);
+	}
+
 	public final transient boolean generate;
 	private final InputPosition location;
 	private final SolidName name;
@@ -66,7 +70,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		return polyvars;
 	}
 	
-	public Type matches(Set<Type> members) {
+	public Type matches(Set<Type> members, Unifier unifier) {
 		Set<String> all = new HashSet<>();
 		Set<String> left = new HashSet<>();
 		for (TypeReference tr : cases) {
@@ -75,19 +79,29 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		}
 		SetMap<String, Type> polys = new SetMap<String, Type>();
 		for (Type t : members) {
-			if (t == this)
+			if (t == this) {
+				left.clear();
 				continue;
+			}
 			NamedType sd;
 			if (t instanceof StructDefn || t instanceof UnionTypeDefn) {
 				sd = (NamedType) t;
 			} else if (t instanceof PolyInstance) {
 				PolyInstance pi = (PolyInstance)t;
 				sd = pi.struct();
-				if (sd == this)
-					continue;
-				TypeReference mine = findCase(sd.name().uniqueName());
-				if (mine == null)
-					return null;
+				TypeReference mine;
+				if (sd == this) {
+					left.clear();
+					List<TypeReference> trs = new ArrayList<>();
+					for (PolyType pt : polyvars)
+						trs.add(new TypeReference(pt.location(), pt.shortName()).bind(pt));
+					mine = new TypeReference(location, name.baseName(), trs);
+					mine.bind(this);
+				} else {
+					mine = findCase(sd.name().uniqueName());
+					if (mine == null)
+						return null;
+				}
 				List<Type> pip = pi.getPolys();
 				if (!mine.hasPolys() || pip.size() !=  mine.polys().size())
 					throw new NotImplementedException("I can't see how this isn't an error that should have been caught somewhere else");
@@ -96,7 +110,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 				}
 			} else
 				return null;
-			if (!all.contains(sd.name().uniqueName()))
+			if (sd != this && !all.contains(sd.name().uniqueName()))
 				return null;
 			left.remove(sd.name().uniqueName());
 		}
@@ -106,8 +120,13 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 			List<Type> bound = new ArrayList<>();
 			for (PolyType pt : this.polyvars) {
 				if (polys.contains(pt.shortName())) {
-					// TODO: I think we need to (recursively) unify these ...
-					bound.add(polys.get(pt.shortName()).iterator().next());
+					Set<Type> tr = polys.get(pt.shortName());
+					// If we have a unifier we are in typechecking and already resolving TCSs.
+					// Failure at this stage should be desperate.
+					Type u = unifier.unify(tr);
+					if (u == null)
+						return null;
+					bound.add(u);
 				} else
 					bound.add(LoadBuiltins.any);
 			}

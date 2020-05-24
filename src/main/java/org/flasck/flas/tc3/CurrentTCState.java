@@ -1,6 +1,5 @@
 package org.flasck.flas.tc3;
 
-import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -10,7 +9,7 @@ import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.VarPattern;
 
-public interface CurrentTCState {
+public interface CurrentTCState extends Consolidator {
 	UnifiableType createUT(InputPosition pos, String motive);
 	UnifiableType requireVarConstraints(InputPosition pos, String var);
 	UnifiableType hasVar(String var);
@@ -20,8 +19,7 @@ public interface CurrentTCState {
 	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
 	void bindVarPatternTypes(ErrorReporter errors);
 	void enhanceAllMutualUTs();
-	PosType consolidate(InputPosition location, List<PosType> results);
-	void debugInfo();
+	void debugInfo(String when);
 	boolean hasGroup();
 	void bindIntroducedVarTypes(ErrorReporter errors);
 	void bindIntroducedVarToUT(IntroduceVar v, UnifiableType ut);

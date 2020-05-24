@@ -76,7 +76,7 @@ public class StackVisitation {
 	@Before
 	public void begin() {
 		context.checking(new Expectations() {{
-			allowing(state).debugInfo();
+			allowing(state).debugInfo(with(any(String.class)));
 		}});
 	}
 	

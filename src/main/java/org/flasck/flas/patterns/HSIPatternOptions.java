@@ -236,7 +236,7 @@ public class HSIPatternOptions implements HSIOptions {
 				return ut.resolve(errors, true);
 		} else {
 			Set<Type> ms = new HashSet<>(ctors.keySet());
-			Type ut = repository.findUnionWith(ms);
+			Type ut = repository.findUnionWith(ms, null);
 			if (ut == null) {
 				return repository.get("Any");
 //				throw new NotImplementedException("Could not find union for " + ms);

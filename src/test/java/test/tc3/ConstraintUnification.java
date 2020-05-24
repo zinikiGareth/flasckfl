@@ -9,6 +9,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.UnionTypeDefn.Unifier;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
@@ -118,7 +119,7 @@ public class ConstraintUnification {
 		ut.canBeStruct(pos, LoadBuiltins.trueT);
 		ut.canBeStruct(pos, LoadBuiltins.falseT);
 		context.checking(new Expectations() {{
-			oneOf(repository).findUnionWith((Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
+			oneOf(repository).findUnionWith((Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT)), with(any(Unifier.class))); will(returnValue(LoadBuiltins.bool));
 		}});
 		Type ty = ut.resolve(errors, true);
 		assertEquals(LoadBuiltins.bool, ty);

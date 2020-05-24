@@ -1,2 +1,6 @@
+test.golden.cross :: List[List[A]] -> List[List[A]]
+test.golden.cross._3.inner :: List[List[A]] -> List[List[A]]
+test.golden.cross._3.merge :: List[A] -> A -> List[List[A]]
 test.golden.doit :: (Number->A)->A
 test.golden.k :: Number->Number
+test.golden.map :: (A->B)->List[A]->List[B]

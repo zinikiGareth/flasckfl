@@ -18,9 +18,12 @@ import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.RepositoryReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionGroupTCState implements CurrentTCState {
+	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
 	private final RepositoryReader repository;
 	private final Map<String, UnifiableType> constraints = new TreeMap<>();
 	private final Map<VarPattern, UnifiableType> patts = new TreeMap<>(VarPattern.comparator);
@@ -113,8 +116,9 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes) {
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 
-//		System.out.println(grp);
-//		state.debugInfo();
+		logger.debug("\n\nstarting to check group:");
+		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
+			logger.debug(e.getKey() + " :: " + e.getValue().type);
 		
 		// if we picked up anything based on the invocation of the method in this group, add that into the mix
 		for (Entry<TypeBinder, PosType> m : memberTypes.entrySet()) {
@@ -122,15 +126,19 @@ public class FunctionGroupTCState implements CurrentTCState {
 			UnifiableType ut = this.requireVarConstraints(m.getKey().location(), name);
 			ut.determinedType(m.getValue());
 		}
-//		state.debugInfo();
+		this.debugInfo("entry");
 
 		// Then we can resolve all the UTs
 		this.resolveAll(errors, false);
-//		state.debugInfo();
 		this.enhanceAllMutualUTs();
-//		state.debugInfo();
+		this.debugInfo("soft");
+//		this.debugInfo();
 		this.resolveAll(errors, true);
-//		state.debugInfo();
+//		this.debugInfo();
+		
+		logger.debug("binding group:");
+		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
+			logger.debug(e.getKey() + " :: " + e.getValue().type);
 		
 		// Then we can bind the types
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
@@ -140,6 +148,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	private Type cleanUTs(ErrorReporter errors, Type ty) {
+		logger.debug("Cleaning " + ty + " " + ty.getClass());
 		if (ty instanceof EnsureListMessage)
 			((EnsureListMessage)ty).validate(errors);
 		if (ty instanceof UnifiableType)
@@ -150,8 +159,15 @@ public class FunctionGroupTCState implements CurrentTCState {
 			for (Type t : a.tys)
 				tys.add(cleanUTs(errors, t));
 			return new Apply(tys);
-		} else
+		} else if (ty instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) ty;
+			List<Type> polys = new ArrayList<>();
+			for (Type t : pi.getPolys())
+				polys.add(cleanUTs(errors, t));
+			return new PolyInstance(pi.location(), (NamedType) cleanUTs(errors, pi.struct()), polys);
+		} else {
 			return ty;
+		}
 	}
 
 	@Override
@@ -215,12 +231,12 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	@Override
-	public void debugInfo() {
-		System.out.println("------");
+	public void debugInfo(String when) {
+		logger.debug("------ " + when);
 		for (UnifiableType ut : allUTs) {
 			TypeConstraintSet tcs = (TypeConstraintSet)ut;
-			System.out.println(tcs.debugInfo());
+			logger.debug(tcs.debugInfo());
 		}
-		System.out.println("======");
+		logger.debug("======");
 	}
 }

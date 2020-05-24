@@ -17,17 +17,17 @@ msgerrors.fl  5.0:     _ <- Foo
 msgerrors.fl  6.0:     _ <- [42]
                           Cons[Number] cannot be a Message
 recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
-                          cannot unify types: incorporated by  Number
+                          cannot unify types: incorporated by Number
 recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
                           cannot unify types: same as Number
 recursionerr  2.15:   r1 x = r1 42 +  _ r2 x
-                          cannot unify types: incorporated by  Number
+                          cannot unify types: incorporated by Number
 recursionerr  4.7:    r2 x =  _ r2 x ++ r1 x
-                          cannot unify types: incorporated by  String
+                          cannot unify types: incorporated by String
 recursionerr  4.7:    r2 x =  _ r2 x ++ r1 x
                           cannot unify types: same as String
 recursionerr  4.15:   r2 x = r2 x ++  _ r1 x
-                          cannot unify types: incorporated by  String
+                          cannot unify types: incorporated by String
 testerrors.u  6.11:   assert (ok  _ "hello")
                           function 'ok' was expecting Number not String
 testerrors.u 11.0:     _ "hello"
