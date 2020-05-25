@@ -239,6 +239,7 @@ public class TypeConstraintSet implements UnifiableType {
 					return pt.type;
 				alltys.add(pt.type);
 			}
+			System.out.println(this.id);
 			resolvedTo = repository.findUnionWith(alltys, new ResolveAndUnify(errors, repository));
 			if (resolvedTo == null && hard) {
 				TreeSet<String> msgs = new TreeSet<>();

@@ -148,6 +148,6 @@ public class Main {
 		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
 		StaticLoggerBinder.setLevel("awstxstore", Level.WARN);
 		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", Level.WARN);
-		StaticLoggerBinder.setLevel("TCUnification", Level.DEBUG);
+		StaticLoggerBinder.setLevel("TCUnification", Level.WARN);
 	}
 }

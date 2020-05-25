@@ -1,1 +1,5 @@
-	merge l k = Cons k l
+	cross Nil = Nil
+	cross [h] = [h]
+	cross (Cons { head: h, tail: t }) = map (merge inner) h
+		inner = cross t
+		merge l k = Cons k l

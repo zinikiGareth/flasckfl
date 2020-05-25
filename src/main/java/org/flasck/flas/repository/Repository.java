@@ -304,19 +304,28 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		if (ms.isEmpty())
 			throw new NotImplementedException();
 		Set<Type> collect = new HashSet<Type>();
+		Set<PolyType> polys = new HashSet<PolyType>();
 		for (Type t : ms) {
 			if (t.equals(LoadBuiltins.any))
 				return t;
-			collect.add(t);
+			else if (t instanceof PolyType)
+				polys.add((PolyType) t);
+			else
+				collect.add(t);
 		}
-		if (collect.isEmpty())
-			return LoadBuiltins.any;
-		else if (collect.size() == 1)
+		if (collect.isEmpty()) {
+			if (polys.isEmpty())
+				return LoadBuiltins.any;
+			else if (polys.size() == 1)
+				return polys.iterator().next();
+			else
+				throw new NotImplementedException("multiple distinct polys in union");
+		} else if (collect.size() == 1)
 			return collect.iterator().next();
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
 				UnionTypeDefn utd = (UnionTypeDefn) k;
-				Type union = utd.matches(ms, unifier);
+				Type union = utd.matches(collect, unifier);
 				if (union != null)
 					return union;
 			}

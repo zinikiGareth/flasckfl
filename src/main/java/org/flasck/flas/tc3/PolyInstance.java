@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.parsedForm.PolyHolder;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -63,17 +66,24 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		if (this.ty.incorporates(pos, other))
-			return true;
-		if (!(other instanceof PolyInstance))
-			return false;
-		PolyInstance o = (PolyInstance) other;
-		if (!this.ty.incorporates(pos, o.ty))
-			return false;
-		for (int i=0;i<polys.size();i++)
-			if (!polys.get(i).incorporates(pos, o.polys.get(i)))
+		if (other instanceof PolyInstance) {
+			PolyInstance o = (PolyInstance) other;
+			if (!this.ty.incorporates(pos, o.ty))
 				return false;
-		return true;
+			for (int i=0;i<polys.size();i++)
+				if (!polys.get(i).incorporates(pos, o.polys.get(i)))
+					return false;
+			return true;
+		} else if (other instanceof UnifiableType) {
+			((UnifiableType) other).incorporatedBy(pos, this);
+			return true;
+		} else if (this.ty instanceof UnionTypeDefn && other instanceof StructDefn && !((StructDefn)other).hasPolys()) {
+			// it is acceptable for it to be incorporated if it is a non-poly version of a non-poly constructor in a union
+			// Think Nil in List[A]
+			return this.ty.incorporates(pos, other);
+		} else {
+			return false;
+		}
 	}
 
 	@Override

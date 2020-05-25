@@ -116,7 +116,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes) {
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 
-		logger.debug("\n\nstarting to check group:");
+		logger.debug("starting to check group:");
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
 			logger.debug(e.getKey() + " :: " + e.getValue().type);
 		
@@ -136,13 +136,12 @@ public class FunctionGroupTCState implements CurrentTCState {
 		this.resolveAll(errors, true);
 //		this.debugInfo();
 		
-		logger.debug("binding group:");
-		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
-			logger.debug(e.getKey() + " :: " + e.getValue().type);
-		
 		// Then we can bind the types
+		logger.debug("binding group:");
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
-			e.getKey().bindType(cleanUTs(errors, e.getValue().type));
+			Type as = cleanUTs(errors, e.getValue().type);
+			logger.debug(e.getKey() + " :: " + as);
+			e.getKey().bindType(as);
 		}
 		this.bindVarPatternTypes(errors);
 	}
@@ -232,7 +231,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 	@Override
 	public void debugInfo(String when) {
-		logger.debug("------ " + when);
+		logger.debug("------ " + when + " # = " + allUTs.size());
 		for (UnifiableType ut : allUTs) {
 			TypeConstraintSet tcs = (TypeConstraintSet)ut;
 			logger.debug(tcs.debugInfo());
