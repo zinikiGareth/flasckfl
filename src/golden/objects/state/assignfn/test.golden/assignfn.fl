@@ -1,0 +1,14 @@
+	struct Something
+		Number n
+
+	object Fred
+		state
+			List[Something] state
+		
+		ctor init
+			state <- map f [1, 2, 3]
+	
+	f n = Something n
+
+	map f Nil = Nil
+	map f (Cons { head: h, tail : t }) = Cons (f h) (map f t)

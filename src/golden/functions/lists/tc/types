@@ -1,0 +1,2 @@
+test.golden.head :: List[A]->A
+test.golden.tail :: List[A]->List[A]

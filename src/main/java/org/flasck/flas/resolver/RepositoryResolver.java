@@ -717,6 +717,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			else
 				return;
 		}
+		if (defn instanceof PolyInstance)
+			defn = ((PolyInstance)defn).struct();
 		if (defn instanceof ContractDecl) {
 			if (udd.expr != null || !udd.fields.isEmpty()) {
 				errors.message(udd.location(), "a contract data declaration may not be initialized");
@@ -725,6 +727,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			StructDefn sd = (StructDefn) defn;
 			if (udd.expr == null && udd.fields.isEmpty() && sd.argCount() != 0) {
 				errors.message(udd.location(), "either an expression or at least one field assignment must be specified for " + defn.name().uniqueName());
+			}
+		} else if (defn instanceof UnionTypeDefn) {
+			if (udd.expr == null) {
+				errors.message(udd.location(), "an expression must be specified for " + defn.name().uniqueName());
 			}
 		} else if (defn instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements) defn;

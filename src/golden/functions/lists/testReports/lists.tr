@@ -1,0 +1,6 @@
+JVM PASS head works for a simple list
+JVM PASS tail works for a simple list
+JVM PASS we can take head of data
+JS PASS head works for a simple list
+JS PASS tail works for a simple list
+JS PASS we can take head of data

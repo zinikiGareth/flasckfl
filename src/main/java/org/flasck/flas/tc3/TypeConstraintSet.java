@@ -320,7 +320,7 @@ public class TypeConstraintSet implements UnifiableType {
 	public StructTypeConstraints canBeStruct(InputPosition pos, StructDefn sd) {
 		comments.add(new Comment(pos, "can be struct " + sd, sd));
 		if (!ctors.containsKey(sd))
-			ctors.put(sd, new StructFieldConstraints(repository, sd));
+			ctors.put(sd, new StructFieldConstraints(repository, state, pos, sd));
 		return ctors.get(sd);
 	}
 

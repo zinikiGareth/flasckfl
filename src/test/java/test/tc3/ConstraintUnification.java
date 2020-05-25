@@ -57,6 +57,9 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsAndDontConstrainItYouGetAnyAsThePoly() {
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(pos, "poly var A"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "poly var A")));
+		}});
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		ut.canBeStruct(pos, LoadBuiltins.cons);
 		assertThat(ut.resolve(errors, true), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
@@ -65,18 +68,26 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadNotConstrainedYouStillGetAny() {
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(pos, "poly var A"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "poly var A")));
+		}});
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		StructTypeConstraints stc = ut.canBeStruct(pos, LoadBuiltins.cons);
+		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(pos, "field head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "field head")));
+			oneOf(state).nextPoly(pos); will(returnValue(pt));
 		}});
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
-		assertThat(ut.resolve(errors, true), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
+		assertThat(ut.resolve(errors, true), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(pt)));
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadSpecifiedThatsTheType() {
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(pos, "poly var A"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "poly var A")));
+		}});
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		StructTypeConstraints stc = ut.canBeStruct(pos, LoadBuiltins.cons);
 		context.checking(new Expectations() {{
@@ -90,6 +101,9 @@ public class ConstraintUnification {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouReturnAVarThenYouGetAFreshPolyVar() {
+		context.checking(new Expectations() {{
+			oneOf(state).createUT(pos, "poly var A"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "poly var A")));
+		}});
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		StructTypeConstraints stc = ut.canBeStruct(pos, LoadBuiltins.cons);
 		context.checking(new Expectations() {{

@@ -306,8 +306,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		Set<Type> collect = new HashSet<Type>();
 		Set<PolyType> polys = new HashSet<PolyType>();
 		for (Type t : ms) {
-			if (t.equals(LoadBuiltins.any))
+			if (t == LoadBuiltins.any)
 				return t;
+			else if (t == LoadBuiltins.error)
+				continue;
 			else if (t instanceof PolyType)
 				polys.add((PolyType) t);
 			else

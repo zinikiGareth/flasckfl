@@ -53,6 +53,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -72,6 +73,7 @@ import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.PolyInstance;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
@@ -699,6 +701,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			return;
 		}
 		NamedType objty = udd.ofType.defn();
+		if (objty instanceof PolyInstance)
+			objty = ((PolyInstance)objty).struct();
 		if (objty instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) objty;
 			JSExpr mock;
@@ -714,7 +718,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		} else if (objty instanceof CardDefinition) {
 			JSExpr obj = meth.createCard((CardName) objty.name());
 			state.addMock(udd, obj);
-		} else if (objty instanceof StructDefn) {
+		} else if (objty instanceof StructDefn || objty instanceof UnionTypeDefn) {
 			new UDDGeneratorJS(sv, meth, state, this.block);
 		} else if (objty instanceof ObjectDefn) {
 			new UDDGeneratorJS(sv, meth, state, this.block);

@@ -46,6 +46,7 @@ import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
@@ -65,6 +66,7 @@ import org.flasck.flas.repository.StructFieldHandler;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.jvm.J;
 import org.flasck.jvm.fl.TestHelper;
@@ -933,6 +935,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			return;
 		}
 		NamedType objty = udd.ofType.defn();
+		if (objty instanceof PolyInstance)
+			objty = ((PolyInstance)objty).struct();
 		if (objty instanceof ContractDecl) {
 			ContractDecl cdd = (ContractDecl)objty;
 			IExpr mc = meth.callInterface(J.OBJECT, fcx, "mockContract", meth.castTo(fcx, J.ERRORCOLLECTOR), meth.classConst(cdd.name().javaClassName()));
@@ -940,7 +944,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			meth.assign(v, mc).flush();
 			this.fs.addMock(udd, v);
 			this.explodingMocks.add(v);
-		} else if (objty instanceof StructDefn) {
+		} else if (objty instanceof StructDefn || objty instanceof UnionTypeDefn) {
 			new UDDGenerator(sv, fs, currentBlock);
 		} else if (objty instanceof ObjectDefn) {
 			new UDDGenerator(sv, fs, currentBlock);

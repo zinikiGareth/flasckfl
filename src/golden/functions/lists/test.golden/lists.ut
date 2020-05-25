@@ -1,0 +1,12 @@
+	test head works for a simple list
+		assert (head [1,2,3])
+			1
+
+	test tail works for a simple list
+		assert (tail [1,2,3])
+			[2,3]
+			
+	test we can take head of data
+		data List[Number] list <- [1,2,3]
+		assert (head list)
+			1

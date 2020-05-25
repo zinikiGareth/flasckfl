@@ -1,0 +1,5 @@
+	head Nil = Error "empty list"
+	head (Cons { head: h, tail: t}) = h
+	
+	tail Nil = Error "empty list"
+	tail (Cons { head: h, tail: t}) = t
