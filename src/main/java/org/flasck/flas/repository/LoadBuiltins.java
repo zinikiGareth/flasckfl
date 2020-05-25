@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
@@ -50,6 +51,7 @@ public class LoadBuiltins {
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
 	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
 	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
+	public static final TypeReference callMeTR = new TypeReference(pos, "CallMe");
 	
 	// "Primitive" types
 	public static final PolyType polyA = new PolyType(pos, new SolidName(null, "A")); 
@@ -102,6 +104,8 @@ public class LoadBuiltins {
 
 	// Contracts
 	public static final ContractDecl lifecycle = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Lifecycle"), false);
+	public static final ContractDecl repeater = new ContractDecl(pos, pos, ContractType.SERVICE, new SolidName(null, "Repeater"), false);
+	public static final ContractDecl callMeHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CallMe"), false);
 	
 	// Builtin operators
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, false);
@@ -133,6 +137,7 @@ public class LoadBuiltins {
 		sendTR.bind(send);
 		assignTR.bind(assign);
 		clickEventTR.bind(clickEvent);
+		callMeTR.bind(callMeHandler);
 	
 		// add fields to structs
 		error.addField(new StructField(pos, error, false, stringTR, "message"));
@@ -165,6 +170,11 @@ public class LoadBuiltins {
 		// add methods to contracts
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "init"), new ArrayList<TypedPattern>(), null));
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "closing"), new ArrayList<TypedPattern>(), null));
+
+		TypedPattern cmh = new TypedPattern(pos, callMeTR, new VarName(pos, callMeHandler.name(), "handler"));
+		ContractMethodDecl callMe = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, repeater.name(), "callMe"), new ArrayList<TypedPattern>(), cmh);
+		callMe.bindType();
+		repeater.addMethod(callMe);
 		
 		// specify function types
 		{
@@ -241,7 +251,9 @@ public class LoadBuiltins {
 
 		// builtin contracts
 		repository.newContract(errors, lifecycle);
-		
+		repository.newContract(errors, repeater);
+		repository.newContract(errors, callMeHandler);
+
 		// dubious backward compatibility
 
 		StructDefn crokeys = new StructDefn(pos, FieldsType.STRUCT, null, "Crokeys", false);
