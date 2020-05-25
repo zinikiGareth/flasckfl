@@ -273,8 +273,8 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 
 	private Var makeClosure(boolean hasState, IExpr fn, int expArgs) {
 		ArrayList<IExpr> iargs = new ArrayList<IExpr>();
-		if (hasState)
-			iargs.add(meth.myThis());
+		if (this.state.container != null)
+			iargs.add(this.state.container);
 		IExpr args = meth.arrayOf(J.OBJECT, iargs);
 		IExpr call;
 		if (expArgs > 0) {

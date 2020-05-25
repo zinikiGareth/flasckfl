@@ -273,6 +273,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = null;
 		this.evalRet = null;
 		this.meth = null;
+		this.structFieldHandler = null;
 	}
 	
 	@Override

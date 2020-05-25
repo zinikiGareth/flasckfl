@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.UnifiableType;
 
 public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType, AccessorHolder, FieldsHolder {
 	public static Comparator<StructDefn> nameComparator = new Comparator<StructDefn>() {
@@ -127,7 +128,11 @@ public class StructDefn extends FieldsDefn implements AsString, Locatable, Repos
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		return other == this;
+		if (other instanceof UnifiableType) {
+			((UnifiableType)other).incorporatedBy(pos, this);
+			return true;
+		} else
+			return other == this;
 	}
 
 	public PolyType findPoly(TypeReference ft) {
