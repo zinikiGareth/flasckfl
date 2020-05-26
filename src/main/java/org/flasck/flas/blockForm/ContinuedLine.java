@@ -10,7 +10,7 @@ public class ContinuedLine {
 		StringBuilder sb = new StringBuilder();
 		for (SingleLine l : lines) {
 			if (sb.length() > 0)
-				sb.append(" ");
+				sb.append("\n");
 			sb.append(l.line.trim());
 		}
 		return sb;

@@ -1,0 +1,2 @@
+test.golden.f :: Any->Number
+test.golden.g :: Any->Any->Number

@@ -1,0 +1,7 @@
+	test that f works
+		assert (f 2)
+			3
+	
+	test that g works
+		assert (g 2 3)
+			2

@@ -35,6 +35,13 @@ public class Tokenizable {
 	public void skipWS() {
 		while (pos < input.length() && Character.isWhitespace(input.charAt(pos)))
 			pos++;
+		if (pos+1 < input.length() && input.charAt(pos) == '/' && input.charAt(pos+1) == '/') {
+			int idx = input.indexOf("\n", pos);
+			if (idx == -1)
+				pos = input.length();
+			else
+				pos = idx+1;
+		}
 	}
 
 	public boolean still(int i) {
