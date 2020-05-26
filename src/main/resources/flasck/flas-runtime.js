@@ -1,24 +1,57 @@
 
-const JSEnv = function(broker) {
-	this.logger = console;
-	this.contracts = {};
-	this.structs = {};
-	this.objects = {};
-	if (broker != null)
-		this.broker = broker;
-	else
-		this.broker = new SimpleBroker(this, this, this.contracts);
+const CommonEnv = function(logger, broker) {
+    if (!logger) // when used as a constructor
+        return;
+    this.contracts = broker.contracts;
+    this.structs = {};
+    this.objects = {};
+    this.logger = logger;
+    this.broker = broker;
 	this.nextDivId = 1;
+	this.divSince = this.nextDivId;
 	this.evid = 1;
+    this.cards = [];
+    this.contracts["CallMe"] = CallMe;
+    this.contracts["Repeater"] = Repeater;
+    broker.register("Repeater", new ContainerRepeater());
 }
 
-JSEnv.prototype.clear = function() {
+CommonEnv.prototype.clear = function() {
 	document.body.innerHTML = '';
 }
 
-JSEnv.prototype.newContext = function() {
+CommonEnv.prototype.handleMessages = function(_cxt, msg) {
+	if (this.errors.length != 0)
+		throw this.errors[0];
+	msg = _cxt.full(msg);
+	if (!msg || msg instanceof FLError)
+		return;
+	else if (msg instanceof Array) {
+		for (var i=0;i<msg.length;i++) {
+			this.handleMessages(_cxt, msg[i]);
+		}
+	} else if (msg) {
+		var ret = msg.dispatch(_cxt);
+		if (ret)
+			this.handleMessages(_cxt, ret);
+	}
+}
+
+CommonEnv.prototype.newContext = function() {
 	return new FLContext(this, this.broker);
 }
+
+
+
+
+const JSEnv = function(broker) {
+	if (broker == null)
+		broker = new SimpleBroker(this, this, {});
+	CommonEnv.call(this, console, broker);
+}
+
+JSEnv.prototype = new CommonEnv();
+JSEnv.prototype.constructor = JSEnv;
 
 
 

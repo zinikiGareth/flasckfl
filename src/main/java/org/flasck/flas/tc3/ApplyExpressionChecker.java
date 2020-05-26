@@ -98,12 +98,22 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			}
 			pos++;
 		}
+		int ac = fn.argCount();
 		if (unusedHandlerCase(expr.fn)) {
 			pos++;
+			ac -= 1;
 		}
 		// anything left must be curried
 		while (pos < fn.argCount()) {
 			tocurry.add(fn.get(pos++));
+		}
+		if (pos > fn.argCount()) {
+			String name = "function '" + expr.fn;
+			if (expr.fn instanceof MemberExpr)
+				name = "method '" + ((MemberExpr)expr.fn).fld;
+			errors.message(expr.location(), name + "' expects " + ac + " arguments");
+			return;
+			
 		}
 		// if we have any curried args, we need to make an apply
 		if (!tocurry.isEmpty()) {

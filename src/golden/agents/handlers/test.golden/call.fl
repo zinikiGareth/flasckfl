@@ -1,0 +1,14 @@
+	contract Start
+		init
+		
+	agent Orange
+		state
+			Boolean done <- False
+
+		requires Repeater rc
+
+		handler CallMe Handler		
+		
+		implements Start
+			init
+				<- rc.callMe -> Handler 

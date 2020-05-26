@@ -1,19 +1,12 @@
 
 const UTRunner = function(logger) {
-	this.logger = logger;
-	this.contracts = {};
-	this.structs = {};
-	this.objects = {};
-	this.broker = new SimpleBroker(logger, this, this.contracts);
+	CommonEnv.call(this, logger, new SimpleBroker(logger, this, {}));
 	this.errors = [];
-	this.nextDivId = 1;
-	this.divSince = this.nextDivId;
-	this.evid = 1;
-	this.cards = [];
 }
-UTRunner.prototype.clear = function() {
-	document.body.innerHTML = '';
-}
+
+UTRunner.prototype = new CommonEnv();
+UTRunner.prototype.constructor = UTRunner;
+
 UTRunner.prototype.error = function(err) {
 	this.errors.push(err);
 }
@@ -127,30 +120,11 @@ UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected)
 			throw new Error("MATCH\n  expected: " + explist.join(' ') + "\n  actual:   " + clzlist.join(' '));
 	}
 }
-UTRunner.prototype.handleMessages = function(_cxt, msg) {
-	if (this.errors.length != 0)
-		throw this.errors[0];
-	msg = _cxt.full(msg);
-	if (!msg || msg instanceof FLError)
-		return;
-	else if (msg instanceof Array) {
-		for (var i=0;i<msg.length;i++) {
-			this.handleMessages(_cxt, msg[i]);
-		}
-	} else if (msg) {
-		var ret = msg.dispatch(_cxt);
-		if (ret)
-			this.handleMessages(_cxt, ret);
-	}
-}
 UTRunner.prototype.updateCard = function(_cxt, card) {
 	if (!(card instanceof MockCard))
 		return;
 	if (card.card._updateDisplay)
 		card.card._updateDisplay(_cxt, card.card._renderTree);
-}
-UTRunner.prototype.newContext = function() {
-	return new FLContext(this, this.broker);
 }
 UTRunner.prototype.checkAtEnd = function() {
 	if (this.errors.length > 0)

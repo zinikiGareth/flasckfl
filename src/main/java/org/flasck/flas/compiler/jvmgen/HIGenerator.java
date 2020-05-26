@@ -39,7 +39,7 @@ public class HIGenerator extends LeafAdapter {
 		String clzName = name.javaClassName();
 		definingClz = bce.newClass(clzName);
 		definingClz.superclass(J.LOGGINGIDEMPOTENTHANDLER);
-		definingClz.implementsInterface(J.IDEMPOTENTHANDLER);
+		definingClz.implementsInterface(hi.implementsType().defn().name().javaClassName());
 		definingClz.generateAssociatedSourceFile();
 		int nfargs = hi.argCount();
 		String cardType = null;

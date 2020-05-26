@@ -229,6 +229,9 @@ SimpleBroker.prototype.register = function(clz, svc) {
 
 SimpleBroker.prototype.require = function(clz) {
     const ctr = this.contracts[clz];
+    if (ctr == null) {
+        throw Error("undefined contract " + clz);
+    }
     var svc = this.services[clz];
     if (svc == null) {
         if (this.server != null)
@@ -371,7 +374,6 @@ const MarshallerProxy = function(logger, ctr, svc) {
 }
 
 MarshallerProxy.prototype.invoke = function(meth, args) {
-    this.logger.log("MarshallerProxy." + meth + "(" + args.length + ")");
     const cx = args[0];
     const ux = this.svc.begin(cx, meth);
     new ArgListMarshaller(this.logger, false, true).marshal(ux, args);
@@ -507,31 +509,24 @@ const proxy = function(cx, intf, handler) {
 const proxyMeth = function(meth, handler) {
 	return function(...args) {
 		const cx = args[0];
-        cx.log("invoking " + meth);
         const ret = handler['invoke'].call(handler, meth, args);
-        cx.log("just invoked " + meth);
         return ret;
     }
 }
 
 const proxy1 = function(cx, underlying, methods, handler) {
-    cx.log("mocking with methods", methods, typeof methods[0]);
     const myhandler = {
         get: function(target, ps, receiver) {
             const prop = String(ps);
-            cx.log("Looking for", prop, "in", methods, methods.includes(prop));
             if (methods.includes(prop)) {
                 const fn = function(...args) {
-                    cx.log("invoking " + prop);
                     const ret = handler['invoke'].call(handler, prop, args);
-                    cx.log("just invoked " + prop);
                     return ret;
                 }
                 return fn;
             } else if (target[prop]) {
                 return target[prop];
             } else {
-                cx.log("there is no prop", prop);
                 return function() {
                     return "-no-such-method-";
                 };

@@ -182,6 +182,7 @@ public class JSRunner extends CommonTestRunner {
 			copyResourceIntoScript(pw, "javalogger.js", testDirJS);
 			copyResourceIntoScript(pw, "ziwsh.js", testDirJS);
 			copyResourceIntoScript(pw, "flas-runtime.js", testDirJS);
+			copyResourceIntoScript(pw, "flas-container.js", testDirJS);
 			copyResourceIntoScript(pw, "flas-unittest.js", testDirJS);
 			for (File f : jse.files())
 				includeFileAsScript(pw, f, testDirJS);
