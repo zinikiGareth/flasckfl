@@ -58,7 +58,7 @@ public class BlockerTests {
 	@Test
 	public void aLineWithSpacesIsContinued() {
 		context.checking(new Expectations() {{
-			oneOf(consumer).line(with(1), with(LineMatcher.match("start continue")));
+			oneOf(consumer).line(with(1), with(LineMatcher.match("start\ncontinue")));
 		}});
 		line("\tstart");
 		line("\t  continue");

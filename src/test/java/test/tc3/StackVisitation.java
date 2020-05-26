@@ -329,7 +329,7 @@ public class StackVisitation {
 		Type str = context.mock(Type.class, "str");
 		Type nbr = context.mock(Type.class, "nbr");
 		context.checking(new Expectations() {{
-			oneOf(fnt).argCount(); will(returnValue(2));
+			allowing(fnt).argCount(); will(returnValue(2));
 			oneOf(fnt).get(0); will(returnValue(nbr));
 			oneOf(fnt).get(1); will(returnValue(nbr));
 			oneOf(nbr).incorporates(pos, nbr); will(returnValue(true));
@@ -359,7 +359,7 @@ public class StackVisitation {
 		Type err = new ErrorType();
 		Type nbr = context.mock(Type.class, "nbr");
 		context.checking(new Expectations() {{
-			oneOf(fnt).argCount(); will(returnValue(2));
+			allowing(fnt).argCount(); will(returnValue(2));
 			oneOf(nv).result(with(any(ErrorType.class)));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "+");
