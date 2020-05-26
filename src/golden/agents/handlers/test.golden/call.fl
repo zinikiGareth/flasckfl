@@ -7,7 +7,10 @@
 
 		requires Repeater rc
 
-		handler CallMe Handler		
+		handler CallMe Handler
+			call
+				<- Debug "called"	
+				done <- True
 		
 		implements Start
 			init

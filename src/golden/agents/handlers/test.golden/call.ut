@@ -1,3 +1,5 @@
 	test we can call init
 		data Orange od
 		contract od Start init
+		assert (od.done)
+			True

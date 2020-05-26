@@ -377,8 +377,7 @@ MarshallerProxy.prototype.invoke = function(meth, args) {
     const cx = args[0];
     const ux = this.svc.begin(cx, meth);
     new ArgListMarshaller(this.logger, false, true).marshal(ux, args);
-    ux.dispatch();
-    return null;
+    return ux.dispatch();
 }
 
 const ArgListMarshaller = function(logger, includeFirst, includeLast) {
@@ -669,11 +668,15 @@ DispatcherTraverser.prototype.constructor = DispatcherTraverser;
 DispatcherTraverser.prototype.dispatch = function() {
     const ih = this.ret[this.ret.length-1];
     try {
-        this.svc[this.method].apply(this.svc, this.ret);
+        var rets = this.svc[this.method].apply(this.svc, this.ret);
+        // I don't think this matches the semantics of when we want success to be called
+        // I think we should add an event to the end of the list of actions
+        // But have test cases to prove that and hold that
         ih.success(this.cx);
     } catch (e) {
         ih.failure(this.cx, e.message);
     }
+    return rets;
 }
 
 const CollectingState = function(cx) {

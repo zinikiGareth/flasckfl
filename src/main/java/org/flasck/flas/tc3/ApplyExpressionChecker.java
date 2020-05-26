@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -19,6 +20,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.ziniki.ziwsh.intf.IdempotentHandler;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -80,7 +82,10 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
-		while (!results.isEmpty()) {
+		int max = fn.argCount();
+		if (unusedHandlerCase(expr.fn))
+			max--;
+		while (!results.isEmpty() && pos < max) {
 			PosType pai = results.remove(0);
 			Type ai = pai.type;
 			if (ai instanceof ErrorType) {
@@ -98,22 +103,26 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			}
 			pos++;
 		}
-		int ac = fn.argCount();
+		if (!results.isEmpty()) {
+			PosType pai = results.remove(0);
+			if (pai.type instanceof HandlerImplements) {
+				errors.message(expr.location(), "unexpected handler as argument; did you forget '->' ?");
+				return;
+			} else {
+				String name = "function '" + expr.fn;
+				if (expr.fn instanceof MemberExpr)
+					name = "method '" + ((MemberExpr)expr.fn).fld;
+				errors.message(expr.location(), "excess arguments to " + name + "'");
+				return;
+			}
+		}
+			
 		if (unusedHandlerCase(expr.fn)) {
 			pos++;
-			ac -= 1;
 		}
 		// anything left must be curried
 		while (pos < fn.argCount()) {
 			tocurry.add(fn.get(pos++));
-		}
-		if (pos > fn.argCount()) {
-			String name = "function '" + expr.fn;
-			if (expr.fn instanceof MemberExpr)
-				name = "method '" + ((MemberExpr)expr.fn).fld;
-			errors.message(expr.location(), name + "' expects " + ac + " arguments");
-			return;
-			
 		}
 		// if we have any curried args, we need to make an apply
 		if (!tocurry.isEmpty()) {

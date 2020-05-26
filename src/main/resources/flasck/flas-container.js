@@ -17,7 +17,7 @@ const ContainerRepeater = function() {
 }
 
 ContainerRepeater.prototype.callMe = function(cx, callback) {
-    cx.log("hello, world");
+    return Send.eval(cx, callback, "call", []);
 }
 
 

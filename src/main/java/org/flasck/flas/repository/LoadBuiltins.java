@@ -171,10 +171,17 @@ public class LoadBuiltins {
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "init"), new ArrayList<TypedPattern>(), null));
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "closing"), new ArrayList<TypedPattern>(), null));
 
-		TypedPattern cmh = new TypedPattern(pos, callMeTR, new VarName(pos, callMeHandler.name(), "handler"));
-		ContractMethodDecl callMe = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, repeater.name(), "callMe"), new ArrayList<TypedPattern>(), cmh);
-		callMe.bindType();
-		repeater.addMethod(callMe);
+		{
+			TypedPattern cmh = new TypedPattern(pos, callMeTR, new VarName(pos, callMeHandler.name(), "handler"));
+			ContractMethodDecl callMe = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, repeater.name(), "callMe"), new ArrayList<TypedPattern>(), cmh);
+			callMe.bindType();
+			repeater.addMethod(callMe);
+		}
+		{
+			ContractMethodDecl callback = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, repeater.name(), "call"), new ArrayList<TypedPattern>(), null);
+			callback.bindType();
+			callMeHandler.addMethod(callback);
+		}
 		
 		// specify function types
 		{
