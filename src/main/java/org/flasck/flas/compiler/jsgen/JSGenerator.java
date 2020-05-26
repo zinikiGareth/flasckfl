@@ -474,7 +474,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.currentContract.inheritsFrom(new PackageName("IdempotentHandler"));
 		JSMethodCreator ctrName = currentContract.createMethod("name", true);
 		ctrName.returnObject(new JSString(cd.name().uniqueName()));
-		JSMethodCreator methods = currentContract.createMethod("methods", true);
+		JSMethodCreator methods = currentContract.createMethod("_methods", true);
 		List<JSExpr> names = new ArrayList<>();
 		for (ContractMethodDecl m : cd.methods)
 			names.add(methods.string(m.name.name));

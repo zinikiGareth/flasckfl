@@ -469,13 +469,13 @@ const isntThere = function(ctr, meth) {
 }
 NoSuchContract.forContract = function(ctr) {
 	const nsc = new NoSuchContract(ctr);
-	const ms = ctr.methods();
+	const ms = ctr._methods();
 	const meths = {};
 	for (var ni=0; ni<ms.length; ni++) {
 		var meth = ms[ni];
 		meths[meth] = nsc[meth] = isntThere(ctr, meth);
 	}
-	nsc.methods = function() {
+	nsc._methods = function() {
 		return meths;
 	}
     return nsc;
@@ -491,14 +491,14 @@ NoSuchContract.forContract = function(ctr) {
  */
 
 const proxy = function(cx, intf, handler) {
-    const keys = intf.methods();
+    const keys = intf._methods();
     const proxied = { _owner: handler };
     const methods = {};
     for (var i=0;i<keys.length;i++) {
     	const meth = keys[i];
 	    methods[meth] = proxied[meth] = proxyMeth(meth, handler);
     }
-    proxied.methods = function() {
+    proxied._methods = function() {
     	return methods;
     }
     return proxied;

@@ -219,11 +219,11 @@ const MockContract = function(ctr) {
 	this.ctr = ctr;
 	this.expected = {};
 	this.methodNames = {};
-	var ms = ctr.methods();
+	var ms = ctr._methods();
 	for (var i in ms) {
 		this.methodNames[ms[i]] = this[ms[i]] = proxyMe(this, ms[i]);
 	}
-	this.methods = function() {
+	this._methods = function() {
 		return this.methodNames;
 	}
 };
@@ -376,11 +376,11 @@ const MockHandler = function(ctr) {
 	this.ctr = ctr;
 	this.expected = {};
 	this.methodNames = {};
-	var ms = ctr.methods();
+	var ms = ctr._methods();
 	for (var i in ms) {
 		this.methodNames[ms[i]] = this[ms[i]] = proxyMe(this, ms[i]);
 	}
-	this.methods = function() {
+	this._methods = function() {
 		return this.methodNames;
 	}
 };

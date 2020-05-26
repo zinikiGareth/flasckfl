@@ -42,7 +42,7 @@ public class ContractGenerationJS {
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));
-			oneOf(clz).createMethod("methods", true); will(returnValue(meth));
+			oneOf(clz).createMethod("_methods", true); will(returnValue(meth));
 			oneOf(meth).jsArray(Arrays.asList()); will(returnValue(jsa));
 			oneOf(meth).returnObject(jsa);
 		}});
@@ -65,7 +65,7 @@ public class ContractGenerationJS {
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));
-			oneOf(clz).createMethod("methods", true); will(returnValue(meth));
+			oneOf(clz).createMethod("_methods", true); will(returnValue(meth));
 			oneOf(meth).string("m"); will(returnValue(jse));
 			oneOf(meth).jsArray(Arrays.asList(jse)); will(returnValue(jsa));
 			oneOf(meth).returnObject(jsa);

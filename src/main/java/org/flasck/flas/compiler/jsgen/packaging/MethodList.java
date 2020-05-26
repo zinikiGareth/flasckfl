@@ -16,7 +16,7 @@ public class MethodList {
 	}
 
 	public void write(IndentWriter iw) {
-		iw.println(name.jsName() + ".prototype.methods = function() {");
+		iw.println(name.jsName() + ".prototype._methods = function() {");
 		IndentWriter jw = iw.indent();
 		jw.print("return {");
 		IndentWriter kw = jw.indent();
