@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -247,7 +248,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitStructField(StructField sf) {
 		visitor.visitStructField(sf);
-		visitTypeReference(sf.type);
+		visitTypeReference(sf.type, true);
 		if (sf.init != null)
 			visitExpr(sf.init, 0);
 		leaveStructField(sf);
@@ -279,7 +280,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
 		visitor.visitUnionTypeDefn(ud);
 		for (TypeReference c : ud.cases)
-			visitTypeReference(c);
+			visitTypeReference(c, true);
 		leaveUnionTypeDefn(ud);
 	}
 	
@@ -320,7 +321,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitObjectContract(ObjectContract oc) {
 		visitor.visitObjectContract(oc);
-		visitTypeReference(oc.implementsType());
+		visitTypeReference(oc.implementsType(), true);
 		leaveObjectContract(oc);
 	}
 
@@ -383,7 +384,7 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitProvides(Provides p) {
 		visitor.visitProvides(p);
-		visitTypeReference(p.implementsType());
+		visitTypeReference(p.implementsType(), true);
 		if (wantImplementedMethods) {
 			for (ObjectMethod om : p.implementationMethods)
 				visitObjectMethod(om);
@@ -398,12 +399,12 @@ public class Traverser implements RepositoryVisitor {
 	
 	public void visitRequires(RequiresContract rc) {
 		visitor.visitRequires(rc);
-		visitTypeReference(rc.implementsType());
+		visitTypeReference(rc.implementsType(), true);
 	}
 
 	public void visitImplements(ImplementsContract ic) {
 		visitor.visitImplements(ic);
-		visitTypeReference(ic.implementsType());
+		visitTypeReference(ic.implementsType(), true);
 		if (wantImplementedMethods) {
 			for (ObjectMethod om : ic.implementationMethods)
 				visitObjectMethod(om);
@@ -417,7 +418,7 @@ public class Traverser implements RepositoryVisitor {
 
 	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
 		visitor.visitHandlerImplements(hi, sh);
-		visitTypeReference(hi.implementsType());
+		visitTypeReference(hi.implementsType(), true);
 		traverseHandlerLambdas(hi);
 		if (wantImplementedMethods) {
 			for (ObjectMethod om : hi.implementationMethods)
@@ -434,13 +435,13 @@ public class Traverser implements RepositoryVisitor {
 		visitor.visitTemplate(t, isFirst);
 		if (t.nestingChain() != null) {
 			for (TypeReference ty : t.nestingChain().types())
-				visitTypeReference(ty);
+				visitTypeReference(ty, true);
 		}
 		afterTemplateChainTypes(t);
 		NestingChain chain = t.nestingChain();
 		if (chain != null) {
 			for (TypeReference ty : chain.types())
-				visitTypeReference(ty);
+				visitTypeReference(ty, true);
 		}
 		for (TemplateBinding b : t.bindings()) {
 			visitTemplateBinding(b);
@@ -639,7 +640,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitHandlerLambda(HandlerLambda i) {
 		visitor.visitHandlerLambda(i);
 		if (i.patt instanceof TypedPattern)
-			visitTypeReference(((TypedPattern)i.patt).type);
+			visitTypeReference(((TypedPattern)i.patt).type, true);
 	}
 
 	public void leaveObjectMethod(ObjectMethod meth) {
@@ -1064,7 +1065,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitTypedPattern(TypedPattern p, boolean isNested) {
 		visitor.visitTypedPattern(p, isNested);
-		visitTypeReference(p.type);
+		visitTypeReference(p.type, true);
 		visitPatternVar(p.var.loc, p.var.var);
 	}
 
@@ -1172,10 +1173,25 @@ public class Traverser implements RepositoryVisitor {
 			visitMakeAcor((MakeAcor)expr);
 		else if (expr instanceof CurrentContainer)
 			visitCurrentContainer((CurrentContainer)expr);
+		else if (expr instanceof CheckTypeExpr)
+			visitCheckTypeExpr((CheckTypeExpr)expr);
 		else
 			throw new org.zinutils.exceptions.NotImplementedException("Not handled: " + expr.getClass());
 	}
 
+	@Override
+	public void visitCheckTypeExpr(CheckTypeExpr expr) {
+		visitor.visitCheckTypeExpr(expr);
+		visitTypeReference(expr.type, false);
+		visitExpr(expr.expr, 0);
+		leaveCheckTypeExpr(expr);
+	}
+
+	@Override
+	public void leaveCheckTypeExpr(CheckTypeExpr expr) {
+		visitor.leaveCheckTypeExpr(expr);
+	}
+	
 	private boolean isNeedingEnhancement(Expr expr, int nargs) {
 		if (!wantNestedPatterns)
 			return false;
@@ -1308,8 +1324,8 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference var) {
-		visitor.visitTypeReference(var);
+	public void visitTypeReference(TypeReference var, boolean expectPolys) {
+		visitor.visitTypeReference(var, expectPolys);
 	}
 
 	@Override
@@ -1409,7 +1425,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		visitor.visitUnitDataDeclaration(udd);
-		visitTypeReference(udd.ofType);
+		visitTypeReference(udd.ofType, true);
 		if (udd.expr != null)
 			visitExpr(udd.expr, 0);
 		for (Assignment f : udd.fields)
@@ -1527,7 +1543,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitUnitTestSend(UnitTestSend s) {
 		visitor.visitUnitTestSend(s);
 		visitUnresolvedVar(s.card, 0);
-		visitTypeReference(s.contract);
+		visitTypeReference(s.contract, true);
 		visitSendExpr(s.contract, s.expr);
 		leaveUnitTestSend(s);
 	}
@@ -1611,11 +1627,11 @@ public class Traverser implements RepositoryVisitor {
 		for (Object a : cmd.args) {
 			if (a instanceof TypedPattern) {
 				TypedPattern p = (TypedPattern) a;
-				visitTypeReference(p.type);
+				visitTypeReference(p.type, true);
 			}
 		}
 		if (cmd.handler != null)
-			visitTypeReference(cmd.handler.type);
+			visitTypeReference(cmd.handler.type, true);
 		leaveContractMethod(cmd);
 
 	}

@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -173,8 +174,8 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitAnonymousVar(var);
 	}
 
-	public void visitTypeReference(TypeReference var) {
-		top.visitTypeReference(var);
+	public void visitTypeReference(TypeReference var, boolean expectPolys) {
+		top.visitTypeReference(var, true);
 	}
 
 	public void visitFunctionGroup(FunctionGroup grp) {
@@ -289,6 +290,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitExpr(Expr expr, int nArgs) {
 		top.visitExpr(expr, nArgs);
+	}
+
+	public void visitCheckTypeExpr(CheckTypeExpr expr) {
+		top.visitCheckTypeExpr(expr);
+	}
+
+	public void leaveCheckTypeExpr(CheckTypeExpr expr) {
+		top.leaveCheckTypeExpr(expr);
 	}
 
 	public void visitStringLiteral(StringLiteral expr) {

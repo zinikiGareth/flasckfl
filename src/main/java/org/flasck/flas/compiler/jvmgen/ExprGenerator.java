@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.AnonymousVar;
+import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -56,6 +57,11 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		this.meth = state.meth;
 		this.fcx = state.fcx;
 		sv.push(this);
+	}
+
+	@Override
+	public void visitCheckTypeExpr(CheckTypeExpr expr) {
+		new CheckTypeGenerator(state, sv, currentBlock, isExpectation);
 	}
 
 	@Override

@@ -52,7 +52,7 @@ public class PatternTraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitPattern(tp, false);
 			oneOf(v).visitTypedPattern(tp, false);
-			oneOf(v).visitTypeReference(list);
+			oneOf(v).visitTypeReference(list, true);
 			oneOf(v).visitPatternVar(pos, "x");
 			oneOf(v).leavePattern(tp, false);
 		}});

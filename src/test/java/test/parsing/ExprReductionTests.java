@@ -323,7 +323,7 @@ public class ExprReductionTests {
 	@Test // type Nil Nil
 	public void typeOperatorCanOnlyHaveOneArgument() {
 		context.checking(new Expectations() {{
-			oneOf(errors).message(with(pos), with("type operator must have exactly one argument"));
+			oneOf(errors).message(with(pos), with("type must have exactly one argument"));
 			oneOf(builder).done();
 		}});
 		reducer.term(new UnresolvedVar(pos, "type"));

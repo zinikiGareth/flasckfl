@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -88,7 +89,7 @@ public interface RepositoryVisitor {
 	void visitUnresolvedOperator(UnresolvedOperator operator, int nargs);
 	void visitAnonymousVar(AnonymousVar var);
 	void visitIntroduceVar(IntroduceVar var);
-	void visitTypeReference(TypeReference var);
+	void visitTypeReference(TypeReference var, boolean expectPolys);
 	void visitFunctionGroup(FunctionGroup grp);
 	void visitFunction(FunctionDefinition fn);
 	void visitFunctionIntro(FunctionIntro fi);
@@ -222,4 +223,6 @@ public interface RepositoryVisitor {
 	void visitUnitTestNewDiv(UnitTestNewDiv s);
 	void visitGuardedMessage(GuardedMessages gm);
 	void leaveGuardedMessage(GuardedMessages gm);
+	void visitCheckTypeExpr(CheckTypeExpr expr);
+	void leaveCheckTypeExpr(CheckTypeExpr expr);
 }

@@ -122,7 +122,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).visitStructField(sf);
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveStructDefn(s);
 			oneOf(v).traversalDone();
@@ -142,7 +142,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitStructDefn(s);
 			oneOf(v).visitStructField(sf);
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveStructDefn(s);
 			oneOf(v).visitStructFieldAccessor(sf);
@@ -189,7 +189,7 @@ public class TraversalTests {
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).visitStateDefinition(sd);
 			oneOf(v).visitStructField(sf);
-			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
+			oneOf(v).visitTypeReference(LoadBuiltins.stringTR, true);
 			oneOf(v).leaveStructField(sf);
 			oneOf(v).leaveStateDefinition(sd);
 			oneOf(v).leaveObjectDefn(s);
@@ -211,7 +211,7 @@ public class TraversalTests {
 			oneOf(v).visitObjectDefn(s);
 			oneOf(v).visitStateDefinition(sd);
 			oneOf(v).visitStructField(sf);
-			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
+			oneOf(v).visitTypeReference(LoadBuiltins.stringTR, true);
 			oneOf(v).visitExpr(sl, 0);
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveStructField(sf);
@@ -264,7 +264,7 @@ public class TraversalTests {
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitStateDefinition(sd);
 			oneOf(v).visitStructField(sf);
-			oneOf(v).visitTypeReference(LoadBuiltins.stringTR);
+			oneOf(v).visitTypeReference(LoadBuiltins.stringTR, true);
 			oneOf(v).visitExpr(sl, 0);
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveStructField(sf);
@@ -286,7 +286,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
-			oneOf(v).visitTypeReference(fred);
+			oneOf(v).visitTypeReference(fred, true);
 			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
 			oneOf(v).traversalDone();
@@ -307,7 +307,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
-			oneOf(v).visitTypeReference(fred);
+			oneOf(v).visitTypeReference(fred, true);
 			oneOf(v).leaveProvides(p);
 			oneOf(v).leaveAgentDefn(s);
 			oneOf(v).traversalDone();
@@ -328,7 +328,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitProvides(p);
-			oneOf(v).visitTypeReference(fred);
+			oneOf(v).visitTypeReference(fred, true);
 			oneOf(v).visitObjectMethod(meth);
 			oneOf(v).leaveObjectMethod(meth);
 			oneOf(v).leaveProvides(p);
@@ -350,7 +350,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitAgentDefn(s);
 			oneOf(v).visitRequires(rc);
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).leaveAgentDefn(s);
 			oneOf(v).traversalDone();
 		}});
@@ -463,7 +463,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitContractDecl(cd);
 			oneOf(v).visitContractMethod(cmd);
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).leaveContractMethod(cmd);
 			oneOf(v).leaveContractDecl(cd);
 			oneOf(v).traversalDone();
@@ -633,7 +633,7 @@ public class TraversalTests {
 			oneOf(v).visitUnitTest(utc);
 			oneOf(v).visitUnitTestStep(udd);
 			oneOf(v).visitUnitDataDeclaration(udd);
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).leaveUnitDataDeclaration(udd);
 			oneOf(v).visitUnitTestStep(uta);
 			oneOf(v).visitUnitTestAssert(uta);
@@ -682,7 +682,7 @@ public class TraversalTests {
 			oneOf(v).visitUnitTestStep(uts);
 			oneOf(v).visitUnitTestSend(uts);
 			oneOf(v).visitUnresolvedVar((UnresolvedVar) with(ExprMatcher.unresolved("card")), with(0));
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).visitSendMethod(cd, f);
 			oneOf(v).visitExpr(hello, 0);
 			oneOf(v).visitStringLiteral(hello);
@@ -707,7 +707,7 @@ public class TraversalTests {
 		context.checking(new Expectations() {{
 			oneOf(v).visitUnitTestPackage(utp);
 			oneOf(v).visitUnitDataDeclaration(udd);
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).leaveUnitDataDeclaration(udd);
 			oneOf(v).leaveUnitTestPackage(utp);
 			oneOf(v).traversalDone();
@@ -727,7 +727,7 @@ public class TraversalTests {
 		utc.steps.add(udd);
 		context.checking(new Expectations() {{
 			oneOf(v).visitUnitDataDeclaration(udd);
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).visitUnitDataField(assign);
 			oneOf(v).visitExpr(simpleExpr, 0);
 			oneOf(v).visitStringLiteral(simpleExpr);
@@ -747,7 +747,7 @@ public class TraversalTests {
 		utc.steps.add(udd);
 		context.checking(new Expectations() {{
 			oneOf(v).visitUnitDataDeclaration(udd);
-			oneOf(v).visitTypeReference(tr);
+			oneOf(v).visitTypeReference(tr, true);
 			oneOf(v).visitExpr(simpleExpr, 0);
 			oneOf(v).visitStringLiteral(simpleExpr);
 			oneOf(v).leaveUnitDataDeclaration(udd);

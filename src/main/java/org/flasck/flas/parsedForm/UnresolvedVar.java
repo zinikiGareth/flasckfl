@@ -32,6 +32,10 @@ public class UnresolvedVar implements Expr {
 		return var.equals("type");
 	}
 	
+	public boolean isCheckType() {
+		return var.equals("istype");
+	}
+	
 	public void bind(RepositoryEntry defn) {
 		this.definition = defn;
 	}

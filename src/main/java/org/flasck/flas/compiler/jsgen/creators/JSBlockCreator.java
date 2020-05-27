@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.tc3.NamedType;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public interface JSBlockCreator {
@@ -79,6 +80,7 @@ public interface JSBlockCreator {
 	void errorNoCase();
 	void errorNoDefaultGuard();
 	void error(JSExpr msg);
+	JSExpr checkType(NamedType type, JSExpr res);
 
 	// main logic statements
 	void storeField(JSExpr inObj, String field, JSExpr value);

@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -467,6 +468,14 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitCheckTypeExpr(CheckTypeExpr expr) {
+	}
+
+	@Override
+	public void leaveCheckTypeExpr(CheckTypeExpr expr) {
+	}
+
+	@Override
 	public void visitStringLiteral(StringLiteral expr) {
 	}
 
@@ -491,7 +500,7 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference var) {
+	public void visitTypeReference(TypeReference var, boolean expectPolys) {
 	}
 
 	@Override

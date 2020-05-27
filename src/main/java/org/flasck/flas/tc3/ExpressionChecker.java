@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
+import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -70,6 +71,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		guardPos = c.guard.location();
 	}
 
+	@Override
+	public void visitCheckTypeExpr(CheckTypeExpr expr) {
+		new CheckTypeExprChecker(errors, repository, state, nv, inTemplate);
+	}
+	
 	@Override
 	public void visitNumericLiteral(NumericLiteral number) {
 		announce(number.location, LoadBuiltins.number);

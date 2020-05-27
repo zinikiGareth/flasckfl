@@ -361,7 +361,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference ref) {
+	public void visitTypeReference(TypeReference ref, boolean expectPolys) {
 		String tn = ref.name();
 		final RepositoryEntry defn = find(scope, tn);
 		if (defn == null) {
@@ -372,29 +372,33 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		
-		NamedType nt = (NamedType) defn;
-		if (nt instanceof PolyHolder) {
-			PolyHolder ph = (PolyHolder)nt;
-			if (ph.hasPolys()) {
-				List<PolyType> nd = ph.polys();
-				List<TypeReference> nu = ref.polys();
-				int ndp = nd.size();
-				if (ndp != nu.size()) {
-					errors.message(ref.location(), "expected " + ndp + " poly vars");
+		if (expectPolys) {
+			NamedType nt = (NamedType) defn;
+			if (nt instanceof PolyHolder) {
+				PolyHolder ph = (PolyHolder)nt;
+				if (ph.hasPolys()) {
+					List<PolyType> nd = ph.polys();
+					List<TypeReference> nu = ref.polys();
+					int ndp = nd.size();
+					if (ndp != nu.size()) {
+						errors.message(ref.location(), "expected " + ndp + " poly vars");
+						return;
+					}
+					ErrorMark mark = errors.mark();
+					List<Type> bound = new ArrayList<>();
+					for (TypeReference tr : nu) {
+						visitTypeReference(tr, expectPolys);
+						if (mark.hasMoreNow())
+							return;
+						bound.add(tr.defn());
+					}
+					// it needs to bind to a polyinstance
+					ref.bind(new PolyInstance(ref.location(), (NamedType) defn, bound));
 					return;
 				}
-				ErrorMark mark = errors.mark();
-				List<Type> bound = new ArrayList<>();
-				for (TypeReference tr : nu) {
-					visitTypeReference(tr);
-					if (mark.hasMoreNow())
-						return;
-					bound.add(tr.defn());
-				}
-				// it needs to bind to a polyinstance
-				ref.bind(new PolyInstance(ref.location(), (NamedType) defn, bound));
-				return;
 			}
+		} else if (ref.hasPolys()) {
+			errors.message(ref.location(), "poly vars are not required or allowed here");
 		}
 		
 		ref.bind((NamedType) defn);

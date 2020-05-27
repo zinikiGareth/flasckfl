@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.DotOperator;
 import org.flasck.flas.parsedForm.TypeExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -139,6 +140,8 @@ public class TDAExprReducer implements ExprTermConsumer {
 		final Expr t0 = terms.get(from);
 		if (isTypeExpr(t0))
 			return resolveTypeExpr(t0, from, to);
+		if (isCheckTypeExpr(t0))
+			return resolveCheckTypeExpr(t0, from, to);
 		if (from+1 == to && !isConstructor(t0))
 			return t0;
 		else 
@@ -153,13 +156,28 @@ public class TDAExprReducer implements ExprTermConsumer {
 		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isType();
 	}
 
+	private boolean isCheckTypeExpr(Expr t0) {
+		return t0 instanceof UnresolvedVar && ((UnresolvedVar)t0).isCheckType();
+	}
+
 	private Expr resolveTypeExpr(Expr t0, int from, int to) {
 		if (to != from+2) {
-			errors.message(t0.location(), "type operator must have exactly one argument");
+			errors.message(t0.location(), "type must have exactly one argument");
 			return null;
 		}
 		Expr ctor = terms.get(from+1);
 		return new TypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ((UnresolvedVar)ctor).var);
+	}
+	
+	private Expr resolveCheckTypeExpr(Expr t0, int from, int to) {
+		// TODO: I have forgotten how this reduction works; obviously the argument can be an expression
+		// we really just want to check that the first thing is a type
+		if (to != from+3) {
+			errors.message(t0.location(), "istype must have exactly two arguments");
+			return null;
+		}
+		Expr ctor = terms.get(from+1);
+		return new CheckTypeExpr(t0.location().copySetEnd(ctor.location().pastEnd()), ctor.location(), ((UnresolvedVar)ctor).var, terms.get(from+2));
 	}
 	
 	private List<Expr> args(int from, int to) {

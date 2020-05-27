@@ -1,0 +1,6 @@
+JVM PASS an empty list is recognised
+JVM PASS a non-empty list is recognised
+JVM PASS a number doesn't make the cut
+JS PASS an empty list is recognised
+JS PASS a non-empty list is recognised
+JS PASS a number doesn't make the cut

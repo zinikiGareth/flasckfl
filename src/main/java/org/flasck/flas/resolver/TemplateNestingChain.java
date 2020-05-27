@@ -108,7 +108,7 @@ public class TemplateNestingChain implements NestingChain {
 				StructDefn ty = (StructDefn) l.actual;
 				StructField field = ty.findField(var.var);
 				if (field != null) {
-					resolver.visitTypeReference(field.type);
+					resolver.visitTypeReference(field.type, true);
 					return new TemplateNestedField(var.location, l.name, field.type(), field);
 				}
 			} else if (TypeHelpers.isList(l.actual)) {
@@ -117,7 +117,7 @@ public class TemplateNestingChain implements NestingChain {
 					StructDefn sd = (StructDefn) ty;
 					StructField field = sd.findField(var.var);
 					if (field != null) {
-						resolver.visitTypeReference(field.type);
+						resolver.visitTypeReference(field.type, true);
 						return new TemplateNestedField(var.location, l.name, field.type(), field);
 					}
 				}

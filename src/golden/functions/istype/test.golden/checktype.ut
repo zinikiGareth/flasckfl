@@ -1,0 +1,11 @@
+	test an empty list is recognised
+		assert (f [])
+			1
+	
+	test a non-empty list is recognised
+		assert (f ["hello"])
+			1
+	
+	test a number doesn't make the cut
+		assert (f 42)
+			0

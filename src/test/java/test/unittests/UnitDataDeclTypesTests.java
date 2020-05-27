@@ -91,7 +91,7 @@ public class UnitDataDeclTypesTests {
 		TypeReference ctr = new TypeReference(pos, "Contract");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), null);
 		r.visitUnitDataDeclaration(udd);
-		r.visitTypeReference(ctr);
+		r.visitTypeReference(ctr, true);
 		r.leaveUnitDataDeclaration(udd);
 	}
 
@@ -106,7 +106,7 @@ public class UnitDataDeclTypesTests {
 		TypeReference ctr = new TypeReference(pos, "Contract");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), new StringLiteral(pos, "hello"));
 		r.visitUnitDataDeclaration(udd);
-		r.visitTypeReference(ctr);
+		r.visitTypeReference(ctr, true);
 		r.leaveUnitDataDeclaration(udd);
 	}
 
@@ -122,7 +122,7 @@ public class UnitDataDeclTypesTests {
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), null);
 		udd.field(new UnresolvedVar(pos, "x"), new StringLiteral(pos, "hello"));
 		r.visitUnitDataDeclaration(udd);
-		r.visitTypeReference(ctr);
+		r.visitTypeReference(ctr, true);
 		r.leaveUnitDataDeclaration(udd);
 	}
 
@@ -137,7 +137,7 @@ public class UnitDataDeclTypesTests {
 		UnresolvedVar from = new UnresolvedVar(pos, "Obj");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), new MemberExpr(pos, from, new UnresolvedVar(pos, "fld")));
 		r.visitUnitDataDeclaration(udd);
-		r.visitTypeReference(ctr);
+		r.visitTypeReference(ctr, true);
 		r.leaveUnitDataDeclaration(udd);
 	}
 

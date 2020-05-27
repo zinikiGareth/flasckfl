@@ -303,6 +303,8 @@ FLContext.prototype.isA = function(val, ty) {
 		return val._areYouA(ty);
 	}
 	switch (ty) {
+	case 'Any':
+		return true;
 	case 'True':
 		return val === true;
 	case 'False':
@@ -311,6 +313,8 @@ FLContext.prototype.isA = function(val, ty) {
 		return typeof(val) == 'number';
 	case 'String':
 		return typeof(val) == 'string';
+	case 'List':
+		return Array.isArray(val);
 	case 'Nil':
 		return Array.isArray(val) && val.length == 0;
 	case 'Cons':

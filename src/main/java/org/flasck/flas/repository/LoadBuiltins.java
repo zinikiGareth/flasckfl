@@ -108,6 +108,7 @@ public class LoadBuiltins {
 	public static final ContractDecl callMeHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CallMe"), false);
 	
 	// Builtin operators
+	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, false);
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, false);
 	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
 	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, false);
@@ -188,6 +189,7 @@ public class LoadBuiltins {
 			Type pa = new PolyType(pos, new SolidName(null, "A"));
 			isEqual.bindType(new Apply(pa, pa, bool));
 		}
+		isType.bindType(new Apply(type, any, bool));
 		plus.bindType(new Apply(number, number, number));
 		minus.bindType(new Apply(number, number, number));
 		mul.bindType(new Apply(number, number, number));
@@ -200,6 +202,8 @@ public class LoadBuiltins {
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
 		
 		// add all current functions to list for dependency resolution
+		allFunctions.add(isEqual);
+		allFunctions.add(isType);
 		allFunctions.add(plus);
 		allFunctions.add(minus);
 		allFunctions.add(mul);
@@ -235,6 +239,7 @@ public class LoadBuiltins {
 		repository.newStruct(errors, clickEvent);
 		repository.newUnion(errors, event);
 
+		repository.functionDefn(errors, isType);
 		repository.functionDefn(errors, isEqual);
 		repository.functionDefn(errors, plus);
 		repository.functionDefn(errors, minus);

@@ -25,7 +25,7 @@ public class UDDChecker extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void visitTypeReference(TypeReference var) {
+	public void visitTypeReference(TypeReference var, boolean expectPolys) {
 		actualType = var.defn();
 	}
 	

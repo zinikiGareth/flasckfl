@@ -316,7 +316,7 @@ public class ResolverTests {
 		Resolver r = new RepositoryResolver(errors, rr);
 		r.currentScope(pkg);
 		final TypeReference ty = new TypeReference(pos, "Hello");
-		r.visitTypeReference(ty);
+		r.visitTypeReference(ty, true);
 		assertEquals(type, ty.defn());
 	}
 
@@ -405,7 +405,7 @@ public class ResolverTests {
 		final TypeReference ty = new TypeReference(pos, "Hello");
 		Provides cs = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(cs.name());
-		r.visitTypeReference(ty);
+		r.visitTypeReference(ty, true);
 		assertEquals(type, ty.defn());
 	}
 
@@ -424,7 +424,7 @@ public class ResolverTests {
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
-		r.visitTypeReference(ty);
+		r.visitTypeReference(ty, true);
 	}
 
 	@Test
@@ -441,7 +441,7 @@ public class ResolverTests {
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
-		r.visitTypeReference(ty);
+		r.visitTypeReference(ty, true);
 		r.leaveProvides(pr);
 	}
 
@@ -458,7 +458,7 @@ public class ResolverTests {
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
 		r.currentScope(card);
 		r.visitProvides(pr);
-		r.visitTypeReference(ty);
+		r.visitTypeReference(ty, true);
 		assertEquals(cd, pr.actualType());
 	}
 
@@ -477,7 +477,7 @@ public class ResolverTests {
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);
-		r.visitTypeReference(ty);
+		r.visitTypeReference(ty, true);
 		r.visitObjectMethod(om);
 		assertEquals(cmu, om.contractMethod());
 	}
@@ -498,7 +498,7 @@ public class ResolverTests {
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);
-		r.visitTypeReference(ty);
+		r.visitTypeReference(ty, true);
 		r.visitObjectMethod(om);
 	}
 }

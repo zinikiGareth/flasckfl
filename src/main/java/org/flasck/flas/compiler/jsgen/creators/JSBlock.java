@@ -20,6 +20,7 @@ import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
 import org.flasck.flas.compiler.jsgen.form.JSBoundVar;
 import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
+import org.flasck.flas.compiler.jsgen.form.JSCheckType;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
 import org.flasck.flas.compiler.jsgen.form.JSCurry;
@@ -70,6 +71,7 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.flasck.flas.tc3.NamedType;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSBlock implements JSBlockCreator {
@@ -405,6 +407,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void error(JSExpr msg) {
 		stmts.add(new JSError(msg));
+	}
+
+	@Override
+	public JSLocal checkType(NamedType type, JSExpr res) {
+		JSLocal ret = new JSLocal(creating, new JSCheckType(type, res));
+		stmts.add(ret);
+		return ret;
 	}
 
 	@Override
