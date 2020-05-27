@@ -55,4 +55,9 @@ public class TokenDefinition extends Definition {
 	public void addMatcher(String amendedName, String pattern, UseNameForScoping scoper) {
 		matchers.add(new Matcher(amendedName, pattern, scoper));
 	}
+	
+	@Override
+	public String toString() {
+		return "Token[" + token + "]";
+	}
 }

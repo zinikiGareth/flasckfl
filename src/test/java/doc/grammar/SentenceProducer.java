@@ -27,6 +27,7 @@ public class SentenceProducer {
 	public enum UseNameForScoping {
 		USE_THIS_NAME,
 		USE_CURRENT_NAME,
+		INDENT_THIS_ONCE,
 		UNSCOPED
 	}
 
@@ -191,7 +192,7 @@ public class SentenceProducer {
 			sentence.append(t);
 			if (patternMatcher != null) {
 				replace(t, scoping);
-				this.matchers.put(assembleName(t), patternMatcher);
+				this.matchers.put(assembleName(t, scoping), patternMatcher);
 			}
 			for (Matcher m : matchers) {
 				String patt = m.pattern;
@@ -207,7 +208,7 @@ public class SentenceProducer {
 				if (m.amendedName != null)
 					doAmend = m.amendedName.replace("${final}", t);
 				replace(doAmend, m.scoper);
-				this.matchers.put(assembleName(doAmend), patt);
+				this.matchers.put(assembleName(doAmend, scoping), patt);
 			}
 		}
 
@@ -216,9 +217,9 @@ public class SentenceProducer {
 			for (NamePart p : nameParts)
 				if (p.indentLevel == indent + nameNestOffset)
 					np = p;
-			if (np != null && (scoping != UseNameForScoping.USE_CURRENT_NAME))
+			if (np != null && (scoping != UseNameForScoping.USE_CURRENT_NAME && scoping != UseNameForScoping.INDENT_THIS_ONCE))
 				removeAbove(indent + nameNestOffset -1);
-			if (np == null || scoping != UseNameForScoping.USE_CURRENT_NAME)
+			if (np == null || (scoping != UseNameForScoping.USE_CURRENT_NAME && scoping != UseNameForScoping.INDENT_THIS_ONCE))
 				nameParts.add(new NamePart(indent + nameNestOffset, t, scoping));
 		}
 
@@ -254,13 +255,14 @@ public class SentenceProducer {
 				final NamePart finalPart = new NamePart(indent + nameNestOffset, "_" + prefix + (np.serviceNamer++), UseNameForScoping.UNSCOPED);
 				nameParts.add(finalPart);
 				if (names != null)
-					this.matchers.put(assembleName(finalPart.name), names);
+					this.matchers.put(assembleName(finalPart.name, UseNameForScoping.UNSCOPED), names);
 			}
 		}
 
-		private String assembleName(String desiredName) {
+		private String assembleName(String desiredName, UseNameForScoping scoping) {
 			StringBuilder sb = new StringBuilder();
-			for (int i=0;i<nameParts.size()-1;i++) {
+			int drop = scoping == UseNameForScoping.INDENT_THIS_ONCE?0:1;
+			for (int i=0;i<nameParts.size()-drop;i++) {
 				NamePart np = nameParts.get(i);
 				sb.append(np.name);
 				sb.append(".");

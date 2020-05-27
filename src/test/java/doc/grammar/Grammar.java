@@ -81,7 +81,11 @@ public class Grammar {
 			
 			List<XMLElement> testers = p.elementChildren("tested");
 			boolean needsMoreTesting = testers.isEmpty() || (testers.size() == 1 && testers.get(0).hasAttribute("have"));
-					
+			for (XMLElement t : testers) {
+				t.optional("by");
+				t.attributesDone();
+			}
+			
 			List<Integer> probs = null;
 			List<XMLElement> producers = p.elementChildren("producer");
 			if (producers.size() > 1)
@@ -140,6 +144,7 @@ public class Grammar {
 				throw new RuntimeException("First occurrence of section " + title + " did not have a description");
 			}
 		}
+		xe.attributesDone();
 		return ret;
 	}
 
@@ -238,6 +243,8 @@ public class Grammar {
 			unfs = UseNameForScoping.USE_THIS_NAME;
 		else if ("false".equals(scope))
 			unfs = UseNameForScoping.USE_CURRENT_NAME;
+		else if ("indent".equals(scope))
+			unfs = UseNameForScoping.INDENT_THIS_ONCE;
 		rule.attributesDone();
 		final TokenDefinition ret = new TokenDefinition(type, nameAppender, unfs);
 		List<XMLElement> matchers = rule.elementChildren("named");

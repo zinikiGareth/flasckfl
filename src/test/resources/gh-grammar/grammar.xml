@@ -294,9 +294,9 @@
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
       <token type='STRUCT'/>
-    	  <token type='type-name' names='STRUCT\[${name}.*\]' />
+      <token type='type-name' names='STRUCT\[${name}.*\]' scope='true'/>
       <many>
-        <token type='poly-var' names='PolyType\[${name}.*\]'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
         <ref production='struct-field-list'/>
@@ -308,9 +308,9 @@
 	<tested by='test.parsing.TDAStructIntroParsingTests' />
     <seq>
       <token type='ENTITY'/>
-    	  <token type='type-name' names='ENTITY\[${name}.*\]' />
+      <token type='type-name' names='ENTITY\[${name}.*\]' scope='true'/>
       <many>
-        <token type='poly-var' names='PolyType\[${name}.*\]'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
         <ref production='struct-field-list'/>
@@ -322,9 +322,9 @@
 	<tested by='test.parsing.TDADealIntroParsingTests' />
     <seq>
       <token type='DEAL'/>
-    	  <token type='type-name' names='DEAL\[${name}.*\]' />
+      <token type='type-name' names='DEAL\[${name}.*\]' scope='true'/>
       <many>
-        <token type='poly-var' names='PolyType\[${name}.*\]'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
         <ref production='struct-field-list'/>
@@ -333,12 +333,12 @@
   </production>
   <production name='offer-declaration'>
     <section title='Data Declarations' />
-	<tested by='test.parsing.TDAOfferIntroParsingTests' />
+	<tested by='test.parsing.TDAOfferIntroParsingTests'/>
     <seq>
       <token type='OFFER'/>
-    	  <token type='type-name' names='OFFER\[${name}.*\]' />
+      <token type='type-name' names='OFFER\[${name}.*\]' scope='true'/>
       <many>
-        <token type='poly-var' names='PolyType\[${name}.*\]'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
         <ref production='struct-field-list'/>
@@ -639,7 +639,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
-    	  <token type='ORB' />
+      <token type='ORB' />
       <token type='var-name' names='TupleMember\[${name}.*\]' >
       	<named amended='_tuple_${final}' pattern='TupleAssignment\{${final}=&gt;\[.*\]=.*\}' scope='true' />
       </token>
@@ -779,7 +779,7 @@
         </optional>
       </seq>
       <seq>
-        <token type='poly-var' names='PolyType\[${name}.*\]'/>
+        <token type='poly-var'/>
       </seq>
     </or>
   </production>
@@ -969,8 +969,42 @@
       </many>
       <nested-name offset='0'/>
       <indent>
-      	<ref production='method-actions'/>
+      	<ref production='method-guards-or-actions'/>
       </indent>
+    </seq>
+  </production>
+  <production name='method-guards-or-actions'>
+    <section title='Method'/>
+    <tested by='test.parsing.TDAMethodNestedParsingTests' />
+    <tested by='test.parsing.TDAMethodMessageParsingTests' />
+    <or>
+      	<ref production='method-guards'/>
+      	<ref production='method-actions'/>
+    </or>
+  </production>
+  <production name='method-guards'>
+    <section title='Method'/>
+    <tested by='test.parsing.TDAMethodNestedParsingTests' />
+    <tested by='test.parsing.TDAMethodMessageParsingTests' />
+    <seq>
+      <many>
+        <ref production='method-guard'/>
+      </many>
+      <indent>
+        <ref production='function-scope-unit'/>
+      </indent>
+    </seq>
+  </production>
+  <production name='method-guard'>
+    <section title='Method'/>
+    <tested by='test.parsing.TDAMethodNestedParsingTests' />
+    <tested by='test.parsing.TDAMethodMessageParsingTests' />
+    <seq>
+      <token type='GUARD'></token>
+      <ref production='expression'/>
+      <many>
+        <ref production='method-action'/>
+      </many>
     </seq>
   </production>
   <production name='method-actions'>

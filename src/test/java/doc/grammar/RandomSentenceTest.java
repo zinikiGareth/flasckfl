@@ -31,6 +31,8 @@ public class RandomSentenceTest {
 		final Consumer<SentenceData> collector = used -> { matchers.putAll(used.matchers); };
 		p.sentence(seed, "source-file", collector);
 		p.sentence(seed, "unit-test-file", collector);
+//		FileUtils.cat(new File(fd, "test.r" + seed + "/r" + seed + ".fl"));
+//		FileUtils.cat(new File(fd, "test.r" + seed + "/r" + seed + ".ut"));
 //		System.out.println("MSS = " + matchers);
 		try {
 			boolean f = org.flasck.flas.Main.standardCompiler(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), fd.toString() });
