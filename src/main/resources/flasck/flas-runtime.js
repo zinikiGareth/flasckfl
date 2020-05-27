@@ -998,7 +998,11 @@ FLBuiltin.isEqual.nfargs = function() { return 2; }
 
 FLBuiltin._probe_state = function(_cxt, mock, v) {
 	// mock should be a MockCard or MockAgent (or MockObject or something?)
-	const sh = mock.card ? mock.card : mock.agent;
+	var sh = mock;
+	if (mock.card)
+		sh = mock.card;
+	else if (mock.agent)
+		sh = mock.agent;
 	if (sh.state.dict[v] === undefined)
 		throw Error("no member " + v + " in " + sh.state.dict);
 	return sh.state.dict[v];

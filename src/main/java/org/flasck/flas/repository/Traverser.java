@@ -619,7 +619,7 @@ public class Traverser implements RepositoryVisitor {
 				visitEventSource(e);
 			}
 		}
-		if (!meth.args().isEmpty() || !meth.messages().isEmpty()) {
+		if (!meth.args().isEmpty() || meth.hasMessages()) {
 			if (meth.hasImplements() && meth.getImplements() instanceof HandlerImplements)
 				traverseHandlerLambdas((HandlerImplements)meth.getImplements());
 			traverseFnOrMethod(meth);
@@ -1113,9 +1113,9 @@ public class Traverser implements RepositoryVisitor {
 	public void visitCase(FunctionCaseDefn c) {
 		visitor.visitCase(c);
 		if (c.guard != null) {
-			visitor.visitGuard(c);
+			visitGuard(c);
 			visitExpr(c.guard, 0);
-			visitor.leaveGuard(c);
+			leaveGuard(c);
 		}
 		visitExpr(c.expr, 0);
 		visitor.leaveCase(c);

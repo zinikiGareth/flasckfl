@@ -190,25 +190,27 @@ public class TDAExprReducer implements ExprTermConsumer {
 	private int precedence(InputPosition pos, String op) {
 		boolean isUnary = terms.isEmpty() || (!ops.isEmpty() && ops.get(ops.size()-1).pos == terms.size()-1);
 		switch (op) {
+		case "!":
+			return 7;
+		case "-":
+			return isUnary ? 7 : 5;
 		case "*":
 		case "/":
 			return 6;
-		case "-":
-			if (isUnary)
-				return 9;
-		case "!":
-			return 9;
 		case "+":
 		case "++":
 			return 5;
 		case ":":
-			return 3;
+			return 4;
 		case "==":
 		case "<":
 		case "<=":
 		case "!=":
 		case ">":
 		case ">=":
+			return 3;
+		case "&&":
+		case "||":
 			return 2;
 		case "->":
 			return 1;

@@ -1,0 +1,9 @@
+	object Obj
+		state
+			Number n <- 0
+			
+		ctor foo
+			
+		method m
+			| n == 0
+				n <- 1

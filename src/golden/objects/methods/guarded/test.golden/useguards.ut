@@ -1,0 +1,6 @@
+	test the specific case works
+		data Obj o <- Obj.foo
+		invoke o.m
+		assert (o.n)
+			1
+		

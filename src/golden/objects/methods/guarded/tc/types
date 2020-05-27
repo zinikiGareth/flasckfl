@@ -1,0 +1,2 @@
+test.golden.Obj._ctor_foo :: test.golden.Obj
+test.golden.Obj.m :: List[Message]
