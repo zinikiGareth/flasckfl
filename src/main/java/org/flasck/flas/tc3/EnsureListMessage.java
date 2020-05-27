@@ -22,6 +22,8 @@ public class EnsureListMessage implements Type {
 			ret = ((UnifiableType) ret).resolve(errors, true);
 		if (ret instanceof ErrorType)
 			return; // message has already been displayed
+		if (TypeHelpers.listMessage(pos).incorporates(pos, ret))
+			return;
 		if (!LoadBuiltins.message.incorporates(pos, ret)) {
 			// If this happens, I think this should spit out an error, but I think it should have been caught already 
 			throw new NotImplementedException();

@@ -186,6 +186,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		if (check instanceof EnsureListMessage) {
 			EnsureListMessage elm = (EnsureListMessage) check;
 			elm.validate(errors);
+			sv.result(new ExprResult(pos, TypeHelpers.listMessage(pos)));
 			return;
 		}
 		

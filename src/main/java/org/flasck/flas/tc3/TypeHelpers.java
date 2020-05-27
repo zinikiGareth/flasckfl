@@ -1,9 +1,16 @@
 package org.flasck.flas.tc3;
 
+import java.util.Arrays;
+
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TypeHelpers {
+	public static Type listMessage(InputPosition pos) {
+		return new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
+	}
+
 	public static boolean isPrimitive(Type type) {
 		if (type instanceof Primitive)
 			return true;
