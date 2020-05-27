@@ -69,7 +69,7 @@ public class RepositoryTests {
 	@Test
 	public void canAddAFunctionToTheRepository() {
 		Repository r = new Repository();
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, null);
 		r.functionDefn(errors, fn);
 		assertEquals(fn, r.get("test.repo.fred"));
 	}
@@ -77,7 +77,7 @@ public class RepositoryTests {
 	@Test
 	public void cannotAddAFunctionToTheRepositoryTwice() {
 		Repository r = new Repository();
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, null);
 		r.functionDefn(errors, fn);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "test.repo.fred is defined multiple times: " + pos);
@@ -173,7 +173,7 @@ public class RepositoryTests {
 	@Test
 	public void canAddAStandaloneMethodToTheRepository() {
 		Repository r = new Repository();
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null, null);
 		StandaloneMethod meth = new StandaloneMethod(om);
 		r.newStandaloneMethod(errors, meth);
 		assertEquals(meth, r.get("test.repo.m"));
@@ -182,7 +182,7 @@ public class RepositoryTests {
 	@Test
 	public void cannotAddAStandaloneMethodToTheRepositoryTwice() {
 		Repository r = new Repository();
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "m"), new ArrayList<>(), null, null);
 		StandaloneMethod meth = new StandaloneMethod(om);
 		r.newStandaloneMethod(errors, meth);
 		context.checking(new Expectations() {{
@@ -194,9 +194,9 @@ public class RepositoryTests {
 	@Test
 	public void cannotAddAStandaloneMethodToTheRepositoryIfAFunctionIsAlreadyThere() {
 		Repository r = new Repository();
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "fred"), 2, null);
 		r.functionDefn(errors, fn);
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "fred"), new ArrayList<>(), null, null);
 		StandaloneMethod meth = new StandaloneMethod(om);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "test.repo.fred is defined multiple times: " + pos);
@@ -227,7 +227,7 @@ public class RepositoryTests {
 	public void canAddAnObjectAcorToTheRepository() {
 		Repository r = new Repository();
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), true, new ArrayList<>());
-		ObjectAccessor oa = new ObjectAccessor(od, new FunctionDefinition(FunctionName.function(pos, od.name(), "acor"), 2, false));
+		ObjectAccessor oa = new ObjectAccessor(od, new FunctionDefinition(FunctionName.function(pos, od.name(), "acor"), 2, null));
 		r.newObjectAccessor(errors, oa);
 		assertEquals(oa, r.get("test.repo.Obj.acor"));
 	}
@@ -245,7 +245,7 @@ public class RepositoryTests {
 	public void canAddAnObjectMethodToTheRepository() {
 		Repository r = new Repository();
 		final SolidName on = new SolidName(pkg, "Obj");
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, on, "doit"), new ArrayList<>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, on, "doit"), new ArrayList<>(), null, null);
 		r.newObjectMethod(errors, meth);
 		assertEquals(meth, r.get("test.repo.Obj.doit"));
 	}

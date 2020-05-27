@@ -70,7 +70,7 @@ public class PatternAnalysis {
 
 	@Test
 	public void analyzeFunctionWithNoArguments() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 0, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -95,7 +95,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analysisWorksForStandaloneMethodsToo() {
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null, null);
 		om.sendMessage(new SendMessage(pos, simpleExpr));
 		StandaloneMethod meth = new StandaloneMethod(om);
 		new Traverser(sv).visitStandaloneMethod(meth);
@@ -125,7 +125,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analyzeFunctionWithASingleVar() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -155,7 +155,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analyzeFunctionWithATypedVar() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -194,7 +194,7 @@ public class PatternAnalysis {
 	public void argumentsCanBeContracts() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Svc"));
 		
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -231,7 +231,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analyzeFunctionWithAConstant() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -272,7 +272,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analyzeFunctionWithAStringConstant() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -313,7 +313,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analyzeFunctionWithASimpleNoArgConstructor() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -347,7 +347,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analyzeFunctionWithAChoiceOfTwoConstructors() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro1;
 		final FunctionCaseDefn fcd1;
 		{
@@ -399,7 +399,7 @@ public class PatternAnalysis {
 
 	@Test
 	public void analyzeFunctionTwoVars() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -433,7 +433,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void analyzeFunctionWithTwoNoArgConstructors() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		final FunctionIntro intro;
 		final FunctionCaseDefn fcd1;
 		{
@@ -475,7 +475,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void twoArgumentsAndTwoEquations() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		final FunctionIntro intro1;
 		final FunctionCaseDefn fcd1;
 		{
@@ -540,7 +540,7 @@ public class PatternAnalysis {
 
 	@Test
 	public void twoArgumentsAndTwoEquationsWithAVar() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		final FunctionIntro intro1;
 		final FunctionCaseDefn fcd1;
 		{
@@ -601,7 +601,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void aNestedCons() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro1;
 		final FunctionCaseDefn fcd1;
 		{
@@ -662,7 +662,7 @@ public class PatternAnalysis {
 	
 	@Test
 	public void aNestedConsOtherOrder() {
-		FunctionDefinition fn = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		final FunctionIntro intro1;
 		final FunctionCaseDefn fcd1;
 		{

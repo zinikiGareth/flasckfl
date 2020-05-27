@@ -124,13 +124,13 @@ public class TDAObjectElementsParser implements TDAParsing {
 				currParser.scopeComplete(location);
 				currParser = null;
 			}
-			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, namer, topLevel, "action", false));
+			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, namer, topLevel, "action", (StateHolder) builder));
 		}
 		case "acor": {
 			if (currParser != null)
 				currParser.scopeComplete(location);
-			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, (errors, f) -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); builder.addAccessor(oa); topLevel.newObjectAccessor(errors, oa); }), true);
-			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, true);
+			FunctionAssembler fa = new FunctionAssembler(errors, new CaptureFunctionDefinition(topLevel, (errors, f) -> { ObjectAccessor oa = new ObjectAccessor((StateHolder) builder, f); builder.addAccessor(oa); topLevel.newObjectAccessor(errors, oa); }), (StateHolder)builder);
+			TDAFunctionParser fcp = new TDAFunctionParser(errors, namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), fa, topLevel, (StateHolder)builder);
 			currParser = fcp;
 			return fcp.tryParsing(toks);
 		}
@@ -143,7 +143,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 					topLevel.newObjectMethod(errors, method);
 				}
 			};
-			return new TDAMethodParser(errors, namer, dispenser, topLevel).parseMethod(methodNamer, toks);
+			return new TDAMethodParser(errors, namer, dispenser, topLevel, (StateHolder) builder).parseMethod(methodNamer, toks);
 		}
 		default: {
 			return null;

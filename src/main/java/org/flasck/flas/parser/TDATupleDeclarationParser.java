@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -17,13 +18,13 @@ public class TDATupleDeclarationParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final FunctionNameProvider functionNamer;
 	private final FunctionScopeUnitConsumer consumer;
-	private boolean stateAvailable;
+	private final StateHolder holder;
 
-	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionScopeUnitConsumer consumer, boolean stateAvailable) {
+	public TDATupleDeclarationParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionScopeUnitConsumer consumer, StateHolder holder) {
 		this.errors = errors;
 		this.functionNamer = functionNamer;
 		this.consumer = consumer;
-		this.stateAvailable = stateAvailable;
+		this.holder = holder;
 	}
 	
 	@Override
@@ -89,19 +90,19 @@ public class TDATupleDeclarationParser implements TDAParsing {
 			consumer.tupleDefn(errors, vars, leadName, pkgName, e);
 		}).tryParsing(line);
 
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, stateAvailable);
-		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, stateAvailable);
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder);
+		return TDAMultiParser.functionScopeUnit(errors, new InnerPackageNamer(pkgName), assembler, consumer, holder);
 	}
 
 	@Override
 	public void scopeComplete(InputPosition location) {
 	}
 
-	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel, boolean stateAvailable) {
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDATupleDeclarationParser(errors, namer, topLevel, stateAvailable);
+				return new TDATupleDeclarationParser(errors, namer, topLevel, holder);
 			}
 		};
 	}

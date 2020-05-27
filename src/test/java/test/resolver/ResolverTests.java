@@ -70,12 +70,12 @@ public class ResolverTests {
 	private final FunctionName nameM = FunctionName.function(pos, nested, "meth");
 	private final FunctionName nameX = FunctionName.function(pos, pkg, "x");
 	private final FunctionName nameY = FunctionName.function(pos, pkg, "y");
-	private final FunctionDefinition fn = new FunctionDefinition(nameF, 0, false);
-	private final ObjectMethod meth = new ObjectMethod(pos, nameM, new ArrayList<Pattern>(), null);
-	private final TypeBinder vx = new FunctionDefinition(nameX, 0, false);
-	private final TypeBinder vy = new FunctionDefinition(nameY, 0, false);
+	private final FunctionDefinition fn = new FunctionDefinition(nameF, 0, null);
+	private final ObjectMethod meth = new ObjectMethod(pos, nameM, new ArrayList<Pattern>(), null, null);
+	private final TypeBinder vx = new FunctionDefinition(nameX, 0, null);
+	private final TypeBinder vy = new FunctionDefinition(nameY, 0, null);
 	private final FunctionName namePlPl = FunctionName.function(pos, null, "++");
-	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2, false);
+	private final FunctionDefinition op = new FunctionDefinition(namePlPl, 2, null);
 	private final StructDefn type = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Hello"), true, new ArrayList<>());
 	private final StructDefn number = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(null, "Number"), true, new ArrayList<>());
 	private final ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "AContract"));
@@ -376,7 +376,7 @@ public class ResolverTests {
 		StructField fld = new StructField(pos, state, false, LoadBuiltins.stringTR, "fld");
 		state.addField(fld);
 		s.defineState(state);
-		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, false);
+		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, null);
 		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
 		acorFn.intro(fi);
 		fi.functionCase(new FunctionCaseDefn(null, new UnresolvedVar(pos, "fld")));
@@ -473,7 +473,7 @@ public class ResolverTests {
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "Hello");
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "u"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "u"), new ArrayList<>(), null, null);
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);
@@ -494,7 +494,7 @@ public class ResolverTests {
 		final CardName card = new CardName(pkg, "Card");
 		final TypeReference ty = new TypeReference(pos, "AContract");
 		Provides pr = new Provides(pos, pos, null, ty, new CSName(card, "S0"));
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "absent"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.objectMethod(pos, pr.name(), "absent"), new ArrayList<>(), null, null);
 		pr.addImplementationMethod(om);
 		r.currentScope(card);
 		r.visitProvides(pr);

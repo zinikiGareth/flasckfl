@@ -41,7 +41,7 @@ public class MethodConversion {
 			oneOf(nv).push(with(any(MethodConvertor.class)));
 		}});
 		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors, repository);
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null, null);
 		mc.visitObjectMethod(om);
 	}
 
@@ -51,7 +51,7 @@ public class MethodConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(MessageConvertor.class)));
 		}});
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null, null);
 		MethodConvertor mc = new MethodConvertor(null, nv, om);
 		mc.visitMessage(new SendMessage(pos, e1));
 	}
@@ -63,7 +63,7 @@ public class MethodConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(null);
 		}});
-		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null, null);
 		MethodConvertor mc = new MethodConvertor(null, nv, om);
 		mc.result(e1);
 		mc.result(e2);

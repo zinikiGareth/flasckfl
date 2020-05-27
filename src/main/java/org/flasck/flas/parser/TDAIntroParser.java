@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
@@ -66,23 +67,25 @@ public class TDAIntroParser implements TDAParsing {
 			CardName qn = namer.cardName(tn.text);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(qn, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, qn, text);
-			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, true);
 
 			TDAParserConstructor sh;
 			HandlerBuilder hb;
+			StateHolder state = null;
 			switch (kw.text) {
 			case "agent": {
 				AgentDefinition agent = new AgentDefinition(kw.location, tn.location, qn);
 				hb = agent;
+				state = agent;
 				consumer.newAgent(errors, agent);
-				sh = errors -> new TDAAgentElementsParser(errors, new ObjectNestedNamer(qn), agent, consumer);
+				sh = errors -> new TDAAgentElementsParser(errors, new ObjectNestedNamer(qn), agent, consumer, agent);
 				break;
 			}
 			case "card": {
 				CardDefinition card = new CardDefinition(kw.location, tn.location, qn);
 				hb = card;
+				state = card;
 				consumer.newCard(errors, card);
-				sh = errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer);
+				sh = errors -> new TDACardElementsParser(errors, new ObjectNestedNamer(qn), card, consumer, card);
 				break;
 			}
 			case "service": {
@@ -95,11 +98,13 @@ public class TDAIntroParser implements TDAParsing {
 			default:
 				throw new NotImplementedException(kw.text);
 			}
+			final StateHolder holder = state;
+			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, holder);
 			return new TDAMultiParser(errors, 
 				sh,
-				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, true),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, true)
+				errors -> new TDAHandlerParser(errors, hb, handlerNamer, consumer, holder),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, base, cn) -> FunctionName.caseName(functionNamer.functionName(pos, base), cn), assembler, consumer, holder),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, holder)
 			);
 		}
 		case "struct":
@@ -205,13 +210,13 @@ public class TDAIntroParser implements TDAParsing {
 			consumer.newObject(errors, od);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);
 			FunctionNameProvider functionNamer = (loc, text) -> FunctionName.function(loc, on, text);
-			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, true);
+			FunctionIntroConsumer assembler = new FunctionAssembler(errors, consumer, od);
 			ObjectNestedNamer onn = new ObjectNestedNamer(on);
 			return new TDAMultiParser(errors, 
 				errors -> {	return new TDAObjectElementsParser(errors, onn, od, consumer); },
-				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer),
-				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, true),
-				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, true)
+				errors -> new TDAHandlerParser(errors, od, handlerNamer, consumer, od),
+				errors -> new TDAFunctionParser(errors, functionNamer, (pos, x, cn) -> onn.functionCase(pos, x, cn), assembler, consumer, od),
+				errors -> new TDATupleDeclarationParser(errors, functionNamer, consumer, od)
 			);
 		}
 		case "contract": {
@@ -246,13 +251,13 @@ public class TDAIntroParser implements TDAParsing {
 		}
 		case "handler": {
 //			HandlerNameProvider provider = text -> consumer.handlerName(text);
-			return new TDAHandlerParser(errors, null, namer, consumer).parseHandler(kw.location, false, toks);
+			return new TDAHandlerParser(errors, null, namer, consumer, null).parseHandler(kw.location, false, toks);
 		}
 		case "method": {
 //			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, pkg, text);
 //			HandlerNameProvider hnamer = text -> new HandlerName(pkg, text);
 			MethodConsumer smConsumer = om -> { consumer.newStandaloneMethod(errors, new StandaloneMethod(om)); };
-			return new TDAMethodParser(errors, namer, smConsumer, consumer).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, namer, smConsumer, consumer, null).parseMethod(namer, toks);
 		}
 		default:
 			return null;

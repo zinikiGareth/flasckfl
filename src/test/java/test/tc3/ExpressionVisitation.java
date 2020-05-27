@@ -80,7 +80,7 @@ public class ExpressionVisitation {
 	public void aPreviouslyDefinedVarWithNoArgsReturnsItsType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyX = context.mock(Type.class);
-		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0, false);
+		FunctionDefinition x = new FunctionDefinition(FunctionName.function(pos, null, "x"), 0, null);
 		x.bindType(tyX);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyX))));
@@ -95,7 +95,7 @@ public class ExpressionVisitation {
 	public void aStandaloneMethodReturnsItsResolvedType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyX = context.mock(Type.class);
-		StandaloneMethod x = new StandaloneMethod(new ObjectMethod(pos, FunctionName.standaloneMethod(pos, null, "m"), new ArrayList<>(), null));
+		StandaloneMethod x = new StandaloneMethod(new ObjectMethod(pos, FunctionName.standaloneMethod(pos, null, "m"), new ArrayList<>(), null, null));
 		x.bindType(tyX);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyX))));
@@ -110,7 +110,7 @@ public class ExpressionVisitation {
 	public void aBuiltinOperatorReturnsItsType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyPlus = context.mock(Type.class);
-		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
+		FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
@@ -125,7 +125,7 @@ public class ExpressionVisitation {
 	public void anExpressionCheckerTrampolinesResult() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		Type tyPlus = context.mock(Type.class);
-		TypeBinder plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
+		TypeBinder plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
 		plus.bindType(tyPlus);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(tyPlus))));
@@ -201,7 +201,7 @@ public class ExpressionVisitation {
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, false);
 		UnresolvedVar uv = new UnresolvedVar(pos, "f");
-		FunctionDefinition fnF = new FunctionDefinition(FunctionName.function(pos, null, "f"), 1, false);
+		FunctionDefinition fnF = new FunctionDefinition(FunctionName.function(pos, null, "f"), 1, null);
 		uv.bind(fnF);
 		tc.visitUnresolvedVar(uv, 0);
 	}

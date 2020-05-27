@@ -37,7 +37,7 @@ public class TDAImplementationMethodsParsingTests {
 		context.checking(new Expectations() {{
 			allowing(errors).hasErrors(); will(returnValue(false));
 		}});
-		parser = new TDAImplementationMethodsParser(errors, namer, consumer, topLevel);
+		parser = new TDAImplementationMethodsParser(errors, namer, consumer, topLevel, null);
 	}
 
 	@Test

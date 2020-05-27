@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -20,12 +21,14 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 	private final ImplementationMethodConsumer consumer;
 	private final FunctionNameProvider namer;
 	private final FunctionScopeUnitConsumer topLevel;
+	private final StateHolder holder;
 
-	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel) {
+	public TDAImplementationMethodsParser(ErrorReporter errors, FunctionNameProvider namer, ImplementationMethodConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		this.errors = errors;
 		this.namer = namer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
+		this.holder = holder;
 	}
 
 	@Override
@@ -66,11 +69,11 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
-		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler);
+		final ObjectMethod meth = new ObjectMethod(name.location, methName, args, handler, holder);
 		consumer.addImplementationMethod(meth);
 		topLevel.newObjectMethod(errors, meth);
 		InnerPackageNamer innerNamer = new InnerPackageNamer(methName);
-		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action", true);
+		LastOneOnlyNestedParser nestedParser = new LastActionScopeParser(errors, innerNamer, topLevel, "action", holder);
 		return new TDAMethodGuardParser(errors, meth, nestedParser);
 	}
 

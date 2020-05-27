@@ -10,6 +10,7 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -21,12 +22,14 @@ public class TDAMethodParser {
 	private final FunctionScopeNamer namer;
 	private final MethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
+	private final StateHolder holder;
 
-	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel) {
+	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		this.errors = errors;
 		this.namer = namer;
 		this.builder = builder;
 		this.topLevel = topLevel;
+		this.holder = holder;
 	}
 	
 	public TDAParsing parseMethod(FunctionNameProvider methodNamer, Tokenizable toks) {
@@ -50,12 +53,12 @@ public class TDAMethodParser {
 			errors.message(toks, "extra characters at end of line");
 			return new IgnoreNestedParser();
 		}
-		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null);
+		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
-		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action", true));
+		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action", holder));
 	}
 
-	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel) {
+	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
@@ -65,7 +68,7 @@ public class TDAMethodParser {
 						KeywordToken kw = KeywordToken.from(toks);
 						if (kw == null || !"method".equals(kw.text))
 							return null;
-						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel).parseMethod(namer, toks);
+						return new TDAMethodParser(errors, namer, m -> topLevel.newStandaloneMethod(errors, new StandaloneMethod(m)), topLevel, holder).parseMethod(namer, toks);
 					}
 					
 					@Override

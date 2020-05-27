@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -20,12 +21,14 @@ public class TDAHandlerParser implements TDAParsing {
 	private final HandlerBuilder builder;
 	private final HandlerNameProvider namer;
 	private final FunctionScopeUnitConsumer topLevel;
+	private final StateHolder holder;
 
-	public TDAHandlerParser(ErrorReporter errors, HandlerBuilder builder, HandlerNameProvider provider, FunctionScopeUnitConsumer topLevel) {
+	public TDAHandlerParser(ErrorReporter errors, HandlerBuilder builder, HandlerNameProvider provider, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		this.errors = errors;
 		this.builder = builder;
 		this.namer = provider;
 		this.topLevel = topLevel;
+		this.holder = holder;
 	}
 
 	@Override
@@ -75,14 +78,14 @@ public class TDAHandlerParser implements TDAParsing {
 		if (builder != null)
 			builder.newHandler(errors, hi);
 		topLevel.newHandler(errors, hi);
-		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hn, text), hi, topLevel);
+		return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.handlerMethod(loc, hn, text), hi, topLevel, holder);
 	}
 
-	public static TDAParserConstructor constructor(HandlerBuilder builder, HandlerNameProvider namer, FunctionScopeUnitConsumer topLevel) {
+	public static TDAParserConstructor constructor(HandlerBuilder builder, HandlerNameProvider namer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDAHandlerParser(errors, builder, namer, topLevel);
+				return new TDAHandlerParser(errors, builder, namer, topLevel, holder);
 			}
 		};
 	}

@@ -35,9 +35,9 @@ public class TypeCheckerTests {
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	final FunctionName nameF = FunctionName.function(pos, pkg, "f");
-	FunctionDefinition fnF = new FunctionDefinition(nameF, 1, false);
+	FunctionDefinition fnF = new FunctionDefinition(nameF, 1, null);
 	final FunctionName nameG = FunctionName.function(pos, pkg, "g");
-	FunctionDefinition fnG = new FunctionDefinition(nameG, 1, false);
+	FunctionDefinition fnG = new FunctionDefinition(nameG, 1, null);
 	List<Pattern> args = new ArrayList<>();
 	FunctionIntro fiF1 = new FunctionIntro(nameF, args);
 	FunctionIntro fiF2 = new FunctionIntro(nameF, args);

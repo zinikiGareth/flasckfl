@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -24,13 +25,15 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 	protected final TemplateNamer namer;
 	protected final AgentElementsConsumer consumer;
 	protected final TopLevelDefinitionConsumer topLevel;
+	protected final StateHolder holder;
 	private boolean seenState;
 
-	public TDAAgentElementsParser(ErrorReporter errors, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel) {
+	public TDAAgentElementsParser(ErrorReporter errors, TemplateNamer namer, AgentElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
 		this.errors = errors;
 		this.namer = namer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
+		this.holder = holder;
 	}
 
 	@Override
@@ -65,7 +68,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final CSName csn = namer.csn(tn.location, "S");
 			final Provides contractService = new Provides(kw.location, tn.location, (NamedType)consumer, ctr, csn);
 			consumer.addProvidedService(contractService);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), contractService, topLevel, holder);
 		}
 		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -110,12 +113,12 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final CSName cin = namer.csn(tn.location, "C");
 			final ImplementsContract ci = new ImplementsContract(kw.location, tn.location, (NamedType)consumer, ctr, cin);
 			consumer.addContractImplementation(ci);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel, holder);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
 			MethodConsumer smConsumer = om -> { topLevel.newStandaloneMethod(errors, new StandaloneMethod(om)); };
-			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, holder).parseMethod(namer, toks);
 		}
 		default:
 			return strategy(kw, toks);

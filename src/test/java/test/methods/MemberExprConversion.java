@@ -92,7 +92,7 @@ public class MemberExprConversion {
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, pkg, "udd"), null);
 		List<Pattern> args = new ArrayList<>();
 		FunctionName fred = FunctionName.objectMethod(pos, od.name(), "fred");
-		od.addMethod(new ObjectMethod(pos, fred, args, null));
+		od.addMethod(new ObjectMethod(pos, fred, args, null, null));
 		from.bind(udd);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
 		MemberExpr me = new MemberExpr(pos, from, fld);

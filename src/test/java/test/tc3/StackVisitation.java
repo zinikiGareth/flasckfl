@@ -90,13 +90,13 @@ public class StackVisitation {
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
 		GroupChecker gc = new GroupChecker(errors, repository, nv, null);
-		gc.visitFunction(new FunctionDefinition(name, 0, false));
+		gc.visitFunction(new FunctionDefinition(name, 0, null));
 	}
 
 	@Test
 	public void whenWeVisitAnObjectMethodWePushAFunctionChecker() {
 		SolidName obj = new SolidName(pkg, "MyObject");
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null, null);
 		meth.assignMessage(new AssignMessage(pos, null, new StringLiteral(pos, "hello")));
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(TypeChecker.class)));
@@ -111,7 +111,7 @@ public class StackVisitation {
 	@Test
 	public void theResultIsWhatWeEndUpSpittingOut() {
 		FunctionName name = FunctionName.function(pos, null, "f");
-		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		fi.bindTree(new HSIArgsTree(0));
 		fn.intro(fi);
@@ -142,7 +142,7 @@ public class StackVisitation {
 	@Test
 	public void weCanTypecheckMethods() {
 		FunctionName name = FunctionName.standaloneMethod(pos, null, "meth");
-		ObjectMethod om = new ObjectMethod(pos, name, new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, name, new ArrayList<>(), null, null);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		om.sendMessage(new SendMessage(pos, e1));
 
@@ -178,7 +178,7 @@ public class StackVisitation {
 	@Test
 	public void weBindTheTypeAfterVisitingAnObjectMethod() {
 		SolidName obj = new SolidName(pkg, "MyObject");
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null, null);
 		meth.assignMessage(new AssignMessage(pos, null, new StringLiteral(pos, "hello")));
 		CaptureAction captureSFC = new CaptureAction(null);
 		Type ty = context.mock(Type.class, "ty");
@@ -260,7 +260,7 @@ public class StackVisitation {
 			oneOf(nv).result(nbr);
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "+");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
 		fn.bindType(fnt);
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
@@ -284,7 +284,7 @@ public class StackVisitation {
 			oneOf(nv).result(ut);
 		}});
 		UnresolvedVar f = new UnresolvedVar(pos, "f"); // A->A
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 2, null);
 		fn.bindType(fnt);
 		f.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
@@ -312,7 +312,7 @@ public class StackVisitation {
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(other), Matchers.is(nbr))));
 		}});
 		UnresolvedVar op = new UnresolvedVar(pos, "f");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 2, null);
 		fn.bindType(fnt);
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
@@ -340,7 +340,7 @@ public class StackVisitation {
 			oneOf(nv).result(with(any(ErrorType.class)));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "+");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
 		fn.bindType(nbr);
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
@@ -363,7 +363,7 @@ public class StackVisitation {
 			oneOf(nv).result(with(any(ErrorType.class)));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "+");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
 		fn.bindType(nbr);
 		op.bind(fn);
 		StringLiteral e2 = new StringLiteral(pos, "hello");
@@ -392,7 +392,7 @@ public class StackVisitation {
 			oneOf(nv).result(nbr);
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "+");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
 		fn.bindType(nbr);
 		op.bind(fn);
 		UnresolvedVar uv = new UnresolvedVar(pos, "x");
@@ -465,7 +465,7 @@ public class StackVisitation {
 			oneOf(nv).result(with(ApplyMatcher.type(Matchers.is(nbr), Matchers.is(nbr))));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "+");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
 		fn.bindType(fnt);
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
@@ -558,7 +558,7 @@ public class StackVisitation {
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
-		FunctionDefinition fn = new FunctionDefinition(an, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(an, 0, null);
 		fn.bindType(LoadBuiltins.string);
 		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);

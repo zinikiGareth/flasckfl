@@ -33,14 +33,14 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		TypeBinder fn = new FunctionDefinition(nameG, 1, false);
+		TypeBinder fn = new FunctionDefinition(nameG, 1, null);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(vp);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		ma.visitFunctionIntro(fi);
-		FunctionDefinition f = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition f = new FunctionDefinition(nameF, 1, null);
 		vp.isDefinedBy(f);
 		
 		context.checking(new Expectations() {{
@@ -56,7 +56,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		TypeBinder fn = new FunctionDefinition(nameG, 1, false);
+		TypeBinder fn = new FunctionDefinition(nameG, 1, null);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameG, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
@@ -74,14 +74,14 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		TypeBinder fn = new FunctionDefinition(nameG, 1, false);
+		TypeBinder fn = new FunctionDefinition(nameG, 1, null);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameF, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(tp);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		ma.visitFunctionIntro(fi);
-		FunctionDefinition f = new FunctionDefinition(nameF, 1, false);
+		FunctionDefinition f = new FunctionDefinition(nameF, 1, null);
 		tp.isDefinedBy(f);
 
 		context.checking(new Expectations() {{
@@ -96,7 +96,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		TypeBinder fn = new FunctionDefinition(nameG, 1, false);
+		TypeBinder fn = new FunctionDefinition(nameG, 1, null);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		TypedPattern tp = new TypedPattern(pos, new TypeReference(pos, "Number"), new VarName(pos, nameG, "x"));
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
@@ -114,7 +114,7 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		TypeBinder fn = new FunctionDefinition(nameG, 1, false);
+		TypeBinder fn = new FunctionDefinition(nameG, 1, null);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		UnresolvedVar vr = new UnresolvedVar(pos, "Nil");
 		vr.bind(LoadBuiltins.nil);
@@ -131,11 +131,11 @@ public class CollectorTests {
 		MappingCollector c = context.mock(MappingCollector.class);
 		
 		FunctionName nameO = FunctionName.function(pos, pkg, "other");
-		FunctionDefinition other = new FunctionDefinition(nameO, 0, false);
+		FunctionDefinition other = new FunctionDefinition(nameO, 0, null);
 		
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		TypeBinder fn = new FunctionDefinition(nameG, 1, false);
+		TypeBinder fn = new FunctionDefinition(nameG, 1, null);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(other);
@@ -154,7 +154,7 @@ public class CollectorTests {
 		
 		FunctionName nameF = FunctionName.function(pos, pkg, "f");
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameG, 1, null);
 		MappingAnalyzer ma = new MappingAnalyzer(fn, c, dependencies);
 		UnresolvedVar vr = new UnresolvedVar(pos, "x");
 		vr.bind(fn);

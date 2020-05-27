@@ -108,23 +108,23 @@ public class LoadBuiltins {
 	public static final ContractDecl callMeHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CallMe"), false);
 	
 	// Builtin operators
-	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, false);
-	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, false);
-	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false);
-	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, false);
-	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, false);
-	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, false);
-	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, null, "!"), 1, false);
-	public static final FunctionDefinition and = new FunctionDefinition(FunctionName.function(pos, null, "&&"), 2, false);
-	public static final FunctionDefinition or = new FunctionDefinition(FunctionName.function(pos, null, "||"), 2, false);
-	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, false);
-	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, null, "replace"), 3, false);
-	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, null, "nth"), 2, false);
-	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, false);
-	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, false);
-	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, false);
-	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, false);
-	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, false);
+	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null);
+	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, null);
+	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
+	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, null);
+	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, null);
+	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, null);
+	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, null, "!"), 1, null);
+	public static final FunctionDefinition and = new FunctionDefinition(FunctionName.function(pos, null, "&&"), 2, null);
+	public static final FunctionDefinition or = new FunctionDefinition(FunctionName.function(pos, null, "||"), 2, null);
+	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, null);
+	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, null, "replace"), 3, null);
+	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, null, "nth"), 2, null);
+	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null);
+	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null);
+	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null);
+	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null);
+	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null);
 
 	static {
 		// bind TRs
@@ -170,8 +170,8 @@ public class LoadBuiltins {
 		message.addCase(sendTR);
 		event.addCase(clickEventTR);
 		
-		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, false));
-		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, false));
+		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, null));
+		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, null));
 
 		// add methods to contracts
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "init"), new ArrayList<TypedPattern>(), null));

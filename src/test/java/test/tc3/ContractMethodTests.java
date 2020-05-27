@@ -49,7 +49,7 @@ public class ContractMethodTests {
 	private final List<Pattern> args = new ArrayList<>();
 	private final List<TypedPattern> cmdargs = new ArrayList<>();
 	private final ContractMethodDecl cm = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, new SolidName(pkg, "AContract"), "meth"), cmdargs, null);
-	private final ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, new CSName(new CardName(pkg, "CardName"), "S0"), cm.name.name), args, null);
+	private final ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, new CSName(new CardName(pkg, "CardName"), "S0"), cm.name.name), args, null, null);
 	private final StackVisitor sv = new StackVisitor();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final CurrentTCState state = context.mock(CurrentTCState.class);

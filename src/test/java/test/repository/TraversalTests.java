@@ -226,9 +226,9 @@ public class TraversalTests {
 	public void traverseObjectWithMethodsDoesNotDirectlyVisitTheMethod() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null, null);
 		s.methods.add(meth);
-		ObjectAccessor oa = new ObjectAccessor(s, new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, false));
+		ObjectAccessor oa = new ObjectAccessor(s, new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, null));
 		s.acors.add(oa);
 		r.addEntry(errors, s.name(), s);
 		context.checking(new Expectations() {{
@@ -300,7 +300,7 @@ public class TraversalTests {
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
 		TypeReference fred = new TypeReference(pos, "Fred");
 		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"));
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null, null);
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
 		r.addEntry(errors, s.name(), s);
@@ -321,7 +321,7 @@ public class TraversalTests {
 		AgentDefinition s = new AgentDefinition(pos, pos, an);
 		TypeReference fred = new TypeReference(pos, "Fred");
 		Provides p = new Provides(pos, pos, null, fred, new CSName(an, "S0"));
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.contractMethod(pos, p.name(), "x"), new ArrayList<Pattern>(), null, null);
 		p.addImplementationMethod(meth);
 		s.addProvidedService(p);
 		r.addEntry(errors, s.name(), s);
@@ -361,7 +361,7 @@ public class TraversalTests {
 	public void traverseObjectAccessorFromTheRepository() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, false);
+		FunctionDefinition acorFn = new FunctionDefinition(FunctionName.function(pos, obj, "acor"), 2, null);
 		FunctionIntro fi = new FunctionIntro(FunctionName.caseName(acorFn.name(), 1), new ArrayList<>());
 		acorFn.intro(fi);
 		ObjectAccessor oa = new ObjectAccessor(s, acorFn);
@@ -383,7 +383,7 @@ public class TraversalTests {
 	public void traverseObjectMethodFromTheRepository() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null, null);
 		s.methods.add(meth);
 		r.addEntry(errors, meth.name(), meth);
 		context.checking(new Expectations() {{
@@ -398,7 +398,7 @@ public class TraversalTests {
 	public void traverseObjectMethodFromTheRepositoryEvenInGroupOrder() {
 		SolidName obj = new SolidName(pkg, "MyObject");
 		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null, null);
 		s.methods.add(meth);
 		r.addEntry(errors, meth.name(), meth);
 		context.checking(new Expectations() {{
@@ -411,7 +411,7 @@ public class TraversalTests {
 
 	@Test
 	public void traverseStandaloneMethodFromTheRepository() {
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null);
+		ObjectMethod meth = new ObjectMethod(pos, FunctionName.standaloneMethod(pos, pkg, "meth"), new ArrayList<>(), null, null);
 		StandaloneMethod sm = new StandaloneMethod(meth);
 		r.addEntry(errors, sm.name(), sm);
 		context.checking(new Expectations() {{

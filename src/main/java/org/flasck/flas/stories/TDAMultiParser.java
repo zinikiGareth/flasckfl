@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parser.FunctionAssembler;
 import org.flasck.flas.parser.FunctionIntroConsumer;
 import org.flasck.flas.parser.FunctionScopeNamer;
@@ -53,8 +54,8 @@ public class TDAMultiParser implements TDAParsing {
 	}
 
 	public static TDAParsing topLevelUnit(ErrorReporter errors, TopLevelNamer namer, TopLevelDefinitionConsumer sb) {
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb, false);
-		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, false), TDATupleDeclarationParser.constructor(namer, sb, false));
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, sb, null);
+		return new TDAMultiParser(errors, TDAIntroParser.constructor(namer, sb), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), assembler, sb, null), TDATupleDeclarationParser.constructor(namer, sb, null));
 	}
 	
 	public static TDAParsing unitTestUnit(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer utdc) {
@@ -65,8 +66,8 @@ public class TDAMultiParser implements TDAParsing {
 		return new TDAAssemblyUnitParser(errors, namer, adc);
 	}
 	
-	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, boolean stateAvailable) {
-		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel), TDAMethodParser.constructor(namer, sb, topLevel), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, stateAvailable), TDATupleDeclarationParser.constructor(namer, topLevel, stateAvailable));
+	public static TDAParsing functionScopeUnit(ErrorReporter errors, FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
+		return new TDAMultiParser(errors, TDAHandlerParser.constructor(null, namer, topLevel, holder), TDAMethodParser.constructor(namer, sb, topLevel, holder), TDAFunctionParser.constructor(namer, (pos, x, cn) -> namer.functionCase(pos, x, cn), sb, topLevel, holder), TDATupleDeclarationParser.constructor(namer, topLevel, holder));
 	}
 
 	// I added this method for testing purposes

@@ -104,7 +104,7 @@ public class ExpressionGenerationJS {
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
-		expr.bind(new FunctionDefinition(nameX, 0, false));
+		expr.bind(new FunctionDefinition(nameX, 0, null));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		new ExprGeneratorJS(state, stackv, meth, false);
@@ -216,7 +216,7 @@ public class ExpressionGenerationJS {
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
-		expr.bind(new FunctionDefinition(nameX, 0, false));
+		expr.bind(new FunctionDefinition(nameX, 0, null));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		new ExprGeneratorJS(state, stackv, meth, false);
@@ -235,7 +235,7 @@ public class ExpressionGenerationJS {
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
-		expr.bind(new FunctionDefinition(nameX, 2, false));
+		expr.bind(new FunctionDefinition(nameX, 2, null));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		new ExprGeneratorJS(state, stackv, meth, false);
@@ -307,7 +307,7 @@ public class ExpressionGenerationJS {
 		StackVisitor sv = new StackVisitor();
 		new JSGenerator(jss, sv, null);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		FunctionDefinition fn = new FunctionDefinition(name, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
@@ -336,7 +336,7 @@ public class ExpressionGenerationJS {
 		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
-		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>(), null, null);
 		om.sendMessage(new SendMessage(pos, expr));
 		StandaloneMethod sm = new StandaloneMethod(om);
 		FunctionIntro fi = new FunctionIntro(fnName, new ArrayList<>());
@@ -357,7 +357,7 @@ public class ExpressionGenerationJS {
 			oneOf(nv).result(r);
 		}});
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
-		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, false));
+		expr.bind(new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null));
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		new ExprGeneratorJS(state, stackv, meth, false);
@@ -369,7 +369,7 @@ public class ExpressionGenerationJS {
 	public void aFunctionApplication() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-		fn.bind(new FunctionDefinition(fnName, 2, false));
+		fn.bind(new FunctionDefinition(fnName, 2, null));
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		JSExpr f = context.mock(JSExpr.class, "f");
 		JSExpr iv = context.mock(JSExpr.class, "iv");
@@ -392,7 +392,7 @@ public class ExpressionGenerationJS {
 	public void aStandaloneMethodApplication() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
-		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>(), null);
+		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>(), null, null);
 		fn.bind(new StandaloneMethod(om));
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		JSExpr f = context.mock(JSExpr.class, "f");
@@ -416,10 +416,10 @@ public class ExpressionGenerationJS {
 	public void aNestedFunctionApplication() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-		fn.bind(new FunctionDefinition(fnName, 1, false));
+		fn.bind(new FunctionDefinition(fnName, 1, null));
 		UnresolvedVar var = new UnresolvedVar(pos, "x");
 		FunctionName varName = FunctionName.function(pos, pkg, "x");
-		var.bind(new FunctionDefinition(varName, 0, false));
+		var.bind(new FunctionDefinition(varName, 0, null));
 		ApplyExpr ae = new ApplyExpr(pos, fn, var);
 		JSExpr f = context.mock(JSExpr.class, "f");
 		JSExpr x = context.mock(JSExpr.class, "x");
@@ -491,7 +491,7 @@ public class ExpressionGenerationJS {
 	public void aFunctionApplicationWithExplicitCurrying() {
 		UnresolvedVar fn = new UnresolvedVar(pos, "f");
 		FunctionName fnName = FunctionName.function(pos, pkg, "f");
-		fn.bind(new FunctionDefinition(fnName, 2, false));
+		fn.bind(new FunctionDefinition(fnName, 2, null));
 		AnonymousVar uv = new AnonymousVar(pos);
 		ApplyExpr ae = new ApplyExpr(pos, fn, uv, new StringLiteral(pos, "hello"));
 		JSExpr f = context.mock(JSExpr.class, "f");

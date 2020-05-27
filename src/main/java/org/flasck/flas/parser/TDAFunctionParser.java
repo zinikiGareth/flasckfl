@@ -10,6 +10,7 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.stories.TDAMultiParser;
 import org.flasck.flas.stories.TDAParserConstructor;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -21,15 +22,15 @@ public class TDAFunctionParser implements TDAParsing {
 	private final FunctionCaseNameProvider functionCaseNamer;
 	private final FunctionIntroConsumer consumer;
 	private final FunctionScopeUnitConsumer topLevel;
-	private final boolean stateAvailable;
+	private final StateHolder holder;
 
-	public TDAFunctionParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionCaseNameProvider functionCaseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, boolean stateAvailable) {
+	public TDAFunctionParser(ErrorReporter errors, FunctionNameProvider functionNamer, FunctionCaseNameProvider functionCaseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		this.errors = errors;
 		this.functionNamer = functionNamer;
 		this.functionCaseNamer = functionCaseNamer;
 		this.consumer = consumer;
 		this.topLevel = topLevel;
-		this.stateAvailable = stateAvailable;
+		this.holder = holder;
 	}
 	
 	@Override
@@ -55,7 +56,7 @@ public class TDAFunctionParser implements TDAParsing {
 		final FunctionIntro intro = new FunctionIntro(fcase, args);
 		consumer.functionIntro(intro);
 		if (!line.hasMore()) {
-			return new TDAFunctionGuardedEquationParser(errors, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", stateAvailable));
+			return new TDAFunctionGuardedEquationParser(errors, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder));
 		}
 		ExprToken tok = ExprToken.from(errors, line);
 		if (tok == null || !tok.text.equals("=")) {
@@ -76,8 +77,8 @@ public class TDAFunctionParser implements TDAParsing {
 		if (fcds.isEmpty())
 			return new IgnoreNestedParser();
 
-		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, stateAvailable);
-		return TDAMultiParser.functionScopeUnit(errors, innerNamer, assembler, topLevel, stateAvailable);
+		FunctionIntroConsumer assembler = new FunctionAssembler(errors, topLevel, holder);
+		return TDAMultiParser.functionScopeUnit(errors, innerNamer, assembler, topLevel, holder);
 	}
 
 	@Override
@@ -85,11 +86,11 @@ public class TDAFunctionParser implements TDAParsing {
 		consumer.moveOn();
 	}
 
-	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionCaseNameProvider caseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, boolean stateAvailable) {
+	public static TDAParserConstructor constructor(FunctionNameProvider namer, FunctionCaseNameProvider caseNamer, FunctionIntroConsumer consumer, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		return new TDAParserConstructor() {
 			@Override
 			public TDAParsing construct(ErrorReporter errors) {
-				return new TDAFunctionParser(errors, namer, caseNamer, consumer, topLevel, stateAvailable);
+				return new TDAFunctionParser(errors, namer, caseNamer, consumer, topLevel, holder);
 			}
 		};
 	}

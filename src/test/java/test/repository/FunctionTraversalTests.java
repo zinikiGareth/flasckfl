@@ -43,7 +43,7 @@ public class FunctionTraversalTests {
 	@Before
 	public void initializeRepository() {
 		final FunctionName nameF = FunctionName.function(pos, pkg, "fred");
-		FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
+		FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
 		{
 			final FunctionIntro intro = new FunctionIntro(nameF, new ArrayList<>());
 			intro.functionCase(fcd1);

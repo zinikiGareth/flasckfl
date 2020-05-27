@@ -22,16 +22,16 @@ import org.flasck.flas.tc3.Type;
 public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeSignature, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder {
 	private final FunctionName name;
 	private final int nargs;
+	private final StateHolder holder;
 	private final List<FunctionIntro> intros = new ArrayList<>();
 	private Type type;
 	private HSITree hsiTree;
 	private NestedVarReader nestedVars;
-	private boolean hasState;
 
-	public FunctionDefinition(FunctionName name, int nargs, boolean hasState) {
+	public FunctionDefinition(FunctionName name, int nargs, StateHolder holder) {
 		this.name = name;
 		this.nargs = nargs;
-		this.hasState = hasState;
+		this.holder = holder;
 	}
 	
 	public void intro(FunctionIntro next) {
@@ -137,6 +137,6 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	}
 
 	public boolean hasState() {
-		return hasState;
+		return holder != null;
 	}
 }

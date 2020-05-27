@@ -34,10 +34,10 @@ public class FunctionGroupTraversalTests {
 	final FunctionName nameG = FunctionName.function(pos, pkg, "g");
 	final FunctionName nameH = FunctionName.function(pos, pkg, "h");
 	final FunctionName nameS1 = FunctionName.function(pos, pkg, "s1");
-	FunctionDefinition fn = new FunctionDefinition(nameF, 2, false);
-	FunctionDefinition gn = new FunctionDefinition(nameG, 2, false);
-	FunctionDefinition hn = new FunctionDefinition(nameH, 2, false);
-	StandaloneMethod s1 = new StandaloneMethod(new ObjectMethod(pos, nameS1, new ArrayList<>(), null));
+	FunctionDefinition fn = new FunctionDefinition(nameF, 2, null);
+	FunctionDefinition gn = new FunctionDefinition(nameG, 2, null);
+	FunctionDefinition hn = new FunctionDefinition(nameH, 2, null);
+	StandaloneMethod s1 = new StandaloneMethod(new ObjectMethod(pos, nameS1, new ArrayList<>(), null, null));
 
 	@Before
 	public void intros() {

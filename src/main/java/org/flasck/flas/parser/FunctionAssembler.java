@@ -4,18 +4,19 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.StateHolder;
 
 public class FunctionAssembler implements FunctionIntroConsumer {
 	private final ErrorReporter errors;
 	private final FunctionScopeUnitConsumer consumer;
-	private final boolean stateAvailable;
+	private final StateHolder holder;
 	private FunctionDefinition curr;
 	private boolean broken;
 
-	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer, boolean stateAvailable) {
+	public FunctionAssembler(ErrorReporter errors, FunctionScopeUnitConsumer consumer, StateHolder holder) {
 		this.errors = errors;
 		this.consumer = consumer;
-		this.stateAvailable = stateAvailable;
+		this.holder = holder;
 	}
 
 	@Override
@@ -32,7 +33,7 @@ public class FunctionAssembler implements FunctionIntroConsumer {
 		if (curr == null || !fname.equals(curr.name())) {
 			if (curr != null)
 				consumer.functionDefn(errors, curr);
-			curr = new FunctionDefinition(fname, next.args.size(), stateAvailable);
+			curr = new FunctionDefinition(fname, next.args.size(), holder);
 			broken = false;
 		}
 		if (curr.argCount() != next.args.size()) {

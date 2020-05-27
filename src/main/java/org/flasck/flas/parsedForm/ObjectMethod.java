@@ -11,17 +11,19 @@ import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
+	public final VarPattern handler;
+	private final StateHolder holder;
 	private ObjectDefn od;
 	private Implements impl;
 	private ContractMethodDecl contractMethod;
-	public final VarPattern handler;
 	private CardDefinition eventCard;
 	private List<Template> eventSources = new ArrayList<>();
 	private List<Type> eventSourceTypes = new ArrayList<>();
 
-	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args, VarPattern handler) {
+	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args, VarPattern handler, StateHolder holder) {
 		super(location, name, args);
 		this.handler = handler;
+		this.holder = holder;
 	}
 
 	public void eventFor(CardDefinition card) {
@@ -105,5 +107,9 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 
 	public ContractMethodDecl contractMethod() {
 		return contractMethod;
+	}
+
+	public boolean isStandalone() {
+		return holder == null && impl == null;
 	}
 }

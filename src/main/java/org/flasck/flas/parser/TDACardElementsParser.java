@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -20,8 +21,8 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class TDACardElementsParser extends TDAAgentElementsParser {
-	public TDACardElementsParser(ErrorReporter errors, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel) {
-		super(errors, namer, consumer, topLevel);
+	public TDACardElementsParser(ErrorReporter errors, TemplateNamer namer, CardElementsConsumer consumer, TopLevelDefinitionConsumer topLevel, StateHolder holder) {
+		super(errors, namer, consumer, topLevel, holder);
 	}
 
 	@Override
@@ -67,7 +68,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				consumer.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
 			};
-			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, holder).parseMethod(namer, toks);
 		}
 		default:
 			return null;

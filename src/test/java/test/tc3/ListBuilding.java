@@ -39,7 +39,7 @@ public class ListBuilding {
 			oneOf(nv).result(LoadBuiltins.nil);
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0, null);
 		op.bind(fn);
 		ApplyExpr ae = new ApplyExpr(pos, op);
 		aec.result(new ExprResult(pos, LoadBuiltins.nil)); // the "operator" for any list is always Nil
@@ -55,7 +55,7 @@ public class ListBuilding {
 			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.number))));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0, null);
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1);
@@ -73,7 +73,7 @@ public class ListBuilding {
 			oneOf(nv).result(with(PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.string))));
 		}});
 		UnresolvedOperator op = new UnresolvedOperator(pos, "[]");
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "[]"), 0, null);
 		op.bind(fn);
 		NumericLiteral e1 = new NumericLiteral(pos, "42", 2);
 		ApplyExpr ae = new ApplyExpr(pos, op, e1);

@@ -55,7 +55,7 @@ public class AccessorConversion {
 			oneOf(nv).push(with(any(AccessorConvertor.class)));
 		}});
 		ConvertRepositoryMethods mc = new ConvertRepositoryMethods(nv, errors, repository);
-		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "meth"), 4, false);
+		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, pkg, "meth"), 4, null);
 		mc.visitFunction(fn);
 	}
 
@@ -90,7 +90,7 @@ public class AccessorConversion {
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
-		FunctionDefinition fn = new FunctionDefinition(an, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(an, 0, null);
 		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		TypeReference tr = new TypeReference(pos, "ObjDefn");
@@ -119,7 +119,7 @@ public class AccessorConversion {
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
-		FunctionDefinition fn = new FunctionDefinition(an, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(an, 0, null);
 		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		context.checking(new Expectations() {{
@@ -149,7 +149,7 @@ public class AccessorConversion {
 		}});
 		AccessorConvertor ac = new AccessorConvertor(nv, errors, repository);
 		FunctionName an = FunctionName.function(pos, pkg, "f");
-		FunctionDefinition fn = new FunctionDefinition(an, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(an, 0, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Struct"), true, new ArrayList<>());
 		StructField sf = new StructField(pos, sd, true, LoadBuiltins.stringTR, "fld");
 		sf.fullName(new VarName(pos, sd.name(), "x"));
@@ -178,7 +178,7 @@ public class AccessorConversion {
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
-		FunctionDefinition fn = new FunctionDefinition(an, 3, false);
+		FunctionDefinition fn = new FunctionDefinition(an, 3, null);
 		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		context.checking(new Expectations() {{
@@ -210,7 +210,7 @@ public class AccessorConversion {
 		SolidName on = new SolidName(pkg, "ObjDefn");
 		ObjectDefn od = new ObjectDefn(pos, pos, on, true, new ArrayList<>());
 		FunctionName an = FunctionName.function(pos, on, "acor");
-		FunctionDefinition fn = new FunctionDefinition(an, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(an, 0, null);
 		ObjectAccessor acor = new ObjectAccessor(od, fn);
 		od.addAccessor(acor);
 		TypeReference tr = new TypeReference(pos, "ObjDefn");

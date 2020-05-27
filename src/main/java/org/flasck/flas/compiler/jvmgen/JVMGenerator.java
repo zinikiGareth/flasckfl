@@ -36,7 +36,6 @@ import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.ServiceDefinition;
-import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -126,7 +125,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private StructFieldHandler structFieldHandler;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<Var> explodingMocks = new ArrayList<>();
-	private boolean isStandalone;
 	private static final boolean leniency = false;
 	private MethodDefiner agentctor;
 	private MethodDefiner templatector;
@@ -213,7 +211,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		GenericAnnotator ann;
 		boolean wantObj, haveThis, wantParent;
-		if (isStandalone) {
+		if (om.isStandalone()) {
 			this.clz = bce.newClass(om.name().javaClassName());
 			this.clz.generateAssociatedSourceFile();
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
@@ -283,7 +281,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			if (parent != null && parent instanceof StateHolder && ((StateHolder)parent).state() != null) {
 				fs.provideStateObject(meth.castTo(meth.getField("_card"), J.FIELDS_CONTAINER_WRAPPER));
 			}
-		} else if (!isStandalone)
+		} else if (!om.isStandalone())
 			throw new NotImplementedException("Don't have one of those");
 
 	}
@@ -365,16 +363,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fs = new FunctionState(meth, (Var)fcx, null, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
 		currentBlock.add(meth.returnObject(meth.callInterface(J.OBJECT, fcx, "tupleMember", meth.callStatic(tm.ta.exprFnName().javaClassName(), J.OBJECT, "eval", fcx, meth.arrayOf(J.OBJECT)), meth.intConst(tm.which))));
-	}
-	
-	@Override
-	public void visitStandaloneMethod(StandaloneMethod meth) {
-		this.isStandalone = true;
-	}
-	
-	@Override
-	public void leaveStandaloneMethod(StandaloneMethod meth) {
-		this.isStandalone = false;
 	}
 	
 	@Override

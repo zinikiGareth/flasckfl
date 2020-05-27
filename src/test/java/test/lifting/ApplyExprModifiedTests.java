@@ -40,7 +40,7 @@ public class ApplyExprModifiedTests {
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 1, false);
+		FunctionDefinition fn = new FunctionDefinition(nameG, 1, null);
 		List<Pattern> args = new ArrayList<>();
 		args.add(new TypedPattern(pos, new TypeReference(pos, "String"), new VarName(pos, nameG, "x")));
 		FunctionIntro fi = new FunctionIntro(nameG, args);
@@ -78,7 +78,7 @@ public class ApplyExprModifiedTests {
 		FunctionName nameG = FunctionName.standaloneMethod(pos, nameF, "g");
 		List<Pattern> args = new ArrayList<>();
 		args.add(new TypedPattern(pos, new TypeReference(pos, "String"), new VarName(pos, nameG, "x")));
-		StandaloneMethod sm = new StandaloneMethod(new ObjectMethod(pos, nameG, args, null));
+		StandaloneMethod sm = new StandaloneMethod(new ObjectMethod(pos, nameG, args, null, null));
 
 		MappingStore ms = new MappingStore();
 		ms.recordNestedVar(null, sm.om, vp);
@@ -110,7 +110,7 @@ public class ApplyExprModifiedTests {
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		
 		FunctionName nameG = FunctionName.function(pos, nameF, "g");
-		FunctionDefinition fn = new FunctionDefinition(nameG, 0, false);
+		FunctionDefinition fn = new FunctionDefinition(nameG, 0, null);
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		fn.intro(fi);
 
@@ -141,7 +141,7 @@ public class ApplyExprModifiedTests {
 		VarPattern vp = new VarPattern(pos, new VarName(pos, nameF, "x"));
 		
 		FunctionName nameG = FunctionName.standaloneMethod(pos, nameF, "g");
-		StandaloneMethod sm = new StandaloneMethod(new ObjectMethod(pos, nameG, new ArrayList<>(), null));
+		StandaloneMethod sm = new StandaloneMethod(new ObjectMethod(pos, nameG, new ArrayList<>(), null, null));
 
 		MappingStore ms = new MappingStore();
 		ms.recordNestedVar(null, sm.om, vp);

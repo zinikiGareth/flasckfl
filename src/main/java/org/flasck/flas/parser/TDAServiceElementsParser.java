@@ -47,7 +47,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);
 			MethodConsumer smConsumer = sm -> { topLevel.newStandaloneMethod(errors, new StandaloneMethod(sm)); };
-			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel).parseMethod(namer, toks);
+			return new TDAMethodParser(errors, this.namer, smConsumer, topLevel, null).parseMethod(namer, toks);
 		}
 		case "provides": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
@@ -63,7 +63,7 @@ public class TDAServiceElementsParser implements TDAParsing {
 			final CSName csn = namer.csn(tn.location, "S");
 			final Provides cs = new Provides(kw.location, tn.location, (NamedType)service, ctr, csn);
 			consumer.addProvidedService(cs);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, csn, text), cs, topLevel, null);
 		}
 		case "requires": {
 			TypeNameToken tn = TypeNameToken.qualified(toks);
