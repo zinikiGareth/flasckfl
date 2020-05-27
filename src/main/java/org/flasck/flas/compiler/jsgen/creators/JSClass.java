@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClass implements JSClassCreator {
+	private final JSEnvironment jse;
 	private final String name;
 	private final List<JSMethod> methods = new ArrayList<>();
 	private final JSMethod ctor;
 	private NameOfThing baseClass;
 	
-	public JSClass(String fullName) {
+	public JSClass(JSEnvironment jse, String fullName) {
+		this.jse = jse;
 		this.name = fullName;
 		ctor = classMethod(null);
 		this.ctor.argument("_cxt");
@@ -35,13 +38,13 @@ public class JSClass implements JSClassCreator {
 
 	@Override
 	public JSMethodCreator createMethod(String name, boolean prototype) {
-		JSMethod meth = new JSMethod(this.name, prototype, name);
+		JSMethod meth = new JSMethod(jse, this.name, prototype, name);
 		methods.add(meth);
 		return meth;
 	}
 	
 	public JSMethod classMethod(String mname) {
-		return new JSMethod(this.name, false, mname);
+		return new JSMethod(jse, this.name, false, mname);
 	}
 
 	@Override

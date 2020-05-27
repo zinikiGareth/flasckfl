@@ -1,19 +1,23 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
+import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class InitContext implements JSExpr {
-	private final PackageName packageName;
+	private final JSStorage env;
 
-	public InitContext(PackageName packageName) {
-		this.packageName = packageName;
+	public InitContext(PackageName packageName, JSStorage jse) {
+		this.env = jse;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
 		w.println("const _cxt = runner.newContext();");
-		w.println(packageName.jsName() + "._init(_cxt);");
+		for (String e : env.packages())
+			if (!e.contains("_ut_"))
+				w.println(e + "._init(_cxt);");
 	}
 
 	@Override

@@ -32,13 +32,13 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class ClassGeneration {
 //	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
+	JSEnvironment jse = new JSEnvironment(new File("/tmp"));
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);
 	
 	@Test
 	public void creatingAClassEnsuresThereIsOnePackageFile() {
-		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
 		jse.newClass("test.repo", "Fred");
 		List<File> acc = new ArrayList<>();
 		jse.files().forEach(x -> acc.add(x));
@@ -48,7 +48,6 @@ public class ClassGeneration {
 
 	@Test
 	public void creatingAClassReturnsAClassObject() {
-		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
 		JSClassCreator jcc = jse.newClass("test.repo", "Fred");
 		assertNotNull(jcc);
 		JSFile f = jse.getPackage("test.repo");
@@ -58,7 +57,6 @@ public class ClassGeneration {
 
 	@Test
 	public void creatingAFunctionIsPossible() {
-		JSEnvironment jse = new JSEnvironment(new File("/tmp"));
 		JSMethodCreator meth = jse.newFunction("test.repo", "test.repo", false, "f");
 		assertNotNull(meth);
 		JSFile f = jse.getPackage("test.repo");
@@ -68,7 +66,7 @@ public class ClassGeneration {
 
 	@Test
 	public void aClassCanCreateNewMethods() {
-		JSClass jsc = new JSClass("pkg.level.Clz");
+		JSClass jsc = new JSClass(jse, "pkg.level.Clz");
 		JSMethodCreator meth = jsc.createMethod("test", false);
 		meth.argument("_cxt");
 		assertNotNull(meth);
@@ -78,7 +76,7 @@ public class ClassGeneration {
 
 	@Test
 	public void methodsCanCreateLiterals() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		JSExpr expr = meth.literal("42");
 		assertNotNull(expr);
 		// I don't know if I want this or not ...
@@ -89,7 +87,7 @@ public class ClassGeneration {
 
 	@Test
 	public void methodsCanCreateStrings() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		JSExpr expr = meth.string("hello");
 		assertNotNull(expr);
 		// I don't know if I want this or not ...
@@ -100,7 +98,7 @@ public class ClassGeneration {
 
 	@Test
 	public void methodsCanCreateArguments() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		JSExpr expr = meth.argument("v");
 		assertNotNull(expr);
 		expr.write(w);
@@ -111,7 +109,7 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanCreateApplyExprs() {
 		w = w.indent();
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
 		assertNotNull(expr);
 		expr.write(w);
@@ -121,7 +119,7 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanCallStaticFunctions() {
 		w = w.indent();
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		JSExpr expr = meth.pushFunction("test.repo.f");
 		assertNotNull(expr);
 		expr.write(w);
@@ -131,7 +129,7 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanAssignMultipleVars() {
 		w = w.indent();
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		{
 			JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
 			assertNotNull(expr);
@@ -148,7 +146,7 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanMakeAssertions() {
 		w = w.indent();
-		JSMethod meth = new JSMethod("pkg", false, "fred");
+		JSMethod meth = new JSMethod(jse, "pkg", false, "fred");
 		meth.argument("_cxt");
 		JSExpr obj = new JSVar("runner");
 		meth.assertable(obj, "isSame", obj, new JSLiteral("true"));
@@ -159,7 +157,7 @@ public class ClassGeneration {
 	@Test
 	public void methodsCanReturnThings() {
 		w = w.indent();
-		JSMethod fn = new JSMethod("pkg", false, "fred");
+		JSMethod fn = new JSMethod(jse, "pkg", false, "fred");
 		fn.argument("_cxt");
 		fn.returnObject(new JSString("hello"));
 		fn.write(w);
@@ -169,7 +167,7 @@ public class ClassGeneration {
 	@Test
 	public void aMethodWithOneArgumentGeneratesCorrectly() {
 		w = w.indent();
-		JSClass jsc = new JSClass("pkg.Clz");
+		JSClass jsc = new JSClass(jse, "pkg.Clz");
 		JSMethodCreator meth = jsc.createMethod("test", false);
 		meth.argument("_cxt");
 		assertNotNull(meth);
@@ -181,7 +179,7 @@ public class ClassGeneration {
 	@Test
 	public void aMethodWithArgumentsGeneratesCorrectly() {
 		w = w.indent();
-		JSClass jsc = new JSClass("pkg.Clz");
+		JSClass jsc = new JSClass(jse, "pkg.Clz");
 		JSMethodCreator meth = jsc.createMethod("test", false);
 		meth.argument("_cxt");
 		assertNotNull(meth);
@@ -205,7 +203,7 @@ public class ClassGeneration {
 	@Ignore
 	public void aFunctionCallDefinesAVar() {
 		w = w.indent();
-		JSMethodCreator meth = new JSMethod("pkg", false, "f");
+		JSMethodCreator meth = new JSMethod(jse, "pkg", false, "f");
 		JSExpr callG = meth.pushFunction("g");
 		callG.write(w);
 		assertEquals("const v1 = FLEval.closure(g);", sw.toString());
@@ -215,7 +213,7 @@ public class ClassGeneration {
 	@Test
 	public void aConstructorWithNoArgsGeneratesAConstant() {
 		w = w.indent();
-		JSMethodCreator meth = new JSMethod("pkg", false, "f");
+		JSMethodCreator meth = new JSMethod(jse, "pkg", false, "f");
 		JSExpr callG = meth.pushFunction("g");
 		assertEquals("v1", callG.asVar());
 	}
@@ -223,7 +221,7 @@ public class ClassGeneration {
 	@Test
 	public void aConstructorWithArgsGeneratesACreationExpression() {
 		w = w.indent();
-		JSMethodCreator meth = new JSMethod("pkg", false, "f");
+		JSMethodCreator meth = new JSMethod(jse, "pkg", false, "f");
 		JSExpr callG = meth.pushFunction("g");
 		assertEquals("v1", callG.asVar());
 	}
@@ -231,7 +229,7 @@ public class ClassGeneration {
 	@Test
 	public void aMethodIncludesItsActions() {
 		w = w.indent();
-		JSClass jsc = new JSClass("pkg.Clz");
+		JSClass jsc = new JSClass(jse, "pkg.Clz");
 		JSMethodCreator meth = jsc.createMethod("test", false);
 		meth.argument("_cxt");
 		assertNotNull(meth);
@@ -251,7 +249,7 @@ public class ClassGeneration {
 	@Test
 	public void aPackageIncludesItsClasses() {
 		JSFile f = new JSFile("test", null);
-		f.addClass(new JSClass("test.Clazz"));
+		f.addClass(new JSClass(jse, "test.Clazz"));
 		f.writeTo(w);
 		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.Clazz = function(_cxt) {\n}\n", sw.toString());
 	}
@@ -259,7 +257,7 @@ public class ClassGeneration {
 	@Test
 	public void aPackageIncludesItsFunctions() {
 		JSFile f = new JSFile("test", null);
-		JSMethod meth = new JSMethod("test", false, "f");
+		JSMethod meth = new JSMethod(jse, "test", false, "f");
 		meth.argument("_cxt");
 		f.addFunction(meth);
 		f.writeTo(w);
@@ -268,7 +266,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void aClassIncludesItsMethods() {
-		JSClass clz = new JSClass("test.Clazz");
+		JSClass clz = new JSClass(jse, "test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		clz.writeTo(w);
@@ -277,7 +275,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void aClosureIsGenerated() {
-		JSClass clz = new JSClass("test.Clazz");
+		JSClass clz = new JSClass(jse, "test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		meth.closure(false, meth.pushFunction("f"), meth.string("hello"));
@@ -287,7 +285,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void aCurryIsGenerated() {
-		JSClass clz = new JSClass("test.Clazz");
+		JSClass clz = new JSClass(jse, "test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		meth.curry(false, 2, meth.pushFunction("f"), meth.string("hello"));
@@ -297,7 +295,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void anExplicitCurryIsGenerated() {
-		JSClass clz = new JSClass("test.Clazz");
+		JSClass clz = new JSClass(jse, "test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		meth.xcurry(false, 2, Arrays.asList(new XCArg(0, meth.pushFunction("f")), new XCArg(2, meth.string("hello"))));
@@ -307,7 +305,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void mockContractCallsTheRightMethod() {
-		JSBlock b = new JSMethod(null, false, "fred");
+		JSBlock b = new JSMethod(jse, null, false, "fred");
 		JSExpr mc = b.mockContract(new SolidName(new PackageName("org.fred"), "Ctr"));
 		assertEquals("v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
@@ -316,7 +314,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void createObjectCallsTheRightMethod() {
-		JSBlock b = new JSMethod(null, false, "fred");
+		JSBlock b = new JSMethod(jse, null, false, "fred");
 		JSExpr mc = b.createObject(new SolidName(new PackageName("org.fred"), "MyObj"));
 		assertEquals("v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
@@ -326,7 +324,7 @@ public class ClassGeneration {
 	@Test
 	public void weCanCreateNewJavascriptLevelObjects() {
 		SolidName sn = new SolidName(pkg, "Obj");
-		JSBlock b = new JSMethod(null, false, "fred");
+		JSBlock b = new JSMethod(jse, null, false, "fred");
 		JSExpr mc = b.newOf(sn);
 		assertEquals("v1", mc.asVar());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
@@ -336,7 +334,7 @@ public class ClassGeneration {
 	@Test
 	public void weCanCreateANewJavascriptLevelObjectAndStoreItAsAField() {
 		SolidName sn = new SolidName(pkg, "Obj");
-		JSBlock b = new JSMethod(null, false, "fred");
+		JSBlock b = new JSMethod(jse, null, false, "fred");
 		JSExpr mc = b.fieldObject("state", sn.javaName());
 		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("this.state = new test.repo.Obj(_cxt);\n", sw.toString());
@@ -344,7 +342,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void weCanStoreValuesInTheFieldsContainer() {
-		JSMethod b = new JSMethod(null, false, "fred");
+		JSMethod b = new JSMethod(jse, null, false, "fred");
 		b.argument("cxt");
 		b.storeField(null, "value", b.string("hello"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
@@ -353,7 +351,7 @@ public class ClassGeneration {
 	
 	@Test
 	public void weCanLoadValuesFromTheFieldsContainer() {
-		JSMethod b = new JSMethod(null, false, "fred");
+		JSMethod b = new JSMethod(jse, null, false, "fred");
 		b.argument("cxt");
 		b.returnObject(b.loadField(new JSThis(), "value"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
@@ -362,7 +360,7 @@ public class ClassGeneration {
 
 	@Test
 	public void weCanStoreValuesInAForeignFieldsContainer() {
-		JSMethod b = new JSMethod(null, false, "fred");
+		JSMethod b = new JSMethod(jse, null, false, "fred");
 		b.argument("cxt");
 		b.storeField(b.boundVar("x"), "value", b.string("hello"));
 		b.write(new IndentWriter(new PrintWriter(sw)));

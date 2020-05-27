@@ -30,4 +30,6 @@ public interface JSStorage {
 	void handler(HandlerImplements hi);
 
 	void complete();
+
+	Iterable<String> packages();
 }

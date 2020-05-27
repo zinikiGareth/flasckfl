@@ -249,6 +249,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	private String resolveOpName(String op, int nargs) {
 		switch (op) {
+		case "&&":
+			return "FLBuiltin.boolAnd";
+		case "||":
+			return "FLBuiltin.boolOr";
+		case "!":
+			return "FLBuiltin.not";
 		case "==":
 			return "FLBuiltin.isEqual";
 		case "+":
@@ -259,8 +265,6 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			return "FLBuiltin.mul";
 		case "/":
 			return "FLBuiltin.div";
-		case "!":
-			return "FLBuiltin.not";
 		case "++":
 			return "FLBuiltin.concat";
 		case "[]":

@@ -1,0 +1,27 @@
+	test that not works
+		assert !True
+			False
+
+	test that not also works
+		assert !False
+			True
+
+	test that and works with Truth
+		assert True && True
+			True
+
+	test that and works with False
+		assert True && False
+			False
+			
+	test that or works with Truth
+		assert True || False
+			True
+
+	test that or works with False
+		assert False || False
+			False
+			
+			
+			
+			

@@ -302,6 +302,15 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	private String resolveOpName(String op) {
 		String inner;
 		switch (op) {
+		case "&&":
+			inner = "And";
+			break;
+		case "||":
+			inner = "Or";
+			break;
+		case "!":
+			inner = "Not";
+			break;
 		case "==":
 			inner = "IsEqual";
 			break;
@@ -316,9 +325,6 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			break;
 		case "/":
 			inner = "Div";
-			break;
-		case "!":
-			inner = "Not";
 			break;
 		case "++":
 			inner = "strAppend";

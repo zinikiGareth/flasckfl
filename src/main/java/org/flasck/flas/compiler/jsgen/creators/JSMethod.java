@@ -12,16 +12,20 @@ import org.flasck.flas.compiler.jsgen.form.JSCopyContract;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSInheritFrom;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
+import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
+import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMethod extends JSBlock implements JSMethodCreator {
+	private final JSStorage jse;
 	private final String pkg;
 	private final boolean prototype;
 	private final String name;
 	final List<JSVar> args = new ArrayList<>();
 	private int nextVar = 1;
 
-	public JSMethod(String pkg, boolean prototype, String name) {
+	public JSMethod(JSStorage jse, String pkg, boolean prototype, String name) {
+		this.jse = jse;
 		this.pkg = pkg;
 		this.prototype = prototype;
 		this.name = name;
@@ -61,7 +65,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 
 	@Override
 	public void initContext(PackageName packageName) {
-		stmts.add(new InitContext(packageName));
+		stmts.add(new InitContext(packageName, jse));
 	}
 
 	@Override

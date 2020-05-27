@@ -71,7 +71,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 
 //		Set<File> dirs = new TreeSet<>(new FileNameComparator());
 		Map<File, ByteCodeCreator> bccs = new TreeMap<>(new FileNameComparator());
-		for (File f : FileUtils.findFilesMatching(new File("src/golden"), "*.fl")) {
+		List<File> fls = FileUtils.findFilesMatching(new File("src/golden"), "*.fl");
+		fls.addAll(FileUtils.findFilesMatching(new File("src/golden"), "*.ut"));
+		for (File f : fls) {
 			File dir = f.getParentFile().getParentFile();
 			if (p == null || p.matcher(dir.getPath()).find()) {
 				ByteCodeCreator bcc = emptyTestClass(bce, makeNameForTest(dir).toString());
@@ -80,14 +82,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 					bccs.put(dir, bcc);
 			}
 		}
-		//		for (File dir : dirs)
-//		if (bcc.methodCount() == 1) {
-//			addMethod(bcc, "classEmpty", false, new TestMethodContentProvider() {
-//				@Override
-//				public void defineMethod(NewMethodDefiner done) {
-//				}
-//			});
-//		}
 		Class<?>[] ret = new Class<?>[bccs.size()];
 		int i=0;
 		for (ByteCodeCreator bcc : bccs.values())

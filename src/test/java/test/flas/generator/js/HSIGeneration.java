@@ -13,6 +13,7 @@ import org.flasck.flas.compiler.jsgen.form.ExtractField;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
+import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.jmock.Expectations;
@@ -23,6 +24,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public class HSIGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	JSStorage jse = context.mock(JSStorage.class);
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);
@@ -42,7 +44,7 @@ public class HSIGeneration {
 	
 	@Test
 	public void headProducesAnEvalStatement() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.head("_0");
@@ -52,7 +54,7 @@ public class HSIGeneration {
 
 	@Test
 	public void ifCtorProducesAnIfWithTwoBlocks() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
 		JSIfExpr ifCtor = meth.ifCtor("_0", "Nil");
 		ifCtor.trueCase().returnObject(ifCtor.trueCase().string("hello"));
@@ -63,7 +65,7 @@ public class HSIGeneration {
 
 	@Test
 	public void ifConstProducesAnIfWithTwoBlocks() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
 		JSIfExpr ifConst = meth.ifConst("_0", "hello");
 		ifConst.trueCase().returnObject(ifConst.trueCase().string("hello"));
@@ -74,7 +76,7 @@ public class HSIGeneration {
 
 	@Test
 	public void ifTrueProducesAnIfWithTwoBlocks() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
 		JSIfExpr ifTrue = meth.ifTrue(new JSLiteral("true"));
 		ifTrue.trueCase().returnObject(ifTrue.trueCase().string("hello"));
@@ -85,7 +87,7 @@ public class HSIGeneration {
 
 	@Test
 	public void errorCreatesAnError() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoCase();
@@ -95,7 +97,7 @@ public class HSIGeneration {
 	
 	@Test
 	public void errorNoDefaultGuardCreatesAnError() {
-		JSMethod meth = new JSMethod(null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();
