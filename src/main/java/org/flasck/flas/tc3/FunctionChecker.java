@@ -194,8 +194,8 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
-		if (meth.messages().isEmpty())
-			sv.result(new PosType(meth.location(), LoadBuiltins.nil));
+		if (!meth.hasMessages())
+			sv.result(buildApplyType(meth.location(), new PosType(meth.location(), LoadBuiltins.nil)));
 		else if (resultTypes.isEmpty())
 			throw new RuntimeException("No types inferred for " + meth.name().uniqueName());
 		else {

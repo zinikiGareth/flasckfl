@@ -26,5 +26,8 @@ public abstract class ObjectMessagesHolder implements MethodMessagesConsumer {
 	@Override
 	public void done() {
 	}
-
+	
+	public boolean hasMessages() {
+		return !messages.isEmpty();
+	}
 }

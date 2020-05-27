@@ -78,6 +78,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.Assembly;
+import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -713,9 +714,25 @@ public class Traverser implements RepositoryVisitor {
 		} else if (fn instanceof ObjectActionHandler) {
 			if (!patternsTree)
 				visitPatterns((PatternsHolder)fn);
-			visitObjectsMessages(((ObjectActionHandler)fn).messages());
+			ObjectActionHandler oah = (ObjectActionHandler)fn;
+			if (!oah.guards.isEmpty())
+				visitObjectGuards(oah.guards);
+			else
+				visitObjectsMessages(oah.messages());
 		} else
 			throw new NotImplementedException();
+	}
+
+	private void visitObjectGuards(List<GuardedMessages> guards) {
+		for (GuardedMessages gm : guards)
+			visitGuardedMessage(gm);
+	}
+
+	@Override
+	public void visitGuardedMessage(GuardedMessages gm) {
+		visitor.visitGuardedMessage(gm);
+		visitExpr(gm.guard, 0);
+		visitObjectsMessages(gm.messages());
 	}
 
 	private void visitObjectsMessages(List<ActionMessage> messages) {

@@ -25,7 +25,7 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	private final InputPosition location;
 	private final FunctionName name;
 	private final List<Pattern> args;
-	private final List<GuardedMessages> guards = new ArrayList<>();
+	public final List<GuardedMessages> guards = new ArrayList<>();
 	private HSITree hsiTree;
 	private Type type;
 	private List<FunctionIntro> convertedIntros;
@@ -67,6 +67,15 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 		guards.add(gm);
 	}
 
+	@Override
+	public boolean hasMessages() {
+		if (super.hasMessages())
+			return true;
+		for (GuardedMessages gm : guards)
+			if (gm.hasMessages())
+				return true;
+		return false;
+	}
 	public void nestedVars(NestedVarReader nestedVars) {
 		this.nestedVars = nestedVars;
 	}

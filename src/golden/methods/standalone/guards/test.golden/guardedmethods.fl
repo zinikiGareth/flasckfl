@@ -1,5 +1,5 @@
 	method foo x
 		| x == 2
 			<- Debug "hello"
-.		|
-.		<- Debug "default"
+		|
+			<- Debug "default"
