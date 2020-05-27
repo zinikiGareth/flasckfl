@@ -1,7 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.zinutils.bytecode.mock.IndentWriter;
 

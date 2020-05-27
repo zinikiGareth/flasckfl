@@ -12,7 +12,6 @@ import org.flasck.flas.compiler.jsgen.form.JSCopyContract;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSInheritFrom;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
-import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.zinutils.bytecode.mock.IndentWriter;
 

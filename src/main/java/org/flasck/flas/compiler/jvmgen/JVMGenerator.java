@@ -219,7 +219,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			fi.constValue(om.argCount());
 			ann = GenericAnnotator.newMethod(clz, true, "eval");
-			wantObj = om.name().codeType.hasThis();
+			wantObj = false; // om.name().codeType.hasThis();
 			haveThis = false;
 			wantParent = false;
 		} else {

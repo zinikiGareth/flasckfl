@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.CodeType;
 import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
@@ -24,7 +23,6 @@ import org.zinutils.xml.XMLElement;
 //  * eventually hiding the "name" var ...
 public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	public final InputPosition location;
-	public final CodeType codeType;
 	public final String name;
 	public final NameOfThing inContext;
 	private final static Map<String, String> bimap = new HashMap<>();
@@ -33,72 +31,71 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		bimap.put("++", "strAppend");
 	}
 	
-	private FunctionName(InputPosition location, CodeType codeType, NameOfThing cxt, String name) {
+	private FunctionName(InputPosition location, NameOfThing cxt, String name) {
 		this.location = location;
-		this.codeType = codeType;
 		this.name = name;
 		this.inContext = cxt;
 	}
 
 	public static FunctionName function(InputPosition location, NameOfThing pkg, String name) {
-		return new FunctionName(location, CodeType.FUNCTION, pkg, name);
+		return new FunctionName(location, pkg, name);
 	}
 
 	public static FunctionName caseName(FunctionName inside, int cs) {
-		return new FunctionName(inside.location, inside.codeType, inside, "_" + cs);
+		return new FunctionName(inside.location, inside, "_" + cs);
 	}
 
 	// struct initializers
 	public static FunctionName initializer(InputPosition location, NameOfThing inStruct, String name) {
-		return new FunctionName(location, CodeType.INITIALIZER, inStruct, name);
+		return new FunctionName(location, inStruct, name);
 	}
 
 	public static FunctionName functionInCardContext(InputPosition location, NameOfThing card, String name) {
-		return new FunctionName(location, CodeType.CARD, card, name);
+		return new FunctionName(location, card, name);
 	}
 
 	public static FunctionName functionInHandlerContext(InputPosition location, NameOfThing inScope, String name) {
-		return new FunctionName(location, CodeType.HANDLERFUNCTION, inScope, name);
+		return new FunctionName(location, inScope, name);
 	}
 
 	public static FunctionName eventTrampoline(InputPosition location, NameOfThing fnName, String name) {
-		return new FunctionName(location, CodeType.EVENT, fnName, name);
+		return new FunctionName(location, fnName, name);
 	}
 
 	public static FunctionName eventMethod(InputPosition location, CardName cardName, String name) {
-		return new FunctionName(location, CodeType.EVENTHANDLER, cardName, name);
+		return new FunctionName(location, cardName, name);
 	}
 
 	public static FunctionName contractDecl(InputPosition location, SolidName contractName, String name) {
-		return new FunctionName(location, CodeType.DECL, contractName, name);
+		return new FunctionName(location, contractName, name);
 	}
 
 	public static FunctionName contractMethod(InputPosition location, NameOfThing ctr, String name) {
-		return new FunctionName(location, CodeType.CONTRACT, ctr, name);
+		return new FunctionName(location, ctr, name);
 	}
 
 	public static FunctionName serviceMethod(InputPosition location, CSName csName, String name) {
-		return new FunctionName(location, CodeType.SERVICE, csName, name);
+		return new FunctionName(location, csName, name);
 	}
 	
 	public static FunctionName handlerMethod(InputPosition location, HandlerName hn, String name) {
-		return new FunctionName(location, CodeType.HANDLER, hn, name);
+		return new FunctionName(location, hn, name);
 	}
 	
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
-		return new FunctionName(location, CodeType.AREA, areaName, fnName);
+		return new FunctionName(location, areaName, fnName);
 	}
 
 	public static FunctionName objectMethod(InputPosition location, NameOfThing on, String name) {
-		return new FunctionName(location, CodeType.OBJECT, on, name);
+		return new FunctionName(location, on, name);
 	}
 
 	public static FunctionName objectCtor(InputPosition location, SolidName on, String name) {
-		return new FunctionName(location, CodeType.OCTOR, on, "_ctor_" + name);
+		return new FunctionName(location, on, "_ctor_" + name);
 	}
 
 	public static FunctionName standaloneMethod(InputPosition location, NameOfThing pkg, String name) {
-		return new FunctionName(location, CodeType.STANDALONE, pkg, name);
+		return new FunctionName(location, pkg, name);
 	}
 	
 	@Override
@@ -134,7 +131,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 			if (bi == null)
 				bi = name;
 			return J.BUILTINPKG+".PACKAGEFUNCTIONS$"+bi;
-		} else if (inContext.containingCard() != null || codeType.hasThis())
+		} else if (inContext.containingCard() != null /* || codeType.hasThis() */)
 			return inContext.uniqueName()+"$"+name;
 		else
 			return inContext.uniqueName()+".PACKAGEFUNCTIONS$"+name;
