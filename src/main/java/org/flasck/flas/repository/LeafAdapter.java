@@ -291,6 +291,10 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void leaveGuardedMessage(GuardedMessages gm) {
+	}
+
+	@Override
 	public void visitMessage(ActionMessage msg) {
 	}
 

@@ -733,6 +733,11 @@ public class Traverser implements RepositoryVisitor {
 		visitor.visitGuardedMessage(gm);
 		visitExpr(gm.guard, 0);
 		visitObjectsMessages(gm.messages());
+		leaveGuardedMessage(gm);
+	}
+
+	public void leaveGuardedMessage(GuardedMessages gm) {
+		visitor.leaveGuardedMessage(gm);
 	}
 
 	private void visitObjectsMessages(List<ActionMessage> messages) {

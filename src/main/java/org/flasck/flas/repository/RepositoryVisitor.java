@@ -221,4 +221,5 @@ public interface RepositoryVisitor {
 	void visitEventSource(Template t);
 	void visitUnitTestNewDiv(UnitTestNewDiv s);
 	void visitGuardedMessage(GuardedMessages gm);
+	void leaveGuardedMessage(GuardedMessages gm);
 }

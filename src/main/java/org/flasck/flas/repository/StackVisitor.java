@@ -641,6 +641,11 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 	public void visitGuardedMessage(GuardedMessages gm) {
 		top.visitGuardedMessage(gm);
 	}
+	
+	@Override
+	public void leaveGuardedMessage(GuardedMessages gm) {
+		top.leaveGuardedMessage(gm);
+	}
 
 	public void visitMessage(ActionMessage msg) {
 		top.visitMessage(msg);
