@@ -9,18 +9,16 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -115,30 +113,18 @@ public class TDAObjectElementsParser implements TDAParsing {
 				errors.message(toks, "extra characters at end of line");
 				return new IgnoreNestedParser();
 			}
-			ObjectCtor ctor = new ObjectCtor(var.location, (Type)builder, fnName, args);
-			builder.addConstructor(ctor);
-			MethodMessagesConsumer collector = new MethodMessagesConsumer() {
-				@Override
-				public void sendMessage(SendMessage message) {
-					ctor.sendMessage(message);
-				}
-				
-				@Override
-				public void assignMessage(AssignMessage message) {
-					ctor.assignMessage(message);
-				}
-
-				@Override
+			ObjectCtor ctor = new ObjectCtor(var.location, (Type)builder, fnName, args) {
 				public void done() {
-					ctor.done();
-					topLevel.newObjectMethod(errors, ctor);
+					super.done();
+					topLevel.newObjectMethod(errors, this);
 				}
 			};
+			builder.addConstructor(ctor);
 			if (currParser != null) {
 				currParser.scopeComplete(location);
 				currParser = null;
 			}
-			return new TDAMethodMessageParser(errors, collector, new LastActionScopeParser(errors, namer, topLevel, "action", false));
+			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, namer, topLevel, "action", false));
 		}
 		case "acor": {
 			if (currParser != null)

@@ -14,9 +14,9 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TDAMethodMessageParser implements TDAParsing {
-	private final ErrorReporter errors;
-	private final MethodMessagesConsumer builder;
-	private final LastOneOnlyNestedParser nestedParser;
+	protected final ErrorReporter errors;
+	protected final MethodMessagesConsumer builder;
+	protected final LastOneOnlyNestedParser nestedParser;
 
 	public TDAMethodMessageParser(ErrorReporter errors, MethodMessagesConsumer builder, LastOneOnlyNestedParser nestedParser) {
 		this.errors = errors;

@@ -1,0 +1,8 @@
+	test the specific case works
+		assert (foo 2)
+			[Debug "hello"]
+			
+	test the default case works
+		assert (foo 3)
+			[Debug "default"]
+		

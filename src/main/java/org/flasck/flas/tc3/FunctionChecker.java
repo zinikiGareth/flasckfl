@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectMessagesHolder;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -211,7 +212,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		sv.result(buildApplyType(ctor.location(), new PosType(ctor.location(), ctor.getObject())));
 	}
 
-	public void leaveObjectActionHandler(ObjectActionHandler meth) {
+	public void leaveObjectActionHandler(ObjectMessagesHolder meth) {
 	}
 
 	private PosType buildApplyType(InputPosition pos, PosType result) {

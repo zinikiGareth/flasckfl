@@ -6,10 +6,8 @@ import java.util.function.Consumer;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.PattToken;
-import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
@@ -62,9 +60,9 @@ public class TDATypeReferenceParser implements TDAParsing {
 			toks.reset(mark);
 		}
 		consumer.accept(new TypeReference(qn.location, qn.text, andTypeParameters));
-		PolyType pt = PolyTypeToken.fromToken(tok.location, namer, qn.text);
-		if (pt != null)
-			topLevel.polytype(errors, pt);
+//		PolyType pt = PolyTypeToken.fromToken(tok.location, namer, qn.text);
+//		if (pt != null)
+//			topLevel.polytype(errors, pt);
 		return new NoNestingParser(errors);
 	}
 

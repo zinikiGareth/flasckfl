@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
+import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parser.MethodMessagesConsumer;
 import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.repository.FunctionHSICases;
@@ -20,11 +21,11 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public abstract class ObjectActionHandler implements Locatable, MethodMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder, TypeBinder {
+public abstract class ObjectActionHandler extends ObjectMessagesHolder implements Locatable, MethodMessagesConsumer, GuardedMessagesConsumer, RepositoryEntry, LogicHolder, PatternsHolder, TypeBinder {
 	private final InputPosition location;
 	private final FunctionName name;
 	private final List<Pattern> args;
-	private final List<ActionMessage> messages = new ArrayList<>();
+	private final List<GuardedMessages> guards = new ArrayList<>();
 	private HSITree hsiTree;
 	private Type type;
 	private List<FunctionIntro> convertedIntros;
@@ -61,6 +62,11 @@ public abstract class ObjectActionHandler implements Locatable, MethodMessagesCo
 		return args().size();
 	}
 	
+	@Override
+	public void guard(GuardedMessages gm) {
+		guards.add(gm);
+	}
+
 	public void nestedVars(NestedVarReader nestedVars) {
 		this.nestedVars = nestedVars;
 	}
@@ -120,24 +126,6 @@ public abstract class ObjectActionHandler implements Locatable, MethodMessagesCo
 		if (this.type == null)
 			throw new RuntimeException("Type not bound for " + name.uniqueName());
 		return this.type;
-	}
-
-	@Override
-	public void sendMessage(SendMessage message) {
-		messages.add(message);
-	}
-
-	@Override
-	public void assignMessage(AssignMessage message) {
-		messages.add(message);
-	}
-
-	@Override
-	public void done() {
-	}
-
-	public List<ActionMessage> messages() {
-		return messages;
 	}
 
 	@Override
