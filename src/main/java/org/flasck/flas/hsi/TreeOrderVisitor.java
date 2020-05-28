@@ -9,7 +9,7 @@ import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.tc3.Type;
 
 public interface TreeOrderVisitor extends RepositoryVisitor {
-	void argSlot(Slot s);
+	void argSlot(ArgSlot s);
 	void matchConstructor(StructDefn ctor);
 	void matchField(StructField fld);
 	void matchType(Type ty, VarName var, FunctionIntro intro);

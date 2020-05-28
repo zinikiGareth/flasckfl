@@ -69,4 +69,6 @@ public interface HSIOptions {
 	Set<String> stringConstants(HSICases intersect);
 	boolean hasSwitches(HSICases intros);
 	int score();
+	boolean isContainer();
+	NamedType containerType();
 }

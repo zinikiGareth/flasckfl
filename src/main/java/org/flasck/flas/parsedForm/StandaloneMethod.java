@@ -113,6 +113,11 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 	}
 
 	@Override
+	public boolean hasState() {
+		return om.hasState();
+	}
+	
+	@Override
 	public StateHolder state() {
 		return om.state();
 	}

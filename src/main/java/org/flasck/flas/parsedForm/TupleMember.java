@@ -64,6 +64,11 @@ public class TupleMember implements Locatable, RepositoryEntry, StandaloneDefn, 
 	}
 
 	@Override
+	public boolean hasState() {
+		return false;
+	}
+
+	@Override
 	public StateHolder state() {
 		return null;
 	}

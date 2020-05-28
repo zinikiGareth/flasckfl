@@ -1,0 +1,3 @@
+test.golden.WithState._C0.init :: List[Message]
+test.golden.WithState.f :: test.golden.WithState->Number->Number
+test.golden.WithState.m :: test.golden.WithState->List[Message]

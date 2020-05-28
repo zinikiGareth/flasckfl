@@ -148,6 +148,9 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		throw new NotImplementedException();
+		if (other == this)
+			return true;
+		else
+			throw new NotImplementedException();
 	}
 }

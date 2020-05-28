@@ -98,6 +98,11 @@ public class TupleAssignment implements RepositoryEntry, StandaloneDefn, TypeBin
 	}
 
 	@Override
+	public boolean hasState() {
+		return false;
+	}
+	
+	@Override
 	public StateHolder state() {
 		return null;
 	}

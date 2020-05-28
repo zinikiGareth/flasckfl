@@ -72,7 +72,18 @@ public class HSIPatternOptions implements HSIOptions {
 	private Map<StructDefn, HSICtorTree> ctors = new TreeMap<>(StructDefn.nameComparator);
 	private Set<Integer> numericConstants = new TreeSet<>();
 	private Set<String> stringConstants = new TreeSet<>();
+	private boolean container;
 
+	@Override
+	public boolean isContainer() {
+		return container;
+	}
+
+	@Override
+	public NamedType containerType() {
+		return vars.get(0).type;
+	}
+	
 	@Override
 	public void includes(FunctionIntro fi) {
 		if (!all.contains(fi))
@@ -107,6 +118,8 @@ public class HSIPatternOptions implements HSIOptions {
 		TV tv = new TV((NamedType) tr.defn(), varName);
 		tv.intros.add(fi);
 		vars.add(tv);
+		if (varName.baseName().equals("_this"))
+			container = true;
 	}
 	
 	@Override

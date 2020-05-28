@@ -2,6 +2,7 @@ package org.flasck.flas.tc3;
 
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -35,7 +36,7 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 	}
 
 	@Override
-	public void argSlot(Slot s) {
+	public void argSlot(ArgSlot s) {
 		throw new NotImplementedException();
 	}
 

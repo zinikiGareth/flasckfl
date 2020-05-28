@@ -32,6 +32,7 @@ public class FunctionState {
 	public Map<String, IExpr> templateObj;
 	private Var renderTree;
 	private Var ocret;
+	private int ignoreContainer = 0;
 
 	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs, IExpr runner) {
 		this.meth = meth;
@@ -68,7 +69,12 @@ public class FunctionState {
 		IExpr in;
 		AVar avar;
 		if (s instanceof ArgSlot) {
-			int k = ((ArgSlot)s).argpos();
+			ArgSlot as = (ArgSlot)s;
+			if (as.isContainer()) {
+				ignoreContainer = 1;
+				return;
+			}
+			int k = as.argpos() - ignoreContainer;
 			in = meth.arrayItem(J.OBJECT, fargs, k);
 			avar = new Var.AVar(meth, J.OBJECT, "head_" + k);
 		} else if (s instanceof CMSlot || s instanceof HLSlot) {

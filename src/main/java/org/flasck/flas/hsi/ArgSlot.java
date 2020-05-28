@@ -1,6 +1,8 @@
 package org.flasck.flas.hsi;
 
 import org.flasck.flas.patterns.HSIOptions;
+import org.flasck.flas.repository.RepositoryVisitor;
+import org.flasck.flas.tc3.NamedType;
 
 public class ArgSlot implements Slot {
 	private final int argPos;
@@ -28,6 +30,14 @@ public class ArgSlot implements Slot {
 	@Override
 	public String id() {
 		return Integer.toString(argPos);
+	}
+
+	public boolean isContainer() {
+		return hsiOptions.isContainer();
+	}
+
+	public NamedType containerType() {
+		return hsiOptions.containerType();
 	}
 	
 	@Override

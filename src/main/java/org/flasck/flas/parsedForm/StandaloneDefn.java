@@ -12,4 +12,5 @@ public interface StandaloneDefn extends LogicHolder {
 	List<Slot> slots();
 	boolean isMyName(NameOfThing other);
 	StateHolder state();
+	boolean hasState();
 }

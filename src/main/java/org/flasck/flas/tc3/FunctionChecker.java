@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.AssignMessage;
@@ -91,10 +92,12 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 	
 	@Override
-	public void argSlot(Slot s) {
+	public void argSlot(ArgSlot s) {
 		if (inMeth != null && inMeth.contractMethod() != null) {
 			// handle contract methods where the types are already prescribed
 			sv.push(csc);
+		} else if (s.isContainer()) {
+			new ContainerChecker(sv, s.containerType());
 		} else {
 			UnifiableType currentArg = state.createUT(null, "slot " + s);
 			sv.push(new SlotChecker(sv, state, currentArg));

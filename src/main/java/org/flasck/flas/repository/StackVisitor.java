@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
@@ -772,7 +773,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		hsi.endSwitch();
 	}
 
-	public void argSlot(Slot s) {
+	public void argSlot(ArgSlot s) {
 		tov.argSlot(s);
 	}
 

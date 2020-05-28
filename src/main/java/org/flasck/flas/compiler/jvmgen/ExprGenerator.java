@@ -159,10 +159,12 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 					sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 			}
 		} else if (defn instanceof StandaloneMethod) {
+			StandaloneMethod fn = (StandaloneMethod) defn;
 			if (nargs == 0) {
-				StandaloneMethod fn = (StandaloneMethod) defn;
 				makeFunctionClosure(false, fn.name(), fn.argCount());
-			} else
+			} else if (fn.om.hasState())
+				sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(fn.name().inContext.javaName()), meth.stringConst(fn.name().name), meth.intConst(fn.argCount())));
+			else
 				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
