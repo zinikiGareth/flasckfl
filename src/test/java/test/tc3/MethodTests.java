@@ -16,9 +16,10 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
@@ -113,10 +114,10 @@ public class MethodTests {
 		args.add(tp);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
-		Slot s = context.mock(Slot.class);
+		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "slot slot"); will(returnValue(ut));
+			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(ut));
 			oneOf(ut).canBeType(pos, LoadBuiltins.string);
 		}});
 		sv.argSlot(s);

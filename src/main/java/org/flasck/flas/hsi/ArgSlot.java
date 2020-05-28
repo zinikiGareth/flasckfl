@@ -1,7 +1,6 @@
 package org.flasck.flas.hsi;
 
 import org.flasck.flas.patterns.HSIOptions;
-import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.tc3.NamedType;
 
 public class ArgSlot implements Slot {

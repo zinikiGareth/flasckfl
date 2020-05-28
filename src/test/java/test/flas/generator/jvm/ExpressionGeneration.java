@@ -41,6 +41,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.patterns.HSIArgsTree;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.StackVisitor;
@@ -148,7 +149,7 @@ public class ExpressionGeneration {
 			oneOf(nv).result(with(VarMatcher.local(18)));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, null, null);
-		state.bindVar(block, "p", new ArgSlot(1, null), null);
+		state.bindVar(block, "p", new ArgSlot(1, new HSIPatternOptions()), null);
 		ExprGenerator eg = new ExprGenerator(state, sv, block, false);
 		sv.push(eg);
 		Traverser gen = new Traverser(eg).withHSI();
@@ -175,7 +176,7 @@ public class ExpressionGeneration {
 			oneOf(nv).result(with(VarMatcher.local(18)));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, null, null);
-		state.bindVar(block, "p", new ArgSlot(0, null), null);
+		state.bindVar(block, "p", new ArgSlot(0, new HSIPatternOptions()), null);
 		ExprGenerator eg = new ExprGenerator(state, sv, block, false);
 		Traverser gen = new Traverser(eg).withHSI();
 		gen.visitExpr(expr, 2);
@@ -925,7 +926,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendMeth), Matchers.is(n2), Matchers.is(i0), Matchers.is(n1))));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
-		state.bindVar(block, "from", new ArgSlot(0, null), null);
+		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), null);
 		new ApplyExprGenerator(state, sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(ms, 0);
@@ -991,7 +992,7 @@ public class ExpressionGeneration {
 			oneOf(nv).result(v1);
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
-		state.bindVar(block, "from", new ArgSlot(0, null), null);
+		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), null);
 		new ExprGenerator(state, sv, block, false);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitApplyExpr(ae);
@@ -1035,7 +1036,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mkacor"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), Matchers.is(headAs), Matchers.is(i0))));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
-		state.bindVar(block, "from", new ArgSlot(0, null), null);
+		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), null);
 		new ApplyExprGenerator(state, sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(me, 0);
@@ -1101,7 +1102,7 @@ public class ExpressionGeneration {
 			oneOf(nv).result(v1);
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
-		state.bindVar(block, "from", new ArgSlot(0, null), null);
+		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), null);
 		new ExprGenerator(state, sv, block, false);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitApplyExpr(ae);

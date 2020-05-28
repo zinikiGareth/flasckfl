@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -39,6 +40,7 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExprGenerator extends LeafAdapter implements ResultAware {
@@ -86,6 +88,8 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitCurrentContainer(CurrentContainer expr) {
+		if (state.stateObj == null)
+			throw new HaventConsideredThisException("current container should surely be non-null");
 		sv.result(state.stateObj);
 	}
 	

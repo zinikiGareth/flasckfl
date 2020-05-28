@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.StateHolder;
+import org.zinutils.exceptions.ShouldBeError;
 
 public class Apply implements Type, SignatureNeedsParensType {
 	public final List<Type> tys;
@@ -50,6 +52,18 @@ public class Apply implements Type, SignatureNeedsParensType {
 			}
 		}
 		return sb.toString();
+	}
+
+	public Object appliedTo(StateHolder ty) {
+		if (ty != tys.get(0))
+			throw new ShouldBeError("Applying an Apply to the wrong type");
+		if (tys.size() == 2)
+			return tys.get(1);
+		else {
+			List<Type> copy = new ArrayList<>(tys);
+			copy.remove(0);
+			return new Apply(copy);
+		}
 	}
 
 	@Override

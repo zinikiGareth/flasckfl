@@ -63,7 +63,7 @@ public class FunctionGeneration {
 		Var cxt = new Var.AVar(meth, J.FLEVALCONTEXT, "cxt");
 		StackVisitor sv = new StackVisitor();
 		new JVMGenerator(bce, sv, null);
-		Slot slot = new ArgSlot(3, null);
+		Slot slot = new ArgSlot(3, new HSIPatternOptions());
 		IExpr arg0 = context.mock(IExpr.class, "arg0");
 		IExpr head = context.mock(IExpr.class, "head");
 		IExpr ass1 = context.mock(IExpr.class, "ass1");

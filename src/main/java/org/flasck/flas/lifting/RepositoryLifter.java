@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -106,7 +107,8 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		} else {
 			dull.add(fn);
 		}
-		fn.reportHolderInArgCount();
+		if (!(fn.state() instanceof ObjectDefn))
+			fn.reportHolderInArgCount();
 		ma = null;
 		ms = null;
 	}

@@ -113,6 +113,7 @@ public class Traverser implements RepositoryVisitor {
 	private boolean wantEventSources = false;
 	private boolean patternsTree;
 	private boolean visitMemberFields = false;
+	private boolean isConverted;
 
 	public Traverser(RepositoryVisitor visitor) {
 		this.visitor = visitor;
@@ -948,7 +949,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitPatterns(PatternsHolder fn) {
 		if (wantNestedPatterns && currentFunction != null) {
 			NamedType sh = (NamedType) currentFunction.state();
-			if (sh != null) {
+			if (sh != null && !(sh instanceof ObjectDefn)) {
 				TypeReference tr = new TypeReference(fn.location(), sh.name().baseName());
 				tr.bind(sh);
 				visitPattern(new TypedPattern(fn.location(), tr, new VarName(fn.location(), fn.name(), "_this")), true);
@@ -1218,7 +1219,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitApplyExpr(ApplyExpr expr) {
 		ApplyExpr ae = expr;
 		Expr fn = (Expr) expr.fn;
-		if (wantNestedPatterns) {
+		if (wantNestedPatterns && !isConverted) {
 			StateHolder sh = containedState(fn);
 			List<Object> args = new ArrayList<>();
 			if (sh != null) {
@@ -1291,8 +1292,9 @@ public class Traverser implements RepositoryVisitor {
 	public void visitMemberExpr(MemberExpr expr) {
 		if (wantHSI) {
 			// generate the converted code
-			if (expr.isConverted())
-				visitExpr(expr.converted(), 0);
+			if (expr.isConverted()) {
+				visitConvertedExpr(expr);
+			}
 			else
 				throw new NotImplementedException("You need to convert this expression");
 		} else {
@@ -1302,6 +1304,18 @@ public class Traverser implements RepositoryVisitor {
 				visitExpr(expr.fld, 0);
 			leaveMemberExpr(expr);
 		}
+	}
+
+	public void visitConvertedExpr(MemberExpr expr) {
+		visitor.visitConvertedExpr(expr);
+		isConverted = true;
+		visitExpr(expr.converted(), 0);
+		leaveConvertedExpr(expr);
+	}
+
+	public void leaveConvertedExpr(MemberExpr expr) {
+		isConverted = false;
+		visitor.leaveConvertedExpr(expr);
 	}
 
 	@Override

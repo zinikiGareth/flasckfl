@@ -8,9 +8,9 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
-import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
@@ -58,7 +58,7 @@ public class PatternsProduceTypes {
 			oneOf(state).createUT(null, "slot ArgSlot[0]");
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
-		Slot s = new ArgSlot(0, null);
+		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());
 		fc.argSlot(s);
 		fc.result(new ArgResult(LoadBuiltins.number));
 		context.checking(new Expectations() {{
@@ -91,7 +91,7 @@ public class PatternsProduceTypes {
 			oneOf(state).createUT(null, "slot ArgSlot[0]");
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
-		Slot s = new ArgSlot(0, null);
+		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());
 		fc.argSlot(s);
 		fc.result(new ArgResult(LoadBuiltins.string));
 		context.checking(new Expectations() {{

@@ -357,6 +357,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.leaveMemberExpr(expr);
 	}
 
+	public void visitConvertedExpr(MemberExpr expr) {
+		top.visitConvertedExpr(expr);
+	}
+
+	public void leaveConvertedExpr(MemberExpr expr) {
+		top.leaveConvertedExpr(expr);
+	}
+
 	public void visitCurrentContainer(CurrentContainer expr) {
 		top.visitCurrentContainer(expr);
 	}

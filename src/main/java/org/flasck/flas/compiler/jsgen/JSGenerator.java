@@ -172,7 +172,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<fn.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
-		this.state = new JSFunctionStateStore(meth, fn.hasState() ? new JSLiteral("_0") : null);
+		JSExpr st = null;
+		if (fn.hasState()) {
+			if (fn.state() instanceof ObjectDefn) { // for acors at least ... what about just random nested functions?
+				st = new JSThis();
+			} else
+				st = new JSLiteral("_0");
+		}
+		this.state = new JSFunctionStateStore(meth, st);
 	}
 
 	// When generating a tuple assignment, we have to create a closure which is the "main thing"

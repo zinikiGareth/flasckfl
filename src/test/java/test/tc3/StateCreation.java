@@ -3,6 +3,7 @@ package test.tc3;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.StackVisitor;
@@ -32,7 +33,7 @@ public class StateCreation {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
 		}});
-		nv.argSlot(new ArgSlot(0, null));
+		nv.argSlot(new ArgSlot(0, new HSIPatternOptions()));
 		context.checking(new Expectations() {{
 			oneOf(arg).canBeStruct(null, LoadBuiltins.nil);
 		}});
@@ -49,7 +50,7 @@ public class StateCreation {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
 		}});
-		nv.argSlot(new ArgSlot(0, null));
+		nv.argSlot(new ArgSlot(0, new HSIPatternOptions()));
 
 		context.checking(new Expectations() {{
 			oneOf(arg).canBeStruct(null, LoadBuiltins.cons); will(returnValue(cons));
@@ -72,7 +73,7 @@ public class StateCreation {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
 		}});
-		nv.argSlot(new ArgSlot(0, null));
+		nv.argSlot(new ArgSlot(0, new HSIPatternOptions()));
 
 		context.checking(new Expectations() {{
 			oneOf(arg).canBeStruct(null, LoadBuiltins.trueT);

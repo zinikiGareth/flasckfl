@@ -6,6 +6,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parser.ObjectElementsConsumer;
 import org.flasck.flas.parser.ObjectNestedNamer;
 import org.flasck.flas.parser.TDAMethodMessageParser;
@@ -25,10 +26,11 @@ import org.zinutils.support.jmock.CaptureAction;
  * Only the last of these can have a further level of nesting, which is a function scope.
  */
 public class TDAMethodNestingParsingTests {
+	interface SHBuilder extends ObjectElementsConsumer, StateHolder {}
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
 	private ErrorReporter tracker = new LocalErrorTracker(errors);
-	private ObjectElementsConsumer builder = context.mock(ObjectElementsConsumer.class);
+	private ObjectElementsConsumer builder = context.mock(SHBuilder.class);
 	private SolidName name = new SolidName(null, "MyObject");
 	private ObjectNestedNamer namer = new ObjectNestedNamer(name);
 	private TopLevelDefinitionConsumer topLevel = context.mock(TopLevelDefinitionConsumer.class);

@@ -225,4 +225,6 @@ public interface RepositoryVisitor {
 	void leaveGuardedMessage(GuardedMessages gm);
 	void visitCheckTypeExpr(CheckTypeExpr expr);
 	void leaveCheckTypeExpr(CheckTypeExpr expr);
+	void visitConvertedExpr(MemberExpr expr);
+	void leaveConvertedExpr(MemberExpr expr);
 }

@@ -468,6 +468,14 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
+	public void visitConvertedExpr(MemberExpr expr) {
+	}
+
+	@Override
+	public void leaveConvertedExpr(MemberExpr expr) {
+	}
+
+	@Override
 	public void visitCheckTypeExpr(CheckTypeExpr expr) {
 	}
 

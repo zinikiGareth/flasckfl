@@ -28,6 +28,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class MemberExpressionChecker extends LeafAdapter implements ResultAware {
@@ -127,9 +128,14 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			nv.result(ty.state().findField(var).type.defn());
 		} else {
 			RepositoryEntry entry = repository.get(FunctionName.function(loc, ty.name(), var).uniqueName());
-			if (entry != null && entry instanceof FunctionDefinition)
-				nv.result(((FunctionDefinition)entry).type());
-			else {
+			if (entry != null && entry instanceof FunctionDefinition) {
+				Type type = ((FunctionDefinition)entry).type();
+				// This should be an Apply and the first arg should match ty and we should return the rest
+				if (!(type instanceof Apply))
+					throw new HaventConsideredThisException("I would expect this to be an Apply with 'ty' as the first arg");
+				Apply app = (Apply) type;
+				nv.result(app.appliedTo(ty));
+			} else {
 				errors.message(loc, "there is no state member or function '" + var + "' in " + ty.name().uniqueName());
 				nv.result(new ErrorType());
 				return;

@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -115,7 +116,7 @@ public class TreeOrderTraversalTests {
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
-			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
 			oneOf(v).endConstructor(with(LoadBuiltins.cons)); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
@@ -152,11 +153,11 @@ public class TreeOrderTraversalTests {
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
-			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
 			oneOf(v).endConstructor(with(LoadBuiltins.cons)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("0"))); inSequence(seq);
-			oneOf(v).argSlot(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("1"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);
@@ -190,7 +191,7 @@ public class TreeOrderTraversalTests {
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
-			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
 			oneOf(v).matchField(LoadBuiltins.cons.findField("head")); inSequence(seq);
 			oneOf(v).varInIntro(vn, vp, fi); inSequence(seq);
@@ -201,7 +202,7 @@ public class TreeOrderTraversalTests {
 			oneOf(v).endField(LoadBuiltins.cons.findField("tail")); inSequence(seq);
 			oneOf(v).endConstructor(with(LoadBuiltins.cons)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("0"))); inSequence(seq);
-			oneOf(v).argSlot(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("1"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);
@@ -230,7 +231,7 @@ public class TreeOrderTraversalTests {
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
-			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchType(LoadBuiltins.number, vx, fi); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
@@ -270,11 +271,11 @@ public class TreeOrderTraversalTests {
 		Sequence seq = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(v).visitFunction(fn); inSequence(seq);
-			oneOf(v).argSlot(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchType(LoadBuiltins.number, nn, fi1); inSequence(seq);
 			oneOf(v).matchType(LoadBuiltins.string, sn, fi2); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("0"))); inSequence(seq);
-			oneOf(v).argSlot(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("1"))); inSequence(seq);
 			oneOf(v).varInIntro(vn, vp, fi1); inSequence(seq);
 			oneOf(v).varInIntro(xn, xp, fi2); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);

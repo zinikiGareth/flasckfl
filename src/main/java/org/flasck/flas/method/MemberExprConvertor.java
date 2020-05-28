@@ -34,6 +34,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.exceptions.ShouldBeError;
 
 public class MemberExprConvertor extends LeafAdapter {
 	private final ErrorReporter errors;
@@ -70,7 +71,7 @@ public class MemberExprConvertor extends LeafAdapter {
 			if (cd != null) {
 				ContractMethodDecl cmd = this.cd.getMethod(var.var);
 				if (cmd == null)
-					throw new NotImplementedException("there is no method " + var.var + " on " + cd.name().uniqueName()); // REAL USER ERROR
+					throw new ShouldBeError("there is no method " + var.var + " on " + cd.name().uniqueName()); // REAL USER ERROR
 				sendMeth = cmd.name;
 				expargs = cmd.args.size();
 			} else if (od != null) {
@@ -84,7 +85,7 @@ public class MemberExprConvertor extends LeafAdapter {
 					sendMeth = FunctionName.function(var.location(), this.od.name(), var.var);
 					expargs = acor.type().argCount();
 				} else if (om == null)
-					throw new NotImplementedException("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
+					throw new ShouldBeError("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
 				else {
 					sendMeth = om.name();
 					expargs = om.argCount();
@@ -103,7 +104,7 @@ public class MemberExprConvertor extends LeafAdapter {
 			} else if (hi != null) {
 				ObjectMethod hm = this.hi.getMethod(var.var);
 				if (hm == null)
-					throw new NotImplementedException("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
+					throw new ShouldBeError("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
 				sendMeth = hm.name();
 				expargs = hm.argCount();
 			} else {
