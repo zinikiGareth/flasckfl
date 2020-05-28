@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -118,6 +119,9 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				sv.result(block.curry(false, expArgs, stack.toArray(new JSExpr[stack.size()])));
 		} else {
 			boolean wantObject = false;
+			if (defn instanceof StandaloneDefn && ((StandaloneDefn)defn).hasState()) {
+				wantObject = true;
+			}
 			JSExpr[] args = new JSExpr[stack.size()];
 			List<XCArg> xcs = new ArrayList<>();
 			int k = 0;

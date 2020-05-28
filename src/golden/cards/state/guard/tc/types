@@ -1,2 +1,2 @@
 test.golden.MessageHolder.check :: ClickEvent->List[Message]
-test.golden.MessageHolder.ishello :: Boolean
+test.golden.MessageHolder.ishello :: test.golden.MessageHolder->Boolean

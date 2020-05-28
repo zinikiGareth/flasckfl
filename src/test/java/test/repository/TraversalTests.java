@@ -548,8 +548,10 @@ public class TraversalTests {
 		StringLiteral sl = new StringLiteral(pos, "hello");
 		me.conversion(sl);
 		context.checking(new Expectations() {{
+			oneOf(v).visitConvertedExpr(me);
 			oneOf(v).visitExpr(sl, 0);
 			oneOf(v).visitStringLiteral(sl);
+			oneOf(v).leaveConvertedExpr(me);
 		}});
 		t.withHSI().visitExpr(me, 0);
 	}

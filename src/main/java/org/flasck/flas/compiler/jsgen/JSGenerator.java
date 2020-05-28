@@ -26,6 +26,7 @@ import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -167,17 +168,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String cxName = fn.name().inContext.jsName();
 		jse.ensurePackageExists(pkg, cxName);
 		this.meth = jse.newFunction(pkg, cxName, fn.hasState(), fn.name().name);
-			
+		
 		this.meth.argument("_cxt");
-		for (int i=0;i<fn.argCount();i++)
+		for (int i=0;i<fn.argCountWithoutHolder();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
 		JSExpr st = null;
 		if (fn.hasState()) {
-			if (fn.state() instanceof ObjectDefn) { // for acors at least ... what about just random nested functions?
+//			if (fn.state() instanceof ObjectDefn) { // for acors at least ... what about just random nested functions?
 				st = new JSThis();
-			} else
-				st = new JSLiteral("_0");
+//			} else
+//				st = new JSLiteral("_0");
 		}
 		this.state = new JSFunctionStateStore(meth, st);
 	}
@@ -313,11 +314,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		} else if (om.isEvent()) {
 			container = new JSThis();
 		} else if (om.hasState()) {
-			container = new JSLiteral("_0");
+			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
 		int i;
-		for (i=0;i<om.argCount();i++)
+		for (i=0;i<om.argCountWithoutHolder();i++)
 			this.meth.argument("_" + i);
 		if (om.contractMethod() != null) {
 			this.meth.argument("_" + i);
@@ -359,6 +360,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void hsiArgs(List<Slot> slots) {
 		for (Slot s : slots) {
+			if (((ArgSlot)s).isContainer())
+				continue;
 			switchVars.put(s, "_" + switchVars.size());
 		}
 	}
@@ -414,7 +417,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void bind(Slot slot, String var) {
-		this.block.bindVar(switchVars.get(slot), var);
+		this.block.bindVar(slot, switchVars.get(slot), var);
 	}
 
 	@Override

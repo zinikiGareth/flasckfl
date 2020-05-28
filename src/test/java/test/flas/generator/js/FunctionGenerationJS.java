@@ -34,6 +34,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.SlotMatcher;
+
 public class FunctionGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
@@ -111,7 +113,7 @@ public class FunctionGenerationJS {
 			oneOf(jss).newFunction("test.repo", "test.repo", false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
-			oneOf(meth).bindVar("_0", "x");
+			oneOf(meth).bindVar(with(SlotMatcher.id("0")), with("_0"), with("x"));
 			oneOf(meth).boundVar("x"); will(returnValue(ret));
 			oneOf(meth).returnObject(ret);
 		}});
@@ -152,7 +154,7 @@ public class FunctionGenerationJS {
 			oneOf(meth).argument("_1"); will(returnValue(slot1)); inSequence(ordering);
 			oneOf(meth).head("_0"); inSequence(ordering);
 			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch)); inSequence(ordering);
-			oneOf(isNil).bindVar("_1", "x"); inSequence(ordering);
+			oneOf(isNil).bindVar(with(SlotMatcher.id("1")), with("_1"), with("x")); inSequence(ordering);
 			oneOf(isNil).boundVar("x"); will(returnValue(ret)); inSequence(ordering);
 			oneOf(isNil).returnObject(ret); inSequence(ordering);
 			oneOf(notNil).errorNoCase();

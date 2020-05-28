@@ -16,6 +16,7 @@ import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -34,10 +35,10 @@ public class HSIGeneration {
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
 		JSExpr runner = context.mock(JSExpr.class);
 		JSGenerator gen = JSGenerator.forTests(meth, runner, null);
-		Slot slot = new ArgSlot(3, null);
+		Slot slot = new ArgSlot(3, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(slot));
 		context.checking(new Expectations() {{
-			oneOf(meth).bindVar("_0", "x");
+			oneOf(meth).bindVar(slot, "_0", "x");
 		}});
 		gen.bind(slot , "x");
 	}

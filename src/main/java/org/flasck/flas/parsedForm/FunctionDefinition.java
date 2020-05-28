@@ -71,6 +71,13 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 		return ret;
 	}
 
+	public int argCountWithoutHolder() {
+		int ret = nargs;
+		if (nestedVars != null)
+			ret += nestedVars.size();
+		return ret;
+	}
+
 	@Override
 	public String signature() {
 		return type.signature();

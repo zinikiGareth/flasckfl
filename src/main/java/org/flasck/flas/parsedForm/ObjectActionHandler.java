@@ -65,6 +65,13 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 			ret += nestedVars.size();
 		return ret;
 	}
+
+	public int argCountWithoutHolder() {
+		int ret = args.size();
+		if (nestedVars != null)
+			ret += nestedVars.size();
+		return ret;
+	}
 	
 	@Override
 	public void guard(GuardedMessages gm) {

@@ -11,6 +11,7 @@ import org.flasck.flas.compiler.jsgen.JSStyleIf;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -69,7 +70,7 @@ public interface JSBlockCreator {
 	JSExpr member(String var);
 
 	// HSIE logic statements
-	void bindVar(String slot, String var);
+	void bindVar(Slot slot, String slotName, String var);
 	void head(String var);
 	void field(String asVar, String fromVar, String field);
 	JSIfExpr ifCtor(String var, String ctor);

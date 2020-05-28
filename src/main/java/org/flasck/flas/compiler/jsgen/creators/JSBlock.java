@@ -67,6 +67,8 @@ import org.flasck.flas.compiler.jsgen.form.JSUpdateStyle;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateTemplate;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
+import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -345,8 +347,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void bindVar(String slot, String var) {
-		stmts.add(new JSBind(slot, var));
+	public void bindVar(Slot slot, String slotName, String var) {
+		if (slot instanceof ArgSlot) {
+			ArgSlot as = (ArgSlot) slot;
+			if (as.isContainer())
+				return;
+		}
+		stmts.add(new JSBind(slotName, var));
 	}
 
 	@Override
