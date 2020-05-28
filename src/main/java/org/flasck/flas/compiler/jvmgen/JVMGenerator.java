@@ -211,7 +211,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		GenericAnnotator ann;
 		boolean wantObj, haveThis, wantParent;
-		if (om.isStandalone()) {
+		if (om.isTrulyStandalone()) {
 			this.clz = bce.newClass(om.name().javaClassName());
 			this.clz.generateAssociatedSourceFile();
 			IFieldInfo fi = this.clz.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
@@ -231,6 +231,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			} else if (om.isEvent()) {
 				CardDefinition card = om.getCard();
 				this.clz = bce.get(card.name().javaName());
+				wantParent = false;
+			} else if (om.hasState()) {
+				this.clz = bce.get(om.state().name().javaName());
 				wantParent = false;
 			} else
 				throw new NotImplementedException("Don't have one of those");
@@ -281,7 +284,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			if (parent != null && parent instanceof StateHolder && ((StateHolder)parent).state() != null) {
 				fs.provideStateObject(meth.castTo(meth.getField("_card"), J.FIELDS_CONTAINER_WRAPPER));
 			}
-		} else if (!om.isStandalone())
+		} else if (om.hasState()) {
+			StateHolder od = om.state();
+			if (od.state() != null) {
+				fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
+			}
+		} else if (!om.isTrulyStandalone())
 			throw new NotImplementedException("Don't have one of those");
 
 	}

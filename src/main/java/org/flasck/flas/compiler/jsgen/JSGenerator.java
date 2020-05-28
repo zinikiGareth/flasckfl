@@ -305,6 +305,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			container = new JSThis();
 		} else if (om.isEvent()) {
 			container = new JSThis();
+		} else if (om.hasState()) {
+			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
 		int i;

@@ -109,7 +109,15 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 		return contractMethod;
 	}
 
-	public boolean isStandalone() {
+	public boolean hasState() {
+		return holder != null;
+	}
+	
+	public StateHolder state() {
+		return holder;
+	}
+	
+	public boolean isTrulyStandalone() {
 		return holder == null && impl == null;
 	}
 }
