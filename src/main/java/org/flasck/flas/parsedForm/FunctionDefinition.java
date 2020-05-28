@@ -27,6 +27,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	private Type type;
 	private HSITree hsiTree;
 	private NestedVarReader nestedVars;
+	private boolean reportHolder;
 
 	public FunctionDefinition(FunctionName name, int nargs, StateHolder holder) {
 		this.name = name;
@@ -62,9 +63,12 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	}
 
 	public int argCount() {
+		int ret = nargs;
+		if (reportHolder && holder != null)
+			ret++;
 		if (nestedVars != null)
-			return nargs + nestedVars.size();
-		return nargs;
+			ret += nestedVars.size();
+		return ret;
 	}
 
 	@Override
@@ -138,5 +142,13 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 
 	public boolean hasState() {
 		return holder != null;
+	}
+
+	public StateHolder state() {
+		return holder;
+	}
+
+	public void reportHolderInArgCount() {
+		reportHolder = true;
 	}
 }

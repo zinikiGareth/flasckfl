@@ -19,6 +19,11 @@ public class AssemblyName implements NameOfThing {
 		else
 			return pkg.uniqueName();
 	}
+	
+	@Override
+	public String baseName() {
+		return name;
+	}
 
 	@Override
 	public String jsName() {

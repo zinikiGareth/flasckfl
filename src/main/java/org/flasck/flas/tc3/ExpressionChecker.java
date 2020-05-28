@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
+import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -86,6 +87,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		announce(s.location(), LoadBuiltins.string);
 	}
 
+	@Override
+	public void visitCurrentContainer(CurrentContainer expr) {
+		announce(expr.location(), expr.type);
+	}
+	
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		InputPosition pos = var.location();

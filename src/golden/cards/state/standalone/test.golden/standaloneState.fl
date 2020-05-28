@@ -1,0 +1,17 @@
+	card WithState
+		state
+			Number x <- 5
+			Number y <- 3
+
+		implements Lifecycle
+			init
+				<- m
+			
+		method m
+			y <- f y
+			x <- 10
+			
+		f q = q * x;
+		
+		
+		// also tuples

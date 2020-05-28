@@ -30,6 +30,7 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	private Type type;
 	private List<FunctionIntro> convertedIntros;
 	private NestedVarReader nestedVars;
+	private boolean reportHolder;
 
 	public ObjectActionHandler(InputPosition location, FunctionName name, List<Pattern> args) {
 		this.location = location;
@@ -57,9 +58,12 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	}
 
 	public int argCount() {
+		int ret = args.size();
+		if (reportHolder && hasState())
+			ret++;
 		if (nestedVars != null)
-			return args.size() + nestedVars.size();
-		return args().size();
+			ret += nestedVars.size();
+		return ret;
 	}
 	
 	@Override
@@ -137,11 +141,16 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 		return this.type;
 	}
 
+	public void reportHolderInArgCount() {
+		reportHolder = true;
+	}
+
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println("ObjectCtor[" + toString() + "]");
 	}
 
+	public abstract boolean hasState();
 	public abstract boolean hasObject();
 	public abstract boolean hasImplements();
 	public abstract boolean isEvent();

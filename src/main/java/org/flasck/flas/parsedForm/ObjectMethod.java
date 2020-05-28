@@ -120,4 +120,8 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 	public boolean isTrulyStandalone() {
 		return holder == null && impl == null;
 	}
+
+	public boolean isStandalone() {
+		return impl == null && eventCard == null && od == null;
+	}
 }

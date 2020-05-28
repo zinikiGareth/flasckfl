@@ -18,6 +18,11 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 	}
 
 	@Override
+	public String baseName() {
+		return baseName;
+	}
+	
+	@Override
 	public NameOfThing containingCard() {
 		return name.containingCard();
 	}

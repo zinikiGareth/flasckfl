@@ -64,6 +64,11 @@ public class TupleMember implements Locatable, RepositoryEntry, StandaloneDefn, 
 	}
 
 	@Override
+	public StateHolder state() {
+		return null;
+	}
+
+	@Override
 	public List<Slot> slots() {
 		throw new NotImplementedException();
 	}

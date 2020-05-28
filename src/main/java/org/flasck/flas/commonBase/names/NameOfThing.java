@@ -3,6 +3,7 @@ package org.flasck.flas.commonBase.names;
 import org.zinutils.xml.XMLElement;
 
 public interface NameOfThing {
+	String baseName();
 	String uniqueName();
 	
 	String jsName();
@@ -19,5 +20,4 @@ public interface NameOfThing {
 	String writeToXML(XMLElement xe);
 
 	PackageName packageName();
-
 }

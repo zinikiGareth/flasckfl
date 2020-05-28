@@ -12,6 +12,11 @@ public class PolyName implements NameOfThing, Comparable<PolyName> {
 	}
 	
 	@Override
+	public String baseName() {
+		return name;
+	}
+
+	@Override
 	public NameOfThing containingCard() {
 		return null;
 	}

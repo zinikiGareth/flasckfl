@@ -23,6 +23,11 @@ public class FunctionIntro implements FunctionGuardedEquationConsumer, PatternsH
 		this.args = args;
 	}
 
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
 	public FunctionName name() {
 		if (fname == null)
 			throw new UtilException("Deprecated");

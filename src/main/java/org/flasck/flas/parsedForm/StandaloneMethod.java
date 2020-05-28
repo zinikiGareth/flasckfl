@@ -107,4 +107,13 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 	public String toString() {
 		return "StandaloneMethod[" + om + "]";
 	}
+
+	public void reportHolderInArgCount() {
+		om.reportHolderInArgCount();
+	}
+
+	@Override
+	public StateHolder state() {
+		return om.state();
+	}
 }

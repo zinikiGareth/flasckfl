@@ -947,6 +947,12 @@ public class Traverser implements RepositoryVisitor {
 	// is public because this is a useful entry point for unit testing
 	public void visitPatterns(PatternsHolder fn) {
 		if (wantNestedPatterns && currentFunction != null) {
+			NamedType sh = (NamedType) currentFunction.state();
+			if (sh != null) {
+				TypeReference tr = new TypeReference(fn.location(), sh.name().baseName());
+				tr.bind(sh);
+				visitPattern(new TypedPattern(fn.location(), tr, new VarName(fn.location(), fn.name(), "_this")), true);
+			}
 			NestedVarReader nv = currentFunction.nestedVars();
 			if (nv != null) {
 				for (Pattern p : nv.patterns())
@@ -1195,11 +1201,14 @@ public class Traverser implements RepositoryVisitor {
 	private boolean isNeedingEnhancement(Expr expr, int nargs) {
 		if (!wantNestedPatterns)
 			return false;
-		if (expr instanceof ApplyExpr && isFnNeedingNesting((Expr) ((ApplyExpr)expr).fn) != null)
-			return true;
-		if (expr instanceof UnresolvedVar && nargs == 0 && isFnNeedingNesting((UnresolvedVar)expr) != null)
-			return true;
-		return false;
+		Expr fn;
+		if (expr instanceof ApplyExpr)
+			fn = (Expr) ((ApplyExpr)expr).fn;
+		else if (expr instanceof UnresolvedVar && nargs == 0)
+			fn = expr;
+		else
+			return false;
+		return isFnNeedingNesting(fn) != null || containedState(fn) != null;
 	}
 
 	private boolean convertedMemberExpr(Expr expr) {
@@ -1210,11 +1219,18 @@ public class Traverser implements RepositoryVisitor {
 		ApplyExpr ae = expr;
 		Expr fn = (Expr) expr.fn;
 		if (wantNestedPatterns) {
+			StateHolder sh = containedState(fn);
+			List<Object> args = new ArrayList<>();
+			if (sh != null) {
+				// this is not good enough because it may be passed in as arg 0 to us
+				args.add(new CurrentContainer(fn.location(), (NamedType) sh));
+			}
 			NestedVarReader nv = isFnNeedingNesting(fn);
 			if (nv != null) {
-				List<Object> args = new ArrayList<>();
 				for (UnresolvedVar uv : nv.vars())
 					args.add(uv);
+			}
+			if (!args.isEmpty()) {
 				args.addAll(expr.args);
 				ae = new ApplyExpr(expr.location, fn, args);
 			}
@@ -1247,14 +1263,24 @@ public class Traverser implements RepositoryVisitor {
 		visitor.leaveHandleExpr(expr, handler);
 	}
 
-	private NestedVarReader isFnNeedingNesting(Expr uv) {
-		if (uv instanceof UnresolvedVar) {
-			UnresolvedVar fn = (UnresolvedVar)uv;
-			if (fn.defn() instanceof StandaloneDefn)
-				return ((StandaloneDefn)fn.defn()).nestedVars();
+	private NestedVarReader isFnNeedingNesting(Expr fn) {
+		if (fn instanceof UnresolvedVar) {
+			UnresolvedVar uv = (UnresolvedVar)fn;
+			if (uv.defn() instanceof StandaloneDefn)
+				return ((StandaloneDefn)uv.defn()).nestedVars();
 		}
 		return null;
 	}
+
+	private StateHolder containedState(Expr fn) {
+		if (fn instanceof UnresolvedVar) {
+			UnresolvedVar uv = (UnresolvedVar)fn;
+			if (uv.defn() instanceof StandaloneDefn)
+				return ((StandaloneDefn)uv.defn()).state();
+		}
+		return null;
+	}
+
 
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
@@ -1286,10 +1312,17 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		if (nargs == 0 && wantNestedPatterns) {
+			StateHolder sh = containedState(var);
+			List<Object> args = new ArrayList<>();
+			if (sh != null) {
+				// this is not good enough because it may be passed in as arg 0 to us
+				args.add(new CurrentContainer(var.location(), (NamedType) sh));
+			}
 			NestedVarReader nv = isFnNeedingNesting(var);
 			if (nv != null && !nv.vars().isEmpty()) {
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				List<Object> args = (List)nv.vars();
+				args.addAll(nv.vars());
+			}
+			if (!args.isEmpty()) {
 				ApplyExpr ae = new ApplyExpr(var.location, var, args);
 				visitor.visitExpr(ae, 0);
 				visitor.visitApplyExpr(ae);
@@ -1297,7 +1330,12 @@ public class Traverser implements RepositoryVisitor {
 				visitor.visitUnresolvedVar(var, args.size());
 				for (Object v : args) {
 					visitor.visitExpr((Expr) v, 0);
-					visitor.visitUnresolvedVar((UnresolvedVar) v, 0);
+					if (v instanceof UnresolvedVar)
+						visitor.visitUnresolvedVar((UnresolvedVar) v, 0);
+					else if (v instanceof CurrentContainer)
+						visitor.visitCurrentContainer((CurrentContainer) v);
+					else
+						throw new NotImplementedException();
 				}
 				visitor.leaveApplyExpr(ae);
 				return; // don't just visit the var ...

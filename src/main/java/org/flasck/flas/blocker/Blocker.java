@@ -33,7 +33,7 @@ public class Blocker {
 	private void consume(String file, int lineNumber, String text) {
 		Indent ind = getIndent(text);
 		text = text.trim();
-		if (ind == null || (ind.tabs == 0 && ind.spaces == 0)) {
+		if (ind == null || (ind.tabs == 0 && ind.spaces == 0) || text.startsWith("//")) {
 			consumer.comment(text);
 		} else if (ind.tabs == 0 && ind.spaces != 0) {
 			// can't have a line with spaces at start and no tabs

@@ -22,6 +22,11 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	}
 
 	@Override
+	public String baseName() {
+		return cardName;
+	}
+	
+	@Override
 	public NameOfThing containingCard() {
 		return this;
 	}

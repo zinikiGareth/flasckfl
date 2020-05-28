@@ -37,6 +37,11 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		this.inContext = cxt;
 	}
 
+	@Override
+	public String baseName() {
+		return name;
+	}
+	
 	public static FunctionName function(InputPosition location, NameOfThing pkg, String name) {
 		return new FunctionName(location, pkg, name);
 	}
@@ -82,10 +87,6 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, hn, name);
 	}
 	
-	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
-		return new FunctionName(location, areaName, fnName);
-	}
-
 	public static FunctionName objectMethod(InputPosition location, NameOfThing on, String name) {
 		return new FunctionName(location, on, name);
 	}

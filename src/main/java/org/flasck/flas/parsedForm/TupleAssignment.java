@@ -98,6 +98,11 @@ public class TupleAssignment implements RepositoryEntry, StandaloneDefn, TypeBin
 	}
 
 	@Override
+	public StateHolder state() {
+		return null;
+	}
+
+	@Override
 	public List<Slot> slots() {
 		throw new NotImplementedException();
 	}

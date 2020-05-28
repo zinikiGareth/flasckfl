@@ -11,4 +11,5 @@ public interface StandaloneDefn extends LogicHolder {
 	NestedVarReader nestedVars();
 	List<Slot> slots();
 	boolean isMyName(NameOfThing other);
+	StateHolder state();
 }

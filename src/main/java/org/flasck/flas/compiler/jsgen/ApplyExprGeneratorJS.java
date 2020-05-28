@@ -118,10 +118,6 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				sv.result(block.curry(false, expArgs, stack.toArray(new JSExpr[stack.size()])));
 		} else {
 			boolean wantObject = false;
-			if (defn instanceof FunctionDefinition && ((FunctionDefinition)defn).hasState()) {
-				expArgs++;
-				wantObject = true;
-			}
 			JSExpr[] args = new JSExpr[stack.size()];
 			List<XCArg> xcs = new ArrayList<>();
 			int k = 0;

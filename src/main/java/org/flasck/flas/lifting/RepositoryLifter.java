@@ -106,6 +106,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		} else {
 			dull.add(fn);
 		}
+		fn.reportHolderInArgCount();
 		ma = null;
 		ms = null;
 	}
@@ -118,6 +119,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		} else {
 			dull.add(meth);
 		}
+		meth.reportHolderInArgCount();
 		ma = null;
 		ms = null;
 	}

@@ -82,7 +82,7 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		op.bind(LoadBuiltins.assign);
 		UnresolvedVar inner = (UnresolvedVar) slotField;
 		if (slotContainer == null) {
-			stack.add(new ApplyExpr(msg.kw, op, new CurrentContainer(msg.kw), new StringLiteral(inner.location, inner.var), expr));
+			stack.add(new ApplyExpr(msg.kw, op, new CurrentContainer(msg.kw, null), new StringLiteral(inner.location, inner.var), expr));
 		} else
 			stack.add(new ApplyExpr(msg.kw, op, slotContainer, new StringLiteral(inner.location, inner.var), expr));
 	}

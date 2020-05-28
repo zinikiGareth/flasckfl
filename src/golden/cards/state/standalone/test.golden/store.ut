@@ -1,0 +1,7 @@
+	test we can call a standalone method to update state
+		data WithState ws
+		contract ws Lifecycle init
+		assert (ws.x)
+			10
+		assert (ws.y)
+			15
