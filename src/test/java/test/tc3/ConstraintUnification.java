@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
@@ -31,6 +32,7 @@ public class ConstraintUnification {
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final FunctionName fn = FunctionName.function(pos, null, "foo");
 
 	@Test
 	public void ifWeDontDoAnythingWeEndUpWithAny() {
@@ -58,10 +60,10 @@ public class ConstraintUnification {
 	@Test
 	public void ifYouAskSomethingToBeAConsAndDontConstrainItYouGetAnyAsThePoly() {
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "poly var A"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "poly var A")));
+			oneOf(state).createUT(pos, "foo Cons[A]"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "foo Cons[A]")));
 		}});
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
-		ut.canBeStruct(pos, null, LoadBuiltins.cons);
+		ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		assertThat(ut.resolve(errors, true), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
 	
@@ -69,13 +71,13 @@ public class ConstraintUnification {
 	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadNotConstrainedYouStillGetAny() {
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "poly var A"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "poly var A")));
+			oneOf(state).createUT(pos, "foo Cons[A]"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "foo Cons[A]")));
 		}});
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
-		StructTypeConstraints stc = ut.canBeStruct(pos, null, LoadBuiltins.cons);
+		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "field head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "field head")));
+			oneOf(state).createUT(pos, "foo Cons.head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "foo Cons.head")));
 			oneOf(state).nextPoly(pos); will(returnValue(pt));
 		}});
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
@@ -86,12 +88,12 @@ public class ConstraintUnification {
 	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadSpecifiedThatsTheType() {
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "poly var A"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "poly var A")));
+			oneOf(state).createUT(pos, "foo Cons[A]"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "foo Cons[A]")));
 		}});
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
-		StructTypeConstraints stc = ut.canBeStruct(pos, null, LoadBuiltins.cons);
+		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "field head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "field head")));
+			oneOf(state).createUT(pos, "foo Cons.head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "foo Cons.head")));
 		}});
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.canBeStruct(pos, null, LoadBuiltins.falseT);
@@ -102,12 +104,12 @@ public class ConstraintUnification {
 	@Test
 	public void ifYouReturnAVarThenYouGetAFreshPolyVar() {
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "poly var A"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "poly var A")));
+			oneOf(state).createUT(pos, "foo Cons[A]"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "foo Cons[A]")));
 		}});
 		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
-		StructTypeConstraints stc = ut.canBeStruct(pos, null, LoadBuiltins.cons);
+		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "field head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "field head")));
+			oneOf(state).createUT(pos, "foo Cons.head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "foo Cons.head")));
 		}});
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.isReturned(pos);

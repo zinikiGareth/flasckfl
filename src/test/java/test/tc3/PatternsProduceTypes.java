@@ -49,13 +49,13 @@ public class PatternsProduceTypes {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class)));
 		}});
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, nameF, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "slot ArgSlot[0]");
+			oneOf(state).createUT(null, "test.repo.fred slot ArgSlot[0]");
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
 		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());
@@ -82,13 +82,13 @@ public class PatternsProduceTypes {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class)));
 		}});
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, nameF, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "slot ArgSlot[0]");
+			oneOf(state).createUT(null, "test.repo.fred slot ArgSlot[0]");
 			oneOf(sv).push(with(any(SlotChecker.class)));
 		}});
 		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());

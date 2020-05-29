@@ -1,6 +1,7 @@
 package test.tc3;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.patterns.HSIPatternOptions;
@@ -24,18 +25,19 @@ public class StateCreation {
 	private final StackVisitor nv = new StackVisitor();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
+	private FunctionName fn = FunctionName.function(pos, null, "f");
 
 	@Test
 	public void aSimpleNoArgConstructorSaysThisMustBeInTheArgType() {
 		UnifiableType arg = context.mock(UnifiableType.class);
-		nv.push(new FunctionChecker(errors, repository, nv, null, state, null));
+		nv.push(new FunctionChecker(errors, repository, nv, fn, state, null));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
+			oneOf(state).createUT(null, "f slot ArgSlot[0]"); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, new HSIPatternOptions()));
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(null, null, LoadBuiltins.nil);
+			oneOf(arg).canBeStruct(null, fn, LoadBuiltins.nil);
 		}});
 		nv.matchConstructor(LoadBuiltins.nil);
 	}
@@ -45,22 +47,22 @@ public class StateCreation {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
 		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
 		UnifiableType head = context.mock(UnifiableType.class, "head");
-		nv.push(new FunctionChecker(errors, repository, nv, null, state, null));
+		nv.push(new FunctionChecker(errors, repository, nv, fn, state, null));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
+			oneOf(state).createUT(null, "f slot ArgSlot[0]"); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, new HSIPatternOptions()));
 
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(null, null, LoadBuiltins.cons); will(returnValue(cons));
+			oneOf(arg).canBeStruct(null, fn, LoadBuiltins.cons); will(returnValue(cons));
 			oneOf(cons).field(state, null, LoadBuiltins.cons.findField("head")); will(returnValue(head));
 		}});
 		nv.matchConstructor(LoadBuiltins.cons);
 		nv.matchField(LoadBuiltins.cons.findField("head"));
 
 		context.checking(new Expectations() {{
-			oneOf(head).canBeStruct(null, null, LoadBuiltins.nil);
+			oneOf(head).canBeStruct(null, fn, LoadBuiltins.nil);
 		}});
 		nv.matchConstructor(LoadBuiltins.nil);
 	}
@@ -68,20 +70,20 @@ public class StateCreation {
 	@Test
 	public void alternativeConstructorsCanBeOfferedForTheSameSlot() {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
-		nv.push(new FunctionChecker(errors, repository, nv, null, state, null));
+		nv.push(new FunctionChecker(errors, repository, nv, fn, state, null));
 		
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(arg));
+			oneOf(state).createUT(null, "f slot ArgSlot[0]"); will(returnValue(arg));
 		}});
 		nv.argSlot(new ArgSlot(0, new HSIPatternOptions()));
 
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(null, null, LoadBuiltins.trueT);
+			oneOf(arg).canBeStruct(null, fn, LoadBuiltins.trueT);
 		}});
 		nv.matchConstructor(LoadBuiltins.trueT);
 
 		context.checking(new Expectations() {{
-			oneOf(arg).canBeStruct(null, null, LoadBuiltins.falseT);
+			oneOf(arg).canBeStruct(null, fn, LoadBuiltins.falseT);
 		}});
 		nv.matchConstructor(LoadBuiltins.falseT);
 	}
@@ -92,7 +94,7 @@ public class StateCreation {
 		UnifiableType arg = context.mock(UnifiableType.class, "arg");
 		StructTypeConstraints cons = context.mock(StructTypeConstraints.class);
 		UnifiableType head = context.mock(UnifiableType.class, "head");
-		nv.push(new FunctionChecker(errors, repository, nv, null, state, null));
+		nv.push(new FunctionChecker(errors, repository, nv, fn, state, null));
 		
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "unknown"); will(returnValue(arg));

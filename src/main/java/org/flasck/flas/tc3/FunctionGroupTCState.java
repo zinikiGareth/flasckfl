@@ -189,6 +189,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			List<UnifiableType> list = new ArrayList<>(allUTs);
 			for (UnifiableType ut : list) {
 				ut.resolve(errors, hard);
+				logger.debug("resolved to " + ((TypeConstraintSet) ut).debugInfo());
 			}
 			if (list.size() == allUTs.size())
 				return;

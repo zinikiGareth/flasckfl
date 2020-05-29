@@ -280,7 +280,7 @@ public class StackVisitation {
 		Type nbr = LoadBuiltins.number;
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "ut_A", "unknown");
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));
+			oneOf(state).createUT(null, "instantiating null.A"); will(returnValue(ut));
 			oneOf(nv).result(ut);
 		}});
 		UnresolvedVar f = new UnresolvedVar(pos, "f"); // A->A
@@ -414,6 +414,7 @@ public class StackVisitation {
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
 		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
+			allowing(nbr).signature(); will(returnValue("nbr"));
 			oneOf(nv).result(with(any(UnifiableType.class)));
 			oneOf(state).createUT(with(pos), with(any(String.class))); will(returnValue(result));
 		}});
@@ -436,6 +437,7 @@ public class StackVisitation {
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, fname, "x"));
 		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
+			allowing(utV).signature(); will(returnValue("utv"));
 			oneOf(state).createUT(with(pos), with(any(String.class))); will(returnValue(result));
 			oneOf(utV).isUsed(pos);
 			oneOf(nv).result(with(any(UnifiableType.class)));

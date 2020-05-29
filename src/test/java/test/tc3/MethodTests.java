@@ -83,7 +83,7 @@ public class MethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aSingleDebugMessageGivesAListOfMessage() {
-		new FunctionChecker(errors, repository, sv, null, state, null);
+		new FunctionChecker(errors, repository, sv, FunctionName.objectMethod(pos, null, "m"), state, null);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
 		sv.visitSendMessage(msg);
@@ -98,7 +98,7 @@ public class MethodTests {
 
 	@Test
 	public void noMessagesNilType() {
-		new FunctionChecker(errors, repository, sv, null, state, null);
+		new FunctionChecker(errors, repository, sv, FunctionName.objectMethod(pos, null, "m"), state, null);
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(new PosType(pos, LoadBuiltins.nil));
@@ -109,7 +109,7 @@ public class MethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanHandleArgumentTypes() {
-		new FunctionChecker(errors, repository, sv, null, state, null);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, null);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		args.add(tp);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
@@ -117,7 +117,7 @@ public class MethodTests {
 		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());
 		UnifiableType ut = context.mock(UnifiableType.class);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "slot ArgSlot[0]"); will(returnValue(ut));
+			oneOf(state).createUT(null, "test.repo.X.meth slot ArgSlot[0]"); will(returnValue(ut));
 			oneOf(ut).canBeType(pos, LoadBuiltins.string);
 		}});
 		sv.argSlot(s);
@@ -149,7 +149,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, null, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		sv.visitAssignSlot(msg.slot);
@@ -170,7 +170,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, null, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -193,7 +193,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, null, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -213,7 +213,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, null, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, new ErrorType()));
 		context.checking(new Expectations() {{
@@ -234,7 +234,7 @@ public class MethodTests {
 		Expr nl = new NumericLiteral(pos, "42", 2);
 		AssignMessage msg = new AssignMessage(pos, var, nl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, null, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.number));
 		context.checking(new Expectations() {{
@@ -258,7 +258,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, null, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -284,7 +284,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, null, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -312,7 +312,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, null, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{

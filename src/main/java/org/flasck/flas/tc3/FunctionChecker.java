@@ -56,8 +56,6 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final FunctionName name;
 
 	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, FunctionName name, CurrentTCState state, ObjectActionHandler inMeth) {
-		if (name == null)
-			throw new NotImplementedException();
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
