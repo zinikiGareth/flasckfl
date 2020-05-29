@@ -32,26 +32,26 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		new FunctionChecker(errors, repository, sv, state, null);
+		new FunctionChecker(errors, repository, sv, fn.name(), state, null);
 		this.currentFunction = fn;
 	}
 
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		new FunctionChecker(errors, repository, sv, state, meth);
+		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
 		this.currentFunction = meth;
 	}
 
 	@Override
 	public void visitTuple(TupleAssignment ta) {
-		new FunctionChecker(errors, repository, sv, state, null);
+		new FunctionChecker(errors, repository, sv, ta.name(), state, null);
 		this.currentFunction = ta;
 		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 	}
 
 	@Override
 	public void visitTupleMember(TupleMember tm) {
-		new FunctionChecker(errors, repository, sv, state, null);
+		new FunctionChecker(errors, repository, sv, tm.name(), state, null);
 		this.currentFunction = tm;
 		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 	}

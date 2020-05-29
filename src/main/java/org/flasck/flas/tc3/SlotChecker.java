@@ -1,5 +1,6 @@
 package org.flasck.flas.tc3;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
@@ -15,11 +16,13 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 	private final NestedVisitor sv;
+	private final FunctionName fnName;
 	private final CurrentTCState state;
 	private final UnifiableType ty;
 	private StructTypeConstraints currentStruct;
 
-	public SlotChecker(NestedVisitor sv, CurrentTCState state, UnifiableType ty) {
+	public SlotChecker(NestedVisitor sv, FunctionName fnName, CurrentTCState state, UnifiableType ty) {
+		this.fnName = fnName;
 		this.ty = ty;
 		this.sv = sv;
 		this.state = state;
@@ -32,13 +35,13 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 
 	@Override
 	public void matchConstructor(StructDefn ctor) {
-		currentStruct = ty.canBeStruct(null, ctor);
+		currentStruct = ty.canBeStruct(null, fnName, ctor);
 	}
 
 	@Override
 	public void matchField(StructField fld) {
 		UnifiableType ft = currentStruct.field(state, null, fld);
-		sv.push(new SlotChecker(sv, state, ft));
+		sv.push(new SlotChecker(sv, fnName, state, ft));
 	}
 
 	@Override

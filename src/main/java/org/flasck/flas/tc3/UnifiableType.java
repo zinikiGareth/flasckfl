@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StructDefn;
 
@@ -18,7 +19,7 @@ public interface UnifiableType extends Type {
 	// particularly for the pattern-matching case, but also if an expression is created which returns this type,
 	// say that this slot can be represented by a particular struct defn
 	// In this case, we allow the struct defn to be further constrained on its fields
-	StructTypeConstraints canBeStruct(InputPosition pos, StructDefn sd);
+	StructTypeConstraints canBeStruct(InputPosition pos, FunctionName fn, StructDefn sd);
 
 	// We can represent the notion that a variable is typed in an argument
 	void canBeType(InputPosition pos, Type ofType);

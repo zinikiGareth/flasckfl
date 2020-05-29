@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -226,7 +227,7 @@ public class TypeChecker extends LeafAdapter {
 		return ret;
 	}
 
-	public static PosType instantiateFreshPolys(CurrentTCState state, Map<String, UnifiableType> uts, PosType post) {
+	public static PosType instantiateFreshPolys(Expr tmp, CurrentTCState state, Map<String, UnifiableType> uts, PosType post) {
 		InputPosition pos = post.pos;
 		Type type = post.type;
 		if (type instanceof PolyType) {
@@ -234,7 +235,7 @@ public class TypeChecker extends LeafAdapter {
 			if (uts.containsKey(pt.shortName()))
 				return new PosType(pos, uts.get(pt.shortName()));
 			else {
-				UnifiableType ret = state.createUT(null, "instantiating " + pt.shortName());
+				UnifiableType ret = state.createUT(null, "instantiating " + tmp + "." + pt.shortName());
 				uts.put(pt.shortName(), ret);
 				return new PosType(pos, ret);
 			}
@@ -242,18 +243,18 @@ public class TypeChecker extends LeafAdapter {
 			Apply a = (Apply) type;
 			List<Type> types = new ArrayList<>();
 			for (Type t : a.tys)
-				types.add(instantiateFreshPolys(state, uts, new PosType(pos, t)).type);
+				types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t)).type);
 			return new PosType(pos, new Apply(types));
 		} else if (type instanceof PolyHolder && ((PolyHolder)type).hasPolys()) {
 			PolyHolder sd = (PolyHolder) type;
 			List<Type> polys = new ArrayList<>();
 			for (Type t : sd.polys())
-				polys.add(instantiateFreshPolys(state, uts, new PosType(pos, t)).type);
+				polys.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t)).type);
 			PolyInstance pi = new PolyInstance(pos, sd, polys);
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn)type).fields)
-					types.add(instantiateFreshPolys(state, uts, new PosType(pos, sf.type.defn())).type);
+					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn())).type);
 				if (types.isEmpty())
 					return new PosType(pos, pi);
 				else
@@ -265,12 +266,12 @@ public class TypeChecker extends LeafAdapter {
 			PolyInstance inst = (PolyInstance) type;
 			List<Type> polys = new ArrayList<>();
 			for (Type t : inst.getPolys())
-				polys.add(instantiateFreshPolys(state, uts, new PosType(pos, t)).type);
+				polys.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t)).type);
 			PolyInstance pi = new PolyInstance(pos, inst.struct(), polys);
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn)type).fields)
-					types.add(instantiateFreshPolys(state, uts, new PosType(pos, sf.type.defn())).type);
+					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn())).type);
 				if (types.isEmpty())
 					return new PosType(pos, pi);
 				else

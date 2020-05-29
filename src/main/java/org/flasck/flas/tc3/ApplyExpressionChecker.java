@@ -28,6 +28,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final List<PosType> results = new ArrayList<>();
 	private final CurrentTCState state;
 	private final boolean inTemplate;
+	private Expr tmp;
 
 	public ApplyExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, boolean inTemplate) {
 		this.errors = errors;
@@ -39,11 +40,13 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
+		tmp = expr;
 		nv.push(new ExpressionChecker(errors, repository, state, nv, inTemplate));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
+		tmp = expr;
 		nv.push(new MemberExpressionChecker(errors, repository, state, nv, false));
 	}
 	
@@ -53,8 +56,9 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		if (ty == null || ty.type == null) {
 			throw new NullPointerException("Cannot handle null type");
 		}
-		results.add(TypeChecker.instantiateFreshPolys(state, new TreeMap<>(), ty));
+		results.add(TypeChecker.instantiateFreshPolys(tmp, state, new TreeMap<>(), ty));
 	}
+	
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
 		if (expr.fn instanceof UnresolvedOperator && ((UnresolvedOperator)expr.fn).op.equals("[]")) {

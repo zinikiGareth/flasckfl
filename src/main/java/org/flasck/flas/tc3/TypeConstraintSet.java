@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -73,6 +74,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final RepositoryReader repository;
 	private final CurrentTCState state;
 	private final InputPosition pos;
+	private final String motive;
 	private final String id;
 	private final Set<PosType> incorporatedBys = new HashSet<>();
 	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
@@ -87,6 +89,7 @@ public class TypeConstraintSet implements UnifiableType {
 		this.state = state;
 		this.pos = pos;
 		this.id = id;
+		this.motive = motive;
 		comments.add(new Comment(pos, id + " created because " + motive, null));
 	}
 
@@ -317,10 +320,10 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	@Override
-	public StructTypeConstraints canBeStruct(InputPosition pos, StructDefn sd) {
+	public StructTypeConstraints canBeStruct(InputPosition pos, FunctionName fn, StructDefn sd) {
 		comments.add(new Comment(pos, "can be struct " + sd, sd));
 		if (!ctors.containsKey(sd))
-			ctors.put(sd, new StructFieldConstraints(repository, state, pos, sd));
+			ctors.put(sd, new StructFieldConstraints(repository, fn, state, pos, sd));
 		return ctors.get(sd);
 	}
 
@@ -346,7 +349,16 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public UnifiableType canBeAppliedTo(InputPosition pos, List<PosType> args) {
 		// Here we introduce a new variable that we will be able to constrain
-		UnifiableType ret = state.createUT(pos, "return value when " + asTCS() + " applied to " + args);
+		StringBuilder motive = new StringBuilder("apply " + id + " to");
+		for (PosType t : args) {
+			motive.append(" ");
+			Type tt = t.type;
+			if (tt instanceof TypeConstraintSet)
+				motive.append(((TypeConstraintSet)tt).id);
+			else
+				motive.append(tt.signature());
+		}
+		UnifiableType ret = state.createUT(pos, motive.toString());
 		List<Type> targs = new ArrayList<>();
 		for (PosType ty : args) {
 			targs.add(ty.type);
@@ -387,7 +399,7 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	public String asTCS() {
-		return "TCS{" + (pos == null? "NULL":pos.inFile()) + ":" + id + "}";
+		return "TCS{" + (pos == null? "NULL":pos.inFile()) + ":" + id + (motive != null ? ":" + motive : "") + "}";
 	}
 
 	public String debugInfo() {

@@ -61,7 +61,7 @@ public class GuardTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanHandleASimpleCorrectCase() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -124,7 +124,7 @@ public class GuardTests {
 
 	@Test
 	public void theGuardTypeCanBeTrue() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -138,7 +138,7 @@ public class GuardTests {
 
 	@Test
 	public void theGuardTypeCanBeFalse() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -152,7 +152,7 @@ public class GuardTests {
 
 	@Test
 	public void theGuardTypeCanBeAUTForNowButWeDemandItIsBoolean() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -168,7 +168,7 @@ public class GuardTests {
 
 	@Test
 	public void itsAnErrorForTheGuardTypeToBeNumber() {
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
@@ -52,11 +53,15 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final CurrentTCState state;
 	private final ObjectActionHandler inMeth;
 	private final ContractSlotChecker csc;
+	private final FunctionName name;
 
-	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state, ObjectActionHandler inMeth) {
+	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, FunctionName name, CurrentTCState state, ObjectActionHandler inMeth) {
+		if (name == null)
+			throw new NotImplementedException();
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
+		this.name = name;
 		this.state = state;
 		this.inMeth = inMeth;
 		if (inMeth != null && inMeth.contractMethod() != null) {
@@ -99,8 +104,8 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		} else if (s.isContainer()) {
 			new ContainerChecker(sv, s.containerType());
 		} else {
-			UnifiableType currentArg = state.createUT(null, "slot " + s);
-			sv.push(new SlotChecker(sv, state, currentArg));
+			UnifiableType currentArg = state.createUT(null, name.uniqueName() + " slot " + s);
+			sv.push(new SlotChecker(sv, name, state, currentArg));
 		}
 	}
 

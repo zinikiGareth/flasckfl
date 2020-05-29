@@ -35,7 +35,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
 		for (StandaloneDefn x : grp.functions())
-			bindVarToUT(x.name().uniqueName(), createUT(x.location(), "return value of " + x.name().uniqueName()));
+			bindVarToUT(x.name().uniqueName(), createUT(x.location(), x.name().uniqueName() + " returns"));
 		this.hasGroup = !grp.isEmpty();
 	}
 

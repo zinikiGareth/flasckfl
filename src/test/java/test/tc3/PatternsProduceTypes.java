@@ -49,7 +49,7 @@ public class PatternsProduceTypes {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class)));
 		}});
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
@@ -82,7 +82,7 @@ public class PatternsProduceTypes {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class)));
 		}});
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, state, null);
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, null, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);

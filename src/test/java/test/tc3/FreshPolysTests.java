@@ -36,7 +36,7 @@ public class FreshPolysTests {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(state, new TreeMap<>(), new PosType(pos, new PolyType(pos, new SolidName(null, "A")))).type;
+		Type t = TypeChecker.instantiateFreshPolys(null, state, new TreeMap<>(), new PosType(pos, new PolyType(pos, new SolidName(null, "A")))).type;
 		assertEquals(ut, t);
 	}
 
@@ -47,7 +47,7 @@ public class FreshPolysTests {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), LoadBuiltins.number))).type;
+		Type t = TypeChecker.instantiateFreshPolys(null, state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), LoadBuiltins.number))).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), Matchers.is(LoadBuiltins.number)));
 	}
 
@@ -58,7 +58,7 @@ public class FreshPolysTests {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "A"))))).type;
+		Type t = TypeChecker.instantiateFreshPolys(null, state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "A"))))).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), Matchers.is(ut)));
 	}
 
@@ -71,7 +71,7 @@ public class FreshPolysTests {
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut1));
 			oneOf(state).createUT(null, "instantiating B"); will(returnValue(ut2));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "B")), new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "B"))))).type;
+		Type t = TypeChecker.instantiateFreshPolys(null, state, new TreeMap<>(), new PosType(pos, new Apply(new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "B")), new PolyType(pos, new SolidName(null, "A")), new PolyType(pos, new SolidName(null, "B"))))).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut1), Matchers.is(ut2), Matchers.is(ut1), Matchers.is(ut2)));
 	}
 
@@ -82,7 +82,7 @@ public class FreshPolysTests {
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "instantiating A"); will(returnValue(ut));
 		}});
-		Type t = TypeChecker.instantiateFreshPolys(state, new TreeMap<>(), new PosType(pos, LoadBuiltins.cons)).type;
+		Type t = TypeChecker.instantiateFreshPolys(null, state, new TreeMap<>(), new PosType(pos, LoadBuiltins.cons)).type;
 		assertThat(t, (Matcher)ApplyMatcher.type(Matchers.is(ut), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(ut)), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(ut))));
 	}
 }
