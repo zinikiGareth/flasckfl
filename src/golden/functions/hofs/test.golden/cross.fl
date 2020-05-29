@@ -1,11 +1,9 @@
-//	cross Nil = Nil
-//	cross [h] = [h]
-//	cross (Cons { head: h, tail: t }) = map (merge (cross t)) h
+	cross Nil = Nil
+	cross [h] = [h]
+	cross (Cons { head: h, tail: t }) = map (merge (cross t)) h
 //	cross (Cons { head: h, tail: t }) = map (merge Nil) h
-	merge [] (String a) = [[a]]
-.	merge [] (Cons[Any] l) = map f l
-.		f e = Cons e Nil
-	merge (Cons[List[String]] l) s = map (Cons s) l
+	merge [] a = [[a]]
+	merge (Cons[List[A]] l) s = map (Cons s) l
 
 //		merge Nil k = []
 //	inner t = cross t

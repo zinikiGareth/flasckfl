@@ -11,5 +11,18 @@
 			[["Q", "A"],["Q", "B"]]
 
 	test merge Second
-		//assert (merge [["A"],["B"]] ["Q", "R"])
-		//	[["Q", "A"],["Q", "B"],["R", "A"],["R", "B"]]
+		assert (merge [["Q","A"],["Q","B"]] "R")
+			[["R", "Q", "A"],["R", "Q", "B"]]
+			
+	test cross Nil
+		assert (cross [])
+			[]
+	
+	test cross Singleton
+		assert (cross [["A","B"]])
+			[["A","B"]]
+	
+	test cross Two
+		assert (cross [["A","B"], ["C","D"]])
+			[["A","C"],["A","D"],["B","C"],["B","D"]]
+	

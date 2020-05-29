@@ -1,2 +1,8 @@
 JVM PASS a very simple hof
+JVM PASS merge Nil
+JVM PASS merge First
+JVM PASS merge Second
 JS PASS a very simple hof
+JS PASS merge Nil
+JS PASS merge First
+JS PASS merge Second
