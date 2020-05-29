@@ -13,10 +13,8 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ContainerChecker extends LeafAdapter implements TreeOrderVisitor {
-
 	private final NestedVisitor sv;
 	private final NamedType ty;
-	private Object location;
 
 	public ContainerChecker(NestedVisitor sv, NamedType ty) {
 		this.sv = sv;

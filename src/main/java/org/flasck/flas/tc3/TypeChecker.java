@@ -33,12 +33,15 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.FieldType;
 import org.ziniki.splitter.NoMetaKeyException;
 import org.zinutils.collections.CollectionUtils;
 
 public class TypeChecker extends LeafAdapter {
+	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;

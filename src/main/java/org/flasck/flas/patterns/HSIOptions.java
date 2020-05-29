@@ -71,4 +71,5 @@ public interface HSIOptions {
 	int score();
 	boolean isContainer();
 	NamedType containerType();
+	void dump(String indent);
 }

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -22,9 +23,11 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class HSIPatternOptions implements HSIOptions {
@@ -102,7 +105,10 @@ public class HSIPatternOptions implements HSIOptions {
 		NamedType td = (NamedType) tp.type.defn();
 		if (td == null)
 			throw new RuntimeException("No definition in " + tp.type);
-		types.put(td, new TV(tp));
+		while (td instanceof PolyInstance)
+			td = ((PolyInstance)td).struct();
+		if (!types.containsKey(td))
+			types.put(td, new TV(tp));
 		types.get(td).intros.add(fi);
 	}
 	
@@ -124,7 +130,8 @@ public class HSIPatternOptions implements HSIOptions {
 	
 	@Override
 	public void addConstant(Primitive type, String value, FunctionIntro fi) {
-		types.put(type, new TV(type, (VarName)null));
+		if (!types.containsKey(type))
+			types.put(type, new TV(type, (VarName)null));
 		types.get(type).intros.add(fi);
 		if (type.name().uniqueName().equals("Number"))
 			numericConstants.add(Integer.parseInt(value));
@@ -141,6 +148,8 @@ public class HSIPatternOptions implements HSIOptions {
 
 	@Override
 	public List<FunctionIntro> getIntrosForType(NamedType ty) {
+		while (ty instanceof PolyInstance)
+			ty = ((PolyInstance)ty).struct();
 		return types.get(ty).intros;
 	}
 
@@ -163,14 +172,14 @@ public class HSIPatternOptions implements HSIOptions {
 	public List<IntroTypeVar> typedVars(NamedType ty) {
 		TV tv = types.get(ty);
 		List<IntroTypeVar> ret = new ArrayList<>();
-		if (tv.intros.size() != 1)
-			throw new RuntimeException("I wasn't expecting that");
-		IntroTypeVar itv;
-		if (tv.tp != null)
-			itv = new IntroTypeVar(tv.intros.get(0), tv.tp);
-		else
-			itv = new IntroTypeVar(tv.intros.get(0), tv.type);
-		ret.add(itv);
+		for (FunctionIntro intro : tv.intros) {
+			IntroTypeVar itv;
+			if (tv.tp != null)
+				itv = new IntroTypeVar(intro, tv.tp);
+			else
+				itv = new IntroTypeVar(intro, tv.type);
+			ret.add(itv);
+		}
 		return ret;
 	}
 
@@ -179,7 +188,7 @@ public class HSIPatternOptions implements HSIOptions {
 		List<IntroVarName> ret = new ArrayList<>();
 		for (TV v : vars) {
 			if (v.intros.size() != 1)
-				throw new RuntimeException("I wasn't expecting that");
+				throw new CantHappenException("There should only be one intro left");
 			IntroVarName iv;
 			if (v.vp != null)
 				iv = new IntroVarName(v.intros.get(0), v.vp);
@@ -277,5 +286,21 @@ public class HSIPatternOptions implements HSIOptions {
 		if (types.containsKey(LoadBuiltins.any))
 			score--;
 		return score;
+	}
+	
+	@Override
+	public void dump(String indent) {
+		boolean spoken = false;
+		for (Entry<StructDefn, HSICtorTree> c : ctors.entrySet()) {
+			System.out.println(indent + "ctor " + c.getKey().signature() + ":");
+			c.getValue().dump(indent + "  ");
+			spoken = true;
+		}
+		for (Entry<NamedType, TV> t : types.entrySet()) {
+			System.out.println(indent + "type " + t.getKey().signature() + ":" + t.getValue().intros);
+			spoken = true;
+		}
+		if (!spoken)
+			System.out.println(indent + "all: " + all);
 	}
 }

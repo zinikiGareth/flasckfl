@@ -139,15 +139,17 @@ const FLCurry = function(obj, fn, reqd, xcs) {
 FLCurry.prototype.apply = function(_, args) {
 	var _cxt = args[0];
 	this.args[0] = _cxt;
+	var miss = this.missing.slice(0);
+	var as = this.args.slice(0);
 	for (var i=1;i<args.length;i++) {
-		var m = this.missing.pop();
-		this.args[m] = args[i];
+		var m = miss.pop();
+		as[m] = args[i];
 	}
-	if (this.missing.length == 0) {
-		this.obj = _cxt.full(this.obj);
-		return this.fn.apply(this.obj, this.args);
+	if (miss.length == 0) {
+		var obj = _cxt.full(this.obj);
+		return this.fn.apply(obj, as);
 	} else {
-		return this;
+		return new FLCurry(this.obj, this.fn, this.reqd, as);
 	}
 }
 
@@ -278,6 +280,13 @@ FLContext.prototype.head = function(obj) {
 	while (obj instanceof FLClosure)
 		obj = obj.eval(this);
 	return obj;
+}
+
+FLContext.prototype.spine = function(obj) {
+	obj = this.head(obj);
+	if (Array.isArray(obj))
+		return obj;
+	throw Error("We need to evaluate the spine of the array without worrying about the elements");
 }
 
 FLContext.prototype.full = function(obj) {
@@ -420,7 +429,19 @@ FLContext.prototype.handleMessages = function(msg) {
 FLContext.prototype.localCard = function(cardClz, elt) {
 	const card = new cardClz(cx);
 	card._renderInto(cx, document.getElementById(elt));
+	var lc = this.findContractOnCard(card, "Lifecycle");
+	if (lc && lc.init) {
+		var msgs = lc.init(this);
+		this.handleMessages(msgs);
+	}
 	return card;
+}
+
+FLContext.prototype.findContractOnCard = function(card, ctr) {
+	for (var ce in Object.getOwnPropertyDescriptors(card._contracts)) {
+		if (card._contracts[ce][ctr])
+			return card._contracts[ce][ctr];
+	}
 }
 
 FLContext.prototype.storeMock = function(value) {
@@ -873,7 +894,7 @@ const Cons = function() {
 }
 
 Cons.eval = function(_cxt, hd, tl) {
-	var cp = tl.slice(0);
+	var cp = _cxt.spine(tl).slice(0);
 	cp.splice(0, 0, hd);
 	return cp;
 }

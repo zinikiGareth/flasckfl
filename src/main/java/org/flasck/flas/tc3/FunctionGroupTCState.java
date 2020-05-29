@@ -35,7 +35,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
 		for (StandaloneDefn x : grp.functions())
-			bindVarToUT(x.name().uniqueName(), createUT(x.location(), "introducing " + x.name().uniqueName()));
+			bindVarToUT(x.name().uniqueName(), createUT(x.location(), "return value of " + x.name().uniqueName()));
 		this.hasGroup = !grp.isEmpty();
 	}
 
@@ -116,7 +116,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes) {
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 
-		logger.debug("starting to check group:");
+		TypeChecker.logger.info("starting to check group: " + memberTypes.keySet());
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
 			logger.debug(e.getKey() + " :: " + e.getValue().type);
 		
@@ -126,7 +126,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			UnifiableType ut = this.requireVarConstraints(m.getKey().location(), name);
 			ut.determinedType(m.getValue());
 		}
-		this.debugInfo("entry");
+		this.debugInfo("initial");
 
 		// Then we can resolve all the UTs
 		this.resolveAll(errors, false);
@@ -139,31 +139,45 @@ public class FunctionGroupTCState implements CurrentTCState {
 		// Then we can bind the types
 		logger.debug("binding group:");
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
-			Type as = cleanUTs(errors, e.getValue().type);
+			Type as = cleanUTs(errors, e.getValue().pos, e.getValue().type, new ArrayList<>());
 			logger.debug(e.getKey() + " :: " + as);
+			TypeChecker.logger.info(e.getKey() + " :: " + as);
 			e.getKey().bindType(as);
 		}
 		this.bindVarPatternTypes(errors);
 	}
 
-	private Type cleanUTs(ErrorReporter errors, Type ty) {
+	private Type cleanUTs(ErrorReporter errors, InputPosition pos, Type ty, List<UnifiableType> recs) {
 		logger.debug("Cleaning " + ty + " " + ty.getClass());
 		if (ty instanceof EnsureListMessage)
 			((EnsureListMessage)ty).validate(errors);
-		if (ty instanceof UnifiableType)
-			return cleanUTs(errors, ((UnifiableType)ty).resolve(errors, true));
-		else if (ty instanceof Apply) {
+		if (ty instanceof UnifiableType) {
+			List<UnifiableType> dontUse = new ArrayList<>(recs);
+			UnifiableType ut = (UnifiableType)ty;
+			dontUse.add(ut);
+			return cleanUTs(errors, pos, ut.resolve(errors, true), dontUse);
+		} else if (ty instanceof Apply) {
 			Apply a = (Apply) ty;
 			List<Type> tys = new ArrayList<>();
-			for (Type t : a.tys)
-				tys.add(cleanUTs(errors, t));
+			for (Type t : a.tys) {
+				if (recs.contains(t)) {
+					errors.message(pos, "circular polymorphic type inferred");
+					return new ErrorType();
+				}
+				tys.add(cleanUTs(errors, pos, t, recs));
+			}
 			return new Apply(tys);
 		} else if (ty instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) ty;
 			List<Type> polys = new ArrayList<>();
-			for (Type t : pi.getPolys())
-				polys.add(cleanUTs(errors, t));
-			return new PolyInstance(pi.location(), (NamedType) cleanUTs(errors, pi.struct()), polys);
+			for (Type t : pi.getPolys()) {
+				if (recs.contains(t)) {
+					errors.message(pos, "circular polymorphic type inferred");
+					return new ErrorType();
+				}
+				polys.add(cleanUTs(errors, pos, t, recs));
+			}
+			return new PolyInstance(pi.location(), (NamedType) cleanUTs(errors, pos, pi.struct(), recs), polys);
 		} else {
 			return ty;
 		}

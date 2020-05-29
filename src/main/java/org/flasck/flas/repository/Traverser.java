@@ -101,9 +101,12 @@ import org.flasck.flas.patterns.HSITree;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class Traverser implements RepositoryVisitor {
+	private final static Logger hsiLogger = LoggerFactory.getLogger("HSI");
 	private final RepositoryVisitor visitor;
 	private StandaloneDefn currentFunction;
 	private FunctionGroups functionOrder;
@@ -698,7 +701,10 @@ public class Traverser implements RepositoryVisitor {
 		if (wantHSI) {
 			List<Slot> slots = sd.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
-			visitHSI(new VarMapping(), slots, sd.hsiCases());
+			hsiLogger.info("traversing HSI for " + sd.name().uniqueName());
+			sd.hsiTree().dump("");
+			visitHSI(new VarMapping(), "", slots, sd.hsiCases());
+			hsiLogger.info("finished HSI for " + sd.name().uniqueName());
 		} else {
 			if (patternsTree)
 				visitPatternsInTreeOrder(sd);
@@ -748,20 +754,24 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	private void visitPatternsInTreeOrder(LogicHolder fn) {
+		hsiLogger.info("visiting patterns for " + fn.name().uniqueName());
 		TreeOrderVisitor tov = (TreeOrderVisitor)visitor;
 		HSITree hsiTree = fn.hsiTree();
 		for (int i=0;i<hsiTree.width();i++) {
+			hsiLogger.info("  visiting pattern " + i);
 			HSIOptions tree = hsiTree.get(i);
 			ArgSlot as = new ArgSlot(i, tree);
 			tov.argSlot(as);
-			visitPatternTree(tree);
+			visitPatternTree("    ", tree);
 			tov.endArg(as);
 		}
+		hsiLogger.info("finished patterns for " + fn.name().uniqueName());
 	}
 
-	private void visitPatternTree(HSIOptions hsiOptions) {
+	private void visitPatternTree(String indent, HSIOptions hsiOptions) {
 		TreeOrderVisitor tov = (TreeOrderVisitor)visitor;
 		for (StructDefn t : hsiOptions.ctors()) {
+			hsiLogger.info(indent + "visiting ctor " + t.signature());
 			// visit(t) // establishing a context
 			HSICtorTree cm = (HSICtorTree) hsiOptions.getCM(t);
 			tov.matchConstructor(t);
@@ -769,12 +779,13 @@ public class Traverser implements RepositoryVisitor {
 				String fld = cm.getField(i);
 				StructField tf = t.findField(fld);
 				tov.matchField(tf);
-				visitPatternTree(cm.get(i));
+				visitPatternTree(indent + "  ", cm.get(i));
 				tov.endField(tf);
 			}
 			tov.endConstructor(t);
 		}
 		for (NamedType t : hsiOptions.types()) {
+			hsiLogger.info(indent + "visiting type " + t.signature());
 			for (IntroTypeVar tv : hsiOptions.typedVars(t)) {
 				if (tv.tp != null)
 					tov.matchType(t, tv.tp.var, tv.intro);
@@ -783,6 +794,7 @@ public class Traverser implements RepositoryVisitor {
 			}
 		}
 		for (IntroVarName iv : hsiOptions.vars()) {
+			hsiLogger.info(indent + "visiting var " + iv.var.uniqueName());
 			tov.varInIntro(iv.var, iv.vp, iv.intro);
 		}
 	}
@@ -824,12 +836,15 @@ public class Traverser implements RepositoryVisitor {
 		}
 	}
 
-	public void visitHSI(VarMapping vars, List<Slot> slots, HSICases intros) {
+	public void visitHSI(VarMapping vars, String indent, List<Slot> slots, HSICases intros) {
+		indent += "  ";
 		HSIVisitor hsi = (HSIVisitor) visitor;
 		if (slots.isEmpty()) {
-			if (intros.noRemainingCases())
+			if (intros.noRemainingCases()) {
+				hsiLogger.info(indent + "no slots, no cases");
 				hsi.errorNoCase();
-			else if (intros.singleton()) {
+			} else if (intros.singleton()) {
+				hsiLogger.info(indent + "no slots, one case ... " + intros.onlyIntro());
 				if (intros.isFunction()) {
 					FunctionIntro intro = intros.onlyIntro();
 					vars.bindFor(hsi, intro);
@@ -842,6 +857,7 @@ public class Traverser implements RepositoryVisitor {
 			Slot s = selectSlot(slots);
 			List<Slot> remaining = new ArrayList<>(slots);
 			remaining.remove(s);
+			hsiLogger.info(indent + "selected slot " + s + " remaining = " + remaining + " intros = " + intros);
 			HSIOptions opts = s.getOptions();
 			vars = vars.remember(s, opts, intros);
 			boolean wantSwitch = opts.hasSwitches(intros);
@@ -850,6 +866,8 @@ public class Traverser implements RepositoryVisitor {
 				for (StructDefn c : opts.ctors()) {
 					hsi.withConstructor(c.name.uniqueName());
 					HSICtorTree cm = (HSICtorTree) opts.getCM(c);
+					HSICases retainedIntros = intros.retain(cm.intros());
+					hsiLogger.info(indent + "considering ctor " + c.name().uniqueName() + " intros = " + retainedIntros);
 					List<Slot> extended = new ArrayList<>(remaining);
 					for (int i=0;i<cm.width();i++) {
 						String fld = cm.getField(i);
@@ -860,19 +878,20 @@ public class Traverser implements RepositoryVisitor {
 					}
 //					ArrayList<FunctionIntro> intersect = new ArrayList<>(intros);
 //					intersect.retainAll(cm.intros());
-					visitHSI(vars, extended, intros.retain(cm.intros()));
+					visitHSI(vars, indent, extended, retainedIntros);
 				}
 				for (NamedType ty : opts.types()) {
 					String name = ty.name().uniqueName();
 					hsi.withConstructor(name);
 					HSICases intersect = intros.retain(opts.getIntrosForType(ty));
+					hsiLogger.info(indent + "considering type " + ty.name().uniqueName() + " intros = " + intersect);
 					if ("Number".equals(name)) {
 						Set<Integer> numbers = opts.numericConstants(intersect);
 						if (!numbers.isEmpty()) {
 							for (int k : numbers) {
 								hsi.matchNumber(k);
 								HSICases forConst = intersect.retain(opts.getIntrosForType(ty));
-								visitHSI(vars, remaining, intersect);
+								visitHSI(vars, indent, remaining, intersect);
 								intersect.remove(forConst);
 							}
 							hsi.matchDefault();
@@ -884,7 +903,7 @@ public class Traverser implements RepositoryVisitor {
 							for (String k : strings) {
 								hsi.matchString(k);
 								HSICases forConst = intersect.retain(opts.getIntrosForType(ty));
-								visitHSI(vars, remaining, intersect);
+								visitHSI(vars, indent, remaining, intersect);
 								intersect.remove(forConst);
 							}
 							hsi.matchDefault();
@@ -893,13 +912,14 @@ public class Traverser implements RepositoryVisitor {
 					if (intersect.noRemainingCases())
 						hsi.errorNoCase();
 					else
-						visitHSI(vars, remaining, intersect);
+						visitHSI(vars, indent, remaining, intersect);
 				}
 			}
 			HSICases intersect = intros.retain(opts.getDefaultIntros(intros));
 			if (wantSwitch)
 				hsi.defaultCase();
-			visitHSI(vars, remaining, intersect);
+			hsiLogger.info(indent + "considering default case: intros = " + intersect);
+			visitHSI(vars, indent, remaining, intersect);
 			if (wantSwitch) {
 				hsi.endSwitch();
 			}

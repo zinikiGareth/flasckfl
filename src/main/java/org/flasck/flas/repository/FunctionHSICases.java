@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.parsedForm.FunctionIntro;
 
 public class FunctionHSICases implements HSICases {
-	// TODO: this is a hack during refactoring
 	public List<FunctionIntro> intros;
 
 	public FunctionHSICases(List<FunctionIntro> intros) {
@@ -65,4 +64,12 @@ public class FunctionHSICases implements HSICases {
 		this.intros.removeAll(other);
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (FunctionIntro i : intros) {
+			sb.append(i.name().name + " ");
+		}
+		return sb.toString().trim();
+	}
 }

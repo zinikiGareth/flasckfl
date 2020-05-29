@@ -1,3 +1,15 @@
 	test a very simple hof
 		assert (doit k)
 			0
+
+	test merge Nil
+		assert (merge [] "A")
+			[["A"]]
+	
+	test merge First
+		assert (merge [["A"], ["B"]] "Q")
+			[["Q", "A"],["Q", "B"]]
+
+	test merge Second
+		//assert (merge [["A"],["B"]] ["Q", "R"])
+		//	[["Q", "A"],["Q", "B"],["R", "A"],["R", "B"]]

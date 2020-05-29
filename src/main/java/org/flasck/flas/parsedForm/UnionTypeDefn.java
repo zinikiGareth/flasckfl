@@ -123,6 +123,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 					Set<Type> tr = polys.get(pt.shortName());
 					// If we have a unifier we are in typechecking and already resolving TCSs.
 					// Failure at this stage should be desperate.
+
 					Type u = unifier.unify(tr);
 					if (u == null)
 						return null;

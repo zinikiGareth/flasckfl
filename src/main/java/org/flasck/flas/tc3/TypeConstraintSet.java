@@ -290,9 +290,9 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public String signature() {
-		if (resolvedTo == null)
+//		if (resolvedTo == null)
 			return asTCS();
-		return resolvedTo.signature();
+//		return resolvedTo.signature();
 	}
 
 	@Override

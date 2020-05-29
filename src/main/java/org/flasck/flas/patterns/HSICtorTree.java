@@ -2,6 +2,7 @@ package org.flasck.flas.patterns;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -52,5 +53,17 @@ public class HSICtorTree extends HSIPatternTree {
 			if (i-- == 0)
 				return ret;
 		}
+	}
+	
+	@Override
+	public void dump(String indent) {
+		boolean spoken = false;
+		for (Entry<String, HSIOptions> i : slots.entrySet()) {
+			System.out.println(indent + i.getKey() + ":");
+			i.getValue().dump(indent + "  ");
+			spoken = true;
+		}
+		if (!spoken)
+			System.out.println(indent + "<default>: " + intros);
 	}
 }

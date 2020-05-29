@@ -11,4 +11,5 @@ public interface HSITree {
 	HSIOptions get(int i);
 	List<FunctionIntro> intros();
 	boolean containsAny(HSICases intros);
+	void dump(String indent);
 }

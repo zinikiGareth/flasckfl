@@ -31,4 +31,11 @@ public class HSIArgsTree extends HSIPatternTree {
 	public HSIOptions get(int i) {
 		return slots.get(i);
 	}
+	
+	public void dump(String indent) {
+		for (int i=0;i<slots.size();i++) {
+			System.out.println(indent + "Arg " + i);
+			slots.get(i).dump(indent + "  ");
+		}
+	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
