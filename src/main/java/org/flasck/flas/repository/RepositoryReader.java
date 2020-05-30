@@ -3,7 +3,6 @@ package org.flasck.flas.repository;
 import java.util.Set;
 
 import org.flasck.flas.hsi.HSIVisitor;
-import org.flasck.flas.parsedForm.UnionTypeDefn.Unifier;
 import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.SplitMetaData;
@@ -15,7 +14,7 @@ public interface RepositoryReader {
 	void traverseInGroups(RepositoryVisitor visitor, FunctionGroups groups);
 	void traverseWithMemberFields(RepositoryVisitor visitor);
 	void dump();
-	Type findUnionWith(Set<Type> ms, Unifier unifier);
+	Type findUnionWith(Set<Type> ms);
 	Iterable<SplitMetaData> allWebs();
 	CardData findWeb(String baseName);
 }

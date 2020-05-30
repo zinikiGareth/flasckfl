@@ -2,7 +2,6 @@ package org.flasck.flas.patterns;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,7 +10,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -20,13 +18,9 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionHSICases;
 import org.flasck.flas.repository.HSICases;
 import org.flasck.flas.repository.LoadBuiltins;
-import org.flasck.flas.repository.RepositoryReader;
-import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
-import org.flasck.flas.tc3.Type;
-import org.flasck.flas.tc3.UnifiableType;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -230,41 +224,6 @@ public class HSIPatternOptions implements HSIOptions {
 	@Override
 	public Set<NamedType> types() {
 		return types.keySet();
-	}
-
-	@Override
-	public Type minimalType(ErrorReporter errors, CurrentTCState state, RepositoryReader repository) {
-		List<TV> vs = new ArrayList<>();
-		Map<NamedType, TV> ts = new TreeMap<>(NamedType.nameComparator);
-		ts.putAll(types);
-		for (TV v : vars) {
-			if (v.type == null)
-				vs.add(v);
-			else
-				ts.put((NamedType)v.type, v);
-		}
-		if (ctors.size() == 1 && ts.isEmpty())
-			return ctors.keySet().iterator().next();
-		else if (ctors.isEmpty() && ts.size() == 1)
-			return ts.values().iterator().next().type;
-		else if (ts.containsKey(LoadBuiltins.any))
-			return LoadBuiltins.any;
-		else if (ctors.isEmpty() && ts.isEmpty() && !vs.isEmpty()) {
-			// TODO: need to consolidate all the vars in this slot
-			UnifiableType ut = state.hasVar(vs.get(0).var.uniqueName());
-			if (ut == null)
-				return LoadBuiltins.any;
-			else
-				return ut.resolve(errors, true);
-		} else {
-			Set<Type> ms = new HashSet<>(ctors.keySet());
-			Type ut = repository.findUnionWith(ms, null);
-			if (ut == null) {
-				return repository.get("Any");
-//				throw new NotImplementedException("Could not find union for " + ms);
-			}
-			return ut;
-		}
 	}
 
 	@Override

@@ -48,7 +48,6 @@ import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.parsedForm.UnionTypeDefn.Unifier;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
@@ -300,7 +299,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
-	public Type findUnionWith(Set<Type> ms, Unifier unifier) {
+	public Type findUnionWith(Set<Type> ms) {
 		if (ms.isEmpty())
 			throw new NotImplementedException();
 		Set<Type> collect = new HashSet<Type>();
@@ -327,7 +326,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
 				UnionTypeDefn utd = (UnionTypeDefn) k;
-				Type union = utd.matches(collect, unifier);
+				Type union = utd.matches(collect);
 				if (union != null)
 					return union;
 			}

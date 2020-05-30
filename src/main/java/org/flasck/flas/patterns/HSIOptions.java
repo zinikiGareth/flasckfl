@@ -4,18 +4,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.HSICases;
-import org.flasck.flas.repository.RepositoryReader;
-import org.flasck.flas.tc3.CurrentTCState;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
-import org.flasck.flas.tc3.Type;
 
 public interface HSIOptions {
 	public class IntroVarName {
@@ -59,7 +55,6 @@ public interface HSIOptions {
 	void includes(FunctionIntro current);
 	List<FunctionIntro> getIntrosForType(NamedType ty);
 	List<FunctionIntro> getDefaultIntros(HSICases intros);
-	Type minimalType(ErrorReporter errors, CurrentTCState state, RepositoryReader repository);
 	Set<StructDefn> ctors();
 	List<IntroTypeVar> typedVars(NamedType ty);
 	List<IntroVarName> vars();
