@@ -18,6 +18,7 @@ import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
 import org.zinutils.collections.SetMap;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryEntry, PolyHolder {
@@ -99,7 +100,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 						return null;
 				}
 				List<Type> pip = pi.getPolys();
-				if (!mine.hasPolys() || pip.size() !=  mine.polys().size())
+				if (!mine.hasPolys() || pip.size() != mine.polys().size())
 					throw new NotImplementedException("I can't see how this isn't an error that should have been caught somewhere else");
 				for (int i=0;i<pip.size();i++) {
 					polys.add(mine.polys().get(i).name(), pip.get(i));
@@ -115,18 +116,12 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		if (!polys.isEmpty()) {
 			List<Type> bound = new ArrayList<>();
 			for (PolyType pt : this.polyvars) {
-				/*
 				if (polys.contains(pt.shortName())) {
 					Set<Type> tr = polys.get(pt.shortName());
-					// If we have a unifier we are in typechecking and already resolving TCSs.
-					// Failure at this stage should be desperate.
-
-					Type u = unifier.unify(tr);
-					if (u == null)
-						return null;
-					bound.add(u);
+					if (tr.size() != 1)
+						throw new HaventConsideredThisException("I think we should resolve it down to just one option");
+					bound.add(tr.iterator().next());
 				} else
-				 */
 				bound.add(LoadBuiltins.any);
 			}
 			return new PolyInstance(this.location(), this, bound);

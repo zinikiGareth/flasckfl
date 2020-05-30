@@ -55,7 +55,9 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.SplitMetaData;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.exceptions.ShouldBeError;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();
@@ -319,8 +321,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 				return LoadBuiltins.any;
 			else if (polys.size() == 1)
 				return polys.iterator().next();
-			else
-				throw new NotImplementedException("multiple distinct polys in union");
+			else {
+				// We have been asked to unify two distinct polymorphic vars
+				// Since they should only be resolved to polymorphic vars AFTER unification, something has gone wrong in that we didn't see they were the same
+				throw new CantHappenException("multiple distinct polys in union: " + polys);
+			}
 		} else if (collect.size() == 1)
 			return collect.iterator().next();
 		for (RepositoryEntry k : dict.values()) {

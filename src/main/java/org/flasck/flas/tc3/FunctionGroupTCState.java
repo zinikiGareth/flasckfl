@@ -1,11 +1,9 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -21,6 +19,9 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.graphs.DirectedAcyclicGraph;
+import org.zinutils.graphs.Node;
+import org.zinutils.graphs.NodeWalker;
 
 public class FunctionGroupTCState implements CurrentTCState {
 	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
@@ -29,7 +30,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	private final Map<VarPattern, UnifiableType> patts = new TreeMap<>(VarPattern.comparator);
 	private final Map<IntroduceVar, UnifiableType> introductions = new TreeMap<>(IntroduceVar.comparator);
 	int polyCount = 0;
-	private Set<UnifiableType> allUTs = new LinkedHashSet<>();
+	private List<UnifiableType> allUTs = new ArrayList<>();
 	private final boolean hasGroup;
 	
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
@@ -76,9 +77,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public void bindVarPatternTypes(ErrorReporter errors) {
 		for (Entry<VarPattern, UnifiableType> e : patts.entrySet()) {
 			UnifiableType ut = e.getValue();
-			if (!ut.isResolved())
-				throw new RuntimeException("Not yet resolved");
-			e.getKey().bindType(ut.resolve(errors, true));
+			e.getKey().bindType(ut.resolvedTo());
 		}
 	}
 
@@ -86,9 +85,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public void bindIntroducedVarTypes(ErrorReporter errors) {
 		for (Entry<IntroduceVar, UnifiableType> e : introductions.entrySet()) {
 			UnifiableType ut = e.getValue();
-			if (!ut.isResolved())
-				throw new RuntimeException("Not yet resolved");
-			e.getKey().bindType(ut.resolve(errors, true));
+			e.getKey().bindType(ut.resolvedTo());
 		}
 	}
 	
@@ -116,7 +113,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes) {
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 
-		TypeChecker.logger.info("starting to check group: " + memberTypes.keySet());
+		TypeChecker.logger.debug("starting to check group: " + memberTypes.keySet());
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
 			logger.debug(e.getKey() + " :: " + e.getValue().type);
 		
@@ -128,6 +125,17 @@ public class FunctionGroupTCState implements CurrentTCState {
 		}
 		this.debugInfo("initial");
 
+		DirectedAcyclicGraph<UnifiableType> dag = collate(errors);
+		enhanceAllMutualUTs();
+		logger.debug("UT DAG:\n" + dag.toString());
+		logger.debug("ROOTS: " + dag.roots());
+		dag.postOrderTraverse(new NodeWalker<UnifiableType>() {
+			@Override
+			public void present(Node<UnifiableType> node) {
+				node.getEntry().resolve(errors);
+			}
+		});
+		/*
 		// Then we can resolve all the UTs
 		this.resolveAll(errors, false);
 		this.enhanceAllMutualUTs();
@@ -135,6 +143,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 //		this.debugInfo();
 		this.resolveAll(errors, true);
 //		this.debugInfo();
+		*/
 		
 		// Then we can bind the types
 		logger.debug("binding group:");
@@ -147,6 +156,16 @@ public class FunctionGroupTCState implements CurrentTCState {
 		this.bindVarPatternTypes(errors);
 	}
 
+	private DirectedAcyclicGraph<UnifiableType> collate(ErrorReporter errors) {
+		DirectedAcyclicGraph<UnifiableType> ret = new DirectedAcyclicGraph<>();
+		for (int i=0;i<allUTs.size();i++) {
+			UnifiableType ut = allUTs.get(i);
+			ret.ensure(ut);
+			ut.collectInfo(errors, ret);
+		}
+		return ret;
+	}
+
 	private Type cleanUTs(ErrorReporter errors, InputPosition pos, Type ty, List<UnifiableType> recs) {
 		logger.debug("Cleaning " + ty + " " + ty.getClass());
 		if (ty instanceof EnsureListMessage)
@@ -155,7 +174,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			List<UnifiableType> dontUse = new ArrayList<>(recs);
 			UnifiableType ut = (UnifiableType)ty;
 			dontUse.add(ut);
-			return cleanUTs(errors, pos, ut.resolve(errors, true), dontUse);
+			return cleanUTs(errors, pos, ut.resolvedTo(), dontUse);
 		} else if (ty instanceof Apply) {
 			Apply a = (Apply) ty;
 			List<Type> tys = new ArrayList<>();
@@ -188,7 +207,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		while (true) {
 			List<UnifiableType> list = new ArrayList<>(allUTs);
 			for (UnifiableType ut : list) {
-				ut.resolve(errors, hard);
+				ut.resolve(errors);
 				logger.debug("resolved to " + ((TypeConstraintSet) ut).debugInfo());
 			}
 			if (list.size() == allUTs.size())
@@ -234,7 +253,16 @@ public class FunctionGroupTCState implements CurrentTCState {
 			return ret;
 
 		// OK, create a new UT and attach them all
-		UnifiableType ut = createUT(pos, "consolidating " + types);
+		StringBuilder motive = new StringBuilder("consolidating");
+		for (PosType t : types) {
+			motive.append(" ");
+			Type tt = t.type;
+			if (tt instanceof UnifiableType)
+				motive.append(((UnifiableType)tt).id());
+			else
+				motive.append(tt.signature());
+		}
+		UnifiableType ut = createUT(pos, motive.toString());
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);

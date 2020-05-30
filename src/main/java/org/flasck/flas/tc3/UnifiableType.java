@@ -6,15 +6,25 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.zinutils.graphs.DirectedAcyclicGraph;
 
 public interface UnifiableType extends Type {
-	// It's always good to be able to tell if this has been resolved
-	boolean isResolved();
+	// Its id
+	String id();
+	
+	// Why was it created?
+	String motive();
 	
 	// Ultimately we need to come up with some description of what this type is
 	// It could be "Top" (Any), it could be a polymorphic var (eg A) or it could be a concrete type (such as Number)
 	// It could also be something more complex, such as List[A]
-	Type resolve(ErrorReporter errors, boolean b);
+	Type resolve(ErrorReporter errors);
+
+	// Return the resolved type
+	Type resolvedTo();
+
+	// Assert that this UT must be a message
+	void mustBeMessage();
 
 	// particularly for the pattern-matching case, but also if an expression is created which returns this type,
 	// say that this slot can be represented by a particular struct defn
@@ -56,4 +66,7 @@ public interface UnifiableType extends Type {
 
 	// Copy the knowledge from another UnifiableType
 	void sameAs(InputPosition pos, Type type);
+
+	// Gather together all the info ready for resolution
+	void collectInfo(ErrorReporter errors, DirectedAcyclicGraph<UnifiableType> dag);
 }

@@ -292,7 +292,7 @@ public class StackVisitation {
 		aec.result(new ExprResult(pos, fnt));
 		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
-		assertEquals(LoadBuiltins.number, ut.resolve(errors, true));
+		assertEquals(LoadBuiltins.number, ut.resolve(errors));
 	}
 
 	@SuppressWarnings("unchecked")

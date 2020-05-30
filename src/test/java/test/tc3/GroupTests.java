@@ -249,7 +249,7 @@ public class GroupTests {
 		gc.leaveFunctionGroup(grp);
 		assertNotNull(fnF.type());
 		assertThat(fnF.type(), (Matcher)ApplyMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)), Matchers.is(LoadBuiltins.string)));
-		Type argType = fnArg.resolve(errors, true);
+		Type argType = fnArg.resolve(errors);
 		assertNotNull(argType);
 		assertThat(argType, (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), ResolvedUTMatcher.with(LoadBuiltins.string)));
 		assertNotNull(pattG.type());

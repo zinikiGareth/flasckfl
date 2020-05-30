@@ -50,10 +50,12 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void visitTupleMember(TupleMember tm) {
-		new FunctionChecker(errors, repository, sv, tm.name(), state, null);
-		this.currentFunction = tm;
-		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+	public void leaveTupleMember(TupleMember tm) {
+//		new FunctionChecker(errors, repository, sv, tm.name(), state, null);
+//		this.currentFunction = tm;
+//		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+		// This should have been bound previously in tuple assignment
+		memberTypes.put(tm, new PosType(tm.location(), tm.type()));
 	}
 	
 	@Override

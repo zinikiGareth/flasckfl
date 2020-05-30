@@ -1,12 +1,12 @@
 test.golden.a :: Nil->Number
-test.golden.a2 :: Cons[A]->Number
+test.golden.a2 :: Cons[Any]->Number
 test.golden.a3 :: Cons[Any]->Number
 test.golden.b :: Boolean->Number
 test.golden.c :: Boolean->Nil->Number
 test.golden.d1 :: Nil->Number
 test.golden.d2 :: Any->Number
-test.golden.d3 :: Cons[True]->Number
-test.golden.e :: Boolean->List[True]->Number
+test.golden.d3 :: Cons[Any]->Number
+test.golden.e :: Boolean->List[Any]->Number
 test.golden.f :: Number->Number
 test.golden.g :: String->Number
 test.golden.h :: Number->Number

@@ -108,7 +108,10 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
 		} else if (defn instanceof TupleMember) {
 			TupleMember tm = (TupleMember) defn;
-			announce(pos, state.requireVarConstraints(tm.location(), tm.name().uniqueName()));
+			if (tm.type() != null)
+				announce(pos, tm.type());
+			else
+				announce(pos, state.requireVarConstraints(tm.location(), tm.name().uniqueName()));
 		} else if (defn instanceof StandaloneMethod) {
 			StandaloneMethod fn = (StandaloneMethod) defn;
 			if (fn.hasType())

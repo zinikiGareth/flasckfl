@@ -82,6 +82,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.InvalidUsageException;
 
 public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor {
 	private List<RepositoryVisitor> stack = new LinkedList<>();
@@ -735,6 +736,8 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void traversalDone() {
 		top.traversalDone();
+		if (stack.size() > 1)
+			throw new InvalidUsageException("Should end up with just top entry: " + stack);
 	}
 
 	public void hsiArgs(List<Slot> slots) {

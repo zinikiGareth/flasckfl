@@ -16,11 +16,21 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.HaventConsideredThisException;
+import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.graphs.DirectedAcyclicGraph;
 
 public class TypeConstraintSet implements UnifiableType {
+	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
+
 	public class Comment implements Comparable<Comment>{
 		private final InputPosition pos;
 		private final String msg;
@@ -83,6 +93,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private Type resolvedTo;
 	private int usedOrReturned = 0;
 	private final TreeSet<Comment> comments = new TreeSet<>();
+	private final Set<PosType> tys = new HashSet<>();
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
 		repository = r;
@@ -93,10 +104,28 @@ public class TypeConstraintSet implements UnifiableType {
 		comments.add(new Comment(pos, id + " created because " + motive, null));
 	}
 
-	public boolean isResolved() {
-		return resolvedTo != null;
+	@Override
+	public String id() {
+		return id;
+	}
+
+	@Override
+	public String motive() {
+		return motive;
 	}
 	
+	@Override
+	public Type resolvedTo() {
+		if (resolvedTo == null)
+			throw new InvalidUsageException("wait until it is resolved");
+		return resolvedTo;
+	}
+	
+	@Override
+	public void mustBeMessage() {
+		// TODO
+	}
+
 	@Override
 	public boolean enhance() {
 		boolean again = false;
@@ -130,17 +159,51 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		}
 	}
-	
-	@Override
-	public Type resolve(ErrorReporter errors, boolean hard) {
-		if (resolvedTo != null)
-			return resolvedTo;
-		Set<PosType> tys = new HashSet<>();
+
+	public void collectInfo(ErrorReporter errors, DirectedAcyclicGraph<UnifiableType> dag) {
+		logger.debug("collecting info on " + id + ": " + motive);
 		for (PosType pt : types) {
 			Type t = pt.type;
+			logger.debug("  have type " + t);
 			if (t == null)
 				throw new NotImplementedException("should not be null");
-			if (t instanceof StructDefn && ((StructDefn)t).hasPolys()) {
+			if (t instanceof UnifiableType) {
+				UnifiableType ut = (UnifiableType) t;
+				dag.ensure(ut);
+				dag.ensureLink(this, ut);
+			}
+			if (t instanceof PolyInstance) {
+				PolyInstance pi = (PolyInstance) t;
+				for (Type pv : pi.getPolys()) {
+					if (pv instanceof UnifiableType) {
+						UnifiableType ut = (UnifiableType) pv;
+						dag.ensure(ut);
+						dag.ensureLink(this, ut);
+					}
+				}
+				if (pi.struct() instanceof UnionTypeDefn) {
+					UnionTypeDefn utd = (UnionTypeDefn) pi.struct();
+					Map<PolyType, Type> mt = new HashMap<>();
+					for (int p=0;p<utd.polys().size();p++) {
+						mt.put(utd.polys().get(p), pi.getPolys().get(p));
+					}
+					for (TypeReference c : utd.cases) {
+						if (c.defn() instanceof StructDefn) {
+							StructDefn sd = (StructDefn) c.defn();
+							if (sd.hasPolys())
+								throw new CantHappenException("should be polyinstance");
+						} else if (c.defn() instanceof PolyInstance) {
+							PolyInstance pc = (PolyInstance) c.defn();
+							List<Type> pm = new ArrayList<>();
+							for (Type p : pc.getPolys())
+								pm.add(mt.get(p));
+							tys.add(new PosType(pi.location(), new PolyInstance(pi.location(), pc.struct(), pm)));
+						} else
+							throw new HaventConsideredThisException("expecting struct or polyinstance");
+					}
+				}
+				tys.add(pt);	
+			} else if (t instanceof StructDefn && ((StructDefn)t).hasPolys()) {
 				StructDefn sd = (StructDefn) t;
 				List<Type> polys = new ArrayList<>();
 				// TODO: I think for type cases we should in fact insist on them specifying the polymorphic vars
@@ -166,7 +229,9 @@ public class TypeConstraintSet implements UnifiableType {
 					PolyType pt = ty.findPoly(f.type);
 					if (pt == null)
 						continue;
-					polyMap.put(pt, stc.get(f).resolve(errors, true));
+					dag.ensure(stc.get(f));
+					dag.ensureLink(this, stc.get(f));
+					polyMap.put(pt, stc.get(f));
 				}
 				List<Type> polys = new ArrayList<>();
 				for (PolyType p : ty.polys()) {
@@ -175,6 +240,7 @@ public class TypeConstraintSet implements UnifiableType {
 					else
 						polys.add(LoadBuiltins.any);
 				}
+//				tys.add(new PosType(pos, ty));
 				tys.add(new PosType(pos, new PolyInstance(pos, ty, polys)));
 			}
 		}
@@ -182,6 +248,13 @@ public class TypeConstraintSet implements UnifiableType {
 		if (applications.size() == 1) {
 			UnifiableApplication ua = applications.iterator().next();
 			tys.add(ua.asApply());
+			for (Type t : ua.args) {
+				if (t instanceof UnifiableType) {
+					UnifiableType ut = (UnifiableType) t;
+					dag.ensure(ut);
+					dag.ensureLink(this, ut);
+				}
+			}
 		} else if (!applications.isEmpty()) {
 			List<List<PosType>> args = new ArrayList<>();
 			List<PosType> ret = new ArrayList<>();
@@ -200,36 +273,43 @@ public class TypeConstraintSet implements UnifiableType {
 				ret.add(new PosType(x.pos, x.ret));
 			}
 			List<Type> cargs = new ArrayList<>();
-			for (List<PosType> a : args)
-				cargs.add(state.consolidate(pos, a).type);
+			for (List<PosType> a : args) {
+				Type ct = state.consolidate(pos, a).type;
+				if (ct instanceof UnifiableType) {
+					UnifiableType ut = (UnifiableType) ct;
+					dag.ensure(ut);
+					dag.ensureLink(this, ut);
+				}
+				cargs.add(ct);
+			}
 			PosType rt = state.consolidate(pos, ret);
+			if (rt instanceof UnifiableType) {
+				UnifiableType ut = (UnifiableType) rt;
+				dag.ensure(ut);
+				dag.ensureLink(this, ut);
+			}
 			tys.add(new PosType(rt.pos, new Apply(cargs, rt.type)));
 		}
 		
 		tys.addAll(incorporatedBys);
+	}
+
+	@Override
+	public Type resolve(ErrorReporter errors) {
+		if (resolvedTo != null)
+			throw new InvalidUsageException("don't call resolve multiple times: call resolvedTo");
 		
-		List<UnifiableType> sameAs = new ArrayList<>();
+		logger.debug("resolving " + this.id + " " + this.motive + " types = " + tys);
 		HashSet<PosType> resolved = new HashSet<>();
 		for (PosType ty : tys) {
 			if (ty.type instanceof UnifiableType) {
-				TypeConstraintSet ut = (TypeConstraintSet) ty.type;
-				if (ut.isResolved()) {
-					Type res = ut.resolve(errors, true);
-					if (res instanceof ErrorType) {
-						sameAs.add(ut);
-					} else
-						resolved.add(new PosType(ut.pos, res));
-				} else
-					sameAs.add(ut);
+				resolved.add(new PosType(ty.pos, ((UnifiableType)ty.type).resolvedTo()));
 			} else
 				resolved.add(ty);
 		}
 
 		if (resolved.isEmpty()) {
-			if (!hard) { // don't resolve just yet ...
-				return null;
-			}
-			if (usedOrReturned > 0 || !sameAs.isEmpty())
+			if (usedOrReturned > 0)
 				resolvedTo = state.nextPoly(pos);
 			else
 				resolvedTo = LoadBuiltins.any;
@@ -243,7 +323,7 @@ public class TypeConstraintSet implements UnifiableType {
 				alltys.add(pt.type);
 			}
 			resolvedTo = repository.findUnionWith(alltys);
-			if (resolvedTo == null && hard) {
+			if (resolvedTo == null) {
 				TreeSet<String> msgs = new TreeSet<>();
 				for (Type ty : alltys)
 					msgs.add(ty.signature());
@@ -261,11 +341,12 @@ public class TypeConstraintSet implements UnifiableType {
 		if (resolvedTo == null || resolvedTo instanceof ErrorType)
 			return resolvedTo;
 		
-		for (UnifiableType ut : sameAs) {
-			if (!ut.isResolved())
-				ut.incorporatedBy(this.pos, resolvedTo);
-		}
+//		for (UnifiableType ut : sameAs) {
+//			if (!ut.isResolved())
+//				ut.incorporatedBy(this.pos, resolvedTo);
+//		}
 		
+		logger.debug("resolved to " + resolvedTo);
 		return resolvedTo;
 	}
 
@@ -293,9 +374,9 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public String signature() {
-//		if (resolvedTo == null)
-			return asTCS();
-//		return resolvedTo.signature();
+		if (resolvedTo == null)
+			return id; // asTCS();
+		return resolvedTo.signature();
 	}
 
 	@Override
@@ -353,8 +434,8 @@ public class TypeConstraintSet implements UnifiableType {
 		for (PosType t : args) {
 			motive.append(" ");
 			Type tt = t.type;
-			if (tt instanceof TypeConstraintSet)
-				motive.append(((TypeConstraintSet)tt).id);
+			if (tt instanceof UnifiableType)
+				motive.append(((UnifiableType)tt).id());
 			else
 				motive.append(tt.signature());
 		}
@@ -406,7 +487,7 @@ public class TypeConstraintSet implements UnifiableType {
 		StringBuilder ret = new StringBuilder();
 		ret.append(asTCS());
 		ret.append(" => ");
-		if (this.isResolved()) {
+		if (this.resolvedTo != null) {
 			ret.append("{");
 			ret.append(resolvedTo);
 			ret.append("}");
@@ -419,7 +500,7 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	@Override
 	public String toString() {
-		if (isResolved())
+		if (resolvedTo != null)
 			return id + ":" + signature();
 		else
 			return asTCS();

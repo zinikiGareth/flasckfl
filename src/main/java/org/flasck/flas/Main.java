@@ -137,17 +137,14 @@ public class Main {
 	public static void setLogLevels() {
 		StaticLoggerBinder.setLevel("io.webfolder.ui4j", Level.WARN);
 		StaticLoggerBinder.setLevel("Compiler", Level.WARN);
-		StaticLoggerBinder.setLevel("DroidGen", Level.WARN);
-		StaticLoggerBinder.setLevel("Generator", Level.WARN);
-		StaticLoggerBinder.setLevel("HSIE", Level.WARN);
-		StaticLoggerBinder.setLevel("Rewriter", Level.ERROR);
+		StaticLoggerBinder.setLevel("HSI", Level.WARN);
+//		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
+		StaticLoggerBinder.setLevel("TCUnification", Level.DEBUG);
 //		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
 		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);
 		StaticLoggerBinder.setLevel("GLS", Level.WARN);
 		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
 		StaticLoggerBinder.setLevel("awstxstore", Level.WARN);
 		StaticLoggerBinder.setLevel("org.ziniki.awstxstore", Level.WARN);
-//		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
-		StaticLoggerBinder.setLevel("TCUnification", Level.DEBUG);
 	}
 }

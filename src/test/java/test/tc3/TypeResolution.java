@@ -101,7 +101,7 @@ public class TypeResolution {
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
 		ut.canBeType(pos, LoadBuiltins.number);
 		gc.result(new PosType(pos, ut));
-		ut.resolve(errors, true);
+		ut.resolve(errors);
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -125,7 +125,7 @@ public class TypeResolution {
 		result.canBeType(pos, LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
 		gc.result(new PosType(pos, result));
 		gc.leaveFunctionGroup(null);
-		assertThat(utG.resolve(errors, true), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.nil)));
+		assertThat(utG.resolve(errors), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.nil)));
 		assertEquals(LoadBuiltins.nil, fnF.type());
 	}
 

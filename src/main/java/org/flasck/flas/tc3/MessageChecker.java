@@ -162,7 +162,10 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		InputPosition pos = null;
 		if (msg != null)
 			pos = msg.location();
-		check(pos);
+//		check(pos);
+		
+		// HACK in lieu
+		sv.result(rhsType);
 	}
 
 	private void check(InputPosition pos) {

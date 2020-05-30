@@ -18,8 +18,9 @@ public class EnsureListMessage implements Type {
 	}
 
 	public void validate(ErrorReporter errors) {
-		if (ret instanceof UnifiableType)
-			ret = ((UnifiableType) ret).resolve(errors, true);
+		if (ret instanceof UnifiableType) {
+			((UnifiableType) ret).mustBeMessage();
+		}
 		if (ret instanceof ErrorType)
 			return; // message has already been displayed
 		if (TypeHelpers.listMessage(pos).incorporates(pos, ret))

@@ -90,14 +90,14 @@ public class TCStateTests {
 	public void trueAndFalseMakeAList() {
 		Type ut = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.trueT), new PosType(pos, LoadBuiltins.falseT))).type;
 		assertTrue(ut instanceof TypeConstraintSet);
-		assertEquals(LoadBuiltins.bool, ((UnifiableType) ut).resolve(errors, true));
+		assertEquals(LoadBuiltins.bool, ((UnifiableType) ut).resolve(errors));
 	}
 	
 	@Test
 	public void trueAndFalseMakeAListInTheOtherOrder() {
 		Type ut = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.falseT), new PosType(pos, LoadBuiltins.trueT))).type;
 		assertTrue(ut instanceof TypeConstraintSet);
-		assertEquals(LoadBuiltins.bool, ((UnifiableType) ut).resolve(errors, true));
+		assertEquals(LoadBuiltins.bool, ((UnifiableType) ut).resolve(errors));
 	}
 	
 	@Test
@@ -108,7 +108,7 @@ public class TCStateTests {
 		}});
 		Type ut = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number), new PosType(pos, LoadBuiltins.string))).type;
 		assertTrue(ut instanceof TypeConstraintSet);
-		((UnifiableType) ut).resolve(errors, true);
+		((UnifiableType) ut).resolve(errors);
 	}
 	
 	@Test
@@ -140,7 +140,7 @@ public class TCStateTests {
 		state.resolveAll(errors, false);
 		state.enhanceAllMutualUTs();
 		state.resolveAll(errors, true);
-		assertThat(apply.resolve(errors, true), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.bool)));
+		assertThat(apply.resolve(errors), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.bool)));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -188,7 +188,6 @@ public class TCStateTests {
 		state.resolveAll(errors, false);
 		state.enhanceAllMutualUTs();
 		state.resolveAll(errors, true);
-		assertTrue(ct.isResolved());
-		assertThat(ct.resolve(errors, true), (Matcher)PolyTypeMatcher.called("A"));
+		assertThat(ct.resolvedTo(), (Matcher)PolyTypeMatcher.called("A"));
 	}
 }

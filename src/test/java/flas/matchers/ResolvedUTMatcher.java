@@ -24,9 +24,7 @@ public class ResolvedUTMatcher extends TypeSafeMatcher<Type> {
 		if (!(arg0 instanceof UnifiableType))
 			return false;
 		UnifiableType ut = (UnifiableType) arg0;
-		if (!ut.isResolved())
-			return false;
-		return ut.resolve(null, true).equals(type);
+		return ut.resolvedTo().equals(type);
 	}
 
 	public static ResolvedUTMatcher with(Type type) {

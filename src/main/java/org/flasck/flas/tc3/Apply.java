@@ -110,8 +110,6 @@ public class Apply implements Type, SignatureNeedsParensType {
 			sb.append("-->");
 			if (t == null)
 				sb.append("<<UNDEFINED>>");
-			else if (t instanceof TypeConstraintSet && !((TypeConstraintSet)t).isResolved())
-				sb.append(t.toString());
 			else
 				sb.append("(" + t.toString() + ")");
 		}
