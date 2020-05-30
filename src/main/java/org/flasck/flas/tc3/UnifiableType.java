@@ -69,4 +69,10 @@ public interface UnifiableType extends Type {
 
 	// Gather together all the info ready for resolution
 	void collectInfo(ErrorReporter errors, DirectedAcyclicGraph<UnifiableType> dag);
+
+	// acquire any UTs that have not already been considered, or else be acquired by ones that have
+	void acquireOthers(List<UnifiableType> considered);
+
+	// has this been acquired by somebody else?
+	boolean isRedirected();
 }

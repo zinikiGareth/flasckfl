@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -94,6 +95,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private int usedOrReturned = 0;
 	private final TreeSet<Comment> comments = new TreeSet<>();
 	private final Set<PosType> tys = new HashSet<>();
+	private TypeConstraintSet redirectedTo;
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
 		repository = r;
@@ -160,6 +162,57 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 	}
 
+	@Override
+	public void acquireOthers(List<UnifiableType> considered) {
+		// What happens if this list contains multiple?
+		// And some have been considered and others haven't?
+		// And what if two have both not been redirected?
+		for (PosType pt : types) {
+			Type t = pt.type;
+			if (t instanceof TypeConstraintSet) {
+				TypeConstraintSet ut = (TypeConstraintSet) t;
+				if (considered.contains(ut)) {
+					// be acquired by that
+					ut.redirectedTo().acquire(this);
+				} else
+					acquire(ut);
+			}
+		}
+		
+		// Now forget about them
+		Iterator<PosType> i = types.iterator();
+		while (i.hasNext()) {
+			if (i.next().type instanceof TypeConstraintSet)
+				i.remove();
+		}
+	}
+	
+	private TypeConstraintSet redirectedTo() {
+		if (redirectedTo != null)
+			return redirectedTo;
+		else
+			return this;
+	}
+
+	@Override
+	public boolean isRedirected() {
+		return redirectedTo != null;
+	}
+	
+	private void acquire(TypeConstraintSet ut) {
+		if (ut.redirectedTo != null)
+			throw new HaventConsideredThisException("It seems that this might be possible if multiple things point at the same spot");
+		ut.redirectedTo = this;
+		this.applications.addAll(ut.applications);
+		this.comments.addAll(ut.comments);
+		this.ctors.putAll(ut.ctors);
+		this.incorporatedBys.addAll(ut.incorporatedBys);
+		for (PosType ty : ut.types)
+			if (!(ty.type instanceof UnifiableType))
+				this.types.add(ty);
+		this.usedOrReturned += ut.usedOrReturned;
+	}
+
 	public void collectInfo(ErrorReporter errors, DirectedAcyclicGraph<UnifiableType> dag) {
 		logger.debug("collecting info on " + id + ": " + motive);
 		for (PosType pt : types) {
@@ -167,10 +220,20 @@ public class TypeConstraintSet implements UnifiableType {
 			logger.debug("  have type " + t);
 			if (t == null)
 				throw new NotImplementedException("should not be null");
+			
+			// I want to replace all of these with just one
+			// And so issue "redirects"
+			// Not quite sure how this is going to work
+			// But I think I need the notion of "redirectedTo"
+			// Abandon this whole method on entry if "redirectedTo" is set
+			// Here, if we see another UT, make it "redirectTo" here ...
+			
+			// All subsequent logic must check through redirection ...
 			if (t instanceof UnifiableType) {
 				UnifiableType ut = (UnifiableType) t;
 				dag.ensure(ut);
-				dag.ensureLink(this, ut);
+				if (this != ut)
+					dag.ensureLink(this, ut);
 			}
 			if (t instanceof PolyInstance) {
 				PolyInstance pi = (PolyInstance) t;
@@ -480,7 +543,7 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	public String asTCS() {
-		return "TCS{" + (pos == null? "NULL":pos.inFile()) + ":" + id + (motive != null ? ":" + motive : "") + "}";
+		return "TCS" + (isRedirected()?"*":"") + "{" + (pos == null? "NULL":pos.inFile()) + ":" + id + (motive != null ? ":" + motive : "") + "}";
 	}
 
 	public String debugInfo() {

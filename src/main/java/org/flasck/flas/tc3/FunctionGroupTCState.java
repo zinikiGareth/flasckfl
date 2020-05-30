@@ -125,8 +125,10 @@ public class FunctionGroupTCState implements CurrentTCState {
 		}
 		this.debugInfo("initial");
 
+		acquireEquivalent();
+		this.debugInfo("acquired");
 		DirectedAcyclicGraph<UnifiableType> dag = collate(errors);
-		enhanceAllMutualUTs();
+//		enhanceAllMutualUTs();
 		logger.debug("UT DAG:\n" + dag.toString());
 		logger.debug("ROOTS: " + dag.roots());
 		dag.postOrderTraverse(new NodeWalker<UnifiableType>() {
@@ -156,10 +158,21 @@ public class FunctionGroupTCState implements CurrentTCState {
 		this.bindVarPatternTypes(errors);
 	}
 
+	private void acquireEquivalent() {
+		List<UnifiableType> considered = new ArrayList<>();
+		for (int i=0;i<allUTs.size();i++) {
+			UnifiableType ut = allUTs.get(i);
+			ut.acquireOthers(considered);
+			considered.add(ut);
+		}
+	}
+
 	private DirectedAcyclicGraph<UnifiableType> collate(ErrorReporter errors) {
 		DirectedAcyclicGraph<UnifiableType> ret = new DirectedAcyclicGraph<>();
 		for (int i=0;i<allUTs.size();i++) {
 			UnifiableType ut = allUTs.get(i);
+			if (ut.isRedirected())
+				continue;
 			ret.ensure(ut);
 			ut.collectInfo(errors, ret);
 		}
