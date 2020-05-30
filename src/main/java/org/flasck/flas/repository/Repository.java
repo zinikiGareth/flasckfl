@@ -57,7 +57,6 @@ import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.SplitMetaData;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.exceptions.ShouldBeError;
 
 public class Repository implements TopLevelDefinitionConsumer, RepositoryReader {
 	final Map<String, RepositoryEntry> dict = new TreeMap<>();

@@ -75,4 +75,8 @@ public interface UnifiableType extends Type {
 
 	// has this been acquired by somebody else?
 	boolean isRedirected();
+
+	UnifiableType redirectedTo();
+
+	void acquire(UnifiableType ut);
 }

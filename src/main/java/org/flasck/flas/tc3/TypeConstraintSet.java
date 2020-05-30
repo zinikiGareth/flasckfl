@@ -88,7 +88,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final String motive;
 	private final String id;
 	private final Set<PosType> incorporatedBys = new HashSet<>();
-	private final Map<StructDefn, StructTypeConstraints> ctors = new TreeMap<>(StructDefn.nameComparator);
+	private final Map<NamedType, StructTypeConstraints> ctors = new TreeMap<>(NamedType.nameComparator);
 	private final Set<PosType> types = new HashSet<>();
 	private final Set<UnifiableApplication> applications = new HashSet<>();
 	private Type resolvedTo;
@@ -118,6 +118,8 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	@Override
 	public Type resolvedTo() {
+		if (redirectedTo != null)
+			return redirectedTo.resolvedTo();
 		if (resolvedTo == null)
 			throw new InvalidUsageException("wait until it is resolved");
 		return resolvedTo;
@@ -187,7 +189,7 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 	}
 	
-	private TypeConstraintSet redirectedTo() {
+	public UnifiableType redirectedTo() {
 		if (redirectedTo != null)
 			return redirectedTo;
 		else
@@ -199,18 +201,19 @@ public class TypeConstraintSet implements UnifiableType {
 		return redirectedTo != null;
 	}
 	
-	private void acquire(TypeConstraintSet ut) {
-		if (ut.redirectedTo != null)
+	public void acquire(UnifiableType ut) {
+		TypeConstraintSet tcs = (TypeConstraintSet)ut;
+		if (tcs.redirectedTo != null)
 			throw new HaventConsideredThisException("It seems that this might be possible if multiple things point at the same spot");
-		ut.redirectedTo = this;
-		this.applications.addAll(ut.applications);
-		this.comments.addAll(ut.comments);
-		this.ctors.putAll(ut.ctors);
-		this.incorporatedBys.addAll(ut.incorporatedBys);
-		for (PosType ty : ut.types)
+		tcs.redirectedTo = this;
+		this.applications.addAll(tcs.applications);
+		this.comments.addAll(tcs.comments);
+		this.ctors.putAll(tcs.ctors);
+		this.incorporatedBys.addAll(tcs.incorporatedBys);
+		for (PosType ty : tcs.types)
 			if (!(ty.type instanceof UnifiableType))
 				this.types.add(ty);
-		this.usedOrReturned += ut.usedOrReturned;
+		this.usedOrReturned += tcs.usedOrReturned;
 	}
 
 	public void collectInfo(ErrorReporter errors, DirectedAcyclicGraph<UnifiableType> dag) {
@@ -230,7 +233,7 @@ public class TypeConstraintSet implements UnifiableType {
 			
 			// All subsequent logic must check through redirection ...
 			if (t instanceof UnifiableType) {
-				UnifiableType ut = (UnifiableType) t;
+				UnifiableType ut = ((UnifiableType) t).redirectedTo();
 				dag.ensure(ut);
 				if (this != ut)
 					dag.ensureLink(this, ut);
@@ -239,7 +242,7 @@ public class TypeConstraintSet implements UnifiableType {
 				PolyInstance pi = (PolyInstance) t;
 				for (Type pv : pi.getPolys()) {
 					if (pv instanceof UnifiableType) {
-						UnifiableType ut = (UnifiableType) pv;
+						UnifiableType ut = ((UnifiableType) pv).redirectedTo();
 						dag.ensure(ut);
 						dag.ensureLink(this, ut);
 					}
@@ -281,15 +284,17 @@ public class TypeConstraintSet implements UnifiableType {
 
 		// We have been explicitly told that these are true, usually through pattern matching
 		// This is too broad; but I think we are going to need to do something like this ultimately, so just suck it up ...
-		for (Entry<StructDefn, StructTypeConstraints> e : ctors.entrySet()) {
-			StructDefn ty = e.getKey();
-			if (!ty.hasPolys())
+		for (Entry<NamedType, StructTypeConstraints> e : ctors.entrySet()) {
+			NamedType ty = e.getKey();
+			if (ty instanceof StructDefn && !((StructDefn)ty).hasPolys())
 				tys.add(new PosType(pos, ty));
-			else {
+			else if (ty instanceof PolyInstance) {
+				// I think it may be possible to simplify this by just going after the polyinstance args directly
+				StructDefn sd = (StructDefn) ((PolyInstance) ty).struct();
 				StructTypeConstraints stc = ctors.get(ty);
 				Map<PolyType, Type> polyMap = new HashMap<>();
 				for (StructField f : stc.fields()) {
-					PolyType pt = ty.findPoly(f.type);
+					PolyType pt = sd.findPoly(f.type);
 					if (pt == null)
 						continue;
 					dag.ensure(stc.get(f));
@@ -297,14 +302,14 @@ public class TypeConstraintSet implements UnifiableType {
 					polyMap.put(pt, stc.get(f));
 				}
 				List<Type> polys = new ArrayList<>();
-				for (PolyType p : ty.polys()) {
+				for (PolyType p : sd.polys()) {
 					if (polyMap.containsKey(p))
 						polys.add(polyMap.get(p));
 					else
 						polys.add(LoadBuiltins.any);
 				}
 //				tys.add(new PosType(pos, ty));
-				tys.add(new PosType(pos, new PolyInstance(pos, ty, polys)));
+				tys.add(new PosType(pos, new PolyInstance(pos, sd, polys)));
 			}
 		}
 		
@@ -313,7 +318,7 @@ public class TypeConstraintSet implements UnifiableType {
 			tys.add(ua.asApply());
 			for (Type t : ua.args) {
 				if (t instanceof UnifiableType) {
-					UnifiableType ut = (UnifiableType) t;
+					UnifiableType ut = ((UnifiableType) t).redirectedTo();
 					dag.ensure(ut);
 					dag.ensureLink(this, ut);
 				}
@@ -339,7 +344,7 @@ public class TypeConstraintSet implements UnifiableType {
 			for (List<PosType> a : args) {
 				Type ct = state.consolidate(pos, a).type;
 				if (ct instanceof UnifiableType) {
-					UnifiableType ut = (UnifiableType) ct;
+					UnifiableType ut = ((UnifiableType) ct).redirectedTo();
 					dag.ensure(ut);
 					dag.ensureLink(this, ut);
 				}
@@ -347,7 +352,7 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 			PosType rt = state.consolidate(pos, ret);
 			if (rt instanceof UnifiableType) {
-				UnifiableType ut = (UnifiableType) rt;
+				UnifiableType ut = ((UnifiableType) rt).redirectedTo();
 				dag.ensure(ut);
 				dag.ensureLink(this, ut);
 			}
@@ -466,8 +471,10 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public StructTypeConstraints canBeStruct(InputPosition pos, FunctionName fn, StructDefn sd) {
 		comments.add(new Comment(pos, "can be struct " + sd, sd));
-		if (!ctors.containsKey(sd))
-			ctors.put(sd, new StructFieldConstraints(repository, fn, state, pos, sd));
+		if (!ctors.containsKey(sd)) {
+			StructFieldConstraints sfc = new StructFieldConstraints(repository, fn, state, pos, sd);
+			ctors.put(sfc.polyInstance(), sfc);
+		}
 		return ctors.get(sd);
 	}
 

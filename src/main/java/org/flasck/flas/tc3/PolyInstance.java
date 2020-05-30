@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class PolyInstance implements NamedType, RepositoryEntry {
@@ -16,6 +17,8 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 	private final List<Type> polys;
 
 	public PolyInstance(InputPosition loc, NamedType ty, List<Type> polys) {
+		if (ty instanceof PolyInstance)
+			throw new CantHappenException("Don't wrap a poly in a poly");
 		this.loc = loc;
 		this.ty = ty;
 		this.polys = polys;

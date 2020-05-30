@@ -1,5 +1,7 @@
 package org.flasck.flas.tc3;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -16,14 +18,21 @@ public class StructFieldConstraints implements StructTypeConstraints {
 	private final StructDefn sd;
 	private final Map<String, UnifiableType> polys = new TreeMap<>();
 	private final Map<StructField, UnifiableType> fields = new TreeMap<>(StructField.nameComparator);
+	private final PolyInstance pi;
 
 	public StructFieldConstraints(RepositoryReader repository, FunctionName fn, CurrentTCState state, InputPosition pos, StructDefn sd) {
 		this.fn = fn;
 		this.sd = sd;
-		if (sd.hasPolys()) 
+		if (sd.hasPolys()) {
+			List<Type> pvs = new ArrayList<>();
 			for (PolyType pt : sd.polys()) {
-				polys.put(pt.shortName(), state.createUT(pos, fn.uniqueName() + " " + sd.name().uniqueName() + "[" + pt.shortName() + "]"));
+				UnifiableType pv = state.createUT(pos, fn.uniqueName() + " " + sd.name().uniqueName() + "." + pt.shortName());
+				pvs.add(pv);
+				polys.put(pt.shortName(), pv);
 			}
+			this.pi = new PolyInstance(pos, sd, pvs);
+		} else
+			this.pi = null;
 	}
 
 	@Override
@@ -46,6 +55,13 @@ public class StructFieldConstraints implements StructTypeConstraints {
 	@Override
 	public UnifiableType get(StructField f) {
 		return fields.get(f);
+	}
+
+	public NamedType polyInstance() {
+		if (pi != null)
+			return pi;
+		else
+			return sd;
 	}
 
 }

@@ -66,7 +66,7 @@ public class HSIPatternOptions implements HSIOptions {
 	private List<FunctionIntro> all = new ArrayList<>();
 	private List<TV> vars = new ArrayList<>();
 	private Map<NamedType, TV> types = new TreeMap<>(NamedType.nameComparator); 
-	private Map<StructDefn, HSICtorTree> ctors = new TreeMap<>(StructDefn.nameComparator);
+	private Map<StructDefn, HSICtorTree> ctors = new TreeMap<>(NamedType.nameComparator);
 	private Set<Integer> numericConstants = new TreeSet<>();
 	private Set<String> stringConstants = new TreeSet<>();
 	private boolean container;

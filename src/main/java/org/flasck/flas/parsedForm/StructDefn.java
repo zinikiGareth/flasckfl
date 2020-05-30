@@ -3,7 +3,6 @@ package org.flasck.flas.parsedForm;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -17,13 +16,6 @@ import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
 
 public class StructDefn extends FieldsDefn implements AsString, Locatable, RepositoryEntry, WithTypeSignature, NamedType, AccessorHolder, FieldsHolder {
-	public static Comparator<StructDefn> nameComparator = new Comparator<StructDefn>() {
-		@Override
-		public int compare(StructDefn l, StructDefn r) {
-			return l.name().uniqueName().compareTo(r.name().uniqueName());
-		}
-	};
-	
 	public final List<StructField> ctorfields = new ArrayList<StructField>();
 
 
