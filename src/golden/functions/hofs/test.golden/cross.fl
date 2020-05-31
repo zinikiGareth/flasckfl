@@ -1,7 +1,8 @@
 	cross Nil = Nil
-	cross [h] = [h]
+	cross [h] = map sing h
 	cross (Cons { head: h, tail: t }) = map (merge (cross t)) h
 	
+	sing e = Cons e Nil
 	
 	merge [] a = [[a]]
 	merge (Cons[List[A]] l) s = map (Cons s) l

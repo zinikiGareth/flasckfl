@@ -20,8 +20,12 @@
 	
 	test cross Singleton
 		assert (cross [["A","B"]])
-			[["A","B"]]
+			[["A"],["B"]]
 	
+	test cross One
+		assert (cross [["B"], ["C","D"]])
+			[["B","C"],["B","D"]]
+		
 	test cross Two
 		assert (cross [["A","B"], ["C","D"]])
 			[["A","C"],["A","D"],["B","C"],["B","D"]]
