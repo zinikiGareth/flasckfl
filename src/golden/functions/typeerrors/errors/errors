@@ -1,7 +1,5 @@
-caseerrors.f  2.9:    | True =  _ "hello"
-                          cannot unify types: same as String
-caseerrors.f  3.10:   | False =  _ 42
-                          cannot unify types: same as Number
+caseerrors.f  1.0:     _ stringNumber
+                          cannot unify [Number, String]
 fielderrors.  3.12:   String s <-  _ 42
                           cannot initialize s from Number
 fielderrors.  4.12:   Number n <-  _ "hello"
@@ -16,18 +14,10 @@ msgerrors.fl  5.0:     _ <- Foo
                           test.golden.Foo cannot be a Message
 msgerrors.fl  6.0:     _ <- [42]
                           Cons[Number] cannot be a Message
-recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
-                          cannot unify types: incorporated by Number
-recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
-                          cannot unify types: same as Number
 recursionerr  2.15:   r1 x = r1 42 +  _ r2 x
-                          cannot unify types: incorporated by Number
-recursionerr  4.7:    r2 x =  _ r2 x ++ r1 x
-                          cannot unify types: incorporated by String
-recursionerr  4.7:    r2 x =  _ r2 x ++ r1 x
-                          cannot unify types: same as String
+                          cannot unify [Number, String]
 recursionerr  4.15:   r2 x = r2 x ++  _ r1 x
-                          cannot unify types: incorporated by String
+                          cannot unify [Number, String]
 testerrors.u  6.11:   assert (ok  _ "hello")
                           function 'ok' was expecting Number not String
 testerrors.u 11.0:     _ "hello"

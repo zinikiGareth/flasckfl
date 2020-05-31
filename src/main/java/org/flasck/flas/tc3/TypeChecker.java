@@ -89,7 +89,7 @@ public class TypeChecker extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-		if (mark.hasMoreNow()) return;
+//		if (mark.hasMoreNow()) return;
 		new UTAChecker(errors, repository, sv);
 	}
 

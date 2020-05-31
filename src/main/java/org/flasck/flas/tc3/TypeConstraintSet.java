@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -98,6 +99,12 @@ public class TypeConstraintSet implements UnifiableType {
 	private TypeConstraintSet redirectedTo;
 	private Set<UnifiableType> acquired = new HashSet<>();
 	private Set<UnifiableType> polyvars = new HashSet<>();
+	private Comparator<Type> signatureComparator = new Comparator<Type>() {
+		@Override
+		public int compare(Type o1, Type o2) {
+			return o1.signature().compareTo(o2.signature());
+		}
+	};
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
 		repository = r;
@@ -376,7 +383,7 @@ public class TypeConstraintSet implements UnifiableType {
 		if (redirectedTo != null)
 			return redirectedTo.resolvedTo;
 		if (resolvedTo != null)
-			throw new InvalidUsageException("don't call resolve multiple times: call resolvedTo");
+			return resolvedTo;
 		
 		HashSet<PosType> resolved = new HashSet<>();
 		for (PosType ty : tys) {
@@ -392,7 +399,7 @@ public class TypeConstraintSet implements UnifiableType {
 		} else if (resolved.size() == 1)
 			resolvedTo = resolved.iterator().next().type;
 		else {
-			Set<Type> alltys = new HashSet<>();
+			Set<Type> alltys = new TreeSet<>(signatureComparator);
 			for (PosType pt : resolved) {
 				if (pt.type instanceof ErrorType)
 					return pt.type;
@@ -411,7 +418,10 @@ public class TypeConstraintSet implements UnifiableType {
 						logger.info(msg);
 					}
 				}
-				errors.message(pos, "cannot unify " + alltys);
+				TreeSet<String> tyes = new TreeSet<String>();
+				for (Type ty : alltys)
+					tyes.add(ty.signature());
+				errors.message(pos, "cannot unify " + tyes);
 				resolvedTo = new ErrorType();
 			}
 		}

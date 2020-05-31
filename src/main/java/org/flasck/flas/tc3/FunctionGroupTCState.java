@@ -1,6 +1,8 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -133,24 +135,25 @@ public class FunctionGroupTCState implements CurrentTCState {
 		DirectedAcyclicGraph<UnifiableType> dag = collate(errors);
 //		enhanceAllMutualUTs();
 		logger.debug("UT DAG:\n" + dag.toString());
-		logger.debug("ROOTS: " + dag.roots());
-		dag.postOrderTraverse(new NodeWalker<UnifiableType>() {
+		List<UnifiableType> roots = dag.roots();
+		Collections.sort(roots, new Comparator<UnifiableType>() {
 			@Override
-			public void present(Node<UnifiableType> node) {
-				if (node.getEntry().isRedirected())
-					return;
-				node.getEntry().resolve(errors);
+			public int compare(UnifiableType o1, UnifiableType o2) {
+				return o1.id().compareTo(o2.id());
 			}
 		});
-		/*
-		// Then we can resolve all the UTs
-		this.resolveAll(errors, false);
-		this.enhanceAllMutualUTs();
-		this.debugInfo("soft");
-//		this.debugInfo();
-		this.resolveAll(errors, true);
-//		this.debugInfo();
-		*/
+		logger.debug("ROOTS: " + dag.roots());
+		
+		for (UnifiableType r : roots) {
+			dag.postOrderFrom(new NodeWalker<UnifiableType>() {
+				@Override
+				public void present(Node<UnifiableType> node) {
+					if (node.getEntry().isRedirected())
+						return;
+					node.getEntry().resolve(errors);
+				}
+			}, r);
+		}
 		
 		// Then we can bind the types
 		logger.debug("binding group:");

@@ -70,8 +70,10 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveFunctionGroup(FunctionGroup grp) {
-		if (mark != null && !mark.hasMoreNow())
-			state.groupDone(errors, memberTypes);
+		// I would like this to be here, but it needs to be more refined
+		// Specifically, I think it should check dependencies and if they had errors
+//		if (mark != null && !mark.hasMoreNow())
+		state.groupDone(errors, memberTypes);
 		sv.result(null);
 	}
 
