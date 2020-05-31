@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionGroup;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -258,10 +259,17 @@ public class FunctionGroupTCState implements CurrentTCState {
 		pos = ret.pos;
 		boolean allMatch = true;
 		for (PosType t : types) {
+			// actual error
 			if (t.type instanceof ErrorType)
 				return t;
+			// user specified "an error" ... ignore this as part of "bottom"
+			if (t.type == LoadBuiltins.error) {
+				continue;
+			}
+			if (ret.type == LoadBuiltins.error)
+				ret = t;
 			if (!(t.type instanceof UnifiableType))
-				pos = ret.pos;
+				pos = t.pos;
 			if (ret.type != t.type) {
 				allMatch = false;
 			}
