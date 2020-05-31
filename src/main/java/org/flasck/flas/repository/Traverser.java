@@ -788,7 +788,7 @@ public class Traverser implements RepositoryVisitor {
 			hsiLogger.info(indent + "visiting type " + t.signature());
 			for (IntroTypeVar tv : hsiOptions.typedVars(t)) {
 				if (tv.tp != null)
-					tov.matchType(t, tv.tp.var, tv.intro);
+					tov.matchType(tv.tp.type.defn(), tv.tp.var, tv.intro);
 				else
 					tov.matchType(t, null, tv.intro); // for constants, there is no var to bind
 			}
