@@ -6,4 +6,5 @@ import org.flasck.flas.blockForm.InputPosition;
 
 public interface Consolidator {
 	PosType consolidate(InputPosition location, List<PosType> results);
+	PosType collapse(InputPosition pos, List<PosType> types);
 }

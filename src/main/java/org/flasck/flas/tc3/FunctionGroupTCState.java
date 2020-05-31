@@ -1,9 +1,11 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -134,6 +136,8 @@ public class FunctionGroupTCState implements CurrentTCState {
 		dag.postOrderTraverse(new NodeWalker<UnifiableType>() {
 			@Override
 			public void present(Node<UnifiableType> node) {
+				if (node.getEntry().isRedirected())
+					return;
 				node.getEntry().resolve(errors);
 			}
 		});
@@ -280,6 +284,53 @@ public class FunctionGroupTCState implements CurrentTCState {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);
 			} else
+				ut.sameAs(t.pos, t.type);
+		}
+		return new PosType(pos, ut);
+	}
+	
+	@Override
+	public PosType collapse(InputPosition pos, List<PosType> types) {
+		if (types.isEmpty())
+			throw new NotImplementedException("Cannot handle consolidating no types");
+		
+		// If there's just 1, that's easy
+		if (types.size() == 1)
+			return types.get(0);
+		
+		// If they appear to be all the same, no probs; if any of them is error, return that
+		PosType ret = types.get(0);
+		pos = ret.pos;
+		boolean allMatch = true;
+		Set<UnifiableType> uts = new HashSet<>();
+		Set<Type> others = new HashSet<>();
+		for (PosType t : types) {
+			if (t.type instanceof ErrorType)
+				return t;
+			if (t.type instanceof UnifiableType) {
+				uts.add(((UnifiableType) t.type).redirectedTo());
+			} else {
+				if (t.pos != null)
+					pos = t.pos;
+				others.add(t.type);
+			}
+			if (ret.type != t.type) {
+				allMatch = false;
+			}
+		}
+		if (allMatch)
+			return ret;
+		else if (others.isEmpty() && uts.size() == 1)
+			return new PosType(pos, uts.iterator().next());
+
+		// OK, let the first UT acquire the others
+		UnifiableType ut = uts.iterator().next();
+		for (PosType t : types) {
+			if (t.type instanceof Apply) {
+				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);
+			} else if (t.type instanceof UnifiableType)
+				ut.acquire((UnifiableType) t.type);
+			else
 				ut.sameAs(t.pos, t.type);
 		}
 		return new PosType(pos, ut);

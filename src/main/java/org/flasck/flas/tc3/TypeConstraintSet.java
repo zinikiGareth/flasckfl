@@ -96,6 +96,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final TreeSet<Comment> comments = new TreeSet<>();
 	private final Set<PosType> tys = new HashSet<>();
 	private TypeConstraintSet redirectedTo;
+	private Set<UnifiableType> acquired = new HashSet<>();
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
 		repository = r;
@@ -202,6 +203,8 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 	
 	public void acquire(UnifiableType ut) {
+		if (ut == this)
+			return;
 		TypeConstraintSet tcs = (TypeConstraintSet)ut;
 		if (tcs.redirectedTo != null)
 			throw new HaventConsideredThisException("It seems that this might be possible if multiple things point at the same spot");
@@ -214,6 +217,7 @@ public class TypeConstraintSet implements UnifiableType {
 			if (!(ty.type instanceof UnifiableType))
 				this.types.add(ty);
 		this.usedOrReturned += tcs.usedOrReturned;
+		this.acquired .add(ut);
 	}
 
 	public void collectInfo(ErrorReporter errors, DirectedAcyclicGraph<UnifiableType> dag) {
@@ -342,7 +346,7 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 			List<Type> cargs = new ArrayList<>();
 			for (List<PosType> a : args) {
-				Type ct = state.consolidate(pos, a).type;
+				Type ct = state.collapse(pos, a).type;
 				if (ct instanceof UnifiableType) {
 					UnifiableType ut = ((UnifiableType) ct).redirectedTo();
 					dag.ensure(ut);
@@ -350,7 +354,7 @@ public class TypeConstraintSet implements UnifiableType {
 				}
 				cargs.add(ct);
 			}
-			PosType rt = state.consolidate(pos, ret);
+			PosType rt = state.collapse(pos, ret);
 			if (rt.type instanceof UnifiableType) {
 				UnifiableType ut = ((UnifiableType) rt.type).redirectedTo();
 				dag.ensure(ut);
@@ -364,20 +368,22 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public Type resolve(ErrorReporter errors) {
+		logger.debug("resolving " + this.id + " " + this.motive + " types = " + tys);
+
+		if (redirectedTo != null && redirectedTo.resolvedTo == null)
+			throw new CantHappenException("We shouldn't be asked before our redirection");
+		if (redirectedTo != null)
+			return redirectedTo.resolvedTo;
 		if (resolvedTo != null)
 			throw new InvalidUsageException("don't call resolve multiple times: call resolvedTo");
 		
-		logger.debug("resolving " + this.id + " " + this.motive + " types = " + tys);
 		HashSet<PosType> resolved = new HashSet<>();
 		for (PosType ty : tys) {
-			if (ty.type instanceof UnifiableType) {
-				resolved.add(new PosType(ty.pos, ((UnifiableType)ty.type).resolvedTo()));
-			} else
-				resolved.add(ty);
+			resolved.add(new PosType(ty.pos, resolvePolyArg(ty.type)));
 		}
 
 		if (resolved.isEmpty()) {
-			if (usedOrReturned > 0)
+			if (usedOrReturned > 0 || !acquired.isEmpty())
 				resolvedTo = state.nextPoly(pos);
 			else
 				resolvedTo = LoadBuiltins.any;
@@ -392,12 +398,13 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 			resolvedTo = repository.findUnionWith(alltys);
 			if (resolvedTo == null) {
+				logger.info("could not unify " + this.id);
 				TreeSet<String> msgs = new TreeSet<>();
 				for (Type ty : alltys)
 					msgs.add(ty.signature());
 				for (Comment c : comments) {
 					if (c.type != null && !(c.type instanceof UnifiableType)) {
-						String msg = "cannot unify types: " + c.msg;
+						String msg = "  has contraint: '" + c.msg + "'";
 						msg += " " + c.type.signature();
 						logger.info(msg);
 					}
@@ -407,8 +414,8 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		}
 
-		if (resolvedTo == null || resolvedTo instanceof ErrorType)
-			return resolvedTo;
+//		if (resolvedTo == null || resolvedTo instanceof ErrorType)
+//			return resolvedTo;
 		
 //		for (UnifiableType ut : sameAs) {
 //			if (!ut.isResolved())
@@ -417,6 +424,22 @@ public class TypeConstraintSet implements UnifiableType {
 		
 		logger.debug("resolved to " + resolvedTo);
 		return resolvedTo;
+	}
+
+	private Type resolvePolyArg(Type ty) {
+		if (ty instanceof UnifiableType) {
+			return ((UnifiableType)ty).resolvedTo();
+		} else if (ty instanceof PolyInstance) {
+			return resolvePolyArgs((PolyInstance)ty);
+		} else
+			return ty;
+	}
+
+	private Type resolvePolyArgs(PolyInstance pi) {
+		List<Type> rps = new ArrayList<Type>();
+		for (Type t : pi.getPolys())
+			rps.add(resolvePolyArg(t));
+		return new PolyInstance(pi.location(), pi.struct(), rps);
 	}
 
 	@Override
@@ -573,7 +596,10 @@ public class TypeConstraintSet implements UnifiableType {
 	public String toString() {
 		if (resolvedTo != null)
 			return id + ":" + signature();
-		else
+		else if (((TypeConstraintSet)redirectedTo()).resolvedTo != null) {
+			TypeConstraintSet rt = (TypeConstraintSet)redirectedTo();
+			return id + "*" + rt.id + ":" + rt.resolvedTo; 
+		} else
 			return asTCS();
 	}
 }
