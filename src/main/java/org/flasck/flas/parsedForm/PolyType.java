@@ -22,6 +22,19 @@ public class PolyType implements RepositoryEntry, Locatable, NamedType, Comparab
 		this.shortName = solidName.baseName();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof PolyType))
+			return false;
+		PolyType other = (PolyType) obj;
+		return shortName.equals(other.shortName);
+	}
+	
+	@Override
+	public int hashCode() {
+		return shortName.hashCode();
+	}
+	
 	public String shortName() {
 		return shortName;
 	}

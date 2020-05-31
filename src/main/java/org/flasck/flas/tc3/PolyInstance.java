@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -24,7 +25,27 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 		this.polys = polys;
 	}
 
-	// TODO: its possible for this to be a union as well, I think ...
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof PolyInstance))
+			return false;
+		PolyInstance o = (PolyInstance) obj;
+		if (o.struct() != this.struct())
+			return false;
+		Iterator<Type> mine = polys.iterator();
+		Iterator<Type> other = o.polys.iterator();
+		while (mine.hasNext())
+			if (!mine.next().equals(other.next()))
+				return false;
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return ty.hashCode();
+	}
+	
 	public NamedType struct() {
 		return ty;
 	}
