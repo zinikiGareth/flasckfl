@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -46,12 +47,14 @@ public class TypeChecker extends LeafAdapter {
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
+	private final ErrorMark mark;
 
 	public TypeChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
 		sv.push(this);
+		mark = errors.mark();
 	}
 
 	@Override
@@ -76,7 +79,7 @@ public class TypeChecker extends LeafAdapter {
 	
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
-		new GroupChecker(errors, repository, sv, new FunctionGroupTCState(repository, grp));
+		new GroupChecker(errors, repository, sv, new FunctionGroupTCState(repository, grp), mark);
 	}
 	
 	@Override
@@ -86,6 +89,7 @@ public class TypeChecker extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
+		if (mark.hasMoreNow()) return;
 		new UTAChecker(errors, repository, sv);
 	}
 

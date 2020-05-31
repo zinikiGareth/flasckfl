@@ -122,7 +122,7 @@ public class TypeConstraintSet implements UnifiableType {
 		if (redirectedTo != null)
 			return redirectedTo.resolvedTo();
 		if (resolvedTo == null)
-			throw new InvalidUsageException("wait until it is resolved");
+			throw new InvalidUsageException("wait until " + id + " is resolved");
 		return resolvedTo;
 	}
 	

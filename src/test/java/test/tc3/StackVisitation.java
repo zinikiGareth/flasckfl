@@ -89,7 +89,7 @@ public class StackVisitation {
 			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
-		GroupChecker gc = new GroupChecker(errors, repository, nv, null);
+		GroupChecker gc = new GroupChecker(errors, repository, nv, null, null);
 		gc.visitFunction(new FunctionDefinition(name, 0, null));
 	}
 
@@ -129,7 +129,7 @@ public class StackVisitation {
 //			oneOf(state).bindVarPatternTypes(errors);
 			oneOf(nv).result(null);
 		}});
-		GroupChecker gc = new GroupChecker(errors, repository, nv, state);
+		GroupChecker gc = new GroupChecker(errors, repository, nv, state, null);
 		gc.visitFunction(fn);
 		gc.result(new PosType(pos, ty));
 		gc.leaveFunctionIntro(fi);
@@ -155,7 +155,7 @@ public class StackVisitation {
 			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 		}});
-		GroupChecker gc = new GroupChecker(errors, repository, nv, state);
+		GroupChecker gc = new GroupChecker(errors, repository, nv, state, null);
 		gc.visitObjectMethod(om);
 		context.assertIsSatisfied();
 		UnifiableType utm = context.mock(UnifiableType.class, "utm");

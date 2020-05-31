@@ -77,7 +77,7 @@ public class GroupTests {
 			fnG.intro(fiG1);
 			fnG.intro(fiG2);
 		}});
-		this.gc = new GroupChecker(errors, repository, sv, state);
+		this.gc = new GroupChecker(errors, repository, sv, state, null);
 	}
 	
 	/*
