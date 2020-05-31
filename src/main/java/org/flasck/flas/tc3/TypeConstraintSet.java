@@ -351,8 +351,8 @@ public class TypeConstraintSet implements UnifiableType {
 				cargs.add(ct);
 			}
 			PosType rt = state.consolidate(pos, ret);
-			if (rt instanceof UnifiableType) {
-				UnifiableType ut = ((UnifiableType) rt).redirectedTo();
+			if (rt.type instanceof UnifiableType) {
+				UnifiableType ut = ((UnifiableType) rt.type).redirectedTo();
 				dag.ensure(ut);
 				dag.ensureLink(this, ut);
 			}
@@ -399,9 +399,10 @@ public class TypeConstraintSet implements UnifiableType {
 					if (c.type != null && !(c.type instanceof UnifiableType)) {
 						String msg = "cannot unify types: " + c.msg;
 						msg += " " + c.type.signature();
-						errors.message(c.pos,  msg);
+						logger.info(msg);
 					}
 				}
+				errors.message(pos, "cannot unify " + alltys);
 				resolvedTo = new ErrorType();
 			}
 		}
@@ -550,7 +551,7 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	public String asTCS() {
-		return "TCS" + (isRedirected()?"*":"") + "{" + (pos == null? "NULL":pos.inFile()) + ":" + id + (motive != null ? ":" + motive : "") + "}";
+		return "TCS" + (isRedirected()?"*"+redirectedTo.id()+"*":"") + "{" + (pos == null? "NULL":pos.inFile()) + ":" + id + (motive != null ? ":" + motive : "") + "}";
 	}
 
 	public String debugInfo() {

@@ -7,7 +7,7 @@ import org.flasck.flas.tc3.Type;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.SplitMetaData;
 
-public interface RepositoryReader {
+public interface RepositoryReader extends UnionFinder {
 	<T extends RepositoryEntry> T get(String string);
 	void traverse(RepositoryVisitor visitor);
 	void traverseWithHSI(HSIVisitor visitor);

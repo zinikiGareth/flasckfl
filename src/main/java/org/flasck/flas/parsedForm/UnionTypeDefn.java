@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parser.UnionFieldConsumer;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.flasck.flas.repository.UnionFinder;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
@@ -67,7 +68,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		return polyvars;
 	}
 	
-	public Type matches(Set<Type> members) {
+	public Type matches(Set<Type> members, UnionFinder finder) {
 		Set<String> all = new HashSet<>();
 		Set<String> left = new HashSet<>();
 		for (TypeReference tr : cases) {
@@ -118,9 +119,15 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 			for (PolyType pt : this.polyvars) {
 				if (polys.contains(pt.shortName())) {
 					Set<Type> tr = polys.get(pt.shortName());
-					if (tr.size() != 1)
-						throw new HaventConsideredThisException("I think we should resolve it down to just one option");
-					bound.add(tr.iterator().next());
+					Type ut; 
+					if (tr.size() == 1)
+						ut = tr.iterator().next();
+					else {
+						ut = finder.findUnionWith(tr);
+						if (ut == null)
+							return null;
+					}
+					bound.add(ut);
 				} else
 				bound.add(LoadBuiltins.any);
 			}
