@@ -20,13 +20,14 @@ public class StructFieldConstraints implements StructTypeConstraints {
 	private final Map<StructField, UnifiableType> fields = new TreeMap<>(StructField.nameComparator);
 	private final PolyInstance pi;
 
-	public StructFieldConstraints(RepositoryReader repository, FunctionName fn, CurrentTCState state, InputPosition pos, StructDefn sd) {
+	public StructFieldConstraints(RepositoryReader repository, FunctionName fn, CurrentTCState state, TypeConstraintSet parent, InputPosition pos, StructDefn sd) {
 		this.fn = fn;
 		this.sd = sd;
 		if (sd.hasPolys()) {
 			List<Type> pvs = new ArrayList<>();
 			for (PolyType pt : sd.polys()) {
 				UnifiableType pv = state.createUT(pos, fn.uniqueName() + " " + sd.name().uniqueName() + "." + pt.shortName());
+				parent.hasPolyVar(pos, pv);
 				pvs.add(pv);
 				polys.put(pt.shortName(), pv);
 			}

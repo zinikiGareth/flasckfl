@@ -97,6 +97,7 @@ public class TypeConstraintSet implements UnifiableType {
 	private final Set<PosType> tys = new HashSet<>();
 	private TypeConstraintSet redirectedTo;
 	private Set<UnifiableType> acquired = new HashSet<>();
+	private Set<UnifiableType> polyvars = new HashSet<>();
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
 		repository = r;
@@ -170,7 +171,9 @@ public class TypeConstraintSet implements UnifiableType {
 		// What happens if this list contains multiple?
 		// And some have been considered and others haven't?
 		// And what if two have both not been redirected?
-		for (PosType pt : types) {
+		HashSet<PosType> ts1 = new HashSet<>(types);
+		ts1.addAll(incorporatedBys);
+		for (PosType pt : ts1) {
 			Type t = pt.type;
 			if (t instanceof TypeConstraintSet) {
 				TypeConstraintSet ut = (TypeConstraintSet) t;
@@ -222,20 +225,14 @@ public class TypeConstraintSet implements UnifiableType {
 
 	public void collectInfo(ErrorReporter errors, DirectedAcyclicGraph<UnifiableType> dag) {
 		logger.debug("collecting info on " + id + ": " + motive);
-		for (PosType pt : types) {
+		HashSet<PosType> ts1 = new HashSet<>(types);
+		ts1.addAll(incorporatedBys);
+		for (PosType pt : ts1) {
 			Type t = pt.type;
 			logger.debug("  have type " + t);
 			if (t == null)
 				throw new NotImplementedException("should not be null");
 			
-			// I want to replace all of these with just one
-			// And so issue "redirects"
-			// Not quite sure how this is going to work
-			// But I think I need the notion of "redirectedTo"
-			// Abandon this whole method on entry if "redirectedTo" is set
-			// Here, if we see another UT, make it "redirectTo" here ...
-			
-			// All subsequent logic must check through redirection ...
 			if (t instanceof UnifiableType) {
 				UnifiableType ut = ((UnifiableType) t).redirectedTo();
 				dag.ensure(ut);
@@ -363,7 +360,11 @@ public class TypeConstraintSet implements UnifiableType {
 			tys.add(new PosType(rt.pos, new Apply(cargs, rt.type)));
 		}
 		
-		tys.addAll(incorporatedBys);
+		for (UnifiableType pv : polyvars) {
+			dag.ensure(pv);
+			dag.ensureLink(this, pv);
+		}
+//		tys.addAll(incorporatedBys);
 	}
 
 	@Override
@@ -379,7 +380,8 @@ public class TypeConstraintSet implements UnifiableType {
 		
 		HashSet<PosType> resolved = new HashSet<>();
 		for (PosType ty : tys) {
-			resolved.add(new PosType(ty.pos, resolvePolyArg(ty.type)));
+			if (ty.type != this)
+				resolved.add(new PosType(ty.pos, resolvePolyArg(ty.type)));
 		}
 
 		if (resolved.isEmpty()) {
@@ -454,6 +456,11 @@ public class TypeConstraintSet implements UnifiableType {
 		usedOrReturned++;
 	}
 
+	public void hasPolyVar(InputPosition pos, UnifiableType pv) {
+		comments.add(new Comment(pos, "has poly var " + pv.id(), null));
+		polyvars.add(pv);
+	}
+
 	@Override
 	public void incorporatedBy(InputPosition pos, Type incorporator) {
 		if (incorporator instanceof ErrorType)
@@ -496,7 +503,7 @@ public class TypeConstraintSet implements UnifiableType {
 	public StructTypeConstraints canBeStruct(InputPosition pos, FunctionName fn, StructDefn sd) {
 		comments.add(new Comment(pos, "can be struct " + sd, sd));
 		if (!ctors.containsKey(sd)) {
-			StructFieldConstraints sfc = new StructFieldConstraints(repository, fn, state, pos, sd);
+			StructFieldConstraints sfc = new StructFieldConstraints(repository, fn, state, this, pos, sd);
 			ctors.put(sfc.polyInstance(), sfc);
 		}
 		return ctors.get(sd);
