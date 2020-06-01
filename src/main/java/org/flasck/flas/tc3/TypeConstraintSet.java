@@ -148,7 +148,6 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public boolean mustBeMessage(ErrorReporter errors) {
-		System.out.println(id + " MUST BE MESSAGE");
 		if (resolvedTo != null) {
 			return EnsureListMessage.validate(errors, pos, resolvedTo);
 		}
@@ -230,7 +229,6 @@ public class TypeConstraintSet implements UnifiableType {
 	public void acquire(UnifiableType ut) {
 		if (ut == this)
 			return;
-		System.out.println(id + " acquiring " + ut.id());
 		TypeConstraintSet tcs = (TypeConstraintSet)ut;
 		if (tcs.redirectedTo != null) {
 			acquire(tcs.redirectedTo);
@@ -323,7 +321,6 @@ public class TypeConstraintSet implements UnifiableType {
 					groups.add((PolyHolder) pi.struct(), pi);
 			}
 		}
-		System.out.println("groups = " + groups);
 		for (PolyHolder e : groups.keySet()) {
 			List<PolyInstance> list = groups.get(e);
 			if (list.size() > 1) {
@@ -332,7 +329,6 @@ public class TypeConstraintSet implements UnifiableType {
 					for (PolyInstance pi : list) {
 						tojoin.add(new PosType(pi.location(), pi.getPolys().get(i)));
 					}
-					System.out.println("consolidating " + tojoin);
 					state.consolidate(tojoin.get(0).location(), tojoin);
 				}
 			}
@@ -376,7 +372,6 @@ public class TypeConstraintSet implements UnifiableType {
 				tys.add(new PosType(pt.pos, new PolyInstance(pos, sd, polys)));
 			} else if (t instanceof EnsureListMessage) {
 				EnsureListMessage elm = (EnsureListMessage) t;
-				System.out.println("elm = " + elm);
 				if (elm.checking() instanceof UnifiableType) {
 					UnifiableType ut = ((UnifiableType) elm.checking()).redirectedTo();
 					dag.ensure(ut);

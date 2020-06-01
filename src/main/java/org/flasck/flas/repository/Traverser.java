@@ -702,7 +702,7 @@ public class Traverser implements RepositoryVisitor {
 			List<Slot> slots = sd.slots();
 			((HSIVisitor)visitor).hsiArgs(slots);
 			hsiLogger.info("traversing HSI for " + sd.name().uniqueName());
-			sd.hsiTree().dump("");
+//			sd.hsiTree().dump("");
 			visitHSI(new VarMapping(), "", slots, sd.hsiCases());
 			hsiLogger.info("finished HSI for " + sd.name().uniqueName());
 		} else {

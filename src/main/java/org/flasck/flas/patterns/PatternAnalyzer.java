@@ -132,8 +132,8 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
-		System.out.println(fn.name().uniqueName());
-		hsiTree.dump("  ");
+//		System.out.println(fn.name().uniqueName());
+//		hsiTree.dump("  ");
 		fn.bindHsi(hsiTree);
 	}
 

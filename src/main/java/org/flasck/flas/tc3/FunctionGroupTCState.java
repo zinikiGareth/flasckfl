@@ -188,7 +188,6 @@ public class FunctionGroupTCState implements CurrentTCState {
 		List<UnifiableType> considered = new ArrayList<>();
 		for (int i=0;i<allUTs.size();i++) {
 			UnifiableType ut = allUTs.get(i);
-			System.out.println("considering " + ut);
 			ut.acquireOthers(considered);
 			considered.add(ut);
 		}
