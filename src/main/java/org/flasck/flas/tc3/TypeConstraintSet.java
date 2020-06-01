@@ -302,19 +302,22 @@ public class TypeConstraintSet implements UnifiableType {
 		for (PosType pt : types) {
 			if (pt.type instanceof PolyInstance) {
 				PolyInstance pi = (PolyInstance) pt.type;
-				groups.add((PolyHolder) pi.struct(), pi);
+				if (pi.struct() instanceof PolyHolder) // You would think, but Tuples are (perhaps incorrectly) an exception to this rule
+					groups.add((PolyHolder) pi.struct(), pi);
 			}
 		}
 		for (PosType pt : incorporatedBys) {
 			if (pt.type instanceof PolyInstance) {
 				PolyInstance pi = (PolyInstance) pt.type;
-				groups.add((PolyHolder) pi.struct(), pi);
+				if (pi.struct() instanceof PolyHolder) // You would think, but Tuples are (perhaps incorrectly) an exception to this rule
+					groups.add((PolyHolder) pi.struct(), pi);
 			}
 		}
 		for (NamedType nt : ctors.keySet()) {
 			if (nt instanceof PolyInstance) {
 				PolyInstance pi = (PolyInstance) nt;
-				groups.add((PolyHolder) pi.struct(), pi);
+				if (pi.struct() instanceof PolyHolder) // You would think, but Tuples are (perhaps incorrectly) an exception to this rule
+					groups.add((PolyHolder) pi.struct(), pi);
 			}
 		}
 		System.out.println("groups = " + groups);
