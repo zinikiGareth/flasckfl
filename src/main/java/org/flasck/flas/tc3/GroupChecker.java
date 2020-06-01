@@ -23,14 +23,12 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	private CurrentTCState state;
 	private TypeBinder currentFunction;
 	private final Map<TypeBinder, PosType> memberTypes = new HashMap<>();
-	private final ErrorMark mark;
 
 	public GroupChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, CurrentTCState state, ErrorMark mark) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
 		this.state = state;
-		this.mark = mark;
 		sv.push(this);
 	}
 

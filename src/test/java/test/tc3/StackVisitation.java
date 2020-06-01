@@ -85,13 +85,6 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			allowing(state).debugInfo(with(any(String.class)));
 		}});
-		before1();
-	}
-	
-	@Before
-	public void before1() {
-		StaticLoggerBinder.setLevel("TCUnification", Level.DEBUG);
-		StaticLoggerBinder.setLevel("TestRunner", Level.DEBUG);
 	}
 
 	@Test

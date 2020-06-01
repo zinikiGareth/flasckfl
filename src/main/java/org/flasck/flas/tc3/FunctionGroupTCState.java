@@ -23,13 +23,11 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.impl.StaticLoggerBinder;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.NodeWalker;
-import org.zinutils.streamedlogger.api.Level;
 
 public class FunctionGroupTCState implements CurrentTCState {
 	private final static Logger logger = LoggerFactory.getLogger("TCUnification");

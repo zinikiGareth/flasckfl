@@ -2,6 +2,7 @@ package test.tc3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -17,9 +18,9 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
@@ -27,9 +28,11 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.patterns.HSIPatternOptions;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.RepositoryVisitor;
@@ -40,6 +43,7 @@ import org.flasck.flas.tc3.EnsureListMessage;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
+import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.MessageChecker;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.PosType;
@@ -51,6 +55,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;
 import flas.matchers.ExprResultMatcher;
@@ -66,17 +71,14 @@ public class MethodTests {
 	private final List<Pattern> args = new ArrayList<>();
 	private final ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, new SolidName(pkg, "X"), "meth"), args, null, null);
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
-	private final CurrentTCState state = context.mock(CurrentTCState.class);
+	private final RepositoryReader repository = context.mock(RepositoryReader.class);
+	private final CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 	private final RAV r = context.mock(RAV.class);
 	private final StackVisitor sv = new StackVisitor();
-	private RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Before
 	public void init() {
 		sv.push(r);
-		context.checking(new Expectations() {{
-			allowing(state).hasGroup(); will(returnValue(false));
-		}});
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -89,7 +91,6 @@ public class MethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
 			oneOf(r).result(with(PosMatcher.type((Matcher)any(EnsureListMessage.class))));
 		}});
 		sv.leaveObjectMethod(meth);
@@ -114,21 +115,14 @@ public class MethodTests {
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
 		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());
-		UnifiableType ut = context.mock(UnifiableType.class);
-		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "test.repo.X.meth slot ArgSlot[0]"); will(returnValue(ut));
-			oneOf(ut).canBeType(pos, LoadBuiltins.string);
-		}});
 		sv.argSlot(s);
 		sv.matchType(tp.type(), tp.var, null);
 		sv.endArg(s);
-		context.assertIsSatisfied();
 		sv.visitSendMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
-			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(ut), (Matcher)Matchers.any(EnsureListMessage.class)))));
+			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type((Matcher)Matchers.any(UnifiableType.class), (Matcher)Matchers.any(EnsureListMessage.class)))));
 		}});
 		sv.leaveObjectMethod(meth);
 	}
@@ -154,7 +148,6 @@ public class MethodTests {
 		sv.visitAssignSlot(msg.slot);
 		sv.leaveMessage(msg);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.message))); will(returnValue(new PosType(pos, LoadBuiltins.message)));
 			oneOf(r).result(new PosType(pos, new EnsureListMessage(pos, LoadBuiltins.message)));
 		}});
 		sv.leaveObjectMethod(meth);
@@ -396,39 +389,63 @@ public class MethodTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void aNumberIsNotFine() {
+		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
+		new FunctionChecker(errors, repository, sv, meth.name(), state, null);
+		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
 		new MessageChecker(errors, repository, state, sv, meth);
+		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(errors).message((InputPosition)null, "Number cannot be a Message");
-			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
+			oneOf(errors).message(pos, "Number cannot be a Message");
+			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(EnsureListMessage.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.number));
 		sv.leaveMessage(null);
+		sv.leaveObjectMethod(meth);
+		HashMap<TypeBinder, PosType> mts = new HashMap<>();
+		mts.put(meth, (PosType) capture.get(0));
+		state.groupDone(errors, mts);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void listOfNumbersIsNotFine() {
+		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
+		new FunctionChecker(errors, repository, sv, meth.name(), state, null);
+		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
 		new MessageChecker(errors, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.number));
+		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(errors).message((InputPosition)null, "List[Number] cannot be a Message");
-			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
+			oneOf(errors).message(pos, "Number cannot be a Message");
+			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(EnsureListMessage.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, pi));
 		sv.leaveMessage(null);
+		sv.leaveObjectMethod(meth);
+		HashMap<TypeBinder, PosType> mts = new HashMap<>();
+		mts.put(meth, (PosType) capture.get(0));
+		state.groupDone(errors, mts);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void anyOtherPolyIsNotFine() {
+		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
+		new FunctionChecker(errors, repository, sv, meth.name(), state, null);
+		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
 		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, new SolidName(null, "A"))));
 		new MessageChecker(errors, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, sda, Arrays.asList(LoadBuiltins.message));
+		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(errors).message((InputPosition)null, "test.repo.Foo[Message] cannot be a Message");
-			oneOf(r).result(with(ExprResultMatcher.expr((Matcher)any(ErrorType.class))));
+			oneOf(errors).message(pos, "test.repo.Foo[Message] cannot be a Message");
+			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(EnsureListMessage.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, pi));
 		sv.leaveMessage(null);
+		sv.leaveObjectMethod(meth);
+		HashMap<TypeBinder, PosType> mts = new HashMap<>();
+		mts.put(meth, (PosType) capture.get(0));
+		state.groupDone(errors, mts);
 	}
 }
