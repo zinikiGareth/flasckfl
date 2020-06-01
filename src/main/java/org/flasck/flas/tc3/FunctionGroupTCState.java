@@ -23,6 +23,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
@@ -264,6 +265,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			return types.get(0);
 		
 		// If they appear to be all the same, no probs; if any of them is error, return that
+		int commonApply = -1;
 		PosType ret = types.get(0);
 		pos = ret.pos;
 		boolean allMatch = true;
@@ -282,9 +284,28 @@ public class FunctionGroupTCState implements CurrentTCState {
 			if (ret.type != t.type) {
 				allMatch = false;
 			}
+			if (t.type instanceof Apply) {
+				if (commonApply == -1)
+					commonApply = ((Apply)t.type).argCount();
+				else if (commonApply != ((Apply)t.type).argCount())
+					throw new HaventConsideredThisException("we could be asked to unify different levels of apply, providing UTs are involved somewhere; if not, I think that has to be a type error");
+			} else if (t.type instanceof UnifiableType)
+				commonApply = 0;
 		}
 		if (allMatch)
 			return ret;
+
+		if (commonApply > 0) {
+			List<Type> args = new ArrayList<>();
+			for (int i=0;i<=commonApply;i++) {
+				List<PosType> ai = new ArrayList<>();
+				for (PosType pt : types) {
+					ai.add(new PosType(pos, ((Apply)pt.type).get(i)));
+				}
+				args.add(consolidate(pos, ai).type);
+			}
+			return new PosType(pos, new Apply(args));
+		}
 
 		// OK, create a new UT and attach them all
 		StringBuilder motive = new StringBuilder("consolidating");

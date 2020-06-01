@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -90,6 +91,7 @@ public class TCStateTests {
 	public void trueAndFalseMakeAList() {
 		Type ut = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.trueT), new PosType(pos, LoadBuiltins.falseT))).type;
 		assertTrue(ut instanceof TypeConstraintSet);
+		state.groupDone(errors, new HashMap<>());
 		assertEquals(LoadBuiltins.bool, ((UnifiableType) ut).resolve(errors));
 	}
 	
@@ -97,17 +99,18 @@ public class TCStateTests {
 	public void trueAndFalseMakeAListInTheOtherOrder() {
 		Type ut = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.falseT), new PosType(pos, LoadBuiltins.trueT))).type;
 		assertTrue(ut instanceof TypeConstraintSet);
+		state.groupDone(errors, new HashMap<>());
 		assertEquals(LoadBuiltins.bool, ((UnifiableType) ut).resolve(errors));
 	}
 	
 	@Test
 	public void youCannotMakeAUnionOfNumberAndString() {
 		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "cannot unify types: same as Number");
-			oneOf(errors).message(pos, "cannot unify types: same as String");
+			oneOf(errors).message(pos, "cannot unify [Number, String]");
 		}});
 		Type ut = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number), new PosType(pos, LoadBuiltins.string))).type;
 		assertTrue(ut instanceof TypeConstraintSet);
+		state.groupDone(errors, new HashMap<>());
 		((UnifiableType) ut).resolve(errors);
 	}
 	
@@ -128,19 +131,16 @@ public class TCStateTests {
 		Type result = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.trueT), new PosType(pos, LoadBuiltins.falseT))).type;
 		Type apply = state.consolidate(pos, Arrays.asList(new PosType(pos, new Apply(LoadBuiltins.string, result)))).type;
 		assertThat(apply, (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), (Matcher)Matchers.any(UnifiableType.class)));
-		state.resolveAll(errors, true);
+		state.groupDone(errors, new HashMap<>());
 		assertThat(apply, (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.bool)));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void twoApplysCanConsolidateTrueAndFalseToBool() {
-		UnifiableType apply = (UnifiableType) state.consolidate(pos, Arrays.asList(new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.falseT)), new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.trueT)))).type;
-		assertThat(apply, (Matcher)Matchers.any(UnifiableType.class));
-//		state.resolveAll(errors, false);
-//		state.enhanceAllMutualUTs();
-//		state.resolveAll(errors, true);
-		assertThat(apply.resolve(errors), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.bool)));
+		Apply apply = (Apply) state.consolidate(pos, Arrays.asList(new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.falseT)), new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.trueT)))).type;
+		state.groupDone(errors, new HashMap<>());
+		assertThat(apply, (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.bool)));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -148,22 +148,21 @@ public class TCStateTests {
 	public void aPolyInstanceHasItsParametersConsolidated() {
 		Type result = state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.trueT), new PosType(pos, LoadBuiltins.falseT))).type;
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(result));
-		state.resolveAll(errors, true);
+		state.groupDone(errors, new HashMap<>());
 		assertThat(pi, (Matcher)PolyInstanceMatcher.of(LoadBuiltins.cons, ResolvedUTMatcher.with(LoadBuiltins.bool)));
 	}
 	
 	@Test
 	public void aTCSWithNothingDoingReturnsAny() {
 		Type ut = state.consolidate(pos, Arrays.asList(new PosType(pos, state.createUT(pos, "unknown")))).type;
-		state.resolveAll(errors, true);
+		state.groupDone(errors, new HashMap<>());
 		assertThat(ut, ResolvedUTMatcher.with(LoadBuiltins.any));
 	}
 	
 	@Test
 	public void aUnionOfATypeAndAnEmptyTCSDoesTheRightThing() {
 		Type c1 = state.consolidate(pos, Arrays.asList(new PosType(pos, state.createUT(pos, "unknown")), new PosType(pos, LoadBuiltins.number))).type;
-		state.resolveAll(errors, false);
-		state.resolveAll(errors, true);
+		state.groupDone(errors, new HashMap<>());
 		assertThat(c1, ResolvedUTMatcher.with(LoadBuiltins.number));
 	}
 
@@ -172,8 +171,7 @@ public class TCStateTests {
 		UnifiableType tcs = state.createUT(pos, "unknown");
 		tcs.isReturned(pos); // fake it to have been used in multiple places
 		Type ct = state.consolidate(pos, Arrays.asList(new PosType(pos, tcs), new PosType(pos, LoadBuiltins.number))).type;
-		state.resolveAll(errors, false);
-		state.resolveAll(errors, true);
+		state.groupDone(errors, new HashMap<>());
 		assertThat(ct, ResolvedUTMatcher.with(LoadBuiltins.number));
 	}
 
@@ -185,9 +183,7 @@ public class TCStateTests {
 		tcs1.isReturned(pos);
 		tcs2.isUsed(pos);
 		UnifiableType ct = (UnifiableType) state.consolidate(pos, Arrays.asList(new PosType(pos, tcs1), new PosType(pos, tcs2))).type;
-//		state.resolveAll(errors, false);
-//		state.enhanceAllMutualUTs();
-//		state.resolveAll(errors, true);
+		state.groupDone(errors, new HashMap<>());
 		assertThat(ct.resolvedTo(), (Matcher)PolyTypeMatcher.called("A"));
 	}
 }
