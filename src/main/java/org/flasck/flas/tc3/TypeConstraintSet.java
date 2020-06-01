@@ -147,8 +147,12 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	@Override
-	public void mustBeMessage() {
-		// TODO
+	public boolean mustBeMessage(ErrorReporter errors) {
+		System.out.println(id + " MUST BE MESSAGE");
+		if (resolvedTo != null) {
+			return EnsureListMessage.validate(errors, pos, resolvedTo);
+		}
+		throw new NotImplementedException();
 	}
 
 	@Override
@@ -176,7 +180,6 @@ public class TypeConstraintSet implements UnifiableType {
 			if (refs.isEmpty())
 				return again;
 			again = true;
-//			System.out.println("Adding " + refs + " to " + asTCS());
 			types.addAll(refs);
 			for (PosType t : refs) {
 				if (t.type instanceof TypeConstraintSet)
@@ -371,6 +374,15 @@ public class TypeConstraintSet implements UnifiableType {
 					polys.add(LoadBuiltins.any);
 				}
 				tys.add(new PosType(pt.pos, new PolyInstance(pos, sd, polys)));
+			} else if (t instanceof EnsureListMessage) {
+				EnsureListMessage elm = (EnsureListMessage) t;
+				System.out.println("elm = " + elm);
+				if (elm.checking() instanceof UnifiableType) {
+					UnifiableType ut = ((UnifiableType) elm.checking()).redirectedTo();
+					dag.ensure(ut);
+					dag.ensureLink(this, ut);
+				}
+				tys.add(pt);
 			} else
 				tys.add(pt);
 		}
@@ -401,7 +413,6 @@ public class TypeConstraintSet implements UnifiableType {
 					else
 						polys.add(LoadBuiltins.any);
 				}
-//				tys.add(new PosType(pos, ty));
 				tys.add(new PosType(pos, new PolyInstance(pos, sd, polys)));
 			}
 		}
@@ -456,7 +467,6 @@ public class TypeConstraintSet implements UnifiableType {
 			dag.ensure(pv);
 			dag.ensureLink(this, pv);
 		}
-//		tys.addAll(incorporatedBys);
 	}
 
 	@Override
@@ -474,8 +484,13 @@ public class TypeConstraintSet implements UnifiableType {
 		for (PosType ty : tys) {
 			if (ty.type != this) {
 				Type rt = resolvePolyArg(new HashSet<UnifiableType>(), ty.type);
-				if (rt != null)
-					resolved.add(new PosType(ty.pos, rt));
+				if (rt != null) {
+					if (rt instanceof EnsureListMessage) {
+						Type mt = ((EnsureListMessage)rt).validate(errors);
+						resolved.add(new PosType(ty.pos, mt));
+					} else
+						resolved.add(new PosType(ty.pos, rt));
+				}
 			}
 		}
 
@@ -489,8 +504,10 @@ public class TypeConstraintSet implements UnifiableType {
 		else {
 			Set<Type> alltys = new TreeSet<>(signatureComparator);
 			for (PosType pt : resolved) {
-				if (pt.type instanceof ErrorType)
+				if (pt.type instanceof ErrorType) {
+					resolvedTo = pt.type;
 					return pt.type;
+				}
 				alltys.add(pt.type);
 			}
 			resolvedTo = repository.findUnionWith(alltys);
@@ -514,14 +531,6 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		}
 
-//		if (resolvedTo == null || resolvedTo instanceof ErrorType)
-//			return resolvedTo;
-		
-//		for (UnifiableType ut : sameAs) {
-//			if (!ut.isResolved())
-//				ut.incorporatedBy(this.pos, resolvedTo);
-//		}
-		
 		logger.debug("resolved to " + resolvedTo);
 		return resolvedTo;
 	}
@@ -703,10 +712,6 @@ public class TypeConstraintSet implements UnifiableType {
 			showTys(ret, incorporatedBys);
 			showCtors(ret, ctors);
 		}
-			
-//		ret.append(types);
-//		ret.append(" // ");
-//		ret.append(comments);
 		return ret.toString();
 	}
 	

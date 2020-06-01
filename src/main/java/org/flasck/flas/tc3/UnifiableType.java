@@ -1,6 +1,5 @@
 package org.flasck.flas.tc3;
 
-import java.util.HashSet;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -25,7 +24,7 @@ public interface UnifiableType extends Type {
 	Type resolvedTo();
 
 	// Assert that this UT must be a message
-	void mustBeMessage();
+	boolean mustBeMessage(ErrorReporter errors);
 
 	// particularly for the pattern-matching case, but also if an expression is created which returns this type,
 	// say that this slot can be represented by a particular struct defn

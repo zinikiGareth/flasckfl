@@ -208,8 +208,8 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 	private Type cleanUTs(ErrorReporter errors, InputPosition pos, Type ty, List<UnifiableType> recs) {
 		logger.debug("Cleaning " + ty + " " + ty.getClass());
-		if (ty instanceof EnsureListMessage)
-			((EnsureListMessage)ty).validate(errors);
+//		if (ty instanceof EnsureListMessage)
+//			((EnsureListMessage)ty).validate(errors);
 		if (ty instanceof UnifiableType) {
 			List<UnifiableType> dontUse = new ArrayList<>(recs);
 			UnifiableType ut = (UnifiableType)ty;

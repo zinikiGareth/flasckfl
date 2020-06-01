@@ -159,58 +159,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveMessage(ActionMessage msg) {
-		InputPosition pos = null;
-		if (msg != null)
-			pos = msg.location();
-//		check(pos);
-		
-		// HACK in lieu
-		sv.result(rhsType);
+		InputPosition pos = rhsType.pos;
+		sv.result(new ExprResult(pos, new EnsureListMessage(pos, rhsType.type)));
 	}
-
-	private void check(InputPosition pos) {
-//		if (!state.hasGroup())
-//			state.resolveAll(errors, true);
-		
-		Type check = rhsType.type;
-
-		// don't cascade errors
-		if (check instanceof ErrorType) {
-			sv.result(rhsType);
-			return;
-		}
-		
-		// an empty list is fine
-		if (check == LoadBuiltins.nil) {
-			sv.result(rhsType);
-			return;
-		}
-		
-		if (check instanceof EnsureListMessage) {
-			EnsureListMessage elm = (EnsureListMessage) check;
-			elm.validate(errors);
-			sv.result(new ExprResult(pos, TypeHelpers.listMessage(pos)));
-			return;
-		}
-		
-		// a poly list is fine (cons or list) as long as the type is
-		if (check instanceof PolyInstance) {
-			PolyInstance pi = (PolyInstance) check;
-			NamedType nt = pi.struct();
-			if (nt == LoadBuiltins.cons || nt == LoadBuiltins.list)
-				check = pi.getPolys().get(0);
-			else {
-				errors.message(pos, check.signature() + " cannot be a Message");
-				sv.result(new ExprResult(pos, new ErrorType()));
-				return;
-			}
-		}
-		if (LoadBuiltins.message.incorporates(pos, check)) {
-			sv.result(rhsType);
-			return;
-		}
-		errors.message(pos, rhsType.type.signature() + " cannot be a Message");
-		sv.result(new ExprResult(pos, new ErrorType()));
-	}
-
 }

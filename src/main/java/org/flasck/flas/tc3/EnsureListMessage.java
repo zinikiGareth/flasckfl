@@ -16,25 +16,56 @@ public class EnsureListMessage implements Type {
 		this.pos = pos;
 		this.ret = ret;
 	}
+	
+	public Type checking() {
+		return ret;
+	}
 
-	public void validate(ErrorReporter errors) {
-		if (ret instanceof UnifiableType) {
-			((UnifiableType) ret).mustBeMessage();
-		}
-		if (ret instanceof ErrorType)
-			return; // message has already been displayed
-		if (TypeHelpers.listMessage(pos).incorporates(pos, ret))
-			return;
-		if (!LoadBuiltins.message.incorporates(pos, ret)) {
-			// If this happens, I think this should spit out an error, but I think it should have been caught already 
-			throw new NotImplementedException();
-		}
+	public Type validate(ErrorReporter errors) {
+		if (validate(errors, pos, ret))
+			return listMessages;
+		else
+			return new ErrorType();
 	}
-	
-	public Type listMessages() {
-		return listMessages;
+
+	public static boolean validate(ErrorReporter errors, InputPosition pos, Type check) {
+		// don't cascade errors
+		if (check instanceof ErrorType) {
+			return false;
+		}
+
+		if (check instanceof UnifiableType) {
+			return ((UnifiableType) check).mustBeMessage(errors);
+		}
+		
+		// an empty list is fine
+		if (check == LoadBuiltins.nil) {
+			return true;
+		}
+		
+		if (check instanceof EnsureListMessage) {
+			EnsureListMessage elm = (EnsureListMessage) check;
+			return elm.validate(errors) == listMessages;
+		}
+		
+		// a poly list is fine (cons or list) as long as the type is some kind of Message
+		if (check instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) check;
+			NamedType nt = pi.struct();
+			if (nt == LoadBuiltins.cons || nt == LoadBuiltins.list)
+				check = pi.getPolys().get(0);
+			else {
+				errors.message(pos, check.signature() + " cannot be a Message");
+				return false;
+			}
+		}
+		if (LoadBuiltins.message.incorporates(pos, check)) {
+			return true;
+		}
+		errors.message(pos, check.signature() + " cannot be a Message");
+		return false;
 	}
-	
+
 	@Override
 	public String signature() {
 		return "List[Message]";
