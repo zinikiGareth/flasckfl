@@ -169,8 +169,8 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void check(InputPosition pos) {
-		if (!state.hasGroup())
-			state.resolveAll(errors, true);
+//		if (!state.hasGroup())
+//			state.resolveAll(errors, true);
 		
 		Type check = rhsType.type;
 

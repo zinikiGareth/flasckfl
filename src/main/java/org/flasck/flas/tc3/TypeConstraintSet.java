@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -24,6 +25,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.InvalidUsageException;
@@ -134,6 +136,16 @@ public class TypeConstraintSet implements UnifiableType {
 		return resolvedTo;
 	}
 	
+	private Type resolvingTo(HashSet<UnifiableType> workingOn) {
+		if (redirectedTo != null)
+			return redirectedTo.resolvingTo(workingOn);
+		if (resolvedTo != null)
+			return resolvedTo;
+		if (workingOn.contains(this))
+			return null;
+		throw new InvalidUsageException("wait until " + id + " is resolved");
+	}
+
 	@Override
 	public void mustBeMessage() {
 		// TODO
@@ -202,7 +214,7 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	public UnifiableType redirectedTo() {
 		if (redirectedTo != null)
-			return redirectedTo;
+			return redirectedTo.redirectedTo();
 		else
 			return this;
 	}
@@ -215,9 +227,12 @@ public class TypeConstraintSet implements UnifiableType {
 	public void acquire(UnifiableType ut) {
 		if (ut == this)
 			return;
+		System.out.println(id + " acquiring " + ut.id());
 		TypeConstraintSet tcs = (TypeConstraintSet)ut;
-		if (tcs.redirectedTo != null)
-			throw new HaventConsideredThisException("It seems that this might be possible if multiple things point at the same spot");
+		if (tcs.redirectedTo != null) {
+			acquire(tcs.redirectedTo);
+			return;
+		}
 		tcs.redirectedTo = this;
 		this.applications.addAll(tcs.applications);
 		this.comments.addAll(tcs.comments);
@@ -227,7 +242,95 @@ public class TypeConstraintSet implements UnifiableType {
 			if (!(ty.type instanceof UnifiableType))
 				this.types.add(ty);
 		this.usedOrReturned += tcs.usedOrReturned;
-		this.acquired .add(ut);
+		this.acquired.add(ut);
+	}
+
+	
+	@Override
+	public void expandUnions() {
+		List<PosType> addMore = new ArrayList<>();
+		for (PosType pt : types) {
+			expandUnion(addMore, pt);
+		}
+		types.addAll(addMore);
+		addMore = new ArrayList<>();
+		for (PosType pt : incorporatedBys) {
+			expandUnion(addMore, pt);
+		}
+		incorporatedBys.addAll(addMore);
+	}
+
+	private void expandUnion(List<PosType> addMore, PosType pt) {
+		InputPosition pos = pt.pos;
+		Type t = pt.type;
+		if (t instanceof UnionTypeDefn) {
+			UnionTypeDefn utd = (UnionTypeDefn) t;
+			for (TypeReference c : utd.cases) {
+				StructDefn sd = (StructDefn) c.defn();
+				addMore.add(new PosType(pos, sd));
+			}
+		} else if (t instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) t;
+			if (pi.struct() instanceof UnionTypeDefn) {
+				UnionTypeDefn utd = (UnionTypeDefn) pi.struct();
+				Map<PolyType, Type> mt = new HashMap<>();
+				for (int p=0;p<utd.polys().size();p++) {
+					mt.put(utd.polys().get(p), pi.getPolys().get(p));
+				}
+				for (TypeReference c : utd.cases) {
+					if (c.defn() instanceof StructDefn) {
+						StructDefn sd = (StructDefn) c.defn();
+						if (sd.hasPolys())
+							throw new CantHappenException("should be polyinstance");
+						addMore.add(new PosType(pos, sd));
+					} else if (c.defn() instanceof PolyInstance) {
+						PolyInstance pc = (PolyInstance) c.defn();
+						List<Type> pm = new ArrayList<>();
+						for (Type p : pc.getPolys())
+							pm.add(mt.get(p));
+						addMore.add(new PosType(pos, new PolyInstance(pos, pc.struct(), pm)));
+					} else
+						throw new HaventConsideredThisException("expecting struct or polyinstance");
+				}
+			}
+		}
+	}
+
+	@Override
+	public void mergePolyVars() {
+		ListMap<PolyHolder, PolyInstance> groups = new ListMap<>();
+		for (PosType pt : types) {
+			if (pt.type instanceof PolyInstance) {
+				PolyInstance pi = (PolyInstance) pt.type;
+				groups.add((PolyHolder) pi.struct(), pi);
+			}
+		}
+		for (PosType pt : incorporatedBys) {
+			if (pt.type instanceof PolyInstance) {
+				PolyInstance pi = (PolyInstance) pt.type;
+				groups.add((PolyHolder) pi.struct(), pi);
+			}
+		}
+		for (NamedType nt : ctors.keySet()) {
+			if (nt instanceof PolyInstance) {
+				PolyInstance pi = (PolyInstance) nt;
+				groups.add((PolyHolder) pi.struct(), pi);
+			}
+		}
+		System.out.println("groups = " + groups);
+		for (PolyHolder e : groups.keySet()) {
+			List<PolyInstance> list = groups.get(e);
+			if (list.size() > 1) {
+				for (int i=0;i<e.polys().size();i++) {
+					List<PosType> tojoin = new ArrayList<>();
+					for (PolyInstance pi : list) {
+						tojoin.add(new PosType(pi.location(), pi.getPolys().get(i)));
+					}
+					System.out.println("consolidating " + tojoin);
+					state.consolidate(tojoin.get(0).location(), tojoin);
+				}
+			}
+		}
 	}
 
 	public void collectInfo(ErrorReporter errors, DirectedAcyclicGraph<UnifiableType> dag) {
@@ -253,27 +356,6 @@ public class TypeConstraintSet implements UnifiableType {
 						UnifiableType ut = ((UnifiableType) pv).redirectedTo();
 						dag.ensure(ut);
 						dag.ensureLink(this, ut);
-					}
-				}
-				if (pi.struct() instanceof UnionTypeDefn) {
-					UnionTypeDefn utd = (UnionTypeDefn) pi.struct();
-					Map<PolyType, Type> mt = new HashMap<>();
-					for (int p=0;p<utd.polys().size();p++) {
-						mt.put(utd.polys().get(p), pi.getPolys().get(p));
-					}
-					for (TypeReference c : utd.cases) {
-						if (c.defn() instanceof StructDefn) {
-							StructDefn sd = (StructDefn) c.defn();
-							if (sd.hasPolys())
-								throw new CantHappenException("should be polyinstance");
-						} else if (c.defn() instanceof PolyInstance) {
-							PolyInstance pc = (PolyInstance) c.defn();
-							List<Type> pm = new ArrayList<>();
-							for (Type p : pc.getPolys())
-								pm.add(mt.get(p));
-							tys.add(new PosType(pi.location(), new PolyInstance(pi.location(), pc.struct(), pm)));
-						} else
-							throw new HaventConsideredThisException("expecting struct or polyinstance");
 					}
 				}
 				tys.add(pt);	
@@ -387,8 +469,11 @@ public class TypeConstraintSet implements UnifiableType {
 		
 		HashSet<PosType> resolved = new HashSet<>();
 		for (PosType ty : tys) {
-			if (ty.type != this)
-				resolved.add(new PosType(ty.pos, resolvePolyArg(ty.type)));
+			if (ty.type != this) {
+				Type rt = resolvePolyArg(new HashSet<UnifiableType>(), ty.type);
+				if (rt != null)
+					resolved.add(new PosType(ty.pos, rt));
+			}
 		}
 
 		if (resolved.isEmpty()) {
@@ -438,19 +523,23 @@ public class TypeConstraintSet implements UnifiableType {
 		return resolvedTo;
 	}
 
-	private Type resolvePolyArg(Type ty) {
+	private Type resolvePolyArg(HashSet<UnifiableType> workingOn, Type ty) {
+		workingOn.add(this);
 		if (ty instanceof UnifiableType) {
-			return ((UnifiableType)ty).resolvedTo();
+			return ((TypeConstraintSet)ty).resolvingTo(workingOn);
 		} else if (ty instanceof PolyInstance) {
-			return resolvePolyArgs((PolyInstance)ty);
+			return resolvePolyArgs(workingOn, (PolyInstance)ty);
 		} else
 			return ty;
 	}
 
-	private Type resolvePolyArgs(PolyInstance pi) {
+	private Type resolvePolyArgs(HashSet<UnifiableType> workingOn, PolyInstance pi) {
 		List<Type> rps = new ArrayList<Type>();
-		for (Type t : pi.getPolys())
-			rps.add(resolvePolyArg(t));
+		for (Type t : pi.getPolys()) {
+			Type curr = resolvePolyArg(workingOn, t);
+			if (curr != null)
+				rps.add(curr);
+		}
 		return new PolyInstance(pi.location(), pi.struct(), rps);
 	}
 
@@ -644,7 +733,7 @@ public class TypeConstraintSet implements UnifiableType {
 
 	private void showCtors(StringBuilder ret, Map<NamedType, StructTypeConstraints> ct) {
 		for (Entry<NamedType, StructTypeConstraints> e : ct.entrySet()) {
-			ret.append(" ");
+			ret.append(" $");
 			showType(ret, e.getKey());
 		}
 	}

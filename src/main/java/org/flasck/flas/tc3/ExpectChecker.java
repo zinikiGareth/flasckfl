@@ -110,7 +110,7 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 			}
 		}
 		
-		state.resolveAll(errors, true);
+//		state.resolveAll(errors, true);
 		state.bindIntroducedVarTypes(errors);
 //		if (results.size() != 2)
 //			throw new NotImplementedException();

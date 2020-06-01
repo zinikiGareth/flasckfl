@@ -137,9 +137,9 @@ public class TCStateTests {
 	public void twoApplysCanConsolidateTrueAndFalseToBool() {
 		UnifiableType apply = (UnifiableType) state.consolidate(pos, Arrays.asList(new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.falseT)), new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.trueT)))).type;
 		assertThat(apply, (Matcher)Matchers.any(UnifiableType.class));
-		state.resolveAll(errors, false);
-		state.enhanceAllMutualUTs();
-		state.resolveAll(errors, true);
+//		state.resolveAll(errors, false);
+//		state.enhanceAllMutualUTs();
+//		state.resolveAll(errors, true);
 		assertThat(apply.resolve(errors), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.bool)));
 	}
 
@@ -185,9 +185,9 @@ public class TCStateTests {
 		tcs1.isReturned(pos);
 		tcs2.isUsed(pos);
 		UnifiableType ct = (UnifiableType) state.consolidate(pos, Arrays.asList(new PosType(pos, tcs1), new PosType(pos, tcs2))).type;
-		state.resolveAll(errors, false);
-		state.enhanceAllMutualUTs();
-		state.resolveAll(errors, true);
+//		state.resolveAll(errors, false);
+//		state.enhanceAllMutualUTs();
+//		state.resolveAll(errors, true);
 		assertThat(ct.resolvedTo(), (Matcher)PolyTypeMatcher.called("A"));
 	}
 }

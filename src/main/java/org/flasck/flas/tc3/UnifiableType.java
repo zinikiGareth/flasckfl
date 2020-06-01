@@ -1,5 +1,6 @@
 package org.flasck.flas.tc3;
 
+import java.util.HashSet;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -79,4 +80,10 @@ public interface UnifiableType extends Type {
 	UnifiableType redirectedTo();
 
 	void acquire(UnifiableType ut);
+
+	// expand all unions into their component parts for more easy merging and (later) unification
+	void expandUnions();
+
+	// look at all polymorphic types and consolidate their arguments
+	void mergePolyVars();
 }

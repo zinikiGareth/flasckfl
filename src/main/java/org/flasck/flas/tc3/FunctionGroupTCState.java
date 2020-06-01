@@ -130,10 +130,16 @@ public class FunctionGroupTCState implements CurrentTCState {
 		}
 		this.debugInfo("initial");
 
+		expandUnions();
+		this.debugInfo("expanded");
+
+		mergePolyVars();
+		this.debugInfo("merged");
+
 		acquireEquivalent();
 		this.debugInfo("acquired");
+		
 		DirectedAcyclicGraph<UnifiableType> dag = collate(errors);
-//		enhanceAllMutualUTs();
 		logger.debug("UT DAG:\n" + dag.toString());
 		List<UnifiableType> roots = dag.roots();
 		Collections.sort(roots, new Comparator<UnifiableType>() {
@@ -166,10 +172,24 @@ public class FunctionGroupTCState implements CurrentTCState {
 		this.bindVarPatternTypes(errors);
 	}
 
+	private void expandUnions() {
+		for (UnifiableType ut : allUTs) {
+			ut.expandUnions();
+		}
+	}
+
+	private void mergePolyVars() {
+		for (int i=0;i<allUTs.size();i++) {
+			UnifiableType ut = allUTs.get(i);
+			ut.mergePolyVars();
+		}
+	}
+
 	private void acquireEquivalent() {
 		List<UnifiableType> considered = new ArrayList<>();
 		for (int i=0;i<allUTs.size();i++) {
 			UnifiableType ut = allUTs.get(i);
+			System.out.println("considering " + ut);
 			ut.acquireOthers(considered);
 			considered.add(ut);
 		}
@@ -232,18 +252,6 @@ public class FunctionGroupTCState implements CurrentTCState {
 				logger.debug("resolved to " + ((TypeConstraintSet) ut).debugInfo());
 			}
 			if (list.size() == allUTs.size())
-				return;
-		}
-	}
-
-	@Override
-	public void enhanceAllMutualUTs() {
-		while (true) {
-			boolean again = false;
-			for (UnifiableType ut : allUTs) {
-				again |= ut.enhance();
-			}
-			if (!again)
 				return;
 		}
 	}

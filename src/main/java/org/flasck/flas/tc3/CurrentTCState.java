@@ -15,10 +15,10 @@ public interface CurrentTCState extends Consolidator {
 	UnifiableType hasVar(String var);
 	PolyType nextPoly(InputPosition pos);
 	void bindVarToUT(String name, UnifiableType ty);
+	@Deprecated
 	void resolveAll(ErrorReporter errors, boolean hard);
 	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
 	void bindVarPatternTypes(ErrorReporter errors);
-	void enhanceAllMutualUTs();
 	void debugInfo(String when);
 	boolean hasGroup();
 	void bindIntroducedVarTypes(ErrorReporter errors);
