@@ -89,8 +89,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	@Override
 	public void bindIntroducedVarTypes(ErrorReporter errors) {
 		for (Entry<IntroduceVar, UnifiableType> e : introductions.entrySet()) {
-			UnifiableType ut = e.getValue();
-			e.getKey().bindType(ut.resolvedTo());
+			e.getKey().bindType(e.getValue());
 		}
 	}
 	

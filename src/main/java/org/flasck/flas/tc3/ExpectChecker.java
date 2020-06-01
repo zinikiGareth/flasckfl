@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -110,28 +111,8 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 			}
 		}
 		
-//		state.resolveAll(errors, true);
+		state.groupDone(errors, new HashMap<>());
 		state.bindIntroducedVarTypes(errors);
-//		if (results.size() != 2)
-//			throw new NotImplementedException();
-//		Type value = results.get(0);
-//		Type expr = results.get(1);
-//		if (value instanceof ErrorType || expr instanceof ErrorType) {// there were errors in the expressions, so don't cascade things
-//			sv.result(null);
-//			return;
-//		}
-//		if (value == expr)
-//			; // fine
-//		else if (expr instanceof UnifiableType)
-//			((UnifiableType)expr).incorporatedBy(a.expr.location(), value);
-//		else if (expr.incorporates(a.value.location(), value))
-//			; // fine
-//		else if (value == LoadBuiltins.error)
-//			; // errors are always possible
-//		else {
-//			errors.message(a.value.location(), "value is of type " + value.signature() + " that cannot be the result of an expression of type " + expr.signature());
-//		}
-		// TODO: we probably need to try and resolve any UTs if there weren't errors
 		sv.result(null);
 	}
 }

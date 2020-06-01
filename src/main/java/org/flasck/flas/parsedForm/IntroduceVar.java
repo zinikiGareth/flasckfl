@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parser.ut.IntroduceNamer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
+import org.flasck.flas.tc3.UnifiableType;
 
 public class IntroduceVar implements Expr, RepositoryEntry {
 	public static Comparator<IntroduceVar> comparator = new Comparator<>() {
@@ -39,6 +40,8 @@ public class IntroduceVar implements Expr, RepositoryEntry {
 	}
 	
 	public Type introducedAs() {
+		if (introducedAs instanceof UnifiableType)
+			return ((UnifiableType)introducedAs).resolvedTo();
 		return introducedAs;
 	}
 
