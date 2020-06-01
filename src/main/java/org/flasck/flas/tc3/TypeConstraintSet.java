@@ -597,18 +597,58 @@ public class TypeConstraintSet implements UnifiableType {
 	public String debugInfo() {
 		StringBuilder ret = new StringBuilder();
 		ret.append(asTCS());
-		ret.append(" => ");
+		ret.append(" =>");
 		if (this.resolvedTo != null) {
+			ret.append(" ");
 			ret.append("{");
 			ret.append(resolvedTo);
 			ret.append("}");
 		}
-		ret.append(types);
-		ret.append(" // ");
-		ret.append(comments);
+		if (!tys.isEmpty()) {
+			showTys(ret, tys);
+		} else {
+			showTys(ret, types);
+			showTys(ret, incorporatedBys);
+			showCtors(ret, ctors);
+		}
+			
+//		ret.append(types);
+//		ret.append(" // ");
+//		ret.append(comments);
 		return ret.toString();
 	}
 	
+	private void showTys(StringBuilder ret, Set<PosType> pts) {
+		for (PosType pt : pts) {
+			ret.append(" ");
+			showType(ret, pt.type);
+		}
+	}
+
+	private void showType(StringBuilder ret, Type t) {
+		if (t instanceof UnifiableType) {
+			ret.append(((UnifiableType)t).id());
+		} else if (t instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) t;
+			ret.append(pi.struct().signature());
+			String sep = "[";
+			for (Type i : pi.getPolys()) {
+				ret.append(sep);
+				showType(ret, i);
+				sep = ",";
+			}
+			ret.append("]");
+		} else
+			ret.append(t.signature());
+	}
+
+	private void showCtors(StringBuilder ret, Map<NamedType, StructTypeConstraints> ct) {
+		for (Entry<NamedType, StructTypeConstraints> e : ct.entrySet()) {
+			ret.append(" ");
+			showType(ret, e.getKey());
+		}
+	}
+
 	@Override
 	public String toString() {
 		if (resolvedTo != null)
