@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -343,13 +344,13 @@ public class FunctionGroupTCState implements CurrentTCState {
 		// If they appear to be all the same, no probs; if any of them is error, return that
 		pos = ret.pos;
 		boolean allMatch = true;
-		Set<UnifiableType> uts = new HashSet<>();
+		Set<PosType> uts = new TreeSet<>(TypeConstraintSet.posNameComparator);
 		Set<Type> others = new HashSet<>();
 		for (PosType t : types) {
 			if (t.type instanceof ErrorType)
 				return t;
 			if (t.type instanceof UnifiableType) {
-				uts.add(((UnifiableType) t.type).redirectedTo());
+				uts.add(new PosType(t.pos, ((UnifiableType) t.type).redirectedTo()));
 			} else {
 				if (t.pos != null)
 					pos = t.pos;
@@ -362,10 +363,11 @@ public class FunctionGroupTCState implements CurrentTCState {
 		if (allMatch)
 			return ret;
 		else if (others.isEmpty() && uts.size() == 1)
-			return new PosType(pos, uts.iterator().next());
+			return uts.iterator().next();
 
 		// OK, let the first UT acquire the others
-		UnifiableType ut = uts.iterator().next();
+		UnifiableType ut = (UnifiableType) uts.iterator().next().type;
+		logger.debug("allowing " + ut.id() + " to collapse " + types);
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);

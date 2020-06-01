@@ -107,7 +107,7 @@ public class TypeConstraintSet implements UnifiableType {
 			return o1.signature().compareTo(o2.signature());
 		}
 	};
-	private Comparator<? super PosType> posNameComparator = new Comparator<PosType>() {
+	final static Comparator<? super PosType> posNameComparator = new Comparator<PosType>() {
 
 		@Override
 		public int compare(PosType o1, PosType o2) {
@@ -435,7 +435,7 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		} else if (!applications.isEmpty()) {
 			List<Set<PosType>> args = new ArrayList<>();
-			List<PosType> ret = new ArrayList<>();
+			Set<PosType> ret = new TreeSet<>(posNameComparator);
 			for (UnifiableApplication x : applications) {
 				// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
 				// and while it could possibly recurse, I don't think that can then refer back to us
