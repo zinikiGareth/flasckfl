@@ -3,19 +3,20 @@ package test.tc3;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.CurrentTCState;
+import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.StructTypeConstraints;
-import org.flasck.flas.tc3.Type;
-import org.flasck.flas.tc3.TypeConstraintSet;
 import org.flasck.flas.tc3.UnifiableType;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -28,98 +29,77 @@ import flas.matchers.PolyInstanceMatcher;
 public class ConstraintUnification {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
-	private CurrentTCState state = context.mock(CurrentTCState.class);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
+	private CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
 	private final FunctionName fn = FunctionName.function(pos, null, "foo");
 
 	@Test
 	public void ifWeDontDoAnythingWeEndUpWithAny() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		assertEquals(LoadBuiltins.any, ut.resolve(errors));
 	}
 
 	@Test
 	public void oneIncoporatedByConstraintCreatesAnIdentity() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.incorporatedBy(pos, LoadBuiltins.number);
-		Type ty = ut.resolve(errors);
-		assertEquals(LoadBuiltins.number, ty);
+		state.groupDone(errors, new HashMap<>());
+		assertEquals(LoadBuiltins.number, ut.resolvedTo());
 	}
 	
 	@Test
 	public void ifYouAskSomethingToBeANilItWillBe() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeStruct(pos, null, LoadBuiltins.nil);
-		Type ty = ut.resolve(errors);
-		assertEquals(LoadBuiltins.nil, ty);
+		state.groupDone(errors, new HashMap<>());
+		assertEquals(LoadBuiltins.nil, ut.resolvedTo());
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsAndDontConstrainItYouGetAnyAsThePoly() {
-		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "foo Cons[A]"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "foo Cons[A]")));
-		}});
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeStruct(pos, fn, LoadBuiltins.cons);
+		state.groupDone(errors, new HashMap<>());
 		assertThat(ut.resolve(errors), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadNotConstrainedYouStillGetAny() {
-		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "foo Cons[A]"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "foo Cons[A]")));
-		}});
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
-		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "foo Cons.head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "foo Cons.head")));
-			oneOf(state).nextPoly(pos); will(returnValue(pt));
-		}});
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
-		assertThat(ut.resolve(errors), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(pt)));
+		state.groupDone(errors, new HashMap<>());
+		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(pt)));
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouAskSomethingToBeAConsWithHeadSpecifiedThatsTheType() {
-		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "foo Cons[A]"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "foo Cons[A]")));
-		}});
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
-		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "foo Cons.head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "foo Cons.head")));
-		}});
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.canBeStruct(pos, null, LoadBuiltins.falseT);
+		state.groupDone(errors, new HashMap<>());
 		assertThat(ut.resolve(errors), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.falseT)));
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void ifYouReturnAVarThenYouGetAFreshPolyVar() {
-		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "foo Cons[A]"); will(returnValue(new TypeConstraintSet(repository, state, pos, "A", "foo Cons[A]")));
-		}});
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
-		context.checking(new Expectations() {{
-			oneOf(state).createUT(pos, "foo Cons.head"); will(returnValue(new TypeConstraintSet(repository, state, pos, "fld", "foo Cons.head")));
-		}});
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.isReturned(pos);
 
-		PolyType polyA = new PolyType(pos, new SolidName(null, "A"));
-		context.checking(new Expectations() {{
-			oneOf(state).nextPoly(pos); will(returnValue(polyA));
-		}});
+		state.groupDone(errors, new HashMap<>());
 		
-		assertThat(f.resolve(errors), Matchers.is(polyA));
-		assertThat(ut.resolve(errors), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(polyA)));
+		PolyType polyA = new PolyType(pos, new SolidName(null, "A"));
+		assertThat(f.resolvedTo(), Matchers.is(polyA));
+		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(polyA)));
 	}
 
 	// TODO: head as a var leads to Cons[A] unless the var is completely unused
@@ -130,31 +110,31 @@ public class ConstraintUnification {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void trueAndFalseUnifyToBoolean() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeStruct(pos, null, LoadBuiltins.trueT);
 		ut.canBeStruct(pos, null, LoadBuiltins.falseT);
 		context.checking(new Expectations() {{
 			oneOf(repository).findUnionWith((Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
 		}});
-		Type ty = ut.resolve(errors);
-		assertEquals(LoadBuiltins.bool, ty);
+		state.groupDone(errors, new HashMap<>());
+		assertEquals(LoadBuiltins.bool, ut.resolvedTo());
 	}
 	
 	@Test
 	public void aSingleArgConstraintJustGivesYouThatType() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeType(pos, LoadBuiltins.string);
-		Type ty = ut.resolve(errors);
-		assertEquals(LoadBuiltins.string, ty);
+		state.groupDone(errors, new HashMap<>());
+		assertEquals(LoadBuiltins.string, ut.resolvedTo());
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aSingleArgTypeConstraintWithAPolymorphicCtorGivesYouAnys() {
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeType(pos, LoadBuiltins.cons);
-		Type ty = ut.resolve(errors);
-		assertThat(ty, PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
+		state.groupDone(errors, new HashMap<>());
+		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
 }
 

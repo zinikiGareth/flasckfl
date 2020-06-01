@@ -27,9 +27,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
+import test.parsing.LocalErrorTracker;
+
 public class TypeCheckerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -60,7 +63,7 @@ public class TypeCheckerTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(TypeChecker.class)));
 		}});
-		TypeChecker tc = new TypeChecker(errors, repository, sv);
+		TypeChecker tc = new TypeChecker(tracker, repository, sv);
 		ObjectDefn od = new ObjectDefn(pos, pos, new SolidName(pkg, "Obj"), false, new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(ObjectDefnChecker.class)));
@@ -74,7 +77,7 @@ public class TypeCheckerTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(TypeChecker.class)));
 		}});
-		TypeChecker tc = new TypeChecker(errors, repository, sv);
+		TypeChecker tc = new TypeChecker(tracker, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(GroupChecker.class))); will(gc);
 		}});

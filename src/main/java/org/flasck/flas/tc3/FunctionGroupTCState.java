@@ -23,11 +23,13 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.impl.StaticLoggerBinder;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.NodeWalker;
+import org.zinutils.streamedlogger.api.Level;
 
 public class FunctionGroupTCState implements CurrentTCState {
 	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
@@ -117,7 +119,6 @@ public class FunctionGroupTCState implements CurrentTCState {
 	@Override
 	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes) {
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
-
 		TypeChecker.logger.debug("starting to check group: " + memberTypes.keySet());
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
 			logger.debug(e.getKey() + " :: " + e.getValue().type);
@@ -142,23 +143,24 @@ public class FunctionGroupTCState implements CurrentTCState {
 		DirectedAcyclicGraph<UnifiableType> dag = collate(errors);
 		logger.debug("UT DAG:\n" + dag.toString());
 		List<UnifiableType> roots = dag.roots();
-		Collections.sort(roots, new Comparator<UnifiableType>() {
+		Comparator<UnifiableType> order = new Comparator<UnifiableType>() {
 			@Override
 			public int compare(UnifiableType o1, UnifiableType o2) {
 				return o1.id().compareTo(o2.id());
 			}
-		});
+		};
+		Collections.sort(roots, order);
 		logger.debug("ROOTS: " + dag.roots());
 		
 		for (UnifiableType r : roots) {
-			dag.postOrderFrom(new NodeWalker<UnifiableType>() {
+			dag.postOrderFromWithOrder(new NodeWalker<UnifiableType>() {
 				@Override
 				public void present(Node<UnifiableType> node) {
 					if (node.getEntry().isRedirected())
 						return;
 					node.getEntry().resolve(errors);
 				}
-			}, r);
+			}, r, order);
 		}
 		
 		// Then we can bind the types

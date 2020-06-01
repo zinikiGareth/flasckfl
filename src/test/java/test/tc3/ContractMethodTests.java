@@ -16,6 +16,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.SendMessage;
@@ -30,6 +31,7 @@ import org.flasck.flas.tc3.EnsureListMessage;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
+import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.PosType;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -53,19 +55,15 @@ public class ContractMethodTests {
 	private final ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, new CSName(new CardName(pkg, "CardName"), "S0"), cm.name.name), args, null, null);
 	private final StackVisitor sv = new StackVisitor();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
-	private final CurrentTCState state = context.mock(CurrentTCState.class);
+	private RepositoryReader repository = context.mock(RepositoryReader.class);
+	private CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 	private final StringLiteral str = new StringLiteral(pos, "yoyo");
 	private final RAV r = context.mock(RAV.class);
-	private RepositoryReader repository = context.mock(RepositoryReader.class);
 
 	@Before
 	public void init() {
 		meth.bindFromContract(cm);
 		sv.push(r);
-		context.checking(new Expectations() {{
-			allowing(state).resolveAll(errors, true);
-			allowing(state).hasGroup(); will(returnValue(false));
-		}});
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -86,7 +84,6 @@ public class ContractMethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
 			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), (Matcher)Matchers.any(EnsureListMessage.class)))));
 		}});
 		sv.leaveObjectMethod(meth);
@@ -109,7 +106,6 @@ public class ContractMethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
 			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), (Matcher)Matchers.any(EnsureListMessage.class)))));
 		}});
 		sv.leaveObjectMethod(meth);
@@ -127,7 +123,6 @@ public class ContractMethodTests {
 		meth.sendMessage(msg);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "cannot bind str to Number when the contract specifies String");
-			oneOf(state).consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.debug))); will(returnValue(new PosType(pos, LoadBuiltins.debug)));
 			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type((Matcher)Matchers.any(ErrorType.class), (Matcher)Matchers.any(EnsureListMessage.class)))));
 		}});
 		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());

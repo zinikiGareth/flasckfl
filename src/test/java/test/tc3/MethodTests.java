@@ -75,7 +75,6 @@ public class MethodTests {
 	public void init() {
 		sv.push(r);
 		context.checking(new Expectations() {{
-			allowing(state).resolveAll(errors, true);
 			allowing(state).hasGroup(); will(returnValue(false));
 		}});
 	}
@@ -325,7 +324,7 @@ public class MethodTests {
 	public void sendMessageIsFine() {
 		new MessageChecker(errors, repository, state, sv, meth);
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.send))));
+			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.send))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.send));
 		sv.leaveMessage(null);
@@ -335,7 +334,7 @@ public class MethodTests {
 	public void debugMessageIsFine() {
 		new MessageChecker(errors, repository, state, sv, meth);
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.debug))));
+			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.debug))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
@@ -345,7 +344,7 @@ public class MethodTests {
 	public void unionMessageIsFine() {
 		new MessageChecker(errors, repository, state, sv, meth);
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.message))));
+			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.message))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.message));
 		sv.leaveMessage(null);
@@ -355,7 +354,7 @@ public class MethodTests {
 	public void anEmptyListIsFine() {
 		new MessageChecker(errors, repository, state, sv, meth);
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(LoadBuiltins.nil))));
+			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.nil))));
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.nil));
 		sv.leaveMessage(null);
@@ -366,7 +365,7 @@ public class MethodTests {
 		new MessageChecker(errors, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.debug));
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
+			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
 		}});
 		sv.result(new ExprResult(pos, pi));
 		sv.leaveMessage(null);
@@ -377,7 +376,7 @@ public class MethodTests {
 		new MessageChecker(errors, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.send));
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
+			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
 		}});
 		sv.result(new ExprResult(pos, pi));
 		sv.leaveMessage(null);
@@ -388,7 +387,7 @@ public class MethodTests {
 		new MessageChecker(errors, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(ExprResultMatcher.expr(Matchers.is(pi))));
+			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
 		}});
 		sv.result(new ExprResult(pos, pi));
 		sv.leaveMessage(null);

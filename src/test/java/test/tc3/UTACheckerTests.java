@@ -19,9 +19,12 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import test.parsing.LocalErrorTracker;
+
 public class UTACheckerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -31,7 +34,7 @@ public class UTACheckerTests {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(TypeChecker.class)));
 		}});
-		TypeChecker tc = new TypeChecker(errors, repository, sv);
+		TypeChecker tc = new TypeChecker(tracker, repository, sv);
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(UTAChecker.class)));
 		}});

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -46,6 +48,7 @@ import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
+import org.flasck.flas.tc3.FunctionGroupTCState;
 import org.flasck.flas.tc3.GroupChecker;
 import org.flasck.flas.tc3.MemberExpressionChecker;
 import org.flasck.flas.tc3.PosType;
@@ -60,15 +63,19 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.impl.StaticLoggerBinder;
+import org.zinutils.streamedlogger.api.Level;
 import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;
+import test.parsing.LocalErrorTracker;
 
 public class StackVisitation {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
 	private ErrorReporter errors = context.mock(ErrorReporter.class);
+	private LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private CurrentTCState state = context.mock(CurrentTCState.class);
@@ -78,8 +85,15 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			allowing(state).debugInfo(with(any(String.class)));
 		}});
+		before1();
 	}
 	
+	@Before
+	public void before1() {
+		StaticLoggerBinder.setLevel("TCUnification", Level.DEBUG);
+		StaticLoggerBinder.setLevel("TestRunner", Level.DEBUG);
+	}
+
 	@Test
 	public void whenWeVisitAFunctionWePushAFunctionChecker() {
 		FunctionName name = FunctionName.function(pos, null, "f");
@@ -103,7 +117,7 @@ public class StackVisitation {
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 			oneOf(nv).push(with(any(SingleFunctionChecker.class)));
 		}});
-		TypeChecker gc = new TypeChecker(errors, repository, nv);
+		TypeChecker gc = new TypeChecker(tracker, repository, nv);
 		gc.visitObjectMethod(meth);
 	}
 
@@ -186,8 +200,9 @@ public class StackVisitation {
 			oneOf(nv).push(with(any(TypeChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 			oneOf(nv).push(with(any(SingleFunctionChecker.class))); will(captureSFC);
+			allowing(ty).signature(); will(returnValue("ty"));
 		}});
-		TypeChecker gc = new TypeChecker(errors, repository, nv);
+		TypeChecker gc = new TypeChecker(tracker, repository, nv);
 		gc.visitObjectMethod(meth);
 		context.assertIsSatisfied();
 		context.checking(new Expectations() {{
@@ -274,14 +289,14 @@ public class StackVisitation {
 
 	@Test
 	public void applyExpressionWithPolyApplyInstantiatesFreshUTs() {
+		state = new FunctionGroupTCState(repository, new DependencyGroup());
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
 		Type fnt = new Apply(pt, pt);
 		Type nbr = LoadBuiltins.number;
-		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "ut_A", "unknown");
+		CaptureAction ut = new CaptureAction(null);
 		context.checking(new Expectations() {{
-			oneOf(state).createUT(null, "instantiating null.A"); will(returnValue(ut));
-			oneOf(nv).result(ut);
+			oneOf(nv).result(with(any(UnifiableType.class))); will(ut);
 		}});
 		UnresolvedVar f = new UnresolvedVar(pos, "f"); // A->A
 		FunctionDefinition fn = new FunctionDefinition(FunctionName.function(pos, null, "f"), 2, null);
@@ -292,7 +307,8 @@ public class StackVisitation {
 		aec.result(new ExprResult(pos, fnt));
 		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
-		assertEquals(LoadBuiltins.number, ut.resolve(errors));
+		state.groupDone(errors, new HashMap<>());
+		assertEquals(LoadBuiltins.number, ((UnifiableType) ut.get(0)).resolvedTo());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -438,6 +454,7 @@ public class StackVisitation {
 		UnifiableType result = context.mock(UnifiableType.class, "result");
 		context.checking(new Expectations() {{
 			allowing(utV).signature(); will(returnValue("utv"));
+			allowing(utV).id(); will(returnValue("utv"));
 			oneOf(state).createUT(with(pos), with(any(String.class))); will(returnValue(result));
 			oneOf(utV).isUsed(pos);
 			oneOf(nv).result(with(any(UnifiableType.class)));

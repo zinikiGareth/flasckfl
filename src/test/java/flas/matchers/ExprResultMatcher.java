@@ -1,5 +1,6 @@
 package flas.matchers;
 
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.Type;
 import org.hamcrest.Description;
@@ -29,6 +30,10 @@ public class ExprResultMatcher extends TypeSafeMatcher<ExprResult> {
 
 	public static ExprResultMatcher expr(Matcher<Type> ty) {
 		return new ExprResultMatcher(ty);
+	}
+
+	public static ExprResultMatcher elm(Matcher<Type> ty) {
+		return new ExprResultMatcher(new ElmMatcher(ty));
 	}
 
 }
