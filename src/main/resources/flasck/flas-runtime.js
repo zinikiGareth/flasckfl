@@ -1003,6 +1003,19 @@ FLBuiltin.concat = function(_cxt, a, b) {
 
 FLBuiltin.concat.nfargs = function() { return 2; }
 
+FLBuiltin.concatLists = function(_cxt, list) {
+	list = _cxt.spine(list);
+	var ret = [];
+	for (var i=0;i<list.length;i++) {
+		var li = _cxt.spine(list[i]);
+		for (var j=0;j<li.length;j++) {
+			ret.push(li[j]);
+		}
+	}
+	return ret;
+}
+FLBuiltin.concatLists.nfargs = function() { return 1; }
+
 FLBuiltin.concatMany = function(_cxt, ...rest) {
 	var ret = "";
 	for (var i=0;i<rest.length;i++) {

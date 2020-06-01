@@ -1,8 +1,16 @@
 JVM PASS a very simple hof
-JVM PASS merge Nil
-JVM PASS merge First
-JVM PASS merge Second
+JVM PASS cross1 Nil
+JVM PASS cross1 First
+JVM PASS cross1 Second
+JVM PASS cross Nil
+JVM PASS cross Singleton
+JVM PASS cross One
+JVM PASS cross Two
 JS PASS a very simple hof
-JS PASS merge Nil
-JS PASS merge First
-JS PASS merge Second
+JS PASS cross1 Nil
+JS PASS cross1 First
+JS PASS cross1 Second
+JS PASS cross Nil
+JS PASS cross Singleton
+JS PASS cross One
+JS PASS cross Two

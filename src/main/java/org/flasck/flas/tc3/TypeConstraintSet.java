@@ -107,6 +107,17 @@ public class TypeConstraintSet implements UnifiableType {
 			return o1.signature().compareTo(o2.signature());
 		}
 	};
+	private Comparator<? super PosType> posNameComparator = new Comparator<PosType>() {
+
+		@Override
+		public int compare(PosType o1, PosType o2) {
+			int cp = o1.pos.compareTo(o2.pos);
+			if (cp != 0)
+				return cp;
+			
+			return o1.type.toString().compareTo(o2.type.toString());
+		}
+	};
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
 		repository = r;
@@ -423,7 +434,7 @@ public class TypeConstraintSet implements UnifiableType {
 				}
 			}
 		} else if (!applications.isEmpty()) {
-			List<List<PosType>> args = new ArrayList<>();
+			List<Set<PosType>> args = new ArrayList<>();
 			List<PosType> ret = new ArrayList<>();
 			for (UnifiableApplication x : applications) {
 				// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
@@ -434,13 +445,13 @@ public class TypeConstraintSet implements UnifiableType {
 				int k = 0;
 				for (Type t : x.args) {
 					if (args.size() == k)
-						args.add(new ArrayList<PosType>());
+						args.add(new TreeSet<PosType>(posNameComparator));
 					args.get(k++).add(new PosType(x.pos, t));
 				}
 				ret.add(new PosType(x.pos, x.ret));
 			}
 			List<Type> cargs = new ArrayList<>();
-			for (List<PosType> a : args) {
+			for (Set<PosType> a : args) {
 				Type ct = state.collapse(pos, a).type;
 				if (ct instanceof UnifiableType) {
 					UnifiableType ut = ((UnifiableType) ct).redirectedTo();

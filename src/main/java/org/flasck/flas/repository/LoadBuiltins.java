@@ -123,6 +123,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null);
 	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null);
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null);
+	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, null, "concatLists"), 1, null);
 	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null);
 	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null);
 
@@ -208,6 +209,7 @@ public class LoadBuiltins {
 		append.bindType(new Apply(list, polyA, list));
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
+		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(polyA)))), new PolyInstance(pos, list, Arrays.asList(polyA))));
 		makeTuple.bindType(tuple);
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
 		
@@ -227,6 +229,7 @@ public class LoadBuiltins {
 		allFunctions.add(append);
 		allFunctions.add(strlen);
 		allFunctions.add(concat);
+		allFunctions.add(concatLists);
 		allFunctions.add(handleSend);
 	}
 	
@@ -269,6 +272,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, append);
 		repository.functionDefn(errors, strlen);
 		repository.functionDefn(errors, concat);
+		repository.functionDefn(errors, concatLists);
 		repository.functionDefn(errors, makeTuple);
 		repository.functionDefn(errors, handleSend);
 

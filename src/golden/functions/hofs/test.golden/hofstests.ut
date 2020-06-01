@@ -2,16 +2,16 @@
 		assert (doit k)
 			0
 
-	test merge Nil
-		assert (merge [] "A")
+	test cross1 Nil
+		assert (cross1 [] "A")
 			[["A"]]
 	
-	test merge First
-		assert (merge [["A"], ["B"]] "Q")
+	test cross1 First
+		assert (cross1 [["A"], ["B"]] "Q")
 			[["Q", "A"],["Q", "B"]]
 
-	test merge Second
-		assert (merge [["Q","A"],["Q","B"]] "R")
+	test cross1 Second
+		assert (cross1 [["Q","A"],["Q","B"]] "R")
 			[["R", "Q", "A"],["R", "Q", "B"]]
 			
 	test cross Nil

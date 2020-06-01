@@ -1,8 +1,8 @@
 	cross Nil = Nil
 	cross [h] = map sing h
-	cross (Cons { head: h, tail: t }) = map (merge (cross t)) h
+	cross (Cons { head: h, tail: t }) = concatLists (map (cross1 (cross t)) h)
 	
 	sing e = Cons e Nil
 	
-	merge [] a = [[a]]
-	merge (Cons[List[A]] l) s = map (Cons s) l
+	cross1 [] a = [[a]]
+	cross1 (Cons[List[A]] l) s = map (Cons s) l

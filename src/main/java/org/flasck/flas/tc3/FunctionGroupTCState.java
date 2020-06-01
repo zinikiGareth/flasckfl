@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -198,8 +199,10 @@ public class FunctionGroupTCState implements CurrentTCState {
 		DirectedAcyclicGraph<UnifiableType> ret = new DirectedAcyclicGraph<>();
 		for (int i=0;i<allUTs.size();i++) {
 			UnifiableType ut = allUTs.get(i);
-			if (ut.isRedirected())
+			if (ut.isRedirected()) {
+				logger.debug("not collecting info on " + ut.id() + " because redirected to " + ut.redirectedTo());
 				continue;
+			}
 			ret.ensure(ut);
 			ut.collectInfo(errors, ret);
 		}
@@ -328,16 +331,16 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 	
 	@Override
-	public PosType collapse(InputPosition pos, List<PosType> types) {
+	public PosType collapse(InputPosition pos, Collection<PosType> types) {
 		if (types.isEmpty())
 			throw new NotImplementedException("Cannot handle consolidating no types");
 		
+		PosType ret = types.iterator().next();
 		// If there's just 1, that's easy
 		if (types.size() == 1)
-			return types.get(0);
+			return ret;
 		
 		// If they appear to be all the same, no probs; if any of them is error, return that
-		PosType ret = types.get(0);
 		pos = ret.pos;
 		boolean allMatch = true;
 		Set<UnifiableType> uts = new HashSet<>();
