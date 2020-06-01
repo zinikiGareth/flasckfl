@@ -63,8 +63,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.impl.StaticLoggerBinder;
-import org.zinutils.streamedlogger.api.Level;
 import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;

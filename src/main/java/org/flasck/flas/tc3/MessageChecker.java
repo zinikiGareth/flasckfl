@@ -27,13 +27,11 @@ import org.zinutils.exceptions.NotImplementedException;
 public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final ErrorReporter errors;
-	private final CurrentTCState state;
 	private final ObjectActionHandler inMeth;
 	private ExprResult rhsType;
 
 	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, ObjectActionHandler inMeth) {
 		this.errors = errors;
-		this.state = state;
 		this.sv = sv;
 		this.inMeth = inMeth;
 		sv.push(this);

@@ -1,7 +1,6 @@
 package test.tc3;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -32,7 +31,6 @@ import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
 import org.flasck.flas.tc3.FunctionGroupTCState;
-import org.flasck.flas.tc3.PosType;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;

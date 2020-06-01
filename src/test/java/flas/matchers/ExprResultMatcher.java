@@ -1,6 +1,5 @@
 package flas.matchers;
 
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.Type;
 import org.hamcrest.Description;
