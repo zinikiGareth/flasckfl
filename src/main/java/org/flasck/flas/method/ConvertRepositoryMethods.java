@@ -50,12 +50,12 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitTemplateBindingOption(TemplateBindingOption option) {
-		new TemplateConvertor(errors, sv);
+		new AccessorConvertor(sv, errors, repository);
 	}
 
 	@Override
 	public void visitTemplateStyling(TemplateStylingOption option) {
-		new TemplateConvertor(errors, sv);
+		new AccessorConvertor(sv, errors, repository);
 	}
 
 	@Override

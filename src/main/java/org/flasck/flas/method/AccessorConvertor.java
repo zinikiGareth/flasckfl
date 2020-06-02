@@ -8,10 +8,11 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateNestedField;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -41,16 +42,27 @@ public class AccessorConvertor extends LeafAdapter {
 		sv.result(null);
 	}
 	
+
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
-		sv.result(null);
+//		sv.result(null);
 	}
 	
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
 		sv.result(null);
 	}
-	
+
+	@Override
+	public void leaveTemplateBindingOption(TemplateBindingOption option) {
+		sv.result(null);
+	}
+
+	@Override
+	public void leaveTemplateStyling(TemplateStylingOption option) {
+		sv.result(null);
+	}
+
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
 		UnresolvedVar meth = (UnresolvedVar) expr.fld;
@@ -83,7 +95,7 @@ public class AccessorConvertor extends LeafAdapter {
 			}
 		} else if (uv.defn() instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)uv.defn();
-			od = (ObjectDefn) tp.type();
+			od = (AccessorHolder) tp.type();
 		} else if (uv.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) uv.defn();
 			if (fn.argCount() != 0)

@@ -1,0 +1,5 @@
+	struct Top
+		String a <- 'hello'
+		String b <- 'world'
+		
+	double (Top x) = x.a ++ x.b

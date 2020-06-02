@@ -1336,7 +1336,7 @@ public class Traverser implements RepositoryVisitor {
 				visitConvertedExpr(expr);
 			}
 			else
-				throw new NotImplementedException("You need to convert this expression");
+				throw new NotImplementedException("You need to convert this expression: " + expr);
 		} else {
 			visitor.visitMemberExpr(expr);
 			visitExpr(expr.from, 0);
