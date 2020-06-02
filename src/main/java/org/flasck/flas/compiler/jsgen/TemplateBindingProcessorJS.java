@@ -116,7 +116,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 				} else if (currentTBO.assignsTo.type() == FieldType.CONTAINER) {
 					Map<StructDefn, Template> mapping = currentTBO.mapping();
 					if (mapping == null)
-						throw new NotImplementedException("No mapping");
+						throw new NotImplementedException("No mapping for " + currentTBO.assignsTo.text);
 					int ucidx = containerIdx.getAndIncrement();
 					JSMethodCreator uc = templateCreator.createMethod("_updateContainer" + ucidx, true);
 					uc.argument("_cxt");

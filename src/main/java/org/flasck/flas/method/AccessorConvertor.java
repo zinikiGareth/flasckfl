@@ -23,6 +23,8 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class AccessorConvertor extends LeafAdapter {
@@ -95,7 +97,10 @@ public class AccessorConvertor extends LeafAdapter {
 			}
 		} else if (uv.defn() instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)uv.defn();
-			od = (AccessorHolder) tp.type();
+			Type ty = tp.type();
+			if (ty instanceof PolyInstance)
+				ty = ((PolyInstance)ty).struct(); 
+			od = (AccessorHolder) ty;
 		} else if (uv.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) uv.defn();
 			if (fn.argCount() != 0)

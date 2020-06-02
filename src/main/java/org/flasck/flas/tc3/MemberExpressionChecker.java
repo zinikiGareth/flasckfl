@@ -1,6 +1,7 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -19,6 +20,8 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PolyHolder;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -30,6 +33,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -68,6 +72,12 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		if (!(expr.fld instanceof UnresolvedVar))
 			throw new NotImplementedException("Cannot handle " + expr.fld);
 		UnresolvedVar fld = (UnresolvedVar)expr.fld;
+		List<Type> polys = null;
+		if (ty instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) ty;
+			polys = pi.getPolys();
+			ty = pi.struct();
+		}
 		if (ty instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) ty;
 			ContractMethodDecl method = cd.getMethod(fld.var);
@@ -84,7 +94,10 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			if (sf == null) {
 				throw new NotImplementedException();
 			} else {
-				nv.result(sf.type.defn());
+				if (polys != null)
+					nv.result(processPolys(polys, sd, sf.type.defn()));
+				else
+					nv.result(sf.type.defn());
 			}
 		} else if (ty instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) ty;
@@ -127,6 +140,27 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			nv.result(new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
+	}
+
+	private Type processPolys(List<Type> polys, PolyHolder ph, Type found) {
+		if (found instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) found;
+			List<Type> mapped = new ArrayList<>();
+			for (Type pt : pi.getPolys()) {
+				mapped.add(processPolys(polys, (PolyHolder)pi.struct(), pt));
+			}
+			return new PolyInstance(pi.location(), pi.struct(), mapped);
+		} else if (found instanceof PolyType) {
+			Iterator<PolyType> ipt = ph.polys().iterator();
+			Iterator<Type> it = polys.iterator();
+			while (ipt.hasNext()) {
+				Type ret = it.next();
+				if (ipt.next() == found)
+					return ret;
+			}
+			throw new CantHappenException("the poly type was not in the list");
+		} else
+			return found;
 	}
 
 	private void handleStateHolderUDD(StateHolder ty, InputPosition loc, String var) {

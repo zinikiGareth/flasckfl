@@ -147,10 +147,14 @@ public class LoadBuiltins {
 		callMeTR.bind(callMeHandler);
 	
 		// add fields to structs
-		error.addField(new StructField(pos, error, false, stringTR, "message"));
-		cons.addField(new StructField(pos, cons, false, polyATR, "head"));
-		cons.addField(new StructField(pos, cons, false, listATR, "tail"));
-		debug.addField(new StructField(pos, debug, false, stringTR, "message"));
+		error.addField(new StructField(pos, error, true, stringTR, "message"));
+		StructField head = new StructField(pos, cons, true, polyATR, "head");
+		head.fullName(new VarName(pos, cons.name(), "head"));
+		cons.addField(head);
+		StructField tail = new StructField(pos, cons, true, listATR, "tail");
+		tail.fullName(new VarName(pos, cons.name(), "tail"));
+		cons.addField(tail);
+		debug.addField(new StructField(pos, debug, true, stringTR, "message"));
 		send.addField(new StructField(pos, send, false, contractTR, "sendto"));
 		send.addField(new StructField(pos, send, false, stringTR, "meth"));
 		send.addField(new StructField(pos, send, false, listAnyTR, "args"));

@@ -1,0 +1,5 @@
+	greet Nil = Nil
+	greet (Cons[String] hs) =
+	  Cons 
+	    ("hello " ++ hs.head)
+	    (greet hs.tail)
