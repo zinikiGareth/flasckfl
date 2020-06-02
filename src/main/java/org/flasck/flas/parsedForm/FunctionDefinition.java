@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.compiler.UnboundTypeException;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
@@ -106,9 +107,15 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	public void bindType(Type ty) {
 		this.type = ty;
 	}
+
+	public boolean hasType() {
+		return this.type != null;
+	}
 	
 	@Override
 	public Type type() {
+		if (type == null)
+			throw new UnboundTypeException(this);
 		return type;
 	}
 	

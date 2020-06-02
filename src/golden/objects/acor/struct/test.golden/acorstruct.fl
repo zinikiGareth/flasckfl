@@ -1,0 +1,18 @@
+	struct Args
+		String hello
+		Number world
+		
+	object HasAcor
+		state
+			Args contained <- Args "hello" 42
+			List[Args] many <- [ Args "hello" 42 ]
+		
+		ctor make
+		
+		acor msg = contained
+		acor top = hd many
+		
+	hd Nil = Error "no"
+	hd [a] = a
+	
+	getTop (HasAcor ha) = ha.top

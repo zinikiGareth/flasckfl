@@ -57,6 +57,7 @@ public class HIGenerator extends LeafAdapter {
 				card = gen.argument(cardType, "_card");
 			}
 			MethodDefiner ctor = gen.done();
+			ctor.lenientMode(JVMGenerator.leniency);
 			ctor.callSuper("void", J.OBJECT, "<init>").flush();
 			if (card != null) {
 				ctor.assign(ctor.getField("_card"), card.getVar()).flush();
@@ -69,6 +70,7 @@ public class HIGenerator extends LeafAdapter {
 			PendingVar pargs = gen.argument("[" + J.OBJECT, "args");
 			gen.returns(J.OBJECT);
 			MethodDefiner meth = gen.done();
+			meth.lenientMode(JVMGenerator.leniency);
 			Var ret = meth.avar(clzName, "ret");
 			IExpr newObj;
 			if (sh != null) {

@@ -820,4 +820,10 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 	public String toString() {
 		return "StackVisitor" + stack;
 	}
+
+	public void reduceTo(int cnt) {
+		while (stack.size() > cnt)
+			stack.remove(0);
+		setTop(stack.get(0));
+	}
 }

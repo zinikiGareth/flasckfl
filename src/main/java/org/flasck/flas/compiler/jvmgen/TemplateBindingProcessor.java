@@ -158,6 +158,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 						PendingVar e = gen.argument(J.OBJECT, "e");
 						gen.returns("void");
 						MethodDefiner uc = gen.done();
+						uc.lenientMode(JVMGenerator.leniency);
 						IExpr ret = null;
 						for (Entry<StructDefn, Template> m : mapping.entrySet()) {
 							IExpr curr = templateMember(uc, fcx.getVar(), rt.getVar(), parent.getVar(), currNode.getVar(), m.getValue(), e.getVar());

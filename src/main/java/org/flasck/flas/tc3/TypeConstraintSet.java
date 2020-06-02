@@ -364,13 +364,7 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 			if (t instanceof PolyInstance) {
 				PolyInstance pi = (PolyInstance) t;
-				for (Type pv : pi.getPolys()) {
-					if (pv instanceof UnifiableType) {
-						UnifiableType ut = ((UnifiableType) pv).redirectedTo();
-						dag.ensure(ut);
-						dag.ensureLink(this, ut);
-					}
-				}
+				linkToPVs(dag, pi);
 				tys.add(pt);	
 			} else if (t instanceof StructDefn && ((StructDefn)t).hasPolys()) {
 				StructDefn sd = (StructDefn) t;
@@ -397,6 +391,7 @@ public class TypeConstraintSet implements UnifiableType {
 		// This is too broad; but I think we are going to need to do something like this ultimately, so just suck it up ...
 		for (Entry<NamedType, StructTypeConstraints> e : ctors.entrySet()) {
 			NamedType ty = e.getKey();
+			logger.debug("  have ctor " + ty);
 			if (ty instanceof StructDefn && !((StructDefn)ty).hasPolys())
 				tys.add(new PosType(pos, ty));
 			else if (ty instanceof PolyInstance) {
@@ -408,8 +403,8 @@ public class TypeConstraintSet implements UnifiableType {
 					PolyType pt = sd.findPoly(f.type);
 					if (pt == null)
 						continue;
-					dag.ensure(stc.get(f));
-					dag.ensureLink(this, stc.get(f));
+					dag.ensure(stc.get(f).redirectedTo());
+					dag.ensureLink(this, stc.get(f).redirectedTo());
 					polyMap.put(pt, stc.get(f));
 				}
 				List<Type> polys = new ArrayList<>();
@@ -472,6 +467,18 @@ public class TypeConstraintSet implements UnifiableType {
 		for (UnifiableType pv : polyvars) {
 			dag.ensure(pv);
 			dag.ensureLink(this, pv);
+		}
+	}
+
+	private void linkToPVs(DirectedAcyclicGraph<UnifiableType> dag, PolyInstance pi) {
+		for (Type pv : pi.getPolys()) {
+			if (pv instanceof UnifiableType) {
+				UnifiableType ut = ((UnifiableType) pv).redirectedTo();
+				dag.ensure(ut);
+				dag.ensureLink(this, ut);
+			} else if (pv instanceof PolyInstance) {
+				linkToPVs(dag, (PolyInstance) pv);
+			}
 		}
 	}
 

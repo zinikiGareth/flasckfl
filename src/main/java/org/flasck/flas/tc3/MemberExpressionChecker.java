@@ -7,6 +7,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.compiler.DeferMeException;
+import org.flasck.flas.compiler.UnboundTypeException;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -88,7 +90,11 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			ObjectDefn od = (ObjectDefn) ty;
 			FieldAccessor fa = od.getAccessor(fld.var);
 			if (fa != null) {
-				nv.result(fa.type());
+				try {
+					nv.result(fa.type());
+				} catch (UnboundTypeException ute) {
+					throw new DeferMeException();
+				}
 				return;
 			}
 			ObjectCtor ctor = od.getConstructor(fld.var);

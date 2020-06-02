@@ -2,6 +2,7 @@ package org.flasck.flas.repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.compiler.DeferMeException;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
 import org.flasck.flas.hsi.HSIVisitor;
@@ -103,6 +105,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class Traverser implements RepositoryVisitor {
@@ -159,8 +162,25 @@ public class Traverser implements RepositoryVisitor {
 
 	public void doTraversal(Repository repository) {
 		if (functionOrder != null) {
-			for (FunctionGroup grp : functionOrder)
-				visitFunctionGroup(grp);
+			Iterator<FunctionGroup> todo = functionOrder.iterator();
+			int cnt = functionOrder.size();
+			while (todo.hasNext()) {
+				List<FunctionGroup> undone = new ArrayList<>();
+				while (todo.hasNext()) {
+					FunctionGroup grp = todo.next();
+					try {
+						visitFunctionGroup(grp);
+					} catch (DeferMeException ex) {
+						((StackVisitor)visitor).reduceTo(1);
+						System.out.println("deferring " + grp + " " + visitor);
+						undone.add(grp);
+					}
+				}
+				if (undone.size() == cnt)
+					throw new HaventConsideredThisException("There appears to be no order in which these functions can be processed: " + undone);
+				todo = undone.iterator();
+				cnt = undone.size();
+			}
 		}
 		Set<RepositoryEntry> entriesInSomeOrder = new TreeSet<RepositoryEntry>(RepositoryEntry.preferredOrder);
 		entriesInSomeOrder.addAll(repository.dict.values());

@@ -1,6 +1,5 @@
 package org.flasck.flas.tc3;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;

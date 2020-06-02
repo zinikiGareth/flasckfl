@@ -1,0 +1,10 @@
+	test acor works
+		data HasAcor ha <- HasAcor.make
+		assert (ha.msg)
+			Args "hello" 42
+			
+		assert (ha.top)
+			Args "hello" 42
+			
+		assert (getTop ha)
+			Args "hello" 42
