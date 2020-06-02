@@ -10,6 +10,11 @@ UTRunner.prototype.constructor = UTRunner;
 UTRunner.prototype.error = function(err) {
 	this.errors.push(err);
 }
+UTRunner.prototype.handleMessages = function(_cxt, msg) {
+	if (this.errors.length != 0)
+		throw this.errors[0];
+	return CommonEnv.prototype.handleMessages.call(this, _cxt, msg);
+}
 UTRunner.prototype.assertSameValue = function(_cxt, e, a) {
 	e = _cxt.full(e);
 	a = _cxt.full(a);
@@ -33,12 +38,14 @@ UTRunner.prototype.shove = function(_cxt, dest, slot, val) {
 }
 UTRunner.prototype.invoke = function(_cxt, inv) {
 	inv = _cxt.full(inv);
-	this.handleMessages(_cxt, inv);
+	this.queueMessages(_cxt, inv);
+	this.dispatchMessages(_cxt);
 }
 UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	var reply = target.sendTo(_cxt, contract, msg, args);
 	reply = _cxt.full(reply);
-	this.handleMessages(_cxt, reply);
+	this.queueMessages(_cxt, reply);
+	this.dispatchMessages(_cxt);
 	this.updateCard(_cxt, target);
 }
 UTRunner.prototype.event = function(_cxt, target, zone, event) {
@@ -49,6 +56,7 @@ UTRunner.prototype.event = function(_cxt, target, zone, event) {
 		div = this.findDiv(_cxt, target.card._renderTree, zone, 0);
 	if (div) {
 		div.dispatchEvent(event._makeJSEvent(_cxt));
+		this.dispatchMessages(_cxt);
 	}
 }
 UTRunner.prototype.findDiv = function(_cxt, rt, zone, pos) {

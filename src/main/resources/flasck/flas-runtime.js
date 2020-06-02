@@ -13,6 +13,7 @@ const CommonEnv = function(logger, broker) {
     this.cards = [];
     this.contracts["CallMe"] = CallMe;
     this.contracts["Repeater"] = Repeater;
+    this.queue = [];
     broker.register("Repeater", new ContainerRepeater());
 }
 
@@ -20,20 +21,35 @@ CommonEnv.prototype.clear = function() {
 	document.body.innerHTML = '';
 }
 
+CommonEnv.prototype.queueMessages = function(_cxt, msg) {
+    this.queue.push(msg);
+    var self = this;
+    setTimeout(() => self.dispatchMessages(_cxt), 0);
+}
+
+CommonEnv.prototype.dispatchMessages = function(_cxt) {
+    while (this.queue.length > 0) {
+        var more = this.queue.shift();
+        while (more && (!Array.isArray(more) || more.length > 0)) {
+            more = this.handleMessages(_cxt, more);
+        }
+    }
+}
+
 CommonEnv.prototype.handleMessages = function(_cxt, msg) {
-	if (this.errors.length != 0)
-		throw this.errors[0];
-	msg = _cxt.full(msg);
+    msg = _cxt.full(msg);
 	if (!msg || msg instanceof FLError)
-		return;
+        return;
 	else if (msg instanceof Array) {
-		for (var i=0;i<msg.length;i++) {
-			this.handleMessages(_cxt, msg[i]);
-		}
+        var ret = [];
+        for (var i=0;i<msg.length;i++) {
+            var m = this.handleMessages(_cxt, msg[i]);
+            if (m && (!Array.isArray(m) || m.length > 0))
+                ret.push(m);
+        }
+        return ret;
 	} else if (msg) {
-		var ret = msg.dispatch(_cxt);
-		if (ret)
-			this.handleMessages(_cxt, ret);
+		return msg.dispatch(_cxt);
 	}
 }
 
@@ -56,6 +72,7 @@ JSEnv.prototype.constructor = JSEnv;
 
 
 const ContractStore = function(_cxt) {
+    this.env = _cxt.env;
     this.recorded = {};
     this.toRequire = {};
 }
@@ -71,8 +88,9 @@ ContractStore.prototype.contractFor = function(_cxt, name) {
     return ret;
 }
 
-ContractStore.prototype.require = function(_cxt, name, ctr) {
-    this.toRequire[name] = _cxt.broker.require(ctr);
+ContractStore.prototype.require = function(_cxt, name, clz) {
+    const ctr = _cxt.broker.contracts[clz];
+    this.toRequire[name] = proxy(_cxt, ctr, new DispatcherInvoker(this.env, _cxt.broker.require(clz)));
 }
 
 ContractStore.prototype.required = function(_cxt, name) {
@@ -80,6 +98,17 @@ ContractStore.prototype.required = function(_cxt, name) {
     if (!ret)
         throw new Error("There is no provided contract for var " + name);
     return ret;
+}
+
+const DispatcherInvoker = function(env, call) {
+    this.env = env;
+    this.call = call;
+}
+
+DispatcherInvoker.prototype.invoke = function(meth, args) {
+    // The context has been put as args 0; use it but pull it out
+    // The handler will already have been patched in here, so pull it back out
+    this.env.queueMessages(args[0], Send.eval(args[0], this.call, meth, args.slice(1, args.length-1), args[args.length-1]));
 }
 
 
@@ -406,24 +435,8 @@ FLContext.prototype.handleEvent = function(card, handler, event) {
 	if (handler) {
 		reply = handler.call(card, this, event);
 	}
-	this.handleMessages(reply);
-	if (card._updateDisplay)
-		card._updateDisplay(this, card._renderTree);
-}
-
-FLContext.prototype.handleMessages = function(msg) {
-	msg = this.full(msg);
-	if (!msg || msg instanceof FLError)
-		return;
-	else if (msg instanceof Array) {
-		for (var i=0;i<msg.length;i++) {
-			this.handleMessages(msg[i]);
-		}
-	} else if (msg) {
-		var ret = msg.dispatch(this);
-		if (ret)
-			this.handleMessages(ret);
-	}
+	reply.push(new UpdateDisplay(this, card));
+	this.env.queueMessages(this, reply);
 }
 
 FLContext.prototype.localCard = function(cardClz, elt) {
@@ -432,7 +445,7 @@ FLContext.prototype.localCard = function(cardClz, elt) {
 	var lc = this.findContractOnCard(card, "Lifecycle");
 	if (lc && lc.init) {
 		var msgs = lc.init(this);
-		this.handleMessages(msgs);
+		this.env.queueMessages(this, msgs);
 	}
 	return card;
 }
@@ -447,8 +460,9 @@ FLContext.prototype.findContractOnCard = function(card, ctr) {
 FLContext.prototype.storeMock = function(value) {
 	value = this.full(value);
 	if (value instanceof ResponseWithMessages) {
-		// because this is a test operation, we can assume that env is a UTRunner
-		this.env.handleMessages(this, ResponseWithMessages.messages(this, value));
+		this.env.queueMessages(this, ResponseWithMessages.messages(this, value));
+		// because this is a test operation, we dispatch the messages immediately
+		this.env.dispatchMessages(this);
 		return ResponseWithMessages.response(this, value);
 	} else
 		return value;
@@ -1003,6 +1017,47 @@ FLBuiltin.concat = function(_cxt, a, b) {
 
 FLBuiltin.concat.nfargs = function() { return 2; }
 
+FLBuiltin.nth = function(_cxt, n, list) {
+	n = _cxt.full(n);
+	if (typeof(n) != 'number')
+		return new FLError("no matching case");
+	list = _cxt.spine(list);
+	if (!Array.isArray(list))
+		return new FLError("no matching case");
+	if (n < 0 || n >= list.length)
+		return new FLError("out of bounds");
+	return list[n];
+}
+
+FLBuiltin.nth.nfargs = function() { return 2; }
+
+FLBuiltin.append = function(_cxt, list, elt) {
+	list = _cxt.spine(list);
+	if (!Array.isArray(list))
+		return new FLError("no matching case");
+	var cp = list.slice(0);
+	cp.push(elt);
+	return cp;
+}
+
+FLBuiltin.append.nfargs = function() { return 2; }
+
+FLBuiltin.replace = function(_cxt, list, n, elt) {
+	n = _cxt.full(n);
+	if (typeof(n) != 'number')
+		return new FLError("no matching case");
+	list = _cxt.spine(list);
+	if (!Array.isArray(list))
+		return new FLError("no matching case");
+	if (n < 0 || n >= list.length)
+		return new FLError("out of bounds");
+	var cp = list.slice(0);
+	cp[n] = elt;
+	return cp;
+}
+
+FLBuiltin.replace.nfargs = function() { return 3; }
+
 FLBuiltin.concatLists = function(_cxt, list) {
 	list = _cxt.spine(list);
 	var ret = [];
@@ -1228,6 +1283,17 @@ ResponseWithMessages.response = function(cx, rwm) {
 }
 ResponseWithMessages.messages = function(cx, rwm) {
 	return rwm.msgs;
+}
+
+const UpdateDisplay = function(cx, card) {
+	this.card = card;
+}
+UpdateDisplay.prototype.dispatch = function(cx) {
+	if (this.card._updateDisplay)
+		this.card._updateDisplay(cx, this.card._renderTree);
+}
+UpdateDisplay.prototype.toString = function() {
+	return "UpdateDisplay";
 }
 
 
