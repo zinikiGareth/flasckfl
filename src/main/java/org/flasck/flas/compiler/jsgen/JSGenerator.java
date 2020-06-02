@@ -252,6 +252,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.object(obj);
 		templateCreator = jse.newClass(pkg, obj.name().jsName());
 		templateCreator.inheritsFrom(new PackageName("FLObject"));
+		JSMethodCreator areYouA = templateCreator.createMethod("_areYouA", true);
+		areYouA.argument("ty");
+		areYouA.returnCompare(areYouA.arg(0), areYouA.string(obj.name().jsName()));
 		JSBlockCreator ctor = templateCreator.constructor();
 		ctor.stateField();
 		List<FunctionName> methods = new ArrayList<>();

@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectContract;
@@ -50,6 +51,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private Expr handler;
 	private ObjectActionHandler odctor;
 	private Type containerType;
+	private boolean isAcor;
 
 	public MemberExprConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah) {
 		this.errors = errors;
@@ -82,8 +84,9 @@ public class MemberExprConvertor extends LeafAdapter {
 					odctor = om;
 				}
 				if (acor != null) {
+					isAcor = true;
 					sendMeth = FunctionName.function(var.location(), this.od.name(), var.var);
-					expargs = acor.type().argCount();
+					expargs = acor.acorArgCount();
 				} else if (om == null)
 					throw new ShouldBeError("there is no accessor or method " + var.var + " on " + od.name().uniqueName()); // REAL USER ERROR
 				else {
@@ -159,7 +162,10 @@ public class MemberExprConvertor extends LeafAdapter {
 		if (odctor != null) {
 			convertObjectCtor(expr);
 		} else if (sendMeth != null)
-			nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs, handler));
+			if (isAcor)
+				nv.result(new MakeAcor(expr.location(), sendMeth, obj, expargs));
+			else
+				nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs, handler));
 		else
 			throw new NotImplementedException("Need to implement the field case");
 	}

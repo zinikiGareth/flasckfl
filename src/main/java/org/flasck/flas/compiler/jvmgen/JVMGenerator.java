@@ -579,6 +579,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		String clzName = od.name().javaName();
 		templateClass = bce.newClass(clzName);
 		templateClass.superclass(J.FLOBJECT);
+		templateClass.implementsInterface(J.AREYOUA);
 		templateClass.generateAssociatedSourceFile();
 		templateClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		for (ObjectContract oc : od.contracts) {
@@ -590,6 +591,14 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			templatector = gen.done();
 			templatector.lenientMode(JVMGenerator.leniency);
 			templatector.callSuper("void", J.FLOBJECT, "<init>", cx.getVar()).flush();
+		}
+		{ // _areYouA()
+			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_areYouA");
+			PendingVar ty = gen.argument(J.STRING, "ty");
+			gen.returns("boolean");
+			NewMethodDefiner areYouA = gen.done();
+			areYouA.returnBool(areYouA.callVirtual("boolean", areYouA.stringConst(clzName), "equals",
+					areYouA.as(ty.getVar(), J.OBJECT))).flush();
 		}
 		containerIdx = new AtomicInteger(1);
 	}

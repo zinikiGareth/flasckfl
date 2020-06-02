@@ -45,6 +45,11 @@ public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
 	}
 
 	@Override
+	public int acorArgCount() {
+		return fn.argCount();
+	}
+
+	@Override
 	public String toString() {
 		return "ObjectAccessor[" + fn + "]";
 	}

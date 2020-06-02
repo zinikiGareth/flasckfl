@@ -11,7 +11,14 @@
 		
 		acor msg = contained
 		acor top = hd many
-		
+	
+	object Use
+		state
+			Args first
+			
+		ctor doit (HasAcor ha)
+			first <- ha.top
+			
 	hd Nil = Error "no"
 	hd [a] = a
 	

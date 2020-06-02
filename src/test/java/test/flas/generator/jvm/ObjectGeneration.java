@@ -41,6 +41,7 @@ public class ObjectGeneration {
 		context.checking(new Expectations() {{ // clz
 			oneOf(bce).newClass(ename); will(returnValue(eclz));
 			oneOf(eclz).superclass(J.FLOBJECT);
+			oneOf(eclz).implementsInterface(J.AREYOUA);
 			allowing(eclz).generateAssociatedSourceFile();
 			allowing(eclz).getCreatedName(); will(returnValue(ename));
 		}});
@@ -48,6 +49,7 @@ public class ObjectGeneration {
 		MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 		context.checking(new Expectations() {{
 			oneOf(ctor).nextLocal(); will(returnValue(3));
+			allowing(ctor).lenientMode(with(any(Boolean.class)));
 		}});
 		Var ccxt = new Var.AVar(ctor, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		context.checking(new Expectations() {{ // ctor
@@ -57,6 +59,21 @@ public class ObjectGeneration {
 			oneOf(ctor).returnVoid(); will(returnValue(doret));
 			oneOf(doret).flush();
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+		}});
+		MethodDefiner aa = context.mock(MethodDefiner.class, "aa");
+		context.checking(new Expectations() {{
+			oneOf(aa).nextLocal(); will(returnValue(3));
+			allowing(aa).lenientMode(with(any(Boolean.class)));
+		}});
+		Var ty = new Var.AVar(aa, J.STRING, "ty");
+		IExpr sc = context.mock(IExpr.class, "sc");
+		context.checking(new Expectations() {{ // areYouA
+			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aa));
+			oneOf(aa).argument(J.STRING, "ty"); will(returnValue(ty));
+			oneOf(aa).stringConst("test.repo.Obj"); will(returnValue(sc));
+			oneOf(aa).as(ty, J.OBJECT); will(returnValue(ty));
+			oneOf(aa).callVirtual("boolean", sc, "equals", ty); will(returnValue(ty));
+			oneOf(aa).returnBool(ty);
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JVMGenerator(bce, gen, null);
@@ -75,6 +92,7 @@ public class ObjectGeneration {
 		context.checking(new Expectations() {{ // clz
 			oneOf(bce).newClass(ename); will(returnValue(eclz));
 			oneOf(eclz).superclass(J.FLOBJECT);
+			oneOf(eclz).implementsInterface(J.AREYOUA);
 			allowing(eclz).generateAssociatedSourceFile();
 			allowing(eclz).getCreatedName(); will(returnValue(ename));
 		}});
@@ -82,6 +100,7 @@ public class ObjectGeneration {
 		MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 		context.checking(new Expectations() {{
 			oneOf(ctor).nextLocal(); will(returnValue(3));
+			allowing(ctor).lenientMode(with(any(Boolean.class)));
 		}});
 		Var ccxt = new Var.AVar(ctor, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		context.checking(new Expectations() {{ // ctor
@@ -91,6 +110,21 @@ public class ObjectGeneration {
 			oneOf(ctor).returnVoid(); will(returnValue(doret));
 			oneOf(doret).flush();
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+		}});
+		MethodDefiner aa = context.mock(MethodDefiner.class, "aa");
+		context.checking(new Expectations() {{
+			oneOf(aa).nextLocal(); will(returnValue(3));
+			allowing(aa).lenientMode(with(any(Boolean.class)));
+		}});
+		Var ty = new Var.AVar(aa, J.STRING, "ty");
+		IExpr sc = context.mock(IExpr.class, "sc");
+		context.checking(new Expectations() {{ // areYouA
+			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aa));
+			oneOf(aa).argument(J.STRING, "ty"); will(returnValue(ty));
+			oneOf(aa).stringConst("test.repo.Obj"); will(returnValue(sc));
+			oneOf(aa).as(ty, J.OBJECT); will(returnValue(ty));
+			oneOf(aa).callVirtual("boolean", sc, "equals", ty); will(returnValue(ty));
+			oneOf(aa).returnBool(ty);
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JVMGenerator(bce, gen, null);

@@ -1049,7 +1049,9 @@ FLBuiltin.isEqual.nfargs = function() { return 2; }
 FLBuiltin._probe_state = function(_cxt, mock, v) {
 	// mock should be a MockCard or MockAgent (or MockObject or something?)
 	var sh = mock;
-	if (mock.card)
+	if (mock instanceof FLError)
+		return mock;
+	else if (mock.card)
 		sh = mock.card;
 	else if (mock.agent)
 		sh = mock.agent;

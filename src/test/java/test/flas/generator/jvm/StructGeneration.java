@@ -54,6 +54,7 @@ public class StructGeneration {
 		MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 		context.checking(new Expectations() {{
 			oneOf(ctor).nextLocal(); will(returnValue(3));
+			allowing(ctor).lenientMode(with(any(Boolean.class)));
 		}});
 		Var ccxt = new Var.AVar(ctor, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		context.checking(new Expectations() {{ // ctor
@@ -89,6 +90,7 @@ public class StructGeneration {
 			oneOf(aya).callVirtual("boolean", mt, "equals", ty); will(returnValue(val));
 			oneOf(aya).returnBool(val);
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
+			allowing(eval).lenientMode(with(any(Boolean.class)));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(eval).argument("[" + J.OBJECT, "args"); will(returnValue(args));
 			oneOf(eval).avar(ename, "ret"); will(returnValue(eret));
@@ -124,6 +126,7 @@ public class StructGeneration {
 		MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 		context.checking(new Expectations() {{
 			oneOf(ctor).nextLocal(); will(returnValue(3));
+			allowing(ctor).lenientMode(with(any(Boolean.class)));
 		}});
 		Var ccxt = new Var.AVar(ctor, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		context.checking(new Expectations() {{ // ctor
@@ -163,6 +166,7 @@ public class StructGeneration {
 			oneOf(aya).callVirtual("boolean", mt, "equals", ty); will(returnValue(val));
 			oneOf(aya).returnBool(val);
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
+			allowing(eval).lenientMode(with(any(Boolean.class)));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(eval).argument("[" + J.OBJECT, "args"); will(returnValue(args));
 			oneOf(eval).avar(ename, "ret"); will(returnValue(eret));

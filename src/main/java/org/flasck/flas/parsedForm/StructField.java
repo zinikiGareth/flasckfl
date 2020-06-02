@@ -57,6 +57,11 @@ public class StructField implements Locatable, RepositoryEntry, FieldAccessor {
 	}
 
 	@Override
+	public int acorArgCount() {
+		return 0;
+	}
+
+	@Override
 	public String toString() {
 		if (type == null)
 			return name + " (/" + loc.off + ")";
