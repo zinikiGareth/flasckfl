@@ -131,6 +131,9 @@ public class FunctionGroupTCState implements CurrentTCState {
 		}
 		this.debugInfo("initial");
 
+		expandUsed();
+		this.debugInfo("moreused");
+
 		expandUnions();
 		this.debugInfo("expanded");
 
@@ -177,6 +180,12 @@ public class FunctionGroupTCState implements CurrentTCState {
 	private void expandUnions() {
 		for (UnifiableType ut : allUTs) {
 			ut.expandUnions();
+		}
+	}
+
+	private void expandUsed() {
+		for (UnifiableType ut : allUTs) {
+			ut.expandUsed();
 		}
 	}
 

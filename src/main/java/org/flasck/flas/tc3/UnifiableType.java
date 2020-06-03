@@ -83,6 +83,9 @@ public interface UnifiableType extends Type {
 	// expand all unions into their component parts for more easy merging and (later) unification
 	void expandUnions();
 
+	// polymorphic instances when used, "use" the poly vars they depend on 
+	void expandUsed();
+
 	// look at all polymorphic types and consolidate their arguments
 	void mergePolyVars();
 }

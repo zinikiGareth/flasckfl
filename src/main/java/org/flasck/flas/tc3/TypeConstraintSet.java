@@ -257,7 +257,36 @@ public class TypeConstraintSet implements UnifiableType {
 		this.acquired.add(ut);
 	}
 
+	@Override
+	public void expandUsed() {
+		if (usedOrReturned == 0)
+			return;
+		for (PosType pt : types) {
+			expandUsage(pt.type);
+		}
+		for (StructTypeConstraints e : ctors.values()) {
+			for (StructField sf : e.fields())
+				expandUsage(e.get(sf));
+		}
+		for (PosType pt : incorporatedBys) {
+			expandUsage(pt.type);
+		}
+	}
 	
+	private void expandUsage(Type type) {
+		if (type instanceof TypeConstraintSet) {
+			TypeConstraintSet ut = (TypeConstraintSet)type;
+			if (ut.usedOrReturned == 0) {
+				ut.usedOrReturned = 1;
+				ut.expandUsed();
+			}
+		} else if (type instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) type;
+			for (Type e : pi.getPolys())
+				expandUsage(e);
+		}
+	}
+
 	@Override
 	public void expandUnions() {
 		List<PosType> addMore = new ArrayList<>();
@@ -392,29 +421,11 @@ public class TypeConstraintSet implements UnifiableType {
 		for (Entry<NamedType, StructTypeConstraints> e : ctors.entrySet()) {
 			NamedType ty = e.getKey();
 			logger.debug("  have ctor " + ty);
-			if (ty instanceof StructDefn && !((StructDefn)ty).hasPolys())
+			if (ty instanceof StructDefn && !((StructDefn)ty).hasPolys()) {
 				tys.add(new PosType(pos, ty));
-			else if (ty instanceof PolyInstance) {
-				// I think it may be possible to simplify this by just going after the polyinstance args directly
-				StructDefn sd = (StructDefn) ((PolyInstance) ty).struct();
-				StructTypeConstraints stc = ctors.get(ty);
-				Map<PolyType, Type> polyMap = new HashMap<>();
-				for (StructField f : stc.fields()) {
-					PolyType pt = sd.findPoly(f.type);
-					if (pt == null)
-						continue;
-					dag.ensure(stc.get(f).redirectedTo());
-					dag.ensureLink(this, stc.get(f).redirectedTo());
-					polyMap.put(pt, stc.get(f));
-				}
-				List<Type> polys = new ArrayList<>();
-				for (PolyType p : sd.polys()) {
-					if (polyMap.containsKey(p))
-						polys.add(polyMap.get(p));
-					else
-						polys.add(LoadBuiltins.any);
-				}
-				tys.add(new PosType(pos, new PolyInstance(pos, sd, polys)));
+			} else if (ty instanceof PolyInstance) {
+				linkPVs(dag, ty);
+				tys.add(new PosType(pos, ty));
 			}
 		}
 		
@@ -470,15 +481,19 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 	}
 
+	private void linkPVs(DirectedAcyclicGraph<UnifiableType> dag, Type pv) {
+		if (pv instanceof UnifiableType) {
+			UnifiableType ut = ((UnifiableType) pv).redirectedTo();
+			dag.ensure(ut);
+			dag.ensureLink(this, ut);
+		} else if (pv instanceof PolyInstance) {
+			linkToPVs(dag, (PolyInstance) pv);
+		}
+	}
+	
 	private void linkToPVs(DirectedAcyclicGraph<UnifiableType> dag, PolyInstance pi) {
 		for (Type pv : pi.getPolys()) {
-			if (pv instanceof UnifiableType) {
-				UnifiableType ut = ((UnifiableType) pv).redirectedTo();
-				dag.ensure(ut);
-				dag.ensureLink(this, ut);
-			} else if (pv instanceof PolyInstance) {
-				linkToPVs(dag, (PolyInstance) pv);
-			}
+			linkPVs(dag, pv);
 		}
 	}
 
@@ -724,6 +739,9 @@ public class TypeConstraintSet implements UnifiableType {
 			showTys(ret, types);
 			showTys(ret, incorporatedBys);
 			showCtors(ret, ctors);
+		}
+		if (usedOrReturned > 0) {
+			ret.append(" +" + usedOrReturned);
 		}
 		return ret.toString();
 	}
