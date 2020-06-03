@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
@@ -20,6 +19,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.jvm.J;
 import org.ziniki.splitter.FieldType;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -145,7 +145,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 						curr.du = fs.meth.ifNotNull(invokeOn, curr.du, null);
 					}
 				} else if (currentTBO.assignsTo.type() == FieldType.CONTAINER) {
-					Map<StructDefn, Template> mapping = currentTBO.mapping();
+					Map<NamedType, Template> mapping = currentTBO.mapping();
 					if (mapping == null)
 						throw new NotImplementedException("No mapping");
 					int ucidx = containerIdx.getAndIncrement();
@@ -160,7 +160,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 						MethodDefiner uc = gen.done();
 						uc.lenientMode(JVMGenerator.leniency);
 						IExpr ret = null;
-						for (Entry<StructDefn, Template> m : mapping.entrySet()) {
+						for (Entry<NamedType, Template> m : mapping.entrySet()) {
 							IExpr curr = templateMember(uc, fcx.getVar(), rt.getVar(), parent.getVar(), currNode.getVar(), m.getValue(), e.getVar());
 							if (ret == null)
 								ret = curr;

@@ -58,6 +58,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
@@ -67,6 +68,7 @@ import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
+import org.flasck.flas.tc3.Type;
 import org.flasck.jvm.J;
 import org.flasck.jvm.fl.TestHelper;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -858,14 +860,22 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private void popVar(Map<String, IExpr> tom, Link l, IExpr expr) {
 		if (l.type() instanceof Primitive) {
 			tom.put(l.name().var, expr);
-		} else {
-			// the code prefers the interface to the actual type for some reason
-			String asty;
-			asty = J.FIELDS_CONTAINER_WRAPPER;
-			Var v = fs.meth.avar(asty, l.name().var);
-			fs.meth.assign(v, fs.meth.castTo(expr, asty)).flush();
-			tom.put(l.name().var, v);
+			return;
 		}
+		Type t1 = l.type();
+		if (t1 instanceof PolyInstance) {
+			t1 = ((PolyInstance)t1).struct();
+		}
+		if (t1 == LoadBuiltins.nil || t1 == LoadBuiltins.cons || t1 == LoadBuiltins.list) {
+			tom.put(l.name().var, expr);
+			return;
+		}
+		// the code prefers the interface to the actual type for some reason
+		String asty;
+		asty = J.FIELDS_CONTAINER_WRAPPER;
+		Var v = fs.meth.avar(asty, l.name().var);
+		fs.meth.assign(v, fs.meth.castTo(expr, asty)).flush();
+		tom.put(l.name().var, v);
 	}
 
 	@Override

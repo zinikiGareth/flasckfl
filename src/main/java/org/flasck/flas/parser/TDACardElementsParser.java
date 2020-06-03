@@ -1,5 +1,8 @@
 package org.flasck.flas.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -17,7 +20,6 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class TDACardElementsParser extends TDAAgentElementsParser {
@@ -97,11 +99,13 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 			errors.message(toks, "( expected");
 			return false;
 		}
-		TypeNameToken type = TypeNameToken.qualified(toks);
-		if (type == null) {
-			errors.message(toks, "type name expected");
+		List<TypeReference> ref = new ArrayList<>();
+		if (new TDATypeReferenceParser(errors, namer, x->ref.add(x), null).tryParsing(toks) == null) {
+			// it didn't parse, so give up hope
 			return false;
 		}
+		TypeReference tr = ref.get(0);
+
 		ValidIdentifierToken var = ValidIdentifierToken.from(toks);
 		if (var == null) {
 			errors.message(toks, "var name expected");
@@ -112,7 +116,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 			errors.message(toks, ") expected");
 			return false;
 		}
-		chain.declare(new TypeReference(type.location, type.text), namer.nameVar(var.location, var.text));
+		chain.declare(tr, namer.nameVar(var.location, var.text));
 		return true;
 	}
 

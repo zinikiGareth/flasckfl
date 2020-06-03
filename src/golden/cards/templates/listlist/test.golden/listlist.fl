@@ -1,0 +1,15 @@
+	struct Content
+		String msg
+
+	card ListList
+		state
+			List[List[Content]] table
+			
+		template main
+			rows <- table
+			
+		template row <- (List[Content] cols)
+			cols <- cols
+			
+		template col <- (Content c)
+			entry <- msg

@@ -225,9 +225,6 @@ public class TypeChecker extends LeafAdapter {
 				ret = t;
 			}
 		}
-		if (ret == null) {
-			errors.message(pos, "there is no compatible template for " + ty.signature());
-		}
 		return ret;
 	}
 

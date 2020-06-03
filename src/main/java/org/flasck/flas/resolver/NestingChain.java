@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -14,6 +15,6 @@ public interface NestingChain extends Iterable<TemplateNestingChain.Link> {
 	void addInferred(InputPosition loc, Type ty);
 	void declare(TypeReference typeReference, VarName nameVar);
 	List<TypeReference> types();
-	void resolvedTypes();
+	void resolvedTypes(ErrorReporter errors);
 	boolean isEmpty();
 }

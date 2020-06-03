@@ -100,6 +100,8 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 		} else if (other instanceof UnifiableType) {
 			((UnifiableType) other).incorporatedBy(pos, this);
 			return true;
+		} else if (this.ty == other) {
+			return true;
 		} else if (this.ty instanceof UnionTypeDefn && other instanceof StructDefn && !((StructDefn)other).hasPolys()) {
 			// it is acceptable for it to be incorporated if it is a non-poly version of a non-poly constructor in a union
 			// Think Nil in List[A]

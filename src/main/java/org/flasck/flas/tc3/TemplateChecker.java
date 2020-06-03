@@ -28,6 +28,7 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TemplateChecker extends LeafAdapter implements ResultAware {
@@ -171,26 +172,42 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				 * marking it as used, and recording the fact that we want to do this for this template (or something)
 				 */
 				etype = TypeHelpers.extractListPoly(etype);
-				
-				Map<StructDefn, Template> mapping = new HashMap<>();
+				if (etype instanceof PolyInstance)
+					etype = ((PolyInstance)etype).struct();
+				Map<NamedType, Template> mapping = new HashMap<>();
 				if (etype instanceof StructDefn) {
-					Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, (StructDefn) etype);
-					if (which != null) {
+					Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, etype);
+					if (which == null) {
+						errors.message(pos, "there is no compatible template for " + etype.signature());
+					} else {
 						referencedTemplates.add(which.name().baseName());
 						mapping.put((StructDefn) etype, which);
 					}
 				} else if (etype instanceof UnionTypeDefn) {
-					for (TypeReference ty : ((UnionTypeDefn)etype).cases) {
-						StructDefn sd = (StructDefn)ty.defn();
-						Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, sd);
-						if (which != null) {
-							referencedTemplates.add(which.name().baseName());
-							mapping.put(sd, which);
+					Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, etype);
+					if (which != null) {
+						referencedTemplates.add(which.name().baseName());
+						mapping.put((NamedType) etype, which);
+					} else {
+						for (TypeReference ty : ((UnionTypeDefn)etype).cases) {
+							NamedType td = ty.defn();
+							if (td instanceof PolyInstance)
+								td = ((PolyInstance)td).struct();
+							StructDefn sd = (StructDefn)td;
+							Template wh2 = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, sd);
+							if (wh2 == null) {
+								errors.message(pos, "there is no compatible template for " + etype.signature());
+							} else {
+								referencedTemplates.add(wh2.name().baseName());
+								mapping.put(sd, wh2);
+							}
 						}
 					}
+				} else if (etype instanceof UnifiableType) {
+					errors.message(pos, "the compiler is not clever enough to do the analysis required to figure out which template to send elements to; please specify a template or make your types clearer");
 				} else {
 					// TODO: note that this could also be a PolyInstance of one of these ...
-					throw new NotImplementedException("must be struct or union");
+					throw new HaventConsideredThisException("must be struct or union, not " + etype);
 				}
 				option.attachMapping(mapping);
 			} else if (option.sendsTo != null) { // need to test that we have compatible chains

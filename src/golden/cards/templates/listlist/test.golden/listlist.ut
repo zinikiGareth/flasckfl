@@ -1,0 +1,9 @@
+	test we have a sensible result
+		data ListList ll
+		shove ll.table
+			[
+			  [ Content "hello", Content "world" ],
+			  [ Content "line2" ]
+			 ]
+		match ll text
+			hello world line2

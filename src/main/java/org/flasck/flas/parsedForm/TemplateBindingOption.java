@@ -3,13 +3,14 @@ package org.flasck.flas.parsedForm;
 import java.util.Map;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.tc3.NamedType;
 
 public class TemplateBindingOption extends TemplateCustomization {
 	public final TemplateField assignsTo;
 	public final Expr cond;
 	public final Expr expr;
 	public final TemplateReference sendsTo;
-	private Map<StructDefn, Template> mapping;
+	private Map<NamedType, Template> mapping;
 
 	public TemplateBindingOption(TemplateField field, Expr cond, Expr expr, TemplateReference sendsTo) {
 		this.assignsTo = field;
@@ -22,11 +23,11 @@ public class TemplateBindingOption extends TemplateCustomization {
 		return new TemplateBindingOption(assignsTo, cond, expr, sendsTo);
 	}
 	
-	public void attachMapping(Map<StructDefn, Template> mapping) {
+	public void attachMapping(Map<NamedType, Template> mapping) {
 		this.mapping = mapping;
 	}
 	
-	public Map<StructDefn, Template> mapping() {
+	public Map<NamedType, Template> mapping() {
 		return mapping;
 	}
 }

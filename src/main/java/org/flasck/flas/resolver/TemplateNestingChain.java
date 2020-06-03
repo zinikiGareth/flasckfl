@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateNestedField;
@@ -15,7 +16,7 @@ import org.flasck.flas.parser.TemplateNamer;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.TypeHelpers;
-import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.exceptions.HaventConsideredThisException;
 
 public class TemplateNestingChain implements NestingChain {
 	public class Link {
@@ -87,14 +88,16 @@ public class TemplateNestingChain implements NestingChain {
 	}
 
 	@Override
-	public void resolvedTypes() {
+	public void resolvedTypes(ErrorReporter errors) {
 		for (Link l : links) {
 			if (l.actual != null)
 				continue;
 			if (l.decl != null && l.decl.defn() != null)
 				l.actual = l.decl.defn();
 			else {
-				throw new NotImplementedException("type of " + l.name.uniqueName() + " was not resolved");
+				// it may just be that something went wrong
+				if (!errors.hasErrors())
+					throw new HaventConsideredThisException("type of " + l.name.uniqueName() + " was not resolved");
 			}
 		}
 	}

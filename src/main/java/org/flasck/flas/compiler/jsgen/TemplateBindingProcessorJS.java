@@ -14,7 +14,6 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
@@ -26,6 +25,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.tc3.NamedType;
 import org.ziniki.splitter.FieldType;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.NotImplementedException;
@@ -114,7 +114,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 						(JSExpr) r,
 						bindingBlock.makeArray(wanted));
 				} else if (currentTBO.assignsTo.type() == FieldType.CONTAINER) {
-					Map<StructDefn, Template> mapping = currentTBO.mapping();
+					Map<NamedType, Template> mapping = currentTBO.mapping();
 					if (mapping == null)
 						throw new NotImplementedException("No mapping for " + currentTBO.assignsTo.text);
 					int ucidx = containerIdx.getAndIncrement();
@@ -129,8 +129,8 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 						templateMember(uc, mapping.values().iterator().next(), expr);
 					} else {
 						JSBlockCreator block = uc;
-						for (Entry<StructDefn, Template> e : mapping.entrySet()) {
-							JSIfExpr ifExpr = block.ifCtor(expr, e.getKey().name);
+						for (Entry<NamedType, Template> e : mapping.entrySet()) {
+							JSIfExpr ifExpr = block.ifCtor(expr, e.getKey().name());
 							templateMember(ifExpr.trueCase(), e.getValue(), expr);
 							block = ifExpr.falseCase();
 						}

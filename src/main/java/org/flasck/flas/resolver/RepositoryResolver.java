@@ -465,7 +465,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			// it should also allow a var
 			// basically this type is not good enough, but get there through tests
 			templateNestingChain = t.nestingChain();
-			t.nestingChain().resolvedTypes();
+			t.nestingChain().resolvedTypes(errors);
 		}
 	}
 
