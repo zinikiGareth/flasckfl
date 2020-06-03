@@ -19,14 +19,18 @@ public class TypeHelpers {
 	}
 
 	public static boolean isList(Type type) {
+		if (type == LoadBuiltins.nil)
+			return true;
+		
 		if (!(type instanceof PolyInstance))
 			return false;
 		
 		PolyInstance pi = (PolyInstance) type;
-		if (!pi.struct().equals(LoadBuiltins.list))
-			return false;
-		
-		return true;
+		if (pi.struct().equals(LoadBuiltins.list))
+			return true;
+		if (pi.struct().equals(LoadBuiltins.cons))
+			return true;
+		return false;
 	}
 
 	public static boolean isListString(Type type) {

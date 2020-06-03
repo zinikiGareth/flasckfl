@@ -626,7 +626,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			}
 			return null;
 		} else {
-			errors.message(oe.location(), "insufficient information to deduce type of expression");
+			// It is true that there is insufficient information to deduce the type of the expression,
+			// but that is no reason not to proceed.
+//			errors.message(oe.location(), "insufficient information to deduce type of expression");
 			return null;
 		}
 	}

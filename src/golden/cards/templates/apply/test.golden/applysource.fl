@@ -1,0 +1,9 @@
+	struct Content
+		String s
+
+	card FromApply
+		template main
+			inner <- [Content ("hello" ++ "world")] => one
+			
+		template one <- (Content c)
+			entry <- c.s
