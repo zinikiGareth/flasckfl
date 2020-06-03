@@ -155,7 +155,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		*/
 	}
 
-	private TypeReference findCase(String ctor) {
+	public TypeReference findCase(String ctor) {
 		for (TypeReference c : cases)
 			if (c.name().equals(ctor))
 				return c;

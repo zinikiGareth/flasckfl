@@ -13,6 +13,14 @@ public class FunctionHSICases implements HSICases {
 	}
 
 	@Override
+	public List<String> introNames() {
+		List<String> ret = new ArrayList<>();
+		for (FunctionIntro i : intros)
+			ret.add(i.name().uniqueName());
+		return ret;
+	}
+	
+	@Override
 	public boolean noRemainingCases() {
 		return this.intros.isEmpty();
 	}
@@ -20,11 +28,6 @@ public class FunctionHSICases implements HSICases {
 	@Override
 	public boolean singleton() {
 		return this.intros.size() == 1;
-	}
-
-	@Override
-	public boolean isFunction() {
-		return true;
 	}
 
 	@Override

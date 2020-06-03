@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.zinutils.collections.CollectionUtils;
 
 public class HSICtorTree extends HSIPatternTree {
 	protected Map<String, HSIOptions> slots = new TreeMap<>();
@@ -16,6 +17,10 @@ public class HSICtorTree extends HSIPatternTree {
 	@Override
 	public int width() {
 		return slots.size();
+	}
+	
+	public String slot(int i) {
+		return CollectionUtils.nth(slots.keySet(), i);
 	}
 	
 	@Override

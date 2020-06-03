@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionHSICases;
 import org.flasck.flas.repository.HSICases;
@@ -71,6 +72,18 @@ public class HSIPatternOptions implements HSIOptions {
 	private Set<String> stringConstants = new TreeSet<>();
 	private boolean container;
 
+	@Override
+	public List<String> introNames() {
+		List<String> ret = new ArrayList<>();
+		for (FunctionIntro i : all) {
+			if (i == null)
+				ret.add("null");
+			else
+				ret.add(i.name().uniqueName());
+		}
+		return ret;
+	}
+	
 	@Override
 	public boolean isContainer() {
 		return container;
@@ -145,6 +158,20 @@ public class HSIPatternOptions implements HSIOptions {
 		while (ty instanceof PolyInstance)
 			ty = ((PolyInstance)ty).struct();
 		return types.get(ty).intros;
+	}
+
+	@Override
+	public List<NamedType> typesIncluding(StructDefn c) {
+		List<NamedType> ret = new ArrayList<NamedType>();
+		for (NamedType t : types.keySet()) {
+			if (t instanceof PolyInstance)
+				throw new CantHappenException("I don't think PolyInstances should be in the key");
+			if (c == t)
+				ret.add(t);
+			if (t instanceof UnionTypeDefn && ((UnionTypeDefn)t).findCase(c.name().uniqueName()) != null)
+				ret.add(t);
+		}
+		return ret;
 	}
 
 	@Override

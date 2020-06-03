@@ -541,9 +541,9 @@ FLCard.prototype._currentDiv = function(cx) {
 FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, source) {
     const evcs = this._eventHandlers()[key];
     if (evcs) {
-        for (var i in evcs) {
+        for (var ej=0;ej<evcs.length;ej++) {
             var ldiv = div;
-            var handlerInfo = evcs[i];
+            var handlerInfo = evcs[ej];
             if (!handlerInfo.slot) {
                 if (field)
                     continue;
@@ -914,6 +914,23 @@ Nil.eval = function(_cxt) {
 /* istanbul ignore next */
 const Cons = function() {
 }
+
+// Because we "pretend" to have Cons and Nil but actually have arrays,
+// we need to put "head" and "tail" on Array for when they are invoked.
+// But we need them to be on Cons for when they are referenced.
+Array.prototype._field_head = function(x) {
+	debugger;
+	return this[0];
+}
+Array.prototype._field_head.nfargs = function() { return 0; }
+Cons.prototype._field_head = Array.prototype._field_head;
+
+Array.prototype._field_tail = function() {
+	debugger;
+	return this.slice(1);
+}
+Array.prototype._field_tail.nfargs = function() { return 0; }
+Cons.prototype._field_tail = Array.prototype._field_tail;
 
 Cons.eval = function(_cxt, hd, tl) {
 	var cp = _cxt.spine(tl);

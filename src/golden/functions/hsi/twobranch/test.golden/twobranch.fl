@@ -1,0 +1,3 @@
+	recurse Nil = Nil
+	recurse [Nil] = Nil
+	recurse (Cons[List[A]] l) = Cons l.head (recurse l.tail)

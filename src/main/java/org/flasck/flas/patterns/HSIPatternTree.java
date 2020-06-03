@@ -23,6 +23,17 @@ public abstract class HSIPatternTree implements HSITree {
 		return intros;
 	}
 
+	public List<String> introNames() {
+		List<String> ret = new ArrayList<>();
+		for (FunctionIntro i : intros) {
+			if (i == null)
+				ret.add("null");
+			else
+				ret.add(i.name().uniqueName());
+		}
+		return ret;
+	}
+
 	public boolean containsAny(HSICases curr) {
 		for (FunctionIntro fi : intros)
 			if (curr.contains(fi))

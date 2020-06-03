@@ -1,0 +1,6 @@
+JVM PASS simple case
+JVM PASS singleton
+JVM PASS many
+JS PASS simple case
+JS PASS singleton
+JS PASS many

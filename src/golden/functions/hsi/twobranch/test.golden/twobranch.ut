@@ -1,0 +1,11 @@
+	test simple case
+		assert  (recurse Nil)
+			Nil
+			
+	test singleton
+		assert (recurse [Nil])
+			Nil
+
+	test many
+		assert (recurse [["hello"]])
+			[["hello"]]

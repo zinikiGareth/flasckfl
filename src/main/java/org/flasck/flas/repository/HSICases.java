@@ -8,10 +8,10 @@ public interface HSICases {
 
 	boolean noRemainingCases();
 	boolean singleton();
-	boolean isFunction();
 	FunctionIntro onlyIntro();
 	boolean contains(FunctionIntro fi);
 	HSICases retain(List<FunctionIntro> intros);
 	void remove(HSICases forConst);
+	List<String> introNames();
 
 }
