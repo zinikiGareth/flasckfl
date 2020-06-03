@@ -50,22 +50,6 @@ public abstract class BaseRunnerTests {
 	@Before
 	public void setup() {
 		Main.setLogLevels();
-//		mainScope.define(errors, "x", null);
-//		CardDefinition cd = new CardDefinition(loc, loc, cn);
-//		{
-//			ContractImplements ctr = new ContractImplements(loc, loc, "SetState", null, null);
-//			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C0"), "setOn"), new ArrayList<>())));
-//			cd.contracts.add(ctr);
-//		}
-//		{
-//			ContractImplements ctr = new ContractImplements(loc, loc, "Echo", null, null);
-//			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C1"), "saySomething"), Arrays.asList(new TypedPattern(loc, new TypeReference(loc, "String"), loc, "s")))));
-//			cd.contracts.add(ctr);
-//		}
-//		mainScope.define(errors, "TestCard", cd);
-//		tc.define("test.runner.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
-//		prior = new CompileResult(mainScope, bce, tc);
-//		testScope = Scope.topScope(spkg);
 	}
 	
 	@Test

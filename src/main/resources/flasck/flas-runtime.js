@@ -155,7 +155,7 @@ const FLCurry = function(obj, fn, reqd, xcs) {
 	this.reqd = reqd;
 	this.missing = [];
 	for (var i=1;i<=reqd;i++) {
-		if (xcs[i])
+		if (i in xcs)
 			this.args.push(xcs[i]);
 		else {
 			this.args.push(null);
@@ -315,7 +315,9 @@ FLContext.prototype.spine = function(obj) {
 	obj = this.head(obj);
 	if (Array.isArray(obj))
 		return obj;
-	throw Error("We need to evaluate the spine of the array without worrying about the elements");
+	if (obj instanceof FLError)
+		return obj;
+	throw Error("spine should only be called on lists");
 }
 
 FLContext.prototype.full = function(obj) {
@@ -908,7 +910,10 @@ const Cons = function() {
 }
 
 Cons.eval = function(_cxt, hd, tl) {
-	var cp = _cxt.spine(tl).slice(0);
+	var cp = _cxt.spine(tl);
+	if (cp instanceof FLError)
+		return cp;
+	cp = cp.slice(0);
 	cp.splice(0, 0, hd);
 	return cp;
 }
