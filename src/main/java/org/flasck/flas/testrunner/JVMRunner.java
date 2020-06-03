@@ -1,6 +1,5 @@
 package org.flasck.flas.testrunner;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class JVMRunner extends CommonTestRunner  {
 	}
 	
 	@Override
-	public void runit(PrintWriter pw, UnitTestCase utc) {
+	public void runit(TestResultWriter pw, UnitTestCase utc) {
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors);
 			FLEvalContext cxt = helper.create();
@@ -41,32 +40,30 @@ public class JVMRunner extends CommonTestRunner  {
 					throw (Throwable)result;
 				if (cxt.getError() != null)
 					throw cxt.getError();
-				pw.println("JVM PASS " + utc.description);
+				pw.pass("JVM", utc.description);
 			} catch (WrappedException ex) {
 				Throwable e2 = WrappedException.unwrapThrowable(ex);
 				if (e2 instanceof AssertFailed) {
 					AssertFailed af = (AssertFailed) e2;
-					pw.println("JVM FAIL " + utc.description);
+					pw.fail("JVM", utc.description);
 					pw.println("  expected: " + af.expected);
 					pw.println("  actual:   " + af.actual);
 				} else if (e2 instanceof NotMatched) {
-					pw.println("JVM FAIL " + utc.description);
+					pw.fail("JVM", utc.description);
 					pw.println("  " + e2.getMessage());
 				} else if (e2 instanceof NewDivException) {
-					pw.println("JVM FAIL " + utc.description);
+					pw.fail("JVM", utc.description);
 					pw.println("  " + e2.getMessage());
 				} else {
+					pw.error("JVM", utc.description, e2);
 					pw.println("JVM ERROR " + utc.description);
-					e2.printStackTrace(pw);
 				}
 			} catch (Throwable t) {
-				pw.println("ERROR " + utc.description);
-				t.printStackTrace(pw);
+				pw.error("JVM", utc.description, t);
 			}
 		} catch (ClassNotFoundException e) {
 			pw.println("NOTFOUND " + utc.description);
 			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
 		}
-		pw.flush();
 	}
 }

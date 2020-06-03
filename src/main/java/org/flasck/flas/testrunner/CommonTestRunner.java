@@ -2,7 +2,6 @@ package org.flasck.flas.testrunner;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,23 +38,28 @@ public abstract class CommonTestRunner {
 		this.compiledPkg = null;
 	}
 	
-	public void runAll(Map<File, PrintWriter> writers) {
+	public void runAll(Map<File, TestResultWriter> writers) {
 		repository.traverse(new LeafAdapter() {
-			PrintWriter pw;
+			TestResultWriter pw;
 			
 			@Override
 			public void visitUnitTestPackage(UnitTestPackage e) {
 				String nn = e.name().baseName().replace("_ut_", "");
 				File f = new File(nn);
-				File out = new File(config.writeTestReportsTo(f), FileUtils.ensureExtension(f.getName(), ".tr"));
 				this.pw = writers.get(f);
-				try {
-					if (pw == null) {
-						pw = new PrintWriter(out);
-						writers.put(f, pw);
+				if (pw == null) {
+					File trd = config.writeTestReportsTo();
+					if (trd == null) {
+						pw = new TestResultWriter(false, System.out);
+					} else {
+						File out = new File(trd, FileUtils.ensureExtension(f.getName(), ".tr"));
+						try {
+							pw = new TestResultWriter(true, out);
+						} catch (FileNotFoundException ex) {
+							config.errors.message(((InputPosition)null), "cannot create output file " + out);
+						}
 					}
-				} catch (FileNotFoundException ex) {
-					config.errors.message(((InputPosition)null), "cannot create output file " + out);
+					writers.put(f, pw);
 				}
 			}
 
@@ -73,7 +77,7 @@ public abstract class CommonTestRunner {
 		}
 	}
 
-	public abstract void runit(PrintWriter pw, UnitTestCase utc);
+	public abstract void runit(TestResultWriter pw, UnitTestCase utc);
 
 	protected void assertAllInvocationsCalled() {
 		for (Invocation ii : invocations)

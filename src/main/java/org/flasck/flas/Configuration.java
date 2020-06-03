@@ -205,10 +205,10 @@ public class Configuration {
 		return writeErrorsTo;
 	}
 
-	public File writeTestReportsTo(File f) {
+	public File writeTestReportsTo() {
 		if (writeTestReportsTo != null)
 			return writeTestReportsTo;
 		else
-			return f.getParentFile();
+			return null;
 	}
 }

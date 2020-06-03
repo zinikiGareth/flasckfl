@@ -3,7 +3,6 @@ package test.flas.testrunner;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.flasck.flas.Configuration;
@@ -19,6 +18,7 @@ import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.testrunner.CommonTestRunner;
+import org.flasck.flas.testrunner.TestResultWriter;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,7 +45,7 @@ public abstract class BaseRunnerTests {
 	CardName cn = new CardName(new PackageName("test.runner"), "TestCard");
 	String spkg = pkg + ".script";
 	StringWriter sw = new StringWriter();
-	private PrintWriter pw = new PrintWriter(sw);
+	private TestResultWriter pw = new TestResultWriter(true, sw);
 	
 	@Before
 	public void setup() {

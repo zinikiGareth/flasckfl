@@ -101,7 +101,7 @@ public class JSRunner extends CommonTestRunner {
 
 	// currently untested due to browser issues
 	@Override
-	public void runit(PrintWriter pw, UnitTestCase utc) {
+	public void runit(TestResultWriter pw, UnitTestCase utc) {
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
 			try {
@@ -110,7 +110,7 @@ public class JSRunner extends CommonTestRunner {
 					isdf = page.executeScript("typeof(" + utc.name.jsName() + ")");
 				if ("function".equals(isdf)) {
 					page.executeScript(utc.name.jsName() + "(new window.UTRunner(window.JavaLogger))");
-					pw.println("JS PASS " + utc.description);
+					pw.pass("JS", utc.description);
 				}
 				cdl.countDown();
 			} catch (Throwable t) {
@@ -120,30 +120,29 @@ public class JSRunner extends CommonTestRunner {
 					JSException ex = (JSException) t;
 					String jsex = ex.getMessage();
 					if (jsex.startsWith("Error: NSV\n")) {
-						pw.println("JS FAIL " + utc.description);
+						pw.fail("JS", utc.description);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: EXP\n")) {
-						pw.println("JS FAIL " + utc.description);
+						pw.fail("JS", utc.description);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: MATCH\n")) {
-						pw.println("JS FAIL " + utc.description);
+						pw.fail("JS", utc.description);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: NEWDIV\n")) {
-						pw.println("JS FAIL " + utc.description);
+						pw.fail("JS", utc.description);
 						pw.println("incorrect number of divs created");
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					}
 				}
-				pw.println("JS ERROR " + utc.description);
-				t.printStackTrace(pw);
+				pw.error("JS", utc.description, t);
 				cdl.countDown();
 			}
 		});

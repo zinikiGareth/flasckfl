@@ -43,6 +43,7 @@ import org.flasck.flas.tc3.TypeChecker;
 import org.flasck.flas.tc3.TypeDumper;
 import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
+import org.flasck.flas.testrunner.TestResultWriter;
 import org.flasck.jvm.J;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,7 @@ public class FLASCompiler {
 //	private final DroidBuilder builder = new DroidBuilder();
 	private JSEnvironment jse;
 	private Map<CardDefinition, EventTargetZones> eventMap;
+	private ByteCodeEnvironment bce;
 
 	public FLASCompiler(ErrorReporter errors, Repository repository) {
 		this.errors = errors;
@@ -182,8 +184,7 @@ public class FLASCompiler {
 	
 	public boolean generateCode(Configuration config) {
 		jse = new JSEnvironment(config.jsDir());
-		// TODO: do we need multiple BCEs (or partitions, or something) for the different packages?
-		ByteCodeEnvironment bce = new ByteCodeEnvironment();
+		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
 		
 		StackVisitor jsstack = new StackVisitor();
@@ -205,8 +206,12 @@ public class FLASCompiler {
 		if (config.generateJVM)
 			saveBCE(config.jvmDir(), bce);
 
+		return errors.hasErrors();
+	}
+	
+	public boolean runUnitTests(Configuration config) {
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
-		Map<File, PrintWriter> writers = new HashMap<>();
+		Map<File, TestResultWriter> writers = new HashMap<>();
 		if (config.generateJVM && config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);

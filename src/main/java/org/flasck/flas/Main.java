@@ -131,6 +131,9 @@ public class Main {
 		if (compiler.generateCode(config))
 			return null;
 		
+		if (compiler.runUnitTests(config))
+			return null;
+
 		return compiler;
 	}
 
