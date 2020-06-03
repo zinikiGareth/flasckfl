@@ -235,6 +235,8 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 						errors.message(pos, "cannot provide a template context var of type " + contextVar.type().signature() + " required by " + option.sendsTo.name.uniqueName());
 				}
 				option.sendsTo.bindPosns(posns);
+			} else {
+				errors.message(pos, "cannot identify a suitable template to format value into container " + option.assignsTo.text);
 			}
 			break;
 		case PUNNET:
