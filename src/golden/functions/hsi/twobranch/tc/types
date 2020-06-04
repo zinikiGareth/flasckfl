@@ -1,1 +1,3 @@
+test.golden.ordef :: List[A]->Number->Number
 test.golden.recurse :: List[List[Any]]->List[List[Any]]
+test.golden.twovar :: List[A]->List[A]->List[A]

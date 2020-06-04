@@ -1,3 +1,11 @@
 	recurse Nil = Nil
 	recurse [Nil] = Nil
 	recurse (Cons[List[A]] l) = Cons l.head (recurse l.tail)
+	
+	twovar Nil Nil = Nil
+	twovar Nil (List[A] e) = e
+	twovar (List[A] f) Nil = f
+	twovar g h = g
+	
+	ordef Nil d = 0
+	ordef (List[A] l) d = d

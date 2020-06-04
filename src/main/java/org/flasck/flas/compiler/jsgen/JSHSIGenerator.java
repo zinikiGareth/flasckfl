@@ -103,6 +103,10 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 
 	@Override
 	public void bind(Slot slot, String var) {
+		if (block == null) {
+			System.out.println("block should not be null");
+			return;
+		}
 		this.block.bindVar(slot, switchVars.get(slot), var);
 	}
 

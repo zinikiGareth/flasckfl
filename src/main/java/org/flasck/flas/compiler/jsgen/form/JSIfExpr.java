@@ -34,7 +34,17 @@ public class JSIfExpr implements JSExpr {
 		w.print(") ");
 		trueCase.write(w);
 		w.print(" else ");
-		falseCase.write(w);
-		w.println("");
+		JSExpr ec = falseCase.singleton();
+		if (ec != null) {
+			if (ec instanceof JSIfExpr)
+				ec.write(w);
+			else {
+				w.println("");
+				ec.write(w.indent());
+			}
+		} else {
+			falseCase.write(w);
+			w.println("");
+		}
 	}
 }

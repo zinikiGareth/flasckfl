@@ -77,7 +77,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSBlock implements JSBlockCreator {
-	protected final List<JSExpr> stmts = new ArrayList<>();
+	final List<JSExpr> stmts = new ArrayList<>();
 	private final JSMethod creating;
 
 	protected JSBlock() {
@@ -86,6 +86,12 @@ public class JSBlock implements JSBlockCreator {
 	
 	protected JSBlock(JSMethod creating) {
 		this.creating = creating;
+	}
+	
+	public JSExpr singleton() {
+		if (stmts.size() == 1)
+			return stmts.get(0);
+		return null;
 	}
 	
 	@Override

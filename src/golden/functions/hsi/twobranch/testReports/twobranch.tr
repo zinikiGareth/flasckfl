@@ -1,6 +1,18 @@
 JVM PASS simple case
 JVM PASS singleton
 JVM PASS many
+JVM PASS simple twovar
+JVM PASS twovar case 2
+JVM PASS twovar case 3
+JVM PASS twovar case 4
+JVM PASS ordef value
+JVM PASS order def
 JS PASS simple case
 JS PASS singleton
 JS PASS many
+JS PASS simple twovar
+JS PASS twovar case 2
+JS PASS twovar case 3
+JS PASS twovar case 4
+JS PASS ordef value
+JS PASS order def

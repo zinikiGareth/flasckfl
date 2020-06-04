@@ -9,3 +9,28 @@
 	test many
 		assert (recurse [["hello"]])
 			[["hello"]]
+			
+	test simple twovar
+		assert (twovar [] [])
+			[]
+
+	test twovar case 2
+		assert (twovar [] ["hello"])
+			["hello"]
+			
+	test twovar case 3
+		assert (twovar ["hello"] [])
+			["hello"]
+			
+	test twovar case 4
+		assert (twovar ["hello"] ["goodbye"])
+			["hello"]
+			
+	test ordef value
+		assert (ordef Nil 22)
+			0
+
+	test order def
+		assert (ordef ["hello"] 22)
+			22
+	

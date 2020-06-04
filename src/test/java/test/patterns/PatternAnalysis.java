@@ -38,6 +38,8 @@ import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parser.ut.UnitTestNamer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.patterns.PatternAnalyzer;
+import org.flasck.flas.repository.BackupPlan;
+import org.flasck.flas.repository.DontConsiderAgain;
 import org.flasck.flas.repository.FunctionHSICases;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
@@ -90,7 +92,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -120,7 +122,7 @@ public class PatternAnalysis {
 			oneOf(hsi).leaveCase(case1);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(conv), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(conv), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -150,7 +152,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -187,7 +189,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -226,7 +228,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -267,7 +269,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase(); inSequence(seq);
 			oneOf(hsi).endSwitch(); inSequence(seq);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -308,7 +310,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase(); inSequence(seq);
 			oneOf(hsi).endSwitch(); inSequence(seq);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -342,7 +344,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -393,7 +395,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 		assertNotNull(fn.hsiTree());
 	}
 
@@ -428,7 +430,7 @@ public class PatternAnalysis {
 			oneOf(hsi).visitNumericLiteral(number);
 			oneOf(hsi).endInline(intro);
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -470,7 +472,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -535,7 +537,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 
 	@Test
@@ -596,7 +598,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 	}
 	
 	@Test
@@ -655,7 +657,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 		assertNotNull(fn.hsiTree());
 		assertEquals(cfSlot.get(2), switchSlot.get(0));
 	}
@@ -714,7 +716,7 @@ public class PatternAnalysis {
 			oneOf(hsi).errorNoCase();
 			oneOf(hsi).endSwitch();
 		}});
-		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new ArrayList<FunctionIntro>());
+		new Traverser(hsi).withHSI().visitHSI(vars, "", slots, new FunctionHSICases(fn.intros()), new BackupPlan(), new DontConsiderAgain());
 		assertNotNull(fn.hsiTree());
 	}
 	

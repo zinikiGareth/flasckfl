@@ -108,4 +108,5 @@ public interface JSBlockCreator {
 
 	// Send the block to disk
 	void write(IndentWriter w);
+	JSExpr singleton();
 }

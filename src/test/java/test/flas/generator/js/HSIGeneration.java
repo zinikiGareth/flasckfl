@@ -61,7 +61,7 @@ public class HSIGeneration {
 		ifCtor.trueCase().returnObject(ifCtor.trueCase().string("hello"));
 		ifCtor.falseCase().returnObject(ifCtor.falseCase().string("other"));
 		ifCtor.write(w);
-		assertEquals("if (_cxt.isA(_0, 'Nil')) {\n  return 'hello';\n} else {\n  return 'other';\n}\n", sw.toString());
+		assertEquals("if (_cxt.isA(_0, 'Nil')) {\n  return 'hello';\n} else \n  return 'other';\n", sw.toString());
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class HSIGeneration {
 		ifConst.trueCase().returnObject(ifConst.trueCase().string("hello"));
 		ifConst.falseCase().returnObject(ifConst.falseCase().string("other"));
 		ifConst.write(w);
-		assertEquals("if ((_0 == 'hello')) {\n  return 'hello';\n} else {\n  return 'other';\n}\n", sw.toString());
+		assertEquals("if ((_0 == 'hello')) {\n  return 'hello';\n} else \n  return 'other';\n", sw.toString());
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class HSIGeneration {
 		ifTrue.trueCase().returnObject(ifTrue.trueCase().string("hello"));
 		ifTrue.falseCase().returnObject(ifTrue.falseCase().string("other"));
 		ifTrue.write(w);
-		assertEquals("if (_cxt.isTruthy(true)) {\n  return 'hello';\n} else {\n  return 'other';\n}\n", sw.toString());
+		assertEquals("if (_cxt.isTruthy(true)) {\n  return 'hello';\n} else \n  return 'other';\n", sw.toString());
 	}
 
 	@Test
