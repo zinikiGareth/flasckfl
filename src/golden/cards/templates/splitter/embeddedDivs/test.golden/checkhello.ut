@@ -1,0 +1,8 @@
+	test that the label says hello
+		newdiv
+		data Hello h
+		match h text
+			hello,
+			world
+		newdiv 3
+		

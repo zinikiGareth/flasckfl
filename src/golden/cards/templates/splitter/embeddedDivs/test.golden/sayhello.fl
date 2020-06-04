@@ -1,0 +1,3 @@
+	card Hello
+		template label
+			here <- 'hello, world'
