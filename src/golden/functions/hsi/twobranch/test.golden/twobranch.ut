@@ -1,13 +1,13 @@
 	test simple case
-		assert  (recurse Nil)
+		assert  (recurse 22 Nil)
 			Nil
 			
 	test singleton
-		assert (recurse [Nil])
+		assert (recurse 22 [Nil])
 			Nil
 
 	test many
-		assert (recurse [["hello"]])
+		assert (recurse 22 [["hello"]])
 			[["hello"]]
 			
 	test simple twovar

@@ -51,7 +51,7 @@ public class BackupPlan {
 
 	@Override
 	public String toString() {
-		return "Slots" + slots + " " + intros.size();
+		return "Slots" + (slots == null ? "[]": slots.toString()) + " " + intros.size();
 		
 	}
 

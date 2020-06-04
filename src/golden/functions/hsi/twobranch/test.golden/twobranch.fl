@@ -1,6 +1,6 @@
-	recurse Nil = Nil
-	recurse [Nil] = Nil
-	recurse (Cons[List[A]] l) = Cons l.head (recurse l.tail)
+	recurse e Nil = Nil
+	recurse e [Nil] = Nil
+	recurse e (Cons[List[A]] l) = Cons l.head (recurse e l.tail)
 	
 	twovar Nil Nil = Nil
 	twovar Nil (List[A] e) = e

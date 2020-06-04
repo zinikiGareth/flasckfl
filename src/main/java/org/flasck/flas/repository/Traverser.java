@@ -930,6 +930,8 @@ public class Traverser implements RepositoryVisitor {
 			hsiLogger.info(indent + "selected slot " + s + " remaining = " + remaining + " intros = " + intros);
 			HSIOptions opts = s.getOptions();
 			VarMapping updatedVars = vars.remember(s, opts, intros);
+			if (moreGeneral != null)
+				updatedVars = updatedVars.remember(s, opts, new FunctionHSICases(moreGeneral));
 			hsiLogger.info(indent + "remembered vars " + updatedVars);
 			boolean wantSwitch = opts.hasSwitches(intros);
 			DontConsiderAgain forDef = notAgain;
