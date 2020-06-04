@@ -1,0 +1,2 @@
+resolvederro  9.10:   entry1 <-  _ nth 1 [ c, c ]
+                          cannot render compound object in field entry1

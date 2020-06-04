@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -33,8 +34,6 @@ import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 
 public class TypeConstraintSet implements UnifiableType {
-	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
-
 	public class Comment implements Comparable<Comment>{
 		private final InputPosition pos;
 		private final String msg;
@@ -85,6 +84,24 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 	}
 
+	public class ErrorConstraint {
+		private final Function<Type, Boolean> predicate;
+		private final InputPosition location;
+		private final String err;
+
+		public ErrorConstraint(Function<Type, Boolean> predicate, InputPosition pos, String err) {
+			this.predicate = predicate;
+			location = pos;
+			this.err = err;
+		}
+		
+		public void apply(ErrorReporter errors, Type t) {
+			if (!predicate.apply(t))
+				errors.message(location, err);
+		}
+	}
+
+	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
 	private final RepositoryReader repository;
 	private final CurrentTCState state;
 	private final InputPosition pos;
@@ -99,8 +116,9 @@ public class TypeConstraintSet implements UnifiableType {
 	private final TreeSet<Comment> comments = new TreeSet<>();
 	private final Set<PosType> tys = new HashSet<>();
 	private TypeConstraintSet redirectedTo;
-	private Set<UnifiableType> acquired = new HashSet<>();
-	private Set<UnifiableType> polyvars = new HashSet<>();
+	private final Set<UnifiableType> acquired = new HashSet<>();
+	private final Set<UnifiableType> polyvars = new HashSet<>();
+	private final List<ErrorConstraint> errorConstraints = new ArrayList<ErrorConstraint>();
 	private Comparator<Type> signatureComparator = new Comparator<Type>() {
 		@Override
 		public int compare(Type o1, Type o2) {
@@ -255,6 +273,7 @@ public class TypeConstraintSet implements UnifiableType {
 				this.types.add(ty);
 		this.usedOrReturned += tcs.usedOrReturned;
 		this.acquired.add(ut);
+		this.errorConstraints.addAll(tcs.errorConstraints);
 	}
 
 	@Override
@@ -559,6 +578,9 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		}
 
+		for (ErrorConstraint e : errorConstraints)
+			e.apply(errors, resolvedTo);
+		
 		logger.debug("resolved to " + resolvedTo);
 		return resolvedTo;
 	}
@@ -717,6 +739,16 @@ public class TypeConstraintSet implements UnifiableType {
 		comments.add(new Comment(pos, "isPassed " + ai, ai));
 		// This is the same implementation as "canBeType" - is that correct?
 		types.add(new PosType(loc, ai));
+	}
+	
+	@Override
+	public void requirePrimitive(InputPosition pos, String err) {
+		errorConstraints.add(new ErrorConstraint(x -> TypeHelpers.isPrimitive(x), pos, err));
+	}
+
+	@Override
+	public void requireNonPrimitive(InputPosition pos, String err) {
+		errorConstraints.add(new ErrorConstraint(x -> !TypeHelpers.isPrimitive(x), pos, err));
 	}
 
 	public String asTCS() {

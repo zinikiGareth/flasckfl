@@ -88,4 +88,10 @@ public interface UnifiableType extends Type {
 
 	// look at all polymorphic types and consolidate their arguments
 	void mergePolyVars();
+
+	// require that the UT resolves to (any kind of) primitive or else throw this error
+	void requirePrimitive(InputPosition pos, String err);
+
+	// require that the UT resolves to (any kind of) non-primitive or else throw this error
+	void requireNonPrimitive(InputPosition pos, String err);
 }

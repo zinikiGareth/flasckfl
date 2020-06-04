@@ -6,5 +6,5 @@
 			inner <- [Content ("hello" ++ "world")] => one
 			
 		template one <- (Content c)
-			entry1 <- c.s
-			entry2 <- nth 1 [ "hello", "world" ]
+			entry1 <- nth 1 [ c, c ]
+			

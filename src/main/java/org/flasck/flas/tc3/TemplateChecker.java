@@ -45,6 +45,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 	private ExprResult exprType;
 	private List<String> referencedTemplates;
 	private List<Template> allTemplates;
+	private FunctionGroupTCState state;
 
 	public TemplateChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, Template t, List<Template> allTemplates, List<String> referencedTemplates) {
 		this.errors = errors;
@@ -53,6 +54,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		this.currentTemplate = t;
 		this.allTemplates = allTemplates;
 		this.referencedTemplates = referencedTemplates;
+		state = new FunctionGroupTCState(repository, new DependencyGroup());
 		sv.push(this);
 	}
 
@@ -84,7 +86,6 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 	public void visitExpr(Expr expr, int nArgs) {
 		if (mode == null)
 			throw new NotImplementedException("was not in a mode capable of handling expr");
-		FunctionGroupTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 		sv.push(new ExpressionChecker(errors, repository, state, sv, true));
 	}
 	
@@ -128,10 +129,18 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 					errors.message(pos, "cannot use template '" + tdb.uniqueName() + "' to render object of type '" + obj.uniqueName());
 					break;
 				}
-			} else if (!TypeHelpers.isPrimitive(etype) && option.sendsTo == null) {
-				errors.message(pos, "cannot render compound object in field " + option.assignsTo.text);
-			} else if (TypeHelpers.isPrimitive(etype) && option.sendsTo != null) {
-				errors.message(option.sendsTo.location(), "cannot specify sendsTo operator when value is a primitive");
+			} else if (option.sendsTo == null) {
+				String msg = "cannot render compound object in field " + option.assignsTo.text;
+				if (etype instanceof UnifiableType)
+					((UnifiableType)etype).requirePrimitive(pos, msg);
+				else if (!TypeHelpers.isPrimitive(etype))
+					errors.message(pos, msg);
+			} else {
+				String msg = "cannot specify sendsTo operator when value is a primitive";
+				if (etype instanceof UnifiableType)
+					((UnifiableType)etype).requireNonPrimitive(pos, msg);
+				else if (TypeHelpers.isPrimitive(etype))
+					errors.message(option.sendsTo.location(), msg);
 			} 
 			break;
 		case CONTAINER:
@@ -157,7 +166,8 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				}
 			}
 			if (TypeHelpers.isPrimitive(etype)) {
-				errors.message(pos, "cannot render primitive object in container " + option.assignsTo.text);
+				String msg = "cannot render primitive object in container " + option.assignsTo.text;
+				errors.message(pos, msg);
 				break;
 			}
 			if (option.sendsTo != null && !TypeHelpers.isList(etype)) {
@@ -272,6 +282,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveTemplate(Template t) {
+		state.groupDone(errors, new HashMap<>());
 		sv.result(null);
 	}
 }
