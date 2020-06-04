@@ -13,5 +13,6 @@ public interface HSICases {
 	HSICases retain(List<FunctionIntro> intros);
 	void remove(HSICases forConst);
 	List<String> introNames();
+	HSICases alsoConsider(List<FunctionIntro> bi);
 
 }

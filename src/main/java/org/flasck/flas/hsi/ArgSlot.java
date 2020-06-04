@@ -1,5 +1,9 @@
 package org.flasck.flas.hsi;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.tc3.NamedType;
 
@@ -10,6 +14,11 @@ public class ArgSlot implements Slot {
 	public ArgSlot(int argPos, HSIOptions hsiOptions) {
 		this.argPos = argPos;
 		this.hsiOptions = hsiOptions;
+	}
+
+	@Override
+	public List<FunctionIntro> lessSpecific() {
+		return new ArrayList<FunctionIntro>();
 	}
 
 	@Override

@@ -35,5 +35,5 @@
 			22
 	
 	test trimEnd with two empty elements
-		assert (trimEnd [[], []])
+		assert (atrimEnd [[], []])
 			[[], []]

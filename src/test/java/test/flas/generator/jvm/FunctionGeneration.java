@@ -312,7 +312,7 @@ public class FunctionGeneration {
 		
 		HSIPatternOptions headOpts = new HSIPatternOptions();
 		headOpts.includes(intro);
-		Slot cm1 = new CMSlot("0_head", headOpts);
+		Slot cm1 = new CMSlot("0_head", headOpts, null);
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("head"); will(returnValue(dummy));
 			oneOf(meth).callInterface(J.OBJECT, cxt, "field", var25, dummy); will(returnValue(dummy));

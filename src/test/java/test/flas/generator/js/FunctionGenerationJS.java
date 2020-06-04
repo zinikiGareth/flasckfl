@@ -258,7 +258,7 @@ public class FunctionGenerationJS {
 		sv.withConstructor("Cons");
 		HSIPatternOptions headOpts = new HSIPatternOptions();
 		headOpts.includes(intro);
-		Slot cm1 = new CMSlot("0_head", headOpts);
+		Slot cm1 = new CMSlot("0_head", headOpts, null);
 		sv.constructorField(a0, "head", cm1);
 
 		JSIfExpr inner = new JSIfExpr(null, context.mock(JSBlockCreator.class, "innerT"), context.mock(JSBlockCreator.class, "innerF"));

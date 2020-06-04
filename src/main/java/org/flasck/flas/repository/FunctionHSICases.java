@@ -62,6 +62,17 @@ public class FunctionHSICases implements HSICases {
 	}
 
 	@Override
+	public HSICases alsoConsider(List<FunctionIntro> bi) {
+		if (bi == null || bi.isEmpty())
+			return this;
+		List<FunctionIntro> all = new ArrayList<FunctionIntro>(intros);
+		for (FunctionIntro fi : bi)
+			if (!all.contains(fi))
+				all.add(fi);
+		return new FunctionHSICases(all);
+	}
+
+	@Override
 	public void remove(HSICases unwanted) {
 		List<FunctionIntro> other = ((FunctionHSICases)unwanted).intros;
 		this.intros.removeAll(other);

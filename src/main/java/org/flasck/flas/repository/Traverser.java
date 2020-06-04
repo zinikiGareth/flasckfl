@@ -726,7 +726,7 @@ public class Traverser implements RepositoryVisitor {
 			((HSIVisitor)visitor).hsiArgs(slots);
 			hsiLogger.info("traversing HSI for " + sd.name().uniqueName());
 //			sd.hsiTree().dump("");
-			visitHSI(new VarMapping(), "", slots, sd.hsiCases(), new BackupPlan(), new DontConsiderAgain());
+			visitHSI(new VarMapping(), "", slots, sd.hsiCases(), null, new BackupPlan(), new DontConsiderAgain());
 			hsiLogger.info("finished HSI for " + sd.name().uniqueName());
 		} else {
 			if (patternsTree)
@@ -904,21 +904,25 @@ public class Traverser implements RepositoryVisitor {
 		}
 	}
 
-	public void visitHSI(VarMapping vars, String indent, List<Slot> slots, HSICases intros, BackupPlan goodForDefault, DontConsiderAgain notAgain) {
+	public void visitHSI(VarMapping vars, String indent, List<Slot> slots, HSICases intros, List<FunctionIntro> moreGeneral, BackupPlan planB, DontConsiderAgain notAgain) {
 		indent += "  ";
 		HSIVisitor hsi = (HSIVisitor) visitor;
 		if (slots.isEmpty()) {
 			if (intros.noRemainingCases()) {
-				hsiLogger.info(indent + "no slots, no cases; backup = " + goodForDefault);
-				if (!goodForDefault.hasHope())
+				hsiLogger.info(indent + "no slots, no cases; moreGeneral = " + moreGeneral + "; backup = " + planB);
+				if (moreGeneral != null && !moreGeneral.isEmpty())
+					visitHSI(vars, indent + "  ", slots, new FunctionHSICases(moreGeneral), null, planB, notAgain);
+				else if (!planB.hasHope())
 					hsi.errorNoCase();
 				else
-					goodForDefault.backup(this, notAgain);
+					planB.backup(this, notAgain);
 			} else if (intros.singleton()) {
 				hsiLogger.info(indent + "no slots, one case ... " + intros.onlyIntro());
 				inline(vars, hsi, intros.onlyIntro());
-			} else
+			} else {
+				// In particular, have we considered "overlapping" cases where there are multiple cases that say exactly the same thing?
 				throw new HaventConsideredThisException("We should either have 0 or 1 remaining cases at this point, but there might be ways to go wrong");
+			}
 		} else {
 			Slot s = selectSlot(slots);
 			List<Slot> remaining = new ArrayList<>(slots);
@@ -953,15 +957,20 @@ public class Traverser implements RepositoryVisitor {
 					for (NamedType ty : opts.unionsIncluding(c))
 						backupPlan.allows(opts.getIntrosForType(ty));
 					backupPlan.allows(opts.getDefaultIntros(intros));
+					List<FunctionIntro> bi = null;
+					if (opts.types().contains(c))
+						bi = opts.getIntrosForType(c);
+					else
+						bi = s.lessSpecific();
 					List<Slot> extended = new ArrayList<>(remaining);
 					for (int i=0;i<cm.width();i++) {
 						String fld = cm.getField(i);
 						HSIOptions oi = cm.get(i);
-						CMSlot fieldSlot = new CMSlot(s.id()+"_"+fld, oi);
+						CMSlot fieldSlot = new CMSlot(s.id()+"_"+fld, oi, bi);
 						hsi.constructorField(s, fld, fieldSlot);
 						extended.add(fieldSlot);
 					}
-					visitHSI(updatedVars, indent, extended, retainedIntros, backupPlan, forDef);
+					visitHSI(updatedVars, indent, extended, retainedIntros, bi, backupPlan, forDef);
 				}
 				Set<NamedType> still = new HashSet<>(opts.types());
 				for (NamedType ty : opts.types()) {
@@ -993,7 +1002,7 @@ public class Traverser implements RepositoryVisitor {
 							for (int k : numbers) {
 								hsi.matchNumber(k);
 								HSICases forConst = intersect.retain(opts.getIntrosForType(ty));
-								visitHSI(updatedVars, indent, remaining, intersect, backupPlan, forDef);
+								visitHSI(updatedVars, indent, remaining, intersect, moreGeneral, backupPlan, forDef);
 								intersect.remove(forConst);
 							}
 							hsi.matchDefault();
@@ -1005,13 +1014,13 @@ public class Traverser implements RepositoryVisitor {
 							for (String k : strings) {
 								hsi.matchString(k);
 								HSICases forConst = intersect.retain(opts.getIntrosForType(ty));
-								visitHSI(updatedVars, indent, remaining, intersect, backupPlan, forDef);
+								visitHSI(updatedVars, indent, remaining, intersect, moreGeneral, backupPlan, forDef);
 								intersect.remove(forConst);
 							}
 							hsi.matchDefault();
 						}
 					}
-					visitHSI(updatedVars, indent, remaining, intersect, backupPlan, forDef);
+					visitHSI(updatedVars, indent, remaining, intersect, moreGeneral, backupPlan, forDef);
 				}
 				if (needSwitch) {
 					wantSwitch = false;
@@ -1021,7 +1030,7 @@ public class Traverser implements RepositoryVisitor {
 			if (wantSwitch)
 				hsi.defaultCase();
 			hsiLogger.info(indent + "slot " + s + ": for the default case, intros = " + intersect);
-			visitHSI(updatedVars, indent, remaining, intersect, goodForDefault, forDef);
+			visitHSI(updatedVars, indent, remaining, intersect, moreGeneral, planB, forDef);
 			if (wantSwitch) {
 				hsi.endSwitch();
 			}

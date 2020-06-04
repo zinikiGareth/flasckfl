@@ -1,5 +1,9 @@
 package org.flasck.flas.hsi;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.patterns.HSIOptions;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -10,6 +14,11 @@ public class HLSlot implements Slot {
 		this.id = id;
 	}
 
+	@Override
+	public List<FunctionIntro> lessSpecific() {
+		return new ArrayList<FunctionIntro>();
+	}
+	
 	@Override
 	public HSIOptions getOptions() {
 		throw new NotImplementedException();

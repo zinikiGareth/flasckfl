@@ -46,7 +46,7 @@ public class BackupPlan {
 	
 	public void backup(Traverser traverser, DontConsiderAgain dca) {
 		Traverser.hsiLogger.info(indent + "invoking backup plan with " + slots + " " + dca + " " + vars);
-		traverser.visitHSI(vars, indent, slots, new FunctionHSICases(intros), new BackupPlan(), dca);
+		traverser.visitHSI(vars, indent, slots, new FunctionHSICases(intros), null, new BackupPlan(), dca);
 	}
 
 	@Override

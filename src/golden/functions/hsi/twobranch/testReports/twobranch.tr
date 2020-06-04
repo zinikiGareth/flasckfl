@@ -7,6 +7,7 @@ JVM PASS twovar case 3
 JVM PASS twovar case 4
 JVM PASS ordef value
 JVM PASS order def
+JVM PASS trimEnd with two empty elements
 JS PASS simple case
 JS PASS singleton
 JS PASS many
@@ -16,3 +17,4 @@ JS PASS twovar case 3
 JS PASS twovar case 4
 JS PASS ordef value
 JS PASS order def
+JS PASS trimEnd with two empty elements
