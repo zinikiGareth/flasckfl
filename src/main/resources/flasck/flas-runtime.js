@@ -28,12 +28,16 @@ CommonEnv.prototype.queueMessages = function(_cxt, msg) {
 }
 
 CommonEnv.prototype.dispatchMessages = function(_cxt) {
+    var set = [];
+    _cxt.updateCards = set;
     while (this.queue.length > 0) {
         var more = this.queue.shift();
         while (more && (!Array.isArray(more) || more.length > 0)) {
             more = this.handleMessages(_cxt, more);
         }
     }
+    delete _cxt.updateCards;
+    set.forEach(card => card._updateDisplay(_cxt, card._renderTree));
 }
 
 CommonEnv.prototype.handleMessages = function(_cxt, msg) {
@@ -463,6 +467,13 @@ FLContext.prototype.findContractOnCard = function(card, ctr) {
 		if (card._contracts[ce][ctr])
 			return card._contracts[ce][ctr];
 	}
+}
+
+FLContext.prototype.needsUpdate = function(card) {
+	if (typeof this.updateCards === 'undefined')
+		throw Error("cannot update when not in event loop");
+	if (!this.updateCards.includes(card))
+		this.updateCards.push(card);
 }
 
 FLContext.prototype.storeMock = function(value) {
@@ -1250,6 +1261,10 @@ Send.prototype.dispatch = function(cx) {
 		args.splice(args.length, 0, new IdempotentHandler());
 	}
 	var ret = this.obj._methods()[this.meth].apply(this.obj, args);
+	if (this.obj._updateDisplay)
+		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj)]);
+	else if (this.obj._card && this.obj._card._updateDisplay)
+		cx.env.queueMessages(cx, [new UpdateDisplay(cx, this.obj._card)]);
 	return ret;
 }
 Send.prototype.toString = function() {
@@ -1316,7 +1331,7 @@ const UpdateDisplay = function(cx, card) {
 }
 UpdateDisplay.prototype.dispatch = function(cx) {
 	if (this.card._updateDisplay)
-		this.card._updateDisplay(cx, this.card._renderTree);
+		cx.needsUpdate(this.card);
 }
 UpdateDisplay.prototype.toString = function() {
 	return "UpdateDisplay";
