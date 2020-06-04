@@ -950,7 +950,7 @@ public class Traverser implements RepositoryVisitor {
 					}
 					hsi.withConstructor(c.name.uniqueName());
 					BackupPlan backupPlan = new BackupPlan(updatedVars, indent, remaining);
-					for (NamedType ty : opts.typesIncluding(c))
+					for (NamedType ty : opts.unionsIncluding(c))
 						backupPlan.allows(opts.getIntrosForType(ty));
 					backupPlan.allows(opts.getDefaultIntros(intros));
 					List<Slot> extended = new ArrayList<>(remaining);

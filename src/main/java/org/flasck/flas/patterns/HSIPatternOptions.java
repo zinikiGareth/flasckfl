@@ -161,13 +161,13 @@ public class HSIPatternOptions implements HSIOptions {
 	}
 
 	@Override
-	public List<NamedType> typesIncluding(StructDefn c) {
+	public List<NamedType> unionsIncluding(StructDefn c) {
 		List<NamedType> ret = new ArrayList<NamedType>();
 		for (NamedType t : types.keySet()) {
 			if (t instanceof PolyInstance)
 				throw new CantHappenException("I don't think PolyInstances should be in the key");
-			if (c == t)
-				ret.add(t);
+//			if (c == t)
+//				ret.add(t);
 			if (t instanceof UnionTypeDefn && ((UnionTypeDefn)t).findCase(c.name().uniqueName()) != null)
 				ret.add(t);
 		}

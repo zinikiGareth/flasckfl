@@ -34,3 +34,6 @@
 		assert (ordef ["hello"] 22)
 			22
 	
+	test trimEnd with two empty elements
+		assert (trimEnd [[], []])
+			[[], []]

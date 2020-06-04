@@ -68,5 +68,5 @@ public interface HSIOptions {
 	NamedType containerType();
 	void dump(String indent);
 	List<String> introNames();
-	List<NamedType> typesIncluding(StructDefn c);
+	List<NamedType> unionsIncluding(StructDefn c);
 }

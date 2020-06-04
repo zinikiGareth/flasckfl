@@ -9,3 +9,7 @@
 	
 	ordef Nil d = 0
 	ordef (List[A] l) d = d
+	
+	trimEnd Nil = Nil
+	trimEnd [[]] = Nil
+	trimEnd (Cons[List[A]] l) = l
