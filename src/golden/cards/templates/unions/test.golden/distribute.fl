@@ -1,0 +1,20 @@
+	struct CaseA
+		String text
+	struct CaseB
+		Number value
+	
+	union Cases
+		CaseA
+		CaseB
+		
+	card MyCard
+		state
+			Cases c
+		
+		template main
+			holds <- c
+		
+		template a <- (CaseA c)
+			here <- c.text
+		template b <- (CaseB b)
+			n <- b.value

@@ -1,0 +1,8 @@
+JVM PASS that we handle case A correctly
+JVM PASS that we handle case B correctly
+JVM PASS that we handle update in place without divs if its the same thing
+JVM PASS that we handle update in place with minimal divs if it changes
+JS PASS that we handle case A correctly
+JS PASS that we handle case B correctly
+JS PASS that we handle update in place without divs if its the same thing
+JS PASS that we handle update in place with minimal divs if it changes

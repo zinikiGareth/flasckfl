@@ -702,11 +702,25 @@ FLCard.prototype._updateContainer = function(_cxt, _renderTree, field, value, fn
         return;
     }
     var card = this;
-    this._updateList(node, crt.children, value, {
-        insert: function(rtc, ni, v) {
-        	fn.call(card, _cxt, rtc, node, ni, v);
+    if (Array.isArray(value)) {
+        this._updateList(node, crt.children, value, {
+            insert: function(rtc, ni, v) {
+                fn.call(card, _cxt, rtc, node, ni, v);
+            }
+        });
+    } else {
+        // a single element container
+        var curr = null;
+        if (!crt.single)
+            crt.single = {};
+        else if (value == crt.single.value) {
+            curr = node.firstElementChild;
+        } else { // clear it out
+            node.innerHTML = '';
+            crt.single = {};
         }
-    });
+        fn.call(card, _cxt, crt.single, node, curr, value);
+    }
 }
 
 FLCard.prototype._updateList = function(parent, rts, values, cb) {

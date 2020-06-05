@@ -174,7 +174,11 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				errors.message(option.sendsTo.location(), "cannot specify sendsTo operator for a single item when target is a container");
 				break;
 			}
-			if (option.sendsTo == null && TypeHelpers.isList(etype)) {
+			if (option.sendsTo == null && etype instanceof UnionTypeDefn) {
+				Map<NamedType, Template> mapping = new HashMap<>();
+				distributeUnion(pos, etype, mapping);
+				option.attachMapping(mapping);
+			} else if (option.sendsTo == null && TypeHelpers.isList(etype)) {
 				/* In this case, we have specified a list of items we want rendered into a container, 
 				 * but we haven't specified how we want it done.  In that case, the items must be of a type
 				 * that we can identify and must either be STRUCT or UNION.
@@ -194,25 +198,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 						mapping.put((StructDefn) etype, which);
 					}
 				} else if (etype instanceof UnionTypeDefn) {
-					Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, etype);
-					if (which != null) {
-						referencedTemplates.add(which.name().baseName());
-						mapping.put((NamedType) etype, which);
-					} else {
-						for (TypeReference ty : ((UnionTypeDefn)etype).cases) {
-							NamedType td = ty.defn();
-							if (td instanceof PolyInstance)
-								td = ((PolyInstance)td).struct();
-							StructDefn sd = (StructDefn)td;
-							Template wh2 = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, sd);
-							if (wh2 == null) {
-								errors.message(pos, "there is no compatible template for " + etype.signature());
-							} else {
-								referencedTemplates.add(wh2.name().baseName());
-								mapping.put(sd, wh2);
-							}
-						}
-					}
+					distributeUnion(pos, etype, mapping);
 				} else if (etype instanceof UnifiableType) {
 					errors.message(pos, "the compiler is not clever enough to do the analysis required to figure out which template to send elements to; please specify a template or make your types clearer");
 				} else {
@@ -277,6 +263,31 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		default:
 			errors.message(option.assignsTo.location(), "cannot handle dest type " + dest);
 			break;
+		}
+	}
+
+	private void distributeUnion(InputPosition pos, Type etype, Map<NamedType, Template> mapping) {
+		Template which = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, etype);
+		if (which != null) {
+			referencedTemplates.add(which.name().baseName());
+			mapping.put((NamedType) etype, which);
+		} else {
+			List<String> missing = new ArrayList<>();
+			for (TypeReference ty : ((UnionTypeDefn)etype).cases) {
+				NamedType td = ty.defn();
+				if (td instanceof PolyInstance)
+					td = ((PolyInstance)td).struct();
+				StructDefn sd = (StructDefn)td;
+				Template wh2 = TypeChecker.selectTemplateFromCollectionBasedOnOperatingType(errors, pos, allTemplates, sd);
+				if (wh2 == null) {
+					missing.add(sd.signature());
+				} else {
+					referencedTemplates.add(wh2.name().baseName());
+					mapping.put(sd, wh2);
+				}
+			}
+			if (!missing.isEmpty())
+				errors.message(pos, "cannot distribute across " + etype.signature() + " because not all members have defined cases; missing cases for: " + String.join(", ", missing));
 		}
 	}
 

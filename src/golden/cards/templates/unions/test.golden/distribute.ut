@@ -1,0 +1,38 @@
+	test that we handle case A correctly
+		data MyCard c
+		shove c.c
+			CaseA "hello"
+		match c text
+			hello
+			
+	test that we handle case B correctly
+		data MyCard c
+		shove c.c
+			CaseB 420
+		match c text
+			420
+
+	test that we handle update in place without divs if its the same thing
+		data MyCard c
+		shove c.c
+			CaseA "hello"
+		newdiv 5
+		shove c.c
+			CaseA "hello"
+this should be 0 but there is currently an "if ==" bug in the library
+		newdiv 2
+		match c text
+			hello
+			
+	test that we handle update in place with minimal divs if it changes
+		data MyCard c
+		shove c.c
+			CaseA "hello"
+		newdiv 5
+		match c text
+			hello
+		shove c.c
+			CaseB 420
+		newdiv 2
+		match c text
+			420
