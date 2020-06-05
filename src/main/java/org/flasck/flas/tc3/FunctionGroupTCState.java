@@ -44,7 +44,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
 		for (StandaloneDefn x : grp.functions())
-			bindVarToUT(x.name().uniqueName(), createUT(x.location(), x.name().uniqueName() + " returns"));
+			bindVarToUT(x.name().uniqueName(), createUT(x.location(), x.name().uniqueName() + " returns", false));
 		this.hasGroup = !grp.isEmpty();
 	}
 
@@ -55,7 +55,12 @@ public class FunctionGroupTCState implements CurrentTCState {
 	
 	@Override
 	public UnifiableType createUT(InputPosition pos, String motive) {
-		TypeConstraintSet ret = new TypeConstraintSet(repository, this, pos, "ret_" + allUTs.size(), motive);
+		return createUT(pos, motive, true);
+	}
+
+	@Override
+	public UnifiableType createUT(InputPosition pos, String motive, boolean unionNeedsAll) {
+		TypeConstraintSet ret = new TypeConstraintSet(repository, this, pos, "ret_" + allUTs.size(), motive, unionNeedsAll);
 		allUTs.add(ret);
 		return ret;
 	}
@@ -330,7 +335,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			else
 				motive.append(tt.signature());
 		}
-		UnifiableType ut = createUT(pos, motive.toString());
+		UnifiableType ut = createUT(pos, motive.toString(), false);
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);

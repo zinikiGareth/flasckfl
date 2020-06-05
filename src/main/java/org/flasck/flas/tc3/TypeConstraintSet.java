@@ -125,6 +125,7 @@ public class TypeConstraintSet implements UnifiableType {
 			return o1.signature().compareTo(o2.signature());
 		}
 	};
+	private final boolean needAll;
 	final static Comparator<? super PosType> posNameComparator = new Comparator<PosType>() {
 
 		@Override
@@ -137,12 +138,13 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 	};
 	
-	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive) {
+	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive, boolean unionNeedsAll) {
 		repository = r;
 		this.state = state;
 		this.pos = pos;
 		this.id = id;
 		this.motive = motive;
+		this.needAll = unionNeedsAll;
 		comments.add(new Comment(pos, id + " created because " + motive, null));
 	}
 
@@ -557,23 +559,9 @@ public class TypeConstraintSet implements UnifiableType {
 				}
 				alltys.add(pt.type);
 			}
-			resolvedTo = repository.findUnionWith(alltys);
+			resolvedTo = repository.findUnionWith(errors, pos, alltys, needAll);
 			if (resolvedTo == null) {
 				logger.info("could not unify " + this.id);
-				TreeSet<String> msgs = new TreeSet<>();
-				for (Type ty : alltys)
-					msgs.add(ty.signature());
-				for (Comment c : comments) {
-					if (c.type != null && !(c.type instanceof UnifiableType)) {
-						String msg = "  has contraint: '" + c.msg + "'";
-						msg += " " + c.type.signature();
-						logger.info(msg);
-					}
-				}
-				TreeSet<String> tyes = new TreeSet<String>();
-				for (Type ty : alltys)
-					tyes.add(ty.signature());
-				errors.message(pos, "cannot unify " + tyes);
 				resolvedTo = new ErrorType();
 			}
 		}

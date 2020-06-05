@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -300,7 +302,7 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
-	public Type findUnionWith(Set<Type> ms) {
+	public Type findUnionWith(ErrorReporter errors, InputPosition pos, Set<Type> ms, boolean needAll) {
 		if (ms.isEmpty())
 			throw new NotImplementedException();
 		Set<Type> collect = new HashSet<Type>();
@@ -327,15 +329,33 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			}
 		} else if (collect.size() == 1)
 			return collect.iterator().next();
+		List<Type> matching = new ArrayList<>();
 		for (RepositoryEntry k : dict.values()) {
 			if (k instanceof UnionTypeDefn) {
 				UnionTypeDefn utd = (UnionTypeDefn) k;
-				Type union = utd.matches(collect, this);
+				Type union = utd.matches(errors, pos, this, collect, needAll);
 				if (union != null)
-					return union;
+					matching.add(union);
 			}
 		}
-		return null;
+		if (matching.isEmpty()) {
+			TreeSet<String> tyes = new TreeSet<String>();
+			for (Type ty : ms)
+				tyes.add(ty.signature());
+			errors.message(pos, "cannot unify " + tyes);
+			return null;
+		} else if (matching.size() == 1)
+			return matching.get(0);
+		else {
+			TreeSet<String> tyes = new TreeSet<String>();
+			for (Type ty : ms)
+				tyes.add(ty.signature());
+			TreeSet<String> us = new TreeSet<String>();
+			for (Type ty : matching)
+				us.add(ty.signature());
+			errors.message(pos, "multiple unions match " + tyes + ": " + us);
+			return null;
+		}
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package org.flasck.flas.repository;
 import java.util.List;
 import java.util.Set;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -18,7 +20,7 @@ public interface RepositoryReader extends UnionFinder {
 	void traverseWithMemberFields(RepositoryVisitor visitor);
 	void dump();
 	List<UnionTypeDefn> unionsContaining(StructDefn obj);
-	Type findUnionWith(Set<Type> ms);
+	Type findUnionWith(ErrorReporter errors, InputPosition pos, Set<Type> ms, boolean needAll);
 	Iterable<SplitMetaData> allWebs();
 	CardData findWeb(String baseName);
 }

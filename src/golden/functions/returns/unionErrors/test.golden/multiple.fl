@@ -1,0 +1,20 @@
+Although it is possible to match partial return matches of unions,
+they must be unique matches
+
+	struct CaseA
+	struct CaseB
+	struct CaseC
+	struct CaseD
+	
+	union OptionA
+		CaseA
+		CaseB
+		CaseC
+
+	union OptionB
+		CaseB
+		CaseC
+		CaseD
+		
+	func [] = CaseC
+	func (Cons[A] l) = CaseB

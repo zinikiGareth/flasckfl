@@ -353,7 +353,7 @@ public class RepositoryTests {
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
-		UnionTypeDefn b = (UnionTypeDefn) r.findUnionWith(ms);
+		UnionTypeDefn b = (UnionTypeDefn) r.findUnionWith(errors, pos, ms, true);
 		assertEquals(LoadBuiltins.bool, b);
 	}
 	
@@ -364,7 +364,7 @@ public class RepositoryTests {
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.number);
 		ms.add(LoadBuiltins.any);
-		Type t = r.findUnionWith(ms);
+		Type t = r.findUnionWith(errors, pos, ms, true);
 		assertEquals(LoadBuiltins.any, t);
 	}
 	
@@ -376,7 +376,10 @@ public class RepositoryTests {
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
 		ms.add(LoadBuiltins.nil);
-		assertNull(r.findUnionWith(ms));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "cannot unify [False, Nil, True]");
+		}});
+		assertNull(r.findUnionWith(errors, pos, ms, true));
 	}
 	
 	@Test
@@ -385,7 +388,7 @@ public class RepositoryTests {
 		LoadBuiltins.applyTo(errors, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
-		assertEquals(LoadBuiltins.trueT, r.findUnionWith(ms ));
+		assertEquals(LoadBuiltins.trueT, r.findUnionWith(errors, pos, ms, true ));
 	}
 
 	@Test
@@ -395,7 +398,10 @@ public class RepositoryTests {
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.nil);
-		assertNull(r.findUnionWith(ms));
+		context.checking(new Expectations() {{
+			oneOf(errors).message(pos, "cannot unify [Nil, True]");
+		}});
+		assertNull(r.findUnionWith(errors, pos, ms, true));
 	}
 	
 	@Test
@@ -405,7 +411,7 @@ public class RepositoryTests {
 		Set<Type> ms = new HashSet<>();
 		ms.add(new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.bool)));
 		ms.add(LoadBuiltins.nil);
-		Type u = r.findUnionWith(ms);
+		Type u = r.findUnionWith(errors, pos, ms, true);
 		assertNotNull(u);
 		assertTrue(u instanceof PolyInstance);
 		PolyInstance pi = (PolyInstance) u;

@@ -10,6 +10,7 @@ import java.util.Set;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.UnionFieldConsumer;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -67,7 +68,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		return polyvars;
 	}
 	
-	public Type matches(Set<Type> members, UnionFinder finder) {
+	public Type matches(ErrorReporter errors, InputPosition pos, UnionFinder finder, Set<Type> members, boolean needAll) {
 		Set<String> all = new HashSet<>();
 		Set<String> left = new HashSet<>();
 		for (TypeReference tr : cases) {
@@ -111,7 +112,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 				return null;
 			left.remove(sd.name().uniqueName());
 		}
-		if (!left.isEmpty())
+		if (needAll && !left.isEmpty())
 			return null;
 		if (!polys.isEmpty()) {
 			List<Type> bound = new ArrayList<>();
@@ -122,7 +123,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 					if (tr.size() == 1)
 						ut = tr.iterator().next();
 					else {
-						ut = finder.findUnionWith(tr);
+						ut = finder.findUnionWith(errors, pos, tr, true);
 						if (ut == null)
 							return null;
 					}
@@ -133,26 +134,6 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 			return new PolyInstance(this.location(), this, bound);
 		} else
 			return this;
-		/*
-		// TODO: we need to do deeper analysis to make sure poly vars are consistently instantiated
-		// TODO: this prep work is the same for each of the union types to be considered - should we do it before calling this?
-		Set<StructDefn> structs = new HashSet<StructDefn>();
-		for (Type t : members) {
-			if (t instanceof StructDefn)
-				structs.add((StructDefn) t);
-			else if (t instanceof PolyInstance)
-				structs.add(((PolyInstance)t).struct());
-			else
-				return false;
-		}
-		if (cases.size() != structs.size())
-			return false;
-		for (TypeReference s : cases) {
-			if (!structs.contains((Type)s.defn()))
-				return false;
-		}
-		return true;
-		*/
 	}
 
 	public TypeReference findCase(String ctor) {

@@ -1,0 +1,16 @@
+It should be possible to define a function which returns more than a struct
+but less than a whole union and have it type as if it returned the whole union
+
+Providing, of course, only one such union exists
+
+	struct CaseA
+	struct CaseB
+	struct CaseC
+	
+	union Cases
+		CaseA
+		CaseB
+		CaseC
+		
+	func [] = CaseC
+	func (Cons[A] l) = CaseB

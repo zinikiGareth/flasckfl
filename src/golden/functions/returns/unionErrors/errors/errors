@@ -1,0 +1,2 @@
+multiple.fl: 20.19:   func (Cons[A] l) =  _ CaseB
+                          multiple unions match [test.golden.CaseB, test.golden.CaseC]: [test.golden.OptionA, test.golden.OptionB]

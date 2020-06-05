@@ -416,7 +416,7 @@ public class StackVisitation {
 	public void leaveApplyExpressionCanHandleUnifiableTypesAsFunctionsProducingApplications() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
 		Type nbr = context.mock(Type.class, "nbr");
-		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown");
+		UnifiableType ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown", true);
 		FunctionName func = FunctionName.function(pos, null, "f");
 		VarPattern funcVar = new VarPattern(pos, new VarName(pos, func, "x"));
 		UnifiableType result = context.mock(UnifiableType.class, "result");
@@ -437,7 +437,7 @@ public class StackVisitation {
 	@Test
 	public void aUnifiableTypeCanBeAppliedToAUnifiableTypeWhichCreatesABond() {
 		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
-		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "func", "unknown");
+		UnifiableType utF = new TypeConstraintSet(repository, state, pos, "func", "unknown", true);
 		UnifiableType utV = context.mock(UnifiableType.class);
 		FunctionName fname = FunctionName.function(pos, null, "f");
 		VarPattern func = new VarPattern(pos, new VarName(pos, fname, "f"));

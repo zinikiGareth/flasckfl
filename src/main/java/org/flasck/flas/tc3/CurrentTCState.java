@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 
 public interface CurrentTCState extends Consolidator {
 	UnifiableType createUT(InputPosition pos, String motive);
+	UnifiableType createUT(InputPosition pos, String motive, boolean unionNeedsAll);
 	UnifiableType requireVarConstraints(InputPosition pos, String var);
 	UnifiableType hasVar(String var);
 	PolyType nextPoly(InputPosition pos);

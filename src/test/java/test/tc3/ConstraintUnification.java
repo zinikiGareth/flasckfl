@@ -114,7 +114,7 @@ public class ConstraintUnification {
 		ut.canBeStruct(pos, null, LoadBuiltins.trueT);
 		ut.canBeStruct(pos, null, LoadBuiltins.falseT);
 		context.checking(new Expectations() {{
-			oneOf(repository).findUnionWith((Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT))); will(returnValue(LoadBuiltins.bool));
+			oneOf(repository).findUnionWith(with(errors), with(pos), (Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT)), with(true)); will(returnValue(LoadBuiltins.bool));
 		}});
 		state.groupDone(errors, new HashMap<>());
 		assertEquals(LoadBuiltins.bool, ut.resolvedTo());
