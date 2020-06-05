@@ -1,0 +1,1 @@
+test.golden.topCard :: test.golden.DisplayCard->List[test.golden.Input]->test.golden.DisplayCard

@@ -1,0 +1,3 @@
+	test topCard can return ShowCard as default
+		assert (topCard (ShowCard "hello") Nil)
+			ShowCard "hello"

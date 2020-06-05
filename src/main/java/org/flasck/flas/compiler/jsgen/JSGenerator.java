@@ -18,6 +18,8 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
+import org.flasck.flas.compiler.jsgen.creators.JSCompare;
+import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSFromCard;
@@ -68,6 +70,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestStep;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
@@ -106,6 +109,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 	}
 
+	private final RepositoryReader repository;
 	private final JSStorage jse;
 	private final NestedVisitor sv;
 	private final Map<CardDefinition, EventTargetZones> eventMap;
@@ -125,7 +129,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSClassCreator templateCreator;
 	private AtomicInteger containerIdx;
 
-	public JSGenerator(JSStorage jse, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
+	public JSGenerator(RepositoryReader repository, JSStorage jse, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
+		this.repository = repository;
 		this.jse = jse;
 		this.sv = sv;
 		this.eventMap = eventMap;
@@ -134,6 +139,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	public JSGenerator(JSMethodCreator meth, JSExpr runner, NestedVisitor sv, JSFunctionState state) {
+		this.repository = null;
 		this.sv = sv;
 		this.jse = null;
 		if (meth == null)
@@ -225,8 +231,18 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		ctor.stateField();
 		ctor.storeField(this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
 		JSMethodCreator areYouA = ctr.createMethod("_areYouA", true);
+		areYouA.argument("_cxt");
 		areYouA.argument("ty");
-		areYouA.returnCompare(areYouA.arg(0), areYouA.string(obj.name().jsName()));
+		JSExpr aya = areYouA.arg(1);
+		JSIfCreator ifblk = areYouA.ifTrue(new JSCompare(aya, areYouA.string(obj.name().jsName())));
+		ifblk.trueCase().returnObject(ifblk.trueCase().literal("true"));
+		JSBlockCreator fc = ifblk.falseCase();
+		for (UnionTypeDefn u : repository.unionsContaining(obj)) {
+			JSIfCreator ifu = fc.ifTrue(new JSCompare(aya, areYouA.string(u.name().jsName())));
+			ifu.trueCase().returnObject(ifblk.trueCase().literal("true"));
+			fc = ifu.falseCase();
+		}
+		fc.returnObject(fc.literal("false"));
 		this.meth = ctr.createMethod("eval", false);
 		this.meth.argument("_cxt");
 		this.evalRet = meth.newOf(obj.name());
@@ -253,8 +269,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		templateCreator = jse.newClass(pkg, obj.name().jsName());
 		templateCreator.inheritsFrom(new PackageName("FLObject"));
 		JSMethodCreator areYouA = templateCreator.createMethod("_areYouA", true);
+		areYouA.argument("_cxt");
 		areYouA.argument("ty");
-		areYouA.returnCompare(areYouA.arg(0), areYouA.string(obj.name().jsName()));
+		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().jsName()));
 		JSBlockCreator ctor = templateCreator.constructor();
 		ctor.stateField();
 		List<FunctionName> methods = new ArrayList<>();

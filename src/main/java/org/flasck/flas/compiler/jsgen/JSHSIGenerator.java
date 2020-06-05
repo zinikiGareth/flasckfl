@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
+import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -57,7 +57,7 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 //				this.block.returnObject(stack.remove(0));
 			this.block = currentLevel.elseBlock;
 		}
-		JSIfExpr ifCtor = this.block.ifCtor(currentLevel.currentVar, ctor);
+		JSIfCreator ifCtor = this.block.ifCtor(currentLevel.currentVar, ctor);
 		this.block = ifCtor.trueCase();
 		this.currentLevel.elseBlock = ifCtor.falseCase();
 	}
@@ -72,14 +72,14 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 	// TODO: would this be better as a switch?
 	@Override
 	public void matchNumber(int val) {
-		JSIfExpr ifCtor = this.block.ifConst(currentLevel.currentVar, val);
+		JSIfCreator ifCtor = this.block.ifConst(currentLevel.currentVar, val);
 		this.block = ifCtor.trueCase();
 		this.currentLevel.matchDefault = ifCtor.falseCase();
 	}
 
 	@Override
 	public void matchString(String val) {
-		JSIfExpr ifCtor = this.block.ifConst(currentLevel.currentVar, val);
+		JSIfCreator ifCtor = this.block.ifConst(currentLevel.currentVar, val);
 		this.block = ifCtor.trueCase();
 		this.currentLevel.matchDefault = ifCtor.falseCase();
 	}

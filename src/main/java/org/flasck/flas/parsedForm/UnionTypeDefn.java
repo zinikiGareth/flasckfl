@@ -71,8 +71,8 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 		Set<String> all = new HashSet<>();
 		Set<String> left = new HashSet<>();
 		for (TypeReference tr : cases) {
-			all.add(tr.name());
-			left.add(tr.name());
+			all.add(tr.defn().name().uniqueName());
+			left.add(tr.defn().name().uniqueName());
 		}
 		SetMap<String, Type> polys = new SetMap<String, Type>();
 		for (Type t : members) {
@@ -160,6 +160,13 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 			if (c.name().equals(ctor))
 				return c;
 		return null;
+	}
+
+	public boolean hasCase(StructDefn sd) {
+		for (TypeReference c : cases)
+			if (c.defn().equals(sd))
+				return true;
+		return false;
 	}
 
 	@Override

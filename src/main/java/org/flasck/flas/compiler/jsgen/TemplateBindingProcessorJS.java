@@ -9,9 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
+import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -45,7 +45,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 	private final List<JSExpr> cexpr = new ArrayList<>();
 
 	private Mode mode;
-	private JSIfExpr ie;
+	private JSIfCreator ie;
 	private JSBlockCreator bindingBlock;
 	private TemplateBindingOption currentTBO;
 	private int option = 0;
@@ -130,7 +130,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 					} else {
 						JSBlockCreator block = uc;
 						for (Entry<NamedType, Template> e : mapping.entrySet()) {
-							JSIfExpr ifExpr = block.ifCtor(expr, e.getKey().name());
+							JSIfCreator ifExpr = block.ifCtor(expr, e.getKey().name());
 							templateMember(ifExpr.trueCase(), e.getValue(), expr);
 							block = ifExpr.falseCase();
 						}

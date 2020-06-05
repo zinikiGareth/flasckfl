@@ -1,9 +1,10 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
+import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSIfExpr implements JSExpr {
+public class JSIfExpr implements JSIfCreator {
 	private final JSExpr test;
 	private final JSBlockCreator trueCase;
 	private final JSBlockCreator falseCase;

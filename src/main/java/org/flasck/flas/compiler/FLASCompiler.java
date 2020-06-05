@@ -188,9 +188,9 @@ public class FLASCompiler {
 		populateBCE(bce);
 		
 		StackVisitor jsstack = new StackVisitor();
-		new JSGenerator(jse, jsstack, eventMap);
+		new JSGenerator(repository, jse, jsstack, eventMap);
 		StackVisitor jvmstack = new StackVisitor();
-		new JVMGenerator(bce, jvmstack, eventMap);
+		new JVMGenerator(repository, bce, jvmstack, eventMap);
 
 		if (config.generateJS)
 			repository.traverseWithHSI(jsstack);

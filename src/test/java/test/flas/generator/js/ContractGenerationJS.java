@@ -47,7 +47,7 @@ public class ContractGenerationJS {
 			oneOf(meth).returnObject(jsa);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen, null);
+		new JSGenerator(null, jss, gen, null);
 		new Traverser(gen).visitContractDecl(cd);
 	}
 
@@ -72,7 +72,7 @@ public class ContractGenerationJS {
 			oneOf(clz).createMethod("m", true);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen, null);
+		new JSGenerator(null, jss, gen, null);
 		ContractMethodDecl cmd = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, cname, "m"), new ArrayList<>(), null);
 		cd.methods.add(cmd);
 		new Traverser(gen).visitContractDecl(cd);

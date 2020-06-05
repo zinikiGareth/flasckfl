@@ -373,35 +373,35 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSIfExpr ifCtor(String var, String ctor) {
+	public JSIfCreator ifCtor(String var, String ctor) {
 		JSIfExpr ret = new JSIfExpr(new IsAExpr(var, ctor), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
-	public JSIfExpr ifCtor(JSExpr expr, NameOfThing ctor) {
+	public JSIfCreator ifCtor(JSExpr expr, NameOfThing ctor) {
 		JSIfExpr ret = new JSIfExpr(new IsAExpr(expr, ctor), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
-	public JSIfExpr ifConst(String var, int cnst) {
+	public JSIfCreator ifConst(String var, int cnst) {
 		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
-	public JSIfExpr ifConst(String var, String cnst) {
+	public JSIfCreator ifConst(String var, String cnst) {
 		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
-	public JSIfExpr ifTrue(JSExpr ge) {
+	public JSIfCreator ifTrue(JSExpr ge) {
 		JSIfExpr ret = new JSIfExpr(new IsTrueExpr(ge), new JSBlock(this.creating), new JSBlock(this.creating));
 		stmts.add(ret);
 		return ret;

@@ -66,7 +66,7 @@ public class UnitTestGeneration {
 			oneOf(meth).callInterface("void", arg, "clearBody", arg);
 		}});
 		StackVisitor sv = new StackVisitor();
-		JVMGenerator gen = new JVMGenerator(bce, sv, null);
+		JVMGenerator gen = new JVMGenerator(null, bce, sv, null);
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitTestCase utc = new UnitTestCase(utn , "do something");

@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.flasck.jvm.J;
@@ -79,16 +80,26 @@ public class StructGeneration {
 		Var ecxt = new Var.AVar(eval, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
 		Var eret = new Var.AVar(eval, ename, "ret");
 		Var args = new Var.AVar(eval, "[" + J.OBJECT, "args");
+		IExpr tc = context.mock(IExpr.class, "tc");
+		IExpr fc = context.mock(IExpr.class, "fc");
+		RepositoryReader repo = context.mock(RepositoryReader.class);
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		context.checking(new Expectations() {{ // eval
 			oneOf(eclz).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).implementsInterface(J.AREYOUA);
 			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aya));
+			oneOf(aya).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(aya).argument(J.STRING, "ty"); will(returnValue(args));
 			oneOf(aya).stringConst("test.repo.Struct"); will(returnValue(mt));
 			oneOf(aya).as(args, J.OBJECT); will(returnValue(ty));
 			oneOf(aya).callVirtual("boolean", mt, "equals", ty); will(returnValue(val));
-			oneOf(aya).returnBool(val);
+			oneOf(repo).unionsContaining(sd); will(returnValue(new ArrayList<>()));
+			oneOf(aya).trueConst(); will(returnValue(tc));
+			oneOf(aya).falseConst(); will(returnValue(fc));
+			oneOf(aya).returnBool(tc); will(returnValue(tc));
+			oneOf(aya).returnBool(fc); will(returnValue(fc));
+			oneOf(aya).ifBoolean(val, tc, fc);
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			allowing(eval).lenientMode(with(any(Boolean.class)));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
@@ -101,8 +112,7 @@ public class StructGeneration {
 			oneOf(doret).flush();
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen, null);
-		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
+		new JVMGenerator(repo, bce, gen, null);
 		new Traverser(gen).visitStructDefn(sd);
 	}
 
@@ -154,17 +164,27 @@ public class StructGeneration {
 		IExpr setField = context.mock(IExpr.class, "setField");
 		IExpr sh = context.mock(IExpr.class, "hello");
 		IExpr val = context.mock(IExpr.class, "val");
+		IExpr tc = context.mock(IExpr.class, "tc");
+		IExpr fc = context.mock(IExpr.class, "fc");
+		RepositoryReader repo = context.mock(RepositoryReader.class);
+		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		Sequence flushes = context.sequence("flushes");
 		context.checking(new Expectations() {{ // eval
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(eclz).implementsInterface(J.AREYOUA);
 			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aya));
+			oneOf(aya).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(aya).argument(J.STRING, "ty"); will(returnValue(args));
+			oneOf(aya).trueConst(); will(returnValue(tc));
+			oneOf(aya).falseConst(); will(returnValue(fc));
 			oneOf(aya).stringConst("test.repo.Struct"); will(returnValue(mt));
 			oneOf(aya).as(args, J.OBJECT); will(returnValue(ty));
 			oneOf(aya).callVirtual("boolean", mt, "equals", ty); will(returnValue(val));
-			oneOf(aya).returnBool(val);
+			oneOf(aya).returnBool(tc); will(returnValue(tc));
+			oneOf(aya).returnBool(fc); will(returnValue(fc));
+			oneOf(aya).ifBoolean(val, tc, fc);
+			oneOf(repo).unionsContaining(sd); will(returnValue(new ArrayList<>()));
 			oneOf(eclz).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
 			allowing(eval).lenientMode(with(any(Boolean.class)));
 			oneOf(eval).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
@@ -183,8 +203,7 @@ public class StructGeneration {
 			oneOf(doret).flush(); inSequence(flushes);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen, null);
-		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
+		new JVMGenerator(repo, bce, gen, null);
 		StructField sf = new StructField(pos, pos, sd, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);
 		new Traverser(gen).visitStructDefn(sd);
@@ -213,7 +232,7 @@ public class StructGeneration {
 			oneOf(doret).flush();
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen, null);
+		new JVMGenerator(null, bce, gen, null);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		StructField sf = new StructField(pos, pos, sd, true, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sf.fullName(new VarName(pos, sn, "s"));

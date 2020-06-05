@@ -350,7 +350,7 @@ FLContext.prototype.isTruthy = function(val) {
 
 FLContext.prototype.isA = function(val, ty) {
 	if (val instanceof Object && '_areYouA' in val) {
-		return val._areYouA(ty);
+		return val._areYouA(this, ty);
 	}
 	switch (ty) {
 	case 'Any':
@@ -1190,7 +1190,7 @@ ClickEvent.eval = function(cx) {
     return new ClickEvent();
 }
 
-ClickEvent.prototype._areYouA = function(name) {
+ClickEvent.prototype._areYouA = function(cx, name) {
     return name == "ClickEvent" || name == "Event";
 }
 

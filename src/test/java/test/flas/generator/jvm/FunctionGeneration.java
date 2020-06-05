@@ -62,7 +62,7 @@ public class FunctionGeneration {
 		Var args = new Var.AVar(meth, "JVMRunner", "runner");
 		Var cxt = new Var.AVar(meth, J.FLEVALCONTEXT, "cxt");
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv, null);
+		new JVMGenerator(null, bce, sv, null);
 		Slot slot = new ArgSlot(3, new HSIPatternOptions());
 		IExpr arg0 = context.mock(IExpr.class, "arg0");
 		IExpr head = context.mock(IExpr.class, "head");
@@ -125,7 +125,7 @@ public class FunctionGeneration {
 		hsi.consider(fi);
 		fn.bindHsi(hsi);
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv, null);
+		new JVMGenerator(null, bce, sv, null);
 		new Traverser(sv).withHSI().visitFunction(fn);
 	}
 
@@ -188,7 +188,7 @@ public class FunctionGeneration {
 		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 		fn.bindHsi(hsi);
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv, null);
+		new JVMGenerator(null, bce, sv, null);
 		new Traverser(sv).withHSI().visitFunction(fn);
 	}
 
@@ -274,7 +274,7 @@ public class FunctionGeneration {
 		hsi.get(0).requireCM(LoadBuiltins.cons).consider(f2);
 		fn.bindHsi(hsi);
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv, null);
+		new JVMGenerator(null, bce, sv, null);
 		new Traverser(sv).withHSI().visitFunction(fn);
 	}
 	
@@ -755,7 +755,7 @@ public class FunctionGeneration {
 			oneOf(blk2).flush();
 		}});
 		StackVisitor sv = new StackVisitor();
-		new JVMGenerator(bce, sv, null);
+		new JVMGenerator(null, bce, sv, null);
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "x");
 			FunctionDefinition fn = new FunctionDefinition(name, 1, null);

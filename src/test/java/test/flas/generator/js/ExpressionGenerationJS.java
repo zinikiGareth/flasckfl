@@ -305,7 +305,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).returnObject(nret);
 		}});
 		StackVisitor sv = new StackVisitor();
-		new JSGenerator(jss, sv, null);
+		new JSGenerator(null, jss, sv, null);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -332,7 +332,7 @@ public class ExpressionGenerationJS {
 			oneOf(meth).returnObject(nret);
 		}});
 		StackVisitor sv = new StackVisitor();
-		new JSGenerator(jss, sv, null);
+		new JSGenerator(null, jss, sv, null);
 		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));

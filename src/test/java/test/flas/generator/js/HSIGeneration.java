@@ -7,11 +7,11 @@ import java.io.StringWriter;
 import java.util.Arrays;
 
 import org.flasck.flas.compiler.jsgen.JSGenerator;
+import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.ExtractField;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.ArgSlot;
@@ -57,7 +57,7 @@ public class HSIGeneration {
 	public void ifCtorProducesAnIfWithTwoBlocks() {
 		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
-		JSIfExpr ifCtor = meth.ifCtor("_0", "Nil");
+		JSIfCreator ifCtor = meth.ifCtor("_0", "Nil");
 		ifCtor.trueCase().returnObject(ifCtor.trueCase().string("hello"));
 		ifCtor.falseCase().returnObject(ifCtor.falseCase().string("other"));
 		ifCtor.write(w);
@@ -68,7 +68,7 @@ public class HSIGeneration {
 	public void ifConstProducesAnIfWithTwoBlocks() {
 		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
-		JSIfExpr ifConst = meth.ifConst("_0", "hello");
+		JSIfCreator ifConst = meth.ifConst("_0", "hello");
 		ifConst.trueCase().returnObject(ifConst.trueCase().string("hello"));
 		ifConst.falseCase().returnObject(ifConst.falseCase().string("other"));
 		ifConst.write(w);
@@ -79,7 +79,7 @@ public class HSIGeneration {
 	public void ifTrueProducesAnIfWithTwoBlocks() {
 		JSMethod meth = new JSMethod(jse, null, false, "fred");
 		meth.argument("_cxt");
-		JSIfExpr ifTrue = meth.ifTrue(new JSLiteral("true"));
+		JSIfCreator ifTrue = meth.ifTrue(new JSLiteral("true"));
 		ifTrue.trueCase().returnObject(ifTrue.trueCase().string("hello"));
 		ifTrue.falseCase().returnObject(ifTrue.falseCase().string("other"));
 		ifTrue.write(w);

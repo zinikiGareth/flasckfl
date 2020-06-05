@@ -210,7 +210,7 @@ const MockContract = function(ctr) {
 	}
 };
 
-MockContract.prototype._areYouA = function(ty) {
+MockContract.prototype._areYouA = function(cx, ty) {
 	return this.ctr.name() == ty;
 }
 

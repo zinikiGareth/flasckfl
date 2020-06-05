@@ -54,7 +54,7 @@ public class FunctionGenerationJS {
 			oneOf(meth).returnObject(nret);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen, null);
+		new JSGenerator(null, jss, gen, null);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -89,7 +89,7 @@ public class FunctionGenerationJS {
 			oneOf(notNil).errorNoCase();
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen, null);
+		new JSGenerator(null, jss, gen, null);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
@@ -121,7 +121,7 @@ public class FunctionGenerationJS {
 		VarName vnx = new VarName(pos, name, "x");
 		VarPattern vp = new VarPattern(pos, vnx);
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen, null);
+		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
@@ -163,7 +163,7 @@ public class FunctionGenerationJS {
 		VarName vnx = new VarName(pos, name, "x");
 		VarPattern vp = new VarPattern(pos, vnx);
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen, null);
+		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 2, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		UnresolvedVar ex = new UnresolvedVar(pos, "x");
@@ -208,7 +208,7 @@ public class FunctionGenerationJS {
 			oneOf(notNil).errorNoCase();
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen, null);
+		new JSGenerator(null, jss, gen, null);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
 		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
@@ -641,7 +641,7 @@ public class FunctionGenerationJS {
 			oneOf(notNil).errorNoCase();
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(jss, gen, null);
+		new JSGenerator(null, jss, gen, null);
 		Traverser trav = new Traverser(gen).withHSI();
 		{
 			FunctionName name = FunctionName.function(pos, pkg, "x");

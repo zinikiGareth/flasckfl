@@ -69,6 +69,7 @@ public class ObjectGeneration {
 		IExpr sc = context.mock(IExpr.class, "sc");
 		context.checking(new Expectations() {{ // areYouA
 			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aa));
+			oneOf(aa).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ty));
 			oneOf(aa).argument(J.STRING, "ty"); will(returnValue(ty));
 			oneOf(aa).stringConst("test.repo.Obj"); will(returnValue(sc));
 			oneOf(aa).as(ty, J.OBJECT); will(returnValue(ty));
@@ -76,7 +77,7 @@ public class ObjectGeneration {
 			oneOf(aa).returnBool(ty);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen, null);
+		new JVMGenerator(null, bce, gen, null);
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		new Traverser(gen).visitObjectDefn(od);
 	}
@@ -120,6 +121,7 @@ public class ObjectGeneration {
 		IExpr sc = context.mock(IExpr.class, "sc");
 		context.checking(new Expectations() {{ // areYouA
 			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aa));
+			oneOf(aa).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ty));
 			oneOf(aa).argument(J.STRING, "ty"); will(returnValue(ty));
 			oneOf(aa).stringConst("test.repo.Obj"); will(returnValue(sc));
 			oneOf(aa).as(ty, J.OBJECT); will(returnValue(ty));
@@ -127,7 +129,7 @@ public class ObjectGeneration {
 			oneOf(aa).returnBool(ty);
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(bce, gen, null);
+		new JVMGenerator(null, bce, gen, null);
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
 		StateDefinition sd = new StateDefinition(pos);
 		StructField sf = new StructField(pos, pos, sd, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));

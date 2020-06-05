@@ -48,7 +48,7 @@ public class UnitTestGenerationJS {
 			oneOf(meth).argument("runner");
 			oneOf(meth).initContext(pkg);
 		}});
-		JSGenerator gen = new JSGenerator(jse, null, null);
+		JSGenerator gen = new JSGenerator(null, jse, null, null);
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitTestCase utc = new UnitTestCase(utn , "do something");

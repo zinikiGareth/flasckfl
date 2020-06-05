@@ -339,6 +339,19 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	}
 
 	@Override
+	public List<UnionTypeDefn> unionsContaining(StructDefn sd) {
+		List<UnionTypeDefn> ret = new ArrayList<UnionTypeDefn>();
+		for (RepositoryEntry k : dict.values()) {
+			if (k instanceof UnionTypeDefn) {
+				UnionTypeDefn utd = (UnionTypeDefn) k;
+				if (utd.hasCase(sd))
+					ret.add(utd);
+			}
+		}
+		return ret;
+	}
+
+	@Override
 	public void traverse(RepositoryVisitor visitor) {
 		Traverser t = new Traverser(visitor);
 		t.doTraversal(this);

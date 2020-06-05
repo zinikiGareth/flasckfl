@@ -60,6 +60,7 @@ import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
+import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.StructFieldHandler;
@@ -114,6 +115,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 	}
 
+	private final RepositoryReader repository;
 	private final ByteCodeStorage bce;
 	private final StackVisitor sv;
 	private MethodDefiner meth;
@@ -137,7 +139,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private AtomicInteger containerIdx;
 	static final boolean leniency = false;
 
-	public JVMGenerator(ByteCodeStorage bce, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
+	public JVMGenerator(RepositoryReader repository, ByteCodeStorage bce, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
+		this.repository = repository;
 		this.bce = bce;
 		this.sv = sv;
 		this.eventMap = eventMap;
@@ -145,6 +148,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	private JVMGenerator(MethodDefiner meth, IExpr runner, Var args) {
+		this.repository = null;
 		this.sv = new StackVisitor();
 		sv.push(this);
 		this.bce = null;
@@ -156,6 +160,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	private JVMGenerator(ByteCodeSink clz) {
+		this.repository = null;
 		this.sv = new StackVisitor();
 		sv.push(this);
 		this.bce = null;
@@ -539,11 +544,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		{ // _areYouA()
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_areYouA");
+			gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar ty = gen.argument(J.STRING, "ty");
 			gen.returns("boolean");
 			NewMethodDefiner areYouA = gen.done();
-			areYouA.returnBool(areYouA.callVirtual("boolean", areYouA.stringConst(clzName), "equals",
-					areYouA.as(ty.getVar(), J.OBJECT))).flush();
+			IExpr trueCase = areYouA.returnBool(areYouA.trueConst());
+			IExpr falseCase = areYouA.returnBool(areYouA.falseConst());
+			for (UnionTypeDefn u : repository.unionsContaining(sd)) {
+				falseCase = areYouA.ifBoolean(areYouA.callVirtual("boolean", areYouA.stringConst(u.name().uniqueName()), "equals", areYouA.as(ty.getVar(), J.OBJECT)), trueCase, falseCase);
+			}
+			areYouA.ifBoolean(areYouA.callVirtual("boolean", areYouA.stringConst(clzName), "equals", areYouA.as(ty.getVar(), J.OBJECT)), trueCase, falseCase).flush();
 		}
 		{ // eval(cx)
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
@@ -596,6 +606,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		{ // _areYouA()
 			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_areYouA");
+			gen.argument(J.FLEVALCONTEXT, "cxt");
 			PendingVar ty = gen.argument(J.STRING, "ty");
 			gen.returns("boolean");
 			NewMethodDefiner areYouA = gen.done();

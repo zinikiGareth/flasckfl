@@ -1,0 +1,21 @@
+	struct Input
+		String label
+
+	struct ShowCard
+		String text
+		
+	struct HideCard
+	
+	struct NoCard
+	
+	struct CardPile
+	
+	union DisplayCard
+		ShowCard
+		HideCard
+		NoCard
+		CardPile
+		
+	topCard (DisplayCard e) [] = e
+	topCard (DisplayCard e) (Cons { head: (Input c) }) = ShowCard c.label
+	
