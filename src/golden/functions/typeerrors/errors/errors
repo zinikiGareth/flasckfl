@@ -1,3 +1,4 @@
+cannot unify [Number, String]
 caseerrors.f  1.0:     _ stringNumber
                           cannot unify [Number, String]
 fielderrors.  3.12:   String s <-  _ 42
@@ -24,3 +25,5 @@ testerrors.u 11.0:     _ "hello"
                           value is of type String that cannot be the result of an expression of type Number
 undeclaredfi  5.25:   recoverit (HoldIt e) = e. _ notcalled
                           there is no field 'notcalled' in test.golden.HoldIt
+undeclaredfi  8.20:   badarg (Number n) =  _ n
+                          cannot unify [Number, String]

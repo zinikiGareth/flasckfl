@@ -99,6 +99,9 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			Type fi = fn.get(pos);
 			if (ai instanceof CurryArgumentType) {
 				tocurry.add(fi);
+			} else if (fi instanceof ErrorType || ai instanceof ErrorType) {
+				nv.result(new ErrorType());
+				return;
 			} else if (!fi.incorporates(loc, ai)) {
 				errors.message(loc, "function '" + expr.fn + "' was expecting " + fi.signature() + " not " + ai.signature());
 				nv.result(new ErrorType());

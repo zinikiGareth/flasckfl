@@ -3,3 +3,6 @@
 		
 		
 	recoverit (HoldIt e) = e.notcalled
+
+	badarg (String s) = s
+	badarg (Number n) = n

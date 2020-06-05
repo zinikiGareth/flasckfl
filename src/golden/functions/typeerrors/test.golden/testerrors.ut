@@ -9,4 +9,7 @@
 	test cannot compare number to a string
 		assert (ok 4)
 			"hello"
-		
+	
+	test assert error does not cascade
+		assert (badarg "hello")
+			"hello"
