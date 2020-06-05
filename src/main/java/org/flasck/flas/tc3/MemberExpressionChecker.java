@@ -92,7 +92,8 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			StructDefn sd = (StructDefn) ty;
 			StructField sf = sd.findField(fld.var);
 			if (sf == null) {
-				throw new NotImplementedException();
+				errors.message(fld.location(), "there is no field '" + fld.var + "' in " + sd.name().uniqueName());
+				nv.result(new ErrorType());
 			} else {
 				if (polys != null)
 					nv.result(processPolys(polys, sd, sf.type.defn()));

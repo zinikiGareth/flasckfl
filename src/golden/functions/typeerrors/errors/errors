@@ -22,3 +22,5 @@ testerrors.u  6.11:   assert (ok  _ "hello")
                           function 'ok' was expecting Number not String
 testerrors.u 11.0:     _ "hello"
                           value is of type String that cannot be the result of an expression of type Number
+undeclaredfi  5.25:   recoverit (HoldIt e) = e. _ notcalled
+                          there is no field 'notcalled' in test.golden.HoldIt

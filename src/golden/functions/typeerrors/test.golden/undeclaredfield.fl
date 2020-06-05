@@ -1,0 +1,5 @@
+	struct HoldIt
+		String called
+		
+		
+	recoverit (HoldIt e) = e.notcalled
