@@ -72,7 +72,7 @@ public class TargetZoneParsingTests {
 		TargetZone tz = utp.parseTargetZone(line);
 		assertEquals(1, tz.length());
 		assertEquals("x", tz.label(0));
-		assertEquals(1, line.at());
+		assertEquals(2, line.at());
 	}
 	
 	@Test

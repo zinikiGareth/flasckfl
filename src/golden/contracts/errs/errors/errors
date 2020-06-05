@@ -1,10 +1,10 @@
-    contractfail  3.8:    contract _ 
-                              invalid or missing type name
-    contractfail  7.9:    contract  _ fred
-                              invalid contract type
-    contractfail 11.13:   contract Fred _  bert
-                              tokens after end of line
-    contractfail 16.0:     _ ++
-                              invalid method name
-    contractfail 17.0:     _ DOWN
-                              invalid method name
+contractfail  3.8:    contract _ 
+                          invalid or missing type name
+contractfail  7.9:    contract  _ fred
+                          invalid contract type
+contractfail 11.14:   contract Fred  _ bert
+                          tokens after end of line
+contractfail 16.0:     _ ++
+                          invalid method name
+contractfail 17.0:     _ DOWN
+                          invalid method name

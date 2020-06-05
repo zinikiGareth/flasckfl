@@ -38,7 +38,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 				return new IgnoreNestedParser();
 			}
 			int pos = consumer.templatePosn();
-			if (pos == 0 && toks.hasMore()) {
+			if (pos == 0 && toks.hasMoreContent()) {
 				errors.message(toks, "main template cannot declare chain");
 				return new IgnoreNestedParser();
 			}
@@ -79,13 +79,13 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 
 	public static NestingChain parseChain(ErrorReporter errors, TemplateNamer namer, Tokenizable toks) {
 		NestingChain chain = new TemplateNestingChain(namer);
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			ExprToken send = ExprToken.from(errors, toks);
 			if (!"<-".equals(send.text)) {
 				errors.message(send.location, "expected <-");
 				return null;
 			}
-			while (toks.hasMore()) {
+			while (toks.hasMoreContent()) {
 				if (!readChainElement(errors, namer, toks, chain))
 					return null;
 			}

@@ -42,7 +42,7 @@ public class TDAStructFieldParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		ReturnParser ret = new ReturnParser();
-		if (!toks.hasMore()) {
+		if (!toks.hasMoreContent()) {
 			if (fieldsType == FieldsType.WRAPS) {
 				errors.message(toks, "wraps fields must have initializers");
 				return new IgnoreNestedParser();

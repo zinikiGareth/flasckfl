@@ -55,7 +55,7 @@ public class TDAFunctionParser implements TDAParsing {
 		InnerPackageNamer innerNamer = new InnerPackageNamer(fcase);
 		final FunctionIntro intro = new FunctionIntro(fcase, args);
 		consumer.functionIntro(intro);
-		if (!line.hasMore()) {
+		if (!line.hasMoreContent()) {
 			return new TDAFunctionGuardedEquationParser(errors, line.realinfo(), intro, new LastActionScopeParser(errors, innerNamer, topLevel, "case", holder));
 		}
 		ExprToken tok = ExprToken.from(errors, line);
@@ -63,7 +63,7 @@ public class TDAFunctionParser implements TDAParsing {
 			errors.message(line, "syntax error");
 			return null;
 		}
-		if (!line.hasMore()) {
+		if (!line.hasMoreContent()) {
 			errors.message(line, "function definition requires expression");
 			return null;
 		}

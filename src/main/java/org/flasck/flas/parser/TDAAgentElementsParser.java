@@ -60,7 +60,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
@@ -79,7 +79,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			
 			InputPosition varloc = null;
 			String varname = null;
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				ValidIdentifierToken var = VarNameToken.from(toks);
 				if (var == null) {
 					errors.message(toks, "invalid service var name");
@@ -88,7 +88,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				varloc = var.location;
 				varname = var.text;
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
@@ -105,7 +105,7 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 				errors.message(toks, "invalid contract reference");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}

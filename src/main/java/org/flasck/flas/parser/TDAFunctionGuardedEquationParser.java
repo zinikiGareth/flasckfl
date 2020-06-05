@@ -41,7 +41,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 			errors.message(tok.location, "syntax error in function case definition");
 			return null;
 		}
-		if (!line.hasMore()) {
+		if (!line.hasMoreContent()) {
 			errors.message(line, "function definition requires expression");
 			return null;
 		}
@@ -69,7 +69,7 @@ public class TDAFunctionGuardedEquationParser implements TDAParsing {
 				errors.message(line, "syntax error");
 				return null;
 			}
-			if (!line.hasMore()) {
+			if (!line.hasMoreContent()) {
 				errors.message(line, "function definition requires expression");
 				return null;
 			}

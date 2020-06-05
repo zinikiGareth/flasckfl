@@ -91,7 +91,7 @@ public class TDATemplateOptionsParser implements TDAParsing {
 	private boolean toksHasSend(Tokenizable toks) {
 		int mark = toks.at();
 		boolean ret = false;
-		while (toks.hasMore()) {
+		while (toks.hasMoreContent()) {
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (tok == null)
 				break;

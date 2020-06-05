@@ -33,7 +33,7 @@ public class TDAHandlerParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (!toks.hasMore())
+		if (!toks.hasMoreContent())
 			return null;
 		KeywordToken kw = KeywordToken.from(toks);
 		if (kw == null || !kw.text.equals("handler"))
@@ -47,7 +47,7 @@ public class TDAHandlerParser implements TDAParsing {
 	}
 
 	public TDAParsing parseHandler(InputPosition kw, boolean inCard, Tokenizable line) {
-		if (!line.hasMore()) {
+		if (!line.hasMoreContent()) {
 			errors.message(line, "missing contract reference");
 			return new IgnoreNestedParser();
 		}
@@ -56,7 +56,7 @@ public class TDAHandlerParser implements TDAParsing {
 			errors.message(line, "invalid contract reference");
 			return new IgnoreNestedParser();
 		}
-		if (!line.hasMore()) {
+		if (!line.hasMoreContent()) {
 			errors.message(line, "missing handler name");
 			return new IgnoreNestedParser();
 		}
@@ -68,7 +68,7 @@ public class TDAHandlerParser implements TDAParsing {
 		List<HandlerLambda> lambdas = new ArrayList<>();
 		final HandlerName hn = namer.handlerName(named.text);
 		VarNamer vn = new SimpleVarNamer(hn); 
-		while (line.hasMore() && !errors.hasErrors()) {
+		while (line.hasMoreContent() && !errors.hasErrors()) {
 			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(new HandlerLambda(patt)), topLevel);
 			pp.tryParsing(line);
 		}

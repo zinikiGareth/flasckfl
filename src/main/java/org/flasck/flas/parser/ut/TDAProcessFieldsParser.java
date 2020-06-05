@@ -43,7 +43,7 @@ public class TDAProcessFieldsParser implements TDAParsing {
 			// it failed
 			return new IgnoreNestedParser();
 		}
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}

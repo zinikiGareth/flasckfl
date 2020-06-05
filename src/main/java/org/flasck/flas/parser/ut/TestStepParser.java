@@ -60,7 +60,7 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "assert requires expression to evaluate");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
@@ -93,7 +93,7 @@ public class TestStepParser implements TDAParsing {
 				}
 			}
 
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
@@ -121,7 +121,7 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "missing arguments");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
@@ -133,7 +133,7 @@ public class TestStepParser implements TDAParsing {
 		}
 		case "newdiv":
 			Integer cnt = null;
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				ExprToken tok = ExprToken.from(errors, toks);
 				if (tok.type != ExprToken.NUMBER) {
 					errors.message(toks, "integer required");
@@ -146,7 +146,7 @@ public class TestStepParser implements TDAParsing {
 					return new IgnoreNestedParser();
 				}
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
@@ -177,7 +177,7 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "only one event object is allowed");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
@@ -195,7 +195,7 @@ public class TestStepParser implements TDAParsing {
 				errors.message(toks, "missing expression");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
@@ -229,7 +229,7 @@ public class TestStepParser implements TDAParsing {
 			}
 			if (handler == null)
 				handler = new AnonymousVar(meth.location);
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
@@ -262,7 +262,7 @@ public class TestStepParser implements TDAParsing {
 			
 			TargetZone targetZone1 = new TargetZone(toks.realinfo(), new ArrayList<>());
 			boolean contains1 = false;
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				targetZone1 = parseTargetZone(toks);
 				if (targetZone1 == null) {
 					return new IgnoreNestedParser();
@@ -276,7 +276,7 @@ public class TestStepParser implements TDAParsing {
 			}
 			TargetZone targetZone = targetZone1;
 			boolean contains = contains1;
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "syntax error");
 				return new IgnoreNestedParser();
 			}
@@ -328,7 +328,7 @@ public class TestStepParser implements TDAParsing {
 				first = tok.location;
 			}
 				
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				int mark = toks.at();
 				EventZoneToken dot = EventZoneToken.from(toks);
 				if (dot == null)

@@ -52,6 +52,11 @@ public class Tokenizable {
 		return pos < input.length();
 	}
 	
+	public boolean hasMoreContent() {
+		skipWS();
+		return pos < input.length();
+	}
+	
 	public char nextChar() {
 		return input.charAt(pos);
 	}

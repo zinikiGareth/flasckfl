@@ -42,7 +42,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 		}
 		TemplateField field = new TemplateField(tok.location, tok.text);
 		TemplateBindingOption simple = null;
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			ExprToken send = ExprToken.from(errors, toks);
 			if (send == null || !"<-".equals(send.text)) {
 				if ("=>".equals(send.text))
@@ -61,7 +61,7 @@ public class TDATemplateBindingParser implements TDAParsing {
 			}
 			Expr expr = seen.get(0);
 			TemplateReference sendsTo = null;
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				ExprToken format = ExprToken.from(errors, toks);
 				if (format == null || !"=>".equals(format.text)) {
 					errors.message(toks, "syntax error");

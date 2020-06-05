@@ -51,7 +51,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 		}
 		switch (kw.text) {
 		case "state": {
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "extra characters at end of line");
 				return new IgnoreNestedParser();
 			}
@@ -66,7 +66,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			
-			if (!toks.hasMore()) {
+			if (!toks.hasMoreContent()) {
 				errors.message(toks, "missing variable name");
 				return new IgnoreNestedParser();
 			}
@@ -75,7 +75,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 				errors.message(toks, "invalid service var name");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
@@ -91,7 +91,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			ErrorMark em = errors.mark();
 			int pos = builder.templatePosn();
 			NestingChain chain = null;
-			if (toks.hasMore()) 
+			if (toks.hasMoreContent()) 
 				chain = TDACardElementsParser.parseChain(errors, namer, toks);
 			if (em.hasMoreNow())
 				return new IgnoreNestedParser();
@@ -109,7 +109,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 			}, topLevel);
 			while (pp.tryParsing(toks) != null)
 				;
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "extra characters at end of line");
 				return new IgnoreNestedParser();
 			}

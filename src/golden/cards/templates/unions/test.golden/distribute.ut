@@ -19,8 +19,7 @@
 		newdiv 5
 		shove c.c
 			CaseA "hello"
-this should be 0 but there is currently an "if ==" bug in the library
-		newdiv 2
+		newdiv 2  // this should be 0 but there is currently an "if ==" bug in the library
 		match c text
 			hello
 			

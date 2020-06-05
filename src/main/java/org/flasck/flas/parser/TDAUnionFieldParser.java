@@ -21,7 +21,7 @@ public class TDAUnionFieldParser implements TDAParsing {
 			errors.message(toks, "field must have a valid type definition");
 			return new IgnoreNestedParser();
 		}
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			errors.message(toks, "tokens beyond end of line");
 			return new IgnoreNestedParser();
 		}

@@ -47,7 +47,7 @@ public class TDAMethodGuardParser extends TDAMethodMessageParser implements TDAP
 			errors.message(tok.location, "guard expected");
 			return new IgnoreNestedParser();
 		}
-		if (!toks.hasMore()) { // it's a default
+		if (!toks.hasMoreContent()) { // it's a default
 			if (firstGuard) {
 				errors.message(tok.location, "first guard cannot be default");
 				return new IgnoreNestedParser();

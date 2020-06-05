@@ -49,7 +49,7 @@ public class TDAMethodParser {
 		if (mark.hasMoreNow()) 
 			return new IgnoreNestedParser();
 		
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			errors.message(toks, "extra characters at end of line");
 			return new IgnoreNestedParser();
 		}

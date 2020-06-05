@@ -44,7 +44,7 @@ public class TDAIntroParser implements TDAParsing {
 	
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (!toks.hasMore())
+		if (!toks.hasMoreContent())
 			return null;
 		KeywordToken kw = KeywordToken.from(toks);
 		if (kw == null)
@@ -59,7 +59,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "extra tokens at end of line");
 				return new IgnoreNestedParser();
 			}
@@ -120,7 +120,7 @@ public class TDAIntroParser implements TDAParsing {
 			SolidName sn = namer.solidName(tn.text);
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
-			while (toks.hasMore()) {
+			while (toks.hasMoreContent()) {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
 				if (ta == null) {
 					errors.message(toks, "invalid type argument");
@@ -128,7 +128,7 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(ta.asType(svn));
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
@@ -153,7 +153,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing wrapped type name");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
@@ -172,7 +172,7 @@ public class TDAIntroParser implements TDAParsing {
 			SolidName sn = namer.solidName(tn.text);
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
-			while (toks.hasMore()) {
+			while (toks.hasMoreContent()) {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
 				if (ta == null) {
 					errors.message(toks, "invalid type argument");
@@ -193,7 +193,7 @@ public class TDAIntroParser implements TDAParsing {
 			SolidName sn = namer.solidName(tn.text);
 			SimpleVarNamer svn = new SimpleVarNamer(sn);
 			List<PolyType> polys = new ArrayList<>();
-			while (toks.hasMore()) {
+			while (toks.hasMoreContent()) {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
 				if (ta == null) {
 					errors.message(toks, "syntax error");
@@ -201,7 +201,7 @@ public class TDAIntroParser implements TDAParsing {
 				} else
 					polys.add(ta.asType(svn));
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
@@ -241,7 +241,7 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
-			if (toks.hasMore()) {
+			if (toks.hasMoreContent()) {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}

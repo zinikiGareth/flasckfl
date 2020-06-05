@@ -50,7 +50,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		FunctionName fnName = namer.dataName(var.location, var.text);
-		if (!toks.hasMore()) {
+		if (!toks.hasMoreContent()) {
 			UnitDataDeclaration data = new UnitDataDeclaration(pos, atTopLevel, tr.get(0), fnName, null);
 			builder.accept(data);
 			return new TDAProcessFieldsParser(errors, data);
@@ -66,7 +66,7 @@ public class TDAUnitTestDataParser implements TDAParsing {
 			// it failed
 			return new IgnoreNestedParser();
 		}
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}

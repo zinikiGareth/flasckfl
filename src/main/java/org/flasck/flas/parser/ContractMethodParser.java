@@ -46,7 +46,7 @@ public class ContractMethodParser implements TDAParsing {
 		InputPosition pos = toks.realinfo();
 		ValidIdentifierToken name = ValidIdentifierToken.from(toks);
 		if (name == null) {
-			if (toks.hasMore())
+			if (toks.hasMoreContent())
 				errors.message(toks, "invalid method name");
 			else
 				errors.message(toks, "missing method name");
@@ -71,7 +71,7 @@ public class ContractMethodParser implements TDAParsing {
 		if (errors.hasErrors())
 			return new IgnoreNestedParser();
 		TypedPattern handler = null;
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			// it must be a handler specification
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (!"->".equals(tok.text)) {
@@ -93,7 +93,7 @@ public class ContractMethodParser implements TDAParsing {
 			}
 			handler = (TypedPattern) p;
 		}
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}

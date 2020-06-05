@@ -21,7 +21,7 @@ public class TypeExprParser {
 			int mark = line.at();
 			TypeExprToken osb = TypeExprToken.from(line);
 			if (osb != null && osb.type == TypeExprToken.OSB) {
-				while (line.hasMore()) {
+				while (line.hasMoreContent()) {
 					TypeReference tmp = (TypeReference) tryParsing(line);
 					if (tmp == null)
 						return null;
@@ -65,7 +65,7 @@ public class TypeExprParser {
 			// either a complex type, grouped OR a tuple type
 			// Start parsing nested expression and see what happens
 			List<Object> inner = new ArrayList<Object>();
-			while (line.hasMore()) {
+			while (line.hasMoreContent()) {
 				Object add = tryOneExpr(line);
 				if (add == null)
 					return null; // and issue an error
@@ -99,7 +99,7 @@ public class TypeExprParser {
 			TypeExprToken look;
 			mark = line.at();
 			List<TypeReference> args = new ArrayList<TypeReference>();
-			while (line.hasMore() && (look = TypeExprToken.from(line)) != null && look.type != TypeExprToken.CRB && look.type != TypeExprToken.COMMA) {
+			while (line.hasMoreContent() && (look = TypeExprToken.from(line)) != null && look.type != TypeExprToken.CRB && look.type != TypeExprToken.COMMA) {
 				line.reset(mark);
 				Object ta = tryParsing(line);
 				if (ta == null)

@@ -91,7 +91,7 @@ public class TDAParseTemplateElements {
 			errors.message(tok.location, "event handler name required");
 			return new IgnoreNestedParser();
 		}
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			errors.message(toks, "surplus text at end of line");
 			return new IgnoreNestedParser();
 		}
@@ -110,7 +110,7 @@ public class TDAParseTemplateElements {
 			return null;
 		}
 		TemplateReference sendTo = null;
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			ExprToken sendToTok = ExprToken.from(errors, toks);
 			if (sendToTok != null) {
 				if ("=>".equals(sendToTok.text)) {
@@ -122,7 +122,7 @@ public class TDAParseTemplateElements {
 				}
 			} 
 		}
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			errors.message(toks, "syntax error");
 			return null;
 		}
@@ -131,7 +131,7 @@ public class TDAParseTemplateElements {
 
 	public static TemplateStylingOption readTemplateStyles(ErrorReporter errors, Expr expr, Tokenizable toks) {
 		List<Expr> styles = new ArrayList<>();
-		while (toks.hasMore()) {
+		while (toks.hasMoreContent()) {
 			InputPosition pos = toks.realinfo();
 			String s = StringToken.from(errors, toks);
 			if (s != null) {

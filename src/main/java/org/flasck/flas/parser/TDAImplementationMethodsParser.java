@@ -33,7 +33,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
-		if (!toks.hasMore())
+		if (!toks.hasMoreContent())
 			return null;
 		ValidIdentifierToken name = VarNameToken.from(toks);
 		if (name == null) {
@@ -43,7 +43,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 		List<Pattern> args = new ArrayList<>();
 		final FunctionName methName = namer.functionName(name.location, name.text);
 		VarPattern handler = null;
-		while (toks.hasMore()) {
+		while (toks.hasMoreContent()) {
 			ValidIdentifierToken arg = VarNameToken.from(toks);
 			if (arg == null) {
 				ExprToken tok = ExprToken.from(errors, toks);
@@ -65,7 +65,7 @@ public class TDAImplementationMethodsParser implements TDAParsing {
 			args.add(vp);
 			topLevel.argument(errors, vp);
 		}
-		if (toks.hasMore()) {
+		if (toks.hasMoreContent()) {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}

@@ -29,7 +29,7 @@ public class SingleExpressionParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		TDAExpressionParser expr = new TDAExpressionParser(errors, builder);
 		expr.tryParsing(toks);
-		if (toks.hasMore()){
+		if (toks.hasMoreContent()){
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
