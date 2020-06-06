@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -169,6 +170,13 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(fn.name().inContext.javaName()), meth.stringConst(fn.name().name), meth.intConst(fn.argCount())));
 			else
 				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
+		} else if (defn instanceof ObjectMethod) {
+			ObjectMethod fn = (ObjectMethod) defn;
+			if (nargs == 0) {
+				makeFunctionClosure(true, fn.name(), fn.argCount());
+			} else { 
+				sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(fn.name().inContext.javaName()), meth.stringConst(fn.name().name), meth.intConst(fn.argCount())));
+			}
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"

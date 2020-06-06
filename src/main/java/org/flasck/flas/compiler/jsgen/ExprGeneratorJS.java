@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -147,6 +148,13 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				makeFunctionClosure(false, myName, fn.argCount());
 			} else
 				sv.result(block.pushFunction(myName));
+		} else if (defn instanceof ObjectMethod) {
+			// TODO: does this need some kind of "object" closure?
+			if (nargs == 0) {
+				ObjectMethod fn = (ObjectMethod) defn;
+				makeFunctionClosure(true, myName, fn.argCount());
+			} else
+				sv.result(block.pushFunction(myName));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
@@ -241,6 +249,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			if (un.equals("length"))
 				un = "arr_length";
 			return "FLBuiltin." + un;
+		} else if (defn instanceof ObjectMethod) {
+			return ((FunctionName)name).jsPName();
 		} else if (defn instanceof FunctionDefinition && ((FunctionDefinition)defn).hasState())
 			return ((FunctionName)name).jsPName();
 		else

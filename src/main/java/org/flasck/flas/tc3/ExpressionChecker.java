@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -118,6 +119,14 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 				announce(pos, fn.type());
 			else
 				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
+		} else if (defn instanceof ObjectMethod) {
+			ObjectMethod meth = (ObjectMethod) defn;
+			if (meth.hasType())
+				announce(pos, meth.type());
+			else {
+				// announce(pos, state.requireVarConstraints(meth.location(), meth.name().uniqueName()));
+				throw new NotImplementedException("I think this should mean that the other one has been defined, but it could be recursive - try adding the UT as per the comment");
+			}
 		} else if (defn instanceof VarPattern) {
 			VarPattern vp = (VarPattern) defn;
 			if (vp.type() != null)

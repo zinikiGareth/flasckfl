@@ -41,20 +41,33 @@ CommonEnv.prototype.dispatchMessages = function(_cxt) {
 }
 
 CommonEnv.prototype.handleMessages = function(_cxt, msg) {
+    var ret = [];
+    this.handleMessagesWith(_cxt, msg, ret);
+    return ret;
+}
+
+CommonEnv.prototype.handleMessagesWith = function(_cxt, msg, ret) {
     msg = _cxt.full(msg);
 	if (!msg || msg instanceof FLError)
         return [];
 	else if (msg instanceof Array) {
-        var ret = [];
         for (var i=0;i<msg.length;i++) {
-            var m = this.handleMessages(_cxt, msg[i]);
-            if (m && (!Array.isArray(m) || m.length > 0))
-                ret.push(m);
+            this.handleMessagesWith(_cxt, msg[i], ret);
         }
-        return ret;
 	} else if (msg) {
-		return msg.dispatch(_cxt);
-	}
+        var m = msg.dispatch(_cxt);
+        m = _cxt.full(m);
+        this.addAll(ret, m);
+    }
+}
+
+CommonEnv.prototype.addAll = function(ret, m) {
+    if (m) {
+        if (Array.isArray(m)) {
+            m.forEach(x => this.addAll(ret, x));
+        } else
+            ret.push(m);
+    }
 }
 
 CommonEnv.prototype.newContext = function() {
