@@ -299,10 +299,18 @@ FLContext.prototype.mksend = function(meth, obj, cnt, handler) {
 }
 
 FLContext.prototype.mkacor = function(meth, obj, cnt) {
-	if (cnt == 0)
-		return this.oclosure(meth, obj);
-	else
-		return this.ocurry(cnt, meth, obj);
+	if (cnt == 0) {
+		if (typeof obj === 'undefined' || obj === null)
+			return obj;
+		else
+			return this.oclosure(meth, obj);
+	}
+	else {
+		if (typeof obj === 'undefined' || obj === null)
+			throw new Error("we want to return a curry of " + cnt + " args which ultimately returns undefined");
+		else
+			return this.ocurry(cnt, meth, obj);
+	}
 }
 
 FLContext.prototype.makeStatic = function(clz, meth) {

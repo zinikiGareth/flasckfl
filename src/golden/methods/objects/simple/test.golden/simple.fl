@@ -1,0 +1,5 @@
+	object Methods
+		ctor make
+		
+		method adebug
+			<- Debug "hello"

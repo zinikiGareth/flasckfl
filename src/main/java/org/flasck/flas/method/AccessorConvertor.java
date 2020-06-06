@@ -8,6 +8,9 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.MakeSend;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
@@ -69,7 +72,7 @@ public class AccessorConvertor extends LeafAdapter {
 	public void visitMemberExpr(MemberExpr expr) {
 		UnresolvedVar meth = (UnresolvedVar) expr.fld;
 		UnresolvedVar uv = (UnresolvedVar) expr.from;
-		AccessorHolder od;
+		AccessorHolder ah;
 		if (uv.defn() instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) uv.defn();
 			NamedType td = udd.ofType.defn();
@@ -90,8 +93,13 @@ public class AccessorConvertor extends LeafAdapter {
 			}
 
 			if (td instanceof AccessorHolder && ((AccessorHolder)td).getAccessor(meth.var) != null) 
-				od = (AccessorHolder) td;
-			else {
+				ah = (AccessorHolder) td;
+			else if (td instanceof ObjectDefn && ((ObjectDefn)td).getMethod(meth.var) != null) {
+				ObjectDefn od = (ObjectDefn) td;
+				ObjectMethod m = od.getMethod(meth.var);
+				expr.conversion(new MakeSend(expr.location(), m.name(), uv, m.argCount(), null));
+				return;
+			} else {
 				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on " + td.name().uniqueName());
 				return;
 			}
@@ -100,21 +108,21 @@ public class AccessorConvertor extends LeafAdapter {
 			Type ty = tp.type();
 			if (ty instanceof PolyInstance)
 				ty = ((PolyInstance)ty).struct(); 
-			od = (AccessorHolder) ty;
+			ah = (AccessorHolder) ty;
 		} else if (uv.defn() instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) uv.defn();
 			if (fn.argCount() != 0)
 				throw new NotImplementedException("cannot extract object from " + uv.defn().getClass() + " with " + fn.argCount());
-			od = (AccessorHolder) fn.type();
+			ah = (AccessorHolder) fn.type();
 		} else if (uv.defn() instanceof StructField) {
-			od = (AccessorHolder) ((StructField)uv.defn()).type();
+			ah = (AccessorHolder) ((StructField)uv.defn()).type();
 		} else if (uv.defn() instanceof TemplateNestedField) {
-			od = (AccessorHolder) ((TemplateNestedField)uv.defn()).type();
+			ah = (AccessorHolder) ((TemplateNestedField)uv.defn()).type();
 		} else
 			throw new NotImplementedException("cannot extract object from " + uv.defn().getClass());
-		FieldAccessor acc = od.getAccessor(meth.var);
+		FieldAccessor acc = ah.getAccessor(meth.var);
 		if (acc == null)
-			errors.message(meth.location, "there is no accessor '" + meth.var + "' on " + od.name().uniqueName());
+			errors.message(meth.location, "there is no accessor '" + meth.var + "' on " + ah.name().uniqueName());
 		else
 			expr.conversion(acc.acor(expr.from));
 	}
