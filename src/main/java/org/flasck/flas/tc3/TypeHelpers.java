@@ -54,4 +54,34 @@ public class TypeHelpers {
 		return ((PolyInstance)etype).getPolys().get(0);
 	}
 
+	public static boolean isListMessage(InputPosition pos, Type check) {
+		if (check instanceof ErrorType) {
+			return false;
+		}
+
+		// an empty list is fine
+		if (check == LoadBuiltins.nil) {
+			return true;
+		}
+		
+		if (check instanceof EnsureListMessage) {
+			return true;
+		}
+		
+		// a poly list is fine (cons or list) as long as the type is some kind of Message
+		if (check instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) check;
+			NamedType nt = pi.struct();
+			if (nt == LoadBuiltins.cons || nt == LoadBuiltins.list)
+				check = pi.getPolys().get(0);
+			else {
+				return false;
+			}
+		}
+		if (LoadBuiltins.message.incorporates(pos, check)) {
+			return true;
+		}
+		return false;
+	}
+
 }

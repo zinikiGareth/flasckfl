@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.UnboundTypeException;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.lifting.NestedVarReader;
@@ -20,7 +21,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
 // TODO: having both nargs & type feels like duplication, but we know about nargs SOOOO much earlier
-public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeSignature, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder {
+public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeSignature, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder, AccessRestrictions {
 	private final FunctionName name;
 	private final int nargs;
 	private final StateHolder holder;
@@ -29,6 +30,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	private HSITree hsiTree;
 	private NestedVarReader nestedVars;
 	private boolean reportHolder;
+	private AccessRestrictions restricted;
 
 	public FunctionDefinition(FunctionName name, int nargs, StateHolder holder) {
 		this.name = name;
@@ -164,5 +166,15 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 
 	public void reportHolderInArgCount() {
 		reportHolder = true;
+	}
+
+	public void restrict(AccessRestrictions r) {
+		this.restricted = r;
+	}
+	
+	@Override
+	public void check(ErrorReporter errors, InputPosition pos, NameOfThing inContext) {
+		if (restricted != null)
+			restricted.check(errors, pos, inContext);
 	}
 }

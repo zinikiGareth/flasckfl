@@ -1,14 +1,11 @@
 package org.flasck.flas.tc3;
 
-import java.util.Arrays;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class EnsureListMessage implements Type {
-	public final static Type listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 	private final InputPosition pos;
 	private Type ret;
 	
@@ -23,7 +20,7 @@ public class EnsureListMessage implements Type {
 
 	public Type validate(ErrorReporter errors) {
 		if (validate(errors, pos, ret))
-			return listMessages;
+			return LoadBuiltins.listMessages;
 		else
 			return new ErrorType();
 	}
@@ -45,7 +42,7 @@ public class EnsureListMessage implements Type {
 		
 		if (check instanceof EnsureListMessage) {
 			EnsureListMessage elm = (EnsureListMessage) check;
-			return elm.validate(errors) == listMessages;
+			return elm.validate(errors) == LoadBuiltins.listMessages;
 		}
 		
 		// a poly list is fine (cons or list) as long as the type is some kind of Message
@@ -79,13 +76,13 @@ public class EnsureListMessage implements Type {
 	@Override
 	public Type get(int pos) {
 		if (pos == 0)
-			return listMessages;
+			return LoadBuiltins.listMessages;
 		throw new NotImplementedException();
 	}
 
 	@Override
 	public boolean incorporates(InputPosition pos, Type other) {
-		return listMessages.incorporates(pos, other);
+		return LoadBuiltins.listMessages.incorporates(pos, other);
 	}
 
 	@Override
@@ -95,6 +92,6 @@ public class EnsureListMessage implements Type {
 	
 	@Override
 	public String toString() {
-		return pos + " " + listMessages;
+		return pos + " " + LoadBuiltins.listMessages;
 	}
 }

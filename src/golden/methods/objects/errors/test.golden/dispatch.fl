@@ -1,0 +1,4 @@
+	contract Something
+		go
+
+	f (Something s) = dispatch (Send s "go" []) 

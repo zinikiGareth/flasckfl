@@ -1,0 +1,2 @@
+dispatch.fl:  4.18:   f (Something s) =  _ dispatch (Send s "go" [])
+                          cannot use dispatch in package 'test.golden.f._1'

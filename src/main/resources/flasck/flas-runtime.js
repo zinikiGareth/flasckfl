@@ -43,7 +43,7 @@ CommonEnv.prototype.dispatchMessages = function(_cxt) {
 CommonEnv.prototype.handleMessages = function(_cxt, msg) {
     msg = _cxt.full(msg);
 	if (!msg || msg instanceof FLError)
-        return;
+        return [];
 	else if (msg instanceof Array) {
         var ret = [];
         for (var i=0;i<msg.length;i++) {
@@ -1181,6 +1181,17 @@ FLBuiltin._underlying = function(_cxt, mock) {
 }
 
 FLBuiltin._underlying.nfargs = function() { return 1; }
+
+// Only allowed in unit tests
+// Note that this "breaks" functional programming
+// given a list of messages, dispatch each of them *JUST ONCE* - don't keep on evaluating
+FLBuiltin.dispatch = function(_cxt, msgs) {
+	msgs = _cxt.full(msgs);
+	if (msgs instanceof FLError)
+		return msgs;
+	return _cxt.env.handleMessages(_cxt, msgs);
+}
+FLBuiltin.dispatch.nfargs = function() { return 1; }
 
 
 

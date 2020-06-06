@@ -1,0 +1,2 @@
+test.golden.Methods._ctor_make :: test.golden.Methods
+test.golden.Methods.adebug :: List[Message]

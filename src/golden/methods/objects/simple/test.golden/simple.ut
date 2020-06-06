@@ -1,7 +1,7 @@
 	test we can generate a Debug command
 		data Methods m <- Methods.make
 		invoke m.adebug
-		assert (m.adebug)
+		assert (dispatch (m.adebug))
 			[Debug "hello"]
 
 // todo: check a method invocation with args is correctly converted

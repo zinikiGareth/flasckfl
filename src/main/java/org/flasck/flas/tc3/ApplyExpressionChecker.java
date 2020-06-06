@@ -103,9 +103,13 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 				nv.result(new ErrorType());
 				return;
 			} else if (!fi.incorporates(loc, ai)) {
-				errors.message(loc, "function '" + expr.fn + "' was expecting " + fi.signature() + " not " + ai.signature());
-				nv.result(new ErrorType());
-				return;
+				if (ai instanceof EnsureListMessage && TypeHelpers.isListMessage(loc, fi))
+					; // that's OK ...
+				else {
+					errors.message(loc, "function '" + expr.fn + "' was expecting " + fi.signature() + " not " + ai.signature());
+					nv.result(new ErrorType());
+					return;
+				}
 			}
 			pos++;
 		}

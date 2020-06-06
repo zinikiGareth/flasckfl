@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AccessRestrictions;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -133,7 +134,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
-		RepositoryEntry defn = find(scope, p.ctor);
+		RepositoryEntry defn = find(p.location(), scope, p.ctor);
 		if (defn == null) {
 			errors.message(p.location, "cannot find type '" + p.ctor + "'");
 			return;
@@ -342,7 +343,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			defn = templateNestingChain.resolve(this, var);
 		}
 		if (defn == null)
-			defn = find(scope, var.var);
+			defn = find(var.location, scope, var.var);
 		if (defn == null) {
 			errors.message(var.location, "cannot resolve '" + var.var + "'");
 			return;
@@ -352,7 +353,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
-		final RepositoryEntry defn = find(scope, operator.op);
+		final RepositoryEntry defn = find(operator.location, scope, operator.op);
 		if (defn == null) {
 			errors.message(operator.location, "cannot resolve '" + operator.op + "'");
 			return;
@@ -363,7 +364,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void visitTypeReference(TypeReference ref, boolean expectPolys) {
 		String tn = ref.name();
-		final RepositoryEntry defn = find(scope, tn);
+		final RepositoryEntry defn = find(ref.location(), scope, tn);
 		if (defn == null) {
 			errors.message(ref.location(), "cannot resolve '" + tn + "'");
 			return;
@@ -514,7 +515,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitTemplateEvent(TemplateEvent te) {
-		RepositoryEntry defn = find(scope, te.handler);
+		RepositoryEntry defn = find(te.location(), scope, te.handler);
 		boolean isEH = false;
 		if (defn == null) {
 			errors.message(te.location(), "cannot resolve '" + te.handler + "'");
@@ -554,7 +555,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				} else
 					option.sendsTo.bindTo(otd);
 			} else {
-				RepositoryEntry defn = find(scope, tname);
+				RepositoryEntry defn = find(option.sendsTo.location(), scope, tname);
 				if (defn == null)
 					errors.message(option.sendsTo.location(), "template " + tname + " is not defined");
 				else if (!(defn instanceof Template))
@@ -768,7 +769,18 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		this.scope = scopeStack.remove(0);
 	}
 
-	private RepositoryEntry find(NameOfThing s, String var) {
+	private RepositoryEntry find(InputPosition pos, NameOfThing s, String var) {
+		RepositoryEntry ret = recfind(s, var);
+		if (ret == null)
+			return ret;
+		
+		if (ret instanceof AccessRestrictions) {
+			((AccessRestrictions)ret).check(errors, pos, s);
+		}
+		return ret;
+	}
+
+	private RepositoryEntry recfind(NameOfThing s, String var) {
 		if (s == null) {
 			return repository.get(var);
 		}
@@ -777,7 +789,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (defn != null)
 			return defn;
 		else
-			return find(s.container(), var);
+			return recfind(s.container(), var);
 	}
 
 }

@@ -66,6 +66,7 @@ public class LoadBuiltins {
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
 	public static final Type idempotentHandler = contract; // This may or may not be correct ...
+	public static final Type listMessages;
 	
 	// This is another really weird thing ... it has arguments really, so needs to be parameterized a variable amount
 	// Probably needs its own class to handle it properly
@@ -126,6 +127,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, null, "concatLists"), 1, null);
 	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null);
 	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null);
+	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, null, "dispatch"), 1, null);
 
 	static {
 		// bind TRs
@@ -216,6 +218,9 @@ public class LoadBuiltins {
 		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(polyA)))), new PolyInstance(pos, list, Arrays.asList(polyA))));
 		makeTuple.bindType(tuple);
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
+		listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
+		dispatch.bindType(new Apply(listMessages, listMessages));
+		dispatch.restrict(new UTOnlyRestriction("dispatch"));
 		
 		// add all current functions to list for dependency resolution
 		allFunctions.add(isEqual);
@@ -235,6 +240,9 @@ public class LoadBuiltins {
 		allFunctions.add(concat);
 		allFunctions.add(concatLists);
 		allFunctions.add(handleSend);
+		
+		// should only be in UTs
+		allFunctions.add(dispatch);
 	}
 	
 	public static void applyTo(ErrorReporter errors, Repository repository) {
@@ -279,6 +287,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, concatLists);
 		repository.functionDefn(errors, makeTuple);
 		repository.functionDefn(errors, handleSend);
+		repository.functionDefn(errors, dispatch);
 
 		// not yet thought through for backward compatibility
 		StructDefn card = new StructDefn(pos, FieldsType.STRUCT, null, "Card", false);
