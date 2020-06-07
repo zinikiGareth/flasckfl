@@ -18,10 +18,13 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIPatternOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.NotImplementedException;
 
 // This is a record for a single function
 public class MappingStore implements MappingCollector, NestedVarReader {
+	public static final Logger logger = LoggerFactory.getLogger("Lifter");
 	public class PO implements Comparable<PO> {
 		VarName name;
 		Pattern p;
@@ -92,6 +95,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	public void recordDependency(LogicHolder fn) {
 		if (fn == null)
 			throw new RuntimeException("Cannot depend on null function");
+		logger.debug(this + " depends on " + fn.name().uniqueName());
 		deps.add(fn);
 	}
 

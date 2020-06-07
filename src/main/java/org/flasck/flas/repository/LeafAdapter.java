@@ -528,7 +528,7 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitCurrentContainer(CurrentContainer expr) {
+	public void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState) {
 	}
 
 	@Override

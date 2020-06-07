@@ -1304,6 +1304,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitExpr(Expr expr, int nargs) {
 		if (!isNeedingEnhancement(expr, nargs) && !convertedMemberExpr(expr))
 			visitor.visitExpr(expr, nargs);
+		boolean wouldWantState = false; // This is almost undoubtedly wrong ... but can we hold off until we refactor?
 		if (expr == null)
 			return;
 		else if (expr instanceof ApplyExpr)
@@ -1329,7 +1330,7 @@ public class Traverser implements RepositoryVisitor {
 		else if (expr instanceof MakeAcor)
 			visitMakeAcor((MakeAcor)expr);
 		else if (expr instanceof CurrentContainer)
-			visitCurrentContainer((CurrentContainer)expr);
+			visitCurrentContainer((CurrentContainer)expr, false, wouldWantState);
 		else if (expr instanceof CheckTypeExpr)
 			visitCheckTypeExpr((CheckTypeExpr)expr);
 		else
@@ -1478,9 +1479,10 @@ public class Traverser implements RepositoryVisitor {
 		if (nargs == 0 && wantNestedPatterns) {
 			StateHolder sh = containedState(var);
 			List<Object> args = new ArrayList<>();
+			CurrentContainer cc = new CurrentContainer(var.location(), (NamedType) sh);
 			if (sh != null && currFnHasState && !(var.defn() instanceof ObjectCtor)) {
 				// this is not good enough because it may be passed in as arg 0 to us
-				args.add(new CurrentContainer(var.location(), (NamedType) sh));
+				args.add(cc);
 			}
 			NestedVarReader nv = isFnNeedingNesting(var);
 			if (nv != null && !nv.vars().isEmpty()) {
@@ -1488,6 +1490,7 @@ public class Traverser implements RepositoryVisitor {
 			}
 			if (!args.isEmpty()) {
 				ApplyExpr ae = new ApplyExpr(var.location, var, args);
+				boolean wouldWantState = ae.fn instanceof UnresolvedVar && (((UnresolvedVar)ae.fn).defn() instanceof FunctionDefinition || ((UnresolvedVar)ae.fn).defn() instanceof StandaloneMethod);
 				visitor.visitExpr(ae, 0);
 				visitor.visitApplyExpr(ae);
 				visitor.visitExpr(var, args.size());
@@ -1497,7 +1500,7 @@ public class Traverser implements RepositoryVisitor {
 					if (v instanceof UnresolvedVar)
 						visitor.visitUnresolvedVar((UnresolvedVar) v, 0);
 					else if (v instanceof CurrentContainer)
-						visitor.visitCurrentContainer((CurrentContainer) v);
+						visitor.visitCurrentContainer((CurrentContainer) v, v == cc, wouldWantState);
 					else
 						throw new NotImplementedException();
 				}
@@ -1567,9 +1570,10 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitCurrentContainer(CurrentContainer expr) {
-		visitor.visitCurrentContainer(expr);
+	public void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState) {
+		visitor.visitCurrentContainer(expr, isObjState, wouldWantState);
 	}
+	
 	@Override
 	public void visitUnitTestPackage(UnitTestPackage e) {
 		currFnHasState = false;

@@ -52,6 +52,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 	}
 
+	public static class IgnoreMe {
+	}
+
 	private final NestedVisitor nv;
 	private final RepositoryReader repository;
 	private final CurrentTCState state;
@@ -89,8 +92,11 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void visitCurrentContainer(CurrentContainer expr) {
-		announce(expr.location(), expr.type);
+	public void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState) {
+		if (isObjState && !wouldWantState)
+			nv.result(new IgnoreMe());
+		else
+			announce(expr.location(), expr.type);
 	}
 	
 	@Override
@@ -206,7 +212,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		if (ty == null)
 			throw new NotImplementedException("Cannot announce that a type is null");
 		if (guardPos != null)
-			nv.result(new GuardResult(guardPos, ty));
+			nv.result(new GuardResult(pos, ty));
 		else
 			nv.result(new ExprResult(pos, ty));
 	}

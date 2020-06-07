@@ -21,7 +21,6 @@ import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.HSIVisitor;
-import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -392,21 +391,6 @@ public class TraversalTests {
 			oneOf(v).traversalDone();
 		}});
 		r.traverse(v);
-	}
-
-	@Test
-	public void traverseObjectMethodFromTheRepositoryEvenInGroupOrder() {
-		SolidName obj = new SolidName(pkg, "MyObject");
-		ObjectDefn s = new ObjectDefn(pos, pos, obj, true, new ArrayList<>());
-		ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, obj, "meth"), new ArrayList<>(), null, null);
-		s.methods.add(meth);
-		r.addEntry(errors, meth.name(), meth);
-		context.checking(new Expectations() {{
-			oneOf(v).visitObjectMethod(meth);
-			oneOf(v).leaveObjectMethod(meth);
-			oneOf(v).traversalDone();
-		}});
-		r.traverseInGroups(v, new FunctionGroupOrdering(new ArrayList<>()));
 	}
 
 	@Test

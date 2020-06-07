@@ -10,7 +10,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
+public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, WithTypeSignature {
 	public final VarPattern handler;
 	private final StateHolder holder;
 	private ObjectDefn od;
@@ -95,6 +95,11 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder {
 		return handler;
 	}
 
+	@Override
+	public String signature() {
+		throw new NotImplementedException();
+	}
+	
 	@Override
 	public String toString() {
 		return name().uniqueName() + "/" + args().size();

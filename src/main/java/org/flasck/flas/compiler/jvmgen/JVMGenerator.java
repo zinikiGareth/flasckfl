@@ -276,10 +276,14 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		currentBlock = new ArrayList<IExpr>();
 
 		if (om.hasObject()) {
-			ObjectDefn od = om.getObject();
-			if (od.state() != null) {
+			// I think not passing around object pointers when they don't have state may well be the right approach, but we need to be consistent about it
+			// The problem is that methods calling methods (see objects/simple) don't consider properly if they both have state
+			// we should tidy this up in a refactoring which makes the connections between caller and callee much more explicit
+			// note that a method without state is basically just a function
+//			ObjectDefn od = om.getObject();
+//			if (od.state() != null) {
 				fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
-			}
+//			}
 		} else if (om.isEvent()) {
 			CardDefinition od = om.getCard();
 			if (od.state() != null) {

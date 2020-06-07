@@ -14,7 +14,6 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -41,9 +40,9 @@ public class DependencyOrdering {
 	@Test
 	public void methodsAreConsideredToo() {
 		FunctionName fname = FunctionName.standaloneMethod(pos, pkg, "m");
-		StandaloneMethod meth = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>(), null, null));
-		lifter.visitStandaloneMethod(meth);
-		lifter.leaveStandaloneMethod(meth);
+		ObjectMethod fn = new ObjectMethod(pos, fname, new ArrayList<>(), null, null);
+		lifter.visitObjectMethod(fn);
+		lifter.leaveObjectMethod(fn);
 		
 		assertOrder("test.foo.m");
 	}
@@ -74,9 +73,9 @@ public class DependencyOrdering {
 	@Test
 	public void aFunctionReferencingAMethodComesAfterIt() {
 		FunctionName fname = FunctionName.standaloneMethod(pos, pkg, "m");
-		StandaloneMethod fn = new StandaloneMethod(new ObjectMethod(pos, fname, new ArrayList<>(), null, null));
-		lifter.visitStandaloneMethod(fn);
-		lifter.leaveStandaloneMethod(fn);
+		ObjectMethod fn = new ObjectMethod(pos, fname, new ArrayList<>(), null, null);
+		lifter.visitObjectMethod(fn);
+		lifter.leaveObjectMethod(fn);
 		
 		quick("f", fn);
 		

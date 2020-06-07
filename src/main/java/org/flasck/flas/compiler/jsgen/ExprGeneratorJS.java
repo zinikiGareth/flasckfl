@@ -40,6 +40,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.tc3.ExpressionChecker.IgnoreMe;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
@@ -69,7 +70,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	}
 
 	@Override
-	public void visitCurrentContainer(CurrentContainer expr) {
+	public void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState) {
 		sv.result(state.container());
 	}
 	

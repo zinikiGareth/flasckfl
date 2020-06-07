@@ -21,8 +21,11 @@ import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RepositoryLifter extends LeafAdapter implements Lifter {
+	public static final Logger logger = LoggerFactory.getLogger("Lifter");
 	public class LiftingGroup implements Comparable<LiftingGroup> {
 		private final Set<LogicHolder> members = new TreeSet<>();
 		private final String leader;
@@ -52,6 +55,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	public FunctionGroups lift(Repository r) {
 		r.traverse(this);
 		resolve();
+		logger.info("group ordering = " + ordering);
 		return new FunctionGroupOrdering(ordering);
 	}
 

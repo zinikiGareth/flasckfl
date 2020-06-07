@@ -1,10 +1,9 @@
 package org.flasck.flas.lifting;
 
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
-import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -50,12 +49,9 @@ public class MappingAnalyzer {
 				collector.recordNestedVar(fi, meth, tp);
 				collector.recordDependency(tp.definedBy());
 			}
-		} else if (defn instanceof FunctionDefinition) {
+		} else if (defn instanceof LogicHolder) {
 			if (defn != fn)
-				collector.recordDependency((FunctionDefinition) defn);
-		} else if (defn instanceof StandaloneMethod) {
-			if (defn != fn)
-				collector.recordDependency((StandaloneMethod) defn);
+				collector.recordDependency((LogicHolder) defn);
 		}
 	}
 

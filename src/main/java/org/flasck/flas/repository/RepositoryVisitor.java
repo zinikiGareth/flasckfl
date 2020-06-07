@@ -163,7 +163,7 @@ public interface RepositoryVisitor {
 	void leaveMakeSend(MakeSend expr);
 	void visitMakeAcor(MakeAcor expr);
 	void leaveMakeAcor(MakeAcor expr);
-	void visitCurrentContainer(CurrentContainer expr);
+	void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState);
 	void visitAssertExpr(boolean isValue, Expr e);
 	void leaveAssertExpr(boolean isValue, Expr e);
 	void visitConstPattern(ConstPattern p, boolean isNested);

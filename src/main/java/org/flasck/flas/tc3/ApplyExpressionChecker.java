@@ -20,6 +20,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.flasck.flas.tc3.ExpressionChecker.IgnoreMe;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
@@ -52,6 +53,8 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
+		if (r instanceof IgnoreMe)
+			return;
 		ExprResult ty = (ExprResult) r;
 		if (ty == null || ty.type == null) {
 			throw new NullPointerException("Cannot handle null type");
@@ -79,7 +82,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(ut.canBeAppliedTo(expr.location(), results));
 			return;
 		} else if (fn.argCount() < results.size()) {
-			errors.message(pfn.pos, fn + " expects: " + fn.argCount() + " has: " + results.size());
+			errors.message(pfn.pos, expr.fn + " expects: " + fn.argCount() + " has: " + results.size());
 			nv.result(new ErrorType());
 			return;
 		}

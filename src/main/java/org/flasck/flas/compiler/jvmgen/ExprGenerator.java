@@ -35,6 +35,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.tc3.ExpressionChecker.IgnoreMe;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
@@ -87,7 +88,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void visitCurrentContainer(CurrentContainer expr) {
+	public void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState) {
 		if (state.stateObj == null)
 			throw new HaventConsideredThisException("current container should surely be non-null");
 		sv.result(state.stateObj);

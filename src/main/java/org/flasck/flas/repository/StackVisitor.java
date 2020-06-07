@@ -366,8 +366,8 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.leaveConvertedExpr(expr);
 	}
 
-	public void visitCurrentContainer(CurrentContainer expr) {
-		top.visitCurrentContainer(expr);
+	public void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState) {
+		top.visitCurrentContainer(expr, isObjState, wouldWantState);
 	}
 
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {

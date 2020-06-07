@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.WithTypeSignature;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.flas.tc3.ExpressionChecker.IgnoreMe;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
@@ -163,6 +164,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		stack.add((JSExpr)r);
+		if (!(r instanceof IgnoreMe))
+			stack.add((JSExpr)r);
 	}
 }
