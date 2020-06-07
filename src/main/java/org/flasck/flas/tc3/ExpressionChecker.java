@@ -125,7 +125,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 				announce(pos, meth.type());
 			else {
 				// announce(pos, state.requireVarConstraints(meth.location(), meth.name().uniqueName()));
-				throw new NotImplementedException("I think this should mean that the other one has been defined, but it could be recursive - try adding the UT as per the comment");
+				throw new NotImplementedException("I think this is invalid and " + meth + " should have a type defined, but it could be recursive - try adding the UT as per the comment");
 			}
 		} else if (defn instanceof VarPattern) {
 			VarPattern vp = (VarPattern) defn;

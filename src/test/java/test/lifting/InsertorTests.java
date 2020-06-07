@@ -15,7 +15,7 @@ import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -154,7 +154,7 @@ public class InsertorTests {
 	private static String assembleGroup(FunctionGroup grp) {
 		StringBuilder sb = new StringBuilder();
 		String sep = "";
-		for (StandaloneDefn f : grp.functions()) {
+		for (LogicHolder f : grp.functions()) {
 			sb.append(sep);
 			sb.append(f.name().uniqueName());
 			sep = "//";

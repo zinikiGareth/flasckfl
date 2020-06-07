@@ -2,7 +2,6 @@ package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.xml.XMLElement;
 
 public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 	private final InputPosition location;
@@ -86,12 +85,6 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 		if (!(other instanceof TemplateName))
 			return other.getClass().getName().compareTo(this.getClass().getName());
 		return this.compareTo((TemplateName)other);
-	}
-
-	@Override
-	public String writeToXML(XMLElement xe) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

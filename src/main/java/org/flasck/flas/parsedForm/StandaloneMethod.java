@@ -16,7 +16,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder, WithTypeSignature, Locatable {
+public class StandaloneMethod implements RepositoryEntry, LogicHolder, TypeBinder, WithTypeSignature, Locatable {
 	public final ObjectMethod om;
 
 	public StandaloneMethod(ObjectMethod om) {
@@ -99,7 +99,7 @@ public class StandaloneMethod implements RepositoryEntry, StandaloneDefn, Compar
 	}
 
 	@Override
-	public int compareTo(StandaloneDefn o) {
+	public int compareTo(LogicHolder o) {
 		return name().compareTo(o.name());
 	}
 

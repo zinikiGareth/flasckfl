@@ -1,7 +1,7 @@
 package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 
 public class ConstPattern implements Pattern {
 	public static final int INTEGER = 1;
@@ -11,7 +11,7 @@ public class ConstPattern implements Pattern {
 	public final int type;
 	public final String value;
 	public final InputPosition location;
-	private StandaloneDefn definedBy;
+	private LogicHolder definedBy;
 
 	public ConstPattern(InputPosition loc, int type, String value) {
 		this.location = loc;
@@ -19,11 +19,11 @@ public class ConstPattern implements Pattern {
 		this.value = value;
 	}
 	
-	public StandaloneDefn definedBy() {
+	public LogicHolder definedBy() {
 		return definedBy;
 	}
 
-	public void isDefinedBy(StandaloneDefn definedBy) {
+	public void isDefinedBy(LogicHolder definedBy) {
 		this.definedBy = definedBy;
 	}
 

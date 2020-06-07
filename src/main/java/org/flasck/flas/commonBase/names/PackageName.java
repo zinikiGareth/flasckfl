@@ -1,7 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.xml.XMLElement;
 
 public class PackageName implements NameOfThing, Comparable<PackageName> {
 	private final String name;
@@ -69,13 +68,6 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 			return name;
 		else
 			return name.substring(idx+1);
-	}
-
-	@Override
-	public String writeToXML(XMLElement xe) {
-		XMLElement ty = xe.addElement("Package");
-		ty.setAttribute("name", name);
-		return name;
 	}
 
 	@Override

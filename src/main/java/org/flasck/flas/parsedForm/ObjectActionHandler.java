@@ -53,6 +53,11 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 		return false;
 	}
 
+	@Override
+	public int compareTo(LogicHolder o) {
+		return name().compareTo(o.name());
+	}
+
 	public List<Pattern> args() {
 		return args;
 	}

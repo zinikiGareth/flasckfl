@@ -21,7 +21,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 
 // TODO: having both nargs & type feels like duplication, but we know about nargs SOOOO much earlier
-public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeSignature, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder, AccessRestrictions {
+public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeSignature, LogicHolder, Comparable<LogicHolder>, TypeBinder, AccessRestrictions {
 	private final FunctionName name;
 	private final int nargs;
 	private final StateHolder holder;
@@ -146,7 +146,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	}
 
 	@Override
-	public int compareTo(StandaloneDefn o) {
+	public int compareTo(LogicHolder o) {
 		return name().compareTo(o.name());
 	}
 

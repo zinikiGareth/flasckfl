@@ -2,7 +2,6 @@ package org.flasck.flas.commonBase.names;
 
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.xml.XMLElement;
 
 public class PolyName implements NameOfThing, Comparable<PolyName> {
 	private final String name;
@@ -74,12 +73,6 @@ public class PolyName implements NameOfThing, Comparable<PolyName> {
 		if (!(other instanceof PolyName))
 			return other.getClass().getName().compareTo(this.getClass().getName());
 		return this.compareTo((PolyName)other);
-	}
-
-	@Override
-	public String writeToXML(XMLElement xe) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.xml.XMLElement;
 
 // This wants to grow to take over the responsibility of knowing:
 //  * The package
@@ -214,11 +213,5 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	public String toString() {
 		// Don't use this in code! It should only be used for debug
 		return "Fn[" + uniqueName() + "]";
-	}
-
-	@Override
-	public String writeToXML(XMLElement xe) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

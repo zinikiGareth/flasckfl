@@ -3,19 +3,19 @@ package org.flasck.flas.lifting;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.repository.FunctionGroup;
 
 public class DependencyGroup implements FunctionGroup {
-	private Set<StandaloneDefn> functions;
+	private Set<LogicHolder> functions;
 
-	public DependencyGroup(StandaloneDefn... fns) {
+	public DependencyGroup(LogicHolder... fns) {
 		this.functions = new TreeSet<>();
-		for (StandaloneDefn f : fns)
+		for (LogicHolder f : fns)
 			functions.add(f);
 	}
 	
-	public DependencyGroup(Set<StandaloneDefn> functions) {
+	public DependencyGroup(Set<LogicHolder> functions) {
 		this.functions = functions;
 	}
 
@@ -25,7 +25,7 @@ public class DependencyGroup implements FunctionGroup {
 	}
 
 	@Override
-	public Iterable<StandaloneDefn> functions() {
+	public Iterable<LogicHolder> functions() {
 		return functions;
 	}
 	

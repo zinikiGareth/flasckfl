@@ -1,9 +1,8 @@
 package org.flasck.flas.commonBase.names;
 
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.xml.XMLElement;
 
-public class HandlerName implements NameOfThing, Comparable<HandlerName> {
+public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 	public final NameOfThing name;
 	public final String baseName;
 
@@ -44,26 +43,9 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 		return name.uniqueName() + "$" + baseName;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public int compareTo(HandlerName o) {
-		int cc = 0;
-		if (name != null && o.name == null)
-			return -1;
-		else if (name == null && o.name != null)
-			return 1;
-		else if (name != null && o.name != null)
-			cc = ((Comparable<NameOfThing>)name).compareTo(o.name);
-		if (cc != 0)
-			return cc;
-		return baseName.compareTo(o.baseName);
-	}
-
-	@Override
-	public <T extends NameOfThing> int compareTo(T other) {
-		if (!(other instanceof HandlerName))
-			return other.getClass().getName().compareTo(this.getClass().getName());
-		return this.compareTo((HandlerName)other);
+	public int compareTo(NameOfThing o) {
+		return uniqueName().compareTo(o.uniqueName());
 	}
 
 	@Override
@@ -78,12 +60,6 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 		if (name == null)
 			return baseName;
 		return name.jsName() + "._" + baseName;
-	}
-
-	@Override
-	public String writeToXML(XMLElement xe) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

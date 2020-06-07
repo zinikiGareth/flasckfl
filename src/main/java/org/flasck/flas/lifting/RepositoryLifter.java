@@ -11,7 +11,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -24,10 +24,10 @@ import org.flasck.flas.repository.Repository;
 
 public class RepositoryLifter extends LeafAdapter implements Lifter {
 	public class LiftingGroup implements Comparable<LiftingGroup> {
-		private final Set<StandaloneDefn> members = new TreeSet<>();
+		private final Set<LogicHolder> members = new TreeSet<>();
 		private final String leader;
 
-		public LiftingGroup(Set<StandaloneDefn> members) {
+		public LiftingGroup(Set<LogicHolder> members) {
 			this.members.addAll(members);
 			this.leader = this.members.iterator().next().name().uniqueName();
 		}
@@ -43,8 +43,8 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	private LiftingDependencyMapper dependencies = new LiftingDependencyMapper();
 	private MappingStore ms;
 	private MappingAnalyzer ma;
-	private Set<StandaloneDefn> dull = new TreeSet<>();
-	private Set<StandaloneDefn> interesting = new TreeSet<>();
+	private Set<LogicHolder> dull = new TreeSet<>();
+	private Set<LogicHolder> interesting = new TreeSet<>();
 
 	private List<FunctionGroup> ordering;
 
@@ -64,11 +64,11 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 
 	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
-		dependencies.recordFunction(meth);
-		ms = new MappingStore();
-		ma = new MappingAnalyzer(meth, ms, dependencies);
+//		dependencies.recordFunction(meth);
+//		ms = new MappingStore();
+//		ma = new MappingAnalyzer(meth, ms, dependencies);
 	}
-
+	
 	@Override
 	public void visitTuple(TupleAssignment ta) {
 		dependencies.recordFunction(ta);
@@ -78,12 +78,18 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
+		dependencies.recordFunction(meth);
+		ms = new MappingStore();
+		ma = new MappingAnalyzer(meth, ms, dependencies);
 		if (ma != null)
 			ma.visitObjectMethod(meth);
 	}
 	
 	@Override
 	public void visitObjectCtor(ObjectCtor meth) {
+		dependencies.recordFunction(meth);
+		ms = new MappingStore();
+		ma = new MappingAnalyzer(meth, ms, dependencies);
 		if (ma != null)
 			ma.visitObjectMethod(meth);
 	}
@@ -114,16 +120,40 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	}
 
 	@Override
-	public void leaveStandaloneMethod(StandaloneMethod meth) {
+	public void leaveObjectMethod(ObjectMethod meth) {
 		if (ms.isInteresting()) {
 			meth.nestedVars(ms);
 			interesting.add(meth);
 		} else {
 			dull.add(meth);
 		}
-		meth.reportHolderInArgCount();
 		ma = null;
 		ms = null;
+	}
+	
+	@Override
+	public void leaveObjectCtor(ObjectCtor meth) {
+		if (ms.isInteresting()) {
+			meth.nestedVars(ms);
+			interesting.add(meth);
+		} else {
+			dull.add(meth);
+		}
+		ma = null;
+		ms = null;
+	}
+	
+	@Override
+	public void leaveStandaloneMethod(StandaloneMethod meth) {
+//		if (ms.isInteresting()) {
+//			meth.nestedVars(ms);
+//			interesting.add(meth);
+//		} else {
+//			dull.add(meth);
+//		}
+		meth.reportHolderInArgCount();
+//		ma = null;
+//		ms = null;
 	}
 
 	@Override
@@ -151,16 +181,16 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		// It possibly should also have its own class of some kind
 		ordering = new ArrayList<>();
 		
-		for (StandaloneDefn f : dull)
+		for (LogicHolder f : dull)
 			ordering.add(new DependencyGroup(f));
 
-		Set<StandaloneDefn> processedFns = new TreeSet<>(LoadBuiltins.allFunctions);
+		Set<LogicHolder> processedFns = new TreeSet<>(LoadBuiltins.allFunctions);
 		processedFns.addAll(dull);
-		Set<StandaloneDefn> remainingFns = new TreeSet<>(interesting);
+		Set<LogicHolder> remainingFns = new TreeSet<>(interesting);
 		while (!remainingFns.isEmpty()) {
 			boolean handled = false;
-			Set<StandaloneDefn> done = new HashSet<>();
-			for (StandaloneDefn fn : remainingFns) {
+			Set<LogicHolder> done = new HashSet<>();
+			for (LogicHolder fn : remainingFns) {
 				NestedVarReader nv = fn.nestedVars();
 				if (nv.containsReferencesNotIn(processedFns)) {
 					continue;
@@ -174,14 +204,14 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 			if (!handled) {
 				// if we can't make progress, you have to assume that some mutual recursion is at play ... try everything in turn ... then pick the least complex one
 				Set<LiftingGroup> options = new TreeSet<>();
-				for (StandaloneDefn fn : remainingFns) {
-					Set<StandaloneDefn> tc = buildTransitiveClosure(fn, processedFns);
+				for (LogicHolder fn : remainingFns) {
+					Set<LogicHolder> tc = buildTransitiveClosure(fn, processedFns);
 					if (tc != null)
 						options.add(new LiftingGroup(tc));
 				}
 				if (!options.isEmpty()) {
 					LiftingGroup tc = options.iterator().next();
-					for (StandaloneDefn fn : tc.members)
+					for (LogicHolder fn : tc.members)
 						process(fn, processedFns);
 					remainingFns.removeAll(tc.members);
 					ordering.add(new DependencyGroup(tc.members));
@@ -192,26 +222,26 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		return new FunctionGroupOrdering(ordering);
 	}
 
-	private void process(StandaloneDefn fn, Set<StandaloneDefn> processedFns) {
+	private void process(LogicHolder fn, Set<LogicHolder> processedFns) {
 		processedFns.add(fn);
 		NestedVarReader nv = fn.nestedVars();
-		for (StandaloneDefn r : nv.references()) {
+		for (LogicHolder r : nv.references()) {
 			nv.enhanceWith(fn, r.nestedVars());
 		}
 	}
 
-	private Set<StandaloneDefn> buildTransitiveClosure(StandaloneDefn fn, Set<StandaloneDefn> resolved) {
-		Set<StandaloneDefn> closure = new TreeSet<>();
+	private Set<LogicHolder> buildTransitiveClosure(LogicHolder fn, Set<LogicHolder> resolved) {
+		Set<LogicHolder> closure = new TreeSet<>();
 		buildMaximalTransitiveClosure(fn, resolved, closure);
-		for (StandaloneDefn f : closure) {
+		for (LogicHolder f : closure) {
 			if (!checkFn(f, closure))
 				return null;
 		}
 		return closure;
 	}
 
-	private boolean checkFn(StandaloneDefn f, Set<StandaloneDefn> closure) {
-		for (StandaloneDefn g : closure) {
+	private boolean checkFn(LogicHolder f, Set<LogicHolder> closure) {
+		for (LogicHolder g : closure) {
 			NestedVarReader nv = g.nestedVars();
 			if (nv != null && nv.dependsOn(f))
 				return true;
@@ -219,16 +249,16 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		return false;
 	}
 
-	private void buildMaximalTransitiveClosure(StandaloneDefn fn, Set<StandaloneDefn> resolved, Set<StandaloneDefn> closure) {
+	private void buildMaximalTransitiveClosure(LogicHolder fn, Set<LogicHolder> resolved, Set<LogicHolder> closure) {
 		if (closure.contains(fn))
 			return;
 		closure.add(fn);
 		NestedVarReader nv = fn.nestedVars();
 		if (nv != null) {
-			Set<StandaloneDefn> added = new TreeSet<>(nv.references());
+			Set<LogicHolder> added = new TreeSet<>(nv.references());
 			added.removeAll(resolved);
 			added.removeAll(closure);
-			for (StandaloneDefn o : added) {
+			for (LogicHolder o : added) {
 				buildMaximalTransitiveClosure(o, resolved, closure);
 			}
 		}

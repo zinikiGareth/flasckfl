@@ -37,7 +37,7 @@ public class ConstructorMatch implements Pattern {
 	public final List<Field> args = new ArrayList<Field>();
 	public final InputPosition location;
 	private StructDefn defn;
-	private StandaloneDefn definedBy;
+	private LogicHolder definedBy;
 
 	public ConstructorMatch(InputPosition loc, String ctor) {
 		if (loc == null)
@@ -46,11 +46,11 @@ public class ConstructorMatch implements Pattern {
 		this.ctor = ctor;
 	}
 
-	public StandaloneDefn definedBy() {
+	public LogicHolder definedBy() {
 		return definedBy;
 	}
 
-	public void isDefinedBy(StandaloneDefn definedBy) {
+	public void isDefinedBy(LogicHolder definedBy) {
 		this.definedBy = definedBy;
 		for (Field f : args) {
 			f.patt.isDefinedBy(definedBy);

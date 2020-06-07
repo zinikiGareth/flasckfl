@@ -15,7 +15,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class TupleMember implements Locatable, RepositoryEntry, StandaloneDefn, Comparable<StandaloneDefn>, TypeBinder {
+public class TupleMember implements Locatable, RepositoryEntry, LogicHolder, Comparable<LogicHolder>, TypeBinder {
 	private InputPosition location;
 	public final TupleAssignment ta;
 	public final int which;
@@ -84,7 +84,7 @@ public class TupleMember implements Locatable, RepositoryEntry, StandaloneDefn, 
 	}
 
 	@Override
-	public int compareTo(StandaloneDefn o) {
+	public int compareTo(LogicHolder o) {
 		return name().compareTo(o.name());
 	}
 

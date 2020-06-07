@@ -17,7 +17,7 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -33,7 +33,7 @@ import org.flasck.flas.tc3.Type;
 public class LoadBuiltins {
 	public static final InputPosition pos = new InputPosition("BuiltIn", 1, 0, "<<builtin>>");
 
-	public static Set<StandaloneDefn> allFunctions = new TreeSet<>();
+	public static Set<LogicHolder> allFunctions = new TreeSet<>();
 	
 	// Type References used here ...
 	public static final TypeReference polyATR = new TypeReference(pos, "A");

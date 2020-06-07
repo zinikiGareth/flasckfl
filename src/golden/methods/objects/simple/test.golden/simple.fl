@@ -1,8 +1,8 @@
 	object Methods
 		ctor make
 		
-		method adebug
+		method kdebug
 			<- Debug "hello"
 
 		method fdebug
-			<- adebug
+			<- kdebug

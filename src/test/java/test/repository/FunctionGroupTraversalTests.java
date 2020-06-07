@@ -12,7 +12,7 @@ import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.Repository;
@@ -157,7 +157,7 @@ public class FunctionGroupTraversalTests {
 
 	@Test
 	public void aSingleGroupWithAStandaloneMethod() {
-		HashSet<StandaloneDefn> ms1 = new HashSet<StandaloneDefn>();
+		HashSet<LogicHolder> ms1 = new HashSet<LogicHolder>();
 		ms1.add(s1);
 		FunctionGroup grp1 = new DependencyGroup(ms1);
 

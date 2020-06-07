@@ -12,7 +12,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -76,7 +76,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	private TreeSet<PO> patterns = new TreeSet<>();
-	private Set<StandaloneDefn> deps = new HashSet<>(); 
+	private Set<LogicHolder> deps = new HashSet<>(); 
 	
 	@Override
 	public void recordNestedVar(FunctionIntro fi, ObjectActionHandler meth, VarPattern vp) {
@@ -89,7 +89,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
-	public void recordDependency(StandaloneDefn fn) {
+	public void recordDependency(LogicHolder fn) {
 		if (fn == null)
 			throw new RuntimeException("Cannot depend on null function");
 		deps.add(fn);
@@ -101,24 +101,24 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
-	public boolean containsReferencesNotIn(Set<StandaloneDefn> resolved) {
-		Set<StandaloneDefn> ret = new HashSet<>(deps);
+	public boolean containsReferencesNotIn(Set<LogicHolder> resolved) {
+		Set<LogicHolder> ret = new HashSet<>(deps);
 		ret.removeAll(resolved);
 		return !ret.isEmpty();
 	}
 
 	@Override
-	public Set<StandaloneDefn> references() {
+	public Set<LogicHolder> references() {
 		return deps;
 	}
 	
 	@Override
-	public boolean dependsOn(StandaloneDefn fn) {
+	public boolean dependsOn(LogicHolder fn) {
 		return deps.contains(fn);
 	}
 
 	@Override
-	public void enhanceWith(StandaloneDefn sd, NestedVarReader nestedVars) {
+	public void enhanceWith(LogicHolder sd, NestedVarReader nestedVars) {
 		if (nestedVars == null)
 			return;
 		

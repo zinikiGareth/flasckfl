@@ -18,7 +18,7 @@ import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class TupleAssignment implements RepositoryEntry, StandaloneDefn, TypeBinder, Comparable<StandaloneDefn> {
+public class TupleAssignment implements RepositoryEntry, LogicHolder, TypeBinder, Comparable<LogicHolder> {
 	public final List<LocatedName> vars;
 	public final List<TupleMember> members = new ArrayList<TupleMember>();
 	private final FunctionName exprFnName;
@@ -118,7 +118,7 @@ public class TupleAssignment implements RepositoryEntry, StandaloneDefn, TypeBin
 	}
 
 	@Override
-	public int compareTo(StandaloneDefn o) {
+	public int compareTo(LogicHolder o) {
 		return name().compareTo(o.name());
 	}
 

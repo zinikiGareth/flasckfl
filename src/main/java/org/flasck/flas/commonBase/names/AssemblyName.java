@@ -1,7 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.xml.XMLElement;
 
 public class AssemblyName implements NameOfThing {
 	private final NameOfThing pkg;
@@ -62,11 +61,6 @@ public class AssemblyName implements NameOfThing {
 
 	@Override
 	public <T extends NameOfThing> int compareTo(T other) {
-		throw new NotImplementedException();
-	}
-
-	@Override
-	public String writeToXML(XMLElement xe) {
 		throw new NotImplementedException();
 	}
 

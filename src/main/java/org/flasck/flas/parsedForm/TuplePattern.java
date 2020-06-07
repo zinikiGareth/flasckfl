@@ -9,7 +9,7 @@ import org.flasck.flas.commonBase.Pattern;
 public class TuplePattern implements Pattern {
 	public final List<Pattern> args = new ArrayList<Pattern>();
 	private final InputPosition loc;
-	private StandaloneDefn definedBy;
+	private LogicHolder definedBy;
 
 	public TuplePattern(InputPosition loc, @SuppressWarnings("rawtypes") List arr) {
 		this.loc = loc;
@@ -22,11 +22,11 @@ public class TuplePattern implements Pattern {
 		return loc;
 	}
 
-	public StandaloneDefn definedBy() {
+	public LogicHolder definedBy() {
 		return definedBy;
 	}
 
-	public void isDefinedBy(StandaloneDefn definedBy) {
+	public void isDefinedBy(LogicHolder definedBy) {
 		this.definedBy = definedBy;
 	}
 }

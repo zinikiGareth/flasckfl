@@ -20,7 +20,7 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 	public final String var;
 	private final VarName myName;
 	private Type type;
-	private StandaloneDefn definedBy;
+	private LogicHolder definedBy;
 	
 	public VarPattern(InputPosition location, VarName name) {
 		this.varLoc = location;
@@ -38,11 +38,11 @@ public class VarPattern implements Pattern, RepositoryEntry, WithTypeSignature {
 		return varLoc;
 	}
 
-	public StandaloneDefn definedBy() {
+	public LogicHolder definedBy() {
 		return definedBy;
 	}
 
-	public void isDefinedBy(StandaloneDefn definedBy) {
+	public void isDefinedBy(LogicHolder definedBy) {
 		this.definedBy = definedBy;
 	}
 

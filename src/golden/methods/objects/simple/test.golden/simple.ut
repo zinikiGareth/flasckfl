@@ -1,6 +1,6 @@
 	test we can generate a Debug command
 		data Methods m <- Methods.make
-		assert (dispatch (m.adebug))
+		assert (dispatch (m.kdebug))
 			[Debug "hello"]
 
 	test we can call an indirect method

@@ -2,7 +2,6 @@ package org.flasck.flas.commonBase.names;
 
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.xml.XMLElement;
 
 public class UnitTestFileName implements NameOfThing {
 	private final PackageName container;
@@ -61,14 +60,6 @@ public class UnitTestFileName implements NameOfThing {
 		return name;
 	}
 	
-	@Override
-	public String writeToXML(XMLElement xe) {
-		XMLElement ty = xe.addElement("UnitTestFile");
-		ty.setAttribute("container", container.uniqueName());
-		ty.setAttribute("name", name);
-		return name;
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof UnitTestFileName))

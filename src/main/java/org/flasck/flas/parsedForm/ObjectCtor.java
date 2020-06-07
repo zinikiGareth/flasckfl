@@ -50,6 +50,10 @@ public class ObjectCtor extends ObjectActionHandler implements WithTypeSignature
 		return false; // it does obviously, but it's also an object
 	}
 	
+	public StateHolder state() {
+		return (StateHolder) od;
+	}
+
 	@Override
 	public Implements getImplements() {
 		throw new NotImplementedException();

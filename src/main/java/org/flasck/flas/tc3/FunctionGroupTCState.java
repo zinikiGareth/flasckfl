@@ -17,7 +17,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.PolyType;
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionGroup;
@@ -43,7 +43,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
-		for (StandaloneDefn x : grp.functions())
+		for (LogicHolder x : grp.functions())
 			bindVarToUT(x.name().uniqueName(), createUT(x.location(), x.name().uniqueName() + " returns", false));
 		this.hasGroup = !grp.isEmpty();
 	}

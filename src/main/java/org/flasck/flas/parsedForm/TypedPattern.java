@@ -13,7 +13,7 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 	public final transient InputPosition typeLocation;
 	public final TypeReference type;
 	public final VarName var;
-	private StandaloneDefn definedBy;
+	private LogicHolder definedBy;
 
 	public TypedPattern(InputPosition location, TypeReference type, VarName var) {
 		this.typeLocation = location;
@@ -30,11 +30,11 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 		return var;
 	}
 	
-	public StandaloneDefn definedBy() {
+	public LogicHolder definedBy() {
 		return definedBy;
 	}
 
-	public void isDefinedBy(StandaloneDefn definedBy) {
+	public void isDefinedBy(LogicHolder definedBy) {
 		this.definedBy = definedBy;
 	}
 

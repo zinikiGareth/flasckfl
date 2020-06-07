@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.zinutils.xml.XMLElement;
-
 public class CardName implements NameOfThing, Comparable<CardName> {
 	public final PackageName pkg;
 	public final String cardName;
@@ -95,11 +93,5 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	@Override
 	public int hashCode() {
 		return pkg.hashCode() ^ cardName.hashCode();
-	}
-
-	@Override
-	public String writeToXML(XMLElement xe) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

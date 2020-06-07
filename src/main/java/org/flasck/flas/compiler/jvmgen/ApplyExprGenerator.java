@@ -13,7 +13,7 @@ import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
 import org.flasck.flas.parsedForm.ObjectCtor;
-import org.flasck.flas.parsedForm.StandaloneDefn;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -134,7 +134,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 			}
 		} else {
 			boolean wantObject = false;
-			if (defn instanceof StandaloneDefn && ((StandaloneDefn)defn).hasState()) {
+			if (defn instanceof LogicHolder && ((LogicHolder)defn).hasState()) {
 				wantObject = true;
 //				expArgs++;
 			}

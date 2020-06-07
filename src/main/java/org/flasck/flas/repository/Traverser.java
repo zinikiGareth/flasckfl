@@ -61,7 +61,6 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ServiceDefinition;
-import org.flasck.flas.parsedForm.StandaloneDefn;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -114,7 +113,7 @@ public class Traverser implements RepositoryVisitor {
 	final static Logger patternsLogger = LoggerFactory.getLogger("Patterns");
 	final static Logger hsiLogger = LoggerFactory.getLogger("HSI");
 	private final RepositoryVisitor visitor;
-	private StandaloneDefn currentFunction;
+	private LogicHolder currentFunction;
 	private FunctionGroups functionOrder;
 	private boolean wantImplementedMethods = false;
 	private boolean wantNestedPatterns;
@@ -123,6 +122,7 @@ public class Traverser implements RepositoryVisitor {
 	private boolean patternsTree;
 	private boolean visitMemberFields = false;
 	private boolean isConverted;
+	private boolean currFnHasState;
 
 	public Traverser(RepositoryVisitor visitor) {
 		this.visitor = visitor;
@@ -218,17 +218,19 @@ public class Traverser implements RepositoryVisitor {
 			if (functionOrder == null)
 				visitFunction((FunctionDefinition)e);
 		} else if (e instanceof TupleAssignment) {
-			// Do we need to think about function ordering?
-			visitTuple((TupleAssignment)e);
+			if (functionOrder == null)
+				visitTuple((TupleAssignment)e);
 		} else if (e instanceof TupleMember) {
 			// if needed, it should be visited within the assignment
 		} else if (e instanceof ObjectMethod) {
-			visitObjectMethod((ObjectMethod)e);
+			if (functionOrder == null)
+				visitObjectMethod((ObjectMethod)e);
 		} else if (e instanceof ObjectAccessor) {
 			if (functionOrder == null)
 				visitObjectAccessor((ObjectAccessor)e);
 		} else if (e instanceof ObjectCtor) {
-			visitObjectCtor((ObjectCtor)e);
+			if (functionOrder == null)
+				visitObjectCtor((ObjectCtor)e);
 		} else if (e instanceof StandaloneMethod) {
 			if (functionOrder == null)
 				visitStandaloneMethod((StandaloneMethod)e);
@@ -588,6 +590,7 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitObjectAccessor(ObjectAccessor oa) {
+		currFnHasState = true;
 		visitor.visitObjectAccessor(oa);
 		visitFunction(oa.function());
 		leaveObjectAccessor(oa);
@@ -600,6 +603,7 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
+		currFnHasState = true;
 		visitor.visitObjectCtor(oc);
 		visitStateDefinition(oc.getObject().state());
 		traverseFnOrMethod(oc);
@@ -614,7 +618,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
 		visitor.visitFunctionGroup(grp);
-		for (StandaloneDefn sd : grp.functions()) {
+		for (LogicHolder sd : grp.functions()) {
 			if (sd instanceof FunctionDefinition)
 				visitFunction((FunctionDefinition) sd);
 			else if (sd instanceof StandaloneMethod)
@@ -623,6 +627,10 @@ public class Traverser implements RepositoryVisitor {
 				visitTuple((TupleAssignment) sd);
 			else if (sd instanceof TupleMember)
 				visitTupleMember((TupleMember) sd);
+			else if (sd instanceof ObjectMethod)
+				visitObjectMethod((ObjectMethod) sd);
+			else if (sd instanceof ObjectCtor)
+				visitObjectCtor((ObjectCtor) sd);
 			else
 				throw new NotImplementedException("visit " + sd.getClass());
 		}
@@ -631,6 +639,7 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
+		currFnHasState = meth.hasState();
 		rememberCaller(meth);
 		visitor.visitStandaloneMethod(meth);
 		visitObjectMethod(meth.om);
@@ -640,6 +649,7 @@ public class Traverser implements RepositoryVisitor {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
+		currFnHasState = meth.hasState();
 		visitor.visitObjectMethod(meth);
 		if (wantEventSources && meth.isEvent()) {
 			for (Template e : meth.eventSourceExprs()) {
@@ -682,6 +692,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitFunction(FunctionDefinition fn) {
 		if (fn.intros().isEmpty())
 			return; // not for generation
+		currFnHasState = fn.hasState();
 		rememberCaller(fn);
 		visitor.visitFunction(fn);
 		traverseFnOrMethod(fn);
@@ -691,6 +702,7 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitTuple(TupleAssignment e) {
+		currFnHasState = e.hasState();
 		visitor.visitTuple(e);
 		visitExpr(e.expr, 0);
 		tupleExprComplete(e);
@@ -836,7 +848,7 @@ public class Traverser implements RepositoryVisitor {
 		return ret;
 	}
 
-	public void rememberCaller(StandaloneDefn fn) {
+	public void rememberCaller(LogicHolder fn) {
 		this.currentFunction = fn;
 	}
 
@@ -1360,7 +1372,7 @@ public class Traverser implements RepositoryVisitor {
 		if (wantNestedPatterns && !isConverted) {
 			StateHolder sh = containedState(fn);
 			List<Object> args = new ArrayList<>();
-			if (sh != null) {
+			if (sh != null && currFnHasState && (!(fn instanceof UnresolvedVar) || !(((UnresolvedVar)fn).defn() instanceof ObjectCtor))) {
 				// this is not good enough because it may be passed in as arg 0 to us
 				args.add(new CurrentContainer(fn.location(), (NamedType) sh));
 			}
@@ -1405,8 +1417,8 @@ public class Traverser implements RepositoryVisitor {
 	private NestedVarReader isFnNeedingNesting(Expr fn) {
 		if (fn instanceof UnresolvedVar) {
 			UnresolvedVar uv = (UnresolvedVar)fn;
-			if (uv.defn() instanceof StandaloneDefn)
-				return ((StandaloneDefn)uv.defn()).nestedVars();
+			if (uv.defn() instanceof LogicHolder)
+				return ((LogicHolder)uv.defn()).nestedVars();
 		}
 		return null;
 	}
@@ -1414,8 +1426,8 @@ public class Traverser implements RepositoryVisitor {
 	private StateHolder containedState(Expr fn) {
 		if (fn instanceof UnresolvedVar) {
 			UnresolvedVar uv = (UnresolvedVar)fn;
-			if (uv.defn() instanceof StandaloneDefn)
-				return ((StandaloneDefn)uv.defn()).state();
+			if (uv.defn() instanceof LogicHolder)
+				return ((LogicHolder)uv.defn()).state();
 		}
 		return null;
 	}
@@ -1466,7 +1478,7 @@ public class Traverser implements RepositoryVisitor {
 		if (nargs == 0 && wantNestedPatterns) {
 			StateHolder sh = containedState(var);
 			List<Object> args = new ArrayList<>();
-			if (sh != null) {
+			if (sh != null && currFnHasState && !(var.defn() instanceof ObjectCtor)) {
 				// this is not good enough because it may be passed in as arg 0 to us
 				args.add(new CurrentContainer(var.location(), (NamedType) sh));
 			}
@@ -1560,6 +1572,7 @@ public class Traverser implements RepositoryVisitor {
 	}
 	@Override
 	public void visitUnitTestPackage(UnitTestPackage e) {
+		currFnHasState = false;
 		visitor.visitUnitTestPackage(e);
 		for (UnitDataDeclaration udd : e.decls())
 			visitUnitDataDeclaration(udd);
