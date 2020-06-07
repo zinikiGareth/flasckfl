@@ -140,7 +140,7 @@ public class Main {
 	public static void setLogLevels() {
 		StaticLoggerBinder.setLevel("io.webfolder.ui4j", Level.WARN);
 		StaticLoggerBinder.setLevel("Compiler", Level.WARN);
-		StaticLoggerBinder.setLevel("Lifter", Level.WARN);
+		StaticLoggerBinder.setLevel("Lifter", Level.DEBUG);
 		StaticLoggerBinder.setLevel("Patterns", Level.WARN);
 		StaticLoggerBinder.setLevel("HSI", Level.WARN);
 		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);

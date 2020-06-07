@@ -1,0 +1,3 @@
+test.golden.Foo._ctor_make :: test.golden.Foo
+test.golden.Foo.fred :: Number
+test.golden.create :: test.golden.Foo

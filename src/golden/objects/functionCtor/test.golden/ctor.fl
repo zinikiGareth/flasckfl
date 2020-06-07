@@ -1,0 +1,6 @@
+	object Foo
+		ctor make
+	
+		acor fred = 42
+		
+	create = Foo.make

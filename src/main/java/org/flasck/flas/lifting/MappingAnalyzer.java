@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.zinutils.exceptions.CantHappenException;
 
 public class MappingAnalyzer {
 	private final TypeBinder fn;
@@ -36,6 +37,12 @@ public class MappingAnalyzer {
 
 	public void visitUnresolvedVar(UnresolvedVar vr) {
 		RepositoryEntry defn = vr.defn();
+		if (defn == null)
+			throw new CantHappenException("should have a definition by this point");
+		visitDefn(defn);
+	}
+
+	public void visitDefn(RepositoryEntry defn) {
 		if (defn instanceof VarPattern) {
 			VarPattern vp = (VarPattern) defn;
 			if (vp.name().scope != name) {
@@ -54,5 +61,6 @@ public class MappingAnalyzer {
 				collector.recordDependency((LogicHolder) defn);
 		}
 	}
+	
 
 }

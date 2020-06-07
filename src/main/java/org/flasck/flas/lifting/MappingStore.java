@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -78,8 +79,14 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		}
 	}
 
+	private final FunctionName name; 
 	private TreeSet<PO> patterns = new TreeSet<>();
-	private Set<LogicHolder> deps = new HashSet<>(); 
+	private Set<LogicHolder> deps = new HashSet<>();
+	
+	public MappingStore(FunctionName name) {
+		RepositoryLifter.logger.info("Checking dependencies for " + name.uniqueName());
+		this.name = name;
+	}
 	
 	@Override
 	public void recordNestedVar(FunctionIntro fi, ObjectActionHandler meth, VarPattern vp) {
@@ -95,7 +102,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	public void recordDependency(LogicHolder fn) {
 		if (fn == null)
 			throw new RuntimeException("Cannot depend on null function");
-		logger.debug(this + " depends on " + fn.name().uniqueName());
+		logger.debug("  " + this + " depends on " + fn.name().uniqueName());
 		deps.add(fn);
 	}
 
@@ -157,5 +164,10 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 
 	public boolean isInteresting() {
 		return !patterns.isEmpty() || !deps.isEmpty();
+	}
+	
+	@Override
+	public String toString() {
+		return name.uniqueName();
 	}
 }

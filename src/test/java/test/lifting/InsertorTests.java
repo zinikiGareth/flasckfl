@@ -46,7 +46,7 @@ public class InsertorTests {
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		fn.intro(fi);
 
-		MappingStore ms = new MappingStore();
+		MappingStore ms = new MappingStore(nameF);
 		ms.recordNestedVar(fi, null, vp);
 		fn.nestedVars(ms);
 
@@ -70,7 +70,7 @@ public class InsertorTests {
 		FunctionIntro fi = new FunctionIntro(nameG, new ArrayList<>());
 		fn.intro(fi);
 
-		MappingStore ms = new MappingStore();
+		MappingStore ms = new MappingStore(nameF);
 		ms.recordNestedVar(fi, null, tp);
 		fn.nestedVars(ms);
 

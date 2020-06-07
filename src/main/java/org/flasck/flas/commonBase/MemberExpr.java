@@ -2,6 +2,7 @@ package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
@@ -10,6 +11,7 @@ public class MemberExpr implements Expr {
 	public final InputPosition location;
 	public final Expr from;
 	public final Expr fld;
+	private RepositoryEntry entry;
 	private Expr conversion;
 	private ContractMethodDecl contractMethod;
 	private Type containerType;
@@ -78,5 +80,14 @@ public class MemberExpr implements Expr {
 	
 	public ContractMethodDecl contractMethod() {
 		return contractMethod;
+	}
+
+	public void bind(RepositoryEntry entry) {
+		this.entry = entry;
+		
+	}
+	
+	public RepositoryEntry defn() {
+		return entry;
 	}
 }

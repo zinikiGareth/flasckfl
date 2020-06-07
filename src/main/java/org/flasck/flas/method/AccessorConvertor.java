@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MakeSend;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -28,6 +29,7 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class AccessorConvertor extends LeafAdapter {
@@ -103,6 +105,16 @@ public class AccessorConvertor extends LeafAdapter {
 				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on " + td.name().uniqueName());
 				return;
 			}
+		} else if (uv.defn() instanceof ObjectDefn) {
+			// it's actually a ctor not an accessor
+			ObjectDefn od = (ObjectDefn) uv.defn();
+			ObjectCtor ctor = od.getConstructor(meth.var);
+			if (ctor == null)
+				throw new CantHappenException("no constructor " + ctor);
+			UnresolvedVar cv = new UnresolvedVar(uv.location(), meth.var);
+			cv.bind(ctor);
+			expr.conversion(cv);
+			return;
 		} else if (uv.defn() instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)uv.defn();
 			Type ty = tp.type();

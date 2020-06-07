@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.ObjectCtor;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.LogicHolder;
+import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -62,7 +62,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		dependencies.recordFunction(fn);
-		ms = new MappingStore();
+		ms = new MappingStore(fn.name());
 		ma = new MappingAnalyzer(fn, ms, dependencies);
 	}
 
@@ -76,14 +76,14 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	@Override
 	public void visitTuple(TupleAssignment ta) {
 		dependencies.recordFunction(ta);
-		ms = new MappingStore();
+		ms = new MappingStore(ta.name());
 		ma = new MappingAnalyzer(ta, ms, dependencies);
 	}
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
 		dependencies.recordFunction(meth);
-		ms = new MappingStore();
+		ms = new MappingStore(meth.name());
 		ma = new MappingAnalyzer(meth, ms, dependencies);
 		if (ma != null)
 			ma.visitObjectMethod(meth);
@@ -92,7 +92,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	@Override
 	public void visitObjectCtor(ObjectCtor meth) {
 		dependencies.recordFunction(meth);
-		ms = new MappingStore();
+		ms = new MappingStore(meth.name());
 		ma = new MappingAnalyzer(meth, ms, dependencies);
 		if (ma != null)
 			ma.visitObjectMethod(meth);
@@ -108,6 +108,12 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		if (ma != null)
 			ma.visitUnresolvedVar(vr);
 	}
+	
+	@Override
+	public void visitMemberExpr(MemberExpr expr) {
+		if (ma != null)
+			ma.visitDefn(expr.defn());
+	}
 
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
@@ -118,7 +124,6 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 			dull.add(fn);
 		}
 		if (!fn.isObjAccessor())
-//		if (!(fn.state() instanceof ObjectDefn))
 			fn.reportHolderInArgCount();
 		ma = null;
 		ms = null;
@@ -170,7 +175,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 			dull.add(ta);
 		}
 		for (TupleMember tm : ta.members) {
-			MappingStore msm = new MappingStore();
+			MappingStore msm = new MappingStore(ta.name());
 			msm.recordDependency(ta);
 			tm.nestedVars(msm);
 			interesting.add(tm);

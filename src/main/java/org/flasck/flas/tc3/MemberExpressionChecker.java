@@ -78,6 +78,7 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			polys = pi.getPolys();
 			ty = pi.struct();
 		}
+		// TODO: can I move this to resolver?
 		if (ty instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) ty;
 			ContractMethodDecl method = cd.getMethod(fld.var);

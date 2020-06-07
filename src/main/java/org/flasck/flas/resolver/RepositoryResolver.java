@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -336,6 +337,33 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		this.scope = scopeStack.remove(0);
 	}
 
+	@Override
+	public void leaveMemberExpr(MemberExpr expr) {
+		if (!(expr.from instanceof UnresolvedVar))
+			throw new NotImplementedException();
+		UnresolvedVar uv = (UnresolvedVar) expr.from;
+		RepositoryEntry defn = uv.defn();
+		UnresolvedVar fld = (UnresolvedVar) expr.fld;
+		if (defn instanceof ObjectDefn) {
+			ObjectDefn od = (ObjectDefn) defn;
+			ObjectCtor ctor = od.getConstructor(fld.var);
+			expr.bind(ctor);
+		} else if (defn instanceof UnitDataDeclaration) {
+			NamedType nt = ((UnitDataDeclaration) defn).ofType.defn();
+			if (nt instanceof ObjectDefn) {
+				ObjectDefn od = (ObjectDefn) nt;
+				FieldAccessor acor = od.getAccessor(fld.var);
+				if (acor != null)
+					expr.bind((RepositoryEntry) acor);
+				else
+					throw new NotImplementedException("cannot find od member " + nt.name().uniqueName() + " " + fld.var);
+//				od.getMethod(fld.var);
+			} else
+				throw new NotImplementedException("cannot handle udd " + nt.getClass());
+		} else
+			throw new NotImplementedException("cannot handle " + defn.getClass());
+	}
+	
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = null;

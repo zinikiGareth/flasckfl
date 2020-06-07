@@ -19,7 +19,7 @@ public class LiftingDependencyMapper implements VarDependencyMapper {
 				LogicHolder provider = functions.get(user);
 				MappingStore ms = (MappingStore)provider.nestedVars();
 				if (ms == null) {
-					ms = new MappingStore();
+					ms = new MappingStore(fn.name());
 					provider.nestedVars(ms);
 				}
 				ms.recordDependency(fn);
