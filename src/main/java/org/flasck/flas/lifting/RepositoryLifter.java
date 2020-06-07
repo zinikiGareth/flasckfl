@@ -192,6 +192,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		processedFns.addAll(dull);
 		Set<LogicHolder> remainingFns = new TreeSet<>(interesting);
 		while (!remainingFns.isEmpty()) {
+			logger.debug("resolving " + remainingFns);
 			boolean handled = false;
 			Set<LogicHolder> done = new HashSet<>();
 			for (LogicHolder fn : remainingFns) {
@@ -199,11 +200,13 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 				if (nv.containsReferencesNotIn(processedFns)) {
 					continue;
 				}
+				logger.debug("extracted " + fn + " as a candidate group");
 				process(fn, processedFns);
 				done.add(fn);
 				ordering.add(new DependencyGroup(fn));
 				handled = true;
 			}
+			logger.debug("removing " + done + " from " + remainingFns);
 			remainingFns.removeAll(done);
 			if (!handled) {
 				// if we can't make progress, you have to assume that some mutual recursion is at play ... try everything in turn ... then pick the least complex one
@@ -213,6 +216,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 					if (tc != null)
 						options.add(new LiftingGroup(tc));
 				}
+				logger.debug("failed to make progress in resolution, so trying to find an option from " + options);
 				if (!options.isEmpty()) {
 					LiftingGroup tc = options.iterator().next();
 					for (LogicHolder fn : tc.members)

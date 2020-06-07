@@ -8,19 +8,7 @@ import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
-// This wants to grow to take over the responsibility of knowing:
-//  * The package
-//  * The class (if any)
-//  * The code type
-//  * Any area or contract/service name
-//  * The method name
-// And be able to return jsName or javaName, or class name or basic name ...
-
-// At the same time, I would like the function to take ever more advantage of this by:
-//  * storing this function name
-//  * offering the different options for the name (jsName, className, basicName, etc)
-//  * eventually hiding the "name" var ...
-public class FunctionName implements NameOfThing, Comparable<FunctionName> {
+public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 	public final InputPosition location;
 	public final String name;
 	public final NameOfThing inContext;
@@ -190,24 +178,8 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return compareTo((FunctionName) obj) == 0;
 	}
 	
-	public int compareTo(FunctionName other) {
-		int cs = 0;
-		if (inContext != null && other.inContext == null)
-			return -1;
-		else if (inContext == null && other.inContext != null)
-			return 1;
-		else if (inContext != null && other.inContext != null)
-			cs = inContext.compareTo(other.inContext);
-		if (cs != 0)
-			return cs;
-		return name.compareTo(other.name);
-	}
-
-	@Override
-	public <T extends NameOfThing> int compareTo(T other) {
-		if (!(other instanceof FunctionName))
-			return other.getClass().getName().compareTo(this.getClass().getName());
-		return this.compareTo((FunctionName)other);
+	public int compareTo(NameOfThing other) {
+		return uniqueName().compareTo(other.uniqueName());
 	}
 
 	public String toString() {
