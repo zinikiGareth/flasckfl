@@ -117,7 +117,8 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		} else {
 			dull.add(fn);
 		}
-		if (!(fn.state() instanceof ObjectDefn))
+		if (!fn.isObjAccessor())
+//		if (!(fn.state() instanceof ObjectDefn))
 			fn.reportHolderInArgCount();
 		ma = null;
 		ms = null;

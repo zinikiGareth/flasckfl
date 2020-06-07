@@ -1,0 +1,7 @@
+	object NotHereNesting
+		ctor make
+		method m
+			<- Debug v
+				v = "hello"
+			<- Debug w
+				w = "world"

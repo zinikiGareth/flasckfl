@@ -35,6 +35,7 @@ public class LastActionScopeParser implements LastOneOnlyNestedParser {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		parser.scopeComplete(location);
 	}
 
 }

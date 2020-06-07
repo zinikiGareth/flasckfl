@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import flas.matchers.FunctionDefinitionMatcher;
 import test.flas.stories.TDAStoryTests;
 
 public class TDAFunctionParsingNestingTests {
@@ -77,13 +78,10 @@ public class TDAFunctionParsingNestingTests {
 	}
 
 
-	// These want to go somewhere else where they fit, like NESTING tests
 	@Test
 	public void aNestedScopeIsLegalAsLongAsItComesAtTheEnd() {
 		context.checking(new Expectations() {{
-//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
-//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
-//			oneOf(topLevel).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
+			oneOf(builder).functionDefn(with(tracker), with(FunctionDefinitionMatcher.named("test.pkg.f._1.g")));
 		}});
 		TDAParsing guards = parser.tryParsing(line("f"));
 		guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
@@ -97,9 +95,7 @@ public class TDAFunctionParsingNestingTests {
 	@Test
 	public void aNestedScopeIsLegalAsLongAsItComesAtTheEndEvenWithNoDefault() {
 		context.checking(new Expectations() {{
-//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
-//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
-//			oneOf(topLevel).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
+			oneOf(builder).functionDefn(with(tracker), with(FunctionDefinitionMatcher.named("test.pkg.f._1.g")));
 		}});
 		TDAParsing guards = parser.tryParsing(line("f"));
 		guards.tryParsing(TDAFunctionParsingTests.line("| x == 10 = 42"));
@@ -114,9 +110,7 @@ public class TDAFunctionParsingNestingTests {
 	public void aNestedScopeIsNotLegalBeforeTheFinalCase() {
 		final Tokenizable nestedLine = TDAFunctionParsingTests.line("g = 'hello'");
 		context.checking(new Expectations() {{
-//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isGuarded()));
-//			oneOf(consumer).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
-//			oneOf(topLevel).functionCase(with(FunctionCaseDefnMatcher.isDefault()));
+			oneOf(builder).functionDefn(with(tracker), with(FunctionDefinitionMatcher.named("test.pkg.f._1.g")));
 			oneOf(errors).message(nestedLine, "nested scope must be after last case");
 		}});
 		TDAParsing guards = parser.tryParsing(line("f"));

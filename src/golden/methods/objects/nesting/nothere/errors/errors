@@ -1,0 +1,2 @@
+nothere.fl:   5.11:   v = "hello" _ 
+                          nested scope must be after last action

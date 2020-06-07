@@ -1,0 +1,3 @@
+test.golden.NestedFunction._ctor_make :: test.golden.NestedFunction
+test.golden.NestedFunction.m :: List[Message]
+test.golden.NestedFunction.w :: Any->String

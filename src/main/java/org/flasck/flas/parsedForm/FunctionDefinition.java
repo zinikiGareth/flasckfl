@@ -31,6 +31,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	private NestedVarReader nestedVars;
 	private boolean reportHolder;
 	private AccessRestrictions restricted;
+	private boolean isObjAccessor;
 
 	public FunctionDefinition(FunctionName name, int nargs, StateHolder holder) {
 		this.name = name;
@@ -176,5 +177,13 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	public void check(ErrorReporter errors, InputPosition pos, NameOfThing inContext) {
 		if (restricted != null)
 			restricted.check(errors, pos, inContext);
+	}
+
+	public boolean isObjAccessor() {
+		return isObjAccessor;
+	}
+	
+	public void isObjAccessor(boolean b) {
+		this.isObjAccessor = b;
 	}
 }

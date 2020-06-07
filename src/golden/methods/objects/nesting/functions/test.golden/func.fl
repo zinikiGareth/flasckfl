@@ -1,0 +1,6 @@
+	object NestedFunction
+		ctor make
+		method m
+			<- Debug w
+			<- Debug w
+				w = "world"
