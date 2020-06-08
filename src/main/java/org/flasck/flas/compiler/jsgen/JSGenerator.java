@@ -171,7 +171,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			return;
 		}
 		String pkg = fn.name().packageName().jsName();
-		String cxName = fn.name().inContext.jsName();
+		String cxName;
+		if (fn.name().containingCard() != null)
+			cxName = fn.name().containingCard().jsName();
+		else
+			cxName = fn.name().inContext.jsName();
 		jse.ensurePackageExists(pkg, cxName);
 		this.meth = jse.newFunction(pkg, cxName, fn.hasState(), fn.name().name);
 		

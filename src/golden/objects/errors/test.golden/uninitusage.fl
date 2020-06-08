@@ -1,0 +1,14 @@
+See also usestate.fl for a valid case
+
+	contract Fred
+		go
+
+	object CtorUsesState
+		state
+			Fred fred
+			Number noninit
+			Number var
+		
+		ctor init
+			<- fred.go
+			var <- noninit

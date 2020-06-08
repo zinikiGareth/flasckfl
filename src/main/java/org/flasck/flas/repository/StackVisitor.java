@@ -55,7 +55,6 @@ import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
 import org.flasck.flas.parsedForm.TemplateEvent;
-import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -516,10 +515,6 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 	@Override
 	public void visitTemplate(Template t, boolean isFirst) {
 		top.visitTemplate(t, isFirst);
-	}
-
-	public void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining) {
-		top.visitTemplateReference(refersTo, isFirst, true);
 	}
 
 	public void afterTemplateChainTypes(Template t) {

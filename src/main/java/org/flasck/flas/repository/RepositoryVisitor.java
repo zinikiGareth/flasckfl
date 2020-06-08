@@ -47,7 +47,6 @@ import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateCustomization;
 import org.flasck.flas.parsedForm.TemplateEvent;
-import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -200,7 +199,6 @@ public interface RepositoryVisitor {
 	void leaveTemplate(Template t);
 	void visitUnitTestMatch(UnitTestMatch m);
 	void leaveUnitTestMatch(UnitTestMatch m);
-	void visitTemplateReference(TemplateReference refersTo, boolean isFirst, boolean isDefining);
 	void visitTemplateBinding(TemplateBinding b);
 	void visitTemplateBindingOption(TemplateBindingOption option);
 	void leaveTemplateBindingOption(TemplateBindingOption option);

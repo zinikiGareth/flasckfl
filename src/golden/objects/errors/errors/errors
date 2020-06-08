@@ -4,6 +4,8 @@ duplerror.fl  9.5:    ctor  _ fred
                           test.golden.DuplicateCtor._ctor_fred is defined multiple times: duplerror.fl  8.5
 fieldvarconf  5.11:   ctor init ( _ String msg)
                           cannot use msg here as it conflicts with state member at fieldvarconf  3.7
+fieldvarconf  6.7:    msg <-  _ msg
+                          cannot use uninitialized field 'msg' in constructor test.golden.StateFirst._ctor_init
 fieldvarconf  8.11:   acor value  _ msg = msg
                           cannot use msg as function argument because is a state member at fieldvarconf  3.7
 fieldvarconf 10.3:    fn  _ msg = msg
@@ -24,4 +26,7 @@ nosuchctor.f 15.20:   obj <- InitContract. _ start
                           object test.golden.InitContract does not have a ctor start
 nosuchctor.f 17.9:    x <- obj. _ notThere
                           object test.golden.InitContract does not have a method, acor or member notThere
-                          
+uninitusage. 13.3:    <-  _ fred.go
+                          cannot use uninitialized field 'fred' in constructor test.golden.CtorUsesState._ctor_init
+uninitusage. 14.7:    var <-  _ noninit
+                          cannot use uninitialized field 'noninit' in constructor test.golden.CtorUsesState._ctor_init

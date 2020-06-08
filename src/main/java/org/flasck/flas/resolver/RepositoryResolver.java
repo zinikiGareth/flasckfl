@@ -16,6 +16,7 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessRestrictions;
 import org.flasck.flas.parsedForm.AgentDefinition;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -38,6 +39,7 @@ import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.ServiceDefinition;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -83,6 +85,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	private UnresolvedVar currShoveExpr;
 	private Set<String> currentBindings;
 	private NestingChain templateNestingChain;
+	private RepositoryEntry inside;
+	private boolean assigning;
 
 	public RepositoryResolver(ErrorReporter errors, RepositoryReader repository) {
 		this.errors = errors;
@@ -102,6 +106,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitFunction(FunctionDefinition fn) {
 		scopeStack.add(0, scope);
 		this.scope = fn.name();
+		this.inside = fn;
 	}
 
 	@Override
@@ -114,6 +119,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitObjectMethod(ObjectMethod meth) {
 		scopeStack.add(0, scope);
 		this.scope = meth.name();
+		this.inside = meth;
 		if (currentlyImplementing != null && currentlyImplementing.actualType() != null) {
 			ContractDecl cd = currentlyImplementing.actualType();
 			ContractMethodDecl cm = cd.getMethod(meth.name().name);
@@ -137,6 +143,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	public void visitObjectCtor(ObjectCtor ctor) {
 		scopeStack.add(0, scope);
 		this.scope = ctor.name();
+		this.inside = ctor;
 	}
 	
 	@Override
@@ -354,6 +361,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		} else if (expr.from instanceof UnresolvedVar) {
 			UnresolvedVar uv = (UnresolvedVar) expr.from;
 			defn = uv.defn();
+			if (defn == null) // some kind of error
+				return;
 		} else
 			throw new NotImplementedException("cannot handle elt " + expr.from.getClass());
 		UnresolvedVar fld = (UnresolvedVar) expr.fld;
@@ -478,6 +487,16 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
+	public void visitAssignSlot(Expr slot) {
+		assigning = true;
+	}
+	
+	@Override
+	public void leaveAssignMessage(AssignMessage msg) {
+		assigning = false;
+	}
+	
+	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = null;
 		if (templateNestingChain != null) {
@@ -488,6 +507,13 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (defn == null) {
 			errors.message(var.location, "cannot resolve '" + var.var + "'");
 			return;
+		}
+		if (inside instanceof ObjectCtor && !assigning && defn instanceof StructField) {
+			StructField sf = (StructField) defn;
+			if (sf.container instanceof StateDefinition && sf.init == null) {
+				errors.message(var.location(), "cannot use uninitialized field '" + var.var + "' in constructor " + inside.name().uniqueName());
+				return;
+			}
 		}
 		var.bind(defn);
 	}
@@ -595,6 +621,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			return;
 		}
 		t.bindWebInfo(webInfo);
+		inside = t;
 	}
 	
 	@Override

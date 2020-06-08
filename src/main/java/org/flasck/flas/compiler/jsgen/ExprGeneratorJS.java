@@ -40,6 +40,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
+import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
@@ -135,13 +136,21 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	private void generateFnOrCtor(RepositoryEntry defn, String myName, int nargs) {
 		if (defn instanceof FunctionDefinition) {
+			FunctionDefinition fn = (FunctionDefinition) defn;
 			if (nargs == 0) {
-				FunctionDefinition fn = (FunctionDefinition) defn;
 				makeFunctionClosure(fn.hasState(), myName, fn.argCount());
 			} else if ("MakeTuple".equals(myName))
 				sv.result(null);
-			else
-				sv.result(block.pushFunction(myName));
+			else {
+				// It worries me that some of the things we got into FunctionName for are starting to creep back into the code ...
+				if (fn.hasState()) {
+					String n = myName;
+					if (fn.name().containingCard() != null)
+						n = fn.name().containingCard().jsName()+".prototype."+fn.name().name;
+					sv.result(block.pushFunction(n));
+				} else
+					sv.result(block.pushFunction(myName));
+			}
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;

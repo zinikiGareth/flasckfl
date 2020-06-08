@@ -1,0 +1,17 @@
+I'm somewhat conflicted about this.  We have here a use case that makes sense, particularly if you view 'start' as a constant of some kind.
+
+But it seems wrong to allow referencing of undefined (or defined _in_ the constructor) fields.  That should probably be called out elsewhere as an error.
+
+	object CtorUsesState
+		state
+			Number start <- 42
+			Number curr
+		
+		ctor init
+			curr <- start
+		
+		acor top = curr
+		
+		method next
+			curr <- curr + 1
+		

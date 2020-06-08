@@ -182,8 +182,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		GenericAnnotator ann;
 		if (fn.hasState()) {
-			this.clz = bce.get(fn.name().container().javaName());
-			ann = GenericAnnotator.newMethod(clz, false, fn.name().name);
+			String clz;
+			if (fn.name().containingCard() != null)
+				clz = fn.name().containingCard().javaName();
+			else
+				clz = fn.name().inContext.javaName();
+			this.clz = bce.get(clz);
+			ann = GenericAnnotator.newMethod(this.clz, false, fn.name().name);
 		} else {
 			this.clz = bce.newClass(fn.name().javaClassName());
 			this.clz.generateAssociatedSourceFile();
@@ -321,11 +326,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars.clear();
-		fs = new FunctionState(meth, (Var) fcx, null, fargs, runner);
+		ocret = meth.avar(od.name().javaName(), "ret");
+		fs = new FunctionState(meth, (Var) fcx, ocret, fargs, runner);
+		fs.provideOcret(ocret);
+//		fs.provideStateObject(meth.castTo(ocret, J.FIELDS_CONTAINER_WRAPPER));
 		currentBlock = new ArrayList<IExpr>();
 
-		ocret = meth.avar(od.name().javaName(), "ret");
-		fs.provideOcret(ocret);
 		IExpr created = meth.makeNew(od.name().javaName(), fs.fcx);
 		currentBlock.add(meth.assign(ocret, created));
 		int i = 0;

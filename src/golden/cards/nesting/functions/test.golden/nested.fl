@@ -1,0 +1,13 @@
+	contract Contract
+		init
+
+	card FunctionInContractMethod
+		state
+			Number first
+			Number val
+
+		implements Contract
+			init
+				first <- compute
+				val <- compute
+					compute = 42 * 10

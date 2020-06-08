@@ -1,0 +1,5 @@
+	test val gets set
+		data FunctionInContractMethod c
+		contract c Contract init
+		assert (c.val)
+			420

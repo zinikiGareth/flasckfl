@@ -1,3 +1,6 @@
+test.golden.CtorUsesState._ctor_init :: test.golden.CtorUsesState
+test.golden.CtorUsesState.next :: List[Message]
+test.golden.CtorUsesState.top :: Number
 test.golden.Init._ctor_create :: test.golden.Init
 test.golden.Init.value :: String
 test.golden.InitArg._ctor_init :: String->test.golden.InitArg

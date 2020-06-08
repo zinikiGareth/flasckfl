@@ -14,3 +14,10 @@
 		assert (x.value)
 			"hello"
 		
+	test we can initialize a field from another
+		data CtorUsesState s <- CtorUsesState.init
+		assert (s.top)
+			42
+		invoke s.next
+		assert (s.top)
+			43

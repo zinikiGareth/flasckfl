@@ -1,0 +1,2 @@
+test.golden.FunctionInContractMethod._C0.init :: List[Message]
+test.golden.FunctionInContractMethod._C0.init.compute :: test.golden.FunctionInContractMethod->Number

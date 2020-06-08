@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.CurrentContainer;
@@ -40,6 +41,7 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -157,9 +159,14 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			} else if ("MakeTuple".equals(myName)) {
 				sv.result(null);
 			} else {
-				if (fd.hasState())
-					sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(fd.name().inContext.javaName()), meth.stringConst(fd.name().name), meth.intConst(fd.argCount())));
-				else
+				if (fd.hasState()) {
+					NameOfThing clzName;
+					if (fd.name().containingCard() != null)
+						clzName = fd.name().containingCard();
+					else
+						clzName = fd.name().inContext;
+					sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(clzName.javaName()), meth.stringConst(fd.name().name), meth.intConst(fd.argCount())));
+				} else
 					sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
 			}
 		} else if (defn instanceof StandaloneMethod) {
@@ -202,6 +209,8 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			if (nargs == 0 && hi.argCount() == 0) {
 				List<IExpr> provided = new ArrayList<>();
 				if (hi.getParent() != null) {
+					if (state.container == null)
+						throw new CantHappenException("expected container to be non-null to process " + hi);
 					provided.add(state.container);
 				}
 				IExpr args = meth.arrayOf(J.OBJECT, provided);
@@ -264,7 +273,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			ObjectCtor oc = (ObjectCtor) defn;
 			IExpr fn = meth.makeNew(J.CALLSTATIC, meth.classConst(oc.name().container().javaName()), meth.stringConst(oc.name().name), meth.intConst(nargs));
 			if (nargs == 0) {
-				Var v = makeClosure(false, fn, oc.argCountIncludingContracts());
+				Var v = makeClosure(false, fn, oc.argCountIncludingContracts(), false);
 				sv.result(v);
 			} else
 				sv.result(fn);
@@ -286,13 +295,13 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			fn = meth.makeNew(J.CALLMETHOD, meth.classConst(name.inContext.javaName()), meth.stringConst(name.name), meth.intConst(expArgs));
 		else
 			fn = meth.makeNew(J.CALLEVAL, meth.classConst(name.javaClassName()));
-		Var v = makeClosure(hasState, fn, expArgs);
+		Var v = makeClosure(hasState, fn, expArgs, true);
 		sv.result(v);
 	}
 
-	private Var makeClosure(boolean hasState, IExpr fn, int expArgs) {
+	private Var makeClosure(boolean hasState, IExpr fn, int expArgs, boolean includeState) {
 		ArrayList<IExpr> iargs = new ArrayList<IExpr>();
-		if (this.state.container != null)
+		if (this.state.container != null && includeState)
 			iargs.add(this.state.container);
 		IExpr args = meth.arrayOf(J.OBJECT, iargs);
 		IExpr call;
