@@ -1,0 +1,50 @@
+	object Underlying
+		state
+			Number n <- 0
+			
+		ctor init
+		
+		method add (Number k)
+			n <- n + k
+			
+		acor val = n
+		
+	object FromA
+		state
+			Underlying u
+			
+		ctor make (Underlying i)
+			u <- i
+			
+		method add5
+			<- u.add 5
+			
+		acor val = u.val
+
+	object FromB
+		state
+			Underlying v
+			
+		ctor create (Underlying i)
+			v <- i
+			
+		method add10
+			<- v.add 10
+			
+	object Both
+		state
+			FromA a
+			FromB b
+		
+		ctor diamond
+			a <- FromA.make u
+			b <- FromB.create u
+				u = Underlying.init
+		
+		method add5
+			<- a.add5
+			
+		method add10
+			<- b.add10
+		
+		acor val = a.val

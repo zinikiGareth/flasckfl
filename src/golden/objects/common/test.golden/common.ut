@@ -1,0 +1,13 @@
+The idea here is that it should be possible to "share" constants.
+In general, of course, in functional programming languages, you can't tell.
+But because we have actors, they have mutable state and you can tell if you have one or two.
+If you call a function with arguments, you will ALWAYS get a new value but you can enforce sharing by using a constant to indirect.
+The same should be true of functions which use enclosing state.
+Likewise for functions that have guards (although surely that would have to use args or state to be useful?)
+
+	test both items have the same object
+		data Both b <- Both.diamond
+		invoke b.add5
+		invoke b.add10
+		assert (b.val)
+			15
