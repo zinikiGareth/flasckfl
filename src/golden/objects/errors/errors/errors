@@ -20,3 +20,8 @@ fieldvarconf 20.1:    ( _ msg, foo) = ("hello", 'world')
                           cannot use msg here as it conflicts with state member at fieldvarconf 23.7
 noctor.fl:    1.7:    object  _ NoCtor
                           objects must have at least one constructor
+nosuchctor.f 15.20:   obj <- InitContract. _ start
+                          object test.golden.InitContract does not have a ctor start
+nosuchctor.f 17.9:    x <- obj. _ notThere
+                          object test.golden.InitContract does not have a method, acor or member notThere
+                          

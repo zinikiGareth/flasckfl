@@ -1,7 +1,3 @@
 mismatchedud  1.17:   data ObjA udd <-  _ ObjB.make
                           cannot store test.golden.ObjB in data test.golden.ObjA
-nosuchctor.f 15.20:   obj <- InitContract. _ start
-                          object test.golden.InitContract does not have a method, ctor or acor start
-nosuchctor.f 17.9:    x <- obj. _ notThere
-                          object test.golden.InitContract does not have a method, ctor or acor notThere
                           

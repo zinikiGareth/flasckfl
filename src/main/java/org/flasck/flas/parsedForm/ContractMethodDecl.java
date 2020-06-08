@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,11 +8,13 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.repository.LoadBuiltins;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Type;
 
-public class ContractMethodDecl implements Locatable, Comparable<ContractMethodDecl> {
+public class ContractMethodDecl implements Locatable, RepositoryEntry, Comparable<ContractMethodDecl> {
 	public final InputPosition rkw;
 	public final InputPosition dkw;
 	private final InputPosition pos;
@@ -69,5 +72,15 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	@Override
 	public InputPosition location() {
 		return pos;
+	}
+
+	@Override
+	public NameOfThing name() {
+		return name;
+	}
+
+	@Override
+	public void dumpTo(PrintWriter pw) {
+		pw.println(toString());
 	}
 }

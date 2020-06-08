@@ -1,2 +1,5 @@
-    duplicatevar  3.7:    dupl x  _ x = Nil
-                              duplicate function argument x
+duplicatevar  3.7:    dupl x  _ x = Nil
+                          duplicate function argument x
+undeclaredfi  5.25:   recoverit (HoldIt e) = e. _ notcalled
+                          there is no field 'notcalled' in test.golden.HoldIt
+                              

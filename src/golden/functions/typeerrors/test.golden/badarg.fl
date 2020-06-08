@@ -1,0 +1,2 @@
+	badarg (String s) = s
+	badarg (Number n) = n

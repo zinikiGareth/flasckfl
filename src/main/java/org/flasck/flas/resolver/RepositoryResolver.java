@@ -25,14 +25,18 @@ import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.ImplementsContract;
+import org.flasck.flas.parsedForm.IntroduceVar;
+import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Provides;
+import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -48,6 +52,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
@@ -65,6 +70,7 @@ import org.ziniki.splitter.CardData;
 import org.ziniki.splitter.CardType;
 import org.ziniki.splitter.FieldType;
 import org.ziniki.splitter.NoMetaDataException;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RepositoryResolver extends LeafAdapter implements Resolver {
@@ -339,31 +345,138 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
-		if (!(expr.from instanceof UnresolvedVar))
-			throw new NotImplementedException();
-		UnresolvedVar uv = (UnresolvedVar) expr.from;
-		RepositoryEntry defn = uv.defn();
+		Expr from = expr.from;
+		RepositoryEntry defn;
+		if (from instanceof MemberExpr) {
+			defn = expr.defn();
+			if (defn == null) // if we couldn't figure it out before ...
+				return;
+		} else if (expr.from instanceof UnresolvedVar) {
+			UnresolvedVar uv = (UnresolvedVar) expr.from;
+			defn = uv.defn();
+		} else
+			throw new NotImplementedException("cannot handle elt " + expr.from.getClass());
 		UnresolvedVar fld = (UnresolvedVar) expr.fld;
 		if (defn instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) defn;
 			ObjectCtor ctor = od.getConstructor(fld.var);
+			if (ctor == null) {
+				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " does not have a ctor " + fld.var);
+				return;
+			}
 			expr.bind(ctor);
 		} else if (defn instanceof UnitDataDeclaration) {
 			NamedType nt = ((UnitDataDeclaration) defn).ofType.defn();
-			if (nt instanceof ObjectDefn) {
-				ObjectDefn od = (ObjectDefn) nt;
-				FieldAccessor acor = od.getAccessor(fld.var);
-				if (acor != null)
-					expr.bind((RepositoryEntry) acor);
-				else
-					throw new NotImplementedException("cannot find od member " + nt.name().uniqueName() + " " + fld.var);
-//				od.getMethod(fld.var);
-			} else
-				throw new NotImplementedException("cannot handle udd " + nt.getClass());
+			processMemberOfType(expr, nt, fld.var);
+		} else if (defn instanceof TypedPattern) {
+			processMemberOfType(expr, ((TypedPattern)defn).type.defn(), fld.var);
+		} else if (defn instanceof StructField) {
+			NamedType sft = ((StructField)defn).type.defn();
+			processMemberOfType(expr, sft, fld.var);
+		} else if (defn instanceof TemplateNestedField) {
+			TemplateNestedField tnf = (TemplateNestedField) defn;
+			if (tnf.type() == null)
+				throw new CantHappenException("cannot handle TNF without type");
+			processMemberOfType(expr, (NamedType) tnf.type(), fld.var);
+		} else if (defn instanceof ObjectContract) {
+			ObjectContract oc = (ObjectContract) defn;
+			ContractDecl cd = (ContractDecl) oc.implementsType().defn();
+			processMemberOfType(expr, cd, fld.var);
+		} else if (defn instanceof RequiresContract) {
+			RequiresContract rc = (RequiresContract) defn;
+			ContractDecl cd = (ContractDecl) rc.implementsType().defn();
+			processMemberOfType(expr, cd, fld.var);
+		} else if (defn instanceof HandlerLambda) {
+			NamedType sft = ((TypedPattern)((HandlerLambda)defn).patt).type.defn();
+			processMemberOfType(expr, sft, fld.var);
+		} else if (defn instanceof FunctionDefinition || defn instanceof VarPattern || defn instanceof IntroduceVar) {
+			// there's nothing more we can do here unless we have a return type ... wait until we have a type 
 		} else
 			throw new NotImplementedException("cannot handle " + defn.getClass());
 	}
 	
+	private void processMemberOfType(MemberExpr expr, NamedType nt, String var) {
+		if (nt instanceof PolyInstance)
+			nt = ((PolyInstance)nt).struct();
+		if (nt instanceof StructDefn) {
+			StructDefn sd = (StructDefn) nt;
+			StructField sf = sd.findField(var);
+			if (LoadBuiltins.event.hasCase(sd)) {
+				if ("source".equals(var)) {
+					expr.bind(LoadBuiltins.event); // needs to be something more precise
+					return;
+				}
+			}
+			if (sf == null) {
+				errors.message(expr.fld.location(), "there is no field '" + var + "' in " + nt.name().uniqueName());
+				return;
+			}
+			expr.bind(sf);
+		} else if (nt instanceof ObjectDefn) {
+			ObjectDefn od = (ObjectDefn) nt;
+			FieldAccessor acor = od.getAccessor(var);
+			if (acor != null) {
+				expr.bind((RepositoryEntry) acor);
+				return;
+			}
+			ObjectMethod om = od.getMethod(var);
+			if (om != null) {
+				expr.bind((RepositoryEntry) om);
+				return;
+			}
+			if (od.state() != null) {
+				StructField sf = od.state().findField(var);
+				if (sf == null) {
+					// If the top thing is a UDD, it can be OK and we can sort that out later although I'd like to bring that code (see MemberExpressionChecker.handleStateHolderUDD) here
+//					throw new NotImplementedException("no member " + var + " in " + cd);
+					return;
+				}
+				expr.bind(sf);
+				return;
+			}
+			errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " does not have a method, acor or member " + var);
+		} else if (nt instanceof CardDefinition) {
+			CardDefinition cd = (CardDefinition) nt;
+			if (cd.state() != null) {
+				StructField sf = cd.state().findField(var);
+				if (sf == null) {
+					// If the top thing is a UDD, it can be OK and we can sort that out later although I'd like to bring that code (see MemberExpressionChecker.handleStateHolderUDD) here
+//					throw new NotImplementedException("no member " + var + " in " + cd);
+					return;
+				}
+				expr.bind(sf);
+				return;
+			}
+			throw new NotImplementedException("no member " + var + " in " + cd);
+		} else if (nt instanceof AgentDefinition) {
+			AgentDefinition cd = (AgentDefinition) nt;
+			if (cd.state() != null) {
+				StructField sf = cd.state().findField(var);
+				if (sf == null) {
+					// If the top thing is a UDD, it can be OK and we can sort that out later although I'd like to bring that code (see MemberExpressionChecker.handleStateHolderUDD) here
+//					throw new NotImplementedException("no member " + var + " in " + cd);
+					return;
+				}
+				expr.bind(sf);
+				return;
+			}
+			throw new NotImplementedException("no member " + var + " in " + cd);
+		} else if (nt instanceof HandlerImplements) {
+			HandlerImplements hi = (HandlerImplements) nt;
+			ObjectMethod method = hi.getMethod(var);
+			if (method == null)
+				throw new NotImplementedException("no method " + var + " in " + hi);
+			expr.bind(method);
+		} else if (nt instanceof ContractDecl) {
+			ContractDecl cd = (ContractDecl) nt;
+			ContractMethodDecl method = cd.getMethod(var);
+			if (method == null)
+				throw new NotImplementedException("no method " + var + " in " + cd);
+			expr.bind((RepositoryEntry) method);
+		} else
+			throw new NotImplementedException("cannot handle member of type " + nt.getClass());
+	}
+
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		RepositoryEntry defn = null;

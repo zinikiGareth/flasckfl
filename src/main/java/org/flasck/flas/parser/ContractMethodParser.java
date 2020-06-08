@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -30,6 +31,7 @@ public class ContractMethodParser implements TDAParsing {
 
 	@Override
 	public TDAParsing tryParsing(Tokenizable toks) {
+		ErrorMark emark = errors.mark();
 		boolean required = true;
 		InputPosition optLoc = null;
 		int mark = toks.at();
@@ -68,7 +70,7 @@ public class ContractMethodParser implements TDAParsing {
 			else
 				targs.add((TypedPattern) p);
 		}
-		if (errors.hasErrors())
+		if (emark.hasMoreNow())
 			return new IgnoreNestedParser();
 		TypedPattern handler = null;
 		if (toks.hasMoreContent()) {
