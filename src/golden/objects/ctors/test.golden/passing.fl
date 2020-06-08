@@ -1,0 +1,19 @@
+	contract Other
+		doit
+
+	object First
+		state
+			Number n
+			
+		ctor make (Other o)
+			n <- 42
+			<- o.doit
+	
+		acor val = n
+		
+	object Container
+		state
+			First f
+			
+		ctor store (First g)
+			f <- g

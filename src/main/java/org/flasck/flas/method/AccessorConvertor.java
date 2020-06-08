@@ -1,6 +1,7 @@
 package org.flasck.flas.method;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -73,10 +74,19 @@ public class AccessorConvertor extends LeafAdapter {
 	@Override
 	public void visitMemberExpr(MemberExpr expr) {
 		UnresolvedVar meth = (UnresolvedVar) expr.fld;
-		UnresolvedVar uv = (UnresolvedVar) expr.from;
+		Expr from = expr.from;
+		RepositoryEntry defn;
+		if (from instanceof UnresolvedVar) {
+			UnresolvedVar uv = (UnresolvedVar) expr.from;
+			defn = uv.defn();
+		} else if (from instanceof MemberExpr) {
+			MemberExpr me = (MemberExpr) expr.from;
+			defn = me.defn();
+		} else
+			throw new NotImplementedException("cannot handle member of " + from.getClass());
 		AccessorHolder ah;
-		if (uv.defn() instanceof UnitDataDeclaration) {
-			UnitDataDeclaration udd = (UnitDataDeclaration) uv.defn();
+		if (defn instanceof UnitDataDeclaration) {
+			UnitDataDeclaration udd = (UnitDataDeclaration) defn;
 			NamedType td = udd.ofType.defn();
 			if (td instanceof StateHolder) {
 				// UDDs can prod state directly on cards, agents and objects ...
@@ -90,7 +100,7 @@ public class AccessorConvertor extends LeafAdapter {
 			if (entry != null && entry instanceof FunctionDefinition) {
 				UnresolvedVar call = new UnresolvedVar(meth.location, meth.var);
 				call.bind(entry);
-				expr.conversion(new ApplyExpr(expr.location, call, new ApplyExpr(expr.location, LoadBuiltins.getUnderlying, uv)));
+				expr.conversion(new ApplyExpr(expr.location, call, new ApplyExpr(expr.location, LoadBuiltins.getUnderlying, from)));
 				return;
 			}
 
@@ -99,39 +109,39 @@ public class AccessorConvertor extends LeafAdapter {
 			else if (td instanceof ObjectDefn && ((ObjectDefn)td).getMethod(meth.var) != null) {
 				ObjectDefn od = (ObjectDefn) td;
 				ObjectMethod m = od.getMethod(meth.var);
-				expr.conversion(new MakeSend(expr.location(), m.name(), uv, m.argCount(), null));
+				expr.conversion(new MakeSend(expr.location(), m.name(), from, m.argCount(), null));
 				return;
 			} else {
 				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on " + td.name().uniqueName());
 				return;
 			}
-		} else if (uv.defn() instanceof ObjectDefn) {
+		} else if (defn instanceof ObjectDefn) {
 			// it's actually a ctor not an accessor
-			ObjectDefn od = (ObjectDefn) uv.defn();
+			ObjectDefn od = (ObjectDefn) defn;
 			ObjectCtor ctor = od.getConstructor(meth.var);
 			if (ctor == null)
 				throw new CantHappenException("no constructor " + ctor);
-			UnresolvedVar cv = new UnresolvedVar(uv.location(), meth.var);
+			UnresolvedVar cv = new UnresolvedVar(from.location(), meth.var);
 			cv.bind(ctor);
 			expr.conversion(cv);
 			return;
-		} else if (uv.defn() instanceof TypedPattern) {
-			TypedPattern tp = (TypedPattern)uv.defn();
+		} else if (defn instanceof TypedPattern) {
+			TypedPattern tp = (TypedPattern)defn;
 			Type ty = tp.type();
 			if (ty instanceof PolyInstance)
 				ty = ((PolyInstance)ty).struct(); 
 			ah = (AccessorHolder) ty;
-		} else if (uv.defn() instanceof FunctionDefinition) {
-			FunctionDefinition fn = (FunctionDefinition) uv.defn();
+		} else if (defn instanceof FunctionDefinition) {
+			FunctionDefinition fn = (FunctionDefinition) defn;
 			if (fn.argCount() != 0)
-				throw new NotImplementedException("cannot extract object from " + uv.defn().getClass() + " with " + fn.argCount());
+				throw new NotImplementedException("cannot extract object from " + defn.getClass() + " with " + fn.argCount());
 			ah = (AccessorHolder) fn.type();
-		} else if (uv.defn() instanceof StructField) {
-			ah = (AccessorHolder) ((StructField)uv.defn()).type();
-		} else if (uv.defn() instanceof TemplateNestedField) {
-			ah = (AccessorHolder) ((TemplateNestedField)uv.defn()).type();
+		} else if (defn instanceof StructField) {
+			ah = (AccessorHolder) ((StructField)defn).type();
+		} else if (defn instanceof TemplateNestedField) {
+			ah = (AccessorHolder) ((TemplateNestedField)defn).type();
 		} else
-			throw new NotImplementedException("cannot extract object from " + uv.defn().getClass());
+			throw new NotImplementedException("cannot extract object from " + defn.getClass());
 		FieldAccessor acc = ah.getAccessor(meth.var);
 		if (acc == null)
 			errors.message(meth.location, "there is no accessor '" + meth.var + "' on " + ah.name().uniqueName());

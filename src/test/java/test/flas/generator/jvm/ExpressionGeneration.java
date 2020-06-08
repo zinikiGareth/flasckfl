@@ -136,20 +136,16 @@ public class ExpressionGeneration {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
 		FunctionName nameX = FunctionName.function(pos, pkg, "p");
 		expr.bind(new VarPattern(pos, new VarName(pos, nameX, "p")));
-		Var ax = null;
-		IExpr args = context.mock(IExpr.class, "args");
 		IExpr head0 = context.mock(IExpr.class, "head0");
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
-			oneOf(meth).arrayItem(J.OBJECT, ax, 1); will(returnValue(args));
 			oneOf(meth).nextLocal(); will(returnValue(18));
-			oneOf(meth).callInterface(J.OBJECT, fcx, "head", args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0)); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(with(VarMatcher.local(18)));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, null, null);
-		state.bindVar(block, "p", new ArgSlot(1, new HSIPatternOptions()), null);
+		state.bindVar(block, "p", new ArgSlot(1, new HSIPatternOptions()), head0);
 		ExprGenerator eg = new ExprGenerator(state, sv, block, false);
 		sv.push(eg);
 		Traverser gen = new Traverser(eg).withHSI();
@@ -163,20 +159,16 @@ public class ExpressionGeneration {
 		TypeReference string = new TypeReference(pos, "String");
 		string.bind(LoadBuiltins.string);
 		expr.bind(new TypedPattern(pos, string, new VarName(pos, nameX, "p")));
-		Var ax = null;
-		IExpr args = context.mock(IExpr.class, "args");
 		IExpr head0 = context.mock(IExpr.class, "head0");
 		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
-			oneOf(meth).arrayItem(J.OBJECT, ax, 0); will(returnValue(args));
 			oneOf(meth).nextLocal(); will(returnValue(18));
-			oneOf(meth).callInterface(J.OBJECT, fcx, "head", args); will(returnValue(head0));
 			oneOf(meth).assign(with(VarMatcher.local(18)), with(head0)); will(returnValue(assign));
 			oneOf(block).add(assign);
 			oneOf(nv).result(with(VarMatcher.local(18)));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, null, null);
-		state.bindVar(block, "p", new ArgSlot(0, new HSIPatternOptions()), null);
+		state.bindVar(block, "p", new ArgSlot(0, new HSIPatternOptions()), head0);
 		ExprGenerator eg = new ExprGenerator(state, sv, block, false);
 		Traverser gen = new Traverser(eg).withHSI();
 		gen.visitExpr(expr, 2);
@@ -913,9 +905,7 @@ public class ExpressionGeneration {
 		IExpr n1 = context.mock(IExpr.class, "n1");
 		IExpr n2 = context.mock(IExpr.class, "n2");
 		context.checking(new Expectations() {{
-			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
@@ -926,7 +916,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mksend"), with(Matchers.array(Matchers.is(sendMeth), Matchers.is(n2), Matchers.is(i0), Matchers.is(n1))));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
-		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), null);
+		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), ai);
 		new ApplyExprGenerator(state, sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(ms, 0);
@@ -966,9 +956,7 @@ public class ExpressionGeneration {
 		IExpr ass2 = context.mock(IExpr.class, "ass2");
 		IExpr n2 = context.mock(IExpr.class, "n2");
 		context.checking(new Expectations() {{
-			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
 			oneOf(meth).stringConst("f"); will(returnValue(sendMeth));
@@ -992,7 +980,7 @@ public class ExpressionGeneration {
 			oneOf(nv).result(v1);
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
-		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), null);
+		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), ai);
 		new ExprGenerator(state, sv, block, false);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitApplyExpr(ae);
@@ -1024,9 +1012,7 @@ public class ExpressionGeneration {
 		IExpr i0 = context.mock(IExpr.class, "0");
 		IExpr headAs = context.mock(IExpr.class, "headAs");
 		context.checking(new Expectations() {{
-			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
 			oneOf(meth).as(with(VarMatcher.local(23)), with(J.OBJECT)); will(returnValue(headAs));
@@ -1036,7 +1022,7 @@ public class ExpressionGeneration {
 			oneOf(meth).callInterface(with(J.OBJECT), with(fcx), with("mkacor"), with(Matchers.array(Matchers.is(sendClz), Matchers.is(sendMeth), Matchers.is(headAs), Matchers.is(i0))));
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
-		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), null);
+		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()),ai);
 		new ApplyExprGenerator(state, sv, block);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitExpr(me, 0);
@@ -1077,9 +1063,7 @@ public class ExpressionGeneration {
 		IExpr clos = context.mock(IExpr.class, "clos");
 		IExpr ass2 = context.mock(IExpr.class, "ass2");
 		context.checking(new Expectations() {{
-			oneOf(meth).arrayItem(J.OBJECT, fargs, 0); will(returnValue(ai));
 			oneOf(meth).nextLocal(); will(returnValue(23));
-			oneOf(meth).callInterface(J.OBJECT, fcx, "head", ai); will(returnValue(ai));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
 			oneOf(block).add(ass);
 			oneOf(meth).classConst("test.repo.Obj"); will(returnValue(sendClz));
@@ -1102,7 +1086,7 @@ public class ExpressionGeneration {
 			oneOf(nv).result(v1);
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
-		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), null);
+		state.bindVar(block, "from", new ArgSlot(0, new HSIPatternOptions()), ai);
 		new ExprGenerator(state, sv, block, false);
 		Traverser gen = new Traverser(sv).withHSI();
 		gen.visitApplyExpr(ae);

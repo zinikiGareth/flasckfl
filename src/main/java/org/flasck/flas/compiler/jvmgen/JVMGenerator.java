@@ -2,7 +2,6 @@ package org.flasck.flas.compiler.jvmgen;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -123,7 +122,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ByteCodeSink clz;
 	private IExpr fcx;
 	private Var fargs;
-	private final Map<Slot, IExpr> switchVars = new HashMap<>();
+	private SwitchVars switchVars;
 	private FunctionState fs;
 	private List<IExpr> currentBlock;
 	private StructFieldHandler structFieldHandler;
@@ -203,7 +202,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.lenientMode(leniency);
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
-		switchVars.clear();
+		switchVars = null;
 		fs = new FunctionState(meth, (Var) fcx, null, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
 		if (fn.hasState()) {
@@ -265,7 +264,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.lenientMode(leniency);
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
-		switchVars.clear();
+		switchVars = null;
 		IExpr thisVar;
 		if (myThis != null)
 			thisVar = myThis.getVar();
@@ -325,10 +324,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.lenientMode(leniency);
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
-		switchVars.clear();
+		switchVars = null;
 		ocret = meth.avar(od.name().javaName(), "ret");
+		Var ocmsgs = meth.avar(List.class.getName(), "msgs");
+		meth.assign(ocmsgs, meth.makeNew(ArrayList.class.getName())).flush();
 		fs = new FunctionState(meth, (Var) fcx, ocret, fargs, runner);
-		fs.provideOcret(ocret);
+		fs.provideOcret(ocret, ocmsgs);
 //		fs.provideStateObject(meth.castTo(ocret, J.FIELDS_CONTAINER_WRAPPER));
 		currentBlock = new ArrayList<IExpr>();
 
@@ -364,7 +365,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.lenientMode(leniency);
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
-		switchVars.clear();
+		switchVars = null;
 		fs = new FunctionState(meth, (Var) fcx, null, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
 		new ExprGenerator(fs, sv, currentBlock, false);
@@ -384,7 +385,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.lenientMode(leniency);
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
-		switchVars.clear();
+		switchVars = null;
 		fs = new FunctionState(meth, (Var) fcx, null, fargs, runner);
 		currentBlock = new ArrayList<IExpr>();
 		currentBlock.add(meth.returnObject(meth.callInterface(J.OBJECT, fcx, "tupleMember",
@@ -394,11 +395,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void hsiArgs(List<Slot> slots) {
-		for (Slot slot : slots) {
-			ArgSlot s = (ArgSlot) slot;
-			IExpr in = meth.arrayItem(J.OBJECT, fargs, s.argpos());
-			switchVars.put(s, in);
-		}
+		switchVars = new SwitchVars(fs, slots);
 	}
 
 	@Override
@@ -436,7 +433,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void bind(Slot slot, String var) {
-		fs.bindVar(currentBlock, var, slot, switchVars.get(slot));
+		if (slot instanceof ArgSlot && ((ArgSlot)slot).isContainer())
+			return;
+		fs.bindVar(currentBlock, var, slot, switchVars.copyMe().get(currentBlock, slot));
 	}
 
 	// This is needed here as well as HSIGenerator to handle the no-switch case
@@ -497,7 +496,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else {
 			makeBlock(meth, currentBlock).flush();
 		}
-		fs.provideOcret(null);
+		fs.provideOcret(null, null);
 		ocret = null;
 		currentBlock.clear();
 		this.meth = null;

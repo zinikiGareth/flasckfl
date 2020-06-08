@@ -34,6 +34,7 @@ import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSHead;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIntroducedVar;
+import org.flasck.flas.compiler.jsgen.form.JSKeepMessages;
 import org.flasck.flas.compiler.jsgen.form.JSLambda;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSLoadField;
@@ -57,6 +58,7 @@ import org.flasck.flas.compiler.jsgen.form.JSRequireContract;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
 import org.flasck.flas.compiler.jsgen.form.JSSatisfaction;
 import org.flasck.flas.compiler.jsgen.form.JSSetField;
+import org.flasck.flas.compiler.jsgen.form.JSSplitRWM;
 import org.flasck.flas.compiler.jsgen.form.JSStoreField;
 import org.flasck.flas.compiler.jsgen.form.JSStoreMock;
 import org.flasck.flas.compiler.jsgen.form.JSString;
@@ -367,6 +369,16 @@ public class JSBlock implements JSBlockCreator {
 		stmts.add(new JSHead(var));
 	}
 	
+	@Override
+	public void splitRWM(JSExpr ocmsgs, String var) {
+		stmts.add(new JSSplitRWM(ocmsgs, var));
+	}
+	
+	@Override
+	public void keepMessages(JSExpr ocmsgs, JSExpr msgs) {
+		stmts.add(new JSKeepMessages(ocmsgs, msgs));
+	}
+
 	@Override
 	public void field(String asVar, String fromVar, String field) {
 		stmts.add(new ExtractField(asVar, fromVar, field));

@@ -15,7 +15,6 @@ public class ObjectCtorGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState state;
 	private final StackVisitor sv;
 	private final List<IExpr> currentBlock;
-	private IExpr messages;
 
 	public ObjectCtorGenerator(FunctionState fs, StackVisitor sv, List<IExpr> currentBlock) {
 		this.state = fs;
@@ -31,13 +30,14 @@ public class ObjectCtorGenerator extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		messages = (IExpr) r;
+		IExpr messages = (IExpr) r;
+		currentBlock.add(state.meth.callInterface("void", state.fcx, "addAll", state.ocmsgs(), state.meth.as(messages, J.OBJECT)));
 	}
 	
 	@Override
 	public void endInline(FunctionIntro fi) {
 		MethodDefiner meth = state.meth;
-		IExpr returned = meth.makeNew(J.RESPONSE_WITH_MESSAGES, state.fcx, meth.as(state.ocret(), J.OBJECT), meth.as(messages, J.OBJECT));
+		IExpr returned = meth.makeNew(J.RESPONSE_WITH_MESSAGES, state.fcx, meth.as(state.ocret(), J.OBJECT), meth.as(state.ocmsgs(), J.OBJECT));
 		currentBlock.add(meth.returnObject(returned));
 		sv.result(null);
 	}

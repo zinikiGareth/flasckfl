@@ -2,6 +2,7 @@ package test.flas.generator.jvm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -83,6 +84,8 @@ public class FunctionGeneration {
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
 		fn.intro(fi);
 		sv.visitFunction(fn);
+		List<Slot> slots = Arrays.asList(slot);
+		sv.hsiArgs(slots);
 		sv.bind(slot, "x");
 	}
 	

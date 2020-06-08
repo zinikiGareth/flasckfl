@@ -21,3 +21,10 @@
 		invoke s.next
 		assert (s.top)
 			43
+			
+	test we can pass an object to another ctor
+		data Other ctr
+		expect ctr doit
+		data Container c <- Container.store (First.make ctr)
+		assert (c.f.val)
+			42

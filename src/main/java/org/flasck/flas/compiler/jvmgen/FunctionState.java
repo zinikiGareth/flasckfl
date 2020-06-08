@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.flasck.flas.hsi.ArgSlot;
-import org.flasck.flas.hsi.CMSlot;
-import org.flasck.flas.hsi.HLSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -32,7 +29,7 @@ public class FunctionState {
 	public Map<String, IExpr> templateObj;
 	private Var renderTree;
 	private Var ocret;
-	private int ignoreContainer = 0;
+	private Var ocmsgs;
 
 	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs, IExpr runner) {
 		this.meth = meth;
@@ -53,8 +50,9 @@ public class FunctionState {
 		this.renderTree = var;
 	}
 
-	public void provideOcret(Var ocret) {
+	public void provideOcret(Var ocret, Var ocmsgs) {
 		this.ocret = ocret;
+		this.ocmsgs = ocmsgs;
 	}
 
 	public Var renderTree() {
@@ -66,24 +64,29 @@ public class FunctionState {
 	}
 
 	public void bindVar(List<IExpr> block, String var, Slot s, IExpr from) {
-		IExpr in;
-		AVar avar;
-		if (s instanceof ArgSlot) {
-			ArgSlot as = (ArgSlot)s;
-			if (as.isContainer()) {
-				ignoreContainer = 1;
-				return;
-			}
-			int k = as.argpos() - ignoreContainer;
-			in = meth.arrayItem(J.OBJECT, fargs, k);
-			avar = new Var.AVar(meth, J.OBJECT, "head_" + k);
-		} else if (s instanceof CMSlot || s instanceof HLSlot) {
-			in = from;
-			avar = new Var.AVar(meth, J.OBJECT, "var_" + s.id());
-		} else
-			throw new NotImplementedException();
-		block.add(meth.assign(avar, meth.callInterface(J.OBJECT, fcx, "head", in)));
-		vars.put(var, avar);
+//		IExpr in;
+//		AVar avar;
+//		if (s instanceof ArgSlot) {
+//			ArgSlot as = (ArgSlot)s;
+//			if (as.isContainer()) {
+//				ignoreContainer = 1;
+//				return;
+//			}
+//			int k = as.argpos() - ignoreContainer;
+//			in = meth.arrayItem(J.OBJECT, fargs, k);
+//			avar = new Var.AVar(meth, J.OBJECT, "head_" + k);
+//		} else if (s instanceof CMSlot || s instanceof HLSlot) {
+//			in = from;
+//			avar = new Var.AVar(meth, J.OBJECT, "var_" + s.id());
+//		} else
+//			throw new NotImplementedException();
+//		block.add(meth.assign(avar, meth.callInterface(J.OBJECT, fcx, "head", in)));
+		if (!(from instanceof AVar)) {
+			AVar tmp = new Var.AVar(meth, J.OBJECT, s.toString());
+			block.add(meth.assign(tmp, from));
+			from = tmp;
+		}
+		vars.put(var, (AVar)from);
 	}
 
 	public AVar boundVar(String var) {
@@ -116,5 +119,9 @@ public class FunctionState {
 
 	public Var ocret() {
 		return ocret;
+	}
+
+	public Var ocmsgs() {
+		return ocmsgs;
 	}
 }

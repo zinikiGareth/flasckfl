@@ -364,9 +364,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		
 		ObjectDefn od = oc.getObject();
 		JSExpr ocret = meth.newOf(od.name());
+		JSExpr ocmsgs = meth.jsArray(new ArrayList<JSExpr>());
 		JSExpr container = ocret; 
 		this.state = new JSFunctionStateStore(meth, container);
-		this.state.objectCtor(ocret);
+		this.state.objectCtor(ocret, ocmsgs);
 		for (ObjectContract ctr : od.contracts) {
 			String cname = "_ctr_" + ctr.varName().var;
 			meth.argument(cname);

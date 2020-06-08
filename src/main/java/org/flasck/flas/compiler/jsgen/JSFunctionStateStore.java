@@ -17,6 +17,7 @@ public class JSFunctionStateStore implements JSFunctionState {
 	private Map<String, JSExpr> templateObj;
 	private final JSMethodCreator meth;
 	private JSExpr ocret;
+	private JSExpr ocmsgs;
 
 	public JSFunctionStateStore(JSMethodCreator meth, JSExpr container) {
 		this.meth = meth;
@@ -43,13 +44,19 @@ public class JSFunctionStateStore implements JSFunctionState {
 	}
 
 	@Override
-	public void objectCtor(JSExpr ocret) {
+	public void objectCtor(JSExpr ocret, JSExpr ocmsgs) {
 		this.ocret = ocret;
+		this.ocmsgs = ocmsgs;
 	}
 	
 	@Override
 	public JSExpr ocret() {
 		return ocret;
+	}
+
+	@Override
+	public JSExpr ocmsgs() {
+		return ocmsgs;
 	}
 
 	@Override

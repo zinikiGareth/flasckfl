@@ -17,6 +17,7 @@ public interface JSFunctionState {
 	public JSExpr resolveMock(JSBlockCreator block, UnitDataDeclaration udd);
 	public void addIntroduction(IntroduceVar var, JSExpr jsv);
 	JSExpr resolveIntroduction(IntroduceVar var);
-	void objectCtor(JSExpr ocret);
-	JSExpr ocret();
+	void objectCtor(JSExpr ocret, JSExpr ocmsgs);
+	public JSExpr ocret();
+	public JSExpr ocmsgs();
 }

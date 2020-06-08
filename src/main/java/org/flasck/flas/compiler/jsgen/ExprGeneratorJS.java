@@ -40,7 +40,6 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.ResultAware;
-import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExprGeneratorJS extends LeafAdapter implements ResultAware {

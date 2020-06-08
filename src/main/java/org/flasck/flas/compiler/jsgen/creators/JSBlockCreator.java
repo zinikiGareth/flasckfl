@@ -71,6 +71,8 @@ public interface JSBlockCreator {
 	// HSIE logic statements
 	void bindVar(Slot slot, String slotName, String var);
 	void head(String var);
+	void splitRWM(JSExpr ocmsgs, String var);
+	void keepMessages(JSExpr ocmsgs, JSExpr r);
 	void field(String asVar, String fromVar, String field);
 	JSIfCreator ifCtor(String var, String ctor);
 	JSIfCreator ifCtor(JSExpr expr, NameOfThing type);

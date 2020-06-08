@@ -107,7 +107,10 @@ ContractStore.prototype.contractFor = function(_cxt, name) {
 
 ContractStore.prototype.require = function(_cxt, name, clz) {
     const ctr = _cxt.broker.contracts[clz];
-    this.toRequire[name] = proxy(_cxt, ctr, new DispatcherInvoker(this.env, _cxt.broker.require(clz)));
+    const di = new DispatcherInvoker(this.env, _cxt.broker.require(clz));
+    const px = proxy(_cxt, ctr, di);
+    px._areYouA = function(cx, ty) { return ty === "Repeater"; }
+    this.toRequire[name] = px;
 }
 
 ContractStore.prototype.required = function(_cxt, name) {
@@ -129,6 +132,7 @@ DispatcherInvoker.prototype.invoke = function(meth, args) {
 }
 
 
+
 const FLClosure = function(obj, fn, args) {
 	/* istanbul ignore if */
 	if (!fn)
@@ -144,6 +148,8 @@ FLClosure.prototype.eval = function(_cxt) {
 		return this.val;
 	this.args[0] = _cxt;
 	this.obj = _cxt.full(this.obj);
+	if (this.obj instanceof FLError)
+		return this.obj;
 	var cnt = this.fn.nfargs();
 	this.val = this.fn.apply(this.obj, this.args.slice(0, cnt+1)); // +1 for cxt
 	// handle the case where there are arguments left over
@@ -248,6 +254,10 @@ const FLContext = function(env, broker) {
 
 FLContext.prototype = new EvalContext();
 FLContext.prototype.constructor = FLContext;
+
+FLContext.prototype.addAll = function(ret, arr) {
+	this.env.addAll(ret, arr);
+}
 
 FLContext.prototype.closure = function(fn, ...args) {
 	return new FLClosure(null, fn, args);
@@ -1351,6 +1361,8 @@ Assign.prototype.dispatch = function(cx) {
 		this.expr = ResponseWithMessages.response(cx, this.expr);
 	}
 	target.state.set(this.slot, this.expr);
+	cx.log("assigning to", target, " ", this.slot, " <- ", this.expr);
+	cx.log("returning messages", msgs);
 	return msgs;
 }
 Assign.prototype.toString = function() {

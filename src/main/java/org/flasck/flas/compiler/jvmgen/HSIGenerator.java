@@ -1,10 +1,7 @@
 package org.flasck.flas.compiler.jvmgen;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -14,7 +11,6 @@ import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
 
 public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
@@ -47,18 +43,18 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private final FunctionState state;
 	private final StackVisitor sv;
 	private final MethodDefiner meth;
-	private final Map<Slot, IExpr> switchVars;
+	private final SwitchVars switchVars;
 	private final AVar myVar;
 	private final List<SwitchCase> cases = new ArrayList<>();
 	private List<IExpr> currentBlock;
 
-	public HSIGenerator(FunctionState state, StackVisitor sv, Map<Slot, IExpr> switchVars, Slot slot, List<IExpr> blk) {
+	public HSIGenerator(FunctionState state, StackVisitor sv, SwitchVars switchVars, Slot slot, List<IExpr> blk) {
 		this.state = state;
 		this.sv = sv;
 		this.currentBlock = blk;
 		this.meth = state.meth;
-		this.switchVars = new HashMap<>(switchVars);
-		myVar = getSwitchVar(slot);
+		this.switchVars = switchVars;
+		myVar = switchVars.get(blk, slot);
 	}
 
 	@Override
@@ -69,7 +65,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void switchOn(Slot slot) {
 		// push a nested generator for this case
-		sv.push(new HSIGenerator(state, sv, switchVars, slot, currentBlock));
+		sv.push(new HSIGenerator(state, sv, switchVars.copyMe(), slot, currentBlock));
 	}
 
 	@Override
@@ -81,8 +77,8 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void constructorField(Slot parent, String field, Slot slot) {
-		AVar var = getSwitchVar(parent);
-		switchVars.put(slot, meth.callInterface(J.OBJECT, state.fcx, "field", var, meth.stringConst(field)));
+		AVar var = switchVars.get(currentBlock, parent);
+		switchVars.define(slot, meth.callInterface(J.OBJECT, state.fcx, "field", var, meth.stringConst(field)));
 	}
 
 	// TODO: what does a switch look like in JVM bytecodes?  Can I be bothered?
@@ -121,7 +117,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void bind(Slot slot, String var) {
-		state.bindVar(currentBlock, var, slot, switchVars.get(slot));
+		state.bindVar(currentBlock, var, slot, switchVars.copyMe().get(currentBlock, slot));
 	}
 
 	@Override
@@ -160,21 +156,6 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void result(Object r) {
 		currentBlock.add((IExpr)r);
-	}
-
-	private AVar getSwitchVar(Slot slot) {
-		IExpr e = switchVars.get(slot);
-		if (e == null)
-			throw new NullPointerException("No expr for slot " + slot);
-		if (!(e instanceof AVar)) {
-			AVar var = new Var.AVar(meth, J.OBJECT, state.nextVar("s"));
-			IExpr assign = meth.assign(var, meth.callInterface(J.OBJECT, state.fcx, "head", e));
-			currentBlock.add(assign);
-			e = var;
-			switchVars.put(slot, e);
-		}
-		AVar sv = (AVar) e;
-		return sv;
 	}
 
 }

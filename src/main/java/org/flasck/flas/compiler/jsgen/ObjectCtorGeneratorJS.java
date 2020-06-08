@@ -15,7 +15,6 @@ public class ObjectCtorGeneratorJS extends LeafAdapter implements ResultAware {
 	private final JSFunctionState state;
 	private final NestedVisitor sv;
 	private final JSBlockCreator meth;
-	private JSExpr messages;
 
 	public ObjectCtorGeneratorJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator block) {
 		this.state = state;
@@ -33,12 +32,12 @@ public class ObjectCtorGeneratorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		messages = (JSExpr) r;
+		this.meth.keepMessages(state.ocmsgs(), (JSExpr)r);
 	}
 	
 	@Override
 	public void endInline(FunctionIntro fi) {
-		JSExpr returned = meth.newOf(new PackageName("ResponseWithMessages"), Arrays.asList(state.ocret(), messages));
+		JSExpr returned = meth.newOf(new PackageName("ResponseWithMessages"), Arrays.asList(state.ocret(), state.ocmsgs()));
 		meth.returnObject(returned);
 		sv.result(null);
 	}
