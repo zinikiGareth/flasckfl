@@ -1,6 +1,7 @@
 package test.flas.generator.jvm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -29,7 +30,7 @@ import org.junit.Test;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.Var.AVar;
+import org.zinutils.bytecode.Var;
 
 public class GuardGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -39,12 +40,16 @@ public class GuardGeneration {
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
 	private final JVMBlockCreator block = context.mock(JVMBlockCreator.class, "block");
+	private final FunctionState fs = new FunctionState(meth, fcx, null, null, null);
 
 	@Before
 	public void allow() {
 		context.checking(new Expectations() {{
 			allowing(block).method(); will(returnValue(meth));
-			allowing(block).state(); will(returnValue(null));
+			allowing(block).state(); will(returnValue(fs));
+			allowing(block).stashed(); will(returnValue(new HashMap<>()));
+			allowing(block).closures(); will(returnValue(new HashMap<>()));
+//			allowing(block).hasClosure(with(any(Boolean.class)), with(any(IExpr.class)), with(any(IExpr.class))); will(returnValue(null));
 		}});
 	}
 
@@ -52,7 +57,7 @@ public class GuardGeneration {
 	public void aSingleGuard() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
+		new GuardGenerator(fs, gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
@@ -105,7 +110,7 @@ public class GuardGeneration {
 	public void aSingleGuardWithDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
+		new GuardGenerator(fs, gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
@@ -163,7 +168,7 @@ public class GuardGeneration {
 	public void aSingleGuardWithAComplexExpression() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
+		new GuardGenerator(fs, gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
@@ -178,16 +183,15 @@ public class GuardGeneration {
 		fi.functionCase(fcd);
 		fn.intro(fi);
 
-		context.checking(new Expectations() {{
-			oneOf(meth).nextLocal(); will(returnValue(6));
-		}});
-		AVar v1 = new AVar(meth, J.FLCLOSURE, "v1");
+		Var stash1 = context.mock(Var.class, "stash1");
+		Var cmn2 = context.mock(Var.class, "cmn2");
 		IExpr a1 = context.mock(IExpr.class, "a1");
 		IExpr t1 = context.mock(IExpr.class, "t1");
 		IExpr len = context.mock(IExpr.class, "len");
 		IExpr aslen = context.mock(IExpr.class, "aslen");
 		IExpr lenclos = context.mock(IExpr.class, "lenclos");
-		IExpr assignV1 = context.mock(IExpr.class, "assignV1");
+		IExpr assignStash1 = context.mock(IExpr.class, "assignStash1");
+		IExpr assignCMN2 = context.mock(IExpr.class, "assignCMN2");
 		IExpr ot1 = context.mock(IExpr.class, "ot1");
 		IExpr ro1 = context.mock(IExpr.class, "ro1");
 		IExpr blk = context.mock(IExpr.class, "blk");
@@ -204,14 +208,16 @@ public class GuardGeneration {
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.True", J.OBJECT, "eval", fcx, a1); will(returnValue(t1));
 			oneOf(meth).classConst(J.BUILTINPKG+".PACKAGEFUNCTIONS$length"); will(returnValue(len));
 			oneOf(meth).makeNew(J.CALLEVAL, len); will(returnValue(len));
+			oneOf(meth).avar(J.OBJECT, "stash1"); will(returnValue(stash1));
+			oneOf(meth).assign(stash1, len); will(returnValue(assignStash1));
 			oneOf(meth).stringConst("hello"); will(returnValue(e1));
 			oneOf(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(e1))); will(returnValue(a3));
-			oneOf(meth).as(len, J.APPLICABLE); will(returnValue(aslen));
+			oneOf(meth).as(stash1, J.APPLICABLE); will(returnValue(aslen));
 			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", aslen, a3); will(returnValue(lenclos));
-			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
-			oneOf(meth).assign(v1, lenclos); will(returnValue(assignV1));
-			oneOf(meth).returnObject(v1); will(returnValue(ro1));
-			oneOf(meth).block(assignV1, ro1); will(returnValue(blk));
+			oneOf(meth).avar(J.FLCLOSURE, "cmn2"); will(returnValue(cmn2));
+			oneOf(meth).assign(cmn2, lenclos); will(returnValue(assignCMN2));
+			oneOf(meth).returnObject(cmn2); will(returnValue(ro1));
+			oneOf(meth).block(assignStash1, assignCMN2, ro1); will(returnValue(blk));
 			oneOf(meth).stringConst("no default guard"); will(returnValue(s));
 			oneOf(meth).arrayOf(J.OBJECT, s); will(returnValue(a2));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
@@ -242,7 +248,7 @@ public class GuardGeneration {
 	public void twoGuardsNoDefault() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
+		new GuardGenerator(fs, gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
@@ -329,7 +335,7 @@ public class GuardGeneration {
 	public void twoGuardsWithSecondBeingAnExpression() {
 		StackVisitor gen = new StackVisitor();
 		gen.push(v);
-		new GuardGenerator(new FunctionState(meth, fcx, null, null, null), gen, block);
+		new GuardGenerator(fs, gen, block);
 
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
@@ -353,19 +359,22 @@ public class GuardGeneration {
 		
 		fn.intro(fi);
 
-		context.checking(new Expectations() {{
-			oneOf(meth).nextLocal(); will(returnValue(6));
-			oneOf(meth).nextLocal(); will(returnValue(12));
-		}});
-		AVar v1 = new AVar(meth, J.FLCLOSURE, "v1");
-		AVar v2 = new AVar(meth, J.FLCLOSURE, "v2");
+		Var stash1 = context.mock(Var.class, "stash1");
+		Var cmn2 = context.mock(Var.class, "cmn2");
+		Var stash3 = context.mock(Var.class, "stash3");
+		Var cmn4 = context.mock(Var.class, "cmn4");
+
+//		AVar v1 = new AVar(meth, J.FLCLOSURE, "v1");
+//		AVar v2 = new AVar(meth, J.FLCLOSURE, "v2");
 		IExpr a1 = context.mock(IExpr.class, "a1");
 		IExpr t1 = context.mock(IExpr.class, "t1");
 		IExpr len = context.mock(IExpr.class, "len");
 		IExpr aslen = context.mock(IExpr.class, "aslen");
 		IExpr lenclos = context.mock(IExpr.class, "lenclos");
-		IExpr assignV1 = context.mock(IExpr.class, "assignV1");
-		IExpr assignV2 = context.mock(IExpr.class, "assignV2");
+		IExpr assignStash1 = context.mock(IExpr.class, "assignStash1");
+		IExpr assignCMN2 = context.mock(IExpr.class, "assignCMN2");
+		IExpr assignStash3 = context.mock(IExpr.class, "assignStash3");
+		IExpr assignCMN4 = context.mock(IExpr.class, "assignCMN4");
 		IExpr ot1 = context.mock(IExpr.class, "ot1");
 		IExpr ov1 = context.mock(IExpr.class, "of1");
 		IExpr ro1 = context.mock(IExpr.class, "ro1");
@@ -399,31 +408,34 @@ public class GuardGeneration {
 			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
 			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
 			oneOf(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(e2, e2))); will(returnValue(a4));
-			oneOf(meth).as(ise, J.APPLICABLE); will(returnValue(asise));
+			oneOf(meth).avar(J.OBJECT, "stash1"); will(returnValue(stash1));
+			oneOf(meth).assign(stash1, ise); will(returnValue(assignStash1));
+			oneOf(meth).as(stash1, J.APPLICABLE); will(returnValue(asise));
 			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", asise, a4); will(returnValue(iseclos));
-			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
-			oneOf(meth).assign(v1, iseclos); will(returnValue(assignV1));
-			
+			oneOf(meth).avar(J.FLCLOSURE, "cmn2"); will(returnValue(cmn2));
+			oneOf(meth).assign(cmn2, iseclos); will(returnValue(assignCMN2));
 			oneOf(meth).classConst(J.BUILTINPKG+".PACKAGEFUNCTIONS$length"); will(returnValue(len));
 			oneOf(meth).makeNew(J.CALLEVAL, len); will(returnValue(len));
+			oneOf(meth).avar(J.OBJECT, "stash3"); will(returnValue(stash3));
+			oneOf(meth).assign(stash3, len); will(returnValue(assignStash3));
 			oneOf(meth).stringConst("goodbye"); will(returnValue(e2));
 			oneOf(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(e2))); will(returnValue(a3));
-			oneOf(meth).as(len, J.APPLICABLE); will(returnValue(aslen));
+			oneOf(meth).as(stash3, J.APPLICABLE); will(returnValue(aslen));
 			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", aslen, a3); will(returnValue(lenclos));
-			oneOf(meth).avar(J.FLCLOSURE, "v2"); will(returnValue(v2));
-			oneOf(meth).assign(v2, lenclos); will(returnValue(assignV2));
-			oneOf(meth).returnObject(v2); will(returnValue(ro2));
-			oneOf(meth).block(assignV2, ro2); will(returnValue(blk1));
+			oneOf(meth).avar(J.FLCLOSURE, "cmn4"); will(returnValue(cmn4));
+			oneOf(meth).assign(cmn4, lenclos); will(returnValue(assignCMN4));
+			oneOf(meth).returnObject(cmn4); will(returnValue(ro2));
+			oneOf(meth).block(assignStash3, assignCMN4, ro2); will(returnValue(blk1));
 			
 			oneOf(meth).stringConst("no default guard"); will(returnValue(s));
 			oneOf(meth).arrayOf(J.OBJECT, s); will(returnValue(a2));
 			oneOf(meth).callStatic("org.flasck.jvm.builtin.FLError", J.OBJECT, "eval", fcx, a2); will(returnValue(err));
 			oneOf(meth).returnObject(err); will(returnValue(rerr));
 			
-			oneOf(meth).as(v1, J.OBJECT); will(returnValue(ov1));
+			oneOf(meth).as(cmn2, J.OBJECT); will(returnValue(ov1));
 			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", ov1); will(returnValue(isg));
 			oneOf(meth).ifBoolean(isg, blk1, rerr); will(returnValue(if1));
-			oneOf(meth).block(assignV1, if1); will(returnValue(blk2));
+			oneOf(meth).block(assignStash1, assignCMN2, if1); will(returnValue(blk2));
 			
 			oneOf(meth).as(t1, J.OBJECT); will(returnValue(ot1));
 			oneOf(meth).callInterface(JavaType.boolean_.toString(), fcx, "isTruthy", ot1); will(returnValue(ist));

@@ -17,6 +17,9 @@ public interface JVMBlockCreator {
 	Map<String, Var> stashed();
 	IExpr hasStashed(String myName);
 	IExpr stash(String myName, IExpr e);
+	Map<IExpr, Var> closures();
+	IExpr hasClosure(boolean wantObject, IExpr fn, IExpr args);
+	Var saveClosure(boolean wantObject, IExpr call);
 
 	IExpr singleton();
 	IExpr convert();

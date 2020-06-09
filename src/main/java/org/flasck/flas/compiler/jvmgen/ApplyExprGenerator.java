@@ -141,6 +141,7 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 			}
 			List<XCArg> xcs = checkExtendedCurry(stack);
 			IExpr call;
+			Var v = null;
 			if (xcs != null) {
 				if (wantObject)
 					call = meth.callInterface(J.FLCURRY, fcx, "oxcurry", meth.intConst(expArgs-1), meth.as(fn, J.APPLICABLE), meth.arrayOf(J.OBJECT, asjvm(xcs)));
@@ -152,13 +153,20 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 				else
 					call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
 			} else {
-				if (wantObject)
-					call = meth.callInterface(J.FLCLOSURE, fcx, "oclosure", meth.as(fn, J.APPLICABLE), args);
-				else
-					call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
+				call = currentBlock.hasClosure(wantObject, fn, args);
+				if (call == null) {
+					if (wantObject)
+						call = meth.callInterface(J.FLCLOSURE, fcx, "oclosure", meth.as(fn, J.APPLICABLE), args);
+					else
+						call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
+					v = currentBlock.saveClosure(wantObject, call);
+					call = v;
+				}
 			}
-			Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
-			currentBlock.add(meth.assign(v, call));
+			if (v == null) {
+				 v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
+				 currentBlock.add(meth.assign(v, call));
+			}
 			sv.result(v);
 		}
 	}

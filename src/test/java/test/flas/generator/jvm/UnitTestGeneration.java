@@ -26,7 +26,6 @@ import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -79,34 +78,6 @@ public class UnitTestGeneration {
 		gen.leaveUnitTest(utc);
 	}
 	
-	@Test
-	@Ignore
-	public void weCanCreateLocalUDStringValues() {
-		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
-		IExpr runner = context.mock(IExpr.class, "runner");
-		IExpr cls = context.mock(IExpr.class, "cls");
-		IExpr call = context.mock(IExpr.class, "call");
-		context.checking(new Expectations() {{
-			oneOf(meth).nextLocal(); will(returnValue(17));
-		}});
-		AVar v1 = new AVar(meth, J.OBJECT, "v1");
-		context.checking(new Expectations() {{
-//			oneOf(meth).classConst("test.something.Ctr"); will(returnValue(cls));
-//			oneOf(meth).callVirtual(J.OBJECT, runner, "mockContract", cls); will(returnValue(call));
-//			oneOf(meth).avar(J.OBJECT, "v1"); will(returnValue(v1));
-//			oneOf(meth).assign(v1, call);
-		}});
-		JVMGenerator jvm = JVMGenerator.forTests(meth, runner, null);
-		Traverser gen = new Traverser(jvm.stackVisitor());
-		TypeReference ctr = new TypeReference(pos, "Ctr");
-		ctr.bind(cd);
-		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
-		UnitTestName utn = new UnitTestName(utfn, 4);
-		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, utn, "data"), new StringLiteral(pos, "hello"));
-		gen.visitUnitDataDeclaration(udd);
-		assertEquals(v1, jvm.state().resolveMock(udd));
-	}
-
 	@Test
 	public void weCanCreateLocalUDDMockContracts() {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(pkg, "Ctr"));
@@ -188,7 +159,6 @@ public class UnitTestGeneration {
 			oneOf(meth).as(l1, "java.lang.Object"); will(returnValue(la));
 			oneOf(meth).as(r1, "java.lang.Object"); will(returnValue(ra));
 			oneOf(meth).callInterface("void", runner, "assertSameValue", runner, ra, la); will(returnValue(asv));
-			oneOf(asv).flush();
 		}});
 		Traverser gen = new Traverser(JVMGenerator.forTests(meth, runner, null).stackVisitor());
 		UnitTestAssert a = new UnitTestAssert(lhs, rhs);

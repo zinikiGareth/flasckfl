@@ -174,7 +174,6 @@ public class Traverser implements RepositoryVisitor {
 						visitFunctionGroup(grp);
 					} catch (DeferMeException ex) {
 						((StackVisitor)visitor).reduceTo(1);
-						System.out.println("deferring " + grp + " " + visitor);
 						undone.add(grp);
 					}
 				}

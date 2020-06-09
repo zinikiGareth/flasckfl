@@ -1,8 +1,13 @@
 test.golden.Both._ctor_diamond :: test.golden.Both
+test.golden.Both.add10 :: List[Message]
+test.golden.Both.add5 :: List[Message]
 test.golden.Both.u :: Any->test.golden.Underlying
+test.golden.Both.val :: Number
 test.golden.FromA._ctor_make :: test.golden.Underlying->test.golden.FromA
 test.golden.FromA.add5 :: List[Message]
+test.golden.FromA.val :: Number
 test.golden.FromB._ctor_create :: test.golden.Underlying->test.golden.FromB
 test.golden.FromB.add10 :: List[Message]
 test.golden.Underlying._ctor_init :: test.golden.Underlying
 test.golden.Underlying.add :: Number->List[Message]
+test.golden.Underlying.val :: Number

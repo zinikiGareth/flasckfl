@@ -1361,8 +1361,6 @@ Assign.prototype.dispatch = function(cx) {
 		this.expr = ResponseWithMessages.response(cx, this.expr);
 	}
 	target.state.set(this.slot, this.expr);
-	cx.log("assigning to", target, " ", this.slot, " <- ", this.expr);
-	cx.log("returning messages", msgs);
 	return msgs;
 }
 Assign.prototype.toString = function() {

@@ -2,7 +2,10 @@ package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -25,6 +28,7 @@ import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
 import org.flasck.flas.compiler.jsgen.form.JSCurry;
 import org.flasck.flas.compiler.jsgen.form.JSCxtMethod;
+import org.flasck.flas.compiler.jsgen.form.JSEffector;
 import org.flasck.flas.compiler.jsgen.form.JSError;
 import org.flasck.flas.compiler.jsgen.form.JSEval;
 import org.flasck.flas.compiler.jsgen.form.JSExpectation;
@@ -81,13 +85,19 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class JSBlock implements JSBlockCreator {
 	final List<JSExpr> stmts = new ArrayList<>();
 	private final JSMethod creating;
+	private final Map<String, JSLocal> fns;
+	private final Map<JSExpr, JSLocal> closures;
 
 	protected JSBlock() {
 		this.creating = (JSMethod)this;
+		this.fns = new HashMap<>();
+		this.closures = new HashMap<>();
 	}
 	
-	protected JSBlock(JSMethod creating) {
+	protected JSBlock(JSMethod creating, Map<String, JSLocal> fnBindings, Map<JSExpr, JSLocal> in) {
 		this.creating = creating;
+		fns = new HashMap<>(fnBindings);
+		closures = new HashMap<>(in);
 	}
 	
 	public JSExpr singleton() {
@@ -149,8 +159,12 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr pushFunction(String meth) {
+		JSLocal already = hasFn(meth);
+		if (already != null)
+			return already;
 		JSLocal stmt = new JSLocal(creating, new JSPushFunction(meth));
 		stmts.add(stmt);
+		definedFn(meth, stmt);
 		return stmt;
 	}
 
@@ -205,8 +219,13 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr closure(boolean wantObject, JSExpr... args) {
-		JSLocal stmt = new JSLocal(creating, new JSClosure(wantObject, args));
+		JSClosure tmp = new JSClosure(wantObject, args);
+		JSLocal clos = haveClosure(tmp);
+		if (clos != null)
+			return clos;
+		JSLocal stmt = new JSLocal(creating, tmp);
 		stmts.add(stmt);
+		closures.put(tmp, stmt);
 		return stmt;
 	}
 
@@ -386,35 +405,35 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSIfCreator ifCtor(String var, String ctor) {
-		JSIfExpr ret = new JSIfExpr(new IsAExpr(var, ctor), new JSBlock(this.creating), new JSBlock(this.creating));
+		JSIfExpr ret = new JSIfExpr(new IsAExpr(var, ctor), new JSBlock(this.creating, fns, closures), new JSBlock(this.creating, fns, closures));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
 	public JSIfCreator ifCtor(JSExpr expr, NameOfThing ctor) {
-		JSIfExpr ret = new JSIfExpr(new IsAExpr(expr, ctor), new JSBlock(this.creating), new JSBlock(this.creating));
+		JSIfExpr ret = new JSIfExpr(new IsAExpr(expr, ctor), new JSBlock(this.creating, fns, closures), new JSBlock(this.creating, fns, closures));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
 	public JSIfCreator ifConst(String var, int cnst) {
-		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating), new JSBlock(this.creating));
+		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating, fns, closures), new JSBlock(this.creating, fns, closures));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
 	public JSIfCreator ifConst(String var, String cnst) {
-		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating), new JSBlock(this.creating));
+		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating, fns, closures), new JSBlock(this.creating, fns, closures));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
 	public JSIfCreator ifTrue(JSExpr ge) {
-		JSIfExpr ret = new JSIfExpr(new IsTrueExpr(ge), new JSBlock(this.creating), new JSBlock(this.creating));
+		JSIfExpr ret = new JSIfExpr(new IsTrueExpr(ge), new JSBlock(this.creating, fns, closures), new JSBlock(this.creating, fns, closures));
 		stmts.add(ret);
 		return ret;
 	}
@@ -537,6 +556,22 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void requireContract(String var, String impl) {
 		stmts.add(new JSRequireContract(var, impl));
+	}
+
+	public JSLocal hasFn(String meth) {
+		return fns.get(meth);
+	}
+
+	public void definedFn(String meth, JSLocal var) {
+		fns.put(meth, var);
+	}
+
+	private JSLocal haveClosure(JSEffector tmp) {
+		for (Entry<JSExpr, JSLocal> e : closures.entrySet()) {
+			if (tmp.hasSameEffectAs(e.getKey()))
+				return e.getValue();
+		}
+		return null;
 	}
 
 	@Override

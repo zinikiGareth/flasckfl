@@ -81,6 +81,7 @@ public class ExpressionGeneration {
 		context.checking(new Expectations() {{
 			allowing(block).hasStashed(with(any(String.class))); will(returnValue(null));
 			allowing(block).stash(with(any(String.class)), with(any(IExpr.class))); will(ReturnInvoker.arg(1));
+			allowing(block).hasClosure(with(any(Boolean.class)), with(any(IExpr.class)), with(any(IExpr.class))); will(returnValue(null));
 			allowing(meth).lenientMode(with(any(Boolean.class)));
 		}});
 	}
@@ -534,11 +535,7 @@ public class ExpressionGeneration {
 		List<IExpr> argsList = new ArrayList<>();
 		argsList.add(num);
 		argsList.add(strv);
-		context.checking(new Expectations() {{
-			oneOf(meth).nextLocal(); will(returnValue(22));
-		}});
-		Var var = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v1");
-		IExpr assign = context.mock(IExpr.class, "assign");
+		Var var = context.mock(Var.class, "v1");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
 			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
@@ -551,9 +548,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(fAsObj));
 			oneOf(meth).callInterface("org.flasck.jvm.fl.FLClosure", fcx, "closure", fAsObj, args); will(returnValue(aev));
-			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
-			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
-			oneOf(block).add(assign);
+			allowing(block).saveClosure(with(any(Boolean.class)), with(any(IExpr.class))); will(returnValue(var));
 			oneOf(nv).result(var);
 		}});
 		new ExprGenerator(new FunctionState(meth, fcx, null, null, null), sv, block, false);
@@ -586,7 +581,6 @@ public class ExpressionGeneration {
 			oneOf(meth).nextLocal(); will(returnValue(22));
 		}});
 		Var var = new Var.AVar(meth, "org.flasck.jvm.fl.FLClosure", "v1");
-		IExpr assign = context.mock(IExpr.class, "assign");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
 			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
@@ -599,9 +593,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(fAsObj));
 			oneOf(meth).callInterface("org.flasck.jvm.fl.FLClosure", fcx, "closure", fAsObj, args); will(returnValue(aev));
-			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v1"); will(returnValue(var));
-			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assign));
-			oneOf(block).add(assign);
+			allowing(block).saveClosure(with(any(Boolean.class)), with(any(IExpr.class))); will(returnValue(var));
 			oneOf(nv).result(var);
 		}});
 		new ExprGenerator(new FunctionState(meth, fcx, null, null, null), sv, block, false);
@@ -638,7 +630,6 @@ public class ExpressionGeneration {
 		List<IExpr> argsList = new ArrayList<>();
 		argsList.add(v1);
 		IExpr assignx = context.mock(IExpr.class, "assignx");
-		IExpr assignae = context.mock(IExpr.class, "assignae");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.repo.PACKAGEFUNCTIONS$f"); will(returnValue(f));
 			oneOf(meth).makeNew(J.CALLEVAL, f); will(returnValue(mnf));
@@ -654,9 +645,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf("java.lang.Object", argsList); will(returnValue(args));
 			oneOf(meth).as(mnf, J.APPLICABLE); will(returnValue(fAsObj));
 			oneOf(meth).callInterface("org.flasck.jvm.fl.FLClosure", fcx, "closure", fAsObj, args); will(returnValue(aev));
-			oneOf(meth).avar("org.flasck.jvm.fl.FLClosure", "v2"); will(returnValue(v2));
-			oneOf(meth).assign(with(any(Var.class)), with(aev)); will(returnValue(assignae));
-			oneOf(block).add(assignae);
+			allowing(block).saveClosure(with(any(Boolean.class)), with(any(IExpr.class))); will(returnValue(v2));
 			
 			oneOf(nv).result(v2);
 		}});
@@ -956,7 +945,6 @@ public class ExpressionGeneration {
 		IExpr shello = context.mock(IExpr.class, "hello");
 		IExpr args = context.mock(IExpr.class, "args");
 		IExpr clos = context.mock(IExpr.class, "clos");
-		IExpr ass2 = context.mock(IExpr.class, "ass2");
 		IExpr n2 = context.mock(IExpr.class, "n2");
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(23));
@@ -977,9 +965,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf(J.OBJECT, Arrays.asList(n1, shello)); will(returnValue(args));
 			oneOf(meth).as(msi, J.APPLICABLE); will(returnValue(msi));
 			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", msi, args); will(returnValue(clos));
-			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
-			oneOf(meth).assign(v1, clos); will(returnValue(ass2));
-			oneOf(block).add(ass2);
+			allowing(block).saveClosure(with(any(Boolean.class)), with(any(IExpr.class))); will(returnValue(v1));
 			oneOf(nv).result(v1);
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);
@@ -1064,7 +1050,6 @@ public class ExpressionGeneration {
 		IExpr shello = context.mock(IExpr.class, "hello");
 		IExpr args = context.mock(IExpr.class, "args");
 		IExpr clos = context.mock(IExpr.class, "clos");
-		IExpr ass2 = context.mock(IExpr.class, "ass2");
 		context.checking(new Expectations() {{
 			oneOf(meth).nextLocal(); will(returnValue(23));
 			oneOf(meth).assign(with(VarMatcher.local(23)), with(ai)); will(returnValue(ass));
@@ -1083,9 +1068,7 @@ public class ExpressionGeneration {
 			oneOf(meth).arrayOf(J.OBJECT, Arrays.asList(n1, shello)); will(returnValue(args));
 			oneOf(meth).as(msi, J.APPLICABLE); will(returnValue(msi));
 			oneOf(meth).callInterface(J.FLCLOSURE, fcx, "closure", msi, args); will(returnValue(clos));
-			oneOf(meth).avar(J.FLCLOSURE, "v1"); will(returnValue(v1));
-			oneOf(meth).assign(v1, clos); will(returnValue(ass2));
-			oneOf(block).add(ass2);
+			allowing(block).saveClosure(with(any(Boolean.class)), with(any(IExpr.class))); will(returnValue(v1));
 			oneOf(nv).result(v1);
 		}});
 		FunctionState state = new FunctionState(meth, fcx, null, fargs, null);

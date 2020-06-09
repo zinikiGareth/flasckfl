@@ -2,7 +2,7 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSClosure implements JSExpr {
+public class JSClosure implements JSExpr, JSEffector {
 	private final boolean wantObject;
 	private final JSExpr[] args;
 
@@ -31,5 +31,20 @@ public class JSClosure implements JSExpr {
 	@Override
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
+	}
+
+	@Override
+	public boolean hasSameEffectAs(JSExpr other) {
+		if (!(other instanceof JSClosure))
+			return false;
+		JSClosure o = (JSClosure) other;
+		if (wantObject != o.wantObject)
+			return false;
+		if (args.length != o.args.length)
+			return false;
+		for (int i=0;i<args.length;i++)
+			if (args[i] != o.args[i])
+				return false;
+		return true;
 	}
 }
