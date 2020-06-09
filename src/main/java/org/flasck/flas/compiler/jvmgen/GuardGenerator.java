@@ -38,8 +38,10 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 	public GuardGenerator(FunctionState state, NestedVisitor sv, JVMBlockCreator currentBlock) {
 		this.state = state;
 		this.sv = sv;
-		this.block = currentBlock;
+		this.block = new JVMBlock(currentBlock);
 		sv.push(this);
+		if (currentBlock.stashed().size() > 0)
+			System.out.println("Creating new block for " + currentBlock.method() + " with " + currentBlock.stashed());
 	}
 	
 	@Override
@@ -76,7 +78,8 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 				ret = c.testBlk.convert();
 			}
 		}
-		sv.result(ret);
+		this.block.add(ret);
+		sv.result(this.block.convert());
 	}
 
 	@Override

@@ -63,6 +63,7 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.bytecode.mock.VarMatcher;
+import org.zinutils.support.jmock.ReturnInvoker;
 
 public class ExpressionGeneration {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -78,6 +79,8 @@ public class ExpressionGeneration {
 	public void setup() {
 		sv.push(nv);
 		context.checking(new Expectations() {{
+			allowing(block).hasStashed(with(any(String.class))); will(returnValue(null));
+			allowing(block).stash(with(any(String.class)), with(any(IExpr.class))); will(ReturnInvoker.arg(1));
 			allowing(meth).lenientMode(with(any(Boolean.class)));
 		}});
 	}

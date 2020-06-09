@@ -54,6 +54,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	private final List<JVMBinding> bindings = new ArrayList<>();
 	private Mode mode;
 	private JVMBinding curr;
+	private final JVMBlockCreator parentBlock;
 	private JVMBlockCreator bindingBlock;
 	private TemplateBindingOption currentTBO;
 	private int option = 0;
@@ -65,6 +66,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 		this.containerIdx = containerIdx;
 		this.t = t;
 		this.source = source;
+		this.parentBlock = bindingBlock;
 		this.bindingBlock = bindingBlock;
 		assignsTo = b.assignsTo;
 		sv.push(this);
@@ -236,8 +238,8 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	@Override
 	public void leaveTemplateBinding(TemplateBinding tb) {
 		IExpr ret = null;
-		if (bindings.isEmpty() && !bindingBlock.isEmpty())
-			ret = bindingBlock.convert();
+//		if (bindings.isEmpty() && !bindingBlock.isEmpty())
+//			ret = bindingBlock.convert();
 		for (JVMBinding b : bindings) {
 			b.trueBlock.add(b.du);
 			IExpr truth = b.trueBlock.convert();
@@ -250,7 +252,8 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 					ret);
 		}
 		if (ret != null)
-			ret.flush();
+			parentBlock.add(ret);
+//			ret.flush();
 		sv.result(null);
 	}
 }

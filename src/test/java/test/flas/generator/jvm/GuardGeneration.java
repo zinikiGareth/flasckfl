@@ -44,6 +44,7 @@ public class GuardGeneration {
 	public void allow() {
 		context.checking(new Expectations() {{
 			allowing(block).method(); will(returnValue(meth));
+			allowing(block).state(); will(returnValue(null));
 		}});
 	}
 

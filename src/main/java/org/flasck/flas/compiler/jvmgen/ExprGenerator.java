@@ -282,8 +282,10 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	}
 
 	private IExpr stash(String myName, IExpr fn) {
-//		if (stashed.contains)
-		return fn;
+		IExpr e = currentBlock.hasStashed(myName);
+		if (e != null)
+			return e;
+		return currentBlock.stash(myName, fn);
 	}
 
 	private void handleUnitTestData(UnitDataDeclaration udd) {

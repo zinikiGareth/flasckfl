@@ -56,7 +56,7 @@ public class UDDGenerator extends LeafAdapter implements ResultAware {
 		Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 		IExpr sm = meth.callInterface(J.OBJECT, fs.fcx, "storeMock", meth.as(value, J.OBJECT));
 		currentBlock.add(meth.assign(v, sm));
-		currentBlock.convert().flush();
+//		currentBlock.convert().flush();
 		fs.addMock(udd, v);
 		sv.result(null);
 	}

@@ -43,7 +43,7 @@ public class CaptureAssertionClauseVisitor extends LeafAdapter implements Reposi
 			IExpr rhs = meth.as((IExpr) r, J.OBJECT);
 			IExpr ret = meth.callInterface("void", runner, "assertSameValue", fs.fcx, lhs, rhs);
 			block.add(ret);
-			block.convert().flush();
+//			block.convert().flush();
 		}
 	}
 	

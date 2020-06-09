@@ -67,7 +67,7 @@ public class DoSendGenerator extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveUnitTestSend(UnitTestSend s) {
 		sendArgs.add(this.meth.arrayOf(J.OBJECT, args.toArray(new IExpr[args.size()])));
-		this.meth.callInterface("void", runner, "send", sendArgs.toArray(new IExpr[sendArgs.size()])).flush();
+		block.add(this.meth.callInterface("void", runner, "send", sendArgs.toArray(new IExpr[sendArgs.size()])));
 		sv.result(null);
 	}
 

@@ -60,7 +60,6 @@ public class HandleShoveClauseVisitor extends LeafAdapter implements ResultAware
 	public void leaveUnitTestShove(UnitTestShove s) {
 		IExpr ret = fs.meth.callInterface("void", runner, "shove", fs.fcx, fs.meth.as(this.root, J.OBJECT), fs.meth.stringConst(slot.var), fs.meth.as(value, J.OBJECT));
 		block.add(ret);
-		block.convert().flush();
-		sv.result(null);
+		sv.result(block.convert());
 	}
 }

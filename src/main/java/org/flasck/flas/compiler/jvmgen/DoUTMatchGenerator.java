@@ -44,10 +44,10 @@ public class DoUTMatchGenerator extends LeafAdapter implements ResultAware {
 			throw new RuntimeException("expected card");
 		switch (m.what) {
 		case TEXT:
-			this.meth.callInterface("void", runner, "matchText", fs.fcx, args.get(0), DoUTEventGenerator.makeSelector(meth, m.targetZone), this.meth.boolConst(m.contains), this.meth.stringConst(m.text)).flush();
+			block.add(this.meth.callInterface("void", runner, "matchText", fs.fcx, args.get(0), DoUTEventGenerator.makeSelector(block, meth, m.targetZone), this.meth.boolConst(m.contains), this.meth.stringConst(m.text)));
 			break;
 		case STYLE:
-			this.meth.callInterface("void", runner, "matchStyle", fs.fcx, args.get(0), DoUTEventGenerator.makeSelector(meth, m.targetZone), this.meth.boolConst(m.contains), this.meth.stringConst(m.text)).flush();
+			block.add(this.meth.callInterface("void", runner, "matchStyle", fs.fcx, args.get(0), DoUTEventGenerator.makeSelector(block, meth, m.targetZone), this.meth.boolConst(m.contains), this.meth.stringConst(m.text)));
 			break;
 		}
 		sv.result(null);

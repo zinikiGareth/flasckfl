@@ -80,7 +80,7 @@ public class HIGenerator extends LeafAdapter {
 			this.fs = new FunctionState(meth, cx.getVar(), null, pargs.getVar(), runner);
 			this.meth = meth;
 			fs.evalRet = ret;
-			this.currentBlock = new JVMBlock(meth);
+			this.currentBlock = new JVMBlock(meth, fs);
 		}
 	}
 
@@ -102,9 +102,8 @@ public class HIGenerator extends LeafAdapter {
 	
 	@Override
 	public void leaveHandlerImplements(HandlerImplements hi) {
-		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			currentBlock.convert().flush();
-		this.meth.returnObject(fs.evalRet).flush();
+		currentBlock.add(this.meth.returnObject(fs.evalRet));
+		currentBlock.convert().flush();
 		sv.result(null);
 	}
 }

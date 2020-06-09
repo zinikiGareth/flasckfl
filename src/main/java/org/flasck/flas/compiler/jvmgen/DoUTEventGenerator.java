@@ -46,17 +46,17 @@ public class DoUTEventGenerator extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestEvent(UnitTestEvent e) {
 		if (args.size() != 2)
 			throw new RuntimeException("expected card & event");
-		IExpr eventZone = makeSelector(meth, e.targetZone);
-		this.meth.callInterface("void", runner, "event", fs.fcx, args.get(0), eventZone, args.get(1)).flush();
+		IExpr eventZone = makeSelector(this.block, meth, e.targetZone);
+		this.block.add(this.meth.callInterface("void", runner, "event", fs.fcx, args.get(0), eventZone, args.get(1)));
 		sv.result(null);
 	}
 
-	public static IExpr makeSelector(MethodDefiner meth, TargetZone targetZone) {
+	public static IExpr makeSelector(JVMBlockCreator block, MethodDefiner meth, TargetZone targetZone) {
 		Var eventZone = meth.avar(List.class.getName(), "ez");
-		meth.assign(eventZone, meth.makeNew(ArrayList.class.getName())).flush();
+		block.add(meth.assign(eventZone, meth.makeNew(ArrayList.class.getName())));
 		
 		for (int i=0;i<targetZone.fields.size();i++) {
-			meth.voidExpr(meth.callInterface("boolean", eventZone, "add", meth.as(meth.makeNew(J.EVENTZONE, meth.stringConst(targetZone.types().get(i).toString().toLowerCase()), makeEventZone(meth, targetZone.fields.get(i))), J.OBJECT))).flush();
+			block.add(meth.voidExpr(meth.callInterface("boolean", eventZone, "add", meth.as(meth.makeNew(J.EVENTZONE, meth.stringConst(targetZone.types().get(i).toString().toLowerCase()), makeEventZone(meth, targetZone.fields.get(i))), J.OBJECT))));
 		}
 		return eventZone;
 	}

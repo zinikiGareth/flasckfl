@@ -12,12 +12,10 @@ public class DoInvocationGenerator extends LeafAdapter implements ResultAware {
 	private final IExpr cx;
 	private final IExpr runner;
 	private final MethodDefiner meth;
-	private final JVMBlockCreator block;
 
 	public DoInvocationGenerator(StackVisitor sv, FunctionState fs, IExpr runner, JVMBlockCreator block) {
 		this.sv = sv;
 		this.runner = runner;
-		this.block = block;
 		this.meth = fs.meth;
 		this.cx = fs.fcx;
 		sv.push(this);
@@ -28,7 +26,7 @@ public class DoInvocationGenerator extends LeafAdapter implements ResultAware {
 	public void result(Object r) {
 		IExpr expr = meth.as((IExpr) r, J.OBJECT);
 		IExpr ret = meth.callInterface("void", runner, "invoke", cx, expr);
-		block.add(ret);
-		sv.result(block.convert());
+//		block.add(ret);
+		sv.result(ret);
 	}
 }

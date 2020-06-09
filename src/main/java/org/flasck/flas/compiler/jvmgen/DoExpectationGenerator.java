@@ -54,7 +54,6 @@ public class DoExpectationGenerator extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestExpect(UnitTestExpect ute) {
 		IExpr x = fs.meth.voidExpr(fs.meth.callInterface(J.MOCKEXPECTATION, mock, "expect", fs.meth.stringConst(ute.method.var), fs.meth.arrayOf(J.OBJECT, args), fs.meth.as(this.handler, J.OBJECT)));
 		block.add(x);
-		block.convert().flush();
 		sv.result(null);
 	}
 }
