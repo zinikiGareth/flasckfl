@@ -38,7 +38,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	}
 	public class JVMBinding {
 		public IExpr cond;
-		public List<IExpr> trueBlock = new ArrayList<IExpr>();
+		public JVMBlockCreator trueBlock = new JVMBlock(bindingBlock);
 		public IExpr du;
 	}
 	private final FunctionState fs;
@@ -54,18 +54,18 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	private final List<JVMBinding> bindings = new ArrayList<>();
 	private Mode mode;
 	private JVMBinding curr;
-	private List<IExpr> bindingBlock;
+	private JVMBlockCreator bindingBlock;
 	private TemplateBindingOption currentTBO;
 	private int option = 0;
 
-	public TemplateBindingProcessor(FunctionState fs, StackVisitor sv, ByteCodeSink templateClass, AtomicInteger containerIdx, Template t, IExpr source, TemplateBinding b) {
+	public TemplateBindingProcessor(FunctionState fs, StackVisitor sv, ByteCodeSink templateClass, JVMBlockCreator bindingBlock, AtomicInteger containerIdx, Template t, IExpr source, TemplateBinding b) {
 		this.fs = fs;
 		this.sv = sv;
 		this.templateClass = templateClass;
 		this.containerIdx = containerIdx;
 		this.t = t;
 		this.source = source;
-		this.bindingBlock = new ArrayList<IExpr>();
+		this.bindingBlock = bindingBlock;
 		assignsTo = b.assignsTo;
 		sv.push(this);
 	}
@@ -106,7 +106,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 		} else {
 			if (mode == Mode.COND) {
 				curr.cond = (IExpr) r;
-				curr.trueBlock = new ArrayList<>();
+				curr.trueBlock = new JVMBlock(bindingBlock);
 			} else {
 				IExpr expr = (IExpr) r;
 				if (currentTBO.sendsTo != null) {
@@ -193,7 +193,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 		applyStyles(fs, bindingBlock, t.webinfo().id(), assignsTo, option, source, styles, cexpr, !tc.events.isEmpty());
 	}
 
-	static void applyStyles(FunctionState fs, List<IExpr> bindingBlock, String templateName, TemplateField field, int option, IExpr source, List<JVMStyleIf> styles, List<IExpr> cexpr, boolean hasStylingEvents) {
+	static void applyStyles(FunctionState fs, JVMBlockCreator block, String templateName, TemplateField field, int option, IExpr source, List<JVMStyleIf> styles, List<IExpr> cexpr, boolean hasStylingEvents) {
 		IExpr ty;
 		IExpr tx;
 		if (field == null) {
@@ -219,12 +219,12 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 			}
 			
 			IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(templateName), ty, tx, fs.meth.intConst(option), source, ce, fs.meth.arrayOf(J.OBJECT, arr));
-			bindingBlock.add(doUpdate);
+			block.add(doUpdate);
 			styles.clear();
 			cexpr.clear();
 		} else if (hasStylingEvents) {
 			IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(templateName), ty, tx, fs.meth.intConst(option), source, fs.meth.as(fs.meth.aNull(), J.STRING), fs.meth.arrayOf(J.OBJECT));
-			bindingBlock.add(doUpdate);
+			block.add(doUpdate);
 		}
 	}
 
@@ -237,10 +237,10 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	public void leaveTemplateBinding(TemplateBinding tb) {
 		IExpr ret = null;
 		if (bindings.isEmpty() && !bindingBlock.isEmpty())
-			ret = JVMGenerator.makeBlock(fs.meth, bindingBlock);
+			ret = bindingBlock.convert();
 		for (JVMBinding b : bindings) {
 			b.trueBlock.add(b.du);
-			IExpr truth = JVMGenerator.makeBlock(fs.meth, b.trueBlock);
+			IExpr truth = b.trueBlock.convert();
 			if (b.cond == null)
 				ret = truth;
 			else

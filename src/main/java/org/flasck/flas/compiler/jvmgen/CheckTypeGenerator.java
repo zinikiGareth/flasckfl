@@ -1,7 +1,5 @@
 package org.flasck.flas.compiler.jvmgen;
 
-import java.util.List;
-
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -15,12 +13,12 @@ import org.zinutils.bytecode.IExpr;
 public class CheckTypeGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState state;
 	private final NestedVisitor sv;
-	private final List<IExpr> currentBlock;
+	private final JVMBlockCreator currentBlock;
 	private final boolean isExpectation;
 	private IExpr res;
 	private NamedType type;
 
-	public CheckTypeGenerator(FunctionState state, NestedVisitor sv, List<IExpr> currentBlock, boolean isExpectation) {
+	public CheckTypeGenerator(FunctionState state, NestedVisitor sv, JVMBlockCreator currentBlock, boolean isExpectation) {
 		this.state = state;
 		this.sv = sv;
 		this.currentBlock = currentBlock;

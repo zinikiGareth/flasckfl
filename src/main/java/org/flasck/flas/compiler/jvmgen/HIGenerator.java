@@ -1,6 +1,5 @@
 package org.flasck.flas.compiler.jvmgen;
 
-import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.names.HandlerName;
@@ -28,7 +27,7 @@ public class HIGenerator extends LeafAdapter {
 	private final ByteCodeSink definingClz;
 	private final FunctionState fs;
 	private final MethodDefiner meth;
-	private final ArrayList<IExpr> currentBlock;
+	private final JVMBlockCreator currentBlock;
 	private final AtomicInteger nextArg = new AtomicInteger();
 
 	public HIGenerator(StackVisitor sv, ByteCodeStorage bce, HandlerImplements hi, StateHolder sh, IExpr runner) {
@@ -81,7 +80,7 @@ public class HIGenerator extends LeafAdapter {
 			this.fs = new FunctionState(meth, cx.getVar(), null, pargs.getVar(), runner);
 			this.meth = meth;
 			fs.evalRet = ret;
-			this.currentBlock = new ArrayList<IExpr>();
+			this.currentBlock = new JVMBlock(meth);
 		}
 	}
 
@@ -104,7 +103,7 @@ public class HIGenerator extends LeafAdapter {
 	@Override
 	public void leaveHandlerImplements(HandlerImplements hi) {
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			JVMGenerator.makeBlock(meth, currentBlock).flush();
+			currentBlock.convert().flush();
 		this.meth.returnObject(fs.evalRet).flush();
 		sv.result(null);
 	}

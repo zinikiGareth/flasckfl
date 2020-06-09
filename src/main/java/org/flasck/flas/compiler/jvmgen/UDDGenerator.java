@@ -1,7 +1,5 @@
 package org.flasck.flas.compiler.jvmgen;
 
-import java.util.List;
-
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.parser.ut.UnitDataDeclaration.Assignment;
@@ -18,11 +16,11 @@ public class UDDGenerator extends LeafAdapter implements ResultAware {
 	private final StackVisitor sv;
 	private final FunctionState fs;
 	private final MethodDefiner meth;
-	private final List<IExpr> currentBlock;
+	private final JVMBlockCreator currentBlock;
 	private boolean assigning;
 	private IExpr assigned;
 
-	public UDDGenerator(StackVisitor sv, FunctionState fs, List<IExpr> currentBlock) {
+	public UDDGenerator(StackVisitor sv, FunctionState fs, JVMBlockCreator currentBlock) {
 		this.sv = sv;
 		this.fs = fs;
 		this.meth = fs.meth;
@@ -58,8 +56,7 @@ public class UDDGenerator extends LeafAdapter implements ResultAware {
 		Var v = meth.avar(J.OBJECT, fs.nextVar("v"));
 		IExpr sm = meth.callInterface(J.OBJECT, fs.fcx, "storeMock", meth.as(value, J.OBJECT));
 		currentBlock.add(meth.assign(v, sm));
-		JVMGenerator.makeBlock(meth, currentBlock).flush();
-		currentBlock.clear();
+		currentBlock.convert().flush();
 		fs.addMock(udd, v);
 		sv.result(null);
 	}

@@ -1,7 +1,5 @@
 package org.flasck.flas.compiler.jvmgen;
 
-import java.util.List;
-
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructField;
@@ -15,10 +13,10 @@ import org.zinutils.bytecode.MethodDefiner;
 public class ObjectCtorStateGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState state;
 	private final StackVisitor sv;
-	private final List<IExpr> currentBlock;
+	private final JVMBlockCreator currentBlock;
 	private IExpr fieldValue;
 
-	public ObjectCtorStateGenerator(FunctionState fs, StackVisitor sv, List<IExpr> currentBlock) {
+	public ObjectCtorStateGenerator(FunctionState fs, StackVisitor sv, JVMBlockCreator currentBlock) {
 		this.state = fs;
 		this.sv = sv;
 		this.currentBlock = currentBlock;

@@ -16,6 +16,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jvmgen.ApplyExprGenerator;
 import org.flasck.flas.compiler.jvmgen.ExprGenerator;
 import org.flasck.flas.compiler.jvmgen.FunctionState;
+import org.flasck.flas.compiler.jvmgen.JVMBlockCreator;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.parsedForm.AnonymousVar;
@@ -70,8 +71,7 @@ public class ExpressionGeneration {
 	private final MethodDefiner meth = context.mock(MethodDefiner.class);
 	private final NestedVisitor nv = context.mock(NestedVisitor.class);
 	private final StackVisitor sv = new StackVisitor();
-	@SuppressWarnings("unchecked")
-	private final List<IExpr> block = context.mock(List.class, "block");
+	private final JVMBlockCreator block = context.mock(JVMBlockCreator.class, "block");
 	private final IExpr fcx = context.mock(IExpr.class, "fcx");
 	
 	@Before

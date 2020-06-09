@@ -1,7 +1,6 @@
 package org.flasck.flas.compiler.jvmgen;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -63,7 +62,7 @@ public class FunctionState {
 		return pfx + nextVar++;
 	}
 
-	public void bindVar(List<IExpr> block, String var, Slot s, IExpr from) {
+	public void bindVar(JVMBlockCreator currentBlock, String var, Slot s, IExpr from) {
 //		IExpr in;
 //		AVar avar;
 //		if (s instanceof ArgSlot) {
@@ -83,7 +82,7 @@ public class FunctionState {
 //		block.add(meth.assign(avar, meth.callInterface(J.OBJECT, fcx, "head", in)));
 		if (!(from instanceof AVar)) {
 			AVar tmp = new Var.AVar(meth, J.OBJECT, s.toString());
-			block.add(meth.assign(tmp, from));
+			currentBlock.add(meth.assign(tmp, from));
 			from = tmp;
 		}
 		vars.put(var, (AVar)from);

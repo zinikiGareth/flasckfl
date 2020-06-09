@@ -16,13 +16,14 @@ public class DoUTMatchGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState fs;
 	private final IExpr runner;
 	private final MethodDefiner meth;
-	private List<IExpr> block = new ArrayList<>();
+	private final JVMBlockCreator block;
 	private final List<IExpr> args = new ArrayList<>();
 
-	public DoUTMatchGenerator(StackVisitor sv, FunctionState fs, IExpr runner) {
+	public DoUTMatchGenerator(StackVisitor sv, FunctionState fs, IExpr runner, JVMBlockCreator block) {
 		this.sv = sv;
 		this.fs = fs;
 		this.runner = runner;
+		this.block = block;
 		this.meth = fs.meth;
 		sv.push(this);
 	}

@@ -1,7 +1,5 @@
 package org.flasck.flas.compiler.jvmgen;
 
-import java.util.List;
-
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
@@ -15,7 +13,7 @@ public class StructFieldGenerator extends LeafAdapter implements ResultAware {
 	private final MethodDefiner meth;
 	private final IExpr ret;
 
-	public StructFieldGenerator(FunctionState state, StackVisitor sv, List<IExpr> currentBlock, String fieldName, IExpr ret) {
+	public StructFieldGenerator(FunctionState state, StackVisitor sv, JVMBlockCreator currentBlock, String fieldName, IExpr ret) {
 		this.sv = sv;
 		this.fieldName = fieldName;
 		this.meth = state.meth;

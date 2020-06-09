@@ -19,13 +19,14 @@ public class DoUTEventGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState fs;
 	private final IExpr runner;
 	private final MethodDefiner meth;
-	private List<IExpr> block = new ArrayList<>();
+	private final JVMBlockCreator block;
 	private final List<IExpr> args = new ArrayList<>();
 
-	public DoUTEventGenerator(StackVisitor sv, FunctionState fs, IExpr runner) {
+	public DoUTEventGenerator(StackVisitor sv, FunctionState fs, IExpr runner, JVMBlockCreator block) {
 		this.sv = sv;
 		this.fs = fs;
 		this.runner = runner;
+		this.block = block;
 		this.meth = fs.meth;
 		sv.push(this);
 	}

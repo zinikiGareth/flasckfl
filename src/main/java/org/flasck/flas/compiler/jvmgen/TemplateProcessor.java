@@ -20,25 +20,25 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	private final AtomicInteger containerIdx;
 	private final IExpr source;
 	private final Template t;
-	private final List<IExpr> block;
+	private final JVMBlockCreator block;
 	private final List<JVMStyleIf> styles = new ArrayList<>();
 	private final List<IExpr> cexpr = new ArrayList<>();
 	private boolean hasStylingEvents = false;
 
-	public TemplateProcessor(FunctionState functionState, StackVisitor sv, ByteCodeSink templateClass, AtomicInteger containerIdx, IExpr source, Template t) {
+	public TemplateProcessor(FunctionState functionState, StackVisitor sv, ByteCodeSink templateClass, JVMBlockCreator bindingBlock, AtomicInteger containerIdx, IExpr source, Template t) {
 		this.fs = functionState;
 		this.sv = sv;
 		this.templateClass = templateClass;
 		this.containerIdx = containerIdx;
 		this.source = source;
 		this.t = t;
-		this.block = new ArrayList<IExpr>();
+		this.block = new JVMBlock(bindingBlock);
 		sv.push(this);
 	}
 	
 	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
-		new TemplateBindingProcessor(fs, sv, templateClass, containerIdx, t, source, b);
+		new TemplateBindingProcessor(fs, sv, templateClass, block, containerIdx, t, source, b);
 	}
 	
 	@Override
@@ -61,7 +61,7 @@ public class TemplateProcessor extends LeafAdapter implements ResultAware {
 	public void leaveTemplate(Template t) {
 		TemplateBindingProcessor.applyStyles(fs, block, t.webinfo().id(), null, 0, source, styles, cexpr, hasStylingEvents);
 		if (!block.isEmpty())
-			JVMGenerator.makeBlock(fs.meth, block).flush();
+			block.convert().flush();
 		fs.meth.returnVoid().flush();
 		sv.result(null);
 	}

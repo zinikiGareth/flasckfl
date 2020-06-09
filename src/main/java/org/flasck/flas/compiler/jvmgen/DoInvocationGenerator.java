@@ -1,8 +1,5 @@
 package org.flasck.flas.compiler.jvmgen;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
@@ -15,11 +12,12 @@ public class DoInvocationGenerator extends LeafAdapter implements ResultAware {
 	private final IExpr cx;
 	private final IExpr runner;
 	private final MethodDefiner meth;
-	private List<IExpr> block = new ArrayList<>();
+	private final JVMBlockCreator block;
 
-	public DoInvocationGenerator(StackVisitor sv, FunctionState fs, IExpr runner) {
+	public DoInvocationGenerator(StackVisitor sv, FunctionState fs, IExpr runner, JVMBlockCreator block) {
 		this.sv = sv;
 		this.runner = runner;
+		this.block = block;
 		this.meth = fs.meth;
 		this.cx = fs.fcx;
 		sv.push(this);
@@ -31,6 +29,6 @@ public class DoInvocationGenerator extends LeafAdapter implements ResultAware {
 		IExpr expr = meth.as((IExpr) r, J.OBJECT);
 		IExpr ret = meth.callInterface("void", runner, "invoke", cx, expr);
 		block.add(ret);
-		sv.result(JVMGenerator.makeBlock(meth, block));
+		sv.result(block.convert());
 	}
 }

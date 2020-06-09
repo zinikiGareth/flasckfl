@@ -16,10 +16,10 @@ import org.zinutils.bytecode.JavaType;
 public class GuardGenerator extends LeafAdapter implements ResultAware {
 	public class GE {
 		public IExpr guard;
-		public List<IExpr> testBlk;
+		public JVMBlockCreator testBlk;
 		public IExpr expr;
 
-		public GE(IExpr guard, List<IExpr> testBlk, IExpr expr) {
+		public GE(IExpr guard, JVMBlockCreator testBlk, IExpr expr) {
 			this.guard = guard;
 			this.testBlk = testBlk;
 			this.expr = expr;
@@ -31,11 +31,11 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 	private final List<GE> stack = new ArrayList<>();
 	private boolean isGuard;
 	private IExpr currentGuard;
-	private List<IExpr> block;
-	private List<IExpr> nestedBlk = null;
-	private List<IExpr> testBlk = null;
+	private final JVMBlockCreator block;
+	private JVMBlockCreator nestedBlk = null;
+	private JVMBlockCreator testBlk = null;
 
-	public GuardGenerator(FunctionState state, NestedVisitor sv, List<IExpr> currentBlock) {
+	public GuardGenerator(FunctionState state, NestedVisitor sv, JVMBlockCreator currentBlock) {
 		this.state = state;
 		this.sv = sv;
 		this.block = currentBlock;
@@ -50,11 +50,11 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		List<IExpr> blk;
+		JVMBlockCreator blk;
 		if (currentGuard == null && stack.isEmpty())
 			blk = this.block;
 		else
-			nestedBlk = blk = new ArrayList<>();
+			nestedBlk = blk = new JVMBlock(this.block);
 		new ExprGenerator(state, sv, blk, false);
 	}
 	
@@ -73,7 +73,7 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 			ret = state.meth.ifBoolean(state.meth.callInterface(JavaType.boolean_.toString(), state.fcx, "isTruthy", state.meth.as(c.guard, J.OBJECT)), c.expr, ret);
 			if (c.testBlk != null) {
 				c.testBlk.add(ret);
-				ret = JVMGenerator.makeBlock(state.meth, c.testBlk);
+				ret = c.testBlk.convert();
 			}
 		}
 		sv.result(ret);
@@ -89,11 +89,11 @@ public class GuardGenerator extends LeafAdapter implements ResultAware {
 			re = state.meth.returnObject(re);
 			if (nestedBlk != null) {
 				nestedBlk.add(re);
-				re = JVMGenerator.makeBlock(state.meth, nestedBlk);
+				re = nestedBlk.convert();
 			}
 			stack.add(0, new GE(currentGuard, testBlk, re));
 			currentGuard = null;
-			testBlk = new ArrayList<>();
+			testBlk = new JVMBlock(this.block);
 		}
 	}
 }

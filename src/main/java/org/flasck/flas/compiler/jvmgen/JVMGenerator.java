@@ -124,7 +124,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private Var fargs;
 	private SwitchVars switchVars;
 	private FunctionState fs;
-	private List<IExpr> currentBlock;
+	private JVMBlockCreator currentBlock;
 	private StructFieldHandler structFieldHandler;
 	private Set<UnitDataDeclaration> globalMocks = new HashSet<UnitDataDeclaration>();
 	private final List<Var> explodingMocks = new ArrayList<>();
@@ -155,7 +155,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.runner = runner;
 		this.fcx = runner;
 		this.fargs = args;
-		this.currentBlock = new ArrayList<IExpr>();
+		this.currentBlock = new JVMBlock(meth);
 	}
 
 	private JVMGenerator(ByteCodeSink clz) {
@@ -204,7 +204,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fargs = argsArg.getVar();
 		switchVars = null;
 		fs = new FunctionState(meth, (Var) fcx, null, fargs, runner);
-		currentBlock = new ArrayList<IExpr>();
+		this.currentBlock = new JVMBlock(meth);
 		if (fn.hasState()) {
 //			StateHolder od = currentOA.getObject();
 //			if (od.state() != null) {
@@ -277,7 +277,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		} else
 			thisVar = null;
 		fs = new FunctionState(meth, (Var) fcx, thisVar, fargs, runner);
-		currentBlock = new ArrayList<IExpr>();
+		this.currentBlock = new JVMBlock(meth);
 
 		if (om.hasObject()) {
 			// I think not passing around object pointers when they don't have state may well be the right approach, but we need to be consistent about it
@@ -331,7 +331,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fs = new FunctionState(meth, (Var) fcx, ocret, fargs, runner);
 		fs.provideOcret(ocret, ocmsgs);
 //		fs.provideStateObject(meth.castTo(ocret, J.FIELDS_CONTAINER_WRAPPER));
-		currentBlock = new ArrayList<IExpr>();
+		this.currentBlock = new JVMBlock(meth);
 
 		IExpr created = meth.makeNew(od.name().javaName(), fs.fcx);
 		currentBlock.add(meth.assign(ocret, created));
@@ -367,7 +367,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fargs = argsArg.getVar();
 		switchVars = null;
 		fs = new FunctionState(meth, (Var) fcx, null, fargs, runner);
-		currentBlock = new ArrayList<IExpr>();
+		this.currentBlock = new JVMBlock(meth);
 		new ExprGenerator(fs, sv, currentBlock, false);
 	}
 
@@ -387,7 +387,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fargs = argsArg.getVar();
 		switchVars = null;
 		fs = new FunctionState(meth, (Var) fcx, null, fargs, runner);
-		currentBlock = new ArrayList<IExpr>();
+		this.currentBlock = new JVMBlock(meth);
 		currentBlock.add(meth.returnObject(meth.callInterface(J.OBJECT, fcx, "tupleMember",
 				meth.callStatic(tm.ta.exprFnName().javaClassName(), J.OBJECT, "eval", fcx, meth.arrayOf(J.OBJECT)),
 				meth.intConst(tm.which))));
@@ -457,8 +457,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-		makeBlock(meth, currentBlock).flush();
-		currentBlock.clear();
+		currentBlock.convert().flush();
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
@@ -475,9 +474,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// so return an empty list
 			meth.returnObject(meth.arrayOf(J.OBJECT)).flush();
 		} else {
-			makeBlock(meth, currentBlock).flush();
+			currentBlock.convert().flush();
 		}
-		currentBlock.clear();
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
@@ -494,11 +492,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// so return an empty list
 			meth.returnObject(meth.arrayOf(J.OBJECT)).flush();
 		} else {
-			makeBlock(meth, currentBlock).flush();
+			currentBlock.convert().flush();
 		}
 		fs.provideOcret(null, null);
 		ocret = null;
-		currentBlock.clear();
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
@@ -510,10 +507,9 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-		IExpr r = currentBlock.remove(currentBlock.size() - 1);
+		IExpr r = currentBlock.removeLast();
 		currentBlock.add(meth.returnObject(r));
-		makeBlock(meth, currentBlock).flush();
-		currentBlock.clear();
+		currentBlock.convert().flush();
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
@@ -525,8 +521,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			// we elected not to generate, so just forget it ...
 			return;
 		}
-		makeBlock(meth, currentBlock).flush();
-		currentBlock.clear();
+		currentBlock.convert().flush();
 		this.meth = null;
 		this.clz = null;
 		this.fcx = null;
@@ -577,7 +572,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			this.fs = new FunctionState(meth, cx.getVar(), null, null, runner);
 			this.meth = meth;
 			fs.evalRet = ret;
-			this.currentBlock = new ArrayList<IExpr>();
+			this.currentBlock = new JVMBlock(meth);
 			AtomicInteger ai = new AtomicInteger(0);
 			this.structFieldHandler = sf -> {
 				if (sf.name.equals("id"))
@@ -612,6 +607,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			templatector = gen.done();
 			templatector.lenientMode(JVMGenerator.leniency);
 			templatector.callSuper("void", J.FLOBJECT, "<init>", cx.getVar()).flush();
+			this.currentBlock = new JVMBlock(templatector);
 		}
 		{ // _areYouA()
 			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_areYouA");
@@ -640,7 +636,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			agentctor.lenientMode(JVMGenerator.leniency);
 			agentcx = cx.getVar();
 			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
-			currentBlock = new ArrayList<IExpr>();
+			this.currentBlock = new JVMBlock(agentctor);
 			this.structFieldHandler = sf -> {
 				if (sf.init != null) {
 					this.fs = new FunctionState(agentctor, agentcx, agentctor.myThis(), null, runner);
@@ -674,7 +670,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			else
 				rootTemplate = agentctor.stringConst(cd.templates.get(0).webinfo().id());
 			agentctor.callSuper("void", J.FLCARD, "<init>", agentcx, rootTemplate).flush();
-			currentBlock = new ArrayList<IExpr>();
+			this.currentBlock = new JVMBlock(agentctor);
 			this.structFieldHandler = sf -> {
 				if (sf.init != null) {
 					this.fs = new FunctionState(agentctor, agentcx, agentctor.myThis(), null, runner);
@@ -747,6 +743,13 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
+	public void leaveStateDefinition(StateDefinition state) {
+		if (this.currentBlock != null && !this.currentBlock.isEmpty())
+			currentBlock.convert().flush();
+		this.currentBlock = null;
+	}
+	
+	@Override
 	public void visitServiceDefn(ServiceDefinition sd) {
 		String clzName = sd.name().javaName();
 		agentClass = bce.newClass(clzName);
@@ -760,6 +763,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			agentctor.lenientMode(JVMGenerator.leniency);
 			agentcx = cx.getVar();
 			agentctor.callSuper("void", J.CONTRACT_HOLDER, "<init>", agentcx).flush();
+			this.currentBlock = new JVMBlock(agentctor);
 		}
 	}
 
@@ -874,7 +878,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			tf.ifNull(item.getVar(), tf.returnVoid(), null).flush();
 		} else
 			source = tf.aNull();
-		new TemplateProcessor(fs, sv, templateClass, containerIdx, source, t);
+		currentBlock = new JVMBlock(tf);
+		new TemplateProcessor(fs, sv, templateClass, currentBlock, containerIdx, source, t);
 	}
 
 	private void popVar(Map<String, IExpr> tom, Link l, IExpr expr) {
@@ -903,7 +908,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		if (!sd.generate)
 			return;
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			makeBlock(meth, currentBlock).flush();
+			currentBlock.convert().flush();
 		this.meth.returnObject(fs.evalRet).flush();
 		this.meth = null;
 		this.structFieldHandler = null;
@@ -918,7 +923,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void leaveAgentDefn(AgentDefinition s) {
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			makeBlock(meth, currentBlock).flush();
+			currentBlock.convert().flush();
 		this.currentBlock = null;
 		agentctor.returnVoid().flush();
 		agentctor = null;
@@ -928,7 +933,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void leaveObjectDefn(ObjectDefn od) {
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			makeBlock(templatector, currentBlock).flush();
+			currentBlock.convert().flush();
 		this.currentBlock = null;
 		templatector.returnVoid().flush();
 		templatector = null;
@@ -939,7 +944,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void leaveCardDefn(CardDefinition cd) {
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
-			makeBlock(agentctor, currentBlock).flush();
+			currentBlock.convert().flush();
 		this.currentBlock = null;
 		agentctor.returnVoid().flush();
 		agentctor = null;
@@ -965,6 +970,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		MethodDefiner meth = gen.done();
 		IExpr ret = meth.callInterface(J.OBJECT, meth.getField("state"), "get", meth.stringConst(sf.name));
 		meth.returnObject(ret).flush();
+		this.currentBlock = new JVMBlock(meth);
 	}
 
 	@Override
@@ -981,7 +987,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		this.runner = runner.getVar();
 		this.fcx = pcx.getVar();
 		this.fs = new FunctionState(meth, fcx, null, null, this.runner);
-		this.currentBlock = new ArrayList<>();
+		this.currentBlock = new JVMBlock(meth);
 		meth.callInterface("void", this.runner, "clearBody", this.fcx).flush();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
@@ -1046,12 +1052,12 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-		new CaptureAssertionClauseVisitor(sv, this.fs, this.runner);
+		new CaptureAssertionClauseVisitor(sv, this.fs, this.runner, this.currentBlock);
 	}
 
 	@Override
 	public void visitUnitTestShove(UnitTestShove s) {
-		new HandleShoveClauseVisitor(sv, this.fs, this.runner);
+		new HandleShoveClauseVisitor(sv, this.fs, this.runner, this.currentBlock);
 	}
 
 	@Override
@@ -1061,22 +1067,22 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void visitUnitTestInvoke(UnitTestInvoke uti) {
-		new DoInvocationGenerator(sv, this.fs, this.runner);
+		new DoInvocationGenerator(sv, this.fs, this.runner, this.currentBlock);
 	}
 
 	@Override
 	public void visitUnitTestSend(UnitTestSend uts) {
-		new DoSendGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()));
+		new DoSendGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()), this.currentBlock);
 	}
 
 	@Override
 	public void visitUnitTestEvent(UnitTestEvent uts) {
-		new DoUTEventGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()));
+		new DoUTEventGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()), this.currentBlock);
 	}
 
 	@Override
 	public void visitUnitTestMatch(UnitTestMatch utm) {
-		new DoUTMatchGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()));
+		new DoUTMatchGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()), this.currentBlock);
 	}
 
 	@Override
@@ -1091,10 +1097,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void leaveUnitTestInvoke(UnitTestInvoke uti) {
-		if (currentBlock.size() != 1)
-			throw new RuntimeException("Multiple result expressions");
-		currentBlock.get(0).flush();
-		currentBlock.clear();
+		currentBlock.singleton().flush();
 	}
 
 	@Override
@@ -1112,10 +1115,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void postUnitTestAssert(UnitTestAssert a) {
-		if (currentBlock.size() != 1)
-			throw new RuntimeException("Multiple result expressions");
-		currentBlock.get(0).flush();
-		currentBlock.clear();
+		currentBlock.singleton().flush();
 	}
 
 	@Override
@@ -1147,6 +1147,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth = ann.done();
 		meth.lenientMode(leniency);
 		meth.argument(J.FLEVALCONTEXT, "_cxt");
+		this.currentBlock = new JVMBlock(meth);
 		int i = 1;
 		TypeReference type = null;
 		for (Object a : cmd.args) {
@@ -1177,15 +1178,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
 		this.clz = null;
-	}
-
-	public static IExpr makeBlock(MethodDefiner meth, List<IExpr> block) {
-		if (block.isEmpty())
-			throw new NotImplementedException("there must be at least one statement in a block");
-		else if (block.size() == 1)
-			return block.get(0);
-		else
-			return meth.block(block.toArray(new IExpr[block.size()]));
 	}
 
 	public static JVMGenerator forTests(MethodDefiner meth, IExpr runner, Var args) {

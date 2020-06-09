@@ -17,26 +17,29 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public class ConstBlock {
 		private final Integer val;
 		private final String str;
-		private final List<IExpr> block = new ArrayList<>();
+		private final JVMBlockCreator block;
 		
-		public ConstBlock(int val) {
+		public ConstBlock(int val, JVMBlockCreator curr) {
 			this.val = val;
 			this.str = null;
+			this.block = new JVMBlock(curr);
 		}
 
-		public ConstBlock(String val) {
+		public ConstBlock(String val, JVMBlockCreator curr) {
 			this.val = null;
 			this.str = val;
+			this.block = new JVMBlock(curr);
 		}
 	}
 
 	public class SwitchCase {
 		private final String ctor;
-		private final List<IExpr> block = new ArrayList<>();
+		private final JVMBlockCreator block;
 		private final List<ConstBlock> constants = new ArrayList<>();
 
-		public SwitchCase(String ctor) {
+		public SwitchCase(String ctor, JVMBlockCreator curr) {
 			this.ctor = ctor;
+			this.block = new JVMBlock(curr);
 		}
 	}
 
@@ -46,15 +49,15 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private final SwitchVars switchVars;
 	private final AVar myVar;
 	private final List<SwitchCase> cases = new ArrayList<>();
-	private List<IExpr> currentBlock;
+	private JVMBlockCreator currentBlock;
 
-	public HSIGenerator(FunctionState state, StackVisitor sv, SwitchVars switchVars, Slot slot, List<IExpr> blk) {
+	public HSIGenerator(FunctionState state, StackVisitor sv, SwitchVars switchVars, Slot slot, JVMBlockCreator block) {
 		this.state = state;
 		this.sv = sv;
-		this.currentBlock = blk;
+		this.currentBlock = block;
 		this.meth = state.meth;
 		this.switchVars = switchVars;
-		myVar = switchVars.get(blk, slot);
+		myVar = switchVars.get(block, slot);
 	}
 
 	@Override
@@ -70,7 +73,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void withConstructor(String ctor) {
-		SwitchCase current = new SwitchCase(ctor);
+		SwitchCase current = new SwitchCase(ctor, currentBlock);
 		cases.add(0, current);
 		currentBlock = current.block;
 	}
@@ -85,7 +88,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void matchNumber(int val) {
 		SwitchCase current = cases.get(0);
-		ConstBlock blk = new ConstBlock(val);
+		ConstBlock blk = new ConstBlock(val, currentBlock);
 		current.constants.add(blk);
 		this.currentBlock = blk.block;
 	}
@@ -93,7 +96,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void matchString(String val) {
 		SwitchCase current = cases.get(0);
-		ConstBlock blk = new ConstBlock(val);
+		ConstBlock blk = new ConstBlock(val, currentBlock);
 		current.constants.add(blk);
 		this.currentBlock = blk.block;
 	}
@@ -105,7 +108,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void defaultCase() {
-		SwitchCase current = new SwitchCase(null);
+		SwitchCase current = new SwitchCase(null, currentBlock);
 		cases.add(0, current);
 		currentBlock = current.block;
 	}
@@ -124,7 +127,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void endSwitch() {
 		IExpr ret = null;
 		for (SwitchCase c : cases) {
-			IExpr blk = JVMGenerator.makeBlock(meth, c.block);
+			IExpr blk = c.block.convert();
 			blk = matchConstants(c.constants, blk);
 			if (c.ctor == null)
 				ret = blk;
@@ -136,7 +139,7 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	private IExpr matchConstants(List<ConstBlock> constants, IExpr blk) {
 		for (ConstBlock b : constants) {
-			IExpr tmp = JVMGenerator.makeBlock(meth, b.block);
+			IExpr tmp = b.block.convert();
 			if (b.val != null)
 				blk = meth.ifBoolean(meth.callInterface(J.BOOLEANP.getActual(), state.fcx, "isConst", myVar, meth.intConst(b.val)), tmp, blk);
 			else

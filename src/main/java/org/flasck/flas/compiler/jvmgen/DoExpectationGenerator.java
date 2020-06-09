@@ -16,11 +16,11 @@ public class DoExpectationGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState fs;
 	private IExpr mock;
 	private List<IExpr> args = new ArrayList<>();
-	private List<IExpr> block;
+	private final JVMBlockCreator block;
 	private boolean isHandler;
 	private IExpr handler;
 
-	public DoExpectationGenerator(StackVisitor sv, FunctionState fs, IExpr runner, List<IExpr> block) {
+	public DoExpectationGenerator(StackVisitor sv, FunctionState fs, IExpr runner, JVMBlockCreator block) {
 		this.sv = sv;
 		this.fs = fs;
 		this.block = block;
@@ -54,8 +54,7 @@ public class DoExpectationGenerator extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestExpect(UnitTestExpect ute) {
 		IExpr x = fs.meth.voidExpr(fs.meth.callInterface(J.MOCKEXPECTATION, mock, "expect", fs.meth.stringConst(ute.method.var), fs.meth.arrayOf(J.OBJECT, args), fs.meth.as(this.handler, J.OBJECT)));
 		block.add(x);
-		JVMGenerator.makeBlock(fs.meth, block).flush();
-		block.clear();
+		block.convert().flush();
 		sv.result(null);
 	}
 }

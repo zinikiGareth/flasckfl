@@ -1,8 +1,5 @@
 package org.flasck.flas.compiler.jvmgen;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
@@ -19,15 +16,16 @@ public class HandleShoveClauseVisitor extends LeafAdapter implements ResultAware
 	private final StackVisitor sv;
 	private final FunctionState fs;
 	private final IExpr runner;
-	private List<IExpr> block = new ArrayList<>();
+	private final JVMBlockCreator block;
 	private IExpr root;
 	private UnresolvedVar slot;
 	private IExpr value;
 
-	public HandleShoveClauseVisitor(StackVisitor sv, FunctionState fs, IExpr runner) {
+	public HandleShoveClauseVisitor(StackVisitor sv, FunctionState fs, IExpr runner, JVMBlockCreator currentBlock) {
 		this.sv = sv;
 		this.fs = fs;
 		this.runner = runner;
+		this.block = new JVMBlock(currentBlock);
 		sv.push(this);
 	}
 
@@ -62,7 +60,7 @@ public class HandleShoveClauseVisitor extends LeafAdapter implements ResultAware
 	public void leaveUnitTestShove(UnitTestShove s) {
 		IExpr ret = fs.meth.callInterface("void", runner, "shove", fs.fcx, fs.meth.as(this.root, J.OBJECT), fs.meth.stringConst(slot.var), fs.meth.as(value, J.OBJECT));
 		block.add(ret);
-		JVMGenerator.makeBlock(fs.meth, block).flush();
+		block.convert().flush();
 		sv.result(null);
 	}
 }

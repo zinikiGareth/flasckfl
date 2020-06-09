@@ -34,9 +34,9 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 	private final MethodDefiner meth;
 	private final IExpr fcx;
 	private final List<IExpr> stack = new ArrayList<IExpr>();
-	private final List<IExpr> currentBlock;
+	private final JVMBlockCreator currentBlock;
 
-	public ApplyExprGenerator(FunctionState state, NestedVisitor sv, List<IExpr> currentBlock) {
+	public ApplyExprGenerator(FunctionState state, NestedVisitor sv, JVMBlockCreator currentBlock) {
 		this.state = state;
 		this.sv = sv;
 		this.currentBlock = currentBlock;

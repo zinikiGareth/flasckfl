@@ -21,15 +21,16 @@ public class DoSendGenerator extends LeafAdapter implements ResultAware {
 	private final FunctionState fs;
 	private final IExpr runner;
 	private final MethodDefiner meth;
-	private List<IExpr> block = new ArrayList<>();
+	private final JVMBlockCreator block;
 	private IExpr sendTo;
 	private final List<IExpr> sendArgs = new ArrayList<>();
 	private final List<IExpr> args = new ArrayList<>();
 
-	public DoSendGenerator(StackVisitor sv, FunctionState fs, IExpr runner) {
+	public DoSendGenerator(StackVisitor sv, FunctionState fs, IExpr runner, JVMBlockCreator block) {
 		this.sv = sv;
 		this.fs = fs;
 		this.runner = runner;
+		this.block = block;
 		this.meth = fs.meth;
 		sv.push(this);
 		this.sendArgs.add(fs.fcx);

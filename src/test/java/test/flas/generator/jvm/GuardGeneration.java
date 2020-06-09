@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jvmgen.FunctionState;
 import org.flasck.flas.compiler.jvmgen.GuardGenerator;
+import org.flasck.flas.compiler.jvmgen.JVMBlockCreator;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -22,6 +23,7 @@ import org.flasck.jvm.J;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.IExpr;
@@ -36,8 +38,14 @@ public class GuardGeneration {
 	private RepositoryVisitor v = context.mock(RepositoryVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
-	@SuppressWarnings("unchecked")
-	private final List<IExpr> block = context.mock(List.class, "block");
+	private final JVMBlockCreator block = context.mock(JVMBlockCreator.class, "block");
+
+	@Before
+	public void allow() {
+		context.checking(new Expectations() {{
+			allowing(block).method(); will(returnValue(meth));
+		}});
+	}
 
 	@Test
 	public void aSingleGuard() {

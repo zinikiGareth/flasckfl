@@ -17,15 +17,15 @@ public class TemplateStyling extends LeafAdapter implements ResultAware {
 	}
 	private final FunctionState fs;
 	private final StackVisitor sv;
-	private final List<IExpr> currentBlock;
+	private final JVMBlockCreator currentBlock;
 	private final List<IExpr> exprs = new ArrayList<>();
 	private IExpr cond;
 	private Mode mode;
 
-	public TemplateStyling(FunctionState fs, StackVisitor sv, List<IExpr> currentBlock, TemplateStylingOption tso) {
+	public TemplateStyling(FunctionState fs, StackVisitor sv, JVMBlockCreator bindingBlock, TemplateStylingOption tso) {
 		this.fs = fs;
 		this.sv = sv;
-		this.currentBlock = currentBlock;
+		this.currentBlock = bindingBlock;
 		sv.push(this);
 	}
 

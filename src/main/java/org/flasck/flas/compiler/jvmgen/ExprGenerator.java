@@ -50,13 +50,13 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final MethodDefiner meth;
 	private final IExpr fcx;
-	private final List<IExpr> currentBlock;
+	private final JVMBlockCreator currentBlock;
 	private final boolean isExpectation;
 
-	public ExprGenerator(FunctionState state, NestedVisitor sv, List<IExpr> currentBlock, boolean isExpectation) {
+	public ExprGenerator(FunctionState state, NestedVisitor sv, JVMBlockCreator block, boolean isExpectation) {
 		this.state = state;
 		this.sv = sv;
-		this.currentBlock = currentBlock;
+		this.currentBlock = block;
 		this.isExpectation = isExpectation;
 		this.meth = state.meth;
 		this.fcx = state.fcx;
@@ -165,24 +165,24 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 						clzName = fd.name().containingCard();
 					else
 						clzName = fd.name().inContext;
-					sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(clzName.javaName()), meth.stringConst(fd.name().name), meth.intConst(fd.argCount())));
+					sv.result(stash(myName, meth.makeNew(J.CALLMETHOD, meth.classConst(clzName.javaName()), meth.stringConst(fd.name().name), meth.intConst(fd.argCount()))));
 				} else
-					sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
+					sv.result(stash(myName, meth.makeNew(J.CALLEVAL, meth.classConst(myName))));
 			}
 		} else if (defn instanceof StandaloneMethod) {
 			StandaloneMethod fn = (StandaloneMethod) defn;
 			if (nargs == 0) {
 				makeFunctionClosure(false, fn.name(), fn.argCount());
 			} else if (fn.om.hasState())
-				sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(fn.name().inContext.javaName()), meth.stringConst(fn.name().name), meth.intConst(fn.argCount())));
+				sv.result(stash(myName, meth.makeNew(J.CALLMETHOD, meth.classConst(fn.name().inContext.javaName()), meth.stringConst(fn.name().name), meth.intConst(fn.argCount()))));
 			else
-				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
+				sv.result(stash(myName, meth.makeNew(J.CALLEVAL, meth.classConst(myName))));
 		} else if (defn instanceof ObjectMethod) {
 			ObjectMethod fn = (ObjectMethod) defn;
 			if (nargs == 0) {
 				makeFunctionClosure(true, fn.name(), fn.argCount());
 			} else { 
-				sv.result(meth.makeNew(J.CALLMETHOD, meth.classConst(fn.name().inContext.javaName()), meth.stringConst(fn.name().name), meth.intConst(fn.argCount())));
+				sv.result(stash(myName, meth.makeNew(J.CALLMETHOD, meth.classConst(fn.name().inContext.javaName()), meth.stringConst(fn.name().name), meth.intConst(fn.argCount()))));
 			}
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
@@ -216,7 +216,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				IExpr args = meth.arrayOf(J.OBJECT, provided);
 				sv.result(meth.callStatic(myName, J.OBJECT, "eval", fcx, args));
 			} else if (nargs > 0) {
-				sv.result(meth.makeNew(J.CALLEVAL, meth.classConst(myName)));
+				sv.result(stash(myName, meth.makeNew(J.CALLEVAL, meth.classConst(myName))));
 			} else {
 				IExpr call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(hi.argCount()), meth.as(meth.classConst(myName), J.APPLICABLE), meth.arrayOf(J.OBJECT));
 				Var v = meth.avar(J.FLCLOSURE, state.nextVar("v"));
@@ -279,6 +279,11 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 				sv.result(fn);
 		} else
 			throw new NotImplementedException("cannot evaluate " + defn.getClass());
+	}
+
+	private IExpr stash(String myName, IExpr fn) {
+//		if (stashed.contains)
+		return fn;
 	}
 
 	private void handleUnitTestData(UnitDataDeclaration udd) {
