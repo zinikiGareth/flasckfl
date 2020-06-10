@@ -226,7 +226,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				if (expArgs > 0) {
 					call = block.curry(false, expArgs + 1, new JSExpr[] { fn });
 				} else {
-					call = block.closure(false, new JSExpr[] { fn, new JSLiteral("this._card") });
+					call = block.closure(false, new JSExpr[] { fn, state.container() });
 				}
 				sv.result(call);
 			} else

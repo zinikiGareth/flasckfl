@@ -1,0 +1,3 @@
+test.golden.Abstraction.Handle.call :: String->Nil
+test.golden.Abstraction._ctor_create :: test.golden.System->test.golden.Abstraction
+test.golden.ContainingCard._C1.init :: List[Message]

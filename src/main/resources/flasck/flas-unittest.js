@@ -238,28 +238,31 @@ MockContract.prototype.serviceMethod = function(_cxt, meth, args) {
 		return;
 	}
 	const exp = this.expected[meth];
-	var matched = null;
+	var pending = null;
 	for (var i=0;i<exp.length;i++) {
 		// TOOD: should see if exp[i].args[j] is a BoundVar
 		// I think this would involve us unwrapping this "list compare" and comparing each argument one at a time
 		// wait for it to come up though
 		if (_cxt.compare(exp[i].args, args)) {
-			matched = exp[i];
-			break;
+			var matched = exp[i];
+			if (matched.invoked == matched.allowed) {
+				pending = new Error(this.ctr.name() + "." + meth + " " + args + " already invoked (allowed=" + matched.allowed +"; actual=" + matched.invoked +")");
+				continue; // there may be another that matches
+			}
+			matched.invoked++;
+			_cxt.log("Have invocation of", meth, "with", args);
+			if (matched.handler instanceof BoundVar) {
+				matched.handler.bindActual(ih);
+			}
+			return;
 		}
 	}
-	if (!matched) {
+	if (pending) {
+		_cxt.env.error(pending);
+		return;
+	} else {
 		_cxt.env.error(new Error("Unexpected invocation: " + this.ctr.name() + "." + meth + " " + args));
 		return;
-	}
-	matched.invoked++;
-	if (matched.invoked > matched.allowed) {
-		_cxt.env.error(new Error(this.ctr.name() + "." + meth + " " + args + " already invoked (allowed=" + matched.allowed +"; actual=" + matched.invoked +")"));
-		return;
-	}
-	_cxt.log("Have invocation of", meth, "with", args);
-	if (matched.handler instanceof BoundVar) {
-		matched.handler.bindActual(ih);
 	}
 }
 

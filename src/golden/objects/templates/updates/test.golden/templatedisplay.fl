@@ -1,0 +1,39 @@
+	contract System
+		callback -> (InvokeMe hdlr)
+	
+	contract handler InvokeMe
+		call (String msg)
+		
+	card ContainingCard
+		requires System repeater
+		
+		state
+			Abstraction data
+			Abstraction thru
+			
+		implements Lifecycle
+			init
+				data <- Abstraction.create repeater
+				thru <- mkabstraction repeater
+				
+		template forcard
+			inner <- data => forobj
+			second <- thru => forobj
+	
+		mkabstraction repeater = Abstraction.create repeater
+	
+	object Abstraction
+		state
+			String message
+		
+		ctor create (System repeater)
+			message <- 'hello'
+			<- repeater.callback -> Handle
+				
+		handler InvokeMe Handle
+			call msg
+				message <- msg
+			
+		template forobj
+			message <- message
+		

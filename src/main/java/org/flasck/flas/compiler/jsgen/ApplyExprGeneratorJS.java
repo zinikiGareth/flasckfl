@@ -99,7 +99,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				stack.add(1, state.container());
 			}
 		} else if (defn instanceof ObjectCtor) {
-			stack.add(1, new JSLiteral("this._card"));
+			stack.add(1, state.container());
 			expArgs++;
 			expArgs += ((ObjectCtor)defn).getObject().contracts.size();
 		}

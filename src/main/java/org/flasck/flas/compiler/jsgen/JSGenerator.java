@@ -716,7 +716,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		runner = meth.argument("runner");
 		meth.clear();
 		meth.initContext(e.name.packageName());
-		this.state = new JSFunctionStateStore(meth, null);
+		this.state = new JSFunctionStateStore(meth, new JSThis()); // container is wrong, but shouldn't be used
 		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {

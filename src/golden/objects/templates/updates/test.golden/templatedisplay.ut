@@ -1,0 +1,15 @@
+	test that we update the display when a handler updates an object
+		data System sys
+		data ContainingCard cc
+		expect sys callback -> _handler
+		expect sys callback -> _handler2
+		contract cc Lifecycle init
+		match cc text
+			hello hello
+		invoke handler.call "goodbye"
+		match cc text
+			goodbye hello
+		invoke handler2.call "world"
+		match cc text
+			goodbye world
+		
