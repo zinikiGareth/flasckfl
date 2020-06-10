@@ -353,6 +353,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
+		switchVars.clear();
 		String pkg = oc.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, oc.name().container().jsName(), false, oc.name().name);

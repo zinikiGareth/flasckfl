@@ -89,7 +89,7 @@ public class StructGeneration {
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 			oneOf(eclz).implementsInterface(J.AREYOUA);
 			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aya));
-			oneOf(aya).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
+			oneOf(aya).argument(J.EVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(aya).argument(J.STRING, "ty"); will(returnValue(args));
 			oneOf(aya).stringConst("test.repo.Struct"); will(returnValue(mt));
 			oneOf(aya).as(args, J.OBJECT); will(returnValue(ty));
@@ -174,7 +174,7 @@ public class StructGeneration {
 			oneOf(eclz).defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			oneOf(eclz).implementsInterface(J.AREYOUA);
 			oneOf(eclz).createMethod(false, "boolean", "_areYouA"); will(returnValue(aya));
-			oneOf(aya).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ecxt));
+			oneOf(aya).argument(J.EVALCONTEXT, "cxt"); will(returnValue(ecxt));
 			oneOf(aya).argument(J.STRING, "ty"); will(returnValue(args));
 			oneOf(aya).trueConst(); will(returnValue(tc));
 			oneOf(aya).falseConst(); will(returnValue(fc));

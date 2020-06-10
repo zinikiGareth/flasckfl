@@ -472,7 +472,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		if (currentBlock.isEmpty()) {
 			// if we didn't generate anything, it's because we didn't have any messages
 			// so return an empty list
-			meth.returnObject(meth.arrayOf(J.OBJECT)).flush();
+			meth.returnObject(meth.makeNew(ArrayList.class.getName())).flush();
 		} else {
 			currentBlock.convert().flush();
 		}
@@ -490,7 +490,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		if (currentBlock.isEmpty()) {
 			// if we didn't generate anything, it's because we didn't have any messages
 			// so return an empty list
-			meth.returnObject(meth.arrayOf(J.OBJECT)).flush();
+			meth.returnObject(meth.makeNew(ArrayList.class.getName())).flush();
 		} else {
 			currentBlock.convert().flush();
 		}
@@ -548,7 +548,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		{ // _areYouA()
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_areYouA");
-			gen.argument(J.FLEVALCONTEXT, "cxt");
+			gen.argument(J.EVALCONTEXT, "cxt");
 			PendingVar ty = gen.argument(J.STRING, "ty");
 			gen.returns("boolean");
 			NewMethodDefiner areYouA = gen.done();
@@ -611,7 +611,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		}
 		{ // _areYouA()
 			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_areYouA");
-			gen.argument(J.FLEVALCONTEXT, "cxt");
+			gen.argument(J.EVALCONTEXT, "cxt");
 			PendingVar ty = gen.argument(J.STRING, "ty");
 			gen.returns("boolean");
 			NewMethodDefiner areYouA = gen.done();

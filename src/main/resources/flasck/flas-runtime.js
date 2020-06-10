@@ -109,7 +109,7 @@ ContractStore.prototype.require = function(_cxt, name, clz) {
     const ctr = _cxt.broker.contracts[clz];
     const di = new DispatcherInvoker(this.env, _cxt.broker.require(clz));
     const px = proxy(_cxt, ctr, di);
-    px._areYouA = function(cx, ty) { return ty === "Repeater"; }
+    px._areYouA = function(cx, ty) { return ty === clz; }
     this.toRequire[name] = px;
 }
 
