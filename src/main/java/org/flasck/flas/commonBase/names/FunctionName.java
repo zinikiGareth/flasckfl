@@ -186,4 +186,13 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 		// Don't use this in code! It should only be used for debug
 		return "Fn[" + uniqueName() + "]";
 	}
+
+	public boolean isUnitTest() {
+		if (inContext instanceof UnitTestName)
+			return true;
+		if (inContext instanceof UnitTestFileName)
+			return true;
+		// are there other cases?
+		return false;
+	}
 }

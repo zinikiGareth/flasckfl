@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorMark;
@@ -371,6 +372,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			ObjectCtor ctor = od.getConstructor(fld.var);
 			if (ctor == null) {
 				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " does not have a ctor " + fld.var);
+				return;
+			}
+			NameOfThing card = scope.containingCard();
+			if (card == null && !((FunctionName)scope).isUnitTest()) {
+				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " cannot be created outside card or object scope");
 				return;
 			}
 			expr.bind(ctor);

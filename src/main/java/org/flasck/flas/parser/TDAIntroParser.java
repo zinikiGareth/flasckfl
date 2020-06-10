@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AgentDefinition;
@@ -190,8 +191,8 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "invalid or missing type name");
 				return new IgnoreNestedParser();
 			}
-			SolidName sn = namer.solidName(tn.text);
-			SimpleVarNamer svn = new SimpleVarNamer(sn);
+			ObjectName on = namer.objectName(tn.text);
+			SimpleVarNamer svn = new SimpleVarNamer(on);
 			List<PolyType> polys = new ArrayList<>();
 			while (toks.hasMoreContent()) {
 				PolyTypeToken ta = PolyTypeToken.from(toks);
@@ -205,7 +206,6 @@ public class TDAIntroParser implements TDAParsing {
 				errors.message(toks, "tokens after end of line");
 				return new IgnoreNestedParser();
 			}
-			final SolidName on = namer.solidName(tn.text);
 			ObjectDefn od = new ObjectDefn(kw.location, tn.location, on, true, polys);
 			consumer.newObject(errors, od);
 			HandlerNameProvider handlerNamer = text -> new HandlerName(on, text);

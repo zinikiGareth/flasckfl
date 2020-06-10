@@ -1,4 +1,0 @@
-	test we can create an object through a function
-		data Foo f <- create
-		assert (f.fred)
-			42

@@ -1,0 +1,4 @@
+	object Anything
+		ctor createInsideCard
+		
+	makeit = Anything.createInsideCard
