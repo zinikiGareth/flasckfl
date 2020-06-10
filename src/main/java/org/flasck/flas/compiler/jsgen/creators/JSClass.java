@@ -48,7 +48,7 @@ public class JSClass implements JSClassCreator {
 	}
 
 	@Override
-	public JSBlockCreator constructor() {
+	public JSMethodCreator constructor() {
 		return ctor;
 	}
 

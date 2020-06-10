@@ -10,6 +10,7 @@ import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MakeAcor;
@@ -98,6 +99,8 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				stack.add(1, state.container());
 			}
 		} else if (defn instanceof ObjectCtor) {
+			stack.add(1, new JSLiteral("this._card"));
+			expArgs++;
 			expArgs += ((ObjectCtor)defn).getObject().contracts.size();
 		}
 		

@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -276,7 +277,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		areYouA.argument("_cxt");
 		areYouA.argument("ty");
 		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().jsName()));
-		JSBlockCreator ctor = templateCreator.constructor();
+		JSMethodCreator ud = templateCreator.createMethod("_updateDisplay", true);
+		ud.argument("_cxt");
+		JSIfCreator ifcard = ud.ifTrue(ud.literal("this._card"));
+		JSIfCreator ifud = ifcard.trueCase().ifTrue(ud.literal("this._card._updateDisplay"));
+		ifud.trueCase().callMethod(ud.literal("this._card"), "_updateDisplay", ud.literal("this._card._renderTree"));
+		JSMethodCreator ctor = templateCreator.constructor();
+		ctor.argument("_card");
+		ctor.setField("_card", ctor.arg(1));
 		ctor.stateField();
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(obj, methods);
@@ -358,13 +366,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
 		this.meth = jse.newFunction(pkg, oc.name().container().jsName(), false, oc.name().name);
 		this.meth.argument("_cxt");
+		this.meth.argument("_card");
 		int i;
 		for (i=0;i<oc.argCount();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
 		
 		ObjectDefn od = oc.getObject();
-		JSExpr ocret = meth.newOf(od.name());
+		JSExpr ocret = meth.newOf(od.name(), Arrays.asList(this.meth.arg(1)));
 		JSExpr ocmsgs = meth.jsArray(new ArrayList<JSExpr>());
 		JSExpr container = ocret; 
 		this.state = new JSFunctionStateStore(meth, container);

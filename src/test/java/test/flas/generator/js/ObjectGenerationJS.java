@@ -7,8 +7,9 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
-import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
+import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -31,15 +32,20 @@ public class ObjectGenerationJS {
 	public void aClassWithEvalIsAlwaysGenerated() {
 		SolidName sn = new SolidName(pkg, "Obj");
 		JSClassCreator clz = context.mock(JSClassCreator.class);
-		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
+		JSMethodCreator ctorBlock = context.mock(JSMethodCreator.class, "ctor");
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
+		JSVar v = new JSVar("_card");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).object(od);
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(with(any(PackageName.class)));
 			oneOf(clz).createMethod("_areYouA", true);
+			oneOf(clz).createMethod("_updateDisplay", true);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
+			oneOf(ctorBlock).argument("_card");
+			oneOf(ctorBlock).arg(1); will(returnValue(v));
+			oneOf(ctorBlock).setField("_card", v);
 			oneOf(ctorBlock).stateField();
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
@@ -52,14 +58,19 @@ public class ObjectGenerationJS {
 	public void fieldsArePopulatedInTheConstructorIfPresent() {
 		SolidName sn = new SolidName(pkg, "Obj");
 		JSClassCreator clz = context.mock(JSClassCreator.class);
-		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
+		JSMethodCreator ctorBlock = context.mock(JSMethodCreator.class, "ctor");
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
+		JSVar v = new JSVar("_card");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).object(od);
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(with(any(PackageName.class)));
 			oneOf(clz).createMethod("_areYouA", true);
+			oneOf(clz).createMethod("_updateDisplay", true);
+			oneOf(ctorBlock).argument("_card");
+			oneOf(ctorBlock).arg(1); will(returnValue(v));
+			oneOf(ctorBlock).setField("_card", v);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
 			oneOf(jss).methodList(sn, new ArrayList<>());

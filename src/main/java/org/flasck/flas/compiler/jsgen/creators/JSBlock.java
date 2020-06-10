@@ -100,6 +100,10 @@ public class JSBlock implements JSBlockCreator {
 		closures = new HashMap<>(in);
 	}
 	
+	public boolean isEmpty() {
+		return stmts.isEmpty();
+	}
+	
 	public JSExpr singleton() {
 		if (stmts.size() == 1)
 			return stmts.get(0);

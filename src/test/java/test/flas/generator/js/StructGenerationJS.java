@@ -38,7 +38,7 @@ public class StructGenerationJS {
 	public void aClassWithEvalIsAlwaysGenerated() {
 		SolidName sn = new SolidName(pkg, "Struct");
 		JSClassCreator clz = context.mock(JSClassCreator.class);
-		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
+		JSMethodCreator ctorBlock = context.mock(JSMethodCreator.class, "ctor");
 		JSMethodCreator eval = context.mock(JSMethodCreator.class);
 		JSMethodCreator aya = context.mock(JSMethodCreator.class, "areYouA");
 		JSExpr obj = context.mock(JSExpr.class);
@@ -77,7 +77,7 @@ public class StructGenerationJS {
 	public void fieldsAreSavedInTheConstructorIfPresent() {
 		SolidName sn = new SolidName(pkg, "Struct");
 		JSClassCreator clz = context.mock(JSClassCreator.class);
-		JSBlockCreator ctorBlock = context.mock(JSBlockCreator.class);
+		JSMethodCreator ctorBlock = context.mock(JSMethodCreator.class, "ctor");
 		JSMethodCreator eval = context.mock(JSMethodCreator.class);
 		JSExpr obj = context.mock(JSExpr.class, "obj");
 		JSExpr str = context.mock(JSExpr.class, "str");

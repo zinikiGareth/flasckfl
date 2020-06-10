@@ -150,6 +150,8 @@ FLClosure.prototype.eval = function(_cxt) {
 	this.obj = _cxt.full(this.obj);
 	if (this.obj instanceof FLError)
 		return this.obj;
+	if (this.fn instanceof FLError)
+		return this.fn;
 	var cnt = this.fn.nfargs();
 	this.val = this.fn.apply(this.obj, this.args.slice(0, cnt+1)); // +1 for cxt
 	// handle the case where there are arguments left over

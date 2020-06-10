@@ -34,16 +34,19 @@ public class JSIfExpr implements JSIfCreator {
 		test.write(w);
 		w.print(") ");
 		trueCase.write(w);
-		w.print(" else ");
 		JSExpr ec = falseCase.singleton();
 		if (ec != null) {
+			w.print(" else ");
 			if (ec instanceof JSIfExpr)
 				ec.write(w);
 			else {
 				w.println("");
 				ec.write(w.indent());
 			}
+		} else if (falseCase.isEmpty()) {
+			w.println("");
 		} else {
+			w.print(" else ");
 			falseCase.write(w);
 			w.println("");
 		}

@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
@@ -221,12 +222,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			JSExpr fn = block.callStatic(oc.name().container().jsName(), oc.name().name);
 			if (nargs == 0) {
 				int expArgs = oc.argCountIncludingContracts();
-				JSExpr[] args = new JSExpr[] { fn };
 				JSExpr call;
-				if (expArgs > 0)
-					call = block.curry(false, expArgs, args);
-				else
-					call = block.closure(false, args);
+				if (expArgs > 0) {
+					call = block.curry(false, expArgs + 1, new JSExpr[] { fn });
+				} else {
+					call = block.closure(false, new JSExpr[] { fn, new JSLiteral("this._card") });
+				}
 				sv.result(call);
 			} else
 				sv.result(fn);

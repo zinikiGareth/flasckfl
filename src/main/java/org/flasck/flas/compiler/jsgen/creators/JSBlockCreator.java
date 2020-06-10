@@ -108,6 +108,7 @@ public interface JSBlockCreator {
 	void newdiv(Integer cnt);
 
 	// Send the block to disk
-	void write(IndentWriter w);
 	JSExpr singleton();
+	boolean isEmpty();
+	void write(IndentWriter w);
 }

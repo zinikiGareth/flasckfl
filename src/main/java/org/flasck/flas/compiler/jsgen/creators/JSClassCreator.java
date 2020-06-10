@@ -5,6 +5,6 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 public interface JSClassCreator {
 	void inheritsFrom(NameOfThing baseClass);
 	JSMethodCreator createMethod(String string, boolean prototype);
-	JSBlockCreator constructor();
+	JSMethodCreator constructor();
 	void arg(String a);
 }
