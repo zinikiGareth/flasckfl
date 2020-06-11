@@ -203,14 +203,18 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		fcx = cxArg.getVar();
 		fargs = argsArg.getVar();
 		switchVars = null;
-		fs = new FunctionState(meth, (Var) fcx, null, fargs, runner);
-		this.currentBlock = new JVMBlock(meth, fs);
+		IExpr state = null;
+		IExpr container = null;
 		if (fn.hasState()) {
 //			StateHolder od = currentOA.getObject();
 //			if (od.state() != null) {
-			fs.provideStateObject(meth.getField("state"));
+			container = meth.myThis();
+			state = meth.getField("state");
 //			}
 		}
+		fs = new FunctionState(meth, (Var) fcx, container, fargs, runner);
+		this.currentBlock = new JVMBlock(meth, fs);
+		fs.provideStateObject(state);
 	}
 
 	@Override
@@ -333,14 +337,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 //		fs.provideStateObject(meth.castTo(ocret, J.FIELDS_CONTAINER_WRAPPER));
 		this.currentBlock = new JVMBlock(meth, fs);
 
-		IExpr created = meth.makeNew(od.name().javaName(), fs.fcx);
-		currentBlock.add(meth.assign(ocret, created));
 		int i = 0;
+		IExpr ccArg = meth.arrayElt(fs.fargs, meth.intConst(i++));
+		IExpr created = meth.makeNew(od.name().javaName(), fs.fcx, ccArg);
+		currentBlock.add(meth.assign(ocret, created));
 		for (ObjectContract octr : od.contracts) {
 			IExpr ci = meth.arrayElt(fs.fargs, meth.intConst(i++));
 			IExpr assn = meth.assign(meth.getField(ocret, octr.varName().var), ci);
 			currentBlock.add(assn);
 		}
+		fs.ignoreSpecial = i;
 	}
 
 	@Override
@@ -598,15 +604,17 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		templateClass.implementsInterface(J.AREYOUA);
 		templateClass.generateAssociatedSourceFile();
 		templateClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+		templateClass.inheritsField(true, Access.PROTECTED, J.FLCARD, "_containingCard");
 		for (ObjectContract oc : od.contracts) {
 			templateClass.defineField(false, Access.PRIVATE, J.OBJECT, oc.varName().var);
 		}
 		{ // ctor(cx)
 			GenericAnnotator gen = GenericAnnotator.newConstructor(templateClass, false);
 			PendingVar cx = gen.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar cc = gen.argument(J.OBJECT, "card");
 			templatector = gen.done();
 			templatector.lenientMode(JVMGenerator.leniency);
-			templatector.callSuper("void", J.FLOBJECT, "<init>", cx.getVar()).flush();
+			templatector.callSuper("void", J.FLOBJECT, "<init>", cx.getVar(), cc.getVar()).flush();
 			this.currentBlock = new JVMBlock(templatector, fs);
 		}
 		{ // _areYouA()
@@ -618,6 +626,20 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			areYouA.returnBool(areYouA.callVirtual("boolean", areYouA.stringConst(clzName), "equals",
 					areYouA.as(ty.getVar(), J.OBJECT))).flush();
 		}
+		{ // _updateDisplay()
+			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_updateDisplay");
+			PendingVar cx = gen.argument(J.EVALCONTEXT, "cxt");
+			gen.argument(J.RENDERTREE, "rt");
+			gen.returns("void");
+			NewMethodDefiner ud = gen.done();
+			IExpr card = ud.getField("_containingCard");
+			IExpr callCardUpdate = ud.callInterface("void", card, "_updateDisplay",
+				cx.getVar(),
+				ud.callInterface(J.RENDERTREE, card, "_renderTree")
+			);
+			ud.ifNotNull(card, callCardUpdate, null).flush();
+			ud.returnVoid().flush();
+		}
 		containerIdx = new AtomicInteger(1);
 	}
 
@@ -625,7 +647,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	public void visitAgentDefn(AgentDefinition ad) {
 		String clzName = ad.name().javaName();
 		agentClass = bce.newClass(clzName);
-		agentClass.superclass(J.CONTRACT_HOLDER);
+		agentClass.superclass(J.FLAGENT);
 		agentClass.generateAssociatedSourceFile();
 		agentClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
 		agentClass.inheritsField(true, Access.PRIVATE, J.CONTRACTSTORE, "store");
@@ -986,7 +1008,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		meth.lenientMode(leniency);
 		this.runner = runner.getVar();
 		this.fcx = pcx.getVar();
-		this.fs = new FunctionState(meth, fcx, null, null, this.runner);
+		// we need "some" container here to generate the right code.  It should be something that conforms to UpdateDisplay, although it should never be called
+		// I'm passing in the runner for the fun of it - it might even be the best option!
+		this.fs = new FunctionState(meth, fcx, this.runner, null, this.runner);
+//		this.fs = new FunctionState(meth, fcx, null, null, this.runner);
 		this.currentBlock = new JVMBlock(meth, fs);
 		meth.callInterface("void", this.runner, "clearBody", this.fcx).flush();
 		// Make sure we declare contracts first - others may use them

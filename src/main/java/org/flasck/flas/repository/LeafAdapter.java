@@ -455,7 +455,7 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
 	}
 
 	@Override
@@ -463,7 +463,7 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitConvertedExpr(MemberExpr expr) {
+	public void visitConvertedExpr(MemberExpr expr, int nargs) {
 	}
 
 	@Override

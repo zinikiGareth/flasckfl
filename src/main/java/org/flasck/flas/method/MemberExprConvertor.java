@@ -60,7 +60,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		containerType = expr.containerType();
 	}
 	

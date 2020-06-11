@@ -72,7 +72,7 @@ public class AccessorConvertor extends LeafAdapter {
 	}
 
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		UnresolvedVar meth = (UnresolvedVar) expr.fld;
 		Expr from = expr.from;
 		RepositoryEntry defn;

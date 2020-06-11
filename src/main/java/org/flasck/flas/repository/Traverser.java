@@ -1316,7 +1316,7 @@ public class Traverser implements RepositoryVisitor {
 		else if (expr instanceof UnresolvedOperator)
 			visitUnresolvedOperator((UnresolvedOperator) expr, nargs);
 		else if (expr instanceof MemberExpr)
-			visitMemberExpr((MemberExpr)expr);
+			visitMemberExpr((MemberExpr)expr, nargs);
 		else if (expr instanceof Messages)
 			visitMessages((Messages)expr);
 		else if (expr instanceof MakeSend)
@@ -1434,16 +1434,16 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		if (wantHSI) {
 			// generate the converted code
 			if (expr.isConverted()) {
-				visitConvertedExpr(expr);
+				visitConvertedExpr(expr, nargs);
 			}
 			else
 				throw new NotImplementedException("You need to convert this expression: " + expr);
 		} else {
-			visitor.visitMemberExpr(expr);
+			visitor.visitMemberExpr(expr, nargs);
 			visitExpr(expr.from, 0);
 			if (visitMemberFields)
 				visitExpr(expr.fld, 0);
@@ -1451,10 +1451,10 @@ public class Traverser implements RepositoryVisitor {
 		}
 	}
 
-	public void visitConvertedExpr(MemberExpr expr) {
-		visitor.visitConvertedExpr(expr);
+	public void visitConvertedExpr(MemberExpr expr, int nargs) {
+		visitor.visitConvertedExpr(expr, nargs);
 		isConverted = true;
-		visitExpr(expr.converted(), 0);
+		visitExpr(expr.converted(), nargs);
 		leaveConvertedExpr(expr);
 	}
 

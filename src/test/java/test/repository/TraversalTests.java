@@ -506,7 +506,7 @@ public class TraversalTests {
 		MemberExpr me = new MemberExpr(pos, from, fld);
 		context.checking(new Expectations() {{
 			oneOf(v).visitExpr(me, 0);
-			oneOf(v).visitMemberExpr(me);
+			oneOf(v).visitMemberExpr(me, 0);
 			oneOf(v).visitExpr(from, 0);
 			oneOf(v).visitUnresolvedVar(from, 0);
 			oneOf(v).leaveMemberExpr(me);
@@ -532,7 +532,7 @@ public class TraversalTests {
 		StringLiteral sl = new StringLiteral(pos, "hello");
 		me.conversion(sl);
 		context.checking(new Expectations() {{
-			oneOf(v).visitConvertedExpr(me);
+			oneOf(v).visitConvertedExpr(me, 0);
 			oneOf(v).visitExpr(sl, 0);
 			oneOf(v).visitStringLiteral(sl);
 			oneOf(v).leaveConvertedExpr(me);

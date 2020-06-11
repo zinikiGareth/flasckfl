@@ -12,7 +12,7 @@ public class CheckNoMessages extends LeafAdapter {
 	}
 
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		errors.message(expr.location(), "cannot call a method initializer in a field initializer");
 	}
 }

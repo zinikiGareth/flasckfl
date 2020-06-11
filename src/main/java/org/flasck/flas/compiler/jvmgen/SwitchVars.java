@@ -28,7 +28,7 @@ public class SwitchVars {
 				ignoreContainer = 1;
 				continue;
 			}
-			IExpr in = state.meth.arrayItem(J.OBJECT, state.fargs, s.argpos()-ignoreContainer);
+			IExpr in = state.meth.arrayItem(J.OBJECT, state.fargs, s.argpos()-ignoreContainer+state.ignoreSpecial);
 			switchVars.put(s, in);
 		}
 	}

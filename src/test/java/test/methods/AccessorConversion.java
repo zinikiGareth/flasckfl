@@ -99,7 +99,7 @@ public class AccessorConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		from.bind(tp);
 		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "acor"));
-		ac.visitMemberExpr(expr);
+		ac.visitMemberExpr(expr, 0);
 		assertTrue(expr.isConverted());
 		Expr conv = expr.converted();
 		assertNotNull(conv);
@@ -131,7 +131,7 @@ public class AccessorConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		from.bind(udd);
 		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "acor"));
-		ac.visitMemberExpr(expr);
+		ac.visitMemberExpr(expr, 0);
 		assertTrue(expr.isConverted());
 		Expr conv = expr.converted();
 		assertNotNull(conv);
@@ -158,7 +158,7 @@ public class AccessorConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		from.bind(fn);
 		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "fld"));
-		ac.visitMemberExpr(expr);
+		ac.visitMemberExpr(expr, 0);
 		assertTrue(expr.isConverted());
 		Expr conv = expr.converted();
 		assertNotNull(conv);
@@ -190,7 +190,7 @@ public class AccessorConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		from.bind(udd);
 		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "acor"));
-		ac.visitMemberExpr(expr);
+		ac.visitMemberExpr(expr, 0);
 		assertTrue(expr.isConverted());
 		Expr conv = expr.converted();
 		assertNotNull(conv);
@@ -225,7 +225,7 @@ public class AccessorConversion {
 		}});
 		
 		MemberExpr expr = new MemberExpr(pos, from, new UnresolvedVar(pos, "notThere"));
-		ac.visitMemberExpr(expr);
+		ac.visitMemberExpr(expr, 0);
 		assertFalse(expr.isConverted());
 	}
 }

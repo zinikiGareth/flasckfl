@@ -226,7 +226,7 @@ public class StackVisitation {
 		UnresolvedVar obj = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "f");
 		MemberExpr ae = new MemberExpr(pos, obj, fld);
-		ec.visitMemberExpr(ae);
+		ec.visitMemberExpr(ae, 0);
 	}
 
 	@Test
@@ -248,7 +248,7 @@ public class StackVisitation {
 		UnresolvedVar obj = new UnresolvedVar(pos, "obj");
 		UnresolvedVar fld = new UnresolvedVar(pos, "f");
 		MemberExpr ae = new MemberExpr(pos, obj, fld);
-		aec.visitMemberExpr(ae);
+		aec.visitMemberExpr(ae, 0);
 	}
 
 	@Test

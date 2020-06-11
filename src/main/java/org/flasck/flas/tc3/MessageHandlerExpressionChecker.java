@@ -33,7 +33,7 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		nv.push(new MemberExpressionChecker(errors, repository, state, nv, false));
 	}
 	

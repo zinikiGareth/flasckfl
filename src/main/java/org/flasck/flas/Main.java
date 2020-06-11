@@ -147,7 +147,7 @@ public class Main {
 		StaticLoggerBinder.setLevel("TCUnification", Level.WARN);
 		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
 		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);
-		StaticLoggerBinder.setLevel("Dispatcher", Level.WARN);
+		StaticLoggerBinder.setLevel("Dispatcher", Level.INFO);
 		StaticLoggerBinder.setLevel("GLS", Level.WARN);
 		StaticLoggerBinder.setLevel("TxManagerThreading", Level.WARN);
 		StaticLoggerBinder.setLevel("awstxstore", Level.WARN);

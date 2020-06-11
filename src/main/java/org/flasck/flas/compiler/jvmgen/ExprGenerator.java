@@ -271,9 +271,10 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			handleIntroduction(state.resolveIntroduction((IntroduceVar)defn));
 		} else if (defn instanceof ObjectCtor) {
 			ObjectCtor oc = (ObjectCtor) defn;
-			IExpr fn = meth.makeNew(J.CALLSTATIC, meth.classConst(oc.name().container().javaName()), meth.stringConst(oc.name().name), meth.intConst(nargs));
+			IExpr fn = meth.makeNew(J.CALLSTATIC, meth.classConst(oc.name().container().javaName()), meth.stringConst(oc.name().name), meth.intConst(nargs+1));
 			if (nargs == 0) {
-				Var v = makeClosure(false, fn, oc.argCountIncludingContracts(), false);
+				int expArgs = oc.argCountIncludingContracts();
+				Var v = makeClosure(false, fn, expArgs, true);
 				sv.result(v);
 			} else
 				sv.result(fn);
@@ -302,21 +303,24 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 			fn = meth.makeNew(J.CALLMETHOD, meth.classConst(name.inContext.javaName()), meth.stringConst(name.name), meth.intConst(expArgs));
 		else
 			fn = meth.makeNew(J.CALLEVAL, meth.classConst(name.javaClassName()));
-		Var v = makeClosure(hasState, fn, expArgs, true);
+		Var v = makeClosure(hasState, fn, expArgs, hasState);
 		sv.result(v);
 	}
 
 	private Var makeClosure(boolean hasState, IExpr fn, int expArgs, boolean includeState) {
 		ArrayList<IExpr> iargs = new ArrayList<IExpr>();
-		if (this.state.container != null && includeState)
+		int ic = 0;
+		if (this.state.container != null && includeState) {
 			iargs.add(this.state.container);
+			ic = 1;
+		}
 		IExpr args = meth.arrayOf(J.OBJECT, iargs);
 		IExpr call;
 		if (expArgs > 0) {
 			if (hasState)
-				call = meth.callInterface(J.FLCURRY, fcx, "ocurry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
+				call = meth.callInterface(J.FLCURRY, fcx, "ocurry", meth.intConst(expArgs+ic), meth.as(fn, J.APPLICABLE), args);
 			else
-				call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(expArgs), meth.as(fn, J.APPLICABLE), args);
+				call = meth.callInterface(J.FLCURRY, fcx, "curry", meth.intConst(expArgs+ic), meth.as(fn, J.APPLICABLE), args);
 		} else {
 			if (hasState)
 				call = meth.callInterface(J.FLCLOSURE, fcx, "oclosure", meth.as(fn, J.APPLICABLE), args);

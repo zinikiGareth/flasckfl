@@ -29,6 +29,7 @@ public class FunctionState {
 	private Var renderTree;
 	private Var ocret;
 	private Var ocmsgs;
+	public int ignoreSpecial;
 
 	public FunctionState(MethodDefiner meth, IExpr fcx, IExpr container, Var fargs, IExpr runner) {
 		this.meth = meth;

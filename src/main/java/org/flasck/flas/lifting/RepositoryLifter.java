@@ -110,7 +110,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		if (ma != null)
 			ma.visitDefn(expr.defn());
 	}

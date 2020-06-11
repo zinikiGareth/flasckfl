@@ -166,7 +166,7 @@ public interface RepositoryVisitor {
 	void visitAssertExpr(boolean isValue, Expr e);
 	void leaveAssertExpr(boolean isValue, Expr e);
 	void visitConstPattern(ConstPattern p, boolean isNested);
-	void visitMemberExpr(MemberExpr expr);
+	void visitMemberExpr(MemberExpr expr, int nargs);
 	void leaveMemberExpr(MemberExpr expr);
 	void visitUnitDataDeclaration(UnitDataDeclaration udd);
 	void leaveUnitDataDeclaration(UnitDataDeclaration udd);
@@ -223,6 +223,6 @@ public interface RepositoryVisitor {
 	void leaveGuardedMessage(GuardedMessages gm);
 	void visitCheckTypeExpr(CheckTypeExpr expr);
 	void leaveCheckTypeExpr(CheckTypeExpr expr);
-	void visitConvertedExpr(MemberExpr expr);
+	void visitConvertedExpr(MemberExpr expr, int nargs);
 	void leaveConvertedExpr(MemberExpr expr);
 }

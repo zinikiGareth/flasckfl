@@ -198,7 +198,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr) {
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		this.exprPos = expr.location;
 		nv.push(new MemberExpressionChecker(errors, repository, state, nv, inTemplate));
 	}

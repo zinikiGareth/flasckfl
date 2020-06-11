@@ -363,7 +363,7 @@ public class ResolverTests {
 		}});
 		Resolver r = new RepositoryResolver(errors, rr);
 		r.currentScope(pkg);
-		new Traverser(r).visitMemberExpr(dot);
+		new Traverser(r).visitMemberExpr(dot, 0);
 		assertEquals(vp, from.defn());
 		assertNull(fld.defn());
 	}

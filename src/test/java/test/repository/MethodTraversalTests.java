@@ -133,7 +133,7 @@ public class MethodTraversalTests {
 			oneOf(v).visitExpr(apply, 0); inSequence(s);
 			oneOf(v).visitApplyExpr(apply); inSequence(s);
 			oneOf(v).visitExpr(dot, 1); inSequence(s);
-			oneOf(v).visitMemberExpr(dot); inSequence(s);
+			oneOf(v).visitMemberExpr(dot, 0); inSequence(s);
 			oneOf(v).visitExpr(from, 0); inSequence(s);
 			oneOf(v).visitUnresolvedVar(from, 0); inSequence(s);
 			oneOf(v).visitExpr(fld, 0); inSequence(s);
@@ -157,7 +157,7 @@ public class MethodTraversalTests {
 			oneOf(v).visitExpr(apply, 0); inSequence(s);
 			oneOf(v).visitApplyExpr(apply); inSequence(s);
 			oneOf(v).visitExpr(dot, 1); inSequence(s);
-			oneOf(v).visitMemberExpr(dot); inSequence(s);
+			oneOf(v).visitMemberExpr(dot, 0); inSequence(s);
 			oneOf(v).visitExpr(from, 0); inSequence(s);
 			oneOf(v).visitUnresolvedVar(from, 0); inSequence(s);
 			oneOf(v).leaveMemberExpr(dot); inSequence(s);
