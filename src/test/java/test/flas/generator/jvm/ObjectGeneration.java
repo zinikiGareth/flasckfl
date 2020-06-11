@@ -52,13 +52,16 @@ public class ObjectGeneration {
 			allowing(ctor).lenientMode(with(any(Boolean.class)));
 		}});
 		Var ccxt = new Var.AVar(ctor, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+		Var card = context.mock(Var.class, "card");
 		context.checking(new Expectations() {{ // ctor
 			oneOf(eclz).createMethod(false, "void", "<init>"); will(returnValue(ctor));
 			oneOf(ctor).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ccxt));
-			oneOf(ctor).callSuper("void", J.FLOBJECT, "<init>", ccxt);
+			oneOf(ctor).argument(J.OBJECT, "card"); will(returnValue(card));
+			oneOf(ctor).callSuper("void", J.FLOBJECT, "<init>", ccxt, card);
 			oneOf(ctor).returnVoid(); will(returnValue(doret));
 			oneOf(doret).flush();
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FLCARD, "_containingCard");
 		}});
 		MethodDefiner aa = context.mock(MethodDefiner.class, "aa");
 		context.checking(new Expectations() {{
@@ -75,6 +78,9 @@ public class ObjectGeneration {
 			oneOf(aa).as(ty, J.OBJECT); will(returnValue(ty));
 			oneOf(aa).callVirtual("boolean", sc, "equals", ty); will(returnValue(ty));
 			oneOf(aa).returnBool(ty);
+		}});
+		context.checking(new Expectations() {{ // _updateDisplay
+			oneOf(eclz).createMethod(false, "void", "_updateDisplay"); // will(returnValue(aa));
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JVMGenerator(null, bce, gen, null);
@@ -104,13 +110,16 @@ public class ObjectGeneration {
 			allowing(ctor).lenientMode(with(any(Boolean.class)));
 		}});
 		Var ccxt = new Var.AVar(ctor, "org.ziniki.ziwsh.json.FLEvalContext", "_cxt");
+		Var card = context.mock(Var.class, "card");
 		context.checking(new Expectations() {{ // ctor
 			oneOf(eclz).createMethod(false, "void", "<init>"); will(returnValue(ctor));
 			oneOf(ctor).argument(J.FLEVALCONTEXT, "cxt"); will(returnValue(ccxt));
-			oneOf(ctor).callSuper("void", J.FLOBJECT, "<init>", ccxt);
+			oneOf(ctor).argument(J.OBJECT, "card"); will(returnValue(card));
+			oneOf(ctor).callSuper("void", J.FLOBJECT, "<init>", ccxt, card);
 			oneOf(ctor).returnVoid(); will(returnValue(doret));
 			oneOf(doret).flush();
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FLCARD, "_containingCard");
 		}});
 		MethodDefiner aa = context.mock(MethodDefiner.class, "aa");
 		context.checking(new Expectations() {{
@@ -127,6 +136,9 @@ public class ObjectGeneration {
 			oneOf(aa).as(ty, J.OBJECT); will(returnValue(ty));
 			oneOf(aa).callVirtual("boolean", sc, "equals", ty); will(returnValue(ty));
 			oneOf(aa).returnBool(ty);
+		}});
+		context.checking(new Expectations() {{ // _updateDisplay
+			oneOf(eclz).createMethod(false, "void", "_updateDisplay"); // will(returnValue(aa));
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JVMGenerator(null, bce, gen, null);

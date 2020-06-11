@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
+import org.flasck.jvm.container.UpdatesDisplay;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.GenericAnnotator;
@@ -39,6 +40,8 @@ public class HIGenerator extends LeafAdapter {
 		definingClz = bce.newClass(clzName);
 		definingClz.superclass(J.LOGGINGIDEMPOTENTHANDLER);
 		definingClz.implementsInterface(hi.implementsType().defn().name().javaClassName());
+		if (sh != null)
+			definingClz.implementsInterface(J.CONTAINS_CARD);
 		definingClz.generateAssociatedSourceFile();
 		int nfargs = hi.argCount();
 		String cardType = null;
@@ -81,6 +84,13 @@ public class HIGenerator extends LeafAdapter {
 			this.meth = meth;
 			fs.evalRet = ret;
 			this.currentBlock = new JVMBlock(meth, fs);
+		}
+		if (sh != null)	{ // _card()
+			GenericAnnotator gen = GenericAnnotator.newMethod(definingClz, false, "_card");
+			gen.returns(J.UPDATES_DISPLAY);
+			MethodDefiner meth = gen.done();
+			meth.lenientMode(JVMGenerator.leniency);
+			meth.returnObject(meth.as(meth.getField("_card"), J.UPDATES_DISPLAY)).flush();
 		}
 	}
 
