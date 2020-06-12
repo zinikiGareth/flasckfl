@@ -11,7 +11,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.jvm.J;
-import org.flasck.jvm.container.UpdatesDisplay;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.GenericAnnotator;

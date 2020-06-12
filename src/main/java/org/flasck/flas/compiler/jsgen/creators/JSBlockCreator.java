@@ -22,6 +22,7 @@ public interface JSBlockCreator {
 	// very simple and obvious things
 	JSExpr literal(String text);
 	JSExpr string(String string);
+	JSExpr nameOf(JSExpr expr);
 	JSExpr newOf(NameOfThing clz);
 	JSExpr newOf(NameOfThing clz, List<JSExpr> args);
 	JSExpr makeArray(JSExpr... args);

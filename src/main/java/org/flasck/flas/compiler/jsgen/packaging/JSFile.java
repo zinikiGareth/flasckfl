@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
@@ -50,7 +49,7 @@ public class JSFile {
 		methodLists.add(new MethodList(name, methods));
 	}
 
-	public void eventMap(CardName name, EventTargetZones etz) {
+	public void eventMap(NameOfThing name, EventTargetZones etz) {
 		eventMaps.add(new EventMap(name, etz));
 	}
 

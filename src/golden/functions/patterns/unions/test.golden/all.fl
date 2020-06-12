@@ -19,3 +19,6 @@
 	topCard (DisplayCard e) [] = e
 	topCard (DisplayCard e) (Cons { head: (Input c) }) = ShowCard c.label
 	
+	unionLast HideCard = 0
+	unionLast (ShowCard c) = 1
+	unionLast (DisplayCard c) = 2

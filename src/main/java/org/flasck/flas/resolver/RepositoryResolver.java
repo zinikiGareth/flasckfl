@@ -57,6 +57,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.UnitTestRender;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -888,6 +889,18 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	@Override
 	public void leaveUnitTestSend(UnitTestSend s) {
 		this.scope = scopeStack.remove(0);
+	}
+	
+	@Override
+	public void leaveUnitTestRender(UnitTestRender r) {
+		UnitDataDeclaration udd = (UnitDataDeclaration) r.card.defn();
+		ObjectDefn od = (ObjectDefn) udd.ofType.defn();
+		Template otd = od.getTemplate(r.template.name.baseName());
+		if (otd == null) {
+			errors.message(r.template.location(), "there is no template " + r.template.name.baseName());
+			return;
+		}
+		r.template.bindTo(otd);
 	}
 	
 	private void checkValidityOfUDDConstruction(UnitDataDeclaration udd) {

@@ -5,9 +5,14 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class JSStoreMock implements JSExpr {
 	private final JSExpr value;
+	private JSLocal nameAs;
 
 	public JSStoreMock(JSExpr value) {
 		this.value = value;
+	}
+	
+	public void nameAs(JSLocal ret) {
+		nameAs = ret;
 	}
 
 	@Override
@@ -17,7 +22,9 @@ public class JSStoreMock implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("_cxt.storeMock(");
+		w.print("_cxt.storeMock('");
+		w.print(nameAs.asVar());
+		w.print("', ");
 		w.print(value.asVar());
 		w.print(")");
 	}

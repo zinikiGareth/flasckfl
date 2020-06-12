@@ -509,15 +509,21 @@ FLContext.prototype.needsUpdate = function(card) {
 		this.updateCards.push(card);
 }
 
-FLContext.prototype.storeMock = function(value) {
+FLContext.prototype.storeMock = function(name, value) {
 	value = this.full(value);
 	if (value instanceof ResponseWithMessages) {
 		this.env.queueMessages(this, ResponseWithMessages.messages(this, value));
 		// because this is a test operation, we dispatch the messages immediately
 		this.env.dispatchMessages(this);
-		return ResponseWithMessages.response(this, value);
+		value = ResponseWithMessages.response(this, value);
+	}
+	if (value instanceof FLObject) {
+		var mock = new MockFLObject(value);
+		this.env.mocks[name] = mock;
+		this.env.cards.push(mock);
 	} else
-		return value;
+		this.env.mocks[name] = value;
+	return value;
 }
 
 FLContext.prototype.mockContract = function(contract) {
@@ -530,8 +536,8 @@ FLContext.prototype.mockAgent = function(agent) {
 	return this.env.mockAgent(this, agent);
 }
 
-FLContext.prototype.mockCard = function(card) {
-	return this.env.mockCard(this, card);
+FLContext.prototype.mockCard = function(name, card) {
+	return this.env.mockCard(this, name, card);
 }
 
 FLContext.prototype.explodingHandler = function() {
@@ -582,6 +588,10 @@ FLCard.prototype._currentDiv = function(cx) {
         return this._containedIn;
 }
 
+FLCard.prototype._currentRenderTree = function() {
+    return this._renderTree;
+}
+
 FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, source) {
     const evcs = this._eventHandlers()[key];
     if (evcs) {
@@ -621,7 +631,7 @@ FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, s
 FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option, source, value) {
     // In general, everything should already be fully evaluated, but we do allow expressions in templates
     value = _cxt.full(value);
-    if (!value)
+    if (typeof value === 'undefined' || value == null)
         value = '';
     var div = document.getElementById(rt._id);
     const node = div.querySelector("[data-flas-content='" + field + "']");
@@ -700,7 +710,11 @@ FLCard.prototype._updateTemplate = function(_cxt, _renderTree, type, field, fn, 
                     this._addItem(_cxt, rt, node, null, t, fn, value, _tc);
                 }
             }
+        } else {
+            _cxt.log("there is no template " + templateName);
         }
+    } else {
+        _cxt.log("there is no '" + type + "' called '" + field + "' in " + _renderTree._id);
     }
 }
 
@@ -940,6 +954,7 @@ FLObject.prototype._updateContainer = FLCard.prototype._updateContainer;
 FLObject.prototype._updateStyle = FLCard.prototype._updateStyle;
 FLObject.prototype._updateList = FLCard.prototype._updateList;
 FLObject.prototype._diffLists = FLCard.prototype._diffLists;
+FLObject.prototype._attachHandlers = FLCard.prototype._attachHandlers;
 
 
 

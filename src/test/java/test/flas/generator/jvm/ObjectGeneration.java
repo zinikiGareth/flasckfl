@@ -1,12 +1,16 @@
 package test.flas.generator.jvm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
+import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructField;
@@ -36,6 +40,7 @@ public class ObjectGeneration {
 		ByteCodeSink eclz = context.mock(ByteCodeSink.class, "eclz");
 		SolidName sn = new SolidName(pkg, "Obj");
 		String ename = "test.repo.Obj";
+		EventTargetZones etz = context.mock(EventTargetZones.class);
 		
 		IExpr doret = context.mock(IExpr.class, "doret");
 		context.checking(new Expectations() {{ // clz
@@ -81,10 +86,15 @@ public class ObjectGeneration {
 		}});
 		context.checking(new Expectations() {{ // _updateDisplay
 			oneOf(eclz).createMethod(false, "void", "_updateDisplay"); // will(returnValue(aa));
+			oneOf(eclz).createMethod(false, Map.class.getName(), "_eventHandlers"); // will(returnValue(aa));
+			oneOf(etz).templateNames(); will(returnValue(new ArrayList<String>()));
+			oneOf(etz).unboundHandlers(); will(returnValue(new ArrayList<String>()));
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(null, bce, gen, null);
+		HashMap<EventHolder, EventTargetZones> map = new HashMap<EventHolder, EventTargetZones>();
+		new JVMGenerator(null, bce, gen, map);
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
+		map.put(od, etz);
 		new Traverser(gen).visitObjectDefn(od);
 	}
 
@@ -94,6 +104,7 @@ public class ObjectGeneration {
 		ByteCodeSink eclz = context.mock(ByteCodeSink.class, "eclz");
 		SolidName sn = new SolidName(pkg, "Obj");
 		String ename = "test.repo.Obj";
+		EventTargetZones etz = context.mock(EventTargetZones.class);
 		
 		IExpr doret = context.mock(IExpr.class, "doret");
 		context.checking(new Expectations() {{ // clz
@@ -139,10 +150,15 @@ public class ObjectGeneration {
 		}});
 		context.checking(new Expectations() {{ // _updateDisplay
 			oneOf(eclz).createMethod(false, "void", "_updateDisplay"); // will(returnValue(aa));
+			oneOf(eclz).createMethod(false, Map.class.getName(), "_eventHandlers"); // will(returnValue(aa));
+			oneOf(etz).templateNames(); will(returnValue(new ArrayList<String>()));
+			oneOf(etz).unboundHandlers(); will(returnValue(new ArrayList<String>()));
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JVMGenerator(null, bce, gen, null);
+		HashMap<EventHolder, EventTargetZones> map = new HashMap<EventHolder, EventTargetZones>();
+		new JVMGenerator(null, bce, gen, map);
 		ObjectDefn od = new ObjectDefn(pos, pos, sn, true, new ArrayList<>());
+		map.put(od, etz);
 		StateDefinition sd = new StateDefinition(pos);
 		StructField sf = new StructField(pos, pos, sd, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);

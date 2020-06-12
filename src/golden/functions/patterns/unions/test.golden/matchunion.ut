@@ -1,3 +1,11 @@
 	test topCard can return ShowCard as default
 		assert (topCard (ShowCard "hello") Nil)
 			ShowCard "hello"
+	
+	test unions come aftor ctor match
+		assert (unionLast HideCard)
+			0
+
+	test unions are catch all cases
+		assert (unionLast (ShowCard "hello"))
+			1

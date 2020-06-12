@@ -13,11 +13,13 @@ import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectContract;
 import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
@@ -99,6 +101,24 @@ public class TDAObjectElementsParser implements TDAParsing {
 			builder.addTemplate(template);
 			topLevel.newTemplate(errors, template);
 			return new TDATemplateBindingParser(errors, template, namer, template);
+		}
+		case "event": {
+			FunctionNameProvider namer = (loc, text) -> FunctionName.eventMethod(loc, builder.name(), text);
+			MethodConsumer evConsumer = em -> {
+				if (em.args().size() != 1) {
+					errors.message(toks, "event handlers must have exactly one (typed) argument");
+					return;
+				}
+				Pattern ev = em.args().get(0);
+				if (ev instanceof VarPattern) {
+					errors.message(ev.location(), "event arguments must be typed");
+					return;
+				}
+				em.eventFor((ObjectDefn)builder);
+				builder.addEventHandler(em);
+				topLevel.newObjectMethod(errors, em);
+			};
+			return new TDAMethodParser(errors, this.namer, evConsumer, topLevel, (StateHolder) builder).parseMethod(namer, toks);
 		}
 		case "ctor": {
 			ValidIdentifierToken var = VarNameToken.from(toks);

@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -53,6 +54,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
+import org.flasck.flas.parsedForm.ut.UnitTestRender;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -134,11 +136,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	private ByteCodeSink templateClass;
 	private Var agentcx;
 	private Var ocret;
-	private Map<CardDefinition, EventTargetZones> eventMap;
+	private Map<EventHolder, EventTargetZones> eventMap;
 	private AtomicInteger containerIdx;
 	static final boolean leniency = false;
 
-	public JVMGenerator(RepositoryReader repository, ByteCodeStorage bce, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
+	public JVMGenerator(RepositoryReader repository, ByteCodeStorage bce, StackVisitor sv, Map<EventHolder, EventTargetZones> eventMap) {
 		this.repository = repository;
 		this.bce = bce;
 		this.sv = sv;
@@ -244,7 +246,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				this.clz = bce.get(impl.name().javaClassName());
 				wantParent = !(impl instanceof HandlerImplements);
 			} else if (om.isEvent()) {
-				CardDefinition card = om.getCard();
+				EventHolder card = om.getCard();
 				this.clz = bce.get(card.name().javaName());
 				wantParent = false;
 			} else if (om.hasState()) {
@@ -293,7 +295,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
 //			}
 		} else if (om.isEvent()) {
-			CardDefinition od = om.getCard();
+			EventHolder od = om.getCard();
 			if (od.state() != null) {
 				fs.provideStateObject(meth.castTo(meth.myThis(), J.FIELDS_CONTAINER_WRAPPER));
 			}
@@ -640,6 +642,65 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			ud.ifNotNull(card, callCardUpdate, null).flush();
 			ud.returnVoid().flush();
 		}
+		{ // This is just cutten-and-pasten from CardDefn ... we should probably refactor
+			// _events()
+			EventTargetZones eventMethods = eventMap.get(od);
+
+			// ideally, this would return a statically created map but I can't be bothered
+			// right now ...
+			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_eventHandlers");
+			gen.returns(Map.class.getName());
+			MethodDefiner cardevents = gen.done();
+			cardevents.lenientMode(leniency);
+			Var v = cardevents.avar(Map.class.getName(), "ret");
+			cardevents.assign(v, cardevents.makeNew(TreeMap.class.getName())).flush();
+//			TypedPattern tp = (TypedPattern) om.args().get(0);
+//			EventsMethod em = evhs.get(card);
+//			em.meth.voidExpr(em.meth.callInterface(J.OBJECT, em.ret, "put", em.meth.as(em.meth.stringConst(tp.type.name()), J.OBJECT), em.meth.as(ehm, J.OBJECT))).flush();
+
+			for (String t : eventMethods.templateNames()) {
+				Var hl = cardevents.avar(List.class.getName(), "hl");
+				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
+				for (TemplateTarget tt : eventMethods.targets(t)) {
+					HandlerInfo hi = eventMethods.getHandler(tt.handler);
+					IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT),
+							cardevents.classConst("[L" + J.OBJECT + ";"));
+					IExpr ehm = cardevents.callVirtual(Method.class.getName(),
+							cardevents.classConst(od.name().javaName()), "getDeclaredMethod",
+							cardevents.stringConst(hi.name.name), classArgs);
+
+					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.stringConst(tt.type),
+							cardevents.stringConst(tt.slot), cardevents.box(cardevents.intConst(tt.option)),
+							cardevents.stringConst(hi.event), ehm);
+					cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT)))
+							.flush();
+				}
+				cardevents
+						.voidExpr(cardevents.callInterface(J.OBJECT, v, "put",
+								cardevents.as(cardevents.stringConst(t), J.OBJECT), cardevents.as(hl, J.OBJECT)))
+						.flush();
+			}
+
+			for (HandlerInfo hi : eventMethods.unboundHandlers()) {
+				Var hl = cardevents.avar(List.class.getName(), "hl");
+				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
+				IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT),
+						cardevents.classConst("[L" + J.OBJECT + ";"));
+				IExpr ehm = cardevents.callVirtual(Method.class.getName(), cardevents.classConst(od.name().javaName()),
+						"getDeclaredMethod", cardevents.stringConst(hi.name.name), classArgs);
+				IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.as(cardevents.aNull(), J.STRING),
+						cardevents.as(cardevents.aNull(), J.STRING), cardevents.as(cardevents.aNull(), J.INTEGER),
+						cardevents.stringConst(hi.event), ehm);
+				cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT)))
+						.flush();
+				cardevents
+						.voidExpr(cardevents.callInterface(J.OBJECT, v, "put",
+								cardevents.as(cardevents.stringConst("_"), J.OBJECT), cardevents.as(hl, J.OBJECT)))
+						.flush();
+			}
+
+			cardevents.returnObject(v).flush();
+		}
 		containerIdx = new AtomicInteger(1);
 	}
 
@@ -707,7 +768,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 			// ideally, this would return a statically created map but I can't be bothered
 			// right now ...
-			GenericAnnotator gen = GenericAnnotator.newMethod(agentClass, false, "_eventHandlers");
+			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_eventHandlers");
 			gen.returns(Map.class.getName());
 			MethodDefiner cardevents = gen.done();
 			cardevents.lenientMode(leniency);
@@ -759,7 +820,6 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			}
 
 			cardevents.returnObject(v).flush();
-//			evhs.put(cd, new EventsMethod(cardevents, v));
 		}
 		containerIdx = new AtomicInteger(1);
 	}
@@ -1098,6 +1158,11 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	@Override
 	public void visitUnitTestSend(UnitTestSend uts) {
 		new DoSendGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()), this.currentBlock);
+	}
+
+	@Override
+	public void visitUnitTestRender(UnitTestRender e) {
+		new DoUTRenderGenerator(sv, this.fs, meth.as(this.runner, TestHelper.class.getName()), this.currentBlock);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package test.flas.generator.js;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -11,6 +12,8 @@ import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructField;
@@ -47,10 +50,11 @@ public class ObjectGenerationJS {
 			oneOf(ctorBlock).arg(1); will(returnValue(v));
 			oneOf(ctorBlock).setField("_card", v);
 			oneOf(ctorBlock).stateField();
+			oneOf(jss).eventMap(sn, null);
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(null, jss, gen, null);
+		new JSGenerator(null, jss, gen, new HashMap<EventHolder, EventTargetZones>());
 		new Traverser(gen).visitObjectDefn(od);
 	}
 
@@ -73,10 +77,11 @@ public class ObjectGenerationJS {
 			oneOf(ctorBlock).setField("_card", v);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
+			oneOf(jss).eventMap(sn, null);
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
 		StackVisitor gen = new StackVisitor();
-		new JSGenerator(null, jss, gen, null);
+		new JSGenerator(null, jss, gen, new HashMap<EventHolder, EventTargetZones>());
 		StateDefinition sd = new StateDefinition(pos);
 		StructField sf = new StructField(pos, pos, sd, false, LoadBuiltins.stringTR, "s", new StringLiteral(pos, "hello"));
 		sd.addField(sf);

@@ -17,7 +17,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder {
+public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, RepositoryEntry, NamedType, AccessorHolder, StateHolder, EventHolder {
 	private StateDefinition state;
 	public final List<Template> templates = new ArrayList<>();
 	public final List<ObjectContract> contracts = new ArrayList<>();
@@ -27,6 +27,7 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	public final List<HandlerImplements> handlers = new ArrayList<>();
 	protected final List<PolyType> polys;
 	private final Map<String, Integer> methodCases = new HashMap<>();
+	public final List<ObjectMethod> eventHandlers = new ArrayList<>();
 	protected final InputPosition location;
 	private final SolidName name;
 	public final InputPosition kw;
@@ -95,6 +96,11 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 	public StateDefinition state() {
 		return state;
 	}
+
+	@Override
+	public List<Template> templates() {
+		return templates;
+	}
 	
 	@Override
 	public ObjectElementsConsumer requireContract(ObjectContract oc) {
@@ -108,6 +114,12 @@ public class ObjectDefn implements AsString, Locatable, ObjectElementsConsumer, 
 		return this;
 	}
 
+	@Override
+	public ObjectElementsConsumer addEventHandler(ObjectMethod handler) {
+		eventHandlers.add(handler);
+		return this;
+	}
+	
 	@Override
 	public ObjectDefn addConstructor(ObjectCtor ctor) {
 		ctors.add(ctor);

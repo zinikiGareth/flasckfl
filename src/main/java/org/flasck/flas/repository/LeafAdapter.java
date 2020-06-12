@@ -65,6 +65,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
+import org.flasck.flas.parsedForm.ut.UnitTestRender;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -208,6 +209,14 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveTemplateStyling(TemplateStylingOption tso) {
+	}
+
+	@Override
+	public void visitUnitTestRender(UnitTestRender e) {
+	}
+
+	@Override
+	public void leaveUnitTestRender(UnitTestRender e) {
 	}
 
 	@Override

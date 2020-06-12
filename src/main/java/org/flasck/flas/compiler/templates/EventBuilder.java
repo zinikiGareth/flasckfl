@@ -3,6 +3,8 @@ package org.flasck.flas.compiler.templates;
 import java.util.Map;
 
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.EventHolder;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
@@ -13,13 +15,13 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.StackVisitor;
 
 public class EventBuilder extends LeafAdapter {
-	private final Map<CardDefinition, EventTargetZones> eventMap;
+	private final Map<EventHolder, EventTargetZones> eventMap;
 	private EventPlacement currentETZ;
 	private String templateId;
 	private TemplateBinding currentBinding;
 	private int option = 0;
 
-	public EventBuilder(StackVisitor stack, Map<CardDefinition, EventTargetZones> etz) {
+	public EventBuilder(StackVisitor stack, Map<EventHolder, EventTargetZones> etz) {
 		eventMap = etz;
 		stack.push(this);
 	}
@@ -28,6 +30,12 @@ public class EventBuilder extends LeafAdapter {
 	public void visitCardDefn(CardDefinition cd) {
 		currentETZ = new EventPlacement();
 		eventMap.put(cd, currentETZ);
+	}
+	
+	@Override
+	public void visitObjectDefn(ObjectDefn od) {
+		currentETZ = new EventPlacement();
+		eventMap.put(od, currentETZ);
 	}
 	
 	@Override
@@ -74,6 +82,11 @@ public class EventBuilder extends LeafAdapter {
 	
 	@Override
 	public void leaveCardDefn(CardDefinition s) {
+		currentETZ = null;
+	}
+	
+	@Override
+	public void leaveObjectDefn(ObjectDefn od) {
 		currentETZ = null;
 	}
 }

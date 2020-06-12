@@ -12,6 +12,7 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.FieldsDefn;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -61,7 +62,7 @@ public class TypeChecker extends LeafAdapter {
 	public void visitObjectDefn(ObjectDefn obj) {
 		new ObjectDefnChecker(errors, repository, sv, obj.templates, false);
 	}
-	
+
 	@Override
 	public void visitCardDefn(CardDefinition cd) {
 		new ObjectDefnChecker(errors, repository, sv, cd.templates, true);
@@ -71,22 +72,22 @@ public class TypeChecker extends LeafAdapter {
 	public void visitObjectMethod(ObjectMethod meth) {
 		new SingleFunctionChecker(errors, sv, repository, meth);
 	}
-	
+
 	@Override
 	public void visitObjectCtor(ObjectCtor meth) {
 		new SingleFunctionChecker(errors, sv, repository, meth);
 	}
-	
+
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
 		new GroupChecker(errors, repository, sv, new FunctionGroupTCState(repository, grp), mark);
 	}
-	
+
 	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
 		new UDDChecker(errors, repository, sv);
 	}
-	
+
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
 //		if (mark.hasMoreNow()) return;
@@ -97,12 +98,12 @@ public class TypeChecker extends LeafAdapter {
 	public void visitUnitTestShove(UnitTestShove s) {
 		new ShoveChecker(errors, repository, sv);
 	}
-	
+
 	@Override
 	public void visitUnitTestExpect(UnitTestExpect e) {
 		new ExpectChecker(errors, repository, sv, e);
 	}
-	
+
 	@Override
 	public void visitUnitTestSend(UnitTestSend s) {
 		new UTSendChecker(errors, repository, sv, s);
@@ -117,7 +118,7 @@ public class TypeChecker extends LeafAdapter {
 	public void leaveUnitTestMatch(UnitTestMatch m) {
 		resolveTargetZone(m.card.defn(), m.targetZone, "match", true);
 	}
-	
+
 	private void resolveTargetZone(RepositoryEntry re, TargetZone tz, String type, boolean allowContainer) {
 		if (tz.isWholeCard()) {
 			// it's aimed at the whole card
@@ -125,13 +126,14 @@ public class TypeChecker extends LeafAdapter {
 			return;
 		}
 		UnitDataDeclaration udd = (UnitDataDeclaration) re;
-		CardDefinition card = (CardDefinition)udd.ofType.defn();
-		if (card.templates.isEmpty()) {
+		EventHolder card = (EventHolder) udd.ofType.defn();
+		if (card.templates().isEmpty()) {
 			errors.message(tz.location, "cannot send " + type + " to card with no templates");
 			return;
 		}
-		// TODO: I think all (or most) of this should be extracted to "getValidEventTarget" or something very similar
-		Template template = card.templates.get(0);
+		// TODO: I think all (or most) of this should be extracted to
+		// "getValidEventTarget" or something very similar
+		Template template = card.templates().get(0);
 		CardData webInfo = template.webinfo();
 		if (webInfo == null) {
 			// we failed to find the card's webinfo ... that should generate its own error
@@ -141,7 +143,7 @@ public class TypeChecker extends LeafAdapter {
 			List<FieldType> types = new ArrayList<>();
 			FieldType curr = FieldType.CARD;
 			Template ct = template;
-			for (int i=0;i<tz.fields.size();i++) {
+			for (int i = 0; i < tz.fields.size(); i++) {
 				Object idx = tz.fields.get(i);
 				if (idx instanceof Integer) {
 					if (curr != FieldType.CONTAINER) {
@@ -152,9 +154,9 @@ public class TypeChecker extends LeafAdapter {
 					// If nothing else, we ought to not allow it to go around to another index
 					types.add(FieldType.ITEM);
 				} else {
-					curr = webInfo.get((String)idx);
+					curr = webInfo.get((String) idx);
 					if (curr == FieldType.CONTAINER) {
-						ct = findCBO(card.templates, ct, tz, (String)idx);
+						ct = findCBO(card.templates(), ct, tz, (String) idx);
 						if (ct == null) // will have produced an error
 							return;
 						webInfo = ct.webinfo();
@@ -162,7 +164,8 @@ public class TypeChecker extends LeafAdapter {
 					types.add(curr);
 				}
 			}
-			if (curr != FieldType.CONTENT && curr != FieldType.STYLE && (!allowContainer || curr != FieldType.CONTAINER)) {
+			if (curr != FieldType.CONTENT && curr != FieldType.STYLE
+					&& (!allowContainer || curr != FieldType.CONTAINER)) {
 				errors.message(tz.location, "element " + curr + " '" + tz + "' is not a valid " + type + " target");
 				return;
 			}
@@ -171,7 +174,7 @@ public class TypeChecker extends LeafAdapter {
 			errors.message(tz.location, "there is no target '" + tz + "' on the card");
 		}
 	}
-	
+
 	private Template findCBO(List<Template> allTemplates, Template ct, TargetZone tz, String idx) {
 		Set<Template> sendsTo = new HashSet<>();
 		List<Type> types = new ArrayList<>();
@@ -179,12 +182,14 @@ public class TypeChecker extends LeafAdapter {
 			if (!b.assignsTo.text.equals(idx))
 				continue;
 			for (TemplateBindingOption cb : b.conditionalBindings) {
-				types.add(notList(ExpressionChecker.check(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), false, cb.expr)));
+				types.add(notList(ExpressionChecker.check(errors, repository,
+						new FunctionGroupTCState(repository, new DependencyGroup()), false, cb.expr)));
 				if (cb.sendsTo != null)
 					sendsTo.add(cb.sendsTo.template());
 			}
 			if (b.defaultBinding != null) {
-				types.add(notList(ExpressionChecker.check(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), false, b.defaultBinding.expr)));
+				types.add(notList(ExpressionChecker.check(errors, repository,
+						new FunctionGroupTCState(repository, new DependencyGroup()), false, b.defaultBinding.expr)));
 				if (b.defaultBinding.sendsTo != null) {
 					sendsTo.add(b.defaultBinding.sendsTo.template());
 				}
@@ -192,7 +197,8 @@ public class TypeChecker extends LeafAdapter {
 		}
 		if (sendsTo.isEmpty()) {
 			if (types.size() == 1) {
-				return selectTemplateFromCollectionBasedOnOperatingType(errors, tz.location, allTemplates, types.get(0));
+				return selectTemplateFromCollectionBasedOnOperatingType(errors, tz.location, allTemplates,
+						types.get(0));
 			}
 			errors.message(tz.location, "template " + ct.name().uniqueName() + " does not send to for " + idx);
 			return null;
@@ -211,14 +217,15 @@ public class TypeChecker extends LeafAdapter {
 			return t;
 	}
 
-	public static Template selectTemplateFromCollectionBasedOnOperatingType(ErrorReporter errors, InputPosition pos, Iterable<Template> allTemplates, Type ty) {
+	public static Template selectTemplateFromCollectionBasedOnOperatingType(ErrorReporter errors, InputPosition pos,
+			Iterable<Template> allTemplates, Type ty) {
 		Template ret = null;
 		for (Template t : allTemplates) {
 			if (t.nestingChain() == null)
 				continue;
 			if (t.nestingChain().iterator().next().type().incorporates(pos, ty)) {
 				// TODO: check we can handle rest of chain
-				
+
 				if (ret != null) {
 					errors.message(pos, "ambiguous templates for " + ty.signature());
 				}
@@ -228,7 +235,8 @@ public class TypeChecker extends LeafAdapter {
 		return ret;
 	}
 
-	public static PosType instantiateFreshPolys(Expr tmp, CurrentTCState state, Map<String, UnifiableType> uts, PosType post) {
+	public static PosType instantiateFreshPolys(Expr tmp, CurrentTCState state, Map<String, UnifiableType> uts,
+			PosType post) {
 		InputPosition pos = post.pos;
 		Type type = post.type;
 		if (type instanceof PolyType) {
@@ -246,7 +254,7 @@ public class TypeChecker extends LeafAdapter {
 			for (Type t : a.tys)
 				types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t)).type);
 			return new PosType(pos, new Apply(types));
-		} else if (type instanceof PolyHolder && ((PolyHolder)type).hasPolys()) {
+		} else if (type instanceof PolyHolder && ((PolyHolder) type).hasPolys()) {
 			PolyHolder sd = (PolyHolder) type;
 			List<Type> polys = new ArrayList<>();
 			for (Type t : sd.polys())
@@ -254,7 +262,7 @@ public class TypeChecker extends LeafAdapter {
 			PolyInstance pi = new PolyInstance(pos, sd, polys);
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
-				for (StructField sf : ((FieldsDefn)type).fields)
+				for (StructField sf : ((FieldsDefn) type).fields)
 					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn())).type);
 				if (types.isEmpty())
 					return new PosType(pos, pi);
@@ -271,7 +279,7 @@ public class TypeChecker extends LeafAdapter {
 			PolyInstance pi = new PolyInstance(pos, inst.struct(), polys);
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
-				for (StructField sf : ((FieldsDefn)type).fields)
+				for (StructField sf : ((FieldsDefn) type).fields)
 					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn())).type);
 				if (types.isEmpty())
 					return new PosType(pos, pi);

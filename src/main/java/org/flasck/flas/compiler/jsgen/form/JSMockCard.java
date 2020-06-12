@@ -5,9 +5,14 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMockCard implements JSExpr {
 	private final CardName name;
+	private JSLocal nameAs;
 
 	public JSMockCard(CardName name) {
 		this.name = name;
+	}
+
+	public void nameAs(JSLocal ret) {
+		nameAs = ret;
 	}
 
 	@Override
@@ -17,7 +22,9 @@ public class JSMockCard implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("_cxt.mockCard(new ");
+		w.print("_cxt.mockCard('");
+		w.print(nameAs.asVar());
+		w.print("', new ");
 		w.print(name.jsName());
 		w.print("(_cxt))");
 	}

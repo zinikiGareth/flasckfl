@@ -168,6 +168,6 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	public abstract boolean isEvent();
 	public abstract ObjectDefn getObject();
 	public abstract Implements getImplements();
-	public abstract CardDefinition getCard();
+	public abstract EventHolder getCard();
 	public abstract ContractMethodDecl contractMethod();
 }

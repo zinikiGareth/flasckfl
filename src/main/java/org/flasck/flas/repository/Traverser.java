@@ -90,6 +90,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
+import org.flasck.flas.parsedForm.ut.UnitTestRender;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -1608,6 +1609,8 @@ public class Traverser implements RepositoryVisitor {
 			visitUnitTestExpect((UnitTestExpect) s);
 		else if (s instanceof UnitTestSend)
 			visitUnitTestSend((UnitTestSend)s);
+		else if (s instanceof UnitTestRender)
+			visitUnitTestRender((UnitTestRender)s);
 		else if (s instanceof UnitTestEvent)
 			visitUnitTestEvent((UnitTestEvent)s);
 		else if (s instanceof UnitTestMatch)
@@ -1784,6 +1787,17 @@ public class Traverser implements RepositoryVisitor {
 
 	public void leaveUnitTestSend(UnitTestSend s) {
 		visitor.leaveUnitTestSend(s);
+	}
+
+	public void visitUnitTestRender(UnitTestRender e) {
+		visitor.visitUnitTestRender(e);
+		visitExpr(e.card, 0);
+		leaveUnitTestRender(e);
+	}
+
+	@Override
+	public void leaveUnitTestRender(UnitTestRender e) {
+		visitor.leaveUnitTestRender(e);
 	}
 
 	public void visitUnitTestEvent(UnitTestEvent e) {

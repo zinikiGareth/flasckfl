@@ -73,6 +73,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
+import org.flasck.flas.parsedForm.ut.UnitTestRender;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -440,6 +441,14 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 
 	public void visitContractDecl(ContractDecl cd) {
 		top.visitContractDecl(cd);
+	}
+
+	public void visitUnitTestRender(UnitTestRender e) {
+		top.visitUnitTestRender(e);
+	}
+
+	public void leaveUnitTestRender(UnitTestRender e) {
+		top.leaveUnitTestRender(e);
 	}
 
 	public void visitUnitTestEvent(UnitTestEvent e) {

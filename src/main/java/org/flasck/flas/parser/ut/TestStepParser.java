@@ -9,6 +9,7 @@ import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.TargetZone;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -22,6 +23,7 @@ import org.flasck.flas.tokenizers.EventZoneToken;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PuncToken;
+import org.flasck.flas.tokenizers.TemplateNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -152,6 +154,23 @@ public class TestStepParser implements TDAParsing {
 			}
 			builder.newdiv(cnt);
 			return new NoNestingParser(errors);
+		case "render": {
+			ValidIdentifierToken tok = VarNameToken.from(toks);
+			if (tok == null) {
+				errors.message(toks, "must specify a card to be rendered");
+				return new IgnoreNestedParser();
+			}
+			ExprToken arrow = ExprToken.from(errors, toks);
+			if (arrow == null || !"=>".equals(arrow.text)) {
+				errors.message(toks, "=> expected");
+				return new IgnoreNestedParser();
+			}
+			TemplateNameToken template = TemplateNameToken.from(errors, toks);
+			if (template == null)
+				return new IgnoreNestedParser();
+			builder.render(new UnresolvedVar(tok.location, tok.text), new TemplateReference(template.location, namer.template(template.location, template.text)));
+			return new NoNestingParser(errors);
+		}
 		case "event": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);
 			if (tok == null) {

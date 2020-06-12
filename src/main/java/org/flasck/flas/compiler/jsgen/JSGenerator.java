@@ -37,6 +37,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -65,6 +66,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
+import org.flasck.flas.parsedForm.ut.UnitTestRender;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -113,7 +115,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private final RepositoryReader repository;
 	private final JSStorage jse;
 	private final NestedVisitor sv;
-	private final Map<CardDefinition, EventTargetZones> eventMap;
+	private final Map<EventHolder, EventTargetZones> eventMap;
 	private JSMethodCreator meth;
 	private JSBlockCreator block;
 	private JSExpr runner;
@@ -130,7 +132,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSClassCreator templateCreator;
 	private AtomicInteger containerIdx;
 
-	public JSGenerator(RepositoryReader repository, JSStorage jse, StackVisitor sv, Map<CardDefinition, EventTargetZones> eventMap) {
+	public JSGenerator(RepositoryReader repository, JSStorage jse, StackVisitor sv, Map<EventHolder, EventTargetZones> eventMap) {
 		this.repository = repository;
 		this.jse = jse;
 		this.sv = sv;
@@ -281,13 +283,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		ud.argument("_cxt");
 		JSIfCreator ifcard = ud.ifTrue(ud.literal("this._card"));
 		JSIfCreator ifud = ifcard.trueCase().ifTrue(ud.literal("this._card._updateDisplay"));
-		ifud.trueCase().callMethod(ud.literal("this._card"), "_updateDisplay", ud.literal("this._card._renderTree"));
+		ifud.trueCase().assertable(ud.literal("this._card"), "_updateDisplay", ud.literal("this._card._renderTree"));
 		JSMethodCreator ctor = templateCreator.constructor();
 		ctor.argument("_card");
 		ctor.setField("_card", ctor.arg(1));
 		ctor.stateField();
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(obj, methods);
+		jse.eventMap(obj.name(), eventMap.get(obj));
 		jse.methodList(obj.name(), methods);
 		containerIdx = new AtomicInteger(1);
 	}
@@ -716,7 +719,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		runner = meth.argument("runner");
 		meth.clear();
 		meth.initContext(e.name.packageName());
-		this.state = new JSFunctionStateStore(meth, new JSThis()); // container is wrong, but shouldn't be used
+		this.state = new JSFunctionStateStore(meth, runner);
 		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
@@ -808,6 +811,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitUnitTestSend(UnitTestSend uts) {
 		new DoSendGeneratorJS(state, sv, this.block, this.runner);
+	}
+
+	@Override
+	public void visitUnitTestRender(UnitTestRender e) {
+		new DoUTRenderGeneratorJS(state, sv, this.block, this.runner);
 	}
 
 	@Override

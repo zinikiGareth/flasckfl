@@ -1,0 +1,38 @@
+	struct First
+	struct Second
+	union Both
+		First
+		Second
+	
+.	card Expr1
+.		template main
+.			value <- nth 0 [First, Second]
+.			
+.		template first <- (First f)
+.		template second <- (Second s) 
+
+.	card Expr2
+.		template main
+.			value <- [First, Second] => row
+.
+.		template row <- (List[Both] items)
+.			blob <- nth 0 items
+.					
+.		template first <- (First f)
+.		template second <- (Second s) 
+
+.	card Expr3
+.		template main
+.			value <- gimme "hello"
+.
+.		gimme (String s) = "world"
+
+	object Expr4
+		ctor ok
+		
+		template first <- (First f)
+			clob <- gimme 'hi' 'there'
+		template second <- (Second s) 
+
+		gimme (String s) (String k) = "hello"
+			

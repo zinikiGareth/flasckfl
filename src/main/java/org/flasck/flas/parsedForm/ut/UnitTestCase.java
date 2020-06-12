@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.TargetZone;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -34,6 +35,11 @@ public class UnitTestCase implements UnitTestStepConsumer {
 	@Override
 	public void data(UnitDataDeclaration dd) {
 		this.steps.add(dd);
+	}
+
+	@Override
+	public void render(UnresolvedVar obj, TemplateReference template) {
+		this.steps.add(new UnitTestRender(obj, template));
 	}
 
 	@Override

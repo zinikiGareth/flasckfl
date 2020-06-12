@@ -1,0 +1,3 @@
+	test you can't call a ctor on an instance
+		data State[Number] inst <- State.obligatory
+		data State[Number] wrong <- inst.obligatory

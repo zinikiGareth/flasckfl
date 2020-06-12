@@ -1,0 +1,23 @@
+	test we can fire the right event on a condition
+		data Other obj <- Other.obj
+		data CondEvents ce
+		shove ce.obj
+			obj
+		event ce message (ClickEvent)
+		assert (ce.obj.empty)
+			True
+		match ce text message
+			hello
+
+	test we can then undo that by clicking again
+		data Other obj <- Other.obj
+		data CondEvents ce
+		shove ce.obj
+			obj
+		event ce message (ClickEvent)
+		event ce message (ClickEvent)
+		assert (ce.obj.empty)
+			False
+		match ce text message
+			goodbye
+		

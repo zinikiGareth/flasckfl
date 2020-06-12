@@ -2,6 +2,7 @@
 const UTRunner = function(logger) {
 	CommonEnv.call(this, logger, new SimpleBroker(logger, this, {}));
 	this.errors = [];
+	this.mocks = {};
 }
 
 UTRunner.prototype = new CommonEnv();
@@ -48,12 +49,44 @@ UTRunner.prototype.send = function(_cxt, target, contract, msg, args) {
 	this.dispatchMessages(_cxt);
 	this.updateCard(_cxt, target);
 }
+UTRunner.prototype.render = function(_cxt, target, fn, template) {
+	var sendTo = _cxt.env.mocks[target];
+	if (!sendTo)
+		throw Error("there is no mock " + target);
+	sendTo.rt = {};
+	if (sendTo.div) {
+		sendTo.div.innerHTML = '';
+	} else {
+		const newdiv = document.createElement("div");
+		newdiv.setAttribute("id", _cxt.nextDocumentId());
+		document.body.appendChild(newdiv);
+		sendTo.div = newdiv;
+		sendTo.rt._id = newdiv.id;
+	}
+	const mr = document.createElement("div");
+	mr.setAttribute("data-flas-mock", "result");
+	sendTo.div.appendChild(mr);
+	sendTo.redraw = function(cx) {
+		sendTo.obj._updateTemplate(cx, sendTo.rt, "mock", "result", fn, template, sendTo.obj, []);
+	}
+	sendTo.redraw(_cxt);
+}
 UTRunner.prototype.event = function(_cxt, target, zone, event) {
+	var sendTo = _cxt.env.mocks[target];
+	if (!sendTo)
+		throw Error("there is no mock " + target);
 	var div = null;
+	var receiver;
+	if (sendTo instanceof MockCard)
+		receiver = sendTo.card;
+	else if (sendTo instanceof MockFLObject)
+		receiver = sendTo; // presuming an object
+	else
+		throw Error("cannot send event to " + target);
 	if (!zone || zone.length == 0) {
-		div = target.card._currentDiv();
+		div = receiver._currentDiv();
 	} else 
-		div = this.findDiv(_cxt, target.card._renderTree, zone, 0);
+		div = this.findDiv(_cxt, receiver._currentRenderTree(), zone, 0);
 	if (div) {
 		div.dispatchEvent(event._makeJSEvent(_cxt));
 		this.dispatchMessages(_cxt);
@@ -88,14 +121,17 @@ UTRunner.prototype._nameOf = function(zone, pos) {
 	return ret;
 }
 UTRunner.prototype.getZoneDiv = function(_cxt, target, zone) {
-	if (!target || !target.card || !target.card._renderTree) {
+	if (!target || !target._currentRenderTree) {
 		throw Error("MATCH\nThe card has no rendered content");
 	}
 	// will throw error if not found
-	return this.findDiv(_cxt, target.card._renderTree, zone, 0);
+	return this.findDiv(_cxt, target._currentRenderTree(), zone, 0);
 }
 UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) {
-	var div = this.getZoneDiv(_cxt, target, zone);
+	var matchOn = _cxt.env.mocks[target];
+	if (!matchOn)
+		throw Error("there is no mock " + target);
+	var div = this.getZoneDiv(_cxt, matchOn, zone);
 	var actual = div.innerText.trim();
 	actual = actual.replace(/\n/g, ' ');
 	actual = actual.replace(/ +/, ' ');
@@ -108,7 +144,10 @@ UTRunner.prototype.matchText = function(_cxt, target, zone, contains, expected) 
 	}
 }
 UTRunner.prototype.matchStyle = function(_cxt, target, zone, contains, expected) {
-	var div = this.getZoneDiv(_cxt, target, zone);
+	var matchOn = _cxt.env.mocks[target];
+	if (!matchOn)
+		throw Error("there is no mock " + target);
+	var div = this.getZoneDiv(_cxt, matchOn, zone);
 	var clzlist = div.getAttribute("class");
 	if (!clzlist)
 		clzlist = "";
@@ -149,16 +188,26 @@ UTRunner.prototype.newdiv = function(cnt) {
 UTRunner.prototype.mockAgent = function(_cxt, agent) {
 	return new MockAgent(agent);
 }
-UTRunner.prototype.mockCard = function(_cxt, card) {
+UTRunner.prototype.mockCard = function(_cxt, name, card) {
 	var ret = new MockCard(_cxt, card);
+	this.mocks[name] = ret;
 	this.cards.push(ret);
 	return ret;
 }
+UTRunner.prototype._updateDisplay = function(_cxt, rt) {
+	this.updateAllCards(_cxt);
+}
 UTRunner.prototype.updateAllCards = function(_cxt) {
 	for (var i=0;i<this.cards.length;i++) {
-		var c = this.cards[i].card;
-		if (c._updateDisplay)
-			c._updateDisplay(_cxt, c._renderTree);
+		var mo = this.cards[i];
+		if (mo instanceof MockFLObject) {
+			if (mo.redraw)
+				mo.redraw(_cxt);
+		} else {
+			var c = mo.card;
+			if (c._updateDisplay)
+				c._updateDisplay(_cxt, c._renderTree);
+		}
 	}
 }
 
@@ -281,6 +330,24 @@ MockContract.prototype.assertSatisfied = function(_cxt) {
 		throw new Error("UNUSED\n" + msg);
 }
 
+const MockFLObject = function(obj) {
+	this.obj = obj;
+}
+
+MockFLObject.prototype._currentDiv = function() {
+	if (this.div)
+		return this.div;
+	else
+		throw Error("You must render the object first");
+}
+
+MockFLObject.prototype._currentRenderTree = function() {
+	if (this.rt)
+		return this.rt.result.single;
+	else
+		throw Error("You must render the object first");
+}
+
 const MockAgent = function(agent) {
 	this.agent = agent;
 };
@@ -306,6 +373,14 @@ MockCard.prototype.sendTo = function(_cxt, contract, msg, args) {
 	inv.splice(0, 0, _cxt);
 	return ctr[msg].apply(ctr, inv);
 };
+
+MockCard.prototype._currentDiv = function() {
+	return this.card._currentDiv();
+}
+
+MockCard.prototype._currentRenderTree = function() {
+	return this.card._renderTree;
+}
 
 MockCard.prototype._underlying = function(_cxt) {
 	return this.card;

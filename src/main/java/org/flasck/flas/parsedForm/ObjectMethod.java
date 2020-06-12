@@ -16,7 +16,7 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 	private ObjectDefn od;
 	private Implements impl;
 	private ContractMethodDecl contractMethod;
-	private CardDefinition eventCard;
+	private EventHolder eventCard;
 	private List<Template> eventSources = new ArrayList<>();
 	private List<Type> eventSourceTypes = new ArrayList<>();
 
@@ -26,7 +26,7 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 		this.holder = holder;
 	}
 
-	public void eventFor(CardDefinition card) {
+	public void eventFor(EventHolder card) {
 		this.eventCard = card;
 	}
 	
@@ -86,7 +86,7 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 	}
 
 	@Override
-	public CardDefinition getCard() {
+	public EventHolder getCard() {
 		return eventCard;
 	}
 

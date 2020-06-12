@@ -153,6 +153,11 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 				if (referencedTemplates != null)
 					referencedTemplates.add(option.sendsTo.name.baseName());
 			}
+			if (etype instanceof UnifiableType) {
+				throw new NotImplementedException("you need to go off and implement an extra pass here");
+			} else if (etype instanceof Apply) {
+				throw new NotImplementedException("you should have thrown an error before getting here: " + etype.signature());
+			}
 			if (etype instanceof ObjectDefn) {
 				if (option.sendsTo == null || option.sendsTo.template() == null) {
 					errors.message(pos, "must use templates to render object " + etype.signature());

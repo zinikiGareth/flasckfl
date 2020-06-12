@@ -65,6 +65,7 @@ import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestNewDiv;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
+import org.flasck.flas.parsedForm.ut.UnitTestRender;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
 import org.flasck.flas.parsedForm.ut.UnitTestStep;
@@ -179,6 +180,7 @@ public interface RepositoryVisitor {
 	void leaveUnitTestExpect(UnitTestExpect ute);
 	void visitUnitTestSend(UnitTestSend s);
 	void leaveUnitTestSend(UnitTestSend s);
+	void visitUnitTestRender(UnitTestRender e);
 	void visitUnitTestEvent(UnitTestEvent e);
 	void leaveUnitTestEvent(UnitTestEvent e);
 	void visitSendMethod(NamedType defn, UnresolvedVar expr);
@@ -225,4 +227,5 @@ public interface RepositoryVisitor {
 	void leaveCheckTypeExpr(CheckTypeExpr expr);
 	void visitConvertedExpr(MemberExpr expr, int nargs);
 	void leaveConvertedExpr(MemberExpr expr);
+	void leaveUnitTestRender(UnitTestRender e);
 }

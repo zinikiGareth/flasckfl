@@ -26,7 +26,7 @@ import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
-import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.assembly.BuildAssembly;
@@ -64,7 +64,7 @@ public class FLASCompiler {
 	private final Splitter splitter;
 //	private final DroidBuilder builder = new DroidBuilder();
 	private JSEnvironment jse;
-	private Map<CardDefinition, EventTargetZones> eventMap;
+	private Map<EventHolder, EventTargetZones> eventMap;
 	private ByteCodeEnvironment bce;
 
 	public FLASCompiler(ErrorReporter errors, Repository repository) {
@@ -175,7 +175,7 @@ public class FLASCompiler {
 	
 	public boolean buildEventMaps() {
 		StackVisitor stack = new StackVisitor();
-		eventMap = new HashMap<CardDefinition, EventTargetZones>();
+		eventMap = new HashMap<EventHolder, EventTargetZones>();
 		new EventBuilder(stack, eventMap);
 		repository.traverse(stack);
 		

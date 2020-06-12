@@ -52,6 +52,7 @@ import org.flasck.flas.compiler.jsgen.form.JSMockAgent;
 import org.flasck.flas.compiler.jsgen.form.JSMockCard;
 import org.flasck.flas.compiler.jsgen.form.JSMockContract;
 import org.flasck.flas.compiler.jsgen.form.JSMockHandler;
+import org.flasck.flas.compiler.jsgen.form.JSNameOf;
 import org.flasck.flas.compiler.jsgen.form.JSNew;
 import org.flasck.flas.compiler.jsgen.form.JSNewDiv;
 import org.flasck.flas.compiler.jsgen.form.JSNewState;
@@ -118,6 +119,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr string(String string) {
 		return new JSString(string);
+	}
+
+	@Override
+	public JSExpr nameOf(JSExpr expr) {
+		return new JSNameOf(expr);
 	}
 
 	@Override
@@ -323,7 +329,9 @@ public class JSBlock implements JSBlockCreator {
 	
 	@Override
 	public JSExpr storeMockObject(UnitDataDeclaration udd, JSExpr value) {
-		JSLocal ret = new JSLocal(creating, new JSStoreMock(value));
+		JSStoreMock store = new JSStoreMock(value);
+		JSLocal ret = new JSLocal(creating, store);
+		store.nameAs(ret);
 		stmts.add(ret);
 		return ret;
 	}
@@ -504,7 +512,9 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr createCard(CardName name) {
-		JSLocal ret = new JSLocal(this.creating, new JSMockCard(name));
+		JSMockCard card = new JSMockCard(name);
+		JSLocal ret = new JSLocal(this.creating, card);
+		card.nameAs(ret);
 		stmts.add(ret);
 		return ret;
 	}

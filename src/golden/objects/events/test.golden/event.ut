@@ -1,0 +1,6 @@
+	test we can click on an object
+		data EventHandler ev <- EventHandler.create
+		render ev => block
+		event ev counter (ClickEvent)
+		match ev text
+			1

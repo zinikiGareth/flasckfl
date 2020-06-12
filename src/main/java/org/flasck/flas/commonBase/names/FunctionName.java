@@ -54,7 +54,7 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 		return new FunctionName(location, fnName, name);
 	}
 
-	public static FunctionName eventMethod(InputPosition location, CardName cardName, String name) {
+	public static FunctionName eventMethod(InputPosition location, NameOfThing cardName, String name) {
 		return new FunctionName(location, cardName, name);
 	}
 

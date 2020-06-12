@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -22,6 +23,11 @@ public class TestStepNamer implements UnitDataNamer {
 	@Override
 	public FunctionName dataName(InputPosition location, String text) {
 		return FunctionName.function(location, name, text);
+	}
+
+	@Override
+	public TemplateName template(InputPosition location, String text) {
+		return new TemplateName(location, name, text);
 	}
 
 	@Override

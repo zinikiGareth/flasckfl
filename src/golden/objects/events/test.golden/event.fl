@@ -1,0 +1,12 @@
+	object EventHandler
+		state
+			Number counter <- 0
+
+		ctor create
+		
+		template block
+			counter <- counter
+				=> handle
+				
+		event handle (ClickEvent ev)
+			counter <- counter + 1
