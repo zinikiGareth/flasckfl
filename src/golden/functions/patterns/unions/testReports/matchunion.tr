@@ -1,2 +1,6 @@
 JVM PASS topCard can return ShowCard as default
+JVM PASS unions come aftor ctor match
+JVM PASS unions are catch all cases
 JS PASS topCard can return ShowCard as default
+JS PASS unions come aftor ctor match
+JS PASS unions are catch all cases

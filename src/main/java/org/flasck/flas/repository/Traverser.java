@@ -1,6 +1,7 @@
 package org.flasck.flas.repository;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -123,6 +124,18 @@ public class Traverser implements RepositoryVisitor {
 	private boolean visitMemberFields = false;
 	private boolean isConverted;
 	private boolean currFnHasState;
+	private Comparator<NamedType> unionLastOrder = new Comparator<NamedType>() {
+		@Override
+		public int compare(NamedType o1, NamedType o2) {
+			boolean o1isU = o1 instanceof UnionTypeDefn;
+			boolean o2isU = o2 instanceof UnionTypeDefn;
+			if (!o1isU && o2isU)
+				return -1;
+			else if (o1isU && !o2isU)
+				return 1;
+			return NamedType.nameComparator.compare(o1, o2);
+		}
+	};
 
 	public Traverser(RepositoryVisitor visitor) {
 		this.visitor = visitor;
@@ -982,7 +995,9 @@ public class Traverser implements RepositoryVisitor {
 					visitHSI(updatedVars, indent, extended, retainedIntros, bi, backupPlan, forDef);
 				}
 				Set<NamedType> still = new HashSet<>(opts.types());
-				for (NamedType ty : opts.types()) {
+				Set<NamedType> ordered = new TreeSet<>(unionLastOrder);
+				ordered.addAll(opts.types());
+				for (NamedType ty : ordered) {
 					still.remove(ty);
 					DontConsiderAgain dca = forDef.considered(s, ty);
 					if (dca == null)
