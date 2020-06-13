@@ -4,12 +4,12 @@
 		First
 		Second
 	
-.	card Expr1
-.		template main
-.			value <- nth 0 [First, Second]
-.			
-.		template first <- (First f)
-.		template second <- (Second s) 
+	card Expr1
+		template main
+			holder <- nth 0 [First, Second]
+			
+		template first <- (First f)
+		template second <- (Second s) 
 
 	card Expr2
 		template main
