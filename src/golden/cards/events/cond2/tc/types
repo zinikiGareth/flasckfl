@@ -1,3 +1,4 @@
-test.golden.CondEvents.makeNo :: ClickEvent->List[Message]
-test.golden.CondEvents.makeYes :: ClickEvent->List[Message]
-test.golden.CondEvents.upCounter :: ClickEvent->List[Message]
+test.golden.CondEvents.toggle :: ClickEvent->List[Message]
+test.golden.Other._ctor_obj :: test.golden.Other
+test.golden.Other.check :: Boolean
+test.golden.Other.set :: Boolean->List[Message]

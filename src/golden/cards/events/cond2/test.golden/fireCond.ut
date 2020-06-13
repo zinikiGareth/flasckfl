@@ -1,13 +1,23 @@
+	test the mapping works as we expect
+		data Other obj <- Other.obj
+		data CondEvents ce
+		shove ce.obj
+			obj
+		assert (ce.obj.check)
+			True
+		match ce text message
+			hello
+
 	test we can fire the right event on a condition
 		data Other obj <- Other.obj
 		data CondEvents ce
 		shove ce.obj
 			obj
 		event ce message (ClickEvent)
-		assert (ce.obj.empty)
-			True
+		assert (ce.obj.check)
+			False
 		match ce text message
-			hello
+			goodbye
 
 	test we can then undo that by clicking again
 		data Other obj <- Other.obj
@@ -16,8 +26,8 @@
 			obj
 		event ce message (ClickEvent)
 		event ce message (ClickEvent)
-		assert (ce.obj.empty)
-			False
+		assert (ce.obj.check)
+			True
 		match ce text message
-			goodbye
+			hello
 		

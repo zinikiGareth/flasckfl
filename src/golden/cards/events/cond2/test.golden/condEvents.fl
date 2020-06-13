@@ -1,23 +1,28 @@
 	object Other
 		state
-			Boolean cond <- False
+			Boolean cond <- True
 		ctor obj
-		acor empty = cond
+		acor check = cond
 		method set (Boolean b)
 			cond <- b
 
 	card CondEvents
 		state
+			Boolean flag
 			Other obj
 
 		template hello
 			message
-				| obj.empty <- 'hello'
+				| obj.check <- 'hello'
 					=> toggle
 				<- 'goodbye'
 					=> toggle
 		event toggle (ClickEvent e)
-			| obj.empty
+			| obj.check
+				<- obj.set False
+			| False
+				<- obj.set True
+			| flag
 				<- obj.set True
 			|
-				<- obj.set False
+				<- obj.set True

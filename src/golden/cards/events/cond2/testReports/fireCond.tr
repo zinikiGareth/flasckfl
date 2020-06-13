@@ -1,4 +1,6 @@
+JVM PASS the mapping works as we expect
 JVM PASS we can fire the right event on a condition
 JVM PASS we can then undo that by clicking again
+JS PASS the mapping works as we expect
 JS PASS we can fire the right event on a condition
 JS PASS we can then undo that by clicking again

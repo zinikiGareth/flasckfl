@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -24,6 +26,7 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 	private final List<Expr> results = new ArrayList<>();
 	private ObjectActionHandler oah;
 	private final FunctionIntro fi;
+	private boolean msgHasGuard = false;
 	private boolean haveGuards = false;
 
 	public MethodConvertor(ErrorReporter errors, NestedVisitor sv, ObjectActionHandler oah) {
@@ -33,6 +36,26 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 		this.oah = oah;
 	}
 	
+	@Override
+	public void visitGuardedMessage(GuardedMessages gm) {
+		haveGuards = true;
+		msgHasGuard = false;
+	}
+
+	@Override
+	public void visitExpr(Expr expr, int nArgs) {
+		if (!haveGuards)
+			return;
+		
+		msgHasGuard = true;
+		if (expr instanceof ApplyExpr)
+			sv.push(new MessageConvertor(errors, sv, oah));
+		else if (expr instanceof MemberExpr)
+			sv.push(new MemberExprConvertor(errors, sv, oah));
+		else
+			results.add(expr);
+	}
+
 	@Override
 	public void visitMessage(ActionMessage msg) {
 		sv.push(new MessageConvertor(errors, sv, oah));
@@ -45,8 +68,10 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveGuardedMessage(GuardedMessages gm) {
-		haveGuards = true;
-		fi.functionCase(new FunctionCaseDefn(gm.guard, new Messages(oah.location(), new ArrayList<>(results))));
+		Expr guard = null;
+		if (msgHasGuard)
+			guard = results.remove(0);
+		fi.functionCase(new FunctionCaseDefn(guard, new Messages(oah.location(), new ArrayList<>(results))));
 		results.clear();
 	}
 
