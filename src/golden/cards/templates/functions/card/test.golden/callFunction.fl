@@ -1,0 +1,12 @@
+This may look weird, but it was added to check that template bindings correctly set "haveFnState"
+The function henry is here just to set it to false before the template binding function is processed.
+This obviously assumes knowledge of the compiler internals and therefore is somewhat fragile - except obviously it should keep working
+	
+	card CallFunction
+		template main
+			value <- mapping []
+			
+		mapping [] = 'hello'
+		mapping (Cons[String] msgs) = msgs.head
+	
+	henry = "hello" 

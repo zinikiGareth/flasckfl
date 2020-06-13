@@ -501,6 +501,7 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	public void visitTemplateBinding(TemplateBinding b) {
+		currFnHasState = true;
 		visitor.visitTemplateBinding(b);
 		for (TemplateBindingOption c : b.conditional()) {
 			visitTemplateBindingOption(c);

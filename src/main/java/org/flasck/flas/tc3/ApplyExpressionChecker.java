@@ -21,8 +21,11 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.ExpressionChecker.IgnoreMe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
+	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor nv;
@@ -86,6 +89,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(new ErrorType());
 			return;
 		}
+		logger.debug("Attempting to check application of " + fn + " to " + results);
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
 		int max = fn.argCount();

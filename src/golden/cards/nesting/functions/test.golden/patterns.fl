@@ -1,0 +1,10 @@
+	card FunctionInEventMethod
+		state
+			Number first
+			List[String] data <- [ 'hello', 'world' ]
+
+		event doit (ClickEvent ev)
+			first <- show data
+			
+		show [] = 0
+		show (List[String] l) = 14
