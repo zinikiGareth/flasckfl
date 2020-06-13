@@ -65,7 +65,7 @@ public class TDAParseTemplateElements {
 		}).tryParsing(toks);
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
-			errors.message(toks, "syntax error");
+			errors.message(toks, "=> required for styling");
 			return new IgnoreNestedParser();
 		}
 		if ("=>".equals(tok.text)) {
@@ -75,7 +75,7 @@ public class TDAParseTemplateElements {
 			consumer.accept(tso);
 			return new TDATemplateStylingParser(errors, source, namer, tso);
 		} else {
-			errors.message(toks, "syntax error");
+			errors.message(toks, "=> required for styling");
 			return new IgnoreNestedParser();
 		}
 

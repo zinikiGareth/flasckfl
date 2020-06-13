@@ -412,6 +412,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	private void processMemberOfType(MemberExpr expr, NamedType nt, String var) {
+		if (nt == null) {
+			// no type was found ... this should have been an error at some point
+			if (!errors.hasErrors())
+				throw new CantHappenException("this should have been an error somewhere");
+			return;
+		}
 		if (nt instanceof PolyInstance)
 			nt = ((PolyInstance)nt).struct();
 		if (nt instanceof StructDefn) {
