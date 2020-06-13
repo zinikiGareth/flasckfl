@@ -430,6 +430,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			expr.bind(sf);
 		} else if (nt instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) nt;
+			if (od.getConstructor(var) != null) {
+				errors.message(expr.fld.location(), "cannot call constructor on an instance; use type name");
+				return;
+			}
 			FieldAccessor acor = od.getAccessor(var);
 			if (acor != null) {
 				expr.bind((RepositoryEntry) acor);

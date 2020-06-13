@@ -1,4 +1,5 @@
-ctorOnIn
+ctorOnInstan  3.33:   data State[Number] wrong <- inst. _ obligatory
+                          cannot call constructor on an instance; use type name
 duplerror.fl  4.7:    object  _ Duplicate
                           test.golden.Duplicate is defined multiple times: duplerror.fl  1.7
 duplerror.fl  9.5:    ctor  _ fred
