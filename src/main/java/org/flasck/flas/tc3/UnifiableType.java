@@ -94,4 +94,8 @@ public interface UnifiableType extends Type {
 
 	// require that the UT resolves to (any kind of) non-primitive or else throw this error
 	void requireNonPrimitive(InputPosition pos, String err);
+
+	// if we need to resolve before doing further processing, then add a callback for the latter processing here
+	// note that this CANNOT introduce new uncertainty
+	void callOnResolved(CallOnResolution handler);
 }

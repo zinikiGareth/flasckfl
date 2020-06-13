@@ -126,6 +126,7 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 	};
 	private final boolean needAll;
+	private final List<CallOnResolution> onResolved = new ArrayList<>();
 	final static Comparator<? super PosType> posNameComparator = new Comparator<PosType>() {
 
 		@Override
@@ -276,6 +277,7 @@ public class TypeConstraintSet implements UnifiableType {
 		this.usedOrReturned += tcs.usedOrReturned;
 		this.acquired.add(ut);
 		this.errorConstraints.addAll(tcs.errorConstraints);
+		this.onResolved.addAll(tcs.onResolved);
 	}
 
 	@Override
@@ -569,6 +571,9 @@ public class TypeConstraintSet implements UnifiableType {
 		for (ErrorConstraint e : errorConstraints)
 			e.apply(errors, resolvedTo);
 		
+		for (CallOnResolution c : onResolved)
+			c.typeResolved(resolvedTo);
+		
 		logger.debug("resolved to " + resolvedTo);
 		return resolvedTo;
 	}
@@ -737,6 +742,11 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public void requireNonPrimitive(InputPosition pos, String err) {
 		errorConstraints.add(new ErrorConstraint(x -> !TypeHelpers.isPrimitive(x), pos, err));
+	}
+
+	@Override
+	public void callOnResolved(CallOnResolution handler) {
+		onResolved.add(handler);
 	}
 
 	public String asTCS() {

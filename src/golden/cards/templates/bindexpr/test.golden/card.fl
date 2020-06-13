@@ -11,15 +11,15 @@
 .		template first <- (First f)
 .		template second <- (Second s) 
 
-.	card Expr2
-.		template main
-.			value <- [First, Second] => row
-.
-.		template row <- (List[Both] items)
-.			blob <- nth 0 items
-.					
-.		template first <- (First f)
-.		template second <- (Second s) 
+	card Expr2
+		template main
+			value <- [First, Second] => row
+
+		template row <- (List[Both] items)
+			blob <- nth 0 items
+					
+		template first <- (First f)
+		template second <- (Second s) 
 
 	card Expr3
 		template main
