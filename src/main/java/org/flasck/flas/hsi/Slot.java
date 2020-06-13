@@ -10,4 +10,5 @@ public interface Slot {
 	int score();
 	String id();
 	List<FunctionIntro> lessSpecific();
+	boolean isContainer();
 }

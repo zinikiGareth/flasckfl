@@ -21,11 +21,11 @@
 .		template first <- (First f)
 .		template second <- (Second s) 
 
-.	card Expr3
-.		template main
-.			value <- gimme "hello"
-.
-.		gimme (String s) = "world"
+	card Expr3
+		template main
+			value <- gimme "hello"
+
+		gimme (String s) = "world"
 
 	object Expr4
 		ctor ok

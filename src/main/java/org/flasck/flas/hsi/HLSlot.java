@@ -15,6 +15,11 @@ public class HLSlot implements Slot {
 	}
 
 	@Override
+	public boolean isContainer() {
+		return false;
+	}
+
+	@Override
 	public List<FunctionIntro> lessSpecific() {
 		return new ArrayList<FunctionIntro>();
 	}

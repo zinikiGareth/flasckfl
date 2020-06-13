@@ -120,6 +120,8 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 
 	@Override
 	public void bind(Slot slot, String var) {
+		if (slot.isContainer())
+			return;
 		state.bindVar(currentBlock, var, slot, switchVars.copyMe().get(currentBlock, slot));
 	}
 

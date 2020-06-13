@@ -18,6 +18,11 @@ public class CMSlot implements Slot {
 	}
 
 	@Override
+	public boolean isContainer() {
+		return false;
+	}
+
+	@Override
 	public HSIOptions getOptions() {
 		return contained;
 	}
