@@ -43,6 +43,11 @@ public class TupleAssignment implements RepositoryEntry, LogicHolder, TypeBinder
 	}
 
 	@Override
+	public boolean isObjAccessor() {
+		return false;
+	}
+
+	@Override
 	public void dumpTo(PrintWriter pw) {
 		pw.println(toString());
 	}

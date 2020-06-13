@@ -14,9 +14,12 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.tc3.Primitive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class PatternAnalyzer extends LeafAdapter {
+	public final static Logger logger = LoggerFactory.getLogger("Patterns");
 	private HSITree hsiTree;
 	private final NestedVisitor sv;
 	private int nslot;
@@ -43,11 +46,13 @@ public class PatternAnalyzer extends LeafAdapter {
 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
+		logger.info("analyzing " + fn.name().uniqueName() + " with " + fn.argCount() + " total patterns");
 		hsiTree = new HSIArgsTree(fn.argCount());
 	}
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
+		logger.info("analyzing " + meth.name().uniqueName() + " with " + meth.argCount() + " total patterns");
 		hsiTree = new HSIArgsTree(meth.argCount() + (meth.handler != null ? 1 : 0));
 		nslot = 0;
 		current = null;
@@ -56,6 +61,7 @@ public class PatternAnalyzer extends LeafAdapter {
 
 	@Override
 	public void visitObjectCtor(ObjectCtor meth) {
+		logger.info("analyzing " + meth.name().uniqueName() + " with " + meth.argCount() + " total patterns");
 		hsiTree = new HSIArgsTree(meth.argCount());
 		nslot = 0;
 		current = null;
@@ -67,6 +73,7 @@ public class PatternAnalyzer extends LeafAdapter {
 		nslot = 0;
 		current = fi;
 		hsiTree.consider(fi);
+		logger.info("Considering intro " + fi.name().uniqueName());
 	}
 	
 	@Override
@@ -76,12 +83,14 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void visitVarPattern(VarPattern p, boolean isNested) {
+		logger.info("var " + p.var);
 		this.slot.addVar(p, current);
 		this.slot.includes(this.current);
 	}
 	
 	@Override
 	public void visitTypedPattern(TypedPattern p, boolean isNested) {
+		logger.info((isNested?"nested ":"") + "typed  var " + p.var);
 		if (!isNested)
 			this.slot.addTyped(p, current);
 		else
@@ -91,6 +100,7 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void visitConstructorMatch(ConstructorMatch p, boolean isNested) {
+		logger.info("Nesting constructor match for " + p.actual());
 		HSITree nested = slot.requireCM(p.actual());
 		nested.consider(current);
 		new PatternAnalyzer(errors, repository, sv, nested, current);
@@ -104,6 +114,7 @@ public class PatternAnalyzer extends LeafAdapter {
 
 	@Override
 	public void leaveConstructorMatch(ConstructorMatch p) {
+		logger.info("Done matching constructor " + p.actual());
 		sv.result(hsiTree);
 	}
 
@@ -126,24 +137,24 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void leaveFunctionIntro(FunctionIntro fi) {
-		// TODO: this should actually bind a projection of the tree
 		fi.bindTree(hsiTree);
 	}
 	
 	@Override
 	public void leaveFunction(FunctionDefinition fn) {
-//		System.out.println(fn.name().uniqueName());
-//		hsiTree.dump("  ");
+		logger.info("analyzed " + fn.name().uniqueName());
 		fn.bindHsi(hsiTree);
 	}
 
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
+		logger.info("analyzed " + meth.name().uniqueName());
 		meth.bindHsi(hsiTree);
 	}
 
 	@Override
 	public void leaveObjectCtor(ObjectCtor meth) {
+		logger.info("analyzed " + meth.name().uniqueName());
 		meth.bindHsi(hsiTree);
 	}
 }

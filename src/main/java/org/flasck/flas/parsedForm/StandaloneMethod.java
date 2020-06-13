@@ -40,6 +40,11 @@ public class StandaloneMethod implements RepositoryEntry, LogicHolder, TypeBinde
 	}
 
 	@Override
+	public boolean isObjAccessor() {
+		return false;
+	}
+
+	@Override
 	public String signature() {
 		throw new NotImplementedException();
 	}

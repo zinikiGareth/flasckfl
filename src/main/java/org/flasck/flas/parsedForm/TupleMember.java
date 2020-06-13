@@ -44,6 +44,11 @@ public class TupleMember implements Locatable, RepositoryEntry, LogicHolder, Com
 	}
 
 	@Override
+	public boolean isObjAccessor() {
+		return false;
+	}
+
+	@Override
 	public HSITree hsiTree() {
 		throw new NotImplementedException();
 	}

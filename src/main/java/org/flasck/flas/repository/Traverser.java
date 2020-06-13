@@ -110,7 +110,7 @@ import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class Traverser implements RepositoryVisitor {
-	final static Logger patternsLogger = LoggerFactory.getLogger("Patterns");
+	final static Logger patternsLogger = LoggerFactory.getLogger("TOPatterns");
 	final static Logger hsiLogger = LoggerFactory.getLogger("HSI");
 	private final RepositoryVisitor visitor;
 	private LogicHolder currentFunction;
@@ -1094,7 +1094,7 @@ public class Traverser implements RepositoryVisitor {
 	public void visitPatterns(PatternsHolder fn) {
 		if (wantNestedPatterns && currentFunction != null) {
 			NamedType sh = (NamedType) currentFunction.state();
-			if (sh != null && !(sh instanceof ObjectDefn)) {
+			if (!currentFunction.isObjAccessor() && !(currentFunction instanceof ObjectCtor) && sh != null) {
 				TypeReference tr = new TypeReference(fn.location(), sh.name().baseName());
 				tr.bind(sh);
 				visitPattern(new TypedPattern(fn.location(), tr, new VarName(fn.location(), fn.name(), "_this")), true);

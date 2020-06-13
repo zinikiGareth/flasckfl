@@ -54,6 +54,11 @@ public abstract class ObjectActionHandler extends ObjectMessagesHolder implement
 	}
 
 	@Override
+	public boolean isObjAccessor() {
+		return false;
+	}
+	
+	@Override
 	public int compareTo(LogicHolder o) {
 		return name().compareTo(o.name());
 	}
