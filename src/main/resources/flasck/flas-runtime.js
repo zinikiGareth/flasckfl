@@ -1211,6 +1211,38 @@ FLBuiltin.isEqual = function(_cxt, a, b) {
 
 FLBuiltin.isEqual.nfargs = function() { return 2; }
 
+FLBuiltin.greaterEqual = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return a>=b;
+}
+
+FLBuiltin.greaterEqual.nfargs = function() { return 2; }
+
+FLBuiltin.greaterThan = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return a>b;
+}
+
+FLBuiltin.greaterThan.nfargs = function() { return 2; }
+
+FLBuiltin.lessEqual = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return a<=b;
+}
+
+FLBuiltin.lessEqual.nfargs = function() { return 2; }
+
+FLBuiltin.lessThan = function(_cxt, a, b) {
+	a = _cxt.full(a);
+	b = _cxt.full(b);
+	return a<b;
+}
+
+FLBuiltin.lessThan.nfargs = function() { return 2; }
+
 FLBuiltin._probe_state = function(_cxt, mock, v) {
 	// mock should be a MockCard or MockAgent (or MockObject or something?)
 	var sh = mock;

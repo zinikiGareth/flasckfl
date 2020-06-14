@@ -111,6 +111,10 @@ public class LoadBuiltins {
 	// Builtin operators
 	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null);
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, null);
+	public static final FunctionDefinition isGE = new FunctionDefinition(FunctionName.function(pos, null, ">="), 2, null);
+	public static final FunctionDefinition isGT = new FunctionDefinition(FunctionName.function(pos, null, ">"), 2, null);
+	public static final FunctionDefinition isLE = new FunctionDefinition(FunctionName.function(pos, null, "<="), 2, null);
+	public static final FunctionDefinition isLT = new FunctionDefinition(FunctionName.function(pos, null, "<"), 2, null);
 	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
 	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, null);
 	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, null);
@@ -201,6 +205,10 @@ public class LoadBuiltins {
 			Type pa = new PolyType(pos, new SolidName(null, "A"));
 			isEqual.bindType(new Apply(pa, pa, bool));
 		}
+		isGE.bindType(new Apply(number, number, bool));
+		isGT.bindType(new Apply(number, number, bool));
+		isLE.bindType(new Apply(number, number, bool));
+		isLT.bindType(new Apply(number, number, bool));
 		isType.bindType(new Apply(type, any, bool));
 		plus.bindType(new Apply(number, number, number));
 		minus.bindType(new Apply(number, number, number));
@@ -224,6 +232,10 @@ public class LoadBuiltins {
 		
 		// add all current functions to list for dependency resolution
 		allFunctions.add(isEqual);
+		allFunctions.add(isGE);
+		allFunctions.add(isGT);
+		allFunctions.add(isLE);
+		allFunctions.add(isLT);
 		allFunctions.add(isType);
 		allFunctions.add(plus);
 		allFunctions.add(minus);
@@ -271,6 +283,10 @@ public class LoadBuiltins {
 
 		repository.functionDefn(errors, isType);
 		repository.functionDefn(errors, isEqual);
+		repository.functionDefn(errors, isGE);
+		repository.functionDefn(errors, isGT);
+		repository.functionDefn(errors, isLE);
+		repository.functionDefn(errors, isLT);
 		repository.functionDefn(errors, plus);
 		repository.functionDefn(errors, minus);
 		repository.functionDefn(errors, mul);

@@ -347,6 +347,18 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 		case "==":
 			inner = "IsEqual";
 			break;
+		case ">=":
+			inner = "GreaterEqual";
+			break;
+		case ">":
+			inner = "GreaterThan";
+			break;
+		case "<=":
+			inner = "LessEqual";
+			break;
+		case "<":
+			inner = "LessThan";
+			break;
 		case "+":
 			inner = "Plus";
 			break;

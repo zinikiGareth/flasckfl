@@ -1,0 +1,48 @@
+	test greater than LT fails
+		assert (2 > 10)
+			False
+			
+	test greater than EQ fails
+		assert (10 > 10)
+			False
+
+	test greater than GT passes
+		assert (10 > 2)
+			True
+
+	test greater equal LT fails
+		assert (2 >= 10)
+			False
+			
+	test greater equal EQ passes
+		assert (10 >= 10)
+			True
+
+	test greater equal GT passes
+		assert (10 >= 2)
+			True
+
+	test less than LT passes
+		assert (2 < 10)
+			True
+			
+	test less than EQ fails
+		assert (10 < 10)
+			False
+
+	test less than GT fails
+		assert (10 < 2)
+			False
+
+	test less equal LT passes
+		assert (2 <= 10)
+			True
+			
+	test less equal EQ passes
+		assert (10 <= 10)
+			True
+
+	test less equal GT fails
+		assert (10 <= 2)
+			False
+			
