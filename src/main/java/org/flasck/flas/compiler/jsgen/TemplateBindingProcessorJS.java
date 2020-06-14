@@ -87,12 +87,15 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 	
 	@Override
 	public void result(Object r) {
-		if (r instanceof JSStyleIf) {
-			JSStyleIf si = (JSStyleIf)r;
-			if (si.cond != null)
-				styles.add(si);
-			else
-				cexpr.add(si.style);
+		if (r instanceof List) {
+			@SuppressWarnings("unchecked")
+			List<JSStyleIf> lsi = (List<JSStyleIf>)r;
+			for (JSStyleIf si : lsi) {
+				if (si.cond != null)
+					styles.add(si);
+				else
+					cexpr.add(si.style);
+			}
 		} else {
 			if (mode == Mode.COND) {
 				ie = bindingBlock.ifTrue((JSExpr) r);

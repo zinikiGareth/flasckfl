@@ -36,7 +36,7 @@ public class EventMap {
 			IndentWriter lw = kw.indent();
 			boolean ft = true;
 			for (TemplateTarget tt : methods.targets(t)) {
-				ft = writeHi(ft, lw, tt.type, tt.slot, tt.option, methods.getHandler(tt.handler));
+				ft = writeHi(ft, lw, tt.type, tt.slot, tt.option, methods.getHandler(tt.handler), tt.evcond);
 			}
 			if (!ft)
 				kw.println("");
@@ -53,7 +53,7 @@ public class EventMap {
 			boolean ft = true;
 			IndentWriter lw = kw.indent();
 			for (HandlerInfo hi : unbound) {
-				ft = writeHi(ft, lw, null, null, 0, hi);
+				ft = writeHi(ft, lw, null, null, 0, hi, null);
 			}
 			if (!ft)
 				kw.println("");
@@ -64,7 +64,7 @@ public class EventMap {
 		iw.println("};");
 	}
 
-	private boolean writeHi(boolean ft, IndentWriter lw, String type, String slot, int option, HandlerInfo hi) {
+	private boolean writeHi(boolean ft, IndentWriter lw, String type, String slot, int option, HandlerInfo hi, Integer evcond) {
 		if (!ft) {
 			lw.println(",");
 		} else
@@ -84,6 +84,10 @@ public class EventMap {
 		lw.print(hi.event);
 		lw.print(", handler: ");
 		lw.print(hi.name.jsPName());
+		if (evcond != null) {
+			lw.print(", cond: ");
+			lw.print(evcond.toString());
+		}
 		lw.print(" }");
 		return false;
 	}

@@ -49,12 +49,15 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void result(Object r) {
-		if (r instanceof JSStyleIf) {
-			JSStyleIf si = (JSStyleIf)r;
-			if (si.cond != null)
-				styles.add(si);
-			else
-				cexpr.add(si.style);
+		if (r instanceof List) {
+			@SuppressWarnings("unchecked")
+			List<JSStyleIf> lsi = (List<JSStyleIf>)r;
+			for (JSStyleIf si : lsi) {
+				if (si.cond != null)
+					styles.add(si);
+				else
+					cexpr.add(si.style);
+			}
 		}
 	}
 

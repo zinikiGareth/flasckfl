@@ -8,12 +8,13 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 
 public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 	public enum Mode {
-		COND, EXPR
+		COND, EXPR, NESTED
 	}
 
 	private final JSFunctionState state;
@@ -22,6 +23,9 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 	private final List<JSExpr> exprs = new ArrayList<>();
 	private JSExpr cond;
 	private Mode mode;
+	
+	// Because we process nested styles before our own, we need to keep them on delay until we are ready to send them ...
+	private List<JSStyleIf> styles = new ArrayList<>();
 
 	public TemplateStylingJS(JSFunctionState state, NestedVisitor sv, JSBlockCreator currentBlock, TemplateStylingOption tso) {
 		this.state = state;
@@ -30,6 +34,12 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 		sv.push(this);
 	}
 
+	@Override
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+		mode = Mode.NESTED;
+		new TemplateStylingJS(state, sv, currentBlock, tso);
+	}
+	
 	@Override
 	public void visitTemplateStyleCond(Expr cond) {
 		mode = Mode.COND;
@@ -46,8 +56,22 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 	public void result(Object r) {
 		if (mode == Mode.COND)
 			cond = (JSExpr) r;
-		else
+		else if (mode == Mode.EXPR)
 			exprs.add((JSExpr)r);
+		else {
+			@SuppressWarnings("unchecked")
+			List<JSStyleIf> lsi = (List<JSStyleIf>) r;
+			for (JSStyleIf si : lsi) {
+				if (cond == null)
+					styles.add(si);
+				else {
+					JSExpr doAnd = cond;
+					if (si.cond != null)
+						doAnd = currentBlock.closure(false, currentBlock.pushFunction("FLBuiltin.boolAnd"), cond, si.cond);
+					styles.add(new JSStyleIf(doAnd, si.style));
+				}
+			}
+		}
 	}
 
 	@Override
@@ -63,8 +87,10 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 				exprs.add(0, currentBlock.string(c));
 			ret = currentBlock.callMethod(currentBlock.literal("FLBuiltin"), "concatMany", exprs.toArray(new JSExpr[exprs.size()]));
 		}
-				
-		sv.result(new JSStyleIf(cond, ret));
+		
+		// put ours before the nested ones because that is where it 'logically' comes
+		// more importantly, that is where the JS event-handling code will be looking for it
+		styles.add(0, new JSStyleIf(cond, ret));
+		sv.result(styles);
 	}
-	
 }
