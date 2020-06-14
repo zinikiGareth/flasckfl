@@ -642,73 +642,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			ud.ifNotNull(card, callCardUpdate, null).flush();
 			ud.returnVoid().flush();
 		}
-		{ // This is just cutten-and-pasten from CardDefn ... we should probably refactor
-			// _events()
-			EventTargetZones eventMethods = eventMap.get(od);
-
-			// ideally, this would return a statically created map but I can't be bothered
-			// right now ...
-			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_eventHandlers");
-			gen.returns(Map.class.getName());
-			MethodDefiner cardevents = gen.done();
-			cardevents.lenientMode(leniency);
-			Var v = cardevents.avar(Map.class.getName(), "ret");
-			cardevents.assign(v, cardevents.makeNew(TreeMap.class.getName())).flush();
-//			TypedPattern tp = (TypedPattern) om.args().get(0);
-//			EventsMethod em = evhs.get(card);
-//			em.meth.voidExpr(em.meth.callInterface(J.OBJECT, em.ret, "put", em.meth.as(em.meth.stringConst(tp.type.name()), J.OBJECT), em.meth.as(ehm, J.OBJECT))).flush();
-
-			for (String t : eventMethods.templateNames()) {
-				Var hl = cardevents.avar(List.class.getName(), "hl");
-				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
-				for (TemplateTarget tt : eventMethods.targets(t)) {
-					HandlerInfo hi = eventMethods.getHandler(tt.handler);
-					IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT),
-							cardevents.classConst("[L" + J.OBJECT + ";"));
-					IExpr ehm = cardevents.callVirtual(Method.class.getName(),
-							cardevents.classConst(od.name().javaName()), "getDeclaredMethod",
-							cardevents.stringConst(hi.name.name), classArgs);
-
-					IExpr ety, esl;
-					if (tt.type != null) {
-						ety = cardevents.stringConst(tt.type);
-						esl = cardevents.stringConst(tt.slot);
-					} else {
-						ety = cardevents.as(cardevents.aNull(), J.STRING);
-						esl = cardevents.as(cardevents.aNull(), J.STRING);
-					}
-					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, ety, esl,
-							cardevents.box(cardevents.intConst(tt.option)),
-							cardevents.stringConst(hi.event), ehm);
-					cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT)))
-							.flush();
-				}
-				cardevents
-						.voidExpr(cardevents.callInterface(J.OBJECT, v, "put",
-								cardevents.as(cardevents.stringConst(t), J.OBJECT), cardevents.as(hl, J.OBJECT)))
-						.flush();
-			}
-
-			for (HandlerInfo hi : eventMethods.unboundHandlers()) {
-				Var hl = cardevents.avar(List.class.getName(), "hl");
-				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
-				IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT),
-						cardevents.classConst("[L" + J.OBJECT + ";"));
-				IExpr ehm = cardevents.callVirtual(Method.class.getName(), cardevents.classConst(od.name().javaName()),
-						"getDeclaredMethod", cardevents.stringConst(hi.name.name), classArgs);
-				IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.as(cardevents.aNull(), J.STRING),
-						cardevents.as(cardevents.aNull(), J.STRING), cardevents.as(cardevents.aNull(), J.INTEGER),
-						cardevents.stringConst(hi.event), ehm);
-				cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT)))
-						.flush();
-				cardevents
-						.voidExpr(cardevents.callInterface(J.OBJECT, v, "put",
-								cardevents.as(cardevents.stringConst("_"), J.OBJECT), cardevents.as(hl, J.OBJECT)))
-						.flush();
-			}
-
-			cardevents.returnObject(v).flush();
-		}
+		generateEventHandlers(eventMap.get(od), od.name());
 		containerIdx = new AtomicInteger(1);
 	}
 
@@ -770,74 +704,68 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 				}
 			};
 		}
-		{
-			// _events()
-			EventTargetZones eventMethods = eventMap.get(cd);
+		generateEventHandlers(eventMap.get(cd), cd.name());
+		containerIdx = new AtomicInteger(1);
+	}
 
-			// ideally, this would return a statically created map but I can't be bothered
-			// right now ...
-			GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_eventHandlers");
-			gen.returns(Map.class.getName());
-			MethodDefiner cardevents = gen.done();
-			cardevents.lenientMode(leniency);
-			Var v = cardevents.avar(Map.class.getName(), "ret");
-			cardevents.assign(v, cardevents.makeNew(TreeMap.class.getName())).flush();
+	private void generateEventHandlers(EventTargetZones eventMethods, NameOfThing cardName) {
+		// ideally, this would return a statically created map but I can't be bothered
+		// right now ...
+		GenericAnnotator gen = GenericAnnotator.newMethod(templateClass, false, "_eventHandlers");
+		gen.returns(Map.class.getName());
+		MethodDefiner meth = gen.done();
+		meth.lenientMode(leniency);
+		Var v = meth.avar(Map.class.getName(), "ret");
+		meth.assign(v, meth.makeNew(TreeMap.class.getName())).flush();
 //			TypedPattern tp = (TypedPattern) om.args().get(0);
 //			EventsMethod em = evhs.get(card);
 //			em.meth.voidExpr(em.meth.callInterface(J.OBJECT, em.ret, "put", em.meth.as(em.meth.stringConst(tp.type.name()), J.OBJECT), em.meth.as(ehm, J.OBJECT))).flush();
 
-			for (String t : eventMethods.templateNames()) {
-				Var hl = cardevents.avar(List.class.getName(), "hl");
-				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
-				for (TemplateTarget tt : eventMethods.targets(t)) {
-					HandlerInfo hi = eventMethods.getHandler(tt.handler);
-					IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT),
-							cardevents.classConst("[L" + J.OBJECT + ";"));
-					IExpr ehm = cardevents.callVirtual(Method.class.getName(),
-							cardevents.classConst(cd.name().javaName()), "getDeclaredMethod",
-							cardevents.stringConst(hi.name.name), classArgs);
+		for (String t : eventMethods.templateNames()) {
+			Var hl = meth.avar(List.class.getName(), "hl");
+			meth.assign(hl, meth.makeNew(ArrayList.class.getName())).flush();
+			for (TemplateTarget tt : eventMethods.targets(t)) {
+				HandlerInfo hi = eventMethods.getHandler(tt.handler);
+				IExpr classArgs = meth.arrayOf(Class.class.getName(), meth.classConst(J.FLEVALCONTEXT),
+						meth.classConst("[L" + J.OBJECT + ";"));
+				IExpr ehm = meth.callVirtual(Method.class.getName(),
+						meth.classConst(cardName.javaName()), "getDeclaredMethod",
+						meth.stringConst(hi.name.name), classArgs);
 
-					IExpr ety, esl;
-					if (tt.type != null) {
-						ety = cardevents.stringConst(tt.type);
-						esl = cardevents.stringConst(tt.slot);
-					} else {
-						ety = cardevents.as(cardevents.aNull(), J.STRING);
-						esl = cardevents.as(cardevents.aNull(), J.STRING);
-					}
-					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, ety, esl,
-							cardevents.box(cardevents.intConst(tt.option)),
-							cardevents.stringConst(hi.event), ehm);
-					cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT)))
-							.flush();
+				IExpr ety, esl;
+				if (tt.type != null) {
+					ety = meth.stringConst(tt.type);
+					esl = meth.stringConst(tt.slot);
+				} else {
+					ety = meth.as(meth.aNull(), J.STRING);
+					esl = meth.as(meth.aNull(), J.STRING);
 				}
-				cardevents
-						.voidExpr(cardevents.callInterface(J.OBJECT, v, "put",
-								cardevents.as(cardevents.stringConst(t), J.OBJECT), cardevents.as(hl, J.OBJECT)))
-						.flush();
+				IExpr icond;
+				if (tt.evcond != null) {
+					icond = meth.box(meth.intConst(tt.evcond));
+				} else
+					icond = meth.as(meth.aNull(), J.INTEGER);
+				IExpr ghi = meth.makeNew(J.HANDLERINFO, ety, esl, meth.box(meth.intConst(tt.option)), meth.stringConst(hi.event), ehm, icond);
+				meth.voidExpr(meth.callInterface("boolean", hl, "add", meth.as(ghi, J.OBJECT))).flush();
 			}
-
-			for (HandlerInfo hi : eventMethods.unboundHandlers()) {
-				Var hl = cardevents.avar(List.class.getName(), "hl");
-				cardevents.assign(hl, cardevents.makeNew(ArrayList.class.getName())).flush();
-				IExpr classArgs = cardevents.arrayOf(Class.class.getName(), cardevents.classConst(J.FLEVALCONTEXT),
-						cardevents.classConst("[L" + J.OBJECT + ";"));
-				IExpr ehm = cardevents.callVirtual(Method.class.getName(), cardevents.classConst(cd.name().javaName()),
-						"getDeclaredMethod", cardevents.stringConst(hi.name.name), classArgs);
-				IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.as(cardevents.aNull(), J.STRING),
-						cardevents.as(cardevents.aNull(), J.STRING), cardevents.as(cardevents.aNull(), J.INTEGER),
-						cardevents.stringConst(hi.event), ehm);
-				cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT)))
-						.flush();
-				cardevents
-						.voidExpr(cardevents.callInterface(J.OBJECT, v, "put",
-								cardevents.as(cardevents.stringConst("_"), J.OBJECT), cardevents.as(hl, J.OBJECT)))
-						.flush();
-			}
-
-			cardevents.returnObject(v).flush();
+			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(t), J.OBJECT), meth.as(hl, J.OBJECT))).flush();
 		}
-		containerIdx = new AtomicInteger(1);
+
+		for (HandlerInfo hi : eventMethods.unboundHandlers()) {
+			Var hl = meth.avar(List.class.getName(), "hl");
+			meth.assign(hl, meth.makeNew(ArrayList.class.getName())).flush();
+			IExpr classArgs = meth.arrayOf(Class.class.getName(), meth.classConst(J.FLEVALCONTEXT),
+					meth.classConst("[L" + J.OBJECT + ";"));
+			IExpr ehm = meth.callVirtual(Method.class.getName(), meth.classConst(cardName.javaName()),
+					"getDeclaredMethod", meth.stringConst(hi.name.name), classArgs);
+			IExpr ghi = meth.makeNew(J.HANDLERINFO, meth.as(meth.aNull(), J.STRING),
+					meth.as(meth.aNull(), J.STRING), meth.as(meth.aNull(), J.INTEGER),
+					meth.stringConst(hi.event), ehm, meth.as(meth.aNull(), J.INTEGER));
+			meth.voidExpr(meth.callInterface("boolean", hl, "add", meth.as(ghi, J.OBJECT))).flush();
+			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("_"), J.OBJECT), meth.as(hl, J.OBJECT))).flush();
+		}
+
+		meth.returnObject(v).flush();
 	}
 
 	@Override

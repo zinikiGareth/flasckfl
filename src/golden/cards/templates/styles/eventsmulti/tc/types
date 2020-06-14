@@ -1,0 +1,3 @@
+test.golden.EventsMulti.addToA :: ClickEvent->List[Message]
+test.golden.EventsMulti.addToB :: ClickEvent->List[Message]
+test.golden.EventsMulti.addToBoth :: ClickEvent->List[Message]

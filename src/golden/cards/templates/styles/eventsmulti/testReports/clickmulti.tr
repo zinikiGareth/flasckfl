@@ -1,0 +1,8 @@
+JVM PASS option 0 adds to A only
+JVM PASS option 1 adds to B only
+JVM PASS option 10 does nothing if not happy
+JVM PASS option 10 and happy adds to both
+JS PASS option 0 adds to A only
+JS PASS option 1 adds to B only
+JS PASS option 10 does nothing if not happy
+JS PASS option 10 and happy adds to both

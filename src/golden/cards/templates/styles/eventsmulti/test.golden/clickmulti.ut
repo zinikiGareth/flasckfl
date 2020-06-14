@@ -1,0 +1,39 @@
+	test option 0 adds to A only
+		data EventsMulti multi
+		event multi message (ClickEvent)
+		assert (multi.countA)
+			1
+		assert (multi.countB)
+			0
+			
+	test option 1 adds to B only
+		data EventsMulti multi
+		shove multi.option
+			1
+		event multi message (ClickEvent)
+		assert (multi.countA)
+			0
+		assert (multi.countB)
+			1			
+
+	test option 10 does nothing if not happy
+		data EventsMulti multi
+		shove multi.option
+			10
+		event multi message (ClickEvent)
+		assert (multi.countA)
+			0
+		assert (multi.countB)
+			0
+
+	test option 10 and happy adds to both
+		data EventsMulti multi
+		shove multi.option
+			10
+		shove multi.happy
+			True
+		event multi message (ClickEvent)
+		assert (multi.countA)
+			1
+		assert (multi.countB)
+			1

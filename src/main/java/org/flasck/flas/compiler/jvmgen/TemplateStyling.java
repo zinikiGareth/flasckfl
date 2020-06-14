@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jvmgen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
@@ -13,7 +14,7 @@ import org.zinutils.bytecode.IExpr;
 
 public class TemplateStyling extends LeafAdapter implements ResultAware {
 	public enum Mode {
-		COND, EXPR
+		COND, EXPR, NESTED
 	}
 	private final FunctionState fs;
 	private final StackVisitor sv;
@@ -21,6 +22,8 @@ public class TemplateStyling extends LeafAdapter implements ResultAware {
 	private final List<IExpr> exprs = new ArrayList<>();
 	private IExpr cond;
 	private Mode mode;
+	
+	private List<JVMStyleIf> styles = new ArrayList<JVMStyleIf>();
 
 	public TemplateStyling(FunctionState fs, StackVisitor sv, JVMBlockCreator bindingBlock, TemplateStylingOption tso) {
 		this.fs = fs;
@@ -29,6 +32,12 @@ public class TemplateStyling extends LeafAdapter implements ResultAware {
 		sv.push(this);
 	}
 
+	@Override
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+		mode = Mode.NESTED;
+		new TemplateStyling(fs, sv, currentBlock, tso);
+	}
+	
 	@Override
 	public void visitTemplateStyleCond(Expr cond) {
 		mode = Mode.COND;
@@ -45,8 +54,25 @@ public class TemplateStyling extends LeafAdapter implements ResultAware {
 	public void result(Object r) {
 		if (mode == Mode.COND)
 			cond = (IExpr) r;
-		else
+		else if (mode == Mode.EXPR)
 			exprs.add((IExpr)r);
+		else {
+			@SuppressWarnings("unchecked")
+			List<JVMStyleIf> lsi = (List<JVMStyleIf>)r;
+			for (JVMStyleIf si : lsi) {
+				if (cond == null)
+					styles.add(si);
+				else {
+					IExpr doAnd = cond;
+					if (si.cond != null) {
+						IExpr and = fs.meth.makeNew(J.CALLEVAL, fs.meth.classConst(J.FLEVAL + "$And"));
+						IExpr args = fs.meth.arrayOf(J.OBJECT, Arrays.asList(cond, si.cond));
+						doAnd = fs.meth.callInterface(J.FLCLOSURE, fs.fcx, "closure", fs.meth.as(and, J.APPLICABLE), args);
+					}
+					styles.add(new JVMStyleIf(doAnd, si.style));
+				}
+			}
+		}
 	}
 
 	@Override
@@ -60,7 +86,8 @@ public class TemplateStyling extends LeafAdapter implements ResultAware {
 				exprs.add(fs.meth.stringConst(c));
 			ret = fs.meth.callStatic(J.BUILTINPKG+".PACKAGEFUNCTIONS", J.STRING, "concatMany", fs.fcx, fs.meth.arrayOf(J.OBJECT, exprs));
 		}
-		sv.result(new JVMStyleIf(cond, ret));
+		styles.add(0, new JVMStyleIf(cond, ret));
+		sv.result(styles);
 	}
 
 }

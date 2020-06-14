@@ -1,0 +1,24 @@
+	card EventsMulti
+		state
+			Number option <- 0
+			Boolean happy <- False
+			Number countA <- 0
+			Number countB <- 0
+			
+		template styling
+			message
+				| option == 0
+					=> addToA
+				| option == 1
+					=> addToB
+				| option == 10
+					| happy
+						=> addToBoth
+				
+		event addToA (ClickEvent ev)
+			countA <- countA + 1
+		event addToB (ClickEvent ev)
+			countB <- countB + 1
+		event addToBoth (ClickEvent ev)
+			countA <- countA + 1
+			countB <- countB + 1
