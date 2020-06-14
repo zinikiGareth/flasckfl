@@ -57,7 +57,7 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 		String c = tso.constant();
 		JSExpr ret;
 		if (exprs.isEmpty())
-			ret = currentBlock.string(c);
+			ret = currentBlock.string(c==null?"":c);
 		else {
 			if (c != null)
 				exprs.add(0, currentBlock.string(c));

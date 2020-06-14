@@ -54,7 +54,7 @@ public class TemplateStyling extends LeafAdapter implements ResultAware {
 		String c = tso.constant();
 		IExpr ret;
 		if (exprs.isEmpty())
-			ret = fs.meth.stringConst(c);
+			ret = fs.meth.stringConst(c==null?"":c);
 		else {
 			if (c != null)
 				exprs.add(fs.meth.stringConst(c));

@@ -669,8 +669,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 							cardevents.classConst(od.name().javaName()), "getDeclaredMethod",
 							cardevents.stringConst(hi.name.name), classArgs);
 
-					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.stringConst(tt.type),
-							cardevents.stringConst(tt.slot), cardevents.box(cardevents.intConst(tt.option)),
+					IExpr ety, esl;
+					if (tt.type != null) {
+						ety = cardevents.stringConst(tt.type);
+						esl = cardevents.stringConst(tt.slot);
+					} else {
+						ety = cardevents.as(cardevents.aNull(), J.STRING);
+						esl = cardevents.as(cardevents.aNull(), J.STRING);
+					}
+					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, ety, esl,
+							cardevents.box(cardevents.intConst(tt.option)),
 							cardevents.stringConst(hi.event), ehm);
 					cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT)))
 							.flush();
@@ -789,8 +797,16 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 							cardevents.classConst(cd.name().javaName()), "getDeclaredMethod",
 							cardevents.stringConst(hi.name.name), classArgs);
 
-					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, cardevents.stringConst(tt.type),
-							cardevents.stringConst(tt.slot), cardevents.box(cardevents.intConst(tt.option)),
+					IExpr ety, esl;
+					if (tt.type != null) {
+						ety = cardevents.stringConst(tt.type);
+						esl = cardevents.stringConst(tt.slot);
+					} else {
+						ety = cardevents.as(cardevents.aNull(), J.STRING);
+						esl = cardevents.as(cardevents.aNull(), J.STRING);
+					}
+					IExpr ghi = cardevents.makeNew(J.HANDLERINFO, ety, esl,
+							cardevents.box(cardevents.intConst(tt.option)),
 							cardevents.stringConst(hi.event), ehm);
 					cardevents.voidExpr(cardevents.callInterface("boolean", hl, "add", cardevents.as(ghi, J.OBJECT)))
 							.flush();

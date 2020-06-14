@@ -1,0 +1,10 @@
+	card EventsOnCard
+		state
+			Boolean clicked <- False
+			
+		template events
+			| True
+				=> clickTrue
+				
+		event clickTrue (ClickEvent ev)
+			clicked <- True

@@ -563,6 +563,8 @@ public class Traverser implements RepositoryVisitor {
 			if (!(e instanceof StringLiteral))
 				visitTemplateStyleExpr(e);
 		}
+		for (TemplateEvent te : tso.events)
+			visitTemplateEvent(te);
 		leaveTemplateStyling(tso);
 	}
 

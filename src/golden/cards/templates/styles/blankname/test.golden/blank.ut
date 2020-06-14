@@ -1,0 +1,3 @@
+	test the blank card comes out
+		data BlankStyle bs
+		match bs style

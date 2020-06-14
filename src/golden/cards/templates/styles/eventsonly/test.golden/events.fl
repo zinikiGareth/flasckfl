@@ -1,0 +1,11 @@
+	card EventsOnly
+		state
+			Boolean clicked <- False
+			
+		template styling
+			message
+				| True
+					=> clickTrue
+				
+		event clickTrue (ClickEvent ev)
+			clicked <- True

@@ -1,0 +1,3 @@
+	card BlankStyle
+		template main
+			| True => ''

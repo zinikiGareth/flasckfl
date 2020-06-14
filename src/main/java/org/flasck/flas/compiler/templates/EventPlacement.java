@@ -51,7 +51,10 @@ public class EventPlacement implements EventTargetZones {
 
 	@Override
 	public void binding(String id, TemplateBinding currentBinding, int option, String handler) {
-		templates.add(id, new TemplateTarget(currentBinding.assignsTo.text, currentBinding.assignsTo.type().toString().toLowerCase(), option, handler));
+		if (currentBinding == null)
+			templates.add(id, new TemplateTarget(null, null, option, handler));
+		else
+			templates.add(id, new TemplateTarget(currentBinding.assignsTo.text, currentBinding.assignsTo.type().toString().toLowerCase(), option, handler));
 	}
 
 	@Override

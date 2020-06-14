@@ -1,0 +1,5 @@
+	test cards can be clicked
+		data EventsOnCard se
+		event se _ (ClickEvent)
+		assert (se.clicked)
+			True

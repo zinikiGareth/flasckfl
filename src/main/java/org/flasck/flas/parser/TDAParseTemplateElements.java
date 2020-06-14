@@ -63,13 +63,15 @@ public class TDAParseTemplateElements {
 		new TDAExpressionParser(errors, t -> {
 			seen.add(t);
 		}).tryParsing(toks);
+		Expr expr = seen.size() == 0 ? null : seen.get(0);
 		ExprToken tok = ExprToken.from(errors, toks);
 		if (tok == null) {
-			errors.message(toks, "=> required for styling");
-			return new IgnoreNestedParser();
+			TemplateStylingOption tso = new TemplateStylingOption(expr, new ArrayList<>());
+			consumer.accept(tso);
+			return new RequireEventsParser(errors, toks.realinfo(), source, namer, tso);
 		}
 		if ("=>".equals(tok.text)) {
-			TemplateStylingOption tso = readTemplateStyles(errors, seen.size() == 0 ? null : seen.get(0), toks);
+			TemplateStylingOption tso = readTemplateStyles(errors, expr, toks);
 			if (tso == null)
 				return new IgnoreNestedParser();
 			consumer.accept(tso);
@@ -78,7 +80,6 @@ public class TDAParseTemplateElements {
 			errors.message(toks, "=> required for styling");
 			return new IgnoreNestedParser();
 		}
-
 	}
 
 	public static TDAParsing parseEventHandling(ErrorReporter errors, Template source, Tokenizable toks, Consumer<TemplateEvent> consumer) {
