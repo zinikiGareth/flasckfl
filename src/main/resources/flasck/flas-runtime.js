@@ -597,11 +597,18 @@ FLCard.prototype._currentRenderTree = function() {
     return this._renderTree;
 }
 
-FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, source) {
+FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, source, evconds) {
     const evcs = this._eventHandlers()[key];
     if (evcs) {
+        if (rt && rt.handlers) {
+            for (var i=0;i<rt.handlers.length;i++) {
+                var rh = rt.handlers[i];
+                _cxt.env.logger.log("removing event listener from " + div.id + " for " + rh.hi.event._eventName);
+                div.removeEventListener(rh.hi.event._eventName, rh.eh);
+            }
+            delete rt.handlers;
+        }
         for (var ej=0;ej<evcs.length;ej++) {
-            var ldiv = div;
             var handlerInfo = evcs[ej];
             if (!handlerInfo.slot) {
                 if (field)
@@ -612,17 +619,11 @@ FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, s
             }
             if (handlerInfo.option && handlerInfo.option != option)
                 continue;
-            // if (handlerInfo.type)
-            //     ldiv = div.querySelector("[data-flas-" + handlerInfo.type + "='" + handlerInfo.slot + "']");
-            if (rt && rt.handlers) {
-                for (var i=0;i<rt.handlers.length;i++) {
-                    var rh = rt.handlers[i];
-                    _cxt.env.logger.log("removing event listener from " + ldiv.id + " for " + rh.hi.event._eventName);
-                    ldiv.removeEventListener(rh.hi.event._eventName, rh.eh);
-                }
-                delete rt.handlers;
-            }
-            var eh = _cxt.attachEventToCard(this, handlerInfo, ldiv, { value: source });
+            if (evconds && typeof handlerInfo.cond !== 'undefined') {
+                if (!evconds[handlerInfo.cond])
+                    continue;
+            }            
+            var eh = _cxt.attachEventToCard(this, handlerInfo, div, { value: source });
             if (eh && rt) {
                 if (!rt.handlers) {
                     rt.handlers = [];
@@ -656,9 +657,14 @@ FLCard.prototype._updateStyle = function(_cxt, rt, templateName, type, field, op
     var styles = '';
     if (constant)
         styles = constant;
+    var evconds = [];
     for (var i=0;i<rest.length;i+=2) {
-        if (_cxt.isTruthy(rest[i]))
+        if (_cxt.isTruthy(rest[i])) {
             styles += ' ' + rest[i+1];
+            evconds.push(true);
+        } else {
+            evconds.push(false);
+        }
     }
     var div = document.getElementById(rt._id);
     var node;
@@ -673,7 +679,7 @@ FLCard.prototype._updateStyle = function(_cxt, rt, templateName, type, field, op
         node = div;
     node.className = styles;
     if (this._eventHandlers) {
-        this._attachHandlers(_cxt, rt[field], node, templateName, field, option, source);
+        this._attachHandlers(_cxt, rt[field], node, templateName, field, option, source, evconds);
     }
 }
 

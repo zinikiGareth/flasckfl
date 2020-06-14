@@ -1,5 +1,7 @@
 package org.flasck.flas.compiler.templates;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -10,6 +12,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateEvent;
+import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.StackVisitor;
@@ -20,6 +23,8 @@ public class EventBuilder extends LeafAdapter {
 	private String templateId;
 	private TemplateBinding currentBinding;
 	private int option = 0;
+	private int cond = 0;
+	private List<Integer> conds = new ArrayList<Integer>();
 
 	public EventBuilder(StackVisitor stack, Map<EventHolder, EventTargetZones> etz) {
 		eventMap = etz;
@@ -66,8 +71,26 @@ public class EventBuilder extends LeafAdapter {
 	}
 	
 	@Override
+	public void visitTemplateStyling(TemplateStylingOption tso) {
+		if (tso.cond != null) {
+			this.conds.add(cond);
+			cond++;
+		}
+	}
+	
+	@Override
+	public void leaveTemplateStyling(TemplateStylingOption tso) {
+		if (tso.cond != null) {
+			this.conds.remove(this.conds.size()-1);
+		}
+	}
+	
+	@Override
 	public void visitTemplateEvent(TemplateEvent te) {
-		currentETZ.binding(templateId, currentBinding, option, te.handler);
+		Integer cond = null;
+		if (!conds.isEmpty())
+			cond = conds.get(conds.size()-1);
+		currentETZ.binding(templateId, currentBinding, option, te.handler, cond);
 	}
 	
 	@Override

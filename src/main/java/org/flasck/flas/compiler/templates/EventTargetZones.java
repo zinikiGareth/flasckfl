@@ -9,7 +9,7 @@ import org.flasck.flas.parsedForm.TemplateBinding;
 
 public interface EventTargetZones {
 	void handler(String eventType, FunctionName handlerName);
-	void binding(String id, TemplateBinding currentBinding, int option, String handler);
+	void binding(String id, TemplateBinding currentBinding, int option, String handler, Integer cond);
 	Iterable<String> templateNames();
 	Iterable<TemplateTarget> targets(String t);
 	HandlerInfo getHandler(String handler);

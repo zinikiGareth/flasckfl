@@ -26,12 +26,14 @@ public class EventPlacement implements EventTargetZones {
 		public final String type;
 		public final int option;
 		public final String handler;
+		public final Integer evcond;
 
-		public TemplateTarget(String slot, String type, int option, String handler) {
+		public TemplateTarget(String slot, String type, int option, String handler, Integer cond) {
 			this.slot = slot;
 			this.type = type;
 			this.option = option;
 			this.handler = handler;
+			this.evcond = cond;
 		}
 	}
 	
@@ -50,11 +52,11 @@ public class EventPlacement implements EventTargetZones {
 	}
 
 	@Override
-	public void binding(String id, TemplateBinding currentBinding, int option, String handler) {
+	public void binding(String id, TemplateBinding currentBinding, int option, String handler, Integer cond) {
 		if (currentBinding == null)
-			templates.add(id, new TemplateTarget(null, null, option, handler));
+			templates.add(id, new TemplateTarget(null, null, option, handler, cond));
 		else
-			templates.add(id, new TemplateTarget(currentBinding.assignsTo.text, currentBinding.assignsTo.type().toString().toLowerCase(), option, handler));
+			templates.add(id, new TemplateTarget(currentBinding.assignsTo.text, currentBinding.assignsTo.type().toString().toLowerCase(), option, handler, cond));
 	}
 
 	@Override

@@ -11,6 +11,7 @@ public class RequireEventsParser implements TDAParsing {
 	private final ErrorReporter errors;
 	private final InputPosition loc;
 	private final Template source;
+	private final TemplateNamer namer;
 	private final TemplateStylingOption tso;
 	private boolean seenHandler;
 
@@ -18,6 +19,7 @@ public class RequireEventsParser implements TDAParsing {
 		this.errors = errors;
 		this.loc = location;
 		this.source = source;
+		this.namer = namer;
 		this.tso = tso;
 	}
 
@@ -28,7 +30,10 @@ public class RequireEventsParser implements TDAParsing {
 			errors.message(toks, "syntax error");
 			return new IgnoreNestedParser();
 		}
-		if ("=>".equals(tok.text)) {
+		if ("|".equals(tok.text)) {
+			seenHandler = true;
+			return TDAParseTemplateElements.parseStyling(errors, source, namer, toks, nested -> tso.conditionalStylings.add(nested));
+		} else if ("=>".equals(tok.text)) {
 			// it's an event handler
 			seenHandler = true;
 			return TDAParseTemplateElements.parseEventHandling(errors, source, toks, ev -> tso.events.add(ev));
@@ -41,7 +46,7 @@ public class RequireEventsParser implements TDAParsing {
 	@Override
 	public void scopeComplete(InputPosition location) {
 		if (!seenHandler) {
-			errors.message(loc, "must provide styles and/or events");
+			errors.message(loc, "must provide styles and/or nested content");
 		}
 	}
 
