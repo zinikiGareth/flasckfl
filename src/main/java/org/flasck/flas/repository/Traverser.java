@@ -127,6 +127,17 @@ public class Traverser implements RepositoryVisitor {
 	private Comparator<NamedType> unionLastOrder = new Comparator<NamedType>() {
 		@Override
 		public int compare(NamedType o1, NamedType o2) {
+			// Any comes dead last
+			boolean o1isA = o1 == LoadBuiltins.any;
+			boolean o2isA = o2 == LoadBuiltins.any;
+			if (o1isA && o2isA) {
+				return 0;
+			} else if (o1isA) {
+				return 1;
+			} else if (o2isA)
+				return -1;
+			
+			// Unions come after any structs
 			boolean o1isU = o1 instanceof UnionTypeDefn;
 			boolean o2isU = o2 instanceof UnionTypeDefn;
 			if (!o1isU && o2isU)
@@ -946,6 +957,10 @@ public class Traverser implements RepositoryVisitor {
 				inline(vars, hsi, intros.onlyIntro());
 			} else {
 				// In particular, have we considered "overlapping" cases where there are multiple cases that say exactly the same thing?
+				hsiLogger.error("multiple cases remain in HSI processing:");
+				for (String i : intros.introNames()) {
+					hsiLogger.error("  " + i);
+				}
 				throw new HaventConsideredThisException("We should either have 0 or 1 remaining cases at this point, but there might be ways to go wrong");
 			}
 		} else {
@@ -1030,8 +1045,10 @@ public class Traverser implements RepositoryVisitor {
 						if (!numbers.isEmpty()) {
 							for (int k : numbers) {
 								hsi.matchNumber(k);
-								HSICases forConst = intersect.retain(opts.getIntrosForType(ty));
-								visitHSI(updatedVars, indent, remaining, intersect, moreGeneral, backupPlan, forDef);
+								HSICases forConst = intersect.retain(opts.getIntrosForNumber(k));
+								intersect.remove(forConst);
+								hsiLogger.info(indent + "slot " + s + ": considering number " + k + " intros = " + forConst);
+								visitHSI(updatedVars, indent, remaining, forConst, moreGeneral, backupPlan, forDef);
 								intersect.remove(forConst);
 							}
 							hsi.matchDefault();
@@ -1042,8 +1059,10 @@ public class Traverser implements RepositoryVisitor {
 						if (!strings.isEmpty()) {
 							for (String k : strings) {
 								hsi.matchString(k);
-								HSICases forConst = intersect.retain(opts.getIntrosForType(ty));
-								visitHSI(updatedVars, indent, remaining, intersect, moreGeneral, backupPlan, forDef);
+								HSICases forConst = intersect.retain(opts.getIntrosForString(k));
+								intersect.remove(forConst);
+								hsiLogger.info(indent + "slot " + s + ": considering string " + k + " intros = " + forConst);
+								visitHSI(updatedVars, indent, remaining, forConst, moreGeneral, backupPlan, forDef);
 								intersect.remove(forConst);
 							}
 							hsi.matchDefault();

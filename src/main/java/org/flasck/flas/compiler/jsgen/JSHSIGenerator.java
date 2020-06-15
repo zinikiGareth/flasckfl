@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.compiler.jsgen.creators.JSBlock;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
@@ -75,14 +76,20 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 	// TODO: would this be better as a switch?
 	@Override
 	public void matchNumber(int val) {
-		JSIfCreator ifCtor = this.block.ifConst(currentLevel.currentVar, val);
+		JSBlockCreator in = this.currentLevel.matchDefault;
+		if (in == null)
+			in = this.block;
+		JSIfCreator ifCtor = in.ifConst(currentLevel.currentVar, val);
 		this.block = ifCtor.trueCase();
 		this.currentLevel.matchDefault = ifCtor.falseCase();
 	}
 
 	@Override
 	public void matchString(String val) {
-		JSIfCreator ifCtor = this.block.ifConst(currentLevel.currentVar, val);
+		JSBlockCreator in = this.currentLevel.matchDefault;
+		if (in == null)
+			in = this.block;
+		JSIfCreator ifCtor = in.ifConst(currentLevel.currentVar, val);
 		this.block = ifCtor.trueCase();
 		this.currentLevel.matchDefault = ifCtor.falseCase();
 	}

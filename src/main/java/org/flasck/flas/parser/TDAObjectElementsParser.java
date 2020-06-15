@@ -115,6 +115,7 @@ public class TDAObjectElementsParser implements TDAParsing {
 					return;
 				}
 				em.eventFor((ObjectDefn)builder);
+				ev.isDefinedBy(em);
 				builder.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);
 			};

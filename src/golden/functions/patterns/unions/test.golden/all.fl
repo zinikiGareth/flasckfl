@@ -22,3 +22,4 @@
 	unionLast HideCard = 0
 	unionLast (ShowCard c) = 1
 	unionLast (DisplayCard c) = 2
+	unionLast (Any x) = 3

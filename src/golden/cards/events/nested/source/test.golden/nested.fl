@@ -1,0 +1,11 @@
+We should be able to reference the "event" in an event handler in a nested function definition
+
+	card NestedFunctionReferencesEvent
+		state
+			Number value
+
+		event handle (ClickEvent ev)
+			value <- from
+				from = calculate ev.source
+				
+		calculate (Any a) = 42		

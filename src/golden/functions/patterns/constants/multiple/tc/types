@@ -1,0 +1,2 @@
+test.golden.f :: String->Number
+test.golden.g :: String->Number->Number

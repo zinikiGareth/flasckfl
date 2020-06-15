@@ -66,6 +66,7 @@ public class TDACardElementsParser extends TDAAgentElementsParser {
 					errors.message(ev.location(), "event arguments must be typed");
 					return;
 				}
+				ev.isDefinedBy(em);
 				em.eventFor((CardDefinition)consumer);
 				consumer.addEventHandler(em);
 				topLevel.newObjectMethod(errors, em);

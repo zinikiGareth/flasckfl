@@ -1,0 +1,14 @@
+	test that "A" gives you 1
+		assert (f "A")
+			1
+	
+	test that "B" gives you 2
+		assert (f "B")
+			2
+	
+	test that the default case gives you 3
+		assert (f "C")
+			3
+		assert (f "Z")
+			3
+	

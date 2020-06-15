@@ -1,0 +1,16 @@
+	test that "A" 1 gives you 1
+		assert (g "A" 1)
+			1
+	
+	test that "A" 2 gives you 3
+		assert (g "A" 2)
+			3
+	
+	test that "B" 1 gives you 2
+		assert (g "B" 1)
+			2
+
+	test that "B" 2 gives you 4
+		assert (g "B" 2)
+			4
+		

@@ -19,14 +19,12 @@ import org.flasck.flas.tokenizers.VarNameToken;
 
 public class TDAMethodParser {
 	private final ErrorReporter errors;
-	private final FunctionScopeNamer namer;
 	private final MethodConsumer builder;
 	private final FunctionScopeUnitConsumer topLevel;
 	private final StateHolder holder;
 
 	public TDAMethodParser(ErrorReporter errors, FunctionScopeNamer namer, MethodConsumer builder, FunctionScopeUnitConsumer topLevel, StateHolder holder) {
 		this.errors = errors;
-		this.namer = namer;
 		this.builder = builder;
 		this.topLevel = topLevel;
 		this.holder = holder;
@@ -55,7 +53,8 @@ public class TDAMethodParser {
 		}
 		ObjectMethod meth = new ObjectMethod(var.location, fnName, args, null, holder);
 		builder.addMethod(meth);
-		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, namer, topLevel, "action", holder));
+		FunctionScopeNamer nestedNamer = new InnerPackageNamer(fnName);
+		return new TDAMethodGuardParser(errors, meth, new LastActionScopeParser(errors, nestedNamer, topLevel, "action", holder));
 	}
 
 	public static TDAParserConstructor constructor(FunctionScopeNamer namer, FunctionIntroConsumer sb, FunctionScopeUnitConsumer topLevel, StateHolder holder) {

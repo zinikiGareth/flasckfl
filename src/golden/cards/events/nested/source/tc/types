@@ -1,0 +1,3 @@
+test.golden.NestedFunctionReferencesEvent.calculate :: test.golden.NestedFunctionReferencesEvent->Any->Number
+test.golden.NestedFunctionReferencesEvent.handle :: ClickEvent->List[Message]
+test.golden.NestedFunctionReferencesEvent.handle.from :: test.golden.NestedFunctionReferencesEvent->ClickEvent->Number

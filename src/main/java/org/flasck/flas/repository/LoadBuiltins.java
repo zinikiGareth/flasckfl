@@ -13,6 +13,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -167,6 +168,9 @@ public class LoadBuiltins {
 		assign.addField(new StructField(pos, assign, false, anyTR, "on"));
 		assign.addField(new StructField(pos, assign, false, stringTR, "fld"));
 		assign.addField(new StructField(pos, assign, false, anyTR, "value"));
+		StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
+		source.fullName(new VarName(pos, clickEvent.name(), "source"));
+		clickEvent.addField(source);
 		
 		// is this ok as a string or should it be something else?
 		type.addField(new StructField(pos, type, false, stringTR, "type"));

@@ -22,8 +22,12 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
+import org.zinutils.collections.CollectionUtils;
+import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.utils.IntegerComparator;
+import org.zinutils.utils.StringComparator;
 
 public class HSIPatternOptions implements HSIOptions {
 	class TV {
@@ -68,8 +72,8 @@ public class HSIPatternOptions implements HSIOptions {
 	private List<TV> vars = new ArrayList<>();
 	private Map<NamedType, TV> types = new TreeMap<>(NamedType.nameComparator); 
 	private Map<StructDefn, HSICtorTree> ctors = new TreeMap<>(NamedType.nameComparator);
-	private Set<Integer> numericConstants = new TreeSet<>();
-	private Set<String> stringConstants = new TreeSet<>();
+	private ListMap<Integer, FunctionIntro> numericConstants = new ListMap<>(new IntegerComparator());
+	private ListMap<String, FunctionIntro> stringConstants = new ListMap<>(new StringComparator());
 	private boolean container;
 
 	@Override
@@ -141,9 +145,9 @@ public class HSIPatternOptions implements HSIOptions {
 			types.put(type, new TV(type, (VarName)null));
 		types.get(type).intros.add(fi);
 		if (type.name().uniqueName().equals("Number"))
-			numericConstants.add(Integer.parseInt(value));
+			numericConstants.add(Integer.parseInt(value), fi);
 		else if (type.name().uniqueName().equals("String"))
-			stringConstants.add(value);
+			stringConstants.add(value, fi);
 		else
 			throw new NotImplementedException("Cannot handle const of type " + type);
 	}
@@ -158,6 +162,16 @@ public class HSIPatternOptions implements HSIOptions {
 		while (ty instanceof PolyInstance)
 			ty = ((PolyInstance)ty).struct();
 		return types.get(ty).intros;
+	}
+
+	@Override
+	public List<FunctionIntro> getIntrosForString(String s) {
+		return stringConstants.get(s);
+	}
+
+	@Override
+	public List<FunctionIntro> getIntrosForNumber(int n) {
+		return numericConstants.get(n);
 	}
 
 	@Override
@@ -240,12 +254,12 @@ public class HSIPatternOptions implements HSIOptions {
 
 	@Override
 	public Set<Integer> numericConstants(HSICases intersect) {
-		return numericConstants;
+		return numericConstants.keySet();
 	}
 
 	@Override
 	public Set<String> stringConstants(HSICases intersect) {
-		return stringConstants;
+		return stringConstants.keySet();
 	}
 
 	@Override

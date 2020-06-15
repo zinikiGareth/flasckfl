@@ -54,6 +54,8 @@ public interface HSIOptions {
 	HSITree getCM(StructDefn constructor);
 	void includes(FunctionIntro current);
 	List<FunctionIntro> getIntrosForType(NamedType ty);
+	List<FunctionIntro> getIntrosForString(String s);
+	List<FunctionIntro> getIntrosForNumber(int n);
 	List<FunctionIntro> getDefaultIntros(HSICases intros);
 	Set<StructDefn> ctors();
 	List<IntroTypeVar> typedVars(NamedType ty);

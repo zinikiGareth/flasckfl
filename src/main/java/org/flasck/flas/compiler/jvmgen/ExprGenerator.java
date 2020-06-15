@@ -92,7 +92,7 @@ public class ExprGenerator extends LeafAdapter implements ResultAware {
 	public void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState) {
 		if (state.stateObj == null)
 			throw new HaventConsideredThisException("current container should surely be non-null");
-		sv.result(state.stateObj);
+		sv.result(state.container);
 	}
 	
 	@Override

@@ -1,0 +1,5 @@
+	test we can click on a card
+		data NestedFunctionReferencesEvent eh
+		event eh _ (ClickEvent)
+		assert (eh.value)
+			42

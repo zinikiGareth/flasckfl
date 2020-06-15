@@ -1,0 +1,8 @@
+JVM PASS that "A" 1 gives you 1
+JVM PASS that "A" 2 gives you 3
+JVM PASS that "B" 1 gives you 2
+JVM PASS that "B" 2 gives you 4
+JS PASS that "A" 1 gives you 1
+JS PASS that "A" 2 gives you 3
+JS PASS that "B" 1 gives you 2
+JS PASS that "B" 2 gives you 4

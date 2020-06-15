@@ -1,0 +1,6 @@
+JVM PASS that "A" gives you 1
+JVM PASS that "B" gives you 2
+JVM PASS that the default case gives you 3
+JS PASS that "A" gives you 1
+JS PASS that "B" gives you 2
+JS PASS that the default case gives you 3

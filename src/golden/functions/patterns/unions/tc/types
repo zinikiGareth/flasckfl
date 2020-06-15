@@ -1,2 +1,2 @@
 test.golden.topCard :: test.golden.DisplayCard->List[test.golden.Input]->test.golden.DisplayCard
-test.golden.unionLast :: test.golden.DisplayCard->Number
+test.golden.unionLast :: Any->Number

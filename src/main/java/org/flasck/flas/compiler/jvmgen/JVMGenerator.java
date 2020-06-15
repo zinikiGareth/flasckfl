@@ -244,7 +244,10 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			} else if (om.hasImplements()) {
 				Implements impl = om.getImplements();
 				this.clz = bce.get(impl.name().javaClassName());
-				wantParent = !(impl instanceof HandlerImplements);
+				if (impl instanceof HandlerImplements && !om.hasState())
+					wantParent = false;
+				else
+					wantParent = true;
 			} else if (om.isEvent()) {
 				EventHolder card = om.getCard();
 				this.clz = bce.get(card.name().javaName());

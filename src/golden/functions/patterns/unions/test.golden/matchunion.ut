@@ -6,6 +6,14 @@
 		assert (unionLast HideCard)
 			0
 
-	test unions are catch all cases
+	test ctors match with arguments
 		assert (unionLast (ShowCard "hello"))
 			1
+
+	test unions are catch all cases
+		assert (unionLast NoCard)
+			2
+
+	test any comes absolutely bottom
+		assert (unionLast "hello")
+			3
