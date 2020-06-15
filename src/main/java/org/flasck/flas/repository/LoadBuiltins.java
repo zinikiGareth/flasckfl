@@ -95,6 +95,7 @@ public class LoadBuiltins {
 
 	// Events
 	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
+	public static final StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
 	public static final UnionTypeDefn event = new UnionTypeDefn(pos, false, new SolidName(null, "Event"));
 	
 	// The type "operator"
@@ -168,7 +169,6 @@ public class LoadBuiltins {
 		assign.addField(new StructField(pos, assign, false, anyTR, "on"));
 		assign.addField(new StructField(pos, assign, false, stringTR, "fld"));
 		assign.addField(new StructField(pos, assign, false, anyTR, "value"));
-		StructField source = new StructField(pos, pos, clickEvent, true, anyTR, "source", new CurrentContainer(pos, clickEvent));
 		source.fullName(new VarName(pos, clickEvent.name(), "source"));
 		clickEvent.addField(source);
 		

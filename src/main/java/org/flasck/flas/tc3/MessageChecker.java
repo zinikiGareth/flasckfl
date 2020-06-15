@@ -91,7 +91,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 //				curr = ((NamedType)container).name().uniqueName();
 				return new ExprResult(var.location, ((TypedPattern)vardefn).type.defn());
 			} else
-				throw new NotImplementedException("cannot handle " + vardefn);
+				throw new NotImplementedException("cannot handle assigning to (member of) " + vardefn);
 		} else if (toSlot instanceof MemberExpr) {
 			MemberExpr me = (MemberExpr) toSlot;
 			ExprResult res = unpackMembers(me.from);
@@ -99,10 +99,13 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 			if (ty instanceof ErrorType)
 				return res;
 			UnresolvedVar v = (UnresolvedVar) me.fld;
-			boolean isEvent = inMeth.isEvent() && LoadBuiltins.event.incorporates(pos, ty); 
-			if (isEvent) {
-				// handle trait data - this is kind of a hack right now
-				if ("source".equals(v.var)) {
+			if (ty instanceof StructDefn) {
+				StructDefn sd = (StructDefn) ty;
+				StructField fld = sd.findField(v.var);
+				if (fld == null) {
+					errors.message(toSlot.location(), "there is no field " + v.var + " in " + sd.name().uniqueName());
+					return new ExprResult(rhsType.pos, new ErrorType());
+				} else if (fld == LoadBuiltins.source) {
 					List<Type> sources = ((ObjectMethod)inMeth).sources();
 					if (sources.size() != 1) {
 						// if it's empty, I think that means the event handler is not used
@@ -112,14 +115,6 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 					}
 					me.bindContainerType(LoadBuiltins.event); // This probably wants to be something more precise, but I think it needs more from traits
 					return new ExprResult(v.location, sources.get(0));
-				} else 
-					throw new NotImplementedException("cannot handle event var " + v.var);
-			} else if (ty instanceof StructDefn) {
-				StructDefn sd = (StructDefn) ty;
-				StructField fld = sd.findField(v.var);
-				if (fld == null) {
-					errors.message(toSlot.location(), "there is no field " + v.var + " in " + sd.name().uniqueName());
-					return new ExprResult(rhsType.pos, new ErrorType());
 				}
 				me.bindContainerType(fld.type());
 				return new ExprResult(v.location, fld.type());
