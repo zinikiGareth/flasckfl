@@ -56,6 +56,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import test.parsing.LocalErrorTracker;
+
 public class RepositoryTests {
 	public @Rule JUnitRuleMockery context = new JUnitRuleMockery();
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -63,6 +65,7 @@ public class RepositoryTests {
 	final StringLiteral simpleExpr = new StringLiteral(pos, "hello");
 	final UnitTestNamer namer = new UnitTestPackageNamer(new UnitTestFileName(pkg, "file"));
 	final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 
 	@Test
 	public void canAddAFunctionToTheRepository() {
@@ -371,15 +374,12 @@ public class RepositoryTests {
 	@Test
 	public void inOrderToMatchAUnionMustContainAllTheThings() {
 		Repository r = new Repository();
-		LoadBuiltins.applyTo(errors, r);
+		LoadBuiltins.applyTo(tracker, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.falseT);
 		ms.add(LoadBuiltins.nil);
-		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "cannot unify [False, Nil, True]");
-		}});
-		assertNull(r.findUnionWith(errors, pos, ms, true));
+		assertNull(r.findUnionWith(tracker, pos, ms, true));
 	}
 	
 	@Test
@@ -394,14 +394,11 @@ public class RepositoryTests {
 	@Test
 	public void allTheThingsMustBeTheRightThings() {
 		Repository r = new Repository();
-		LoadBuiltins.applyTo(errors, r);
+		LoadBuiltins.applyTo(tracker, r);
 		Set<Type> ms = new HashSet<>();
 		ms.add(LoadBuiltins.trueT);
 		ms.add(LoadBuiltins.nil);
-		context.checking(new Expectations() {{
-			oneOf(errors).message(pos, "cannot unify [Nil, True]");
-		}});
-		assertNull(r.findUnionWith(errors, pos, ms, true));
+		assertNull(r.findUnionWith(tracker, pos, ms, true));
 	}
 	
 	@Test

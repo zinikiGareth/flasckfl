@@ -24,6 +24,8 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 		super(location, name, args);
 		this.handler = handler;
 		this.holder = holder;
+		for (Pattern p : args())
+			p.isDefinedBy(this);
 	}
 
 	public void eventFor(EventHolder card) {

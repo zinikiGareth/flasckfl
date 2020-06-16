@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -145,6 +146,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	@Override
 	public void visitCase(FunctionCaseDefn fcd) {
 		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+	}
+	
+	@Override
+	public void visitGuardedMessage(GuardedMessages gm) {
+		new GuardedMessagesChecker(errors, repository, state, sv, inMeth);
 	}
 	
 	@Override

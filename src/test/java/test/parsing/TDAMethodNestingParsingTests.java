@@ -2,6 +2,7 @@ package test.parsing;
 
 import static org.junit.Assert.assertEquals;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
@@ -112,7 +113,7 @@ public class TDAMethodNestingParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addConstructor(with(any(ObjectCtor.class)));
-			oneOf(errors).message(line, "expected <-");
+			oneOf(errors).message(with(any(InputPosition.class)), with("expected <-"));
 		}});
 		TDAObjectElementsParser oep = new TDAObjectElementsParser(errors, namer, builder, topLevel);
 		TDAMethodMessageParser nested = (TDAMethodMessageParser) oep.tryParsing(TDABasicIntroParsingTests.line("ctor testMe"));

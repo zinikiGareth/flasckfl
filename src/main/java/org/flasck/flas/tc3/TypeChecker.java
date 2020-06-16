@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
+import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
 import org.flasck.flas.parsedForm.ut.UnitTestMatch;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
 import org.flasck.flas.parsedForm.ut.UnitTestShove;
@@ -80,6 +81,7 @@ public class TypeChecker extends LeafAdapter {
 
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
+		logger.info("Checking group " + grp.functions());
 		new GroupChecker(errors, repository, sv, new FunctionGroupTCState(repository, grp), mark);
 	}
 
@@ -89,8 +91,12 @@ public class TypeChecker extends LeafAdapter {
 	}
 
 	@Override
+	public void visitUnitTestInvoke(UnitTestInvoke uti) {
+		new UTIChecker(errors, repository, sv);
+	}
+	
+	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-//		if (mark.hasMoreNow()) return;
 		new UTAChecker(errors, repository, sv);
 	}
 

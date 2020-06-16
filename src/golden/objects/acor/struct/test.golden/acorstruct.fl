@@ -5,7 +5,7 @@
 	object HasAcor
 		state
 			Args contained <- Args "hello" 42
-			List[Args] many <- [ Args "hello" 42 ]
+			List[Args] many <- [ Args "goodbye" 420 ]
 		
 		ctor make
 		

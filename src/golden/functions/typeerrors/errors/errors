@@ -1,7 +1,13 @@
-cannot unify [Number, String]
+badarg.fl:    1.15:   badarg (String  _ s) = s
+badarg.fl:    2.15:   badarg (Number  _ n) = n
+                          cannot unify [Number, String]
+badarg.fl:    2.20:   badarg (Number n) =  _ n
+badarg.fl:    1.20:   badarg (String s) =  _ s
 badarg.fl:    2.20:   badarg (Number n) =  _ n
                           cannot unify [Number, String]
 caseerrors.f  1.0:     _ stringNumber
+caseerrors.f  2.9:    | True =  _ "hello"
+caseerrors.f  3.10:   | False =  _ 42
                           cannot unify [Number, String]
 fielderrors.  3.12:   String s <-  _ 42
                           cannot initialize s from Number
@@ -18,8 +24,12 @@ msgerrors.fl  5.3:    <-  _ Foo
 msgerrors.fl  6.4:    <- [ _ 42]
                           Number cannot be a Message
 recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
+recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
+recursionerr  4.15:   r2 x = r2 x ++  _ r1 x
                           cannot unify [Number, String]
 recursionerr  2.15:   r1 x = r1 42 +  _ r2 x
+recursionerr  2.15:   r1 x = r1 42 +  _ r2 x
+recursionerr  4.7:    r2 x =  _ r2 x ++ r1 x
                           cannot unify [Number, String]
 testerrors.u  6.11:   assert (ok  _ "hello")
                           function 'ok' was expecting Number not String

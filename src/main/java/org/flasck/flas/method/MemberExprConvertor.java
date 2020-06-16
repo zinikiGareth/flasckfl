@@ -13,8 +13,6 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
@@ -23,11 +21,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -51,17 +45,21 @@ public class MemberExprConvertor extends LeafAdapter {
 	private Expr handler;
 	private ObjectActionHandler odctor;
 	private Type containerType;
+	private Type containedType;
 	private boolean isAcor;
 
-	public MemberExprConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah) {
+	public MemberExprConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah, MemberExpr me) {
 		this.errors = errors;
 		this.nv = nv;
 		this.oah = oah;
+		containerType = me.containerType();
+		containedType = me.containedType();
+		nv.push(this);
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr, int nargs) {
-		containerType = expr.containerType();
+		new MemberExprConvertor(errors, nv, oah, expr);
 	}
 	
 	@Override
@@ -94,7 +92,7 @@ public class MemberExprConvertor extends LeafAdapter {
 					expargs = om.argCount();
 				}
 			} else if (sd != null) {
-				if (containerType == LoadBuiltins.event && var.var.equals("source")) {
+				if (containedType == LoadBuiltins.event && var.var.equals("source")) {
 					sendMeth = FunctionName.function(var.location(), null, "_eventSource");
 					expargs = 0;
 				} else {
@@ -118,43 +116,16 @@ public class MemberExprConvertor extends LeafAdapter {
 	}
 
 	private void figureDestinationType(RepositoryEntry defn) {
-		NamedType dt;
-		if (defn instanceof TypedPattern) {
-			TypedPattern tp = (TypedPattern) defn;
-			dt = tp.type.defn();
-		} else if (defn instanceof StructField) {
-			dt = ((StructField)defn).type.defn();
-		} else if (defn instanceof HandlerLambda) {
-			TypedPattern tp = (TypedPattern) ((HandlerLambda)defn).patt;
-			dt = tp.type.defn();
-		} else if (defn instanceof VarPattern) {
-			VarPattern vp = (VarPattern) defn;
-			if (vp.type() == null) {
-				throw new NotImplementedException("cannot use var " + vp + " as it is not bound to a type");
-			} else
-				dt = (NamedType) vp.type();
-		} else if (defn instanceof ObjectDefn) {
-			dt = (ObjectDefn)defn;
-		} else if (defn instanceof RequiresContract) {
-			dt = ((RequiresContract)defn).actualType();
-		} else if (defn instanceof ObjectContract) {
-			dt = ((ObjectContract)defn).implementsType().defn();
-		} else if (defn instanceof UnitDataDeclaration) {
-			dt = ((UnitDataDeclaration)defn).ofType.defn();
-		} else if (defn instanceof IntroduceVar) {
-			dt = (NamedType) ((IntroduceVar)defn).introducedAs();
-		} else
-			throw new NotImplementedException("cannot handle svc var of type " + (defn == null ? "NULL" : defn.getClass()));
-		if (dt instanceof ContractDecl)
-			this.cd = (ContractDecl) dt;
-		else if (dt instanceof ObjectDefn)
-			this.od = (ObjectDefn) dt;
-		else if (dt instanceof StructDefn)
-			this.sd = (StructDefn) dt;
-		else if (dt instanceof HandlerImplements)
-			this.hi = (HandlerImplements) dt;
+		if (containerType instanceof ContractDecl)
+			this.cd = (ContractDecl) containerType;
+		else if (containerType instanceof ObjectDefn)
+			this.od = (ObjectDefn) containerType;
+		else if (containerType instanceof StructDefn)
+			this.sd = (StructDefn) containerType;
+		else if (containerType instanceof HandlerImplements)
+			this.hi = (HandlerImplements) containerType;
 		else
-			throw new NotImplementedException("cannot handle svc defn of type " + (dt == null ? "NULL" : dt.getClass()));
+			throw new NotImplementedException("cannot handle svc defn of type " + (containerType == null ? "NULL" : containerType.getClass()));
 	}
 
 	@Override

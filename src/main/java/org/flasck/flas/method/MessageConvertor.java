@@ -21,11 +21,12 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.Traverser;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class MessageConvertor extends LeafAdapter implements ResultAware {
 	public enum Mode {
-		RHS, SLOT
+		RHS, SLOT, NESTEDSLOT, HAVESLOT
 	}
 
 	private final ErrorReporter errors;
@@ -34,7 +35,6 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	private final List<Object> stack = new ArrayList<>();
 	private Mode mode = Mode.RHS;
 	private Expr slotContainer;
-	private UnresolvedVar slotField;
 
 	public MessageConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah) {
 		this.errors = errors;
@@ -45,18 +45,31 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
 		if (expr instanceof ApplyExpr)
-			nv.push(new MessageConvertor(errors, nv, oah));
+			;
 		else if (expr instanceof MemberExpr)
-			nv.push(new MemberExprConvertor(errors, nv, oah));
+			;
 		else if (mode == Mode.RHS)
 			stack.add(expr);
-		else if (mode == Mode.SLOT) {
-			if (slotField != null)
-				throw new NotImplementedException();
-			slotField = (UnresolvedVar) expr;
-		}
 	}
 
+	@Override
+	public void visitApplyExpr(ApplyExpr expr) {
+		nv.push(new MessageConvertor(errors, nv, oah));
+	}
+	
+	@Override
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
+		if (mode == Mode.SLOT) {
+			mode = Mode.NESTEDSLOT;
+			if (!(expr.from instanceof MemberExpr))
+				slotContainer = expr.from;
+		} else if (mode == Mode.NESTEDSLOT || mode == Mode.RHS) { 
+			new MemberExprConvertor(errors, nv, oah, (MemberExpr) expr);
+		} else
+			throw new CantHappenException("shouldn't see ME in mode " + mode);
+	}
+	
+	// Never forget that we assign the slot AT THE END
 	@Override
 	public void visitAssignSlot(Expr slot) {
 		mode = Mode.SLOT;
@@ -80,11 +93,14 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		Expr expr = (Expr) stack.remove(0);
 		UnresolvedVar op = new UnresolvedVar(msg.kw, "Assign");
 		op.bind(LoadBuiltins.assign);
-		UnresolvedVar inner = (UnresolvedVar) slotField;
+		UnresolvedVar inner;
 		if (slotContainer == null) {
+			inner = (UnresolvedVar) msg.slot;
 			stack.add(new ApplyExpr(msg.kw, op, new CurrentContainer(msg.kw, null), new StringLiteral(inner.location, inner.var), expr));
-		} else
+		} else {
+			inner = (UnresolvedVar) ((MemberExpr)msg.slot).fld;
 			stack.add(new ApplyExpr(msg.kw, op, slotContainer, new StringLiteral(inner.location, inner.var), expr));
+		}
 	}
 	
 	@Override
@@ -93,6 +109,17 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		nv.result(new ApplyExpr(expr.location(), op, stack));
 	}
 
+	@Override
+	public void leaveMemberExpr(MemberExpr expr) {
+		if (mode == Mode.NESTEDSLOT) {
+//			if (stack.size() != 1)
+//				throw new CantHappenException("stack should have one element");
+//			nv.result(stack.remove(0));
+			mode = Mode.HAVESLOT;
+		} else
+			throw new CantHappenException("shouldn't see leaveMemberExpr in mode " + mode);
+	}
+	
 	@Override
 	public void leaveHandleExpr(Expr expr, Expr handler) {
 		MakeSend ms = (MakeSend) stack.remove(0);

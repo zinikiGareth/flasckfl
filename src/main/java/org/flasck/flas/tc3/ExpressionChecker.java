@@ -157,6 +157,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			announce(pos, ((ObjectContract)defn).implementsType().defn());
 		} else if (defn instanceof UnitDataDeclaration) {
 			announce(pos, ((UnitDataDeclaration)defn).ofType.defn());
+		} else if (defn instanceof IntroduceVar) {
+			announce(pos, ((IntroduceVar)defn).introducedAs());
 		} else
 			throw new RuntimeException("Cannot handle " + defn + " of type " + defn.getClass());
 	}

@@ -98,4 +98,7 @@ public interface UnifiableType extends Type {
 	// if we need to resolve before doing further processing, then add a callback for the latter processing here
 	// note that this CANNOT introduce new uncertainty
 	void callOnResolved(CallOnResolution handler);
+
+	// When all the UTs have been resolved, call any deferred logic
+	void afterResolution(ErrorReporter errors);
 }

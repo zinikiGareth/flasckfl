@@ -54,7 +54,7 @@ public class Apply implements Type, SignatureNeedsParensType {
 		return sb.toString();
 	}
 
-	public Object appliedTo(StateHolder ty) {
+	public Type appliedTo(StateHolder ty) {
 		if (ty != tys.get(0))
 			throw new ShouldBeError("Applying an Apply to the wrong type");
 		if (tys.size() == 2)
@@ -62,6 +62,19 @@ public class Apply implements Type, SignatureNeedsParensType {
 		else {
 			List<Type> copy = new ArrayList<>(tys);
 			copy.remove(0);
+			return new Apply(copy);
+		}
+	}
+
+	public Type discard(int discard) {
+		if (tys.size() < discard+1)
+			throw new ShouldBeError("Only have " + tys.size() + "; cannot discard " + discard);
+		if (tys.size() == discard+1)
+			return tys.get(discard);
+		else {
+			List<Type> copy = new ArrayList<>(tys);
+			while (discard-- > 0)
+				copy.remove(0);
 			return new Apply(copy);
 		}
 	}

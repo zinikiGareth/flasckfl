@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.flasck.flas.compiler.jsgen.creators.JSBlock;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;

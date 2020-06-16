@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -71,6 +72,7 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		Type ty = results.get(0);
 		if (!(expr.fld instanceof UnresolvedVar))
 			throw new NotImplementedException("Cannot handle " + expr.fld);
+		expr.bindContainerType(ty);
 		UnresolvedVar fld = (UnresolvedVar)expr.fld;
 		List<Type> polys = null;
 		if (ty instanceof PolyInstance) {
@@ -80,33 +82,27 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		}
 		// TODO: can I move this to resolver?
 		if (ty instanceof ContractDecl) {
-			ContractDecl cd = (ContractDecl) ty;
-			ContractMethodDecl method = cd.getMethod(fld.var);
-			if (method == null) {
-				errors.message(fld.location(), "there is no method '" + fld.var + "' in " + cd.name().uniqueName());
-				nv.result(new ErrorType());
-			} else {
-				nv.result(method.type());
-				expr.bindContractMethod(method);
-			}
+			figureContractMethod(expr, (ContractDecl) ty, fld);
+		} else if (ty instanceof HandlerImplements) {
+			figureContractMethod(expr, ((HandlerImplements) ty).actualType(), fld);
 		} else if (ty instanceof StructDefn) {
 			StructDefn sd = (StructDefn) ty;
 			StructField sf = sd.findField(fld.var);
 			if (sf == null) {
 				errors.message(fld.location(), "there is no field '" + fld.var + "' in " + sd.name().uniqueName());
-				nv.result(new ErrorType());
+				announce(expr, new ErrorType());
 			} else {
 				if (polys != null)
-					nv.result(processPolys(polys, sd, sf.type.defn()));
+					announce(expr, processPolys(polys, sd, sf.type.defn()));
 				else
-					nv.result(sf.type.defn());
+					announce(expr, sf.type.defn());
 			}
 		} else if (ty instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) ty;
 			FieldAccessor fa = od.getAccessor(fld.var);
 			if (fa != null) {
 				try {
-					nv.result(fa.type());
+					announce(expr, fa.type());
 				} catch (UnboundTypeException ute) {
 					throw new DeferMeException();
 				}
@@ -114,34 +110,50 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			}
 			ObjectCtor ctor = od.getConstructor(fld.var);
 			if (ctor != null) {
-				nv.result(ctor.type());
+				announce(expr, ctor.type());
 				return;
 			}
 			ObjectMethod meth = od.getMethod(fld.var);
 			if (meth != null) {
-				nv.result(meth.type());
+				announce(expr, meth.type());
 				return;
 			}
 			if (expr.from instanceof UnresolvedVar && ((UnresolvedVar)expr.from).defn() instanceof UnitDataDeclaration) {
-				handleStateHolderUDD((StateHolder) ty, fld.location, fld.var);
+				handleStateHolderUDD(expr, (StateHolder) ty, fld.location, fld.var);
 				return;
 			}
 			
 			errors.message(expr.fld.location(), "object " + od.name() + " does not have a method, ctor or acor " + fld.var);
-			nv.result(new ErrorType());
+			announce(expr, new ErrorType());
 		} else if (ty instanceof CardDefinition || ty instanceof AgentDefinition) {
 			if (expr.from instanceof UnresolvedVar && ((UnresolvedVar)expr.from).defn() instanceof UnitDataDeclaration)
-				handleStateHolderUDD((StateHolder) ty, fld.location, fld.var);
+				handleStateHolderUDD(expr, (StateHolder) ty, fld.location, fld.var);
 			else {
 				errors.message(fld.location(), "there is insufficient information to deduce the type of the object in order to apply it to '" + fld.var + "'");
-				nv.result(new ErrorType());
+				announce(expr, new ErrorType());
 			}
 		} else if (expr.from instanceof UnresolvedVar) {
 			UnresolvedVar var = (UnresolvedVar) expr.from;
 			errors.message(var.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
-			nv.result(new ErrorType());
+			announce(expr, new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
+	}
+
+	private void figureContractMethod(MemberExpr expr, ContractDecl cd, UnresolvedVar fld) {
+		ContractMethodDecl method = cd.getMethod(fld.var);
+		if (method == null) {
+			errors.message(fld.location(), "there is no method '" + fld.var + "' in " + cd.name().uniqueName());
+			announce(expr, new ErrorType());
+		} else {
+			announce(expr, method.type());
+			expr.bindContractMethod(method);
+		}
+	}
+	
+	private void announce(MemberExpr me, Type ty) {
+		me.bindContainedType(ty);
+		nv.result(ty);
 	}
 
 	private Type processPolys(List<Type> polys, PolyHolder ph, Type found) {
@@ -165,9 +177,9 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			return found;
 	}
 
-	private void handleStateHolderUDD(StateHolder ty, InputPosition loc, String var) {
+	private void handleStateHolderUDD(MemberExpr me, StateHolder ty, InputPosition loc, String var) {
 		if (ty.state().hasMember(var)) {
-			nv.result(ty.state().findField(var).type.defn());
+			announce(me, ty.state().findField(var).type.defn());
 		} else {
 			RepositoryEntry entry = repository.get(FunctionName.function(loc, ty.name(), var).uniqueName());
 			if (entry != null && entry instanceof FunctionDefinition) {
@@ -176,10 +188,10 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				if (!(type instanceof Apply))
 					throw new HaventConsideredThisException("I would expect this to be an Apply with 'ty' as the first arg");
 				Apply app = (Apply) type;
-				nv.result(app.appliedTo(ty));
+				announce(me, app.appliedTo(ty));
 			} else {
 				errors.message(loc, "there is no state member or function '" + var + "' in " + ty.name().uniqueName());
-				nv.result(new ErrorType());
+				announce(me, new ErrorType());
 				return;
 			}
 		}

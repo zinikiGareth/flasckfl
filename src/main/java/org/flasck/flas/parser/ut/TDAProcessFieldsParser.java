@@ -33,8 +33,11 @@ public class TDAProcessFieldsParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		ExprToken send = ExprToken.from(errors, toks);
-		if (send == null || !send.text.equals("<-")) {
+		if (send == null) {
 			errors.message(toks, "expected <-");
+			return new IgnoreNestedParser();
+		} else if (!send.text.equals("<-")) {
+			errors.message(send.location, "expected <-");
 			return new IgnoreNestedParser();
 		}
 		List<Expr> exprs = new ArrayList<>();

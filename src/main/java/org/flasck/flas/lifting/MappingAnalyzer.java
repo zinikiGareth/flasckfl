@@ -54,6 +54,9 @@ public class MappingAnalyzer {
 			TypedPattern tp = (TypedPattern) defn;
 			if (tp.name().scope != name) {
 				collector.recordNestedVar(fi, meth, tp);
+				if (tp.definedBy() == null) {
+					throw new CantHappenException("cannot depend on " + tp.var + " because its definedBy function has not been set");
+				}
 				collector.recordDependency(tp.definedBy());
 			}
 		} else if (defn instanceof LogicHolder) {

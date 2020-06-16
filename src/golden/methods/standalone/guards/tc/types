@@ -1,1 +1,1 @@
-test.golden.foo :: Any->List[Message]
+test.golden.foo :: Number->List[Message]

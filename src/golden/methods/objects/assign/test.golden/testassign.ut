@@ -1,0 +1,5 @@
+	test we can assign to something that came from a constant expression
+		data AssignStruct ta <- AssignStruct.create
+		invoke ta.update1 0
+		assert (ta.things)
+			[Thing "goodbye", Thing "world"]

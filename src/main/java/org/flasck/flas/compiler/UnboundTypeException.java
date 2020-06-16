@@ -7,6 +7,7 @@ public class UnboundTypeException extends RuntimeException {
 	public final FunctionDefinition fn;
 
 	public UnboundTypeException(FunctionDefinition fn) {
+		super(fn.name().uniqueName());
 		this.fn = fn;
 	}
 }

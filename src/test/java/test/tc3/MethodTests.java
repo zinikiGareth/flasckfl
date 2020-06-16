@@ -60,6 +60,7 @@ import org.zinutils.support.jmock.CaptureAction;
 import flas.matchers.ApplyMatcher;
 import flas.matchers.ExprResultMatcher;
 import flas.matchers.PosMatcher;
+import test.parsing.LocalErrorTracker;
 
 public class MethodTests {
 	public interface RAV extends ResultAware, RepositoryVisitor {	}
@@ -71,6 +72,7 @@ public class MethodTests {
 	private final List<Pattern> args = new ArrayList<>();
 	private final ObjectMethod meth = new ObjectMethod(pos, FunctionName.objectMethod(pos, new SolidName(pkg, "X"), "meth"), args, null, null);
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 	private final RAV r = context.mock(RAV.class);
@@ -84,7 +86,7 @@ public class MethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aSingleDebugMessageGivesAListOfMessage() {
-		new FunctionChecker(errors, repository, sv, FunctionName.objectMethod(pos, null, "m"), state, null);
+		new FunctionChecker(tracker, repository, sv, FunctionName.objectMethod(pos, null, "m"), state, null);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
 		meth.sendMessage(msg);
 		sv.visitSendMessage(msg);
@@ -98,7 +100,7 @@ public class MethodTests {
 
 	@Test
 	public void noMessagesNilType() {
-		new FunctionChecker(errors, repository, sv, FunctionName.objectMethod(pos, null, "m"), state, null);
+		new FunctionChecker(tracker, repository, sv, FunctionName.objectMethod(pos, null, "m"), state, null);
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(new PosType(pos, LoadBuiltins.nil));
@@ -109,7 +111,7 @@ public class MethodTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void weCanHandleArgumentTypes() {
-		new FunctionChecker(errors, repository, sv, meth.name(), state, null);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, null);
 		TypedPattern tp = new TypedPattern(pos, LoadBuiltins.stringTR, new VarName(pos, meth.name(), "str"));
 		args.add(tp);
 		SendMessage msg = new SendMessage(pos, new ApplyExpr(pos, LoadBuiltins.debug, str));
@@ -142,7 +144,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		sv.visitAssignSlot(msg.slot);
@@ -162,7 +164,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -185,7 +187,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -205,7 +207,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, var, sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, new ErrorType()));
 		context.checking(new Expectations() {{
@@ -226,7 +228,7 @@ public class MethodTests {
 		Expr nl = new NumericLiteral(pos, "42", 2);
 		AssignMessage msg = new AssignMessage(pos, var, nl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.number));
 		context.checking(new Expectations() {{
@@ -250,7 +252,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -276,7 +278,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -304,7 +306,7 @@ public class MethodTests {
 		Expr sl = new StringLiteral(pos, "hello");
 		AssignMessage msg = new AssignMessage(pos, new MemberExpr(pos, lead, second), sl);
 		meth.assignMessage(msg);
-		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, meth);
 		sv.visitAssignMessage(msg);
 		sv.result(new ExprResult(pos, LoadBuiltins.string));
 		context.checking(new Expectations() {{
@@ -315,7 +317,7 @@ public class MethodTests {
 	
 	@Test
 	public void sendMessageIsFine() {
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.send))));
 		}});
@@ -325,7 +327,7 @@ public class MethodTests {
 
 	@Test
 	public void debugMessageIsFine() {
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.debug))));
 		}});
@@ -335,7 +337,7 @@ public class MethodTests {
 
 	@Test
 	public void unionMessageIsFine() {
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.message))));
 		}});
@@ -345,7 +347,7 @@ public class MethodTests {
 
 	@Test
 	public void anEmptyListIsFine() {
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.nil))));
 		}});
@@ -355,7 +357,7 @@ public class MethodTests {
 
 	@Test
 	public void listOfDebugMessagesIsFine() {
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
@@ -366,7 +368,7 @@ public class MethodTests {
 
 	@Test
 	public void consOfSendMessagesIsFine() {
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.send));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
@@ -377,7 +379,7 @@ public class MethodTests {
 
 	@Test
 	public void listOfMessagesIsFine() {
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
@@ -390,9 +392,9 @@ public class MethodTests {
 	@Test
 	public void aNumberIsNotFine() {
 		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
-		new FunctionChecker(errors, repository, sv, meth.name(), state, null);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, null);
 		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "Number cannot be a Message");
@@ -403,16 +405,16 @@ public class MethodTests {
 		sv.leaveObjectMethod(meth);
 		HashMap<TypeBinder, PosType> mts = new HashMap<>();
 		mts.put(meth, (PosType) capture.get(0));
-		state.groupDone(errors, mts);
+		state.groupDone(tracker, mts);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void listOfNumbersIsNotFine() {
 		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
-		new FunctionChecker(errors, repository, sv, meth.name(), state, null);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, null);
 		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.number));
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
@@ -424,17 +426,17 @@ public class MethodTests {
 		sv.leaveObjectMethod(meth);
 		HashMap<TypeBinder, PosType> mts = new HashMap<>();
 		mts.put(meth, (PosType) capture.get(0));
-		state.groupDone(errors, mts);
+		state.groupDone(tracker, mts);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void anyOtherPolyIsNotFine() {
 		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
-		new FunctionChecker(errors, repository, sv, meth.name(), state, null);
+		new FunctionChecker(tracker, repository, sv, meth.name(), state, null);
 		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
 		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, new SolidName(null, "A"))));
-		new MessageChecker(errors, repository, state, sv, meth);
+		new MessageChecker(tracker, repository, state, sv, meth);
 		PolyInstance pi = new PolyInstance(pos, sda, Arrays.asList(LoadBuiltins.message));
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
@@ -446,6 +448,6 @@ public class MethodTests {
 		sv.leaveObjectMethod(meth);
 		HashMap<TypeBinder, PosType> mts = new HashMap<>();
 		mts.put(meth, (PosType) capture.get(0));
-		state.groupDone(errors, mts);
+		state.groupDone(tracker, mts);
 	}
 }

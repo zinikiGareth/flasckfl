@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.PolyInstanceMatcher;
+import test.parsing.LocalErrorTracker;
 
 public class ConstraintUnification {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -32,19 +33,20 @@ public class ConstraintUnification {
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private final FunctionName fn = FunctionName.function(pos, null, "foo");
 
 	@Test
 	public void ifWeDontDoAnythingWeEndUpWithAny() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
-		assertEquals(LoadBuiltins.any, ut.resolve(errors));
+		assertEquals(LoadBuiltins.any, ut.resolve(tracker));
 	}
 
 	@Test
 	public void oneIncoporatedByConstraintCreatesAnIdentity() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.incorporatedBy(pos, LoadBuiltins.number);
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>());
 		assertEquals(LoadBuiltins.number, ut.resolvedTo());
 	}
 	
@@ -52,7 +54,7 @@ public class ConstraintUnification {
 	public void ifYouAskSomethingToBeANilItWillBe() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeStruct(pos, null, LoadBuiltins.nil);
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>());
 		assertEquals(LoadBuiltins.nil, ut.resolvedTo());
 	}
 	
@@ -61,8 +63,8 @@ public class ConstraintUnification {
 	public void ifYouAskSomethingToBeAConsAndDontConstrainItYouGetAnyAsThePoly() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeStruct(pos, fn, LoadBuiltins.cons);
-		state.groupDone(errors, new HashMap<>());
-		assertThat(ut.resolve(errors), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
+		state.groupDone(tracker, new HashMap<>());
+		assertThat(ut.resolve(tracker), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -72,7 +74,7 @@ public class ConstraintUnification {
 		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>());
 		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(pt)));
 	}
 	
@@ -83,8 +85,8 @@ public class ConstraintUnification {
 		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.canBeStruct(pos, null, LoadBuiltins.falseT);
-		state.groupDone(errors, new HashMap<>());
-		assertThat(ut.resolve(errors), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.falseT)));
+		state.groupDone(tracker, new HashMap<>());
+		assertThat(ut.resolve(tracker), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.falseT)));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -95,7 +97,7 @@ public class ConstraintUnification {
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.isReturned(pos);
 
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>());
 		
 		PolyType polyA = new PolyType(pos, new SolidName(null, "A"));
 		assertThat(f.resolvedTo(), Matchers.is(polyA));
@@ -114,9 +116,9 @@ public class ConstraintUnification {
 		ut.canBeStruct(pos, null, LoadBuiltins.trueT);
 		ut.canBeStruct(pos, null, LoadBuiltins.falseT);
 		context.checking(new Expectations() {{
-			oneOf(repository).findUnionWith(with(errors), with(pos), (Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT)), with(true)); will(returnValue(LoadBuiltins.bool));
+			oneOf(repository).findUnionWith(with(tracker), with(pos), (Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT)), with(true)); will(returnValue(LoadBuiltins.bool));
 		}});
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>());
 		assertEquals(LoadBuiltins.bool, ut.resolvedTo());
 	}
 	
@@ -124,7 +126,7 @@ public class ConstraintUnification {
 	public void aSingleArgConstraintJustGivesYouThatType() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeType(pos, LoadBuiltins.string);
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>());
 		assertEquals(LoadBuiltins.string, ut.resolvedTo());
 	}
 	
@@ -133,7 +135,7 @@ public class ConstraintUnification {
 	public void aSingleArgTypeConstraintWithAPolymorphicCtorGivesYouAnys() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeType(pos, LoadBuiltins.cons);
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>());
 		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
 }

@@ -14,6 +14,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.PolyType;
@@ -123,6 +124,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	
 	@Override
 	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes) {
+		ErrorMark mark = errors.mark();
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 		TypeChecker.logger.debug("starting to check group: " + memberTypes.keySet());
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
@@ -169,6 +171,19 @@ public class FunctionGroupTCState implements CurrentTCState {
 					node.getEntry().resolve(errors);
 				}
 			}, r, order);
+		}
+		
+		if (!mark.hasMoreNow()) { // avoid cascades
+			for (UnifiableType r : roots) {
+				dag.postOrderFromWithOrder(new NodeWalker<UnifiableType>() {
+					@Override
+					public void present(Node<UnifiableType> node) {
+						if (node.getEntry().isRedirected())
+							return;
+						node.getEntry().afterResolution(errors);
+					}
+				}, r, order);
+			}
 		}
 		
 		// Then we can bind the types

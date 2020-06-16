@@ -4,15 +4,15 @@
 			Args "hello" 42
 			
 		assert (ha.top)
-			Args "hello" 42
+			Args "goodbye" 420
 
 	test fn acor works			
 		data HasAcor ha <- HasAcor.make
 		assert (getTop ha)
-			Args "hello" 42
+			Args "goodbye" 420
 
 	test we can use it
 		data HasAcor ha <- HasAcor.make
 		data Use use <- Use.doit ha
 		assert (use.first)
-			Args "hello" 42
+			Args "goodbye" 420

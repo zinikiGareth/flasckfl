@@ -36,10 +36,12 @@ import org.junit.Test;
 import flas.matchers.ApplyMatcher;
 import flas.matchers.PolyInstanceMatcher;
 import flas.matchers.ResolvedUTMatcher;
+import test.parsing.LocalErrorTracker;
 
 public class TypeResolution {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private final Repository repository = new Repository();
 	private final FunctionGroup grp = context.mock(FunctionGroup.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
@@ -52,14 +54,14 @@ public class TypeResolution {
 
 	@Before
 	public void begin() {
-		LoadBuiltins.applyTo(errors, repository);
+		LoadBuiltins.applyTo(tracker, repository);
 		context.checking(new Expectations() {{
 			allowing(sv);
 			allowing(grp).isEmpty(); will(returnValue(false));
 			allowing(grp).functions(); will(returnValue(Arrays.asList(fnF)));
 		}});
 		state = new FunctionGroupTCState(repository, grp);
-		gc = new GroupChecker(errors, repository, sv, state, null);
+		gc = new GroupChecker(tracker, repository, sv, state, null);
 	}
 
 	@Test
@@ -101,7 +103,7 @@ public class TypeResolution {
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown", true);
 		ut.canBeType(pos, LoadBuiltins.number);
 		gc.result(new PosType(pos, ut));
-		ut.resolve(errors);
+		ut.resolve(tracker);
 		gc.leaveFunctionGroup(null);
 		assertEquals(LoadBuiltins.number, fnF.type());
 	}
@@ -125,7 +127,7 @@ public class TypeResolution {
 		result.canBeType(pos, LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
 		gc.result(new PosType(pos, result));
 		gc.leaveFunctionGroup(null);
-		assertThat(utG.resolve(errors), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.nil)));
+		assertThat(utG.resolve(tracker), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), ResolvedUTMatcher.with(LoadBuiltins.nil)));
 		assertEquals(LoadBuiltins.nil, fnF.type());
 	}
 

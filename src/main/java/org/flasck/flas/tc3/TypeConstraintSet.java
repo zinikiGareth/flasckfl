@@ -564,6 +564,13 @@ public class TypeConstraintSet implements UnifiableType {
 			resolvedTo = repository.findUnionWith(errors, pos, alltys, needAll);
 			if (resolvedTo == null) {
 				logger.info("could not unify " + this.id);
+				TreeSet<String> tyes = new TreeSet<String>();
+				TreeSet<InputPosition> locs = new TreeSet<>();
+				for (PosType ty : resolved) {
+					tyes.add(ty.type.signature());
+					locs.add(ty.pos);
+				}
+				errors.message(pos, locs, "cannot unify " + tyes);
 				resolvedTo = new ErrorType();
 			}
 		}
@@ -571,11 +578,14 @@ public class TypeConstraintSet implements UnifiableType {
 		for (ErrorConstraint e : errorConstraints)
 			e.apply(errors, resolvedTo);
 		
-		for (CallOnResolution c : onResolved)
-			c.typeResolved(resolvedTo);
-		
 		logger.debug("resolved to " + resolvedTo);
 		return resolvedTo;
+	}
+
+	@Override
+	public void afterResolution(ErrorReporter errors) {
+		for (CallOnResolution c : onResolved)
+			c.typeResolved(resolvedTo);
 	}
 
 	private Type resolvePolyArg(HashSet<UnifiableType> workingOn, Type ty) {

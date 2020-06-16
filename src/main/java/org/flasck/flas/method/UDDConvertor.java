@@ -31,9 +31,13 @@ public class UDDConvertor extends LeafAdapter implements ResultAware {
 			new UDDConvertor(nv, errors);
 		else if (expr instanceof MemberExpr) {
 			convert = (MemberExpr) expr;
-			nv.push(new MemberExprConvertor(errors, nv, null));
 		} else
 			stack.add(expr);
+	}
+	
+	@Override
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
+		new MemberExprConvertor(errors, nv, null, convert);
 	}
 	
 	@Override

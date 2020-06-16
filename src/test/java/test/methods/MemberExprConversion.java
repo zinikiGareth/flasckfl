@@ -28,6 +28,7 @@ import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.Traverser;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -40,6 +41,12 @@ public class MemberExprConversion {
 	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
 
+	@Before
+	public void allow() {
+		context.checking(new Expectations() {{
+			allowing(nv).push(with(any(MemberExprConvertor.class)));
+		}});
+	}
 	@Test
 	public void dotOperatorBecomesMkSend() {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
@@ -52,10 +59,11 @@ public class MemberExprConversion {
 		from.bind(tp);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
 		MemberExpr me = new MemberExpr(pos, from, fld);
+		me.bindContainerType(cd);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "Ctr"), "fred"), ExprMatcher.unresolved("from"), 0)));
 		}});
-		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null);
+		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null, me);
 		Traverser gen = new Traverser(mc).withMemberFields();
 		gen.visitExpr(me, 0);
 	}
@@ -75,10 +83,11 @@ public class MemberExprConversion {
 		from.bind(tp);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
 		MemberExpr me = new MemberExpr(pos, from, fld);
+		me.bindContainerType(cd);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "Ctr"), "fred"), ExprMatcher.unresolved("from"), 2)));
 		}});
-		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null);
+		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null, me);
 		Traverser gen = new Traverser(mc).withMemberFields();
 		gen.visitExpr(me, 0);
 	}
@@ -96,10 +105,11 @@ public class MemberExprConversion {
 		from.bind(udd);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
 		MemberExpr me = new MemberExpr(pos, from, fld);
+		me.bindContainerType(od);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(fred, ExprMatcher.unresolved("from"), 0)));
 		}});
-		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null);
+		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null, me);
 		Traverser gen = new Traverser(mc).withMemberFields();
 		gen.visitExpr(me, 0);
 	}
@@ -115,10 +125,11 @@ public class MemberExprConversion {
 		from.bind(tp);
 		UnresolvedVar fld = new UnresolvedVar(pos, "fred");
 		MemberExpr me = new MemberExpr(pos, from, fld);
+		me.bindContainerType(sd);
 		context.checking(new Expectations() {{
 			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "StructDefn"), "fred"), ExprMatcher.unresolved("from"), 0)));
 		}});
-		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null);
+		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null, me);
 		Traverser gen = new Traverser(mc).withMemberFields();
 		gen.visitExpr(me, 0);
 	}

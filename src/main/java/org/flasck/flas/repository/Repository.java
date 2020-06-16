@@ -339,10 +339,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 			}
 		}
 		if (matching.isEmpty()) {
-			TreeSet<String> tyes = new TreeSet<String>();
-			for (Type ty : ms)
-				tyes.add(ty.signature());
-			errors.message(pos, "cannot unify " + tyes);
 			return null;
 		} else if (matching.size() == 1)
 			return matching.get(0);

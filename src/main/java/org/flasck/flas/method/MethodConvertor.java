@@ -49,11 +49,24 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 		
 		msgHasGuard = true;
 		if (expr instanceof ApplyExpr)
-			sv.push(new MessageConvertor(errors, sv, oah));
+			;
 		else if (expr instanceof MemberExpr)
-			sv.push(new MemberExprConvertor(errors, sv, oah));
+			;
 		else
 			results.add(expr);
+	}
+
+
+	@Override
+	public void visitApplyExpr(ApplyExpr expr) {
+		if (haveGuards)
+			sv.push(new MessageConvertor(errors, sv, oah));
+	}
+	
+	@Override
+	public void visitMemberExpr(MemberExpr expr, int nargs) {
+		if (haveGuards)
+			new MemberExprConvertor(errors, sv, oah, (MemberExpr) expr);
 	}
 
 	@Override

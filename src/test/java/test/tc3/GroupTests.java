@@ -47,10 +47,12 @@ import org.zinutils.support.jmock.CaptureAction;
 import flas.matchers.ApplyMatcher;
 import flas.matchers.PosMatcher;
 import flas.matchers.ResolvedUTMatcher;
+import test.parsing.LocalErrorTracker;
 
 public class GroupTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	private final ErrorReporter errors = context.mock(ErrorReporter.class);
+	private final LocalErrorTracker tracker = new LocalErrorTracker(errors);
 	private final RepositoryReader repository = context.mock(RepositoryReader.class);
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
@@ -77,7 +79,7 @@ public class GroupTests {
 			fnG.intro(fiG1);
 			fnG.intro(fiG2);
 		}});
-		this.gc = new GroupChecker(errors, repository, sv, state, null);
+		this.gc = new GroupChecker(tracker, repository, sv, state, null);
 	}
 	
 	/*
@@ -249,7 +251,7 @@ public class GroupTests {
 		gc.leaveFunctionGroup(grp);
 		assertNotNull(fnF.type());
 		assertThat(fnF.type(), (Matcher)ApplyMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)), Matchers.is(LoadBuiltins.string)));
-		Type argType = fnArg.resolve(errors);
+		Type argType = fnArg.resolve(tracker);
 		assertNotNull(argType);
 		assertThat(argType, (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), ResolvedUTMatcher.with(LoadBuiltins.string)));
 		assertNotNull(pattG.type());

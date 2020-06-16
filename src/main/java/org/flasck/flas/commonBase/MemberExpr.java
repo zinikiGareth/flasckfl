@@ -15,6 +15,7 @@ public class MemberExpr implements Expr {
 	private Expr conversion;
 	private ContractMethodDecl contractMethod;
 	private Type containerType;
+	private Type containedType;
 
 	public MemberExpr(InputPosition location, Expr from, Expr fld) {
 		if (location == null)
@@ -35,6 +36,14 @@ public class MemberExpr implements Expr {
 	
 	public Type containerType() {
 		return this.containerType;
+	}
+	
+	public void bindContainedType(Type ty) {
+		this.containedType = ty;
+	}
+	
+	public Type containedType() {
+		return this.containedType;
 	}
 	
 	public void showTree(int ind) {

@@ -119,7 +119,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void cantAssignASlotWithoutAnArrow() {
 		context.checking(new Expectations() {{
-			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected <-"));
+			oneOf(errorsMock).message(with(any(InputPosition.class)), with("expected <-"));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a.x 42"));
@@ -129,7 +129,7 @@ public class TDAMethodMessageParsingTests {
 	@Test
 	public void cantNestSlotsWithoutDot() {
 		context.checking(new Expectations() {{
-			oneOf(errorsMock).message(with(any(Tokenizable.class)), with("expected <-"));
+			oneOf(errorsMock).message(with(any(InputPosition.class)), with("expected <-"));
 		}});
 		TDAMethodMessageParser parser = new TDAMethodMessageParser(tracker, builder, nestedFunctionScope);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("a x <- 42"));

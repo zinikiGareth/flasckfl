@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,6 +32,14 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 
 	public ErrorResult message(InputPosition pos, String msg) {
 		return message(new FLASError(pos, msg));
+	}
+
+	@Override
+	public ErrorResult message(InputPosition pos, Collection<InputPosition> locs, String msg) {
+		FLASError e = new FLASError(pos, msg);
+		if (locs != null)
+			e.others.addAll(locs);
+		return message(e);
 	}
 
 	public ErrorResult reportException(Throwable ex) {
@@ -66,13 +75,13 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 					continue;
 				for (int i=0;i<ind;i++)
 					pw.append(' ');
-				if (e.loc != null) {
-					pw.write(Justification.PADRIGHT.format(e.loc + ": ", 22) + (e.loc.text == null ? "" : e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off)));
-					pw.write('\n');
-					for (int i=0;i<ind;i++)
-						pw.append(' ');
-					pw.write(Justification.PADRIGHT.format("", 26));
+				InputPosition l = e.loc;
+				if (l != null) {
+					showLine(pw, ind, l);
 				}
+				for (InputPosition li : e.others)
+					showLine(pw, ind, li);
+				pw.write(Justification.PADRIGHT.format("", 26));
 				pw.write(e.msg);
 				pw.write('\n');
 			}
@@ -80,6 +89,13 @@ public class ErrorResult implements ErrorReporter, Iterable<FLASError> {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	private void showLine(Writer pw, int ind, InputPosition l) throws IOException {
+		pw.write(Justification.PADRIGHT.format(l + ": ", 22) + (l.text == null ? "" : l.text.substring(0, l.off) + " _ " + l.text.substring(l.off)));
+		pw.write('\n');
+		for (int i=0;i<ind;i++)
+			pw.append(' ');
 	}
 	
 	public void showTo(Writer pw, int ind) throws IOException {

@@ -1,0 +1,3 @@
+test.golden.AssignStruct._ctor_create :: test.golden.AssignStruct
+test.golden.AssignStruct.update1 :: Number->List[Message]
+test.golden.AssignStruct.update1.fred :: test.golden.AssignStruct->Any->test.golden.Thing

@@ -78,7 +78,7 @@ public class TDAMethodMessageParser implements TDAParsing {
 				break;
 		}
 		if (!"<-".equals(tok.text)) {
-			errors.message(toks, "expected <-");
+			errors.message(tok.location, "expected <-");
 			return new IgnoreNestedParser();
 		}
 		InputPosition pos = tok.location;

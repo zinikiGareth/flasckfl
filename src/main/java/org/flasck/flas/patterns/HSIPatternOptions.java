@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
-
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -22,7 +20,6 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;

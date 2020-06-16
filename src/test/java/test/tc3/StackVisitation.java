@@ -281,7 +281,7 @@ public class StackVisitation {
 	@Test
 	public void applyExpressionWithPolyApplyInstantiatesFreshUTs() {
 		state = new FunctionGroupTCState(repository, new DependencyGroup());
-		ApplyExpressionChecker aec = new ApplyExpressionChecker(errors, repository, state, nv, false);
+		ApplyExpressionChecker aec = new ApplyExpressionChecker(tracker, repository, state, nv, false);
 		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
 		Type fnt = new Apply(pt, pt);
 		Type nbr = LoadBuiltins.number;
@@ -298,7 +298,7 @@ public class StackVisitation {
 		aec.result(new ExprResult(pos, fnt));
 		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>());
 		assertEquals(LoadBuiltins.number, ((UnifiableType) ut.get(0)).resolvedTo());
 	}
 

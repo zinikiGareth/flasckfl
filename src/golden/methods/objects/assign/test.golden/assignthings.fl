@@ -1,0 +1,12 @@
+	struct Thing
+		String name
+	
+	object AssignStruct
+		state
+			List[Thing] things <- [ Thing "hello", Thing "world" ]
+		
+		ctor create
+		
+		method update1 (Number n)
+			fred.name <- "goodbye"
+				fred = nth n things
