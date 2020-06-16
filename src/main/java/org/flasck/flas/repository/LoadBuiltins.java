@@ -91,6 +91,7 @@ public class LoadBuiltins {
 	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);
 	public static final StructDefn send = new StructDefn(pos, FieldsType.STRUCT, null, "Send", false);
 	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
+	public static final StructDefn assignCons = new StructDefn(pos, FieldsType.STRUCT, null, "AssignCons", false);
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
 
 	// Events
@@ -170,6 +171,8 @@ public class LoadBuiltins {
 		assign.addField(new StructField(pos, assign, false, anyTR, "on"));
 		assign.addField(new StructField(pos, assign, false, stringTR, "fld"));
 		assign.addField(new StructField(pos, assign, false, anyTR, "value"));
+		assignCons.addField(new StructField(pos, assignCons, false, anyTR, "on"));
+		assignCons.addField(new StructField(pos, assignCons, false, anyTR, "value"));
 		source.fullName(new VarName(pos, clickEvent.name(), "source"));
 		clickEvent.addField(source);
 		

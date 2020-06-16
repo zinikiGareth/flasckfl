@@ -42,12 +42,12 @@ public class GuardedMessagesChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitSendMessage(SendMessage sm) {
-		new MessageChecker(errors,repository, state, sv, inMeth);
+		new MessageChecker(errors,repository, state, sv, inMeth, null);
 	}
 	
 	@Override
 	public void visitAssignMessage(AssignMessage assign) {
-		new MessageChecker(errors,repository, state, sv, inMeth);
+		new MessageChecker(errors,repository, state, sv, inMeth, null);
 	}
 	
 	@Override

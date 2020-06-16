@@ -1023,6 +1023,19 @@ Cons.eval = function(_cxt, hd, tl) {
 	return cp;
 }
 
+const AssignItem = function(list, n) {
+	this.list = list;
+	this.n = n;
+}
+
+AssignItem.prototype._field_head = function() {
+	return this.list[this.n];
+}
+
+AssignItem.prototype.set = function(obj) {
+	this.list[this.n] = obj;
+}
+
 
 
 /* istanbul ignore next */
@@ -1140,6 +1153,20 @@ FLBuiltin.nth = function(_cxt, n, list) {
 }
 
 FLBuiltin.nth.nfargs = function() { return 2; }
+
+FLBuiltin.item = function(_cxt, n, list) {
+	n = _cxt.full(n);
+	if (typeof(n) != 'number')
+		return new FLError("no matching case");
+	list = _cxt.spine(list);
+	if (!Array.isArray(list))
+		return new FLError("no matching case");
+	if (n < 0 || n >= list.length)
+		return new FLError("out of bounds");
+	return new AssignItem(list, n);
+}
+
+FLBuiltin.item.nfargs = function() { return 2; }
 
 FLBuiltin.append = function(_cxt, list, elt) {
 	list = _cxt.spine(list);
@@ -1432,6 +1459,47 @@ Assign.prototype.dispatch = function(cx) {
 }
 Assign.prototype.toString = function() {
 	return "Assign[" + "]";
+};
+
+const AssignCons = function() {
+}
+AssignCons.eval = function(_cxt, obj, expr) {
+	const s = new AssignCons();
+	s.obj = obj;
+	s.expr = expr;
+	return s;
+}
+AssignCons.prototype._full = function(cx) {
+	this.obj = cx.full(this.obj);
+	this.expr = cx.full(this.expr);
+}
+AssignCons.prototype._compare = function(cx, other) {
+	if (other instanceof AssignCons) {
+		return cx.compare(this.obj, other.obj) && cx.compare(this.expr, other.expr);
+	} else
+		return false;
+}
+AssignCons.prototype.dispatch = function(cx) {
+	// it's possible that obj is a send or something so consider dispatching it first
+	var msgs = [];
+	var target = this.obj;
+	if (target.dispatch) {
+		// TODO: I feel this *could* return a RWM, but it currently doesn't
+		var rwm = this.obj.dispatch(cx);
+		target = rwm;
+	}
+	if (!(target instanceof AssignItem)) {
+		throw Error("No, it needs to be an Item");
+	}
+	if (this.expr instanceof ResponseWithMessages) {
+		msgs.unshift(ResponseWithMessages.messages(cx, this.expr));
+		this.expr = ResponseWithMessages.response(cx, this.expr);
+	}
+	target.set(this.expr);
+	return msgs;
+}
+AssignCons.prototype.toString = function() {
+	return "AssignCons[" + "]";
 };
 
 const ResponseWithMessages = function(cx, obj, msgs) {

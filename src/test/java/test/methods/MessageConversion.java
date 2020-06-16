@@ -34,7 +34,7 @@ public class MessageConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(MemberExprConvertor.class)));
 		}});
-		MessageConvertor mc = new MessageConvertor(null, nv, null);
+		MessageConvertor mc = new MessageConvertor(null, nv, null, null);
 		mc.visitMemberExpr(me, 0);
 	}
 
@@ -45,7 +45,7 @@ public class MessageConversion {
 			oneOf(nv).result(null);
 		}});
 		UnitTestInvoke uti = new UnitTestInvoke(sl);
-		MessageConvertor mc = new MessageConvertor(null, nv, null);
+		MessageConvertor mc = new MessageConvertor(null, nv, null, null);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(sl, 0);
 		gen.leaveUnitTestInvoke(uti);
@@ -60,7 +60,7 @@ public class MessageConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(sl);
 		}});
-		MessageConvertor mc = new MessageConvertor(null, nv, null);
+		MessageConvertor mc = new MessageConvertor(null, nv, null, null);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(sl, 0);
 		gen.leaveMessage(null);
@@ -72,7 +72,7 @@ public class MessageConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(nl);
 		}});
-		MessageConvertor mc = new MessageConvertor(null, nv, null);
+		MessageConvertor mc = new MessageConvertor(null, nv, null, null);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(nl, 0);
 		gen.leaveMessage(null);
@@ -84,7 +84,7 @@ public class MessageConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(uv);
 		}});
-		MessageConvertor mc = new MessageConvertor(null, nv, null);
+		MessageConvertor mc = new MessageConvertor(null, nv, null, null);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(uv, 0);
 		gen.leaveMessage(null);
@@ -96,7 +96,7 @@ public class MessageConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).result(op);
 		}});
-		MessageConvertor mc = new MessageConvertor(null, nv, null);
+		MessageConvertor mc = new MessageConvertor(null, nv, null, null);
 		Traverser gen = new Traverser(mc);
 		gen.visitExpr(op, 0);
 		gen.leaveMessage(null);
@@ -110,7 +110,7 @@ public class MessageConversion {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(MessageConvertor.class)));
 		}});
-		MessageConvertor mc = new MessageConvertor(null, nv, null);
+		MessageConvertor mc = new MessageConvertor(null, nv, null, null);
 		mc.visitApplyExpr(ae);
 	}
 }

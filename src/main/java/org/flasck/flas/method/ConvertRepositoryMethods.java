@@ -45,7 +45,7 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	public void visitStructField(StructField sf) {
 		if (sf.init == null)
 			return;
-		sv.push(new MessageConvertor(errors, sv, null));
+		sv.push(new MessageConvertor(errors, sv, null, null));
 	}
 	
 	@Override
@@ -70,6 +70,6 @@ public class ConvertRepositoryMethods extends LeafAdapter {
 	
 	@Override
 	public void visitUnitTestInvoke(UnitTestInvoke e) {
-		sv.push(new MessageConvertor(errors, sv, null));
+		sv.push(new MessageConvertor(errors, sv, null, null));
 	}
 }

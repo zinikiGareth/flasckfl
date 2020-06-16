@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -80,13 +81,15 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final CurrentTCState state;
 	private final NestedVisitor sv;
 	private final ObjectActionHandler inMeth;
+	private final AssignMessage assign;
 	private ExprResult rhsType;
 
-	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, ObjectActionHandler inMeth) {
+	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, ObjectActionHandler inMeth, AssignMessage assign) {
 		this.errors = errors;
 		this.state = state;
 		this.sv = sv;
 		this.inMeth = inMeth;
+		this.assign = assign;
 		sv.push(this);
 		// push this for the value on the rhs
 		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
@@ -124,6 +127,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 			PolyInstance tmp = (PolyInstance)container;
 			if (tmp.struct() == LoadBuiltins.cons)
 				container = tmp.getPolys().get(0);
+			assign.willAssignToCons();
 		}
 		if (!(container.incorporates(rhsType.pos, rhsType.type))) {
 			if (toSlot instanceof UnresolvedVar) {

@@ -3,3 +3,9 @@
 		invoke ta.update1 0
 		assert (ta.things)
 			[Thing "goodbye", Thing "world"]
+			
+	test we can assign to a list item
+		data AssignList ta <- AssignList.create
+		invoke ta.update1 20
+		assert (ta.ns)
+			[20, 10]

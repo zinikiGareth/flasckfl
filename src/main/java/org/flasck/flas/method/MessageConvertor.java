@@ -32,14 +32,16 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final NestedVisitor nv;
 	private final ObjectActionHandler oah;
+	private final AssignMessage assign;
 	private final List<Object> stack = new ArrayList<>();
 	private Mode mode = Mode.RHS;
 	private Expr slotContainer;
 
-	public MessageConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah) {
+	public MessageConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah, AssignMessage assign) {
 		this.errors = errors;
 		this.nv = nv;
 		this.oah = oah;
+		this.assign = assign;
 	}
 
 	@Override
@@ -50,11 +52,15 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 			;
 		else if (mode == Mode.RHS)
 			stack.add(expr);
+		else if (mode == Mode.SLOT && assign.assignsToCons()) {
+			slotContainer = expr;
+			mode = Mode.HAVESLOT;
+		}
 	}
 
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
-		nv.push(new MessageConvertor(errors, nv, oah));
+		nv.push(new MessageConvertor(errors, nv, oah, null));
 	}
 	
 	@Override
@@ -91,16 +97,30 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		if (stack.size() != 1)
 			throw new NotImplementedException("stack size should be 1 but was " + stack.size());
 		Expr expr = (Expr) stack.remove(0);
-		UnresolvedVar op = new UnresolvedVar(msg.kw, "Assign");
-		op.bind(LoadBuiltins.assign);
 		UnresolvedVar inner;
+		List<Object> args = new ArrayList<>();
 		if (slotContainer == null) {
 			inner = (UnresolvedVar) msg.slot;
-			stack.add(new ApplyExpr(msg.kw, op, new CurrentContainer(msg.kw, null), new StringLiteral(inner.location, inner.var), expr));
+			args.add(new CurrentContainer(msg.kw, null));
+		} else if (slotContainer instanceof UnresolvedVar && msg.assignsToCons()) {
+			inner = null;
+			args.add(slotContainer);
 		} else {
 			inner = (UnresolvedVar) ((MemberExpr)msg.slot).fld;
-			stack.add(new ApplyExpr(msg.kw, op, slotContainer, new StringLiteral(inner.location, inner.var), expr));
+			args.add(slotContainer);
 		}
+		
+		UnresolvedVar op;
+		if (msg.assignsToCons()) {
+			op = new UnresolvedVar(msg.kw, "AssignCons");
+			op.bind(LoadBuiltins.assignCons);
+		} else {
+			op = new UnresolvedVar(msg.kw, "Assign");
+			op.bind(LoadBuiltins.assign);
+			args.add(new StringLiteral(inner.location, inner.var));
+		}
+		args.add(expr);
+		stack.add(new ApplyExpr(msg.kw, op, args));
 	}
 	
 	@Override

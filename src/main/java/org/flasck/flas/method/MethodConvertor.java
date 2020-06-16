@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
+import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Messages;
@@ -60,7 +61,7 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
 		if (haveGuards)
-			sv.push(new MessageConvertor(errors, sv, oah));
+			sv.push(new MessageConvertor(errors, sv, oah, null));
 	}
 	
 	@Override
@@ -71,7 +72,7 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitMessage(ActionMessage msg) {
-		sv.push(new MessageConvertor(errors, sv, oah));
+		sv.push(new MessageConvertor(errors, sv, oah, (msg instanceof AssignMessage)?(AssignMessage)msg:null));
 	}
 	
 	@Override
