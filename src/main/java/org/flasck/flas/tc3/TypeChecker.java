@@ -241,8 +241,7 @@ public class TypeChecker extends LeafAdapter {
 		return ret;
 	}
 
-	public static PosType instantiateFreshPolys(Expr tmp, CurrentTCState state, Map<String, UnifiableType> uts,
-			PosType post) {
+	public static PosType instantiateFreshPolys(Expr tmp, CurrentTCState state, Map<String, UnifiableType> uts,	PosType post, boolean nested) {
 		InputPosition pos = post.pos;
 		Type type = post.type;
 		if (type instanceof PolyType) {
@@ -258,18 +257,18 @@ public class TypeChecker extends LeafAdapter {
 			Apply a = (Apply) type;
 			List<Type> types = new ArrayList<>();
 			for (Type t : a.tys)
-				types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t)).type);
+				types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t), true).type);
 			return new PosType(pos, new Apply(types));
 		} else if (type instanceof PolyHolder && ((PolyHolder) type).hasPolys()) {
 			PolyHolder sd = (PolyHolder) type;
 			List<Type> polys = new ArrayList<>();
 			for (Type t : sd.polys())
-				polys.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t)).type);
+				polys.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t), true).type);
 			PolyInstance pi = new PolyInstance(pos, sd, polys);
-			if (type instanceof FieldsDefn) {
+			if (!nested && type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn) type).fields)
-					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn())).type);
+					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn()), true).type);
 				if (types.isEmpty())
 					return new PosType(pos, pi);
 				else
@@ -281,12 +280,12 @@ public class TypeChecker extends LeafAdapter {
 			PolyInstance inst = (PolyInstance) type;
 			List<Type> polys = new ArrayList<>();
 			for (Type t : inst.getPolys())
-				polys.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t)).type);
+				polys.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t), true).type);
 			PolyInstance pi = new PolyInstance(pos, inst.struct(), polys);
 			if (type instanceof FieldsDefn) {
 				List<Type> types = new ArrayList<>();
 				for (StructField sf : ((FieldsDefn) type).fields)
-					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn())).type);
+					types.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, sf.type.defn()), true).type);
 				if (types.isEmpty())
 					return new PosType(pos, pi);
 				else

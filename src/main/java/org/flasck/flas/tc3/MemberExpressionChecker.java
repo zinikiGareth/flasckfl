@@ -81,7 +81,9 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			ty = pi.struct();
 		}
 		// TODO: can I move this to resolver?
-		if (ty instanceof ContractDecl) {
+		if (ty instanceof ErrorType) {
+			announce(expr, ty);
+		} else if (ty instanceof ContractDecl) {
 			figureContractMethod(expr, (ContractDecl) ty, fld);
 		} else if (ty instanceof HandlerImplements) {
 			figureContractMethod(expr, ((HandlerImplements) ty).actualType(), fld);

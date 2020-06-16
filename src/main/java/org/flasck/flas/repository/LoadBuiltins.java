@@ -127,6 +127,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition length = new FunctionDefinition(FunctionName.function(pos, null, "length"), 1, null);
 	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, null, "replace"), 3, null);
 	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, null, "nth"), 2, null);
+	public static final FunctionDefinition item = new FunctionDefinition(FunctionName.function(pos, null, "item"), 2, null);
 	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null);
 	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null);
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null);
@@ -224,6 +225,7 @@ public class LoadBuiltins {
 		length.bindType(new Apply(list, number));
 		replace.bindType(new Apply(list, number, polyA, list));
 		nth.bindType(new Apply(number, list, polyA));
+		item.bindType(new Apply(number, list, cons));
 		append.bindType(new Apply(list, polyA, list));
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
@@ -251,6 +253,7 @@ public class LoadBuiltins {
 		allFunctions.add(length);
 		allFunctions.add(replace);
 		allFunctions.add(nth);
+		allFunctions.add(item);
 		allFunctions.add(append);
 		allFunctions.add(strlen);
 		allFunctions.add(concat);
@@ -301,6 +304,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, length);
 		repository.functionDefn(errors, replace);
 		repository.functionDefn(errors, nth);
+		repository.functionDefn(errors, item);
 		repository.functionDefn(errors, append);
 		repository.functionDefn(errors, strlen);
 		repository.functionDefn(errors, concat);

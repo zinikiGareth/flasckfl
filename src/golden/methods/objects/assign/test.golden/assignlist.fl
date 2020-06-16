@@ -1,9 +1,11 @@
-.	object AssignList
-.		state
-.			List[Number] ns <- [ 10, 20 ]
-.		
-.		ctor create
-.		
-.		method update1 (Number n)
-.			ns[0] <- n
-.			ns[1] <- n/2
+	object AssignList
+		state
+			List[Number] ns <- [ 10, 20 ]
+		
+		ctor create
+		
+		method update1 (Number n)
+			first <- n
+			second <- n/2
+				first = item 0 ns
+				second = item 1 ns

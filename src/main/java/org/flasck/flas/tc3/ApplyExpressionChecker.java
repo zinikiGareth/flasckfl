@@ -62,7 +62,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		if (ty == null || ty.type == null) {
 			throw new NullPointerException("Cannot handle null type");
 		}
-		results.add(TypeChecker.instantiateFreshPolys(tmp, state, new TreeMap<>(), ty));
+		results.add(TypeChecker.instantiateFreshPolys(tmp, state, new TreeMap<>(), ty, false));
 	}
 	
 	@Override

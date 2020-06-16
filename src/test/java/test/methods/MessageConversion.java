@@ -35,7 +35,7 @@ public class MessageConversion {
 			oneOf(nv).push(with(any(MemberExprConvertor.class)));
 		}});
 		MessageConvertor mc = new MessageConvertor(null, nv, null);
-		mc.visitExpr(me, 0);
+		mc.visitMemberExpr(me, 0);
 	}
 
 	@Test
@@ -111,6 +111,6 @@ public class MessageConversion {
 			oneOf(nv).push(with(any(MessageConvertor.class)));
 		}});
 		MessageConvertor mc = new MessageConvertor(null, nv, null);
-		mc.visitExpr(ae, 0);
+		mc.visitApplyExpr(ae);
 	}
 }

@@ -43,7 +43,7 @@ public class StructFieldConstraints implements StructTypeConstraints {
 		if (!fields.containsKey(fld)) {
 			UnifiableType ut = state.createUT(pos, fn.uniqueName() + " " + sd.name().uniqueName() + "." + fld.name);
 			fields.put(fld, ut);
-			ut.sameAs(pos, TypeChecker.instantiateFreshPolys(null, state, new TreeMap<String, UnifiableType>(polys), new PosType(pos,fld.type())).type);
+			ut.sameAs(pos, TypeChecker.instantiateFreshPolys(null, state, new TreeMap<String, UnifiableType>(polys), new PosType(pos,fld.type()), false).type);
 		}
 		return fields.get(fld);
 	}
