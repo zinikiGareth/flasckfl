@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -365,6 +366,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			defn = uv.defn();
 			if (defn == null) // some kind of error
 				return;
+		} else if (expr.from instanceof ApplyExpr) {
+			// this is hard to say the least ...
+			return;
 		} else
 			throw new NotImplementedException("cannot handle elt " + expr.from.getClass());
 		UnresolvedVar fld = (UnresolvedVar) expr.fld;

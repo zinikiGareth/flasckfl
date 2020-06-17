@@ -9,3 +9,9 @@
 		invoke ta.update1 20
 		assert (ta.ns)
 			[20, 10]
+			
+				
+	test we can look at the head of an item
+		data AssignList ta <- AssignList.create
+		assert (ta.hd)
+			10

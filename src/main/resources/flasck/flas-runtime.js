@@ -1028,9 +1028,10 @@ const AssignItem = function(list, n) {
 	this.n = n;
 }
 
-AssignItem.prototype._field_head = function() {
+AssignItem.prototype._field_head = function(_cxt) {
 	return this.list[this.n];
 }
+AssignItem.prototype._field_head.nfargs = function() { return 0; }
 
 AssignItem.prototype.set = function(obj) {
 	this.list[this.n] = obj;

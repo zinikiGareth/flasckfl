@@ -1,5 +1,7 @@
 package org.flasck.flas.method;
 
+import java.util.List;
+
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
@@ -14,6 +16,7 @@ import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StateHolder;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.TemplateNestedField;
@@ -82,8 +85,16 @@ public class AccessorConvertor extends LeafAdapter {
 		} else if (from instanceof MemberExpr) {
 			MemberExpr me = (MemberExpr) expr.from;
 			defn = me.defn();
+		} else if (from instanceof ApplyExpr) { // and possibly other cases ...
+			defn = (RepositoryEntry) expr.containerType(); // the TypeChecker figured out what the containing type is already
 		} else
 			throw new NotImplementedException("cannot handle member of " + from.getClass());
+		List<Type> polys;
+		if (defn instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) defn;
+			defn = (RepositoryEntry) pi.struct();
+			polys = pi.getPolys();
+		}
 		AccessorHolder ah;
 		if (defn instanceof UnitDataDeclaration) {
 			UnitDataDeclaration udd = (UnitDataDeclaration) defn;
@@ -115,6 +126,8 @@ public class AccessorConvertor extends LeafAdapter {
 				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on " + td.name().uniqueName());
 				return;
 			}
+		} else if (defn instanceof StructDefn) {
+			ah = (AccessorHolder) defn;
 		} else if (defn instanceof ObjectDefn) {
 			// it's actually a ctor not an accessor
 			ObjectDefn od = (ObjectDefn) defn;

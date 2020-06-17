@@ -9,3 +9,5 @@
 			second <- n/2
 				first = item 0 ns
 				second = item 1 ns
+
+		acor hd = (item 0 ns).head

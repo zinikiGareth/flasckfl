@@ -1,4 +1,6 @@
 JVM PASS we can assign to something that came from a constant expression
 JVM PASS we can assign to a list item
+JVM PASS we can look at the head of an item
 JS PASS we can assign to something that came from a constant expression
 JS PASS we can assign to a list item
+JS PASS we can look at the head of an item
