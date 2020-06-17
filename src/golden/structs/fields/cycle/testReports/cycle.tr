@@ -1,4 +1,6 @@
 JVM PASS we can figure the value of an item
 JVM PASS the error from a type mismatch
+JVM PASS we can update through an event handler
 JS PASS we can figure the value of an item
 JS PASS the error from a type mismatch
+JS PASS we can update through an event handler

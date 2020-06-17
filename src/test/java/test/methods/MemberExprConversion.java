@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
+import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -33,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import flas.matchers.ExprMatcher;
+import flas.matchers.MakeAcorMatcher;
 import flas.matchers.MakeSendMatcher;
 
 public class MemberExprConversion {
@@ -119,7 +121,9 @@ public class MemberExprConversion {
 		UnresolvedVar from = new UnresolvedVar(pos, "from");
 		TypeReference tr = new TypeReference(pos, "StructDefn");
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "StructDefn"), true, new ArrayList<>());
-		sd.addField(new StructField(pos, pos, sd, true, LoadBuiltins.stringTR, "fred", null));
+		StructField sf = new StructField(pos, pos, sd, true, LoadBuiltins.stringTR, "fred", null);
+		sf.fullName(new VarName(pos, sd.name(), "fred"));
+		sd.addField(sf);
 		tr.bind(sd);
 		TypedPattern tp = new TypedPattern(pos, tr, new VarName(pos, sd.name(), "from"));
 		from.bind(tp);
@@ -127,7 +131,7 @@ public class MemberExprConversion {
 		MemberExpr me = new MemberExpr(pos, from, fld);
 		me.bindContainerType(sd);
 		context.checking(new Expectations() {{
-			oneOf(nv).result(with(MakeSendMatcher.sending(FunctionName.contractMethod(pos, new SolidName(pkg, "StructDefn"), "fred"), ExprMatcher.unresolved("from"), 0)));
+			oneOf(nv).result(with(MakeAcorMatcher.acor(FunctionName.contractMethod(pos, new SolidName(pkg, "StructDefn"), "_field_fred"), ExprMatcher.unresolved("from"), 0)));
 		}});
 		MemberExprConvertor mc = new MemberExprConvertor(null, nv, null, me);
 		Traverser gen = new Traverser(mc).withMemberFields();

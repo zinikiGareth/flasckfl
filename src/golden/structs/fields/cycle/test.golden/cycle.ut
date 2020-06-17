@@ -5,3 +5,9 @@
 	test the error from a type mismatch
 		assert (f "hello")
 			Error "not an item"
+			
+	test we can update through an event handler
+		data Container ct
+		event ct _ (ClickEvent)
+		assert (ct.msgs)
+			[["fred"],[]]

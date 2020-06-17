@@ -26,6 +26,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -123,7 +124,9 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private void checkFinal(Expr toSlot, Type container) {
-		if (container instanceof PolyInstance) {
+		if (container instanceof UnifiableType)
+			throw new CantHappenException("this should have been resolved");
+		if (assign != null && container instanceof PolyInstance) {
 			PolyInstance tmp = (PolyInstance)container;
 			if (tmp.struct() == LoadBuiltins.assignItem) {
 				container = tmp.getPolys().get(0);
@@ -201,11 +204,15 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 			throw new HaventConsideredThisException("expecting var to be a function"); // I think this is an error
 		}
 		Type rem = app.appliedTo(state);
+		if (rem instanceof UnifiableType)
+			rem = ((UnifiableType)rem).resolvedTo();
 		FunctionDefinition fd = (FunctionDefinition) var.defn();
 		int discardNested = fd.nestedVars().size();
 		if (discardNested > 0) {
 			Apply da = (Apply) rem;
 			rem = da.discard(discardNested);
+			if (rem instanceof UnifiableType)
+				rem = ((UnifiableType)rem).resolvedTo();
 		}
 		return new ExprResult(var.location, rem);
 	}

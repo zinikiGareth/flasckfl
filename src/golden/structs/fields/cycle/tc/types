@@ -1,3 +1,5 @@
+test.golden.Container.doit :: ClickEvent->List[Message]
+test.golden.Container.doit.l :: test.golden.Container->AssignItem[List[String]]
 test.golden.f :: Any->String
 test.golden.f._1.item :: Any->test.golden.Item
 test.golden.figureOut :: Any->test.golden.Item

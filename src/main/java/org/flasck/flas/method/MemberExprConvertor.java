@@ -29,6 +29,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.ShouldBeError;
 
@@ -48,6 +49,7 @@ public class MemberExprConvertor extends LeafAdapter {
 	private final Type containerType;
 	private final Type containedType;
 	private boolean isAcor;
+	private FieldAccessor acorFrom;
 
 	public MemberExprConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah, MemberExpr me) {
 		this.errors = errors;
@@ -100,7 +102,7 @@ public class MemberExprConvertor extends LeafAdapter {
 					FieldAccessor acor = this.sd.getAccessor(var.var);
 					if (acor == null)
 						throw new NotImplementedException("There is no acor " + var.var);
-					sendMeth = FunctionName.function(var.location(), this.sd.name(), var.var);
+					acorFrom = acor;
 					expargs = 0;
 				}
 			} else if (hi != null) {
@@ -138,13 +140,15 @@ public class MemberExprConvertor extends LeafAdapter {
 	public void leaveMemberExpr(MemberExpr expr) {
 		if (odctor != null) {
 			convertObjectCtor(expr);
-		} else if (sendMeth != null)
+		} else if (acorFrom != null) {
+			nv.result(acorFrom.acor(obj));
+		} else if (sendMeth != null) {
 			if (isAcor)
 				nv.result(new MakeAcor(expr.location(), sendMeth, obj, expargs));
 			else
 				nv.result(new MakeSend(expr.location(), sendMeth, obj, expargs, handler));
-		else
-			throw new NotImplementedException("Need to implement the field case");
+		} else
+			throw new HaventConsideredThisException("cannot convert " + expr);
 	}
 
 	private void convertObjectCtor(MemberExpr expr) {

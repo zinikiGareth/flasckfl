@@ -1,0 +1,7 @@
+	card Container
+		state
+			List[List[String]] msgs <- [[], []]
+			
+		event doit (ClickEvent ev)
+			l <- append l.head "fred"
+				l = item 0 msgs 
