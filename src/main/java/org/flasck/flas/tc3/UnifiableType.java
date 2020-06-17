@@ -3,6 +3,7 @@ package org.flasck.flas.tc3;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -38,6 +39,9 @@ public interface UnifiableType extends Type {
 	// e.g. if it is incorporated by List, it can be Nil, Cons or List, but it cannot be Number
 	// if it is incorporated by Nil, it cannot be Cons, List or Number
 	void incorporatedBy(InputPosition pos, Type incorporator);
+
+	// This UT was created because another UT was a container and this is the field
+	void isFieldOf(MemberExpr expr, UnifiableType container, String field);
 
 	// This says that the value is returned from a sub-expression
 	// Anyway, the upshot is that it is almost undoubtedly used more than once (it must have come from somewhere)

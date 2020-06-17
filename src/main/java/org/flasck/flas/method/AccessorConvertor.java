@@ -1,13 +1,12 @@
 package org.flasck.flas.method;
 
-import java.util.List;
-
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.lifting.NestedVarReader;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -89,11 +88,12 @@ public class AccessorConvertor extends LeafAdapter {
 			defn = (RepositoryEntry) expr.containerType(); // the TypeChecker figured out what the containing type is already
 		} else
 			throw new NotImplementedException("cannot handle member of " + from.getClass());
-		List<Type> polys;
+//		List<Type> polys;
 		if (defn instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) defn;
 			defn = (RepositoryEntry) pi.struct();
-			polys = pi.getPolys();
+			// I feel we should need this in order to reconstruct the actual type later ...
+//			polys = pi.getPolys();
 		}
 		AccessorHolder ah;
 		if (defn instanceof UnitDataDeclaration) {
@@ -146,9 +146,17 @@ public class AccessorConvertor extends LeafAdapter {
 			ah = (AccessorHolder) ty;
 		} else if (defn instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) defn;
-			if (fn.argCount() != 0)
-				throw new NotImplementedException("cannot extract object from " + defn.getClass() + " with " + fn.argCount());
-			ah = (AccessorHolder) fn.type();
+			if (fn.argCountWithoutHolder() == 0) {
+				ah = (AccessorHolder) fn.type();
+			} else {
+				NestedVarReader nv = fn.nestedVars();
+				if (nv.patterns().size() == fn.argCountWithoutHolder()) {
+					// It feels like we need to apply the function to these arguments, but that isn't actually true, since it is done automatically
+					// during code generation
+					ah = (AccessorHolder) fn.type().get(nv.size() + (fn.hasState()?1:0));
+				} else
+					throw new NotImplementedException("cannot extract object from " + defn.getClass() + " with " + fn.argCount());
+			}
 		} else if (defn instanceof StructField) {
 			ah = (AccessorHolder) ((StructField)defn).type();
 		} else if (defn instanceof TemplateNestedField) {

@@ -1,0 +1,8 @@
+	struct Item
+		String value
+		
+	f x = item.value
+		item = figureOut x
+		
+	figureOut (Item i) = i
+	figureOut (Any a) = Error "not an item"

@@ -1,8 +1,8 @@
 package org.flasck.flas.parsedForm;
 
-import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 
 public interface AccessorHolder {
-	SolidName name();
+	NameOfThing name();
 	FieldAccessor getAccessor(String called);
 }

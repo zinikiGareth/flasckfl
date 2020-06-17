@@ -14,8 +14,11 @@ import java.util.TreeSet;
 import java.util.function.Function;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.AccessorHolder;
+import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -31,6 +34,7 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.exceptions.ShouldBeError;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 
 public class TypeConstraintSet implements UnifiableType {
@@ -127,6 +131,8 @@ public class TypeConstraintSet implements UnifiableType {
 	};
 	private final boolean needAll;
 	private final List<CallOnResolution> onResolved = new ArrayList<>();
+	private UnifiableType fieldOf;
+	private String fieldName;
 	final static Comparator<? super PosType> posNameComparator = new Comparator<PosType>() {
 
 		@Override
@@ -138,6 +144,7 @@ public class TypeConstraintSet implements UnifiableType {
 			return o1.type.toString().compareTo(o2.type.toString());
 		}
 	};
+	private MemberExpr fieldExpr;
 	
 	public TypeConstraintSet(RepositoryReader r, CurrentTCState state, InputPosition pos, String id, String motive, boolean unionNeedsAll) {
 		repository = r;
@@ -278,6 +285,12 @@ public class TypeConstraintSet implements UnifiableType {
 		this.acquired.add(ut);
 		this.errorConstraints.addAll(tcs.errorConstraints);
 		this.onResolved.addAll(tcs.onResolved);
+		if (this.fieldExpr != null && tcs.fieldExpr != null) {
+			throw new NotImplementedException("need to be able to handle multiple field expressions in some way");
+		}
+		this.fieldExpr = tcs.fieldExpr;
+		this.fieldOf = tcs.fieldOf;
+		this.fieldName = tcs.fieldName;
 	}
 
 	@Override
@@ -497,10 +510,17 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 			tys.add(new PosType(rt.pos, new Apply(cargs, rt.type)));
 		}
-		
+
 		for (UnifiableType pv : polyvars) {
 			dag.ensure(pv);
 			dag.ensureLink(this, pv);
+		}
+		
+		// if we are a contained field, we depend on the container
+		if (this.fieldOf != null) {
+			logger.debug("  is field '" + this.fieldName + "' of " + this.fieldOf.redirectedTo().id());
+			dag.ensure(this.fieldOf.redirectedTo());
+			dag.ensureLink(this, this.fieldOf.redirectedTo());
 		}
 	}
 
@@ -544,6 +564,24 @@ public class TypeConstraintSet implements UnifiableType {
 				}
 			}
 		}
+		if (this.fieldOf != null) {
+			Type r = this.fieldOf.resolvedTo();
+			if (r instanceof PolyInstance) {
+				PolyInstance pi = (PolyInstance) r;
+				r = pi.struct();
+			}
+			if (r instanceof ErrorType) {
+				resolvedTo = r;
+				return r;
+			} else if (r instanceof AccessorHolder) {
+				AccessorHolder ah = (AccessorHolder) r;
+				FieldAccessor f = ah.getAccessor(this.fieldName);
+				if (f == null)
+					throw new ShouldBeError("there isn't a '" + fieldName + "'");
+				resolved.add(new PosType(pos, f.type()));
+			} else
+				throw new HaventConsideredThisException("can't extract field '" + fieldName + "' from '" + r + "'");
+		}
 
 		if (resolved.isEmpty()) {
 			if (usedOrReturned > 0 || !acquired.isEmpty())
@@ -578,6 +616,11 @@ public class TypeConstraintSet implements UnifiableType {
 		for (ErrorConstraint e : errorConstraints)
 			e.apply(errors, resolvedTo);
 		
+		if (fieldOf != null) {
+			fieldExpr.bindContainerType(this.fieldOf.redirectedTo().resolvedTo());
+			fieldExpr.bindContainedType(resolvedTo);
+		}
+		
 		logger.debug("resolved to " + resolvedTo);
 		return resolvedTo;
 	}
@@ -606,6 +649,13 @@ public class TypeConstraintSet implements UnifiableType {
 				rps.add(curr);
 		}
 		return new PolyInstance(pi.location(), pi.struct(), rps);
+	}
+
+	@Override
+	public void isFieldOf(MemberExpr expr, UnifiableType container, String field) {
+		fieldExpr = expr;
+		fieldOf = container;
+		fieldName = field;
 	}
 
 	@Override

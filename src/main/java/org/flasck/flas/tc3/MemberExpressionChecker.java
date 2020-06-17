@@ -134,10 +134,16 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				errors.message(fld.location(), "there is insufficient information to deduce the type of the object in order to apply it to '" + fld.var + "'");
 				announce(expr, new ErrorType());
 			}
-		} else if (expr.from instanceof UnresolvedVar) {
-			UnresolvedVar var = (UnresolvedVar) expr.from;
-			errors.message(var.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
-			announce(expr, new ErrorType());
+		} else if (ty instanceof UnifiableType) {
+			// It's going to be hard to figure this out, but we need to have a special rule for dealing with it and then unify later
+			UnifiableType container = (UnifiableType) ty;
+			UnifiableType ut = state.createUT(expr.location(), "memberExpr for " + expr.toString());
+			ut.isFieldOf(expr, container, fld.var);
+			announce(expr, ut);
+//		} else if (expr.from instanceof UnresolvedVar) {
+//			UnresolvedVar var = (UnresolvedVar) expr.from;
+//			errors.message(var.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
+//			announce(expr, new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
 	}

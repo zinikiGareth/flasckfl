@@ -6,13 +6,15 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.parsedForm.AccessorHolder;
+import org.flasck.flas.parsedForm.FieldAccessor;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class PolyInstance implements NamedType, RepositoryEntry {
+public class PolyInstance implements NamedType, RepositoryEntry, AccessorHolder {
 	private final InputPosition loc;
 	private final NamedType ty;
 	private final List<Type> polys;
@@ -116,6 +118,11 @@ public class PolyInstance implements NamedType, RepositoryEntry {
 		return ty.name();
 	}
 
+	@Override
+	public FieldAccessor getAccessor(String called) {
+		return ((AccessorHolder) ty).getAccessor(called);
+	}
+	
 	@Override
 	public void dumpTo(PrintWriter pw) {
 		throw new NotImplementedException();

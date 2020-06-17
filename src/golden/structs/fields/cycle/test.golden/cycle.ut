@@ -1,0 +1,7 @@
+	test we can figure the value of an item
+		assert (f (Item "hello"))
+			"hello"
+			
+	test the error from a type mismatch
+		assert (f "hello")
+			Error "not an item"

@@ -27,6 +27,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.ShouldBeError;
@@ -44,8 +45,8 @@ public class MemberExprConvertor extends LeafAdapter {
 	private int expargs;
 	private Expr handler;
 	private ObjectActionHandler odctor;
-	private Type containerType;
-	private Type containedType;
+	private final Type containerType;
+	private final Type containedType;
 	private boolean isAcor;
 
 	public MemberExprConvertor(ErrorReporter errors, NestedVisitor nv, ObjectActionHandler oah, MemberExpr me) {
@@ -116,16 +117,21 @@ public class MemberExprConvertor extends LeafAdapter {
 	}
 
 	private void figureDestinationType(RepositoryEntry defn) {
-		if (containerType instanceof ContractDecl)
-			this.cd = (ContractDecl) containerType;
-		else if (containerType instanceof ObjectDefn)
-			this.od = (ObjectDefn) containerType;
-		else if (containerType instanceof StructDefn)
-			this.sd = (StructDefn) containerType;
-		else if (containerType instanceof HandlerImplements)
-			this.hi = (HandlerImplements) containerType;
+		Type ct = containerType;
+		if (ct instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) ct;
+			ct = pi.struct();
+		}
+		if (ct instanceof ContractDecl)
+			this.cd = (ContractDecl) ct;
+		else if (ct instanceof ObjectDefn)
+			this.od = (ObjectDefn) ct;
+		else if (ct instanceof StructDefn)
+			this.sd = (StructDefn) ct;
+		else if (ct instanceof HandlerImplements)
+			this.hi = (HandlerImplements) ct;
 		else
-			throw new NotImplementedException("cannot handle svc defn of type " + (containerType == null ? "NULL" : containerType.getClass()));
+			throw new NotImplementedException("cannot handle svc defn of type " + (ct == null ? "NULL" : ct.getClass()) + " for " + defn);
 	}
 
 	@Override
