@@ -83,6 +83,7 @@ public class LoadBuiltins {
 	public static final StructDefn cons = new StructDefn(pos, FieldsType.STRUCT, null, "Cons", false, polyA);
 	public static final UnionTypeDefn list = new UnionTypeDefn(pos, false, new SolidName(null, "List"), polyA);
 	public static final PolyInstance listAny = new PolyInstance(pos, list, Arrays.asList(any));
+	public static final StructDefn assignItem = new StructDefn(pos, FieldsType.STRUCT, null, "AssignItem", false, polyA);
 
 	// Crobags
 	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new SolidName(null, "Crobag"), false, Arrays.asList(polyA));
@@ -161,6 +162,9 @@ public class LoadBuiltins {
 		StructField head = new StructField(pos, cons, true, polyATR, "head");
 		head.fullName(new VarName(pos, cons.name(), "head"));
 		cons.addField(head);
+		StructField aihead = new StructField(pos, assignItem, true, polyATR, "head");
+		aihead.fullName(new VarName(pos, assignItem.name(), "head"));
+		assignItem.addField(aihead);
 		StructField tail = new StructField(pos, cons, true, listATR, "tail");
 		tail.fullName(new VarName(pos, cons.name(), "tail"));
 		cons.addField(tail);
@@ -228,7 +232,7 @@ public class LoadBuiltins {
 		length.bindType(new Apply(list, number));
 		replace.bindType(new Apply(list, number, polyA, list));
 		nth.bindType(new Apply(number, list, polyA));
-		item.bindType(new Apply(number, list, cons));
+		item.bindType(new Apply(number, list, assignItem));
 		append.bindType(new Apply(list, polyA, list));
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));

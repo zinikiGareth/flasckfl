@@ -125,9 +125,10 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private void checkFinal(Expr toSlot, Type container) {
 		if (container instanceof PolyInstance) {
 			PolyInstance tmp = (PolyInstance)container;
-			if (tmp.struct() == LoadBuiltins.cons)
+			if (tmp.struct() == LoadBuiltins.assignItem) {
 				container = tmp.getPolys().get(0);
-			assign.willAssignToCons();
+				assign.willAssignToCons();
+			}
 		}
 		if (!(container.incorporates(rhsType.pos, rhsType.type))) {
 			if (toSlot instanceof UnresolvedVar) {
