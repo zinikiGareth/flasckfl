@@ -198,6 +198,7 @@ public class Traverser implements RepositoryVisitor {
 					try {
 						visitFunctionGroup(grp);
 					} catch (DeferMeException ex) {
+						patternsLogger.warn("aborted processing " + ex.getMessage());
 						((StackVisitor)visitor).reduceTo(1);
 						undone.add(grp);
 					}
@@ -627,6 +628,8 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
+		if (wantHSI && !oc.generate)
+			return;
 		currFnHasState = true;
 		visitor.visitObjectCtor(oc);
 		visitStateDefinition(oc.getObject().state());
@@ -673,6 +676,8 @@ public class Traverser implements RepositoryVisitor {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
+		if (wantHSI && !meth.generate)
+			return;
 		currFnHasState = meth.hasState();
 		visitor.visitObjectMethod(meth);
 		if (wantEventSources && meth.isEvent()) {

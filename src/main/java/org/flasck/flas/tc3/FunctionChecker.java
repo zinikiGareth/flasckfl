@@ -206,6 +206,8 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
+		if (!meth.generate)
+			sv.result(null);
 		if (!meth.hasMessages())
 			sv.result(buildApplyType(meth.location(), new PosType(meth.location(), LoadBuiltins.nil)));
 		else if (resultTypes.isEmpty())
@@ -218,13 +220,12 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	@Override
 	public void leaveObjectCtor(ObjectCtor ctor) {
+		if (!ctor.generate)
+			sv.result(null);
 		// Note that this is its declared type.  It carries messages behind the scenes
 		// The reaason for this trickery is that constructors are special and we want to have natural looking syntax
 		// I'm not sure if there is a "purely functional syntax" for object construction at the moment - create it if/when it is needed
 		sv.result(buildApplyType(ctor.location(), new PosType(ctor.location(), ctor.getObject())));
-	}
-
-	public void leaveObjectActionHandler(ObjectMessagesHolder meth) {
 	}
 
 	private PosType buildApplyType(InputPosition pos, PosType result) {

@@ -964,8 +964,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		if (this.currentBlock != null && !this.currentBlock.isEmpty())
 			currentBlock.convert().flush();
 		this.currentBlock = null;
-		templatector.returnVoid().flush();
-		templatector = null;
+		if (this.templatector != null)
+			templatector.returnVoid().flush();
 		templatector = null;
 		containerIdx = null;
 	}

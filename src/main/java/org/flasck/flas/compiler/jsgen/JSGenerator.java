@@ -169,7 +169,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		switchVars.clear();
-		if (fn.intros().isEmpty()) {
+		if (fn.intros().isEmpty() || !fn.generate) {
 			this.meth = null;
 			return;
 		}
@@ -323,6 +323,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod om) {
+		if (!om.generate)
+			return;
 		if (om.hasImplements() && om.getImplements().getParent() instanceof ServiceDefinition) {
 			new DontGenerateJSServices(sv);
 			return;
@@ -364,6 +366,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
+		if (!oc.generate)
+			return;
 		switchVars.clear();
 		String pkg = oc.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());

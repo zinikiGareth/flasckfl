@@ -34,11 +34,14 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class MemberExpressionChecker extends LeafAdapter implements ResultAware {
+	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor nv;
@@ -106,6 +109,7 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				try {
 					announce(expr, fa.type());
 				} catch (UnboundTypeException ute) {
+					logger.info("type for " + fa + " is unbound, deferring");
 					throw new DeferMeException();
 				}
 				return;

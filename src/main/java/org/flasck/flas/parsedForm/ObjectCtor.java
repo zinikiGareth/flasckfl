@@ -10,10 +10,15 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class ObjectCtor extends ObjectActionHandler implements WithTypeSignature {
 	private Type od;
+	public boolean generate = true;
 
 	public ObjectCtor(InputPosition location, Type od, FunctionName name, List<Pattern> args) {
 		super(location, name, args);
 		this.od = od;
+	}
+	
+	public void dontGenerate() {
+		this.generate = false;
 	}
 
 	public int argCountIncludingContracts() {

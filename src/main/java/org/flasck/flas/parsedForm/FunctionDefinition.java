@@ -32,6 +32,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	private boolean reportHolder;
 	private AccessRestrictions restricted;
 	private boolean isObjAccessor;
+	public boolean generate = true;
 
 	public FunctionDefinition(FunctionName name, int nargs, StateHolder holder) {
 		this.name = name;
@@ -39,6 +40,10 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 		this.holder = holder;
 	}
 	
+	public void dontGenerate() {
+		this.generate = false;
+	}
+
 	public void intro(FunctionIntro next) {
 		this.intros.add(next);
 		attachMeToPatternVars(next);

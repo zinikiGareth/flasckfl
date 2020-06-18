@@ -19,6 +19,7 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 	private EventHolder eventCard;
 	private List<Template> eventSources = new ArrayList<>();
 	private List<Type> eventSourceTypes = new ArrayList<>();
+	public boolean generate = true;
 
 	public ObjectMethod(InputPosition location, FunctionName name, List<Pattern> args, VarPattern handler, StateHolder holder) {
 		super(location, name, args);
@@ -26,6 +27,10 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 		this.holder = holder;
 		for (Pattern p : args())
 			p.isDefinedBy(this);
+	}
+	
+	public void dontGenerate() {
+		this.generate = false;
 	}
 
 	public void eventFor(EventHolder card) {

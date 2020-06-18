@@ -42,6 +42,11 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 				return ret;
 			return leader.compareTo(o.leader);
 		}
+		
+		@Override
+		public String toString() {
+			return "Group" + members;
+		}
 	}
 	private LiftingDependencyMapper dependencies = new LiftingDependencyMapper();
 	private MappingStore ms;
@@ -204,6 +209,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 			for (LogicHolder fn : remainingFns) {
 				NestedVarReader nv = fn.nestedVars();
 				if (nv.containsReferencesNotIn(processedFns)) {
+					logger.debug("cannot handle " + fn + " because it has " + nv.references());
 					continue;
 				}
 				logger.debug("extracted " + fn + " as a candidate group");

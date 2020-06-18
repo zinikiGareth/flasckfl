@@ -119,7 +119,9 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 			if (bi == null)
 				bi = name;
 			return J.BUILTINPKG+".PACKAGEFUNCTIONS$"+bi;
-		} else if (inContext.containingCard() != null /* || codeType.hasThis() */)
+		} else if (inContext instanceof SolidName && inContext.container() == null) {
+			return J.BUILTINPKG+"."+inContext.baseName()+"$"+name;
+		} else if (inContext.containingCard() != null)
 			return inContext.uniqueName()+"$"+name;
 		else
 			return inContext.uniqueName()+".PACKAGEFUNCTIONS$"+name;

@@ -3,7 +3,6 @@ package flas.matchers;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.MakeAcor;
-import org.flasck.flas.parsedForm.MakeSend;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;

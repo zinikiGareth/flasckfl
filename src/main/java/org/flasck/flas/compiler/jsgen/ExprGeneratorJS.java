@@ -291,6 +291,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			return "FLBuiltin.mul";
 		case "/":
 			return "FLBuiltin.div";
+		case "%":
+			return "FLBuiltin.mod";
 		case "++":
 			return "FLBuiltin.concat";
 		case "[]":

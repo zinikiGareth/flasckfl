@@ -1,0 +1,6 @@
+JVM PASS that next returns the same group of numbers without an update
+JVM PASS that clearing out 2 will return the same remaining 3
+JVM PASS that we can clear out more than we asked for
+JS PASS that next returns the same group of numbers without an update
+JS PASS that clearing out 2 will return the same remaining 3
+JS PASS that we can clear out more than we asked for

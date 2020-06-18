@@ -47,7 +47,10 @@ public class SolidName implements NameOfThing, Comparable<NameOfThing> {
 	
 	@Override
 	public String javaName() {
-		return uniqueName();
+		if (container == null)
+			return J.BUILTINPKG + "." + name;
+		else
+			return uniqueName();
 	}
 
 	@Override
@@ -65,6 +68,8 @@ public class SolidName implements NameOfThing, Comparable<NameOfThing> {
 
 	@Override
 	public NameOfThing containingCard() {
+		if (container == null)
+			return null;
 		return container.containingCard();
 	}
 

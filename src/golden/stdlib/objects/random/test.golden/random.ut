@@ -1,0 +1,22 @@
+	test that next returns the same group of numbers without an update
+		data Random r <- Random.seed 420
+		assert (map (_ % 29) (r.next 5))
+			[5, 15, 13, 11, 27]
+		assert (map (_ % 29) (r.next 5))
+			[5, 15, 13, 11, 27]
+			
+	test that clearing out 2 will return the same remaining 3
+		data Random r <- Random.seed 420
+		assert (map (_ % 29) (r.next 5))
+			[5, 15, 13, 11, 27]
+		invoke r.used 2
+		assert (map (_ % 29) (r.next 3))
+			[13, 11, 27]
+
+	test that we can clear out more than we asked for 
+		data Random r <- Random.seed 420
+		assert (map (_ % 29) (r.next 5))
+			[5, 15, 13, 11, 27]
+		invoke r.used 10
+		assert (map (_ % 29) (r.next 0))
+			[]

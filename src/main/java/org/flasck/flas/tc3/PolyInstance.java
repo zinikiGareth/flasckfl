@@ -20,6 +20,8 @@ public class PolyInstance implements NamedType, RepositoryEntry, AccessorHolder 
 	private final List<Type> polys;
 
 	public PolyInstance(InputPosition loc, NamedType ty, List<Type> polys) {
+		if (ty == null)
+			throw new CantHappenException("PolyInstance of null type");
 		if (ty instanceof PolyInstance)
 			throw new CantHappenException("Don't wrap a poly in a poly");
 		this.loc = loc;

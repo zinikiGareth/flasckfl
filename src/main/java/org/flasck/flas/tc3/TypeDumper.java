@@ -31,6 +31,8 @@ public class TypeDumper extends LeafAdapter {
 
 	@Override
 	public void visitObjectMethod(ObjectMethod om) {
+		if (!om.generate)
+			return;
 		pw.print(om.name().uniqueName());
 		pw.print(" :: ");
 		if (!om.hasType() || om.type() == null)
@@ -42,6 +44,8 @@ public class TypeDumper extends LeafAdapter {
 	
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
+		if (!oc.generate)
+			return;
 		pw.print(oc.name().uniqueName());
 		pw.print(" :: ");
 		if (!oc.hasType() || oc.type() == null)

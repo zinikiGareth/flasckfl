@@ -17,8 +17,11 @@ import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.LogicHolder;
+import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -48,6 +51,7 @@ public class LoadBuiltins {
 	public static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR);
 	public static final TypeReference listATR = new TypeReference(pos, "List", polyATR);
 	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
+	public static final TypeReference randomTR = new TypeReference(pos, "Random");
 	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
 	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
@@ -67,7 +71,6 @@ public class LoadBuiltins {
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
 	public static final Type idempotentHandler = contract; // This may or may not be correct ...
-	public static final Type listMessages;
 	
 	// This is another really weird thing ... it has arguments really, so needs to be parameterized a variable amount
 	// Probably needs its own class to handle it properly
@@ -85,6 +88,12 @@ public class LoadBuiltins {
 	public static final PolyInstance listAny = new PolyInstance(pos, list, Arrays.asList(any));
 	public static final StructDefn assignItem = new StructDefn(pos, FieldsType.STRUCT, null, "AssignItem", false, polyA);
 
+	// Random
+	public static final ObjectDefn random = new ObjectDefn(pos, pos, new SolidName(null, "Random"), false, new ArrayList<>());
+	private static ObjectCtor randomSeed;
+	static ObjectAccessor randomNext;
+	static ObjectMethod randomUsed;
+	
 	// Crobags
 	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new SolidName(null, "Crobag"), false, Arrays.asList(polyA));
 	
@@ -94,6 +103,7 @@ public class LoadBuiltins {
 	public static final StructDefn assign = new StructDefn(pos, FieldsType.STRUCT, null, "Assign", false);
 	public static final StructDefn assignCons = new StructDefn(pos, FieldsType.STRUCT, null, "AssignCons", false);
 	public static final UnionTypeDefn message = new UnionTypeDefn(pos, false, new SolidName(null, "Message"));
+	public static final Type listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 
 	// Events
 	public static final StructDefn clickEvent = new StructDefn(pos, FieldsType.STRUCT, null, "ClickEvent", false);
@@ -123,6 +133,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, null);
 	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, null);
 	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, null);
+	public static final FunctionDefinition mod = new FunctionDefinition(FunctionName.function(pos, null, "%"), 2, null);
 	public static final FunctionDefinition not = new FunctionDefinition(FunctionName.function(pos, null, "!"), 1, null);
 	public static final FunctionDefinition and = new FunctionDefinition(FunctionName.function(pos, null, "&&"), 2, null);
 	public static final FunctionDefinition or = new FunctionDefinition(FunctionName.function(pos, null, "||"), 2, null);
@@ -130,6 +141,8 @@ public class LoadBuiltins {
 	public static final FunctionDefinition replace = new FunctionDefinition(FunctionName.function(pos, null, "replace"), 3, null);
 	public static final FunctionDefinition nth = new FunctionDefinition(FunctionName.function(pos, null, "nth"), 2, null);
 	public static final FunctionDefinition item = new FunctionDefinition(FunctionName.function(pos, null, "item"), 2, null);
+	public static final FunctionDefinition take = new FunctionDefinition(FunctionName.function(pos, null, "take"), 2, null);
+	public static final FunctionDefinition drop = new FunctionDefinition(FunctionName.function(pos, null, "drop"), 2, null);
 	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null);
 	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null);
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null);
@@ -151,6 +164,7 @@ public class LoadBuiltins {
 		falseTR.bind(falseT);
 		trueTR.bind(trueT);
 		nilTR.bind(nil);
+		randomTR.bind(random);
 		debugTR.bind(debug);
 		sendTR.bind(send);
 		assignTR.bind(assign);
@@ -196,6 +210,26 @@ public class LoadBuiltins {
 		probeState.bind(new FunctionDefinition(FunctionName.function(pos, null, "_probe_state"), 2, null));
 		getUnderlying.bind(new FunctionDefinition(FunctionName.function(pos, null, "_underlying"), 1, null));
 
+		// add methods to objects
+		{
+			FunctionName ctorSeed = FunctionName.objectCtor(pos, random.name(), "seed");
+			randomSeed = new ObjectCtor(pos, random, ctorSeed, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, ctorSeed, "seed"))));
+			randomSeed.dontGenerate();
+			randomSeed.bindType(new Apply(number, random));
+			random.addConstructor(randomSeed);
+			FunctionName afn = FunctionName.function(pos, random.name(), "next");
+			FunctionDefinition acor = new FunctionDefinition(afn, 1, random);
+			acor.bindType(new Apply(number, new PolyInstance(pos, list, Arrays.asList(number))));
+			randomNext = new ObjectAccessor(random, acor);
+			randomNext.dontGenerate();
+			random.addAccessor(randomNext);
+			FunctionName used = FunctionName.objectMethod(pos, random.name(), "used");
+			randomUsed = new ObjectMethod(pos, used, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, ctorSeed, "quant"))), null, random);
+			randomUsed.dontGenerate();
+			randomUsed.bindType(new Apply(number, listMessages));
+			random.addMethod(randomUsed);
+		}
+		
 		// add methods to contracts
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "init"), new ArrayList<TypedPattern>(), null));
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "closing"), new ArrayList<TypedPattern>(), null));
@@ -226,6 +260,7 @@ public class LoadBuiltins {
 		minus.bindType(new Apply(number, number, number));
 		mul.bindType(new Apply(number, number, number));
 		div.bindType(new Apply(number, number, number));
+		mod.bindType(new Apply(number, number, number));
 		not.bindType(new Apply(bool, bool));
 		and.bindType(new Apply(bool, bool, bool));
 		or.bindType(new Apply(bool, bool, bool));
@@ -233,13 +268,14 @@ public class LoadBuiltins {
 		replace.bindType(new Apply(list, number, polyA, list));
 		nth.bindType(new Apply(number, list, polyA));
 		item.bindType(new Apply(number, list, assignItem));
+		take.bindType(new Apply(number, list, list));
+		drop.bindType(new Apply(number, list, list));
 		append.bindType(new Apply(list, polyA, list));
 		strlen.bindType(new Apply(string, number));
 		concat.bindType(new Apply(string, string, string));
 		concatLists.bindType(new Apply(new PolyInstance(pos, list, Arrays.asList(new PolyInstance(pos, list, Arrays.asList(polyA)))), new PolyInstance(pos, list, Arrays.asList(polyA))));
 		makeTuple.bindType(tuple);
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
-		listMessages = new PolyInstance(LoadBuiltins.pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 		dispatch.bindType(new Apply(listMessages, listMessages));
 		dispatch.restrict(new UTOnlyRestriction("dispatch"));
 		
@@ -254,6 +290,7 @@ public class LoadBuiltins {
 		allFunctions.add(minus);
 		allFunctions.add(mul);
 		allFunctions.add(div);
+		allFunctions.add(mod);
 		allFunctions.add(not);
 		allFunctions.add(and);
 		allFunctions.add(or);
@@ -261,6 +298,8 @@ public class LoadBuiltins {
 		allFunctions.add(replace);
 		allFunctions.add(nth);
 		allFunctions.add(item);
+		allFunctions.add(drop);
+		allFunctions.add(take);
 		allFunctions.add(append);
 		allFunctions.add(strlen);
 		allFunctions.add(concat);
@@ -287,6 +326,11 @@ public class LoadBuiltins {
 		repository.newStruct(errors, cons);
 		repository.newUnion(errors, list);
 		
+		repository.newObject(errors, random);
+		repository.newObjectMethod(errors, randomSeed);
+		repository.newObjectAccessor(errors, randomNext);
+		repository.newObjectMethod(errors, randomUsed);
+
 		repository.newStruct(errors, debug);
 		repository.newStruct(errors, send);
 		repository.newStruct(errors, assign);
@@ -305,6 +349,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, minus);
 		repository.functionDefn(errors, mul);
 		repository.functionDefn(errors, div);
+		repository.functionDefn(errors, mod);
 		repository.functionDefn(errors, not);
 		repository.functionDefn(errors, and);
 		repository.functionDefn(errors, or);
@@ -312,6 +357,8 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, replace);
 		repository.functionDefn(errors, nth);
 		repository.functionDefn(errors, item);
+		repository.functionDefn(errors, drop);
+		repository.functionDefn(errors, take);
 		repository.functionDefn(errors, append);
 		repository.functionDefn(errors, strlen);
 		repository.functionDefn(errors, concat);

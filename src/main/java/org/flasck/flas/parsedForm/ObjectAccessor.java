@@ -11,10 +11,16 @@ import org.flasck.flas.tc3.Type;
 public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
 	private final StateHolder od;
 	private final FunctionDefinition fn;
+	public boolean generate = true;
 
 	public ObjectAccessor(StateHolder od, FunctionDefinition fn) {
 		this.od = od;
 		this.fn = fn;
+	}
+
+	public void dontGenerate() {
+		this.generate = false;
+		fn.generate = false;
 	}
 
 	@Override
