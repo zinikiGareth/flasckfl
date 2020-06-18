@@ -140,12 +140,16 @@ public class TDAObjectElementsParser implements TDAParsing {
 					topLevel.newObjectMethod(errors, this);
 				}
 			};
+			for (Pattern p : args) {
+				p.isDefinedBy(ctor);
+			}
 			builder.addConstructor(ctor);
 			if (currParser != null) {
 				currParser.scopeComplete(location);
 				currParser = null;
 			}
-			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, namer, topLevel, "action", (StateHolder) builder));
+			FunctionScopeNamer ctorNamer = new PackageNamer(fnName);
+			return new TDAMethodGuardParser(errors, ctor, new LastActionScopeParser(errors, ctorNamer, topLevel, "action", (StateHolder) builder));
 		}
 		case "acor": {
 			if (currParser != null)

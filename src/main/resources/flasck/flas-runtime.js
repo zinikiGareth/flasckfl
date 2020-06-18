@@ -147,6 +147,10 @@ const FLClosure = function(obj, fn, args) {
 	this.args = args;
 }
 
+FLClosure.prototype.splitRWM = function(msgsTo) {
+	this.msgsTo = msgsTo;
+}
+
 FLClosure.prototype.eval = function(_cxt) {
 	if (this.val)
 		return this.val;
@@ -158,6 +162,14 @@ FLClosure.prototype.eval = function(_cxt) {
 		return this.fn;
 	var cnt = this.fn.nfargs();
 	this.val = this.fn.apply(this.obj, this.args.slice(0, cnt+1)); // +1 for cxt
+	if (typeof(this.msgsTo) !== 'undefined') {
+		if (this.val instanceof ResponseWithMessages) {
+			_cxt.addAll(this.msgsTo, ResponseWithMessages.messages(_cxt, this.val));
+			this.val = ResponseWithMessages.response(_cxt, this.val);
+		} else if (this.val instanceof FLClosure) {
+			this.val.splitRWM(this.msgsTo);
+		}
+	}
 	// handle the case where there are arguments left over
 	if (cnt+1 < this.args.length) {
 		this.val = new FLClosure(this.obj, this.val, this.args.slice(cnt+1));
@@ -1541,10 +1553,16 @@ ResponseWithMessages.prototype._full = function(cx) {
 	this.msgs = cx.full(this.msgs);
 }
 ResponseWithMessages.response = function(cx, rwm) {
-	return rwm.obj;
+	if (rwm instanceof ResponseWithMessages)
+		return rwm.obj;
+	else
+		return rwm;
 }
 ResponseWithMessages.messages = function(cx, rwm) {
-	return rwm.msgs;
+	if (rwm instanceof ResponseWithMessages)
+		return rwm.msgs;
+	else
+		return null;
 }
 
 const UpdateDisplay = function(cx, card) {

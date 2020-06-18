@@ -20,3 +20,8 @@
 		invoke r.used 10
 		assert (map (_ % 29) (r.next 0))
 			[]
+			
+	test that we can create and use an RNG inside another object constructor
+		data User u <- User.create 420
+		assert (u.first % 29)
+			5

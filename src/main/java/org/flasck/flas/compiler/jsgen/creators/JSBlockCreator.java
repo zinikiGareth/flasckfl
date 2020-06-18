@@ -73,6 +73,7 @@ public interface JSBlockCreator {
 	void bindVar(Slot slot, String slotName, String var);
 	void head(String var);
 	void splitRWM(JSExpr ocmsgs, String var);
+	void willSplitRWM(JSExpr r, JSExpr ocmsgs);
 	void keepMessages(JSExpr ocmsgs, JSExpr r);
 	void field(String asVar, String fromVar, String field);
 	JSIfCreator ifCtor(String var, String ctor);

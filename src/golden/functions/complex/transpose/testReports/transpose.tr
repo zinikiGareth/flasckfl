@@ -1,0 +1,16 @@
+JVM PASS trim of nil
+JVM PASS trim with one empty list
+JVM PASS trim with one non-empty list
+JVM PASS trim with an empty list at the end
+JVM PASS trim with an empty list not at the end
+JVM PASS transpose of an empty list
+JVM PASS transpose of a one-by-one matrix is itself
+JVM PASS transpose of a two-by-two matrix is correct
+JS PASS trim of nil
+JS PASS trim with one empty list
+JS PASS trim with one non-empty list
+JS PASS trim with an empty list at the end
+JS PASS trim with an empty list not at the end
+JS PASS transpose of an empty list
+JS PASS transpose of a one-by-one matrix is itself
+JS PASS transpose of a two-by-two matrix is correct

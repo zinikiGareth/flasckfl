@@ -1,1 +1,4 @@
+test.golden.User._ctor_create :: Number->test.golden.User
+test.golden.User._ctor_create.random :: test.golden.User->Number->Random
+test.golden.User.first :: Number
 test.golden.map :: (A->B)->List[A]->List[B]

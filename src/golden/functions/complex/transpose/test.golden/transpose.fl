@@ -1,0 +1,23 @@
+	safeHead e Nil = e
+	safeHead e (Cons { head: h }) = h
+		
+	safeTail Nil = Nil
+	safeTail (Cons { tail: t }) = t
+		
+	map f Nil = Nil
+	map f (Cons { head: h, tail : t }) = Cons (f h) (map f t)
+
+	transpose e Nil = Nil
+	transpose e (Cons[List[A]] l) = Cons (map (safeHead e) l) (recurse e (trimEnd (map safeTail l)))
+	
+	trimEnd Nil = Nil
+	trimEnd [[]] = Nil
+	trimEnd (Cons { head: [], tail: t }) = trim2 (trimEnd t)
+	trimEnd (Cons[List[A]] l) = l
+	
+	trim2 Nil = Nil
+	trim2 (Cons[A] l) = Cons Nil l
+	
+	recurse e Nil = Nil
+	recurse e [Nil] = Nil
+	recurse e (Cons[List[A]] l) = transpose e l

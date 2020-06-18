@@ -73,6 +73,7 @@ import org.flasck.flas.compiler.jsgen.form.JSUpdateContent;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateStyle;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateTemplate;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
+import org.flasck.flas.compiler.jsgen.form.JSWillSplitRWM;
 import org.flasck.flas.compiler.jsgen.form.JSXCurry;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
@@ -405,6 +406,11 @@ public class JSBlock implements JSBlockCreator {
 		stmts.add(new JSSplitRWM(ocmsgs, var));
 	}
 	
+	@Override
+	public void willSplitRWM(JSExpr r, JSExpr ocmsgs) {
+		stmts.add(new JSWillSplitRWM(r, ocmsgs));
+	}
+
 	@Override
 	public void keepMessages(JSExpr ocmsgs, JSExpr msgs) {
 		stmts.add(new JSKeepMessages(ocmsgs, msgs));

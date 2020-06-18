@@ -229,11 +229,13 @@ public class FunctionGroupTCState implements CurrentTCState {
 		DirectedAcyclicGraph<UnifiableType> ret = new DirectedAcyclicGraph<>();
 		for (int i=0;i<allUTs.size();i++) {
 			UnifiableType ut = allUTs.get(i);
+			ret.ensure(ut);
 			if (ut.isRedirected()) {
 				logger.debug("not collecting info on " + ut.id() + " because redirected to " + ut.redirectedTo());
+				ret.ensure(ut.redirectedTo());
+				ret.ensureLink(ut, ut.redirectedTo());
 				continue;
 			}
-			ret.ensure(ut);
 			ut.collectInfo(errors, ret);
 		}
 		return ret;

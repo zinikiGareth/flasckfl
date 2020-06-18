@@ -1,0 +1,32 @@
+	test trim of nil
+		assert (trimEnd [])
+			[]
+	
+	test trim with one empty list
+		assert (trimEnd [[]])
+			[]
+			
+	test trim with one non-empty list
+		assert (trimEnd [["hello"]])
+			[["hello"]]
+
+	test trim with an empty list at the end
+		assert (trimEnd [["hello"],[]])
+			[["hello"],[]]
+
+	test trim with an empty list not at the end
+		assert (trimEnd [["hello"],[], ["there"]])
+			[["hello"],[], ["there"]]
+
+	test transpose of an empty list
+		assert (transpose "" Nil)
+			Nil
+			
+	test transpose of a one-by-one matrix is itself
+		assert (transpose "" [["hello"]])
+			[["hello"]]
+
+	test transpose of a two-by-two matrix is correct
+		assert (transpose "" [["A", "B"], ["C", "D"]])
+			[["A", "C"], ["B", "D"]]
+			

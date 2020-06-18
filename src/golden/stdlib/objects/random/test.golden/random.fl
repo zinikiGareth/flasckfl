@@ -1,3 +1,12 @@
 	map f Nil = Nil
 	map f (Cons { head: h, tail : t }) = Cons (f h) (map f t)
 
+	object User
+		state
+			Number n
+
+		ctor create seed
+			n <- nth 0 (random.next 1)
+				random = Random.seed seed 
+		
+		acor first = n

@@ -159,11 +159,14 @@ public class ApplyExprGenerator extends LeafAdapter implements ResultAware {
 			} else {
 				call = currentBlock.hasClosure(wantObject, fn, args);
 				if (call == null) {
-					if (wantObject)
+					if (wantObject) {
 						call = meth.callInterface(J.FLCLOSURE, fcx, "oclosure", meth.as(fn, J.APPLICABLE), args);
-					else
+					} else
 						call = meth.callInterface(J.FLCLOSURE, fcx, "closure", meth.as(fn, J.APPLICABLE), args);
 					v = currentBlock.saveClosure(wantObject, call);
+					if (wantObject && state.ocmsgs() != null) {
+						currentBlock.add(meth.callVirtual("void", v, "splitRWM", state.ocmsgs()));
+					}
 					call = v;
 				}
 			}

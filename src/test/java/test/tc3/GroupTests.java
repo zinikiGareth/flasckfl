@@ -46,7 +46,6 @@ import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;
 import flas.matchers.PosMatcher;
-import flas.matchers.ResolvedUTMatcher;
 import test.parsing.LocalErrorTracker;
 
 public class GroupTests {
@@ -253,7 +252,7 @@ public class GroupTests {
 		assertThat(fnF.type(), (Matcher)ApplyMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)), Matchers.is(LoadBuiltins.string)));
 		Type argType = fnArg.resolve(tracker);
 		assertNotNull(argType);
-		assertThat(argType, (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), ResolvedUTMatcher.with(LoadBuiltins.string)));
+		assertThat(argType, (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.number), Matchers.is(LoadBuiltins.string)));
 		assertNotNull(pattG.type());
 	}
 }

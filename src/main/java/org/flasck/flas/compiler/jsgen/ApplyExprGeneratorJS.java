@@ -142,8 +142,12 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 				call = block.xcurry(wantObject, expArgs, xcs);
 			else if (stack.size() < expArgs+1)
 				call = block.curry(wantObject, expArgs, args);
-			else
+			else {
 				call = block.closure(wantObject, args);
+				if (wantObject && state.ocmsgs() != null) { // we are in an object ctor ...
+					block.willSplitRWM(call, state.ocmsgs());
+				}
+			}
 			sv.result(call);
 		}
 	}

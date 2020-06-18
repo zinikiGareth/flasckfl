@@ -86,6 +86,11 @@ public class TypeConstraintSet implements UnifiableType {
 		public PosType asApply() {
 			return new PosType(pos, new Apply(args, ret));
 		}
+
+		@Override
+		public String toString() {
+			return args.toString() + "->" + ret;
+		}
 	}
 
 	public class ErrorConstraint {
@@ -169,7 +174,7 @@ public class TypeConstraintSet implements UnifiableType {
 	@Override
 	public Type resolvedTo() {
 		if (redirectedTo != null)
-			return redirectedTo.resolvedTo();
+			return redirectedTo().resolvedTo();
 		if (resolvedTo == null)
 			throw new InvalidUsageException("wait until " + id + " is resolved");
 		return resolvedTo;
@@ -177,12 +182,12 @@ public class TypeConstraintSet implements UnifiableType {
 	
 	private Type resolvingTo(HashSet<UnifiableType> workingOn) {
 		if (redirectedTo != null)
-			return redirectedTo.resolvingTo(workingOn);
+			return ((TypeConstraintSet) redirectedTo()).resolvingTo(workingOn);
 		if (resolvedTo != null)
 			return resolvedTo;
 		if (workingOn.contains(this))
 			return null;
-		throw new InvalidUsageException("wait until " + id + " is resolved");
+		throw new InvalidUsageException("wait until " + id + " is resolved: working on " + workingOn);
 	}
 
 	@Override
@@ -282,7 +287,8 @@ public class TypeConstraintSet implements UnifiableType {
 			if (!(ty.type instanceof UnifiableType))
 				this.types.add(ty);
 		this.usedOrReturned += tcs.usedOrReturned;
-		this.acquired.add(ut);
+		this.acquired.add(tcs);
+		this.acquired.addAll(tcs.acquired);
 		this.errorConstraints.addAll(tcs.errorConstraints);
 		this.onResolved.addAll(tcs.onResolved);
 		if (this.fieldExpr != null && tcs.fieldExpr != null) {
@@ -468,17 +474,44 @@ public class TypeConstraintSet implements UnifiableType {
 		if (applications.size() == 1) {
 			UnifiableApplication ua = applications.iterator().next();
 			tys.add(ua.asApply());
+			logger.debug("  have 1 application: " + ua);
 			for (Type t : ua.args) {
 				if (t instanceof UnifiableType) {
 					UnifiableType ut = ((UnifiableType) t).redirectedTo();
+					logger.debug("  have apply dependency on: " + ut.id());
 					dag.ensure(ut);
 					dag.ensureLink(this, ut);
+				} else if (t instanceof PolyInstance) {
+					PolyInstance pi = (PolyInstance) t;
+					for (Type ti : pi.getPolys()) {
+						if (ti instanceof UnifiableType) {
+							UnifiableType ut = ((UnifiableType)ti).redirectedTo();
+							dag.ensure(ut);
+							dag.ensureLink(this, ut);
+						}
+					}
+				}
+			}
+			if (ua.ret instanceof UnifiableType) {
+				UnifiableType ut = ((UnifiableType)ua.ret).redirectedTo();
+				logger.debug("  have apply dependency on: " + ut.id());
+				dag.ensure(ut);
+				dag.ensureLink(this, ut);
+			} else if (ua.ret instanceof PolyInstance) {
+				PolyInstance pi = (PolyInstance) ua.ret;
+				for (Type t : pi.getPolys()) {
+					if (t instanceof UnifiableType) {
+						UnifiableType ut = ((UnifiableType)t).redirectedTo();
+						dag.ensure(ut);
+						dag.ensureLink(this, ut);
+					}
 				}
 			}
 		} else if (!applications.isEmpty()) {
 			List<Set<PosType>> args = new ArrayList<>();
 			Set<PosType> ret = new TreeSet<>(posNameComparator);
 			for (UnifiableApplication x : applications) {
+				logger.debug("have application: " + x);
 				// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
 				// and while it could possibly recurse, I don't think that can then refer back to us
 				// If we do run into that problem, we should probably throw a special "UnresolvedReferenceException" here and then catch that in the loop
@@ -489,8 +522,38 @@ public class TypeConstraintSet implements UnifiableType {
 					if (args.size() == k)
 						args.add(new TreeSet<PosType>(posNameComparator));
 					args.get(k++).add(new PosType(x.pos, t));
+					if (t instanceof UnifiableType) {
+						UnifiableType ut = ((UnifiableType) t).redirectedTo();
+						logger.debug("  have apply dependency on : " + ut.id());
+						dag.ensure(ut);
+						dag.ensureLink(this, ut);
+					} else if (t instanceof PolyInstance) {
+						PolyInstance pi = (PolyInstance) t;
+						for (Type ti : pi.getPolys()) {
+							if (ti instanceof UnifiableType) {
+								UnifiableType ut = ((UnifiableType)ti).redirectedTo();
+								dag.ensure(ut);
+								dag.ensureLink(this, ut);
+							}
+						}
+					}
 				}
 				ret.add(new PosType(x.pos, x.ret));
+				if (x.ret instanceof UnifiableType) {
+					UnifiableType ut = ((UnifiableType)x.ret).redirectedTo();
+					logger.debug("  have apply dependency on: " + ut.id());
+					dag.ensure(ut);
+					dag.ensureLink(this, ut);
+				} else if (x.ret instanceof PolyInstance) {
+					PolyInstance pi = (PolyInstance) x.ret;
+					for (Type t : pi.getPolys()) {
+						if (t instanceof UnifiableType) {
+							UnifiableType ut = ((UnifiableType)t).redirectedTo();
+							dag.ensure(ut);
+							dag.ensureLink(this, ut);
+						}
+					}
+				}
 			}
 			List<Type> cargs = new ArrayList<>();
 			for (Set<PosType> a : args) {
@@ -521,6 +584,11 @@ public class TypeConstraintSet implements UnifiableType {
 			logger.debug("  is field '" + this.fieldName + "' of " + this.fieldOf.redirectedTo().id());
 			dag.ensure(this.fieldOf.redirectedTo());
 			dag.ensureLink(this, this.fieldOf.redirectedTo());
+		}
+		
+		if (redirectedTo != null) {
+			dag.ensure(redirectedTo);
+			dag.ensureLink(this, redirectedTo);
 		}
 	}
 
@@ -637,6 +705,8 @@ public class TypeConstraintSet implements UnifiableType {
 			return ((TypeConstraintSet)ty).resolvingTo(workingOn);
 		} else if (ty instanceof PolyInstance) {
 			return resolvePolyArgs(workingOn, (PolyInstance)ty);
+		} else if (ty instanceof Apply) {
+			return resolvePolyArgs(workingOn, (Apply)ty);
 		} else
 			return ty;
 	}
@@ -649,6 +719,17 @@ public class TypeConstraintSet implements UnifiableType {
 				rps.add(curr);
 		}
 		return new PolyInstance(pi.location(), pi.struct(), rps);
+	}
+
+	private Type resolvePolyArgs(HashSet<UnifiableType> workingOn, Apply ty) {
+		List<Type> rps = new ArrayList<Type>();
+		for (Type t : ty.tys) {
+			Type curr = resolvePolyArg(workingOn, t);
+			if (curr == null)
+				throw new CantHappenException("resolved type to null");
+			rps.add(curr);
+		}
+		return new Apply(rps);
 	}
 
 	@Override
@@ -810,7 +891,7 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	public String asTCS() {
-		return "TCS" + (isRedirected()?"*"+redirectedTo.id()+"*":"") + "{" + (pos == null? "NULL":pos.inFile()) + ":" + id + (motive != null ? ":" + motive : "") + "}";
+		return "TCS:" + id + (isRedirected()?"=>"+redirectedTo().id():"") + "{" + (pos == null? "NULL":pos.inFile()) + ":" + (motive != null ? ":" + motive : "") + "}";
 	}
 
 	public String debugInfo() {

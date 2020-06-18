@@ -1,7 +1,7 @@
 test.golden.Both._ctor_diamond :: test.golden.Both
+test.golden.Both._ctor_diamond.u :: test.golden.Both->test.golden.Underlying
 test.golden.Both.add10 :: List[Message]
 test.golden.Both.add5 :: List[Message]
-test.golden.Both.u :: test.golden.Both->test.golden.Underlying
 test.golden.Both.val :: Number
 test.golden.FromA._ctor_make :: test.golden.Underlying->test.golden.FromA
 test.golden.FromA.add5 :: List[Message]
