@@ -1,0 +1,11 @@
+	test take can remove from a list
+		assert (take 2 [1,2,3])
+			[1,2]
+			
+	test take stops if the list runs out
+		assert (take 2 [1])
+			[1]
+	
+	test take can handle no items
+		assert (take 0 [1,2,3])
+			[]

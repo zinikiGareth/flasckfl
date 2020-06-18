@@ -1,0 +1,6 @@
+JVM PASS drop can remove from a list
+JVM PASS drop stops if the list runs out
+JVM PASS drop can handle no items
+JS PASS drop can remove from a list
+JS PASS drop stops if the list runs out
+JS PASS drop can handle no items

@@ -1,0 +1,11 @@
+	test drop can remove from a list
+		assert (drop 2 [1,2,3])
+			[3]
+			
+	test drop stops if the list runs out
+		assert (drop 2 [1])
+			[]
+	
+	test drop can handle no items
+		assert (drop 0 [1,2,3])
+			[1,2,3]

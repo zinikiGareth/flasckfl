@@ -1220,6 +1220,24 @@ FLBuiltin.concatLists = function(_cxt, list) {
 }
 FLBuiltin.concatLists.nfargs = function() { return 1; }
 
+FLBuiltin.take = function(_cxt, quant, list) {
+	list = _cxt.spine(list);
+	if (list instanceof FLError)
+		return list;
+	if (list.length <= quant)
+		return list;
+	return list.slice(0, quant);
+}
+FLBuiltin.take.nfargs = function() { return 2; }
+
+FLBuiltin.drop = function(_cxt, quant, list) {
+	list = _cxt.spine(list);
+	if (list instanceof FLError)
+		return list;
+	return list.slice(quant);
+}
+FLBuiltin.drop.nfargs = function() { return 2; }
+
 FLBuiltin.concatMany = function(_cxt, ...rest) {
 	var ret = "";
 	for (var i=0;i<rest.length;i++) {

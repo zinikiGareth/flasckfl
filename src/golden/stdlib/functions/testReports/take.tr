@@ -1,0 +1,6 @@
+JVM PASS take can remove from a list
+JVM PASS take stops if the list runs out
+JVM PASS take can handle no items
+JS PASS take can remove from a list
+JS PASS take stops if the list runs out
+JS PASS take can handle no items
