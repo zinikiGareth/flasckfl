@@ -1236,6 +1236,11 @@ FLBuiltin.take = function(_cxt, quant, list) {
 	list = _cxt.spine(list);
 	if (list instanceof FLError)
 		return list;
+	quant = _cxt.full(quant);
+	if (quant instanceof FLError)
+		return quant;
+	if (typeof quant !== 'number')
+		return new FLError("no matching case");
 	if (list.length <= quant)
 		return list;
 	return list.slice(0, quant);
@@ -1246,6 +1251,11 @@ FLBuiltin.drop = function(_cxt, quant, list) {
 	list = _cxt.spine(list);
 	if (list instanceof FLError)
 		return list;
+	quant = _cxt.full(quant);
+	if (quant instanceof FLError)
+		return quant;
+	if (typeof quant !== 'number')
+		return new FLError("no matching case");
 	return list.slice(quant);
 }
 FLBuiltin.drop.nfargs = function() { return 2; }

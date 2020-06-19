@@ -1,0 +1,8 @@
+JVM PASS we can generate a list of numbers
+JVM PASS shuffling an empty list
+JVM PASS we can pick one item from a simple list
+JVM PASS we can keep the same order
+JS PASS we can generate a list of numbers
+JS PASS shuffling an empty list
+JS PASS we can pick one item from a simple list
+JS PASS we can keep the same order

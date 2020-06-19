@@ -1,0 +1,15 @@
+	test we can generate a list of numbers
+		assert (genlist 5)
+			[1,2,3,4,5]
+			
+	test shuffling an empty list
+		assert (doShuffle [] [])
+			[]
+
+	test we can pick one item from a simple list
+		assert (doShuffle [26] [1])
+			[1]
+
+	test we can keep the same order
+		assert (doShuffle [0, 1] [1,2])
+			[1,2]

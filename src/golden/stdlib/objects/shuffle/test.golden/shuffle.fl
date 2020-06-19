@@ -1,0 +1,14 @@
+This is a fairly simple usage of Random borrowed from patience, which nevertheless ends up being quite complex
+This is simplified by just using numbers
+
+	list = genlist 52
+	
+	genlist 0 = []
+	genlist k = append (genlist (k-1)) k
+	
+	doShuffle rs [] = []
+	doShuffle (Cons[Number] rands) (Cons[Number] items) = Cons (nth which items) (doShuffle rands.tail others)
+		others = concatLists [take which items, drop (which+1) items]
+		len = length items 
+		which = rands.head % len
+	

@@ -144,8 +144,8 @@ public class Main {
 		StaticLoggerBinder.setLevel("Patterns", Level.WARN);
 		StaticLoggerBinder.setLevel("HSI", Level.WARN);
 		StaticLoggerBinder.setLevel("TOPatterns", Level.WARN);
-		StaticLoggerBinder.setLevel("TypeChecker", Level.DEBUG);
-		StaticLoggerBinder.setLevel("TCUnification", Level.DEBUG);
+		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
+		StaticLoggerBinder.setLevel("TCUnification", Level.WARN);
 		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
 		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);
 		StaticLoggerBinder.setLevel("Dispatcher", Level.WARN);
