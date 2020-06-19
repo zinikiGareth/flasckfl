@@ -57,12 +57,14 @@ public class EventBuilder extends LeafAdapter {
 	@Override
 	public void visitTemplate(Template t, boolean isFirst) {
 		templateId = t.webinfo().id();
+		this.cond = 0;
 	}
 	
 	@Override
 	public void visitTemplateBinding(TemplateBinding b) {
 		currentBinding = b;
 		option = 0;
+		this.cond = 0;
 	}
 	
 	@Override
