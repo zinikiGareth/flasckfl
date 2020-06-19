@@ -147,7 +147,10 @@ public class AccessorConvertor extends LeafAdapter {
 		} else if (defn instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) defn;
 			if (fn.argCountWithoutHolder() == 0) {
-				ah = (AccessorHolder) fn.type();
+				if (fn.hasState())
+					ah = (AccessorHolder) fn.type().get(1);
+				else
+					ah = (AccessorHolder) fn.type();
 			} else {
 				NestedVarReader nv = fn.nestedVars();
 				if (nv.patterns().size() == fn.argCountWithoutHolder()) {

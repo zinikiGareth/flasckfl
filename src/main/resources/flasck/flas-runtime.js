@@ -478,9 +478,9 @@ FLContext.prototype.attachEventToCard = function(card, handlerInfo, div, wrapper
 	const eventName = handlerInfo.event._eventName;
 	if (div) {
 		var id1 = this.env.evid++;
-		this.env.logger.log("adding handler " + id1 + " to " + div.id + " for " + eventName);
+		// this.env.logger.log("adding handler " + id1 + " to " + div.id + " for " + eventName);
 		var handler = ev => {
-			this.env.logger.log("firing handler " + id1 + " to " + div.id + " for " + eventName);
+			// this.env.logger.log("firing handler " + id1 + " to " + div.id + " for " + eventName);
 			const ecx = this.env.newContext();
 			const fev = handlerInfo.event.eval(ecx);
 			const evt = new FLEventSourceTrait(div, wrapper.value);
@@ -618,7 +618,7 @@ FLCard.prototype._attachHandlers = function(_cxt, rt, div, key, field, option, s
         if (rt && rt.handlers) {
             for (var i=0;i<rt.handlers.length;i++) {
                 var rh = rt.handlers[i];
-                _cxt.env.logger.log("removing event listener from " + div.id + " for " + rh.hi.event._eventName);
+                // _cxt.env.logger.log("removing event listener from " + div.id + " for " + rh.hi.event._eventName);
                 div.removeEventListener(rh.hi.event._eventName, rh.eh);
             }
             delete rt.handlers;
