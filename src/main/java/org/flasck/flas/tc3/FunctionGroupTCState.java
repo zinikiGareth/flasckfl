@@ -26,6 +26,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.CycleDetectedException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.graphs.DirectedAcyclicGraph;
@@ -151,6 +152,9 @@ public class FunctionGroupTCState implements CurrentTCState {
 		this.debugInfo("acquired");
 		
 		DirectedAcyclicGraph<UnifiableType> dag = collate(errors);
+		if (dag == null) { // cycle detected and error reported
+			return;
+		}
 		logger.debug("UT DAG:\n" + dag.toString());
 		List<UnifiableType> roots = dag.roots();
 		Comparator<UnifiableType> order = new Comparator<UnifiableType>() {
@@ -236,7 +240,12 @@ public class FunctionGroupTCState implements CurrentTCState {
 				ret.ensureLink(ut, ut.redirectedTo());
 				continue;
 			}
-			ut.collectInfo(errors, ret);
+			try {
+				ut.collectInfo(errors, ret);
+			} catch (CycleDetectedException ex) {
+				errors.message(ut.location(), "cycle detected in type");
+				return null;
+			}
 		}
 		return ret;
 	}

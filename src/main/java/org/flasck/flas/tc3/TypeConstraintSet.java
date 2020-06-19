@@ -167,6 +167,11 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 
 	@Override
+	public InputPosition location() {
+		return pos;
+	}
+	
+	@Override
 	public String motive() {
 		return motive;
 	}

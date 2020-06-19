@@ -1,0 +1,2 @@
+	genlist 0 = []
+	genlist k = append k (genlist (k-1))

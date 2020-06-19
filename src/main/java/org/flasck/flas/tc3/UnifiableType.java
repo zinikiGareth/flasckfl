@@ -12,7 +12,10 @@ import org.zinutils.graphs.DirectedAcyclicGraph;
 public interface UnifiableType extends Type {
 	// Its id
 	String id();
-	
+
+	// Its location
+	InputPosition location();
+
 	// Why was it created?
 	String motive();
 	

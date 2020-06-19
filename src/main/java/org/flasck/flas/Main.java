@@ -117,6 +117,8 @@ public class Main {
 		
 		if (config.doTypeCheck) {
 			compiler.doTypeChecking(ordering);
+			if (errors.hasErrors())
+				return null;
 			compiler.dumpTypes(config.writeTypesTo);
 			if (errors.hasErrors())
 				return null;

@@ -1,7 +1,0 @@
-This is a fairly simple usage of Random borrowed from patience, which nevertheless ends up being quite complex
-This is simplified by just using numbers
-
-	list = genlist 52
-	
-	genlist 0 = []
-	genlist k = append k (genlist (k-1))
