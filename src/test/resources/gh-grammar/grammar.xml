@@ -943,7 +943,7 @@
     <tested by='test.parsing.TDAMethodNestedParsingTests' />
     <seq>
       <token type='METHOD'/>
-      <will-name pattern='StandaloneMethod\[${name}/[0-9]+\]' /> <!-- this will bind to the use-name in the method-definition -->
+      <will-name pattern='StandaloneMethod\[${name}\([0-9]+\)\]' /> <!-- this will bind to the use-name in the method-definition -->
       <ref production='method-definition'/>
     </seq>
   </production>
@@ -952,7 +952,7 @@
 	<tested by='test.parsing.TDAObjectElementParsingTests' />
 	<seq>
       <token type='METHOD'/>
-      <will-name pattern='ObjectMethod\[${name}/.*\]' />
+      <will-name pattern='ObjectMethod\[${name}\(.*\)\]' />
       <ref production='method-definition'/>
     </seq>
   </production>
@@ -1302,7 +1302,7 @@
     <section title='Implements Contract'/>
     <tested by='test.parsing.TDAImplementationMethodsParsingTests' />
     <seq>
-      <token type='var-name' names='ObjectMethod\[${name}/[0-9]+\]'/>
+      <token type='var-name' names='ObjectMethod\[${name}\([0-9]+\)\]'/>
       <nested-name offset='1'/>
       <many>
         <ref production='argument-pattern-variable'/>
@@ -1336,7 +1336,7 @@
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
       <token type='EVENT'/>
-      <will-name pattern='ObjectMethod\[${name}/[0-9]+\]' />
+      <will-name pattern='ObjectMethod\[${name}\([0-9]+\)\]' />
       <ref production='method-definition'/>
     </seq>
   </production>

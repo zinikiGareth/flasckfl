@@ -1,6 +1,8 @@
 package test.tc3;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
@@ -19,6 +21,7 @@ public class ArgumentChecking {
 	private UnifiableType ut = context.mock(UnifiableType.class);
 	private SlotChecker tc = new SlotChecker(nv, null, state, ut);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
+	private FunctionName fn = FunctionName.function(pos, null, "f");
 
 	@Test
 	public void aNoArgConstructorIsHandled() {
@@ -50,8 +53,8 @@ public class ArgumentChecking {
 	public void aTypeConstraintIsHandled() {
 		context.checking(new Expectations() {{
 			oneOf(ut).canBeType(pos, LoadBuiltins.string);
+			oneOf(state).bindVarToUT("f.x", ut);
 		}});
-		// TODO: we will ultimately need the var and intro in a map that identifies the UT to pull back when typechecking
-		tc.matchType(LoadBuiltins.string, new VarName(pos, null, "x"), null);
+		tc.matchType(LoadBuiltins.string, new VarName(pos, fn, "x"), null);
 	}
 }

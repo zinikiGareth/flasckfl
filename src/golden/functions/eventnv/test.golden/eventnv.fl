@@ -1,0 +1,19 @@
+This is basically the same as double.fl from nestedvars, but using an event handler.
+I'm not sure exactly what the difference is, but something about assigning from "moveRun.head" here triggers a desire to reference ev
+in a way that it isn't in the function case.
+	
+	object EvDeps
+		state
+			List[Number] runs
+			
+		ctor create
+
+		event moveIt (ClickEvent ev)
+			moveRun <- moveRun.head
+				hc = hccast ev.source
+				movecol = findColumn hc
+				moveRun = item movecol runs
+
+		hccast (Number n) = n
+		hccast (Any a) = Error "no"
+		findColumn (Number n) = 0

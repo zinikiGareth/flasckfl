@@ -1,0 +1,7 @@
+test.golden.EvDeps._ctor_create :: test.golden.EvDeps
+test.golden.EvDeps.findColumn :: test.golden.EvDeps->Number->Number
+test.golden.EvDeps.hccast :: test.golden.EvDeps->Any->Number
+test.golden.EvDeps.moveIt :: ClickEvent->List[Message]
+test.golden.EvDeps.moveIt.hc :: test.golden.EvDeps->ClickEvent->Number
+test.golden.EvDeps.moveIt.moveRun :: test.golden.EvDeps->ClickEvent->AssignItem[Number]
+test.golden.EvDeps.moveIt.movecol :: test.golden.EvDeps->ClickEvent->Number

@@ -47,9 +47,8 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 	@Override
 	public void matchType(Type ofType, VarName var, FunctionIntro intro) {
 		ty.canBeType(var == null ? null : var.loc, ofType);
-		// TODO: should we do something with the varname and intro?
-		// I think we're supposed to bind them in a map somewhere ... write the appropriate tests ...
-		// I think that goes in "state"
+		if (var != null)
+			state.bindVarToUT(var.uniqueName(), ty);
 	}
 
 	@Override

@@ -3,7 +3,7 @@ dependencies of nested vars when they were passed from hand to hand
 
 Specifically, ev is needed in the call to moveRun to pass to movecol to pass to hc, but it was getting lost
 
-	moveIt ev = moveRun
+	moveIt ev = moveRun.head
 		hc = hccast ev
 		movecol = findColumn hc
 		moveRun = item movecol []
