@@ -59,8 +59,23 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	@Override
 	public FunctionGroups lift(Repository r) {
 		r.traverse(this);
+		logger.info("dull:");
+		for (LogicHolder lh : dull) {
+			logger.info("  " + lh.name());
+		}
+		logger.info("interesting:");
+		for (LogicHolder lh : interesting) {
+			logger.info("  " + lh.name() + " => " + lh.nestedVars().vars());
+			logger.info("    depends on " + lh.nestedVars().references());
+		}
 		resolve();
 		logger.info("group ordering = " + ordering);
+		int k = 0;
+		for (FunctionGroup grp : ordering) {
+			logger.info("Group #" + (k++) + ": " + grp.size());
+			for (LogicHolder lh : grp.functions())
+				logger.info("  " + lh.name() + (lh.nestedVars() != null ? " => " + lh.nestedVars().vars() : ""));
+		}
 		return new FunctionGroupOrdering(ordering);
 	}
 
@@ -199,6 +214,13 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		for (LogicHolder f : dull)
 			ordering.add(new DependencyGroup(f));
 
+		boolean hasMore = true;
+		while (hasMore) {
+			hasMore = false;
+			for (LogicHolder f : interesting) {
+				hasMore |= enhance(f);
+			}
+		}
 		Set<LogicHolder> processedFns = new TreeSet<>(LoadBuiltins.allFunctions);
 		processedFns.addAll(dull);
 		Set<LogicHolder> remainingFns = new TreeSet<>(interesting);
@@ -242,12 +264,17 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		return new FunctionGroupOrdering(ordering);
 	}
 
+	private boolean enhance(LogicHolder f) {
+		boolean more = false;
+		NestedVarReader nv = f.nestedVars();
+		for (LogicHolder r : nv.references()) {
+			more |= nv.enhanceWith(f, r.nestedVars());
+		}
+		return more;
+	}
+
 	private void process(LogicHolder fn, Set<LogicHolder> processedFns) {
 		processedFns.add(fn);
-		NestedVarReader nv = fn.nestedVars();
-		for (LogicHolder r : nv.references()) {
-			nv.enhanceWith(fn, r.nestedVars());
-		}
 	}
 
 	private Set<LogicHolder> buildTransitiveClosure(LogicHolder fn, Set<LogicHolder> resolved) {

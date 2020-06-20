@@ -9,9 +9,12 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.RepositoryEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
 
 public class MappingAnalyzer {
+	public static final Logger logger = LoggerFactory.getLogger("Lifter");
 	private final TypeBinder fn;
 	private final MappingCollector collector;
 	private final VarDependencyMapper dependencies;
@@ -47,6 +50,7 @@ public class MappingAnalyzer {
 			VarPattern vp = (VarPattern) defn;
 			if (vp.name().scope != name) {
 				collector.recordNestedVar(fi, meth, vp);
+				logger.debug("  uses var " + vp.name());
 				dependencies.recordVarDependency(name, (FunctionName)vp.name().scope, collector);
 				collector.recordDependency(vp.definedBy());
 			}
@@ -57,6 +61,7 @@ public class MappingAnalyzer {
 				if (tp.definedBy() == null) {
 					throw new CantHappenException("cannot depend on " + tp.var + " because its definedBy function has not been set");
 				}
+				logger.debug("  uses var " + tp.name());
 				collector.recordDependency(tp.definedBy());
 			}
 		} else if (defn instanceof LogicHolder) {

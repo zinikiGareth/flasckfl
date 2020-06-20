@@ -23,6 +23,11 @@ public class DependencyGroup implements FunctionGroup {
 	public boolean isEmpty() {
 		return functions.isEmpty();
 	}
+	
+	@Override
+	public int size() {
+		return functions.size();
+	}
 
 	@Override
 	public Iterable<LogicHolder> functions() {

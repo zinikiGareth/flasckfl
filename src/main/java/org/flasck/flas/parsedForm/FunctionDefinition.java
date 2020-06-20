@@ -108,7 +108,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 
 	@Override
 	public String toString() {
-		return "FunctionDefinition[" + name.uniqueName() + "/" + nargs + "{" + intros.size() + "}]";
+		return name.uniqueName() + "(" + nargs + ")";
 	}
 
 	@Override

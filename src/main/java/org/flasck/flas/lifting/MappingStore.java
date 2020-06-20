@@ -84,7 +84,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	private Set<LogicHolder> deps = new HashSet<>();
 	
 	public MappingStore(FunctionName name) {
-		RepositoryLifter.logger.info("Checking dependencies for " + name.uniqueName());
+		logger.info("Checking dependencies for " + name.uniqueName());
 		this.name = name;
 	}
 	
@@ -129,10 +129,11 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
-	public void enhanceWith(LogicHolder sd, NestedVarReader nestedVars) {
+	public boolean enhanceWith(LogicHolder sd, NestedVarReader nestedVars) {
 		if (nestedVars == null)
-			return;
+			return false;
 		
+		boolean more = false;
 		TreeSet<PO> ops = ((MappingStore)nestedVars).patterns;
 		for (PO o : ops) {
 			if (sd.isMyName(o.name.scope))
@@ -141,10 +142,11 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 			if (sd instanceof FunctionDefinition) {
 				FunctionDefinition fn = (FunctionDefinition) sd;
 				for (FunctionIntro fi : fn.intros())
-					patterns.add(new PO(o, fi, null));
+					more |= patterns.add(new PO(o, fi, null));
 			} else
 				throw new NotImplementedException();
 		}
+		return more;
 	}
 
 	@Override
