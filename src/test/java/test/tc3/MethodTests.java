@@ -77,6 +77,7 @@ public class MethodTests {
 	private final CurrentTCState state = new FunctionGroupTCState(repository, new DependencyGroup());
 	private final RAV r = context.mock(RAV.class);
 	private final StackVisitor sv = new StackVisitor();
+	private String fnCxt = "f";
 
 	@Before
 	public void init() {
@@ -317,7 +318,7 @@ public class MethodTests {
 	
 	@Test
 	public void sendMessageIsFine() {
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.send))));
 		}});
@@ -327,7 +328,7 @@ public class MethodTests {
 
 	@Test
 	public void debugMessageIsFine() {
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.debug))));
 		}});
@@ -337,7 +338,7 @@ public class MethodTests {
 
 	@Test
 	public void unionMessageIsFine() {
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.message))));
 		}});
@@ -347,7 +348,7 @@ public class MethodTests {
 
 	@Test
 	public void anEmptyListIsFine() {
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(LoadBuiltins.nil))));
 		}});
@@ -357,7 +358,7 @@ public class MethodTests {
 
 	@Test
 	public void listOfDebugMessagesIsFine() {
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.debug));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
@@ -368,7 +369,7 @@ public class MethodTests {
 
 	@Test
 	public void consOfSendMessagesIsFine() {
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.send));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
@@ -379,7 +380,7 @@ public class MethodTests {
 
 	@Test
 	public void listOfMessagesIsFine() {
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.message));
 		context.checking(new Expectations() {{
 			oneOf(r).result(with(ExprResultMatcher.elm(Matchers.is(pi))));
@@ -391,10 +392,10 @@ public class MethodTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void aNumberIsNotFine() {
-		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
+		state.bindVarToUT(fnCxt, meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
 		new FunctionChecker(tracker, repository, sv, meth.name(), state, null);
 		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "Number cannot be a Message");
@@ -411,10 +412,10 @@ public class MethodTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void listOfNumbersIsNotFine() {
-		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
+		state.bindVarToUT(fnCxt, meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
 		new FunctionChecker(tracker, repository, sv, meth.name(), state, null);
 		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		PolyInstance pi = new PolyInstance(pos, LoadBuiltins.list, Arrays.asList(LoadBuiltins.number));
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
@@ -432,11 +433,11 @@ public class MethodTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void anyOtherPolyIsNotFine() {
-		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
+		state.bindVarToUT(fnCxt, meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
 		new FunctionChecker(tracker, repository, sv, meth.name(), state, null);
 		meth.sendMessage(new SendMessage(pos, new NumericLiteral(pos, 42)));
 		StructDefn sda = new StructDefn(pos, pos, FieldsType.STRUCT, new SolidName(pkg, "Foo"), true, Arrays.asList(new PolyType(pos, new SolidName(null, "A"))));
-		new MessageChecker(tracker, repository, state, sv, meth, null);
+		new MessageChecker(tracker, repository, state, sv, fnCxt, meth, null);
 		PolyInstance pi = new PolyInstance(pos, sda, Arrays.asList(LoadBuiltins.message));
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{

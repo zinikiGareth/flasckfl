@@ -23,23 +23,25 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final CurrentTCState state;
+	private final String fnCxt;
 	private boolean isHandler;
 	private Type mock;
 	private List<Type> args = new ArrayList<>();
 	private Type handler;
 
-	public ExpectChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, UnitTestExpect e) {
+	public ExpectChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, String fnCxt, UnitTestExpect e) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
+		this.fnCxt = fnCxt;
 		sv.push(this);
 		state = new FunctionGroupTCState(repository, new DependencyGroup());
-		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, fnCxt, false));
 	}
 	
 	@Override
 	public void visitExpr(Expr e, int nargs) {
-		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, fnCxt, false));
 	}
 	
 	@Override

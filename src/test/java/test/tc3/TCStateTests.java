@@ -76,8 +76,8 @@ public class TCStateTests {
 
 	@Test
 	public void aNewStateInitializesItsGroupMembersAsUTs() {
-		state.requireVarConstraints(pos, nameF.uniqueName());
-		state.requireVarConstraints(pos, nameG.uniqueName());
+		state.requireVarConstraints(pos, nameF.uniqueName(), nameF.uniqueName());
+		state.requireVarConstraints(pos, nameG.uniqueName(), nameG.uniqueName());
 	}
 
 	@Test

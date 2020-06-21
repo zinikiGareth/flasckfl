@@ -25,7 +25,7 @@ public class SingleFunctionChecker extends LeafAdapter implements ResultAware {
 		this.sv = sv;
 		this.meth = meth;
 		state = new FunctionGroupTCState(repository, new DependencyGroup());
-		state.bindVarToUT(meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
+		state.bindVarToUT(meth.name().uniqueName(), meth.name().uniqueName(), state.createUT(meth.location(), "method " + meth.name().uniqueName()));
 
 		sv.push(this); // it's very important to push this before allowing the FunctionChecker to push itself ...
 		new FunctionChecker(errors, repository, sv, meth.name(), state, meth);

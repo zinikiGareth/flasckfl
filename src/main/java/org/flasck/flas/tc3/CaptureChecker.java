@@ -12,21 +12,23 @@ public class CaptureChecker extends LeafAdapter implements ResultAware {
 	private final RepositoryReader repository;
 	private final CurrentTCState state;
 	private final StackVisitor sv;
+	private final String fnCxt;
 	private final boolean inTemplate;
 	private Object result;
 
-	public CaptureChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, StackVisitor sv,	boolean inTemplate) {
+	public CaptureChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, StackVisitor sv,	String fnCxt, boolean inTemplate) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.sv = sv;
+		this.fnCxt = fnCxt;
 		this.inTemplate = inTemplate;
 		sv.push(this);
 	}
 
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		sv.push(new ExpressionChecker(errors, repository, state, sv, inTemplate));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, fnCxt, inTemplate));
 	}
 
 	@Override

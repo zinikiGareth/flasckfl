@@ -140,7 +140,7 @@ public class TypeResolution {
 	public void ifWeHaveAUTInTheProcessingTypeWeConvertItToAPolyVarOnBind() {
 		gc.visitFunction(fnF);
 		UnifiableType utG = state.createUT(pos, "unknown"); // the argument
-		state.bindVarToUT("test.repo.x", utG);
+		state.bindVarToUT("test.repo.x", "test.repo.x", utG);
 		utG.isReturned(pos);
 		gc.result(new PosType(pos, new Apply(utG, utG)));
 		gc.leaveFunctionGroup(null);

@@ -45,6 +45,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 	private ExprResult exprType;
 	private List<String> referencedTemplates;
 	private List<Template> allTemplates;
+	private final String fnCxt;
 	private FunctionGroupTCState state;
 
 	public TemplateChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, Template t, List<Template> allTemplates, List<String> referencedTemplates) {
@@ -54,6 +55,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 		this.currentTemplate = t;
 		this.allTemplates = allTemplates;
 		this.referencedTemplates = referencedTemplates;
+		this.fnCxt = t.name().uniqueName();
 		state = new FunctionGroupTCState(repository, new DependencyGroup());
 		sv.push(this);
 	}
@@ -86,7 +88,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 	public void visitExpr(Expr expr, int nArgs) {
 		if (mode == null)
 			throw new NotImplementedException("was not in a mode capable of handling expr");
-		sv.push(new ExpressionChecker(errors, repository, state, sv, true));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, fnCxt, true));
 	}
 	
 	@Override

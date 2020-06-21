@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateBinding;
 import org.flasck.flas.parsedForm.TemplateBindingOption;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
+import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
 import org.flasck.flas.parsedForm.ut.UnitTestInvoke;
@@ -50,6 +51,7 @@ public class TypeChecker extends LeafAdapter {
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
 	private final ErrorMark mark;
+	private String utName;
 
 	public TypeChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
 		this.errors = errors;
@@ -61,12 +63,12 @@ public class TypeChecker extends LeafAdapter {
 
 	@Override
 	public void visitObjectDefn(ObjectDefn obj) {
-		new ObjectDefnChecker(errors, repository, sv, obj.templates, false);
+		new ObjectDefnChecker(errors, repository, sv, obj.name().uniqueName(), obj.templates, false);
 	}
 
 	@Override
 	public void visitCardDefn(CardDefinition cd) {
-		new ObjectDefnChecker(errors, repository, sv, cd.templates, true);
+		new ObjectDefnChecker(errors, repository, sv, cd.name().uniqueName(), cd.templates, true);
 	}
 
 	@Override
@@ -86,33 +88,38 @@ public class TypeChecker extends LeafAdapter {
 	}
 
 	@Override
+	public void visitUnitTest(UnitTestCase e) {
+		utName = e.name.uniqueName();
+	}
+	
+	@Override
 	public void visitUnitDataDeclaration(UnitDataDeclaration udd) {
-		new UDDChecker(errors, repository, sv);
+		new UDDChecker(errors, repository, sv, utName);
 	}
 
 	@Override
 	public void visitUnitTestInvoke(UnitTestInvoke uti) {
-		new UTIChecker(errors, repository, sv);
+		new UTIChecker(errors, repository, sv, utName);
 	}
 	
 	@Override
 	public void visitUnitTestAssert(UnitTestAssert a) {
-		new UTAChecker(errors, repository, sv);
+		new UTAChecker(errors, repository, sv, utName);
 	}
 
 	@Override
 	public void visitUnitTestShove(UnitTestShove s) {
-		new ShoveChecker(errors, repository, sv);
+		new ShoveChecker(errors, repository, sv, utName);
 	}
 
 	@Override
 	public void visitUnitTestExpect(UnitTestExpect e) {
-		new ExpectChecker(errors, repository, sv, e);
+		new ExpectChecker(errors, repository, sv, utName, e);
 	}
 
 	@Override
 	public void visitUnitTestSend(UnitTestSend s) {
-		new UTSendChecker(errors, repository, sv, s);
+		new UTSendChecker(errors, repository, sv, utName, s);
 	}
 
 	@Override
@@ -189,13 +196,13 @@ public class TypeChecker extends LeafAdapter {
 				continue;
 			for (TemplateBindingOption cb : b.conditionalBindings) {
 				types.add(notList(ExpressionChecker.check(errors, repository,
-						new FunctionGroupTCState(repository, new DependencyGroup()), false, cb.expr)));
+						new FunctionGroupTCState(repository, new DependencyGroup()), ct.name().uniqueName(), false, cb.expr)));
 				if (cb.sendsTo != null)
 					sendsTo.add(cb.sendsTo.template());
 			}
 			if (b.defaultBinding != null) {
 				types.add(notList(ExpressionChecker.check(errors, repository,
-						new FunctionGroupTCState(repository, new DependencyGroup()), false, b.defaultBinding.expr)));
+						new FunctionGroupTCState(repository, new DependencyGroup()), ct.name().uniqueName(), false, b.defaultBinding.expr)));
 				if (b.defaultBinding.sendsTo != null) {
 					sendsTo.add(b.defaultBinding.sendsTo.template());
 				}

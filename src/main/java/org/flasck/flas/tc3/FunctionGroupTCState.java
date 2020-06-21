@@ -27,6 +27,8 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.collections.MapMap;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.CycleDetectedException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
@@ -37,7 +39,7 @@ import org.zinutils.graphs.NodeWalker;
 public class FunctionGroupTCState implements CurrentTCState {
 	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
 	private final RepositoryReader repository;
-	private final Map<String, UnifiableType> constraints = new TreeMap<>();
+	private final MapMap<String, String, UnifiableType> constraints = new MapMap<>();
 	private final Map<VarPattern, UnifiableType> patts = new TreeMap<>(VarPattern.comparator);
 	private final Map<IntroduceVar, UnifiableType> introductions = new TreeMap<>(IntroduceVar.comparator);
 	int polyCount = 0;
@@ -48,16 +50,16 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
 		for (LogicHolder x : grp.functions())
-			bindVarToUT(x.name().uniqueName(), createUT(x.location(), x.name().uniqueName() + " returns", false));
+			bindVarToUT(x.name().uniqueName(), x.name().uniqueName(), createUT(x.location(), x.name().uniqueName() + " returns", false));
 		this.hasGroup = !grp.isEmpty();
 	}
 
 	@Override
 	public void recordMember(FunctionName name, List<Type> ats) {
 		if (ats.isEmpty())
-			memberTypes.put(name.uniqueName(), requireVarConstraints(null, name.uniqueName()));
+			memberTypes.put(name.uniqueName(), requireVarConstraints(null, name.uniqueName(), name.uniqueName()));
 		else
-			memberTypes.put(name.uniqueName(), new Apply(ats, requireVarConstraints(null, name.uniqueName())));
+			memberTypes.put(name.uniqueName(), new Apply(ats, requireVarConstraints(null, name.uniqueName(), name.uniqueName())));
 	}
 
 	@Override
@@ -83,10 +85,13 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	@Override
-	public void bindVarToUT(String name, UnifiableType ty) {
+	public void bindVarToUT(String fnCxt, String name, UnifiableType ty) {
 		if (!allUTs.contains(ty))
 			throw new NotImplementedException("Where did this come from?");
-		constraints.put(name, ty);
+		if (constraints.contains(fnCxt, name))
+			throw new CantHappenException("duplicate name for one var: " + name);
+		logger.info("binding " + fnCxt + " :: " + name + " to " + ty.id());
+		constraints.add(fnCxt, name, ty);
 	}
 
 	@Override
@@ -119,15 +124,15 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 	
 	@Override
-	public UnifiableType requireVarConstraints(InputPosition pos, String var) {
-		if (!constraints.containsKey(var))
-			throw new RuntimeException("We don't have var constraints for " + var + " but it should have been bound during arg processing");
-		return constraints.get(var);
+	public UnifiableType requireVarConstraints(InputPosition pos, String fnCxt, String var) {
+		if (!constraints.contains(fnCxt, var))
+			throw new RuntimeException("We don't have var constraints for " + var + " in " + fnCxt + " but it should have been bound during arg processing");
+		return constraints.get(fnCxt, var);
 	}
 
 	@Override
-	public UnifiableType hasVar(String var) {
-		return constraints.get(var);
+	public UnifiableType hasVar(String fnCxt, String var) {
+		return constraints.get(fnCxt, var);
 	}
 
 	@Override
@@ -154,7 +159,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		// Now use that to place constraints on the return type
 		for (Entry<TypeBinder, PosType> m : resultTypes.entrySet()) {
 			String name = m.getKey().name().uniqueName();
-			UnifiableType ut = this.requireVarConstraints(m.getKey().location(), name);
+			UnifiableType ut = this.requireVarConstraints(m.getKey().location(), name, name);
 			ut.determinedType(m.getValue());
 		}
 		this.debugInfo("initial");

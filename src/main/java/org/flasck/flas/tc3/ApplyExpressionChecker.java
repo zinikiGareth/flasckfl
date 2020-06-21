@@ -31,27 +31,29 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor nv;
 	private final List<PosType> results = new ArrayList<>();
 	private final CurrentTCState state;
+	private final String fnCxt;
 	private final boolean inTemplate;
 	private Expr tmp;
 
-	public ApplyExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, boolean inTemplate) {
+	public ApplyExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, String fnCxt, boolean inTemplate) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
+		this.fnCxt = fnCxt;
 		this.inTemplate = inTemplate;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
 		tmp = expr;
-		nv.push(new ExpressionChecker(errors, repository, state, nv, inTemplate));
+		nv.push(new ExpressionChecker(errors, repository, state, nv, fnCxt, inTemplate));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		tmp = expr;
-		nv.push(new MemberExpressionChecker(errors, repository, state, nv, false));
+		nv.push(new MemberExpressionChecker(errors, repository, state, nv, fnCxt, false));
 	}
 	
 	@Override

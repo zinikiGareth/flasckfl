@@ -16,13 +16,13 @@ public class UTSendChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final UnitTestSend send;
 
-	public UTSendChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, UnitTestSend s) {
+	public UTSendChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, String fnCxt, UnitTestSend s) {
 		this.errors = errors;
 		this.sv = sv;
 		this.send = s;
 		sv.push(this);
 		// push the expression checker immediately to capture the unresolved var
-		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv, false));
+		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv, fnCxt, false));
 	}
 
 	@Override

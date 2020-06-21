@@ -61,7 +61,7 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 	public void visitTuple(TupleAssignment ta) {
 		new FunctionChecker(errors, repository, sv, ta.name(), state, null);
 		this.currentFunction = ta;
-		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, ta.name().uniqueName(), false));
 	}
 
 	@Override

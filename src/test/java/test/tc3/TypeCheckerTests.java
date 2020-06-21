@@ -83,7 +83,7 @@ public class TypeCheckerTests {
 		}});
 		tc.visitFunctionGroup(grp);
 		CurrentTCState state = ((GroupChecker)gc.get(0)).testsWantToCheckState();
-		state.requireVarConstraints(pos, nameF.uniqueName());
-		state.requireVarConstraints(pos, nameG.uniqueName());
+		state.requireVarConstraints(pos, nameF.uniqueName(), nameF.uniqueName());
+		state.requireVarConstraints(pos, nameG.uniqueName(), nameG.uniqueName());
 	}
 }

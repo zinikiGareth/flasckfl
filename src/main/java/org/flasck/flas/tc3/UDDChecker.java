@@ -15,12 +15,14 @@ public class UDDChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
+	private final String fnCxt;
 	private NamedType actualType;
 
-	public UDDChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
+	public UDDChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, String fnCxt) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
+		this.fnCxt = fnCxt;
 		sv.push(this);
 	}
 
@@ -31,7 +33,7 @@ public class UDDChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv, false));
+		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv, fnCxt, false));
 	}
 	
 	@Override

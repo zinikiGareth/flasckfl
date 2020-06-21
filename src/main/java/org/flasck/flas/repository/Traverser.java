@@ -648,9 +648,10 @@ public class Traverser implements RepositoryVisitor {
 				visitor.visitObjectCtor((ObjectCtor) sd);
 			else if (sd instanceof ObjectMethod)
 				visitor.visitObjectMethod((ObjectMethod) sd);
-			else if (sd instanceof StandaloneMethod)
+			else if (sd instanceof StandaloneMethod) {
 				visitor.visitStandaloneMethod((StandaloneMethod) sd);
-			else if (sd instanceof TupleAssignment || sd instanceof TupleMember)
+				visitor.visitObjectMethod(((StandaloneMethod) sd).om);
+			} else if (sd instanceof TupleAssignment || sd instanceof TupleMember)
 				continue;
 			else
 				throw new NotImplementedException(sd.getClass().getName());
@@ -661,24 +662,26 @@ public class Traverser implements RepositoryVisitor {
 				visitor.leaveObjectCtor((ObjectCtor) sd);
 			else if (sd instanceof ObjectMethod)
 				visitor.leaveObjectMethod((ObjectMethod) sd);
-			else if (sd instanceof StandaloneMethod)
+			else if (sd instanceof StandaloneMethod) {
+				visitor.leaveObjectMethod(((StandaloneMethod) sd).om);
 				visitor.leaveStandaloneMethod((StandaloneMethod) sd);
+			}
 		}
-		patternsLogger.debug("processing logic for " + grp);
 		// then visit the logic
 		for (LogicHolder sd : grp.functions()) {
+			patternsLogger.debug("processing logic for " + sd);
 			if (sd instanceof FunctionDefinition)
 				visitFunction((FunctionDefinition) sd);
 			else if (sd instanceof StandaloneMethod)
 				visitStandaloneMethod((StandaloneMethod) sd);
-			else if (sd instanceof TupleAssignment)
-				visitTuple((TupleAssignment) sd);
-			else if (sd instanceof TupleMember)
-				visitTupleMember((TupleMember) sd);
 			else if (sd instanceof ObjectMethod)
 				visitObjectMethod((ObjectMethod) sd);
 			else if (sd instanceof ObjectCtor)
 				visitObjectCtor((ObjectCtor) sd);
+			else if (sd instanceof TupleAssignment)
+				visitTuple((TupleAssignment) sd);
+			else if (sd instanceof TupleMember)
+				continue;
 			else
 				throw new NotImplementedException("visit " + sd.getClass());
 		}

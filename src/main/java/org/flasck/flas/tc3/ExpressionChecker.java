@@ -61,13 +61,15 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private InputPosition guardPos;
 	private InputPosition exprPos;
+	private final String fnCxt;
 	private final boolean inTemplate;
 
-	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, boolean inTemplate) {
+	public ExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, String fnCxt, boolean inTemplate) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
+		this.fnCxt = fnCxt;
 		this.inTemplate = inTemplate;
 	}
 	
@@ -78,7 +80,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitCheckTypeExpr(CheckTypeExpr expr) {
-		new CheckTypeExprChecker(errors, repository, state, nv, inTemplate);
+		new CheckTypeExprChecker(errors, repository, state, nv, fnCxt, inTemplate);
 	}
 	
 	@Override
@@ -118,13 +120,13 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			if (tm.type() != null)
 				announce(pos, tm.type());
 			else
-				announce(pos, state.requireVarConstraints(tm.location(), tm.name().uniqueName()));
+				announce(pos, state.requireVarConstraints(tm.location(), fnCxt, tm.name().uniqueName()));
 		} else if (defn instanceof StandaloneMethod) {
 			StandaloneMethod fn = (StandaloneMethod) defn;
 			if (fn.hasType())
 				announce(pos, fn.type());
 			else
-				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
+				announce(pos, state.requireVarConstraints(fn.location(), fnCxt, fn.name().uniqueName()));
 		} else if (defn instanceof ObjectMethod) {
 			ObjectMethod meth = (ObjectMethod) defn;
 			if (meth.hasType())
@@ -138,7 +140,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			if (vp.type() != null)
 				announce(pos, vp.type());
 			else
-				announce(pos, state.requireVarConstraints(vp.location(), vp.name().uniqueName()));
+				announce(pos, state.requireVarConstraints(vp.location(), fnCxt, vp.name().uniqueName()));
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern vp = (TypedPattern) defn;
 			announce(pos, (Type) vp.type.defn());
@@ -190,19 +192,19 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void visitHandleExpr(InputPosition location, Expr expr, Expr handler) {
 		this.exprPos = location;
-		nv.push(new MessageHandlerExpressionChecker(errors, repository, state, nv));
+		nv.push(new MessageHandlerExpressionChecker(errors, repository, state, nv, fnCxt));
 	}
 	
 	@Override
 	public void visitApplyExpr(ApplyExpr expr) {
 		this.exprPos = expr.location;
-		nv.push(new ApplyExpressionChecker(errors, repository, state, nv, inTemplate));
+		nv.push(new ApplyExpressionChecker(errors, repository, state, nv, fnCxt, inTemplate));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr, int nargs) {
 		this.exprPos = expr.location;
-		nv.push(new MemberExpressionChecker(errors, repository, state, nv, inTemplate));
+		nv.push(new MemberExpressionChecker(errors, repository, state, nv, fnCxt, inTemplate));
 	}
 	
 	@Override
@@ -219,9 +221,9 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(new ExprResult(pos, ty));
 	}
 
-	public static Type check(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, boolean inTemplate, Expr expr) {
+	public static Type check(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, String fnCxt, boolean inTemplate, Expr expr) {
 		StackVisitor sv = new StackVisitor();
-		CaptureChecker cc = new CaptureChecker(errors, repository, state, sv, inTemplate);
+		CaptureChecker cc = new CaptureChecker(errors, repository, state, sv, fnCxt, inTemplate);
 		Traverser t = new Traverser(sv);
 		t.visitExpr(expr, 0);
 		return ((ExprResult) cc.get()).type;

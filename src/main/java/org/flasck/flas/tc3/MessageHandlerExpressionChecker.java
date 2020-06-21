@@ -19,22 +19,24 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 	private final NestedVisitor nv;
 	private final List<PosType> results = new ArrayList<>();
 	private final CurrentTCState state;
+	private final String fnCxt;
 
-	public MessageHandlerExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv) {
+	public MessageHandlerExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, String fnCxt) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
+		this.fnCxt = fnCxt;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, repository, state, nv, false));
+		nv.push(new ExpressionChecker(errors, repository, state, nv, fnCxt, false));
 	}
 	
 	@Override
 	public void visitMemberExpr(MemberExpr expr, int nargs) {
-		nv.push(new MemberExpressionChecker(errors, repository, state, nv, false));
+		nv.push(new MemberExpressionChecker(errors, repository, state, nv, fnCxt, false));
 	}
 	
 	@Override

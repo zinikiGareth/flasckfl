@@ -24,13 +24,15 @@ public class ShoveChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor sv;
+	private final String fnCxt;
 	private Type curr;
 	private List<Type> results = new ArrayList<>();
 
-	public ShoveChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
+	public ShoveChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, String fnCxt) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
+		this.fnCxt = fnCxt;
 		sv.push(this);
 	}
 	
@@ -43,7 +45,7 @@ public class ShoveChecker extends LeafAdapter implements ResultAware {
 					curr = ((ExprResult)r).type;
 				}
 			};
-			ExpressionChecker ec = new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), nv, false);
+			ExpressionChecker ec = new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), nv, fnCxt, false);
 			ec.visitUnresolvedVar(v, 0);
 		} else if (curr instanceof ErrorType) {
 			// ignore cascades ...
@@ -59,7 +61,7 @@ public class ShoveChecker extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void visitShoveExpr(Expr e) {
-		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv, false));
+		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv, fnCxt, false));
 	}
 	
 	@Override

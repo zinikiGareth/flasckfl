@@ -81,19 +81,21 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final CurrentTCState state;
 	private final NestedVisitor sv;
+	private final String fnCxt;
 	private final ObjectActionHandler inMeth;
 	private final AssignMessage assign;
 	private ExprResult rhsType;
 
-	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, ObjectActionHandler inMeth, AssignMessage assign) {
+	public MessageChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, String fnCxt, ObjectActionHandler inMeth, AssignMessage assign) {
 		this.errors = errors;
 		this.state = state;
 		this.sv = sv;
+		this.fnCxt = fnCxt;
 		this.inMeth = inMeth;
 		this.assign = assign;
 		sv.push(this);
 		// push this for the value on the rhs
-		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, fnCxt, false));
 	}
 
 	// The first thing that should happen is the RHS returns a result
@@ -169,7 +171,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 					return checkInnermostType(var, ty);
 				} else {
 					// if it doesn't have a type yet, it is presumably being checked along with us and has a UT
-					UnifiableType utf = state.requireVarConstraints(var.location(), fd.name().uniqueName());
+					UnifiableType utf = state.requireVarConstraints(var.location(), fd.name().uniqueName(), fd.name().uniqueName());
 					CheckChain ret = new CheckChain(var, utf);
 					utf.callOnResolved(ret::check);
 					return ret;

@@ -21,14 +21,16 @@ public class GuardedMessagesChecker extends LeafAdapter implements ResultAware {
 	private final RepositoryReader repository;
 	private final CurrentTCState state;
 	private final NestedVisitor sv;
+	private final String fnCxt;
 	private final ObjectActionHandler inMeth;
 	private InputPosition pos;
 
-	public GuardedMessagesChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, ObjectActionHandler inMeth) {
+	public GuardedMessagesChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor sv, String fnCxt, ObjectActionHandler inMeth) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.sv = sv;
+		this.fnCxt = fnCxt;
 		this.inMeth = inMeth;
 		sv.push(this);
 	}
@@ -37,17 +39,17 @@ public class GuardedMessagesChecker extends LeafAdapter implements ResultAware {
 	public void visitExpr(Expr expr, int nArgs) {
 		if (expr != null)
 			pos = expr.location();
-		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, fnCxt, false));
 	}
 	
 	@Override
 	public void visitSendMessage(SendMessage sm) {
-		new MessageChecker(errors,repository, state, sv, inMeth, null);
+		new MessageChecker(errors,repository, state, sv, fnCxt, inMeth, null);
 	}
 	
 	@Override
 	public void visitAssignMessage(AssignMessage assign) {
-		new MessageChecker(errors,repository, state, sv, inMeth, assign);
+		new MessageChecker(errors,repository, state, sv, fnCxt, inMeth, assign);
 	}
 	
 	@Override

@@ -75,6 +75,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			for (Type ti : sl)
 				argTypes.add(new PosType(null, ti));
 		}
+		System.out.println(name.uniqueName() + ": argTypes = " + argTypes);
 	}
 	
 	@Override
@@ -91,13 +92,13 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		if (patt instanceof VarPattern) {
 			VarPattern vp = (VarPattern) patt;
 			UnifiableType lt = state.createUT(null, "hl " + vp.var);
-			state.bindVarToUT(vp.name().uniqueName(), lt);
+			state.bindVarToUT(hl.name().uniqueName(), vp.name().uniqueName(), lt);
 			state.bindVarPatternToUT(vp, lt);
 		} else if (patt instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) patt;
 			UnifiableType lt = state.createUT(null, "hl " + tp.var);
 			lt.canBeType(tp.var.loc, tp.type.defn());
-			state.bindVarToUT(tp.name().uniqueName(), lt);
+			state.bindVarToUT(hl.name().uniqueName(), tp.name().uniqueName(), lt);
 		} else
 			throw new NotImplementedException("not supported as lambda: " + patt.getClass());
 	}
@@ -164,22 +165,22 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	@Override
 	public void visitCase(FunctionCaseDefn fcd) {
-		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+		sv.push(new ExpressionChecker(errors, repository, state, sv, name.uniqueName(), false));
 	}
 	
 	@Override
 	public void visitGuardedMessage(GuardedMessages gm) {
-		new GuardedMessagesChecker(errors, repository, state, sv, inMeth);
+		new GuardedMessagesChecker(errors, repository, state, sv, name.uniqueName(), inMeth);
 	}
 	
 	@Override
 	public void visitSendMessage(SendMessage sm) {
-		new MessageChecker(errors,repository, state, sv, inMeth, null);
+		new MessageChecker(errors,repository, state, sv, name.uniqueName(), inMeth, null);
 	}
 	
 	@Override
 	public void visitAssignMessage(AssignMessage assign) {
-		new MessageChecker(errors,repository, state, sv, inMeth, assign);
+		new MessageChecker(errors,repository, state, sv, name.uniqueName(), inMeth, assign);
 	}
 	
 	@Override
@@ -195,7 +196,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 				errors.message(gr.location(), "guards must be booleans");
 			
 			// There will be an expression as well, so push another checker ...
-			sv.push(new ExpressionChecker(errors, repository, state, sv, false));
+			sv.push(new ExpressionChecker(errors, repository, state, sv, name.uniqueName(), false));
 		} else {
 			ExprResult exprResult = (ExprResult)r;
 			InputPosition pos = exprResult.pos;

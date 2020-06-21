@@ -14,12 +14,12 @@ import org.flasck.flas.parsedForm.VarPattern;
 public interface CurrentTCState extends Consolidator {
 	UnifiableType createUT(InputPosition pos, String motive);
 	UnifiableType createUT(InputPosition pos, String motive, boolean unionNeedsAll);
-	UnifiableType requireVarConstraints(InputPosition pos, String var);
+	UnifiableType requireVarConstraints(InputPosition pos, String fxCxt, String var);
 	void recordMember(FunctionName name, List<Type> ats);
 	Type getMember(FunctionName name);
-	UnifiableType hasVar(String var);
+	UnifiableType hasVar(String fnCxt, String var);
 	PolyType nextPoly(InputPosition pos);
-	void bindVarToUT(String name, UnifiableType ty);
+	void bindVarToUT(String fnCxt, String name, UnifiableType ty);
 	void bindVarPatternToUT(VarPattern vp, UnifiableType ty);
 	void bindVarPatternTypes(ErrorReporter errors);
 	void debugInfo(String when);

@@ -21,6 +21,7 @@ public class ArgumentChecking {
 	private SlotChecker tc = new SlotChecker(nv, null, state, ut);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private FunctionName fn = FunctionName.function(pos, null, "f");
+	private String fnCxt = "f";
 
 	@Test
 	public void aNoArgConstructorIsHandled() {
@@ -52,7 +53,7 @@ public class ArgumentChecking {
 	public void aTypeConstraintIsHandled() {
 		context.checking(new Expectations() {{
 			oneOf(ut).canBeType(pos, LoadBuiltins.string);
-			oneOf(state).bindVarToUT("f.x", ut);
+			oneOf(state).bindVarToUT(fnCxt, "f.x", ut);
 		}});
 		tc.matchType(LoadBuiltins.string, new VarName(pos, fn, "x"), null);
 	}

@@ -16,21 +16,23 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class UTAChecker extends LeafAdapter implements ResultAware {
+	private final ErrorReporter errors;
+	private final RepositoryReader repository;
 	private final NestedVisitor sv;
-	private ErrorReporter errors;
-	private RepositoryReader repository;
-	private List<Type> results = new ArrayList<>();
+	private final String fnCxt;
+	private final List<Type> results = new ArrayList<>();
 
-	public UTAChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv) {
+	public UTAChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, String fnCxt) {
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
+		this.fnCxt = fnCxt;
 		sv.push(this);
 	}
 	
 	@Override
 	public void visitAssertExpr(boolean isValue, Expr e) {
-		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv, false));
+		sv.push(new ExpressionChecker(errors, repository, new FunctionGroupTCState(repository, new DependencyGroup()), sv, fnCxt, false));
 	}
 	
 	@Override

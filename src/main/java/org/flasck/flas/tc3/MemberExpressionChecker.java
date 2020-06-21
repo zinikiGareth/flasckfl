@@ -45,21 +45,23 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 	private final ErrorReporter errors;
 	private final RepositoryReader repository;
 	private final NestedVisitor nv;
+	private final String fnCxt;
 	private final List<Type> results = new ArrayList<>();
 	private final CurrentTCState state;
 	private boolean inTemplate;
 
-	public MemberExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, boolean inTemplate) {
+	public MemberExpressionChecker(ErrorReporter errors, RepositoryReader repository, CurrentTCState state, NestedVisitor nv, String fnCxt, boolean inTemplate) {
 		this.errors = errors;
 		this.repository = repository;
 		this.state = state;
 		this.nv = nv;
+		this.fnCxt = fnCxt;
 		this.inTemplate = inTemplate;
 	}
 	
 	@Override
 	public void visitExpr(Expr expr, int nArgs) {
-		nv.push(new ExpressionChecker(errors, repository, state, nv, inTemplate));
+		nv.push(new ExpressionChecker(errors, repository, state, nv, fnCxt, inTemplate));
 	}
 	
 	@Override

@@ -28,6 +28,7 @@ public class ObjectDefnCheckerTests {
 	private final NestedVisitor sv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private final PackageName pkg = new PackageName("test.repo");
+	private String fnCxt = "test.repo.f";
 	
 	@Test
 	public void anObjectWithNoFieldsIsJustWavedOnThrough() {
@@ -36,7 +37,7 @@ public class ObjectDefnCheckerTests {
 			oneOf(sv).push(with(any(ObjectDefnChecker.class)));
 			oneOf(sv).result(null);
 		}});
-		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, new ArrayList<>(), false);
+		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, fnCxt, new ArrayList<>(), false);
 		tc.leaveObjectDefn(od);
 	}
 
@@ -50,7 +51,7 @@ public class ObjectDefnCheckerTests {
 			oneOf(sv).push(with(any(ObjectDefnChecker.class)));
 			oneOf(sv).result(null);
 		}});
-		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, new ArrayList<>(), false);
+		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, fnCxt, new ArrayList<>(), false);
 		tc.visitStructField(sf);
 		tc.leaveStructField(sf);
 		tc.leaveObjectDefn(od);
@@ -68,7 +69,7 @@ public class ObjectDefnCheckerTests {
 			oneOf(sv).push(with(any(ExpressionChecker.class)));
 			oneOf(sv).result(null);
 		}});
-		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, new ArrayList<>(), false);
+		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, fnCxt, new ArrayList<>(), false);
 		tc.visitStructField(sf);
 		tc.visitExpr(sl, 0);
 		tc.result(new ExprResult(pos, LoadBuiltins.string));
@@ -89,7 +90,7 @@ public class ObjectDefnCheckerTests {
 			oneOf(errors).message(pos, "cannot initialize x from String");
 			oneOf(sv).result(null);
 		}});
-		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, new ArrayList<>(), false);
+		ObjectDefnChecker tc = new ObjectDefnChecker(errors, repository, sv, fnCxt, new ArrayList<>(), false);
 		tc.visitStructField(sf);
 		tc.visitExpr(sl, 0);
 		tc.result(new ExprResult(pos, LoadBuiltins.string));

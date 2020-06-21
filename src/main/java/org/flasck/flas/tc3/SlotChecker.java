@@ -49,12 +49,12 @@ public class SlotChecker extends LeafAdapter implements TreeOrderVisitor {
 	public void matchType(Type ofType, VarName var, FunctionIntro intro) {
 		ty.canBeType(var == null ? null : var.loc, ofType);
 		if (var != null)
-			state.bindVarToUT(var.uniqueName(), ty);
+			state.bindVarToUT(fnName.uniqueName(), var.uniqueName(), ty);
 	}
 
 	@Override
 	public void varInIntro(VarName vn, VarPattern vp, FunctionIntro intro) {
-		state.bindVarToUT(vn.uniqueName(), ty);
+		state.bindVarToUT(fnName.uniqueName(), vn.uniqueName(), ty);
 		if (vp != null)
 			state.bindVarPatternToUT(vp, ty);
 	}
