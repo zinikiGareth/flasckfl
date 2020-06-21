@@ -111,7 +111,7 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 			}
 		}
 		
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(errors, new HashMap<>(), new HashMap<>());
 		state.bindIntroducedVarTypes(errors);
 		sv.result(null);
 	}

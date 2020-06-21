@@ -43,6 +43,11 @@ public class TupleAssignment implements RepositoryEntry, LogicHolder, TypeBinder
 	}
 
 	@Override
+	public int argCount() {
+		return 0; // should be able to have tuples in objects, would return 1
+	}
+
+	@Override
 	public boolean isObjAccessor() {
 		return false;
 	}

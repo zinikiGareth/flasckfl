@@ -9,4 +9,5 @@ public interface TypeBinder {
 	InputPosition location();
 	void bindType(Type ty);
 	Type type();
+	int argCount();
 }

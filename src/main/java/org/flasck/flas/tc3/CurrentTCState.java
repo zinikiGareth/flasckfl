@@ -24,5 +24,5 @@ public interface CurrentTCState extends Consolidator {
 	boolean hasGroup();
 	void bindIntroducedVarTypes(ErrorReporter errors);
 	void bindIntroducedVarToUT(IntroduceVar v, UnifiableType ut);
-	void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes);
+	void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes, Map<TypeBinder, PosType> resultTypes);
 }

@@ -44,6 +44,11 @@ public class TupleMember implements Locatable, RepositoryEntry, LogicHolder, Com
 	}
 
 	@Override
+	public int argCount() {
+		return 0; // should be able to have tuples in objects, would return 1
+	}
+
+	@Override
 	public boolean isObjAccessor() {
 		return false;
 	}

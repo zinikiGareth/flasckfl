@@ -303,7 +303,7 @@ public class TemplateChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void leaveTemplate(Template t) {
-		state.groupDone(errors, new HashMap<>());
+		state.groupDone(errors, new HashMap<>(), new HashMap<>());
 		sv.result(null);
 	}
 }

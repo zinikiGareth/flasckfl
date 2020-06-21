@@ -18,6 +18,7 @@ public class SingleFunctionChecker extends LeafAdapter implements ResultAware {
 	private final NestedVisitor sv;
 	private final TypeBinder meth; 
 	private final Map<TypeBinder, PosType> memberTypes = new HashMap<>();
+	private final Map<TypeBinder, PosType> resultTypes = new HashMap<>();
 
 	public SingleFunctionChecker(ErrorReporter errors, NestedVisitor sv, RepositoryReader repository, ObjectActionHandler meth) {
 		this.errors = errors;
@@ -32,8 +33,10 @@ public class SingleFunctionChecker extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
-		memberTypes.put(meth, (PosType)r);
-		state.groupDone(errors, memberTypes);
+		PosType pt = (PosType)r;
+		memberTypes.put(meth, pt);
+		resultTypes.put(meth, GroupChecker.extractResult(meth, pt));
+		state.groupDone(errors, memberTypes, resultTypes);
 		sv.result(null);
 	}
 }

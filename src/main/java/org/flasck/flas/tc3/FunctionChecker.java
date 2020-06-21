@@ -178,10 +178,20 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 		} else {
 			ExprResult exprResult = (ExprResult)r;
+			InputPosition pos = exprResult.pos;
 			Type ret = exprResult.type;
-			if (ret instanceof UnifiableType)
-				((UnifiableType)ret).isReturned(exprResult.pos);
+			markUsed(pos, ret);
 			resultTypes.add(exprResult);
+		}
+	}
+
+	private void markUsed(InputPosition pos, Type ret) {
+		if (ret instanceof UnifiableType) {
+			((UnifiableType)ret).isReturned(pos);
+		} else if (ret instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) ret;
+			for (Type ty : pi.getPolys())
+				markUsed(pos, ty);
 		}
 	}
 	

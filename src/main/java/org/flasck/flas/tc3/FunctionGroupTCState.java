@@ -124,14 +124,15 @@ public class FunctionGroupTCState implements CurrentTCState {
 	
 	
 	@Override
-	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes) {
+	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes, Map<TypeBinder, PosType> resultTypes) {
 		ErrorMark mark = errors.mark();
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 		TypeChecker.logger.debug("starting to check group: " + memberTypes.keySet());
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
-			logger.debug(e.getKey() + " :: " + e.getValue().type);
+			logger.debug("  " + e.getKey() + " :: " + e.getValue().type);
 		
-		// if we picked up anything based on the invocation of the method in this group, add that into the mix
+		// When traversing the group, we should have managed to figure out some kind of type for it
+		// Now use that to place constraints on the return type
 		for (Entry<TypeBinder, PosType> m : memberTypes.entrySet()) {
 			String name = m.getKey().name().uniqueName();
 			UnifiableType ut = this.requireVarConstraints(m.getKey().location(), name);
