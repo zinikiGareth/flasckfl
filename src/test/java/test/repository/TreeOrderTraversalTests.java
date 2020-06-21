@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
+import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -24,6 +25,7 @@ import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.patterns.HSIArgsTree;
 import org.flasck.flas.patterns.HSICtorTree;
 import org.flasck.flas.patterns.HSITree;
+import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
@@ -48,7 +50,7 @@ public class TreeOrderTraversalTests {
 	final Repository r = new Repository();
 	final TreeOrderVisitor v = context.mock(TreeOrderVisitor.class);
 	// TODO: the function groups here is not interesting - but it can be applied on a case-by-case basis and is really just an excuse to write this comment to remind me to write some tests like that later ...
-	final Traverser t = new Traverser(v).withNestedPatterns().withFunctionsInDependencyGroups(null).withPatternsInTreeOrder();;
+	final Traverser t = new Traverser(v).withNestedPatterns().withFunctionsInDependencyGroups(new FunctionGroupOrdering(new ArrayList<FunctionGroup>()));
 
 	@Test
 	public void aVeryDullFunctionHasAlmostNothingToDo() {

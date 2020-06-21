@@ -46,7 +46,7 @@ public class ConstraintUnification {
 	public void oneIncoporatedByConstraintCreatesAnIdentity() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.incorporatedBy(pos, LoadBuiltins.number);
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertEquals(LoadBuiltins.number, ut.resolvedTo());
 	}
 	
@@ -54,7 +54,7 @@ public class ConstraintUnification {
 	public void ifYouAskSomethingToBeANilItWillBe() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeStruct(pos, null, LoadBuiltins.nil);
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertEquals(LoadBuiltins.nil, ut.resolvedTo());
 	}
 	
@@ -63,7 +63,7 @@ public class ConstraintUnification {
 	public void ifYouAskSomethingToBeAConsAndDontConstrainItYouGetAnyAsThePoly() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeStruct(pos, fn, LoadBuiltins.cons);
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertThat(ut.resolve(tracker), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
 	
@@ -74,7 +74,7 @@ public class ConstraintUnification {
 		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		PolyType pt = new PolyType(pos, new SolidName(null, "A"));
 		stc.field(state, pos, LoadBuiltins.cons.findField("head"));
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(pt)));
 	}
 	
@@ -85,7 +85,7 @@ public class ConstraintUnification {
 		StructTypeConstraints stc = ut.canBeStruct(pos, fn, LoadBuiltins.cons);
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.canBeStruct(pos, null, LoadBuiltins.falseT);
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertThat(ut.resolve(tracker), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.falseT)));
 	}
 	
@@ -97,7 +97,7 @@ public class ConstraintUnification {
 		UnifiableType f = stc.field(state, pos, LoadBuiltins.cons.findField("head"));
 		f.isReturned(pos);
 
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		
 		PolyType polyA = new PolyType(pos, new SolidName(null, "A"));
 		assertThat(f.resolvedTo(), Matchers.is(polyA));
@@ -118,7 +118,7 @@ public class ConstraintUnification {
 		context.checking(new Expectations() {{
 			oneOf(repository).findUnionWith(with(tracker), with(pos), (Set) with(Matchers.containsInAnyOrder(LoadBuiltins.falseT, LoadBuiltins.trueT)), with(true)); will(returnValue(LoadBuiltins.bool));
 		}});
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertEquals(LoadBuiltins.bool, ut.resolvedTo());
 	}
 	
@@ -126,7 +126,7 @@ public class ConstraintUnification {
 	public void aSingleArgConstraintJustGivesYouThatType() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeType(pos, LoadBuiltins.string);
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertEquals(LoadBuiltins.string, ut.resolvedTo());
 	}
 	
@@ -135,7 +135,7 @@ public class ConstraintUnification {
 	public void aSingleArgTypeConstraintWithAPolymorphicCtorGivesYouAnys() {
 		UnifiableType ut = state.createUT(pos, "foo Cons A");
 		ut.canBeType(pos, LoadBuiltins.cons);
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertThat(ut.resolvedTo(), PolyInstanceMatcher.of(LoadBuiltins.cons, Matchers.is(LoadBuiltins.any)));
 	}
 }

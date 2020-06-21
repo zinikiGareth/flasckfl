@@ -2,6 +2,7 @@ package org.flasck.flas.hsi;
 
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -17,4 +18,5 @@ public interface TreeOrderVisitor extends RepositoryVisitor {
 	void endField(StructField fld);
 	void endConstructor(StructDefn ctor);
 	void endArg(Slot s);
+	void patternsDone(LogicHolder fn);
 }

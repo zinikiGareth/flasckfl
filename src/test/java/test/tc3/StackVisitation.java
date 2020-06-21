@@ -126,7 +126,7 @@ public class StackVisitation {
 			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
 			allowing(state).requireVarConstraints(pos, "f"); will(returnValue(utf));
-			oneOf(state).groupDone(with(errors), with(any(Map.class)));
+			oneOf(state).groupDone(with(errors), with(any(Map.class)), with(any(Map.class)));
 //			oneOf(utf).determinedType(new PosType(pos, ty));
 //			oneOf(state).resolveAll(errors, false);
 //			oneOf(state).enhanceAllMutualUTs();
@@ -166,7 +166,7 @@ public class StackVisitation {
 		UnifiableType utm = context.mock(UnifiableType.class, "utm");
 		context.checking(new Expectations() {{
 			allowing(state).requireVarConstraints(pos, "meth"); will(returnValue(utm));
-			oneOf(state).groupDone(with(errors), with(any(Map.class)));
+			oneOf(state).groupDone(with(errors), with(any(Map.class)), with(any(Map.class)));
 //			oneOf(utm).determinedType(new PosType(pos, ty));
 //			oneOf(state).resolveAll(errors, false);
 //			oneOf(state).enhanceAllMutualUTs();
@@ -298,7 +298,7 @@ public class StackVisitation {
 		aec.result(new ExprResult(pos, fnt));
 		aec.result(new ExprResult(pos, nbr));
 		aec.leaveApplyExpr(ae);
-		state.groupDone(tracker, new HashMap<>());
+		state.groupDone(tracker, new HashMap<>(), new HashMap<>());
 		assertEquals(LoadBuiltins.number, ((UnifiableType) ut.get(0)).resolvedTo());
 	}
 

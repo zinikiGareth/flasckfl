@@ -5,6 +5,7 @@ import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -59,5 +60,10 @@ public class ContainerChecker extends LeafAdapter implements TreeOrderVisitor {
 	@Override
 	public void endArg(Slot s) {
 		sv.result(new FunctionChecker.ArgResult(ty));
+	}
+
+	@Override
+	public void patternsDone(LogicHolder fn) {
+		throw new NotImplementedException();
 	}
 }

@@ -405,7 +405,7 @@ public class MethodTests {
 		sv.leaveObjectMethod(meth);
 		HashMap<TypeBinder, PosType> mts = new HashMap<>();
 		mts.put(meth, (PosType) capture.get(0));
-		state.groupDone(tracker, mts);
+		state.groupDone(tracker, mts, new HashMap<TypeBinder, PosType>());
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -426,7 +426,7 @@ public class MethodTests {
 		sv.leaveObjectMethod(meth);
 		HashMap<TypeBinder, PosType> mts = new HashMap<>();
 		mts.put(meth, (PosType) capture.get(0));
-		state.groupDone(tracker, mts);
+		state.groupDone(tracker, mts, new HashMap<TypeBinder, PosType>());
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -448,6 +448,6 @@ public class MethodTests {
 		sv.leaveObjectMethod(meth);
 		HashMap<TypeBinder, PosType> mts = new HashMap<>();
 		mts.put(meth, (PosType) capture.get(0));
-		state.groupDone(tracker, mts);
+		state.groupDone(tracker, mts, new HashMap<TypeBinder, PosType>());
 	}
 }

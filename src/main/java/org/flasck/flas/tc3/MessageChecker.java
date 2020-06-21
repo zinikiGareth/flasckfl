@@ -192,28 +192,28 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	}
 
 	private ExprResult checkInnermostType(UnresolvedVar var, Type ty) {
-		if (!(ty instanceof Apply)) {
-			throw new HaventConsideredThisException("expecting to be an apply of object defn to some kind of struct"); // I think this is an error
-		}
-		Apply app = (Apply) ty;
-		StateHolder state = ((ObjectMethod)inMeth).state();
-		if (!app.tys.get(0).equals((Type)state)) {
-			throw new HaventConsideredThisException("expecting first arg to be the current object"); // I think this is an error
-		}
-		if (!(var.defn() instanceof FunctionDefinition)) {
-			throw new HaventConsideredThisException("expecting var to be a function"); // I think this is an error
-		}
-		Type rem = app.appliedTo(state);
-		if (rem instanceof UnifiableType)
-			rem = ((UnifiableType)rem).resolvedTo();
-		FunctionDefinition fd = (FunctionDefinition) var.defn();
-		int discardNested = fd.nestedVars().size();
-		if (discardNested > 0) {
-			Apply da = (Apply) rem;
-			rem = da.discard(discardNested);
+		Type rem = ty;
+		if (ty instanceof Apply) {
+			if (!(var.defn() instanceof FunctionDefinition)) {
+				throw new HaventConsideredThisException("expecting var to be a function"); // I think this is an error
+			}
+			FunctionDefinition fd = (FunctionDefinition) var.defn();
+			Apply app = (Apply) ty;
+			StateHolder state = ((ObjectMethod)inMeth).state();
+			if (!app.tys.get(0).equals((Type)state)) {
+				throw new HaventConsideredThisException("expecting first arg to be the current object"); // I think this is an error
+			}
+			rem = app.appliedTo(state);
 			if (rem instanceof UnifiableType)
 				rem = ((UnifiableType)rem).resolvedTo();
+			int discardNested = fd.nestedVars().size();
+			if (discardNested > 0) {
+				Apply da = (Apply) rem;
+				rem = da.discard(discardNested);
+			}
 		}
+		if (rem instanceof UnifiableType)
+			rem = ((UnifiableType)rem).resolvedTo();
 		return new ExprResult(var.location, rem);
 	}
 
@@ -272,6 +272,11 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveMessage(ActionMessage msg) {
 		InputPosition pos = rhsType.pos;
+		if (msg instanceof AssignMessage) {
+			sv.result(new ExprResult(pos, LoadBuiltins.listMessages));
+			return;
+		}
+		
 		sv.result(new ExprResult(pos, new EnsureListMessage(pos, rhsType.type)));
 	}
 }

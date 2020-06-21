@@ -13,12 +13,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.IntroduceVar;
-import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.LogicHolder;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeBinder;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionGroup;
@@ -42,12 +43,26 @@ public class FunctionGroupTCState implements CurrentTCState {
 	int polyCount = 0;
 	private List<UnifiableType> allUTs = new ArrayList<>();
 	private final boolean hasGroup;
+	private Map<String, Type> memberTypes = new TreeMap<>();
 	
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
 		for (LogicHolder x : grp.functions())
 			bindVarToUT(x.name().uniqueName(), createUT(x.location(), x.name().uniqueName() + " returns", false));
 		this.hasGroup = !grp.isEmpty();
+	}
+
+	@Override
+	public void recordMember(FunctionName name, List<Type> ats) {
+		if (ats.isEmpty())
+			memberTypes.put(name.uniqueName(), requireVarConstraints(null, name.uniqueName()));
+		else
+			memberTypes.put(name.uniqueName(), new Apply(ats, requireVarConstraints(null, name.uniqueName())));
+	}
+
+	@Override
+	public Type getMember(FunctionName name) {
+		return memberTypes.get(name.uniqueName());
 	}
 
 	@Override
@@ -122,18 +137,22 @@ public class FunctionGroupTCState implements CurrentTCState {
 		return new PolyType(pos, new SolidName(null, new String(new char[] { (char)('A' + polyCount++) })));
 	}
 	
-	
 	@Override
 	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes, Map<TypeBinder, PosType> resultTypes) {
 		ErrorMark mark = errors.mark();
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
 		TypeChecker.logger.debug("starting to check group: " + memberTypes.keySet());
-		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet())
+		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
+			if (e.getValue() == null) {
+				// something went wrong - probably just "do not generate"; anyway, we won't be able to do anything
+				return;
+			}
 			logger.debug("  " + e.getKey() + " :: " + e.getValue().type);
+		}
 		
 		// When traversing the group, we should have managed to figure out some kind of type for it
 		// Now use that to place constraints on the return type
-		for (Entry<TypeBinder, PosType> m : memberTypes.entrySet()) {
+		for (Entry<TypeBinder, PosType> m : resultTypes.entrySet()) {
 			String name = m.getKey().name().uniqueName();
 			UnifiableType ut = this.requireVarConstraints(m.getKey().location(), name);
 			ut.determinedType(m.getValue());
@@ -284,19 +303,6 @@ public class FunctionGroupTCState implements CurrentTCState {
 			return new PolyInstance(pi.location(), (NamedType) cleanUTs(errors, pos, pi.struct(), recs), polys);
 		} else {
 			return ty;
-		}
-	}
-
-	@Override
-	public void resolveAll(ErrorReporter errors, boolean hard) {
-		while (true) {
-			List<UnifiableType> list = new ArrayList<>(allUTs);
-			for (UnifiableType ut : list) {
-				ut.resolve(errors);
-				logger.debug("resolved to " + ((TypeConstraintSet) ut).debugInfo());
-			}
-			if (list.size() == allUTs.size())
-				return;
 		}
 	}
 

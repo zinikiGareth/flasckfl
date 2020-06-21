@@ -120,7 +120,6 @@ public class Traverser implements RepositoryVisitor {
 	private boolean wantNestedPatterns;
 	private boolean wantHSI;
 	private boolean wantEventSources = false;
-	private boolean patternsTree;
 	private boolean visitMemberFields = false;
 	private boolean isConverted;
 	private boolean currFnHasState;
@@ -169,11 +168,6 @@ public class Traverser implements RepositoryVisitor {
 
 	public Traverser withFunctionsInDependencyGroups(FunctionGroups order) {
 		this.functionOrder = order;
-		return this;
-	}
-
-	public Traverser withPatternsInTreeOrder() {
-		this.patternsTree = true;
 		return this;
 	}
 
@@ -645,6 +639,33 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
 		visitor.visitFunctionGroup(grp);
+		// visit the patterns for all the cases first
+		patternsLogger.debug("processing patterns for " + grp);
+		for (LogicHolder sd : grp.functions()) {
+			if (sd instanceof FunctionDefinition)
+				visitor.visitFunction((FunctionDefinition) sd);
+			else if (sd instanceof ObjectCtor)
+				visitor.visitObjectCtor((ObjectCtor) sd);
+			else if (sd instanceof ObjectMethod)
+				visitor.visitObjectMethod((ObjectMethod) sd);
+			else if (sd instanceof StandaloneMethod)
+				visitor.visitStandaloneMethod((StandaloneMethod) sd);
+			else if (sd instanceof TupleAssignment || sd instanceof TupleMember)
+				continue;
+			else
+				throw new NotImplementedException(sd.getClass().getName());
+			visitPatternsInTreeOrder(sd);
+			if (sd instanceof FunctionDefinition)
+				visitor.leaveFunction((FunctionDefinition) sd);
+			else if (sd instanceof ObjectCtor)
+				visitor.leaveObjectCtor((ObjectCtor) sd);
+			else if (sd instanceof ObjectMethod)
+				visitor.leaveObjectMethod((ObjectMethod) sd);
+			else if (sd instanceof StandaloneMethod)
+				visitor.leaveStandaloneMethod((StandaloneMethod) sd);
+		}
+		patternsLogger.debug("processing logic for " + grp);
+		// then visit the logic
 		for (LogicHolder sd : grp.functions()) {
 			if (sd instanceof FunctionDefinition)
 				visitFunction((FunctionDefinition) sd);
@@ -770,8 +791,6 @@ public class Traverser implements RepositoryVisitor {
 			visitHSI(new VarMapping(), "", slots, sd.hsiCases(), null, new BackupPlan(), new DontConsiderAgain());
 			hsiLogger.info("finished HSI for " + sd.name().uniqueName());
 		} else {
-			if (patternsTree)
-				visitPatternsInTreeOrder(sd);
 			visitLogic(sd);
 		} 
 	}
@@ -784,7 +803,7 @@ public class Traverser implements RepositoryVisitor {
 			for (FunctionIntro i : ((FunctionDefinition) fn).intros())
 				visitFunctionIntro(i);
 		} else if (fn instanceof ObjectActionHandler) {
-			if (!patternsTree)
+			if (functionOrder == null)
 				visitPatterns((PatternsHolder)fn);
 			ObjectActionHandler oah = (ObjectActionHandler)fn;
 			if (!oah.guards.isEmpty())
@@ -829,6 +848,7 @@ public class Traverser implements RepositoryVisitor {
 			visitPatternTree("    " + i, tree);
 			tov.endArg(as);
 		}
+		tov.patternsDone(fn);
 		patternsLogger.info("finished patterns for " + fn.name().uniqueName());
 	}
 
@@ -1123,7 +1143,7 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitFunctionIntro(FunctionIntro i) {
 		visitor.visitFunctionIntro(i);
-		if (!patternsTree)
+		if (functionOrder == null)
 			visitPatterns(i);
 		visitFunctionCases(i);
 		leaveFunctionIntro(i);

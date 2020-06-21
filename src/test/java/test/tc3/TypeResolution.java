@@ -69,34 +69,34 @@ public class TypeResolution {
 	@Test
 	public void aSimplePrimitiveIsEasyToResolve() {
 		gc.visitFunction(fnF);
-		gc.result(new PosType(pos, LoadBuiltins.number));
+		gc.result(new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.number)));
 		gc.leaveFunctionGroup(null);
-		assertEquals(LoadBuiltins.number, fnF.type());
+		assertEquals(LoadBuiltins.number, fnF.type().get(1));
 	}
 
 	@Test
 	public void multipleIdenticalTypesAreEasilyConsolidated() {
 		gc.visitFunction(fnF);
-		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.number), new PosType(pos, LoadBuiltins.number))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.number)), new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.number)))));
 		gc.leaveFunctionGroup(null);
-		assertEquals(LoadBuiltins.number, fnF.type());
+		assertEquals(LoadBuiltins.number, fnF.type().get(1));
 	}
 
 	@Test
 	public void aUnionCanBeFormedFromItsComponentParts() {
 		gc.visitFunction(fnF);
-		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.falseT), new PosType(pos, LoadBuiltins.trueT))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.falseT)), new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.trueT)))));
 		gc.leaveFunctionGroup(null);
-		assertEquals(LoadBuiltins.bool, fnF.type());
+		assertEquals(LoadBuiltins.bool, fnF.type().get(1));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void aUnionCanBeFormedFromItsComponentPolymorphicParts() {
 		gc.visitFunction(fnF);
-		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, LoadBuiltins.nil), new PosType(pos, new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any))))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.nil)), new PosType(pos, new Apply(LoadBuiltins.string, new PolyInstance(pos, LoadBuiltins.cons, Arrays.asList(LoadBuiltins.any)))))));
 		gc.leaveFunctionGroup(null);
-		assertThat(fnF.type(), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
+		assertThat(fnF.type().get(1), PolyInstanceMatcher.of(LoadBuiltins.list, Matchers.is(LoadBuiltins.any)));
 	}
 
 	@Test
@@ -104,33 +104,36 @@ public class TypeResolution {
 		gc.visitFunction(fnF);
 		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown", true);
 		ut.canBeType(pos, LoadBuiltins.number);
-		gc.result(new PosType(pos, ut));
+		gc.result(new PosType(pos, new Apply(LoadBuiltins.string, ut)));
 		ut.resolve(tracker);
 		gc.leaveFunctionGroup(null);
-		assertEquals(LoadBuiltins.number, fnF.type());
+		assertEquals(LoadBuiltins.number, fnF.type().get(1));
 	}
 
 	@Test
 	public void weCanObviouslyHaveAUnifiableTypeOfNumberResolveWithNumberItself() {
 		gc.visitFunction(fnF);
-		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "unknown", true);
+		TypeConstraintSet ut = new TypeConstraintSet(repository, state, pos, "tcs", "f return type", true);
 		ut.canBeType(pos, LoadBuiltins.number);
-		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, ut), new PosType(pos, LoadBuiltins.number))));
+		gc.result(state.consolidate(pos, Arrays.asList(new PosType(pos, new Apply(LoadBuiltins.string, ut)), new PosType(pos, new Apply(LoadBuiltins.string, LoadBuiltins.number)))));
 		gc.leaveFunctionGroup(null);
-		assertEquals(LoadBuiltins.number, fnF.type());
+		assertEquals(LoadBuiltins.string, fnF.type().get(0));
+		assertEquals(LoadBuiltins.number, fnF.type().get(1));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void ifWeHaveIdentifiedAFunctionAndHaveAnApplicationOfItWeCanDeduceTheCorrectType() {
 		gc.visitFunction(fnF);
-		UnifiableType utG = state.createUT(pos, "unknown"); // a function argument "f"
+		UnifiableType utG = state.createUT(pos, "f return type"); // a function argument "f"
 		UnifiableType result = utG.canBeAppliedTo(pos, Arrays.asList(new PosType(pos, LoadBuiltins.string))); // (f String) :: ?result
 		result.canBeType(pos, LoadBuiltins.nil); // but also can be Nil, so (f String) :: Nil
-		gc.result(new PosType(pos, result));
+		gc.result(new PosType(pos, new Apply(LoadBuiltins.string, result)));
 		gc.leaveFunctionGroup(null);
 		assertThat(utG.resolve(tracker), (Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), Matchers.is(LoadBuiltins.nil)));
-		assertEquals(LoadBuiltins.nil, fnF.type());
+		assertTrue(fnF.type() instanceof Apply);
+		assertEquals(LoadBuiltins.string, fnF.type().get(0));
+		assertEquals(LoadBuiltins.nil, fnF.type().get(1));
 	}
 
 	@Test

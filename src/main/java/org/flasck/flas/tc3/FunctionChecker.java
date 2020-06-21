@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -67,6 +68,13 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		} else
 			csc = null;
 		sv.push(this);
+		Type t = state.getMember(name);
+		if (t != null && t instanceof Apply) {
+			List<Type> att = ((Apply)t).tys;
+			List<Type> sl = att.subList(0, att.size()-1);
+			for (Type ti : sl)
+				argTypes.add(new PosType(null, ti));
+		}
 	}
 	
 	@Override
@@ -143,6 +151,18 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	}
 
 	@Override
+	public void patternsDone(LogicHolder fn) {
+		if (fn instanceof ObjectCtor && !((ObjectCtor)fn).generate)
+			return;
+		if (fn instanceof ObjectMethod && !((ObjectMethod)fn).generate)
+			return;
+		List<Type> ats = new ArrayList<>();
+		for (PosType ar : argTypes)
+			ats.add(ar.type);
+		state.recordMember(fn.name(), ats);
+	}
+
+	@Override
 	public void visitCase(FunctionCaseDefn fcd) {
 		sv.push(new ExpressionChecker(errors, repository, state, sv, false));
 	}
@@ -199,9 +219,10 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	public void leaveFunction(FunctionDefinition fn) {
 		if (fn.intros().isEmpty())
 			sv.result(null);
-		else if (resultTypes.isEmpty())
-			throw new RuntimeException("No types inferred for " + fn.name().uniqueName());
-		else {
+		else if (resultTypes.isEmpty()) {
+			// this will be the case when we are just processing arguments
+			sv.result(null);
+		} else {
 			PosType c = state.consolidate(fn.location(), resultTypes);
 			sv.result(buildApplyType(c.pos, c));
 		}
@@ -215,13 +236,16 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	
 	@Override
 	public void leaveObjectMethod(ObjectMethod meth) {
-		if (!meth.generate)
+		if (!meth.generate) {
 			sv.result(null);
+			return;
+		}
 		if (!meth.hasMessages())
 			sv.result(buildApplyType(meth.location(), new PosType(meth.location(), LoadBuiltins.nil)));
-		else if (resultTypes.isEmpty())
-			throw new RuntimeException("No types inferred for " + meth.name().uniqueName());
-		else {
+		else if (resultTypes.isEmpty()) {
+			// this will be the case when we are just processing arguments
+			sv.result(null);
+		} else {
 			PosType posty = state.consolidate(meth.location(), resultTypes);
 			sv.result(buildApplyType(meth.location(), new PosType(posty.pos, new EnsureListMessage(meth.location(), posty.type))));
 		}
@@ -229,12 +253,17 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 
 	@Override
 	public void leaveObjectCtor(ObjectCtor ctor) {
-		if (!ctor.generate)
+		if (!ctor.generate) {
 			sv.result(null);
-		// Note that this is its declared type.  It carries messages behind the scenes
-		// The reaason for this trickery is that constructors are special and we want to have natural looking syntax
-		// I'm not sure if there is a "purely functional syntax" for object construction at the moment - create it if/when it is needed
-		sv.result(buildApplyType(ctor.location(), new PosType(ctor.location(), ctor.getObject())));
+		} else if (ctor.hasMessages() && resultTypes.isEmpty()) {
+			// this will be the case when we are just processing arguments
+			sv.result(null);
+		} else {
+			// Note that this is its declared type.  It carries messages behind the scenes
+			// 	The reaason for this trickery is that constructors are special and we want to have natural looking syntax
+			// I'm not sure if there is a "purely functional syntax" for object construction at the moment - create it if/when it is needed
+			sv.result(buildApplyType(ctor.location(), new PosType(ctor.location(), ctor.getObject())));
+		}
 	}
 
 	private PosType buildApplyType(InputPosition pos, PosType result) {

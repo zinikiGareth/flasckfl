@@ -112,7 +112,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			if (fn.hasType())
 				announce(pos, fn.type());
 			else
-				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName()));
+				announce(pos, state.getMember(fn.name()));
 		} else if (defn instanceof TupleMember) {
 			TupleMember tm = (TupleMember) defn;
 			if (tm.type() != null)

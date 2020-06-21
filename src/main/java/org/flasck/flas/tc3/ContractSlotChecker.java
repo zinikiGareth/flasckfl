@@ -7,6 +7,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -87,5 +88,10 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 	public void endArg(Slot s) {
 		sv.result(new ArgResult(ty));
 		this.ty = null;
+	}
+
+	@Override
+	public void patternsDone(LogicHolder fn) {
+		throw new NotImplementedException();
 	}
 }

@@ -390,7 +390,6 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
  		Traverser t = new Traverser(visitor);
 		t.withNestedPatterns();
 		t.withFunctionsInDependencyGroups(groups);
-		t.withPatternsInTreeOrder();
 		t.withEventSources();
 		t.doTraversal(this);
 	}

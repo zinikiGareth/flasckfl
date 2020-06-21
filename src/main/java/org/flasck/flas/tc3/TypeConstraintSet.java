@@ -454,7 +454,7 @@ public class TypeConstraintSet implements UnifiableType {
 				List<Type> polys = new ArrayList<>();
 				// TODO: I think for type cases we should in fact insist on them specifying the polymorphic vars
 				// We would then have them here (probably already as a PolyInstance!) ...
-				for (PolyType p : sd.polys()) {
+				for (@SuppressWarnings("unused") PolyType p : sd.polys()) {
 					polys.add(LoadBuiltins.any);
 				}
 				tys.add(new PosType(pt.pos, new PolyInstance(pos, sd, polys)));
@@ -715,6 +715,9 @@ public class TypeConstraintSet implements UnifiableType {
 					acs.add(0);
 			}
 			if (acs.size() != 1) {
+				logger.error("mismatched apply sizes");
+				for (PosType pt : resolved)
+					logger.error("  " + pt.type);
 				throw new HaventConsideredThisException("mismatched Apply sizes - is this possible?");
 			}
 			Integer cnt = acs.iterator().next();
