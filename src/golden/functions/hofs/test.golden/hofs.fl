@@ -7,18 +7,10 @@
 // there is also the complex "curry" case where f is first identified as A->B then it turns out that B is itself C->D because f is A->C->D
 // this requires three vars: f, (f A) and (f A C) with f being identified as A->(f A) and (f A) as C->(f A C)
 	
-// This should force f :: List[Any]->Number, I think ...
-// r :: (List[Any]->Number)->Number
-// g :: Nil->Number
-// h :: Cons[Any]->Number
-r f = g (f 0) + h (f 1)
-g Nil = 0
-h (Cons l) = 1
+	hof f = g (f 0) + h (f 1)
+		g Nil = 0
+		h (Cons[A] l) = 1
 
-// f :: Number->Number
-m f = f 0 + f 1
+	m f = f 0 + f 1
 
-// f :: Number->Number
-// x :: Number
-// r :: (Number->Number)->Number->Number
-r f x = f 0 + f x
+	r f x = f 0 + f x

@@ -1,6 +1,13 @@
 test.golden.cross :: List[List[A]]->List[List[A]]
 test.golden.cross1 :: List[List[A]]->A->List[Cons[A]]
 test.golden.doit :: (Number->A)->A
+test.golden.genlist :: Number->List[Number]
+test.golden.hof :: (Number->List[Any])->Number
+test.golden.hof._1.g :: Nil->Number
+test.golden.hof._1.h :: Cons[A]->Number
 test.golden.k :: Number->Number
+test.golden.k2 :: Number->Number
+test.golden.m :: (Number->Number)->Number
 test.golden.map :: (A->B)->List[A]->List[B]
+test.golden.r :: (Number->Number)->Number->Number
 test.golden.sing :: A->Cons[A]

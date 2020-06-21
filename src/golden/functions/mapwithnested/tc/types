@@ -1,0 +1,5 @@
+test.golden.findColumn :: String->Number
+test.golden.findColumn._1.consider :: String->List[String]->Boolean
+test.golden.findColumn._1.opts :: String->List[Boolean]
+test.golden.follows :: String->String->Boolean
+test.golden.map :: (A->B)->List[A]->List[B]

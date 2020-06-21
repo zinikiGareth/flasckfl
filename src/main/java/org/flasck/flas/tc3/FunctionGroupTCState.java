@@ -300,19 +300,20 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	@Override
-	public PosType consolidate(InputPosition pos, List<PosType> types) {
+	public PosType consolidate(InputPosition pos, Collection<PosType> types) {
 		if (types.isEmpty())
 			throw new NotImplementedException("Cannot handle consolidating no types");
 		
 		// If there's just 1, that's easy
+		PosType ret = types.iterator().next();
 		if (types.size() == 1)
-			return types.get(0);
+			return ret;
 		
 		// If they appear to be all the same, no probs; if any of them is error, return that
 		int commonApply = -1;
-		PosType ret = types.get(0);
 		pos = ret.pos;
 		boolean allMatch = true;
+		boolean haveUTs = false;
 		for (PosType t : types) {
 			// actual error
 			if (t.type instanceof ErrorType)
@@ -332,23 +333,34 @@ public class FunctionGroupTCState implements CurrentTCState {
 				if (commonApply == -1)
 					commonApply = ((Apply)t.type).argCount();
 				else if (commonApply != ((Apply)t.type).argCount())
-					throw new HaventConsideredThisException("we could be asked to unify different levels of apply, providing UTs are involved somewhere; if not, I think that has to be a type error");
+					throw new HaventConsideredThisException("we could be asked to unify different levels of apply, providing UTs are involved somewhere; if not, I think that has to be a type error: " + types);
 			} else if (t.type instanceof UnifiableType)
+				haveUTs = true;
+			else
 				commonApply = 0;
 		}
 		if (allMatch)
 			return ret;
+		if (haveUTs)
+			return collapse(pos, types);
 
 		if (commonApply > 0) {
 			List<Type> args = new ArrayList<>();
 			for (int i=0;i<=commonApply;i++) {
 				List<PosType> ai = new ArrayList<>();
 				for (PosType pt : types) {
-					ai.add(new PosType(pos, ((Apply)pt.type).get(i)));
+					if (pt.type instanceof Apply)
+						ai.add(new PosType(pos, ((Apply)pt.type).get(i)));
 				}
-				args.add(consolidate(pos, ai).type);
+				PosType ct = consolidate(pos, ai);
+				args.add(ct.type);
 			}
-			return new PosType(pos, new Apply(args));
+			Apply c = new Apply(args);
+			for (PosType pt : types) {
+				if (pt.type instanceof UnifiableType)
+					((UnifiableType)pt.type).recordApplication(pt.pos, args);
+			}
+			return new PosType(pos, c);
 		}
 
 		// OK, create a new UT and attach them all
@@ -362,6 +374,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 				motive.append(tt.signature());
 		}
 		UnifiableType ut = createUT(pos, motive.toString(), false);
+		logger.debug("  " + motive + " as " + ut.id());
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);
@@ -407,7 +420,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 		// OK, let the first UT acquire the others
 		UnifiableType ut = (UnifiableType) uts.iterator().next().type;
-		logger.debug("allowing " + ut.id() + " to collapse " + types);
+		logger.debug("  allowing " + ut.id() + " to collapse " + types);
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);

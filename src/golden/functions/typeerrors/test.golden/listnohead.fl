@@ -1,0 +1,16 @@
+	fn c = c.head
+	
+	takehead (List[A] l) = l.head
+
+	takehead2 = (nth 0 items).head
+		items = makeThings 1
+
+	takehead3 = h.head
+		h = nth 0 [[], [1]]
+
+	takehead 4 = (nth 0 things).head
+		things = [makeThings 1]
+		
+		
+	makeThings 0 = []
+	makeThings 1 = [1]

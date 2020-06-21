@@ -1,0 +1,7 @@
+	test we can call a curried function from map
+		assert (fn  [12, 15, 18])
+			[15, 18, 21]
+
+	test we can pass a curried function ultimately to map
+		assert (fn2  (add 3))
+			[4, 5, 6]

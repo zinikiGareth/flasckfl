@@ -1540,6 +1540,10 @@ AssignCons.prototype.dispatch = function(cx) {
 		var rwm = this.obj.dispatch(cx);
 		target = rwm;
 	}
+	if (target instanceof FLError) {
+		cx.log(target);
+		return;
+	}
 	if (!(target instanceof AssignItem)) {
 		throw Error("No, it needs to be an Item");
 	}

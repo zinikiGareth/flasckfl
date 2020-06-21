@@ -30,3 +30,14 @@
 		assert (cross [["A","B"], ["C","D"]])
 			[["A","C"],["A","D"],["B","C"],["B","D"]]
 	
+	test m can be applied to a simple function
+		assert (m k2)
+			2
+	
+	test r can be applied to a simple function and a constant
+		assert (r k2 5)
+			10
+			
+	test hof can be applied to a list
+		assert (hof genlist)
+			1

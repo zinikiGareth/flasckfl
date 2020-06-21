@@ -1,0 +1,10 @@
+	findColumn (String s)
+		| = length opts
+			opts = map consider [["hello", "world"],["goodbye"]] 
+			consider [] = s == "hello"
+			consider (Cons[String] cs) = follows s cs.head
+	follows (String c) (String h) = c == h 
+
+	map f Nil = Nil
+	map f (Cons { head: h, tail : t }) = Cons (f h) (map f t)
+

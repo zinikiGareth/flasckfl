@@ -77,6 +77,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 		PosType pfn = results.remove(0);
 		Type fn = pfn.type;
+		logger.debug("attempting to check application of " + expr.fn + " " + fn + " to " + results);
 		if (fn instanceof ErrorType) {
 			nv.result(fn);
 			return;
@@ -89,7 +90,6 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(new ErrorType());
 			return;
 		}
-		logger.debug("Attempting to check application of " + fn + " to " + results);
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
 		int max = fn.argCount();

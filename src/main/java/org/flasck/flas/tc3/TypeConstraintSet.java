@@ -142,9 +142,16 @@ public class TypeConstraintSet implements UnifiableType {
 
 		@Override
 		public int compare(PosType o1, PosType o2) {
-			int cp = o1.pos.compareTo(o2.pos);
-			if (cp != 0)
-				return cp;
+			if (o1.pos == null) {
+				if (o2.pos != null)
+					return -1;
+			} else if (o2.pos == null) {
+				return 1;
+			} else {
+				int cp = o1.pos.compareTo(o2.pos);
+				if (cp != 0)
+					return cp;
+			}
 			
 			return o1.type.toString().compareTo(o2.type.toString());
 		}
@@ -459,6 +466,18 @@ public class TypeConstraintSet implements UnifiableType {
 					dag.ensureLink(this, ut);
 				}
 				tys.add(pt);
+			} else if (t instanceof Apply) {
+				Apply a = (Apply) t;
+				for (Type t1 : a.tys) {
+					if (t1 instanceof PolyInstance)
+						linkToPVs(dag, (PolyInstance) t1);
+					else if (t1 instanceof UnifiableType) {
+						UnifiableType ut = (UnifiableType) t1;
+						dag.ensure(ut);
+						dag.ensureLink(this, ut);
+					}
+				}
+				tys.add(pt);
 			} else
 				tys.add(pt);
 		}
@@ -479,7 +498,7 @@ public class TypeConstraintSet implements UnifiableType {
 		if (applications.size() == 1) {
 			UnifiableApplication ua = applications.iterator().next();
 			tys.add(ua.asApply());
-			logger.debug("  have 1 application: " + ua);
+			logger.debug("  [have 1 application: " + ua + "]");
 			for (Type t : ua.args) {
 				if (t instanceof UnifiableType) {
 					UnifiableType ut = ((UnifiableType) t).redirectedTo();
@@ -513,10 +532,15 @@ public class TypeConstraintSet implements UnifiableType {
 				}
 			}
 		} else if (!applications.isEmpty()) {
-			List<Set<PosType>> args = new ArrayList<>();
-			Set<PosType> ret = new TreeSet<>(posNameComparator);
+			int cnt = Integer.MAX_VALUE;
 			for (UnifiableApplication x : applications) {
-				logger.debug("have application: " + x);
+				cnt = Math.min(cnt, x.args.size());
+			}
+			List<Set<PosType>> args = new ArrayList<>();
+			for (int i=0;i<cnt;i++)
+				args.add(new TreeSet<PosType>(posNameComparator));
+			for (UnifiableApplication x : applications) {
+				logger.debug("  [have application: " + x + "]");
 				// I feel like this *could* get us into an infinite loop, but I don't think it actually can on account of how we introduce the return variable
 				// and while it could possibly recurse, I don't think that can then refer back to us
 				// If we do run into that problem, we should probably throw a special "UnresolvedReferenceException" here and then catch that in the loop
@@ -524,8 +548,8 @@ public class TypeConstraintSet implements UnifiableType {
 				// But at least make sure you have a test case before doing that ...
 				int k = 0;
 				for (Type t : x.args) {
-					if (args.size() == k)
-						args.add(new TreeSet<PosType>(posNameComparator));
+					if (k >= args.size())
+						break;
 					args.get(k++).add(new PosType(x.pos, t));
 					if (t instanceof UnifiableType) {
 						UnifiableType ut = ((UnifiableType) t).redirectedTo();
@@ -543,14 +567,34 @@ public class TypeConstraintSet implements UnifiableType {
 						}
 					}
 				}
-				ret.add(new PosType(x.pos, x.ret));
-				if (x.ret instanceof UnifiableType) {
-					UnifiableType ut = ((UnifiableType)x.ret).redirectedTo();
+			}
+			List<Type> cargs = new ArrayList<>();
+			for (Set<PosType> a : args) {
+				Type ct = state.consolidate(pos, a).type;
+				if (ct instanceof UnifiableType) {
+					UnifiableType ut = ((UnifiableType) ct).redirectedTo();
+					dag.ensure(ut);
+					dag.ensureLink(this, ut);
+				}
+				cargs.add(ct);
+			}
+			Set<PosType> ret = new TreeSet<>(posNameComparator);
+			for (UnifiableApplication x : applications) {
+				Type r = x.ret;
+				if (x.args.size() > cnt) {
+					List<Type> as = new ArrayList<>();
+					for (int i=cnt;i<x.args.size();i++)
+						as.add(x.args.get(i));
+					r = new Apply(as, r);
+				}
+				ret.add(new PosType(x.pos, r));
+				if (r instanceof UnifiableType) {
+					UnifiableType ut = ((UnifiableType)r).redirectedTo();
 					logger.debug("  have apply dependency on: " + ut.id());
 					dag.ensure(ut);
 					dag.ensureLink(this, ut);
-				} else if (x.ret instanceof PolyInstance) {
-					PolyInstance pi = (PolyInstance) x.ret;
+				} else if (r instanceof PolyInstance) {
+					PolyInstance pi = (PolyInstance) r;
 					for (Type t : pi.getPolys()) {
 						if (t instanceof UnifiableType) {
 							UnifiableType ut = ((UnifiableType)t).redirectedTo();
@@ -560,17 +604,7 @@ public class TypeConstraintSet implements UnifiableType {
 					}
 				}
 			}
-			List<Type> cargs = new ArrayList<>();
-			for (Set<PosType> a : args) {
-				Type ct = state.collapse(pos, a).type;
-				if (ct instanceof UnifiableType) {
-					UnifiableType ut = ((UnifiableType) ct).redirectedTo();
-					dag.ensure(ut);
-					dag.ensureLink(this, ut);
-				}
-				cargs.add(ct);
-			}
-			PosType rt = state.collapse(pos, ret);
+			PosType rt = state.consolidate(pos, ret);
 			if (rt.type instanceof UnifiableType) {
 				UnifiableType ut = ((UnifiableType) rt.type).redirectedTo();
 				dag.ensure(ut);
@@ -583,6 +617,9 @@ public class TypeConstraintSet implements UnifiableType {
 			dag.ensure(pv);
 			dag.ensureLink(this, pv);
 		}
+		
+		if (usedOrReturned > 0)
+			logger.info("  is used or returned");
 		
 		// if we are a contained field, we depend on the container
 		if (this.fieldOf != null) {
@@ -665,14 +702,40 @@ public class TypeConstraintSet implements UnifiableType {
 			resolvedTo = resolved.iterator().next().type;
 		else {
 			Set<Type> alltys = new TreeSet<>(signatureComparator);
+			Set<Integer> acs = new HashSet<>();
 			for (PosType pt : resolved) {
 				if (pt.type instanceof ErrorType) {
 					resolvedTo = pt.type;
 					return pt.type;
 				}
 				alltys.add(pt.type);
+				if (pt.type instanceof Apply)
+					acs.add(((Apply)pt.type).argCount());
+				else
+					acs.add(0);
 			}
-			resolvedTo = repository.findUnionWith(errors, pos, alltys, needAll);
+			if (acs.size() != 1) {
+				throw new HaventConsideredThisException("mismatched Apply sizes - is this possible?");
+			}
+			Integer cnt = acs.iterator().next();
+			if (cnt != 0) {
+				logger.debug("unifying " + alltys);
+				List<Type> us = new ArrayList<>();
+				for (int i=0;i<=cnt;i++) {
+					Set<Type> ms = new HashSet<>();
+					for (Type t : alltys) {
+						ms.add(((Apply)t).tys.get(i));
+					}
+					Type rt = repository.findUnionWith(errors, pos, ms, needAll);
+					if (rt == null)
+						break;
+					us.add(rt);
+				}
+				if (us.size() == cnt+1) {
+					resolvedTo = new Apply(us);
+				}
+			} else
+				resolvedTo = repository.findUnionWith(errors, pos, alltys, needAll);
 			if (resolvedTo == null) {
 				logger.info("could not unify " + this.id);
 				TreeSet<String> tyes = new TreeSet<String>();
@@ -847,6 +910,7 @@ public class TypeConstraintSet implements UnifiableType {
 			if (ty.type instanceof UnifiableType)
 				((UnifiableType)ty.type).isUsed(ty.pos);
 		}
+		logger.debug(id + ": can be applied to " + args + " returning " + ret);
 		addApplication(pos, targs, ret);
 		return ret;
 	}
@@ -854,9 +918,17 @@ public class TypeConstraintSet implements UnifiableType {
 	void consolidatedApplication(Apply a) {
 		List<Type> l = new ArrayList<>(a.tys);
 		Type ret = l.remove(l.size()-1);
+		logger.debug(id + ": have consolidated application " + l + " returning " + ret);
 		addApplication(pos, l, ret);
 	}
 	
+	public void recordApplication(InputPosition pos, List<Type> args) {
+		logger.debug(id + ": recording application " + args);
+		ArrayList<Type> a2 = new ArrayList<>(args);
+		Type ret = a2.remove(args.size()-1);
+		addApplication(pos, a2, ret);
+	}
+
 	private void addApplication(InputPosition pos, List<Type> args, Type ret) {
 		applications.add(new UnifiableApplication(pos, args, ret));
 		comments.add(new Comment(pos, "application " + args + " ==> " + ret, ret));
@@ -868,7 +940,10 @@ public class TypeConstraintSet implements UnifiableType {
 			throw new NotImplementedException("types cannot be null");
 		if (ofType.type instanceof Apply) {
 			Apply a = (Apply) ofType.type;
-			addApplication(ofType.pos, a.tys.subList(0, a.tys.size()-1), a.tys.get(a.tys.size()-1));
+			List<Type> args = a.tys.subList(0, a.tys.size()-1);
+			Type ret = a.tys.get(a.tys.size()-1);
+			logger.debug(id + " has apply type: " + args + " returning " + ret);
+			addApplication(ofType.pos, args, ret);
 		} else
 			types.add(ofType);
 	}

@@ -59,6 +59,9 @@ public interface UnifiableType extends Type {
 	// able to be applied to these types
 	UnifiableType canBeAppliedTo(InputPosition pos, List<PosType> results);
 
+	// In consolidation, record an existing application
+	void recordApplication(InputPosition pos, List<Type> args);
+
 	// When a function has polymorphic args, a UT is instantiated to handle that
 	// This is called when one of those is passed a variable
 	void isPassed(InputPosition loc, Type ai);

@@ -6,6 +6,9 @@ JVM PASS cross Nil
 JVM PASS cross Singleton
 JVM PASS cross One
 JVM PASS cross Two
+JVM PASS m can be applied to a simple function
+JVM PASS r can be applied to a simple function and a constant
+JVM PASS hof can be applied to a list
 JS PASS a very simple hof
 JS PASS cross1 Nil
 JS PASS cross1 First
@@ -14,3 +17,6 @@ JS PASS cross Nil
 JS PASS cross Singleton
 JS PASS cross One
 JS PASS cross Two
+JS PASS m can be applied to a simple function
+JS PASS r can be applied to a simple function and a constant
+JS PASS hof can be applied to a list

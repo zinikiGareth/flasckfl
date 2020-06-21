@@ -95,6 +95,8 @@ public class Apply implements Type, SignatureNeedsParensType {
 		//  because UTs are infintely subtle (other may be a UT)
 		//  because of currying
 		InputPosition loc = new InputPosition("unknown", 1, 0, "unknown");
+		if (other instanceof UnifiableType)
+			return other.incorporates(pos, this);
 		if (!(other instanceof Apply))
 			return false;
 		List<Type> otys = ((Apply)other).tys;

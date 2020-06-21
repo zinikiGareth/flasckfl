@@ -4,3 +4,8 @@
 // Maybe "helpers" should enter a mode looking for function (or more) decls?
 
 	k (Number n) = 0
+	
+	k2 (Number n) = n*2
+	
+	genlist 0 = []
+	genlist k = Cons k (genlist (k-1))

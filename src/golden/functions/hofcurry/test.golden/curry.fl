@@ -1,0 +1,5 @@
+	add a b = a + b
+	
+	fn = map (add 3)
+	
+	fn2 f = map f [1,2,3] 

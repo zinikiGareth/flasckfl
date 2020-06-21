@@ -1,0 +1,4 @@
+JVM PASS we can call a curried function from map
+JVM PASS we can pass a curried function ultimately to map
+JS PASS we can call a curried function from map
+JS PASS we can pass a curried function ultimately to map
