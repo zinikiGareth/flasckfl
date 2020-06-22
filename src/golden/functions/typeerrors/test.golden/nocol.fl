@@ -1,96 +1,13 @@
-org.zinutils.exceptions.ShouldBeError: there isn't a 'col'
-	at org.flasck.flas.tc3.TypeConstraintSet.resolve(TypeConstraintSet.java:653)
-	at org.flasck.flas.tc3.FunctionGroupTCState$2.present(FunctionGroupTCState.java:175)
-	at org.zinutils.graphs.DirectedCyclicGraph.postOrder(DirectedCyclicGraph.java:212)
-	at org.zinutils.graphs.DirectedCyclicGraph.postOrderFromWithOrder(DirectedCyclicGraph.java:195)
-	at org.flasck.flas.tc3.FunctionGroupTCState.groupDone(FunctionGroupTCState.java:170)
-	at org.flasck.flas.tc3.GroupChecker.leaveFunctionGroup(GroupChecker.java:81)
-	at org.flasck.flas.repository.StackVisitor.leaveFunctionGroup(StackVisitor.java:204)
-	at org.flasck.flas.repository.Traverser.leaveFunctionGroup(Traverser.java:1236)
-	at org.flasck.flas.repository.Traverser.visitFunctionGroup(Traverser.java:664)
-	at org.flasck.flas.repository.Traverser.doTraversal(Traverser.java:199)
-	at org.flasck.flas.repository.Repository.traverseInGroups(Repository.java:395)
-	at org.flasck.flas.compiler.FLASCompiler.doTypeChecking(FLASCompiler.java:155)
-	at org.flasck.flas.Main.doCompilation(Main.java:119)
-	at org.flasck.flas.Main.commonCompiler(Main.java:74)
-	at org.flasck.flas.Main.standardCompiler(Main.java:42)
-	at org.flasck.flas.golden.GoldenCGRunner.runGolden(GoldenCGRunner.java:152)
-	at FunctionsNestedvars.testFunctionsNestedvars(Unknown Source)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
-	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
-	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
-	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
-	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
-	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
-	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
-	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
-	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
-	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
-	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
-	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
-	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
-	at org.junit.runners.Suite.runChild(Suite.java:128)
-	at org.junit.runners.Suite.runChild(Suite.java:27)
-	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
-	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
-	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
-	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
-	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
-	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
-	at org.zinutils.cgharness.CGHarnessRunner.run(CGHarnessRunner.java:50)
-	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:89)
-	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:41)
-	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:542)
-	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:770)
-	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:464)
-	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)
+This is supposed to simulate a typo of "col" for "count"
 
-
-
-
-	f k = value
-		value = more 14
-			more x = x + k
-
-	struct Card
+	struct Thing
 		Number count
-		String rank
-		String suit
 
-These should be in a trait
-
-		String text
-		Boolean err
-
-	card Tableau
-		state
-			List[List[Card]] hidden <- [ [], [], [], [], [], [], [] ]	// 0th is blank
-			List[List[Card]] runs <- [ [], [], [], [], [], [], [] ]		// 7 columns of cards on display (some may be empty lists)
-			List[List[Card]] piles <- [ [], [], [], [] ]
-
+	card Typo
 		event moveIt (ClickEvent ev)
-			| canpile
-				hc.err <- False
-				mypile <- Cons hc mypile.head
-				myrun <- take (length myrun.head - 1) myrun.head
-			| movecol > 0
-				moveRun <- append moveRun.head hc 
-				myrun <- take (length myrun.head - 1) myrun.head
-			|
-				hc.err <- True
-					hc = hccast ev.source
-					canpile = nextCard mypile.head hc
-					mypile = findPile hc
-					myrun = item hc.col runs
-					movecol = findColumn hc
-					moveRun = item movecol runs
+			myrun <- []
+				hc = hccast ev.source
+				myrun = item hc.col ["hello", "world"]
 
-		hccast (Card c) = c
+		hccast (Thing t) = t
 		hccast (Any a) = Error "no"
-		nextCard (List[Card] p) (Card c) = length p == c.count -1
-		findPile (Card c) = item 0 piles
-		findColumn (Card c) = 0

@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -146,6 +147,9 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 			UnifiableType ut = state.createUT(expr.location(), "memberExpr for " + expr.toString());
 			ut.isFieldOf(expr, container, fld.var);
 			announce(expr, ut);
+		} else if (ty instanceof UnionTypeDefn) {
+			errors.message(expr.fld.location(), "cannot access members of unions");
+			announce(expr, new ErrorType());
 //		} else if (expr.from instanceof UnresolvedVar) {
 //			UnresolvedVar var = (UnresolvedVar) expr.from;
 //			errors.message(var.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");

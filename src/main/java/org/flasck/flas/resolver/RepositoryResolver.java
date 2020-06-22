@@ -503,6 +503,8 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			if (method == null)
 				throw new NotImplementedException("no method " + var + " in " + cd);
 			expr.bind((RepositoryEntry) method);
+		} else if (nt instanceof UnionTypeDefn) {
+			errors.message(expr.fld.location(), "cannot access members of unions");
 		} else
 			throw new NotImplementedException("cannot handle member of type " + nt.getClass());
 	}

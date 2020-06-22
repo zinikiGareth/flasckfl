@@ -1,7 +1,7 @@
 badarg.fl:    1.15:   badarg (String  _ s) = s
 badarg.fl:    2.15:   badarg (Number  _ n) = n
                           cannot unify [Number, String]
-badarg.fl:    2.20:   badarg (Number n) =  _ n
+badarg.fl:    1.0:     _ badarg (String s) = s
 badarg.fl:    1.20:   badarg (String s) =  _ s
 badarg.fl:    2.20:   badarg (Number n) =  _ n
                           cannot unify [Number, String]
@@ -17,17 +17,27 @@ fnerrors.fl:  3.6:    f x =  _ "hello" + 3
                           function '+' was expecting Number not String
 guarderrors.  2.2:    |  _ 42 = "hello"
                           guards must be booleans
+listnohead.f  1.0:     _ fn c = c.head
+                          cannot extract field head from primitive type Any
+listnohead.f  3.0:     _ takehead2 = (nth 0 items).head
+                          cannot extract field head from primitive type Number
+listnohead.f  6.14:   takehead3 = h. _ head
+                          cannot access members of unions
+listnohead.f  9.0:     _ takehead4 = (nth 0 things).head
+                          cannot access members of unions
 msgerrors.fl  4.3:    <-  _ "hello"
                           String cannot be a Message
 msgerrors.fl  5.3:    <-  _ Foo
                           test.golden.Foo cannot be a Message
 msgerrors.fl  6.4:    <- [ _ 42]
                           Number cannot be a Message
-recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
+nocol.fl:    10.13:   myrun = item  _ hc.col ["hello", "world"]
+                          there is no field col in test.golden.Thing
+recursionerr  2.0:     _ r1 x = r1 42 + r2 x
 recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
 recursionerr  4.15:   r2 x = r2 x ++  _ r1 x
                           cannot unify [Number, String]
-recursionerr  2.15:   r1 x = r1 42 +  _ r2 x
+recursionerr  4.0:     _ r2 x = r2 x ++ r1 x
 recursionerr  2.15:   r1 x = r1 42 +  _ r2 x
 recursionerr  4.7:    r2 x =  _ r2 x ++ r1 x
                           cannot unify [Number, String]

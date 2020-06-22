@@ -36,7 +36,6 @@ import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.InvalidUsageException;
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.exceptions.ShouldBeError;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 
 public class TypeConstraintSet implements UnifiableType {
@@ -710,7 +709,16 @@ public class TypeConstraintSet implements UnifiableType {
 				}
 			}
 			
-			throw new HaventConsideredThisException("can't extract field '" + ff.fieldName + "' from '" + r + "'");
+			if (r instanceof Primitive) {
+				errors.message(pos, "cannot extract field " + ff.fieldName + " from primitive type " + r.signature());
+				continue;
+			}
+			if (r instanceof UnionTypeDefn) {
+				errors.message(pos, "cannot access members of unions");
+				continue;
+			}
+
+			errors.message(pos, "there is no field " + ff.fieldName + " in " + r.signature());
 		}
 
 		if (resolved.isEmpty()) {
