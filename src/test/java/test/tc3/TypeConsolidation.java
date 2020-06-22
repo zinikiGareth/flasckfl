@@ -34,7 +34,8 @@ public class TypeConsolidation {
 	private final CurrentTCState state = context.mock(CurrentTCState.class);
 	private final NestedVisitor nv = context.mock(NestedVisitor.class);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
-	FunctionDefinition f = new FunctionDefinition(FunctionName.function(pos, null, "f"), 0, null);
+	FunctionName nameF = FunctionName.function(pos, null, "f");
+	FunctionDefinition f = new FunctionDefinition(nameF, 0, null);
 	FunctionIntro fi = new FunctionIntro(f.name(), new ArrayList<Pattern>());
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 
@@ -43,10 +44,10 @@ public class TypeConsolidation {
 		f.intro(fi);
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(FunctionChecker.class)));
+			allowing(state).getMember(nameF);
 		}});
 	}
 	
-
 	@Test
 	public void withNoArgsItsJustASimpleConstant() {
 		FunctionChecker fc = new FunctionChecker(errors, repository, nv, f.name(), state, null);

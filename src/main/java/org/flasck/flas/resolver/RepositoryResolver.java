@@ -541,6 +541,11 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void visitUnresolvedOperator(UnresolvedOperator operator, int nargs) {
+ 		if (operator.op.equals("-") && nargs == 1) {
+ 			operator.bind(LoadBuiltins.unaryMinus);
+ 			return;
+ 		}
+ 		
 		final RepositoryEntry defn = find(operator.location, scope, operator.op);
 		if (defn == null) {
 			errors.message(operator.location, "cannot resolve '" + operator.op + "'");

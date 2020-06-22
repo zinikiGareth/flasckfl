@@ -53,6 +53,7 @@ public class GuardTests {
 	public void allowFC() {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class)));
+			allowing(state).getMember(nameF);
 		}});
 	}
 	

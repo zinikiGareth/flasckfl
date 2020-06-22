@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.TreeOrderVisitor;
+import org.flasck.flas.lifting.DependencyGroup;
 import org.flasck.flas.lifting.FunctionGroupOrdering;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -116,7 +117,9 @@ public class TreeOrderTraversalTests {
 		hsi.get(0).requireCM(LoadBuiltins.cons).consider(fi2);
 		fn.bindHsi(hsi);
 		Sequence seq = context.sequence("order");
+		DependencyGroup grp = new DependencyGroup(fn);
 		context.checking(new Expectations() {{
+			oneOf(v).visitFunctionGroup(grp);
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
@@ -124,6 +127,9 @@ public class TreeOrderTraversalTests {
 			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).patternsDone(fn); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi1); inSequence(seq);
 			oneOf(v).visitCase(fcd1); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
@@ -137,8 +143,9 @@ public class TreeOrderTraversalTests {
 			oneOf(v).leaveCase(fcd2); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi2); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).leaveFunctionGroup(grp);
 		}});
-		t.visitFunction(fn);
+		t.visitFunctionGroup(grp);
 	}
 
 	@Test
@@ -153,7 +160,9 @@ public class TreeOrderTraversalTests {
 		hsi.get(1).requireCM(LoadBuiltins.nil).consider(fi);
 		fn.bindHsi(hsi);
 		Sequence seq = context.sequence("order");
+		DependencyGroup grp = new DependencyGroup(fn);
 		context.checking(new Expectations() {{
+			oneOf(v).visitFunctionGroup(grp);
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
@@ -163,6 +172,9 @@ public class TreeOrderTraversalTests {
 			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).patternsDone(fn); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
 			oneOf(v).visitCase(fcd); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
@@ -170,8 +182,9 @@ public class TreeOrderTraversalTests {
 			oneOf(v).leaveCase(fcd); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).leaveFunctionGroup(grp);
 		}});
-		t.visitFunction(fn);
+		t.visitFunctionGroup(grp);
 	}
 
 	@Test
@@ -191,7 +204,9 @@ public class TreeOrderTraversalTests {
 		hsi.get(1).requireCM(LoadBuiltins.nil).consider(fi);
 		fn.bindHsi(hsi);
 		Sequence seq = context.sequence("order");
+		DependencyGroup grp = new DependencyGroup(fn);
 		context.checking(new Expectations() {{
+			oneOf(v).visitFunctionGroup(grp);
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchConstructor(with(LoadBuiltins.cons)); inSequence(seq);
@@ -208,6 +223,9 @@ public class TreeOrderTraversalTests {
 			oneOf(v).matchConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endConstructor(with(LoadBuiltins.nil)); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).patternsDone(fn); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
 			oneOf(v).visitCase(fcd); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
@@ -215,8 +233,9 @@ public class TreeOrderTraversalTests {
 			oneOf(v).leaveCase(fcd); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).leaveFunctionGroup(grp);
 		}});
-		t.visitFunction(fn);
+		t.visitFunctionGroup(grp);
 	}
 	
 	@Test
@@ -231,11 +250,16 @@ public class TreeOrderTraversalTests {
 		hsi.get(0).addTyped(new TypedPattern(pos, new TypeReference(pos, "Number").bind(LoadBuiltins.number), vx), fi);
 		fn.bindHsi(hsi);
 		Sequence seq = context.sequence("order");
+		DependencyGroup grp = new DependencyGroup(fn);
 		context.checking(new Expectations() {{
+			oneOf(v).visitFunctionGroup(grp);
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchType(LoadBuiltins.number, vx, fi); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("0"))); inSequence(seq);
+			oneOf(v).patternsDone(fn); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi); inSequence(seq);
 			oneOf(v).visitCase(fcd); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
@@ -243,8 +267,9 @@ public class TreeOrderTraversalTests {
 			oneOf(v).leaveCase(fcd); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).leaveFunctionGroup(grp);
 		}});
-		t.visitFunction(fn);
+		t.visitFunctionGroup(grp);
 	}
 
 	@Test
@@ -271,7 +296,9 @@ public class TreeOrderTraversalTests {
 		hsi.get(1).addVar(xp, fi2);
 		fn.bindHsi(hsi);
 		Sequence seq = context.sequence("order");
+		DependencyGroup grp = new DependencyGroup(fn);
 		context.checking(new Expectations() {{
+			oneOf(v).visitFunctionGroup(grp);
 			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).argSlot((ArgSlot) with(SlotMatcher.id("0"))); inSequence(seq);
 			oneOf(v).matchType(LoadBuiltins.number, nn, fi1); inSequence(seq);
@@ -281,6 +308,9 @@ public class TreeOrderTraversalTests {
 			oneOf(v).varInIntro(vn, vp, fi1); inSequence(seq);
 			oneOf(v).varInIntro(xn, xp, fi2); inSequence(seq);
 			oneOf(v).endArg(with(SlotMatcher.id("1"))); inSequence(seq);
+			oneOf(v).patternsDone(fn); inSequence(seq);
+			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).visitFunction(fn); inSequence(seq);
 			oneOf(v).visitFunctionIntro(fi1); inSequence(seq);
 			oneOf(v).visitCase(fcd1); inSequence(seq);
 			oneOf(v).visitExpr(simpleExpr, 0); inSequence(seq);
@@ -294,7 +324,8 @@ public class TreeOrderTraversalTests {
 			oneOf(v).leaveCase(fcd2); inSequence(seq);
 			oneOf(v).leaveFunctionIntro(fi2); inSequence(seq);
 			oneOf(v).leaveFunction(fn); inSequence(seq);
+			oneOf(v).leaveFunctionGroup(grp);
 		}});
-		t.visitFunction(fn);
+		t.visitFunctionGroup(grp);
 	}
 }

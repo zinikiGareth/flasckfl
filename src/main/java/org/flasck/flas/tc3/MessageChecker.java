@@ -145,7 +145,6 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 			rhsType = new ExprResult(rhsType.pos, new ErrorType());
 			return;
 		}
-		rhsType = new ExprResult(rhsType.pos, LoadBuiltins.message);
 	}
 	
 	private ExprResult unpackMembers(Expr toSlot) {

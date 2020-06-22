@@ -126,7 +126,7 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			if (fn.hasType())
 				announce(pos, fn.type());
 			else
-				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName(), fn.name().uniqueName()));
+				announce(pos, state.getMember(fn.name()));
 		} else if (defn instanceof ObjectMethod) {
 			ObjectMethod meth = (ObjectMethod) defn;
 			if (meth.hasType())

@@ -314,6 +314,10 @@ public class FunctionGroupTCState implements CurrentTCState {
 			PolyType ret = new PolyType(curr.location(), new SolidName(curr.name().container(), new String(new char[] { (char)('A' + inorderPolys.size()) })));
 			inorderPolys.put(curr, ret);
 			return ret;
+		} else if (ty instanceof EnsureListMessage) {
+			EnsureListMessage elm = (EnsureListMessage) ty;
+			elm.validate(errors);
+			return elm;
 		} else {
 			return ty;
 		}
@@ -397,7 +401,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		logger.debug("  " + motive + " as " + ut.id());
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
-				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);
+				((TypeConstraintSet) ut).consolidatedApplication(pos, (Apply) t.type);
 			} else
 				ut.sameAs(t.pos, t.type);
 		}
@@ -443,7 +447,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		logger.debug("  allowing " + ut.id() + " to collapse " + types);
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
-				((TypeConstraintSet) ut).consolidatedApplication((Apply) t.type);
+				((TypeConstraintSet) ut).consolidatedApplication(t.pos, (Apply) t.type);
 			} else if (t.type instanceof UnifiableType)
 				ut.acquire((UnifiableType) t.type);
 			else

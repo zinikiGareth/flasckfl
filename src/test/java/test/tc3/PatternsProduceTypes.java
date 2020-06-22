@@ -46,13 +46,14 @@ public class PatternsProduceTypes {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aConstantPatternIsANumber() {
-		context.checking(new Expectations() {{
-			oneOf(sv).push(with(any(FunctionChecker.class)));
-		}});
-		FunctionChecker fc = new FunctionChecker(errors, repository, sv, nameF, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);
 		FunctionIntro fi = new FunctionIntro(nameF, new ArrayList<>());
 		fn.intro(fi);
+		context.checking(new Expectations() {{
+			oneOf(sv).push(with(any(FunctionChecker.class)));
+			oneOf(state).getMember(nameF);
+		}});
+		FunctionChecker fc = new FunctionChecker(errors, repository, sv, nameF, state, null);
 		fc.visitFunction(fn);
 		context.checking(new Expectations() {{
 			oneOf(state).createUT(null, "test.repo.fred slot ArgSlot[0]");
@@ -81,6 +82,7 @@ public class PatternsProduceTypes {
 	public void aStringConstantPatternIsAString() {
 		context.checking(new Expectations() {{
 			oneOf(sv).push(with(any(FunctionChecker.class)));
+			oneOf(state).getMember(nameF);
 		}});
 		FunctionChecker fc = new FunctionChecker(errors, repository, sv, nameF, state, null);
 		FunctionDefinition fn = new FunctionDefinition(nameF, 1, null);

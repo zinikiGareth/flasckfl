@@ -715,37 +715,40 @@ public class TypeConstraintSet implements UnifiableType {
 					acs.add(0);
 			}
 			if (acs.size() != 1) {
-				logger.error("mismatched apply sizes");
+				// cannot unify functions of different arities
+				// or functions with constants
+				logger.error("different apply sizes");
 				for (PosType pt : resolved)
-					logger.error("  " + pt.type);
-				throw new HaventConsideredThisException("mismatched Apply sizes - is this possible?");
-			}
-			Integer cnt = acs.iterator().next();
-			if (cnt != 0) {
-				logger.debug("unifying " + alltys);
-				List<Type> us = new ArrayList<>();
-				for (int i=0;i<=cnt;i++) {
-					Set<Type> ms = new HashSet<>();
-					for (Type t : alltys) {
-						ms.add(((Apply)t).tys.get(i));
+					logger.error("  " + pt.type + " @ " + pt.pos);
+			} else {
+				Integer cnt = acs.iterator().next();
+				if (cnt != 0) {
+					logger.debug("unifying " + alltys);
+					List<Type> us = new ArrayList<>();
+					for (int i=0;i<=cnt;i++) {
+						Set<Type> ms = new HashSet<>();
+						for (Type t : alltys) {
+							ms.add(((Apply)t).tys.get(i));
+						}
+						Type rt = repository.findUnionWith(errors, pos, ms, needAll);
+						if (rt == null)
+							break;
+						us.add(rt);
 					}
-					Type rt = repository.findUnionWith(errors, pos, ms, needAll);
-					if (rt == null)
-						break;
-					us.add(rt);
-				}
-				if (us.size() == cnt+1) {
-					resolvedTo = new Apply(us);
-				}
-			} else
-				resolvedTo = repository.findUnionWith(errors, pos, alltys, needAll);
+					if (us.size() == cnt+1) {
+						resolvedTo = new Apply(us);
+					}
+				} else
+					resolvedTo = repository.findUnionWith(errors, pos, alltys, needAll);
+			}
 			if (resolvedTo == null) {
 				logger.info("could not unify " + this.id);
 				TreeSet<String> tyes = new TreeSet<String>();
 				TreeSet<InputPosition> locs = new TreeSet<>();
 				for (PosType ty : resolved) {
 					tyes.add(ty.type.signature());
-					locs.add(ty.pos);
+					if (ty.pos != null)
+						locs.add(ty.pos);
 				}
 				errors.message(pos, locs, "cannot unify " + tyes);
 				resolvedTo = new ErrorType();
@@ -918,7 +921,7 @@ public class TypeConstraintSet implements UnifiableType {
 		return ret;
 	}
 
-	void consolidatedApplication(Apply a) {
+	void consolidatedApplication(InputPosition pos, Apply a) {
 		List<Type> l = new ArrayList<>(a.tys);
 		Type ret = l.remove(l.size()-1);
 		logger.debug(id + ": have consolidated application " + l + " returning " + ret);

@@ -94,8 +94,9 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
+			oneOf(state).getMember(name);
 		}});
-		GroupChecker gc = new GroupChecker(errors, repository, nv, null, null);
+		GroupChecker gc = new GroupChecker(errors, repository, nv, state, null);
 		gc.visitFunction(new FunctionDefinition(name, 0, null));
 	}
 
@@ -126,7 +127,7 @@ public class StackVisitation {
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
-			allowing(state).requireVarConstraints(pos, "f", "f"); will(returnValue(utf));
+			allowing(state).getMember(name); will(returnValue(utf));
 			oneOf(state).groupDone(with(errors), with(any(Map.class)), with(any(Map.class)));
 //			oneOf(utf).determinedType(new PosType(pos, ty));
 //			oneOf(state).resolveAll(errors, false);
@@ -157,16 +158,16 @@ public class StackVisitation {
 		om.conversion(Arrays.asList(fi));
 		
 		Type ty = context.mock(Type.class);
+		UnifiableType utm = context.mock(UnifiableType.class, "utm");
 		context.checking(new Expectations() {{
 			oneOf(nv).push(with(any(GroupChecker.class)));
 			oneOf(nv).push(with(any(FunctionChecker.class)));
+			allowing(state).getMember(name); will(returnValue(utm));
 		}});
 		GroupChecker gc = new GroupChecker(errors, repository, nv, state, null);
 		gc.visitObjectMethod(om);
 		context.assertIsSatisfied();
-		UnifiableType utm = context.mock(UnifiableType.class, "utm");
 		context.checking(new Expectations() {{
-			allowing(state).requireVarConstraints(pos, "meth", "meth"); will(returnValue(utm));
 			oneOf(state).groupDone(with(errors), with(any(Map.class)), with(any(Map.class)));
 //			oneOf(utm).determinedType(new PosType(pos, ty));
 //			oneOf(state).resolveAll(errors, false);

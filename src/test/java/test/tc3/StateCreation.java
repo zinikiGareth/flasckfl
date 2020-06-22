@@ -14,6 +14,7 @@ import org.flasck.flas.tc3.StructTypeConstraints;
 import org.flasck.flas.tc3.UnifiableType;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +28,13 @@ public class StateCreation {
 	private RepositoryReader repository = context.mock(RepositoryReader.class);
 	private FunctionName fn = FunctionName.function(pos, null, "f");
 
+	@Before
+	public void before() {
+		context.checking(new Expectations() {{
+			allowing(state).getMember(fn);
+		}});
+	}
+	
 	@Test
 	public void aSimpleNoArgConstructorSaysThisMustBeInTheArgType() {
 		UnifiableType arg = context.mock(UnifiableType.class);

@@ -130,6 +130,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition isLE = new FunctionDefinition(FunctionName.function(pos, null, "<="), 2, null);
 	public static final FunctionDefinition isLT = new FunctionDefinition(FunctionName.function(pos, null, "<"), 2, null);
 	public static final FunctionDefinition plus = new FunctionDefinition(FunctionName.function(pos, null, "+"), 2, null);
+	public static final FunctionDefinition unaryMinus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 1, null);
 	public static final FunctionDefinition minus = new FunctionDefinition(FunctionName.function(pos, null, "-"), 2, null);
 	public static final FunctionDefinition mul = new FunctionDefinition(FunctionName.function(pos, null, "*"), 2, null);
 	public static final FunctionDefinition div = new FunctionDefinition(FunctionName.function(pos, null, "/"), 2, null);
@@ -257,6 +258,7 @@ public class LoadBuiltins {
 		isLT.bindType(new Apply(number, number, bool));
 		isType.bindType(new Apply(type, any, bool));
 		plus.bindType(new Apply(number, number, number));
+		unaryMinus.bindType(new Apply(number, number));
 		minus.bindType(new Apply(number, number, number));
 		mul.bindType(new Apply(number, number, number));
 		div.bindType(new Apply(number, number, number));
@@ -287,6 +289,7 @@ public class LoadBuiltins {
 		allFunctions.add(isLT);
 		allFunctions.add(isType);
 		allFunctions.add(plus);
+		allFunctions.add(unaryMinus);
 		allFunctions.add(minus);
 		allFunctions.add(mul);
 		allFunctions.add(div);

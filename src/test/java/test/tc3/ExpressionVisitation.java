@@ -196,13 +196,14 @@ public class ExpressionVisitation {
 	public void aRecursiveFunctionCallAsksTheStateForItsType() {
 		NestedVisitor nv = context.mock(NestedVisitor.class);
 		UnifiableType ut = context.mock(UnifiableType.class);
+		FunctionName nameF = FunctionName.function(pos, null, "f");
 		context.checking(new Expectations() {{
-			oneOf(state).requireVarConstraints(pos, fnCxt, "f"); will(returnValue(ut));
+			oneOf(state).getMember(nameF); will(returnValue(ut));
 			oneOf(nv).result(with(ExprResultMatcher.expr(Matchers.is(ut))));
 		}});
 		ExpressionChecker tc = new ExpressionChecker(errors, repository, state, nv, fnCxt, false);
 		UnresolvedVar uv = new UnresolvedVar(pos, "f");
-		FunctionDefinition fnF = new FunctionDefinition(FunctionName.function(pos, null, "f"), 1, null);
+		FunctionDefinition fnF = new FunctionDefinition(nameF, 1, null);
 		uv.bind(fnF);
 		tc.visitUnresolvedVar(uv, 0);
 	}

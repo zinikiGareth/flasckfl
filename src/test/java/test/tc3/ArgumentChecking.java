@@ -18,15 +18,15 @@ public class ArgumentChecking {
 	private CurrentTCState state = context.mock(CurrentTCState.class);
 	private NestedVisitor nv = context.mock(NestedVisitor.class);
 	private UnifiableType ut = context.mock(UnifiableType.class);
-	private SlotChecker tc = new SlotChecker(nv, null, state, ut);
 	private InputPosition pos = new InputPosition("-", 1, 0, "hello");
 	private FunctionName fn = FunctionName.function(pos, null, "f");
 	private String fnCxt = "f";
+	private SlotChecker tc = new SlotChecker(nv, fn, state, ut);
 
 	@Test
 	public void aNoArgConstructorIsHandled() {
 		context.checking(new Expectations() {{
-			oneOf(ut).canBeStruct(null, null, LoadBuiltins.nil);
+			oneOf(ut).canBeStruct(null, fn, LoadBuiltins.nil);
 		}});
 		tc.matchConstructor(LoadBuiltins.nil);
 	}
@@ -34,7 +34,7 @@ public class ArgumentChecking {
 	@Test
 	public void aMultiArgConstructorIsHandled() {
 		context.checking(new Expectations() {{
-			oneOf(ut).canBeStruct(null, null, LoadBuiltins.cons);
+			oneOf(ut).canBeStruct(null, fn, LoadBuiltins.cons);
 		}});
 		tc.matchConstructor(LoadBuiltins.cons);
 	}
@@ -42,7 +42,7 @@ public class ArgumentChecking {
 	@Test
 	public void aFieldEntersANewLevel() {
 		context.checking(new Expectations() {{
-			oneOf(ut).canBeStruct(null, null, LoadBuiltins.cons);
+			oneOf(ut).canBeStruct(null, fn, LoadBuiltins.cons);
 			oneOf(nv).push(with(any(SlotChecker.class)));
 		}});
 		tc.matchConstructor(LoadBuiltins.cons);

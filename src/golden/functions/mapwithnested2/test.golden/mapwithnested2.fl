@@ -1,5 +1,5 @@
 	findColumn (String s)
-		| length opts == 0 = -1
+		| length opts == 0 = False
 		| = head opts
 			opts = map consider [["hello", "world"],["goodbye"]] 
 			consider [] = s == "hello"
