@@ -285,9 +285,13 @@ public class TypeConstraintSet implements UnifiableType {
 	public void acquire(UnifiableType ut) {
 		if (ut == this)
 			return;
+		if (isRedirected()) {
+			redirectedTo().acquire(ut);
+			return;
+		}
 		TypeConstraintSet tcs = (TypeConstraintSet)ut;
 		if (tcs.redirectedTo != null) {
-			acquire(tcs.redirectedTo);
+			acquire(tcs.redirectedTo());
 			return;
 		}
 		tcs.redirectedTo = this;

@@ -151,6 +151,8 @@ public class LoadBuiltins {
 	public static final FunctionDefinition makeTuple = new FunctionDefinition(FunctionName.function(pos, null, "()"), -1, null);
 	public static final FunctionDefinition handleSend = new FunctionDefinition(FunctionName.function(pos, null, "->"), 2, null);
 	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, null, "dispatch"), 1, null);
+	public static final FunctionDefinition show = new FunctionDefinition(FunctionName.function(pos, null, "show"), 1, null);
+	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, null, "expr"), 1, null);
 
 	static {
 		// bind TRs
@@ -280,6 +282,8 @@ public class LoadBuiltins {
 		handleSend.bindType(new Apply(new Apply(contract, send), contract, send)); // TODO: "contract" arg (in both places) should be specifically "Handler" I think
 		dispatch.bindType(new Apply(listMessages, listMessages));
 		dispatch.restrict(new UTOnlyRestriction("dispatch"));
+		show.bindType(new Apply(any, string));
+		expr.bindType(new Apply(any, string));
 		
 		// add all current functions to list for dependency resolution
 		allFunctions.add(isEqual);
@@ -308,6 +312,8 @@ public class LoadBuiltins {
 		allFunctions.add(concat);
 		allFunctions.add(concatLists);
 		allFunctions.add(handleSend);
+		allFunctions.add(show);
+		allFunctions.add(expr);
 		
 		// should only be in UTs
 		allFunctions.add(dispatch);
@@ -369,6 +375,8 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, makeTuple);
 		repository.functionDefn(errors, handleSend);
 		repository.functionDefn(errors, dispatch);
+		repository.functionDefn(errors, show);
+		repository.functionDefn(errors, expr);
 
 		// not yet thought through for backward compatibility
 		StructDefn card = new StructDefn(pos, FieldsType.STRUCT, null, "Card", false);

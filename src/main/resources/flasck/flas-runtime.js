@@ -574,6 +574,12 @@ FLContext.prototype.newdiv = function(cnt) {
 	this.env.newdiv(cnt);
 }
 
+// show value or expr depending on whether individual nodes are evaluated or not
+FLContext.prototype.show = function(val) {
+// HACK !  We should map it into a string repn properly
+	return "" + val;
+}
+
 
 const FLCard = function(cx) {
     this._renderTree = null;
@@ -1355,6 +1361,17 @@ FLBuiltin.dispatch = function(_cxt, msgs) {
 }
 FLBuiltin.dispatch.nfargs = function() { return 1; }
 
+FLBuiltin.show = function(_cxt, val) {
+	val = _cxt.full(val);
+	return _cxt.show(val);
+}
+FLBuiltin.show.nfargs = function() { return 1; }
+
+FLBuiltin.expr = function(_cxt, val) {
+	return _cxt.show(val);
+}
+FLBuiltin.expr.nfargs = function() { return 1; }
+
 
 
 const FLEvent = function() {
@@ -1417,6 +1434,7 @@ Debug.prototype._compare = function(cx, other) {
 		return false;
 }
 Debug.prototype.dispatch = function(cx) {
+	this.msg = cx.full(this.msg);
 	cx.log(this.msg);
 	return null;
 }
