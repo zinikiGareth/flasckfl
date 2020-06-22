@@ -1,0 +1,3 @@
+	f (Cons[Cons[String]] as) (Cons[Cons[String]] bs) = concatLists [a1.head, b1.head]
+		a1 = item 0 (as.tail)
+		b1 = item 0 (bs.tail)

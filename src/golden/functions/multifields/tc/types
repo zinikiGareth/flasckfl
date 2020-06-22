@@ -1,0 +1,3 @@
+test.golden.f :: Cons[Cons[String]]->Cons[Cons[String]]->List[A]
+test.golden.f._1.a1 :: Cons[Cons[String]]->AssignItem[Cons[String]]
+test.golden.f._1.b1 :: Cons[Cons[String]]->AssignItem[Cons[String]]
