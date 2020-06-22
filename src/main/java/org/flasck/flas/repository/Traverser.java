@@ -192,7 +192,7 @@ public class Traverser implements RepositoryVisitor {
 					try {
 						visitFunctionGroup(grp);
 					} catch (DeferMeException ex) {
-						patternsLogger.warn("aborted processing " + ex.getMessage());
+						patternsLogger.warn("aborted processing " + ex.toString());
 						((StackVisitor)visitor).reduceTo(1);
 						undone.add(grp);
 					}
