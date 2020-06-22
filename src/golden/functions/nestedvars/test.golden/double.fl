@@ -6,7 +6,7 @@ Specifically, ev is needed in the call to moveRun to pass to movecol to pass to 
 	moveIt ev = moveRun.head
 		hc = hccast ev
 		movecol = findColumn hc
-		moveRun = item movecol []
+		moveRun = item movecol ["hello"]
 
 	hccast (Number n) = n
 	hccast (Any a) = Error "no"

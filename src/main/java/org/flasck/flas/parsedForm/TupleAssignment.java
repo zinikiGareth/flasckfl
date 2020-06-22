@@ -34,6 +34,11 @@ public class TupleAssignment implements RepositoryEntry, LogicHolder, TypeBinder
 		this.expr = expr;
 	}
 
+	@Override
+	public boolean generate() {
+		return true;
+	}
+	
 	public FunctionName name() {
 		return exprFnName;
 	}

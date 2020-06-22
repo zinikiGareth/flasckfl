@@ -30,6 +30,11 @@ public class StandaloneMethod implements RepositoryEntry, LogicHolder, TypeBinde
 	}
 
 	@Override
+	public boolean generate() {
+		return om.generate;
+	}
+	
+	@Override
 	public boolean isMyName(NameOfThing other) {
 		return om.isMyName(other);
 	}

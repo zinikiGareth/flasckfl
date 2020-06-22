@@ -2,5 +2,5 @@ test.golden.findColumn :: Number->Number
 test.golden.hccast :: Any->Number
 test.golden.moveIt :: Any->A
 test.golden.moveIt._1.hc :: Any->Number
-test.golden.moveIt._1.moveRun :: Any->AssignItem[Any]
+test.golden.moveIt._1.moveRun :: Any->AssignItem[String]
 test.golden.moveIt._1.movecol :: Any->Number

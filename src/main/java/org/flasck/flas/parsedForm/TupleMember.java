@@ -31,6 +31,11 @@ public class TupleMember implements Locatable, RepositoryEntry, LogicHolder, Com
 	}
 
 	@Override
+	public boolean generate() {
+		return true;
+	}
+	
+	@Override
 	public InputPosition location() {
 		return location;
 	}

@@ -638,6 +638,8 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
+		if (grp.size() == 1 && !grp.functions().iterator().next().generate())
+			return;
 		visitor.visitFunctionGroup(grp);
 		// visit the patterns for all the cases first
 		patternsLogger.debug("processing patterns for " + grp);
@@ -646,9 +648,14 @@ public class Traverser implements RepositoryVisitor {
 				visitor.visitFunction((FunctionDefinition) sd);
 			else if (sd instanceof ObjectCtor)
 				visitor.visitObjectCtor((ObjectCtor) sd);
-			else if (sd instanceof ObjectMethod)
-				visitor.visitObjectMethod((ObjectMethod) sd);
-			else if (sd instanceof StandaloneMethod) {
+			else if (sd instanceof ObjectMethod) {
+				ObjectMethod meth = (ObjectMethod) sd;
+				visitor.visitObjectMethod(meth);
+				if (meth.args().isEmpty() && !meth.hasMessages()) {
+					visitor.leaveObjectMethod(meth);
+					continue;
+				}
+			} else if (sd instanceof StandaloneMethod) {
 				visitor.visitStandaloneMethod((StandaloneMethod) sd);
 				visitor.visitObjectMethod(((StandaloneMethod) sd).om);
 			} else if (sd instanceof TupleAssignment || sd instanceof TupleMember)
@@ -660,9 +667,19 @@ public class Traverser implements RepositoryVisitor {
 				visitor.leaveFunction((FunctionDefinition) sd);
 			else if (sd instanceof ObjectCtor)
 				visitor.leaveObjectCtor((ObjectCtor) sd);
-			else if (sd instanceof ObjectMethod)
-				visitor.leaveObjectMethod((ObjectMethod) sd);
-			else if (sd instanceof StandaloneMethod) {
+			else if (sd instanceof ObjectMethod) {
+				ObjectMethod meth = (ObjectMethod) sd;
+				if (wantEventSources && meth.isEvent()) {
+					for (Template e : meth.eventSourceExprs()) {
+						visitEventSource(e);
+					}
+				}
+				if (!meth.args().isEmpty() || meth.hasMessages()) {
+					if (meth.hasImplements() && meth.getImplements() instanceof HandlerImplements)
+						traverseHandlerLambdas((HandlerImplements)meth.getImplements());
+				}
+				visitor.leaveObjectMethod(meth);
+			} else if (sd instanceof StandaloneMethod) {
 				visitor.leaveObjectMethod(((StandaloneMethod) sd).om);
 				visitor.leaveStandaloneMethod((StandaloneMethod) sd);
 			}
@@ -704,13 +721,8 @@ public class Traverser implements RepositoryVisitor {
 			return;
 		currFnHasState = meth.hasState();
 		visitor.visitObjectMethod(meth);
-		if (wantEventSources && meth.isEvent()) {
-			for (Template e : meth.eventSourceExprs()) {
-				visitEventSource(e);
-			}
-		}
 		if (!meth.args().isEmpty() || meth.hasMessages()) {
-			if (meth.hasImplements() && meth.getImplements() instanceof HandlerImplements)
+			if (functionOrder == null && meth.hasImplements() && meth.getImplements() instanceof HandlerImplements)
 				traverseHandlerLambdas((HandlerImplements)meth.getImplements());
 			traverseFnOrMethod(meth);
 		}
@@ -803,8 +815,11 @@ public class Traverser implements RepositoryVisitor {
 			throw new NotImplementedException("We should not call visitLogic from visitHSI");
 		
 		if (fn instanceof FunctionDefinition) {
-			for (FunctionIntro i : ((FunctionDefinition) fn).intros())
+			for (FunctionIntro i : ((FunctionDefinition) fn).intros()) {
+				if (functionOrder != null)
+					patternsLogger.debug("processing intro " + i);
 				visitFunctionIntro(i);
+			}
 		} else if (fn instanceof ObjectActionHandler) {
 			if (functionOrder == null)
 				visitPatterns((PatternsHolder)fn);

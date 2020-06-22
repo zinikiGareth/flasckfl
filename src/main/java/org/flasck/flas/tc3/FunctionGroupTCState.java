@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +90,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		if (!allUTs.contains(ty))
 			throw new NotImplementedException("Where did this come from?");
 		if (constraints.contains(fnCxt, name))
-			throw new CantHappenException("duplicate name for one var: " + name);
+			throw new CantHappenException("duplicate name for one var: " + name + " in " + fnCxt);
 		logger.info("binding " + fnCxt + " :: " + name + " to " + ty.id());
 		constraints.add(fnCxt, name, ty);
 	}
@@ -218,7 +219,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		// Then we can bind the types
 		logger.debug("binding group:");
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
-			Type as = cleanUTs(errors, e.getValue().pos, e.getValue().type, new ArrayList<>());
+			Type as = cleanUTs(errors, e.getValue().pos, e.getValue().type, new ArrayList<>(), new HashMap<>());
 			logger.debug(e.getKey() + " :: " + as);
 			TypeChecker.logger.info(e.getKey() + " :: " + as);
 			e.getKey().bindType(as);
@@ -275,7 +276,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		return ret;
 	}
 
-	private Type cleanUTs(ErrorReporter errors, InputPosition pos, Type ty, List<UnifiableType> recs) {
+	private Type cleanUTs(ErrorReporter errors, InputPosition pos, Type ty, List<UnifiableType> recs, Map<PolyType, PolyType> inorderPolys) {
 		logger.debug("Cleaning " + ty + " " + ty.getClass());
 //		if (ty instanceof EnsureListMessage)
 //			((EnsureListMessage)ty).validate(errors);
@@ -283,7 +284,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			List<UnifiableType> dontUse = new ArrayList<>(recs);
 			UnifiableType ut = (UnifiableType)ty;
 			dontUse.add(ut);
-			return cleanUTs(errors, pos, ut.resolvedTo(), dontUse);
+			return cleanUTs(errors, pos, ut.resolvedTo(), dontUse, inorderPolys);
 		} else if (ty instanceof Apply) {
 			Apply a = (Apply) ty;
 			List<Type> tys = new ArrayList<>();
@@ -292,7 +293,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 					errors.message(pos, "circular polymorphic type inferred");
 					return new ErrorType();
 				}
-				tys.add(cleanUTs(errors, pos, t, recs));
+				tys.add(cleanUTs(errors, pos, t, recs, inorderPolys));
 			}
 			return new Apply(tys);
 		} else if (ty instanceof PolyInstance) {
@@ -303,9 +304,16 @@ public class FunctionGroupTCState implements CurrentTCState {
 					errors.message(pos, "circular polymorphic type inferred");
 					return new ErrorType();
 				}
-				polys.add(cleanUTs(errors, pos, t, recs));
+				polys.add(cleanUTs(errors, pos, t, recs, inorderPolys));
 			}
-			return new PolyInstance(pi.location(), (NamedType) cleanUTs(errors, pos, pi.struct(), recs), polys);
+			return new PolyInstance(pi.location(), (NamedType) cleanUTs(errors, pos, pi.struct(), recs, inorderPolys), polys);
+		} else if (ty instanceof PolyType) {
+			if (inorderPolys.containsKey(ty))
+				return inorderPolys.get(ty);
+			PolyType curr = (PolyType) ty;
+			PolyType ret = new PolyType(curr.location(), new SolidName(curr.name().container(), new String(new char[] { (char)('A' + inorderPolys.size()) })));
+			inorderPolys.put(curr, ret);
+			return ret;
 		} else {
 			return ty;
 		}

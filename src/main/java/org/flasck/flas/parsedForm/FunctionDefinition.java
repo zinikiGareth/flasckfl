@@ -44,6 +44,11 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 		this.generate = false;
 	}
 
+	@Override
+	public boolean generate() {
+		return this.generate;
+	}
+	
 	public void intro(FunctionIntro next) {
 		this.intros.add(next);
 		attachMeToPatternVars(next);

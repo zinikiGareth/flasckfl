@@ -13,7 +13,6 @@ public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 	public final FunctionIntro intro;
 	public final Expr guard;
 	public final Expr expr;
-	private FunctionName caseName;
 
 	public FunctionCaseDefn(Expr guard, Expr expr) {
 		this.intro = null;
@@ -36,16 +35,6 @@ public class FunctionCaseDefn implements Locatable, FunctionNameProvider {
 		return intro.name();
 	}
 
-	public void provideCaseName(FunctionName name) {
-		this.caseName = name;
-	}
-
-	public FunctionName caseName() {
-		if (caseName == null)
-			throw new UtilException("Asked for caseName when none provided");
-		return caseName;
-	}
-	
 	public void dumpTo(Writer pw) throws Exception {
 		pw.append(" ");
 		for (Object o : intro.args) {

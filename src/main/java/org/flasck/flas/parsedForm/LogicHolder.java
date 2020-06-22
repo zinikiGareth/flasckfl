@@ -21,4 +21,5 @@ public interface LogicHolder extends Locatable, Comparable<LogicHolder> {
 	boolean isMyName(NameOfThing other);
 	StateHolder state();
 	boolean isObjAccessor();
+	boolean generate();
 }

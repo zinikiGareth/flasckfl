@@ -1,4 +1,4 @@
 test.golden.atrimEnd :: List[List[A]]->List[List[A]]
 test.golden.ordef :: List[A]->Number->Number
-test.golden.recurse :: A->List[List[Any]]->List[List[Any]]
+test.golden.recurse :: Any->List[List[A]]->List[List[A]]
 test.golden.twovar :: List[A]->List[A]->List[A]

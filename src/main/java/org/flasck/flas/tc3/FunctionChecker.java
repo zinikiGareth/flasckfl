@@ -54,7 +54,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private final CurrentTCState state;
 	private final ObjectActionHandler inMeth;
 	private final ContractSlotChecker csc;
-	private final FunctionName name;
+	private FunctionName name;
 
 	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, FunctionName name, CurrentTCState state, ObjectActionHandler inMeth) {
 		this.errors = errors;
@@ -75,7 +75,6 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			for (Type ti : sl)
 				argTypes.add(new PosType(null, ti));
 		}
-		System.out.println(name.uniqueName() + ": argTypes = " + argTypes);
 	}
 	
 	@Override
@@ -163,6 +162,11 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		state.recordMember(fn.name(), ats);
 	}
 
+	@Override
+	public void visitFunctionIntro(FunctionIntro fi) {
+		name = fi.name();
+	}
+	
 	@Override
 	public void visitCase(FunctionCaseDefn fcd) {
 		sv.push(new ExpressionChecker(errors, repository, state, sv, name.uniqueName(), false));

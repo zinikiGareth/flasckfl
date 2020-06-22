@@ -52,8 +52,9 @@ public class PatternAnalyzer extends LeafAdapter {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		logger.info("analyzing " + meth.name().uniqueName() + " with " + meth.argCount() + " total patterns");
-		hsiTree = new HSIArgsTree(meth.argCount() + (meth.handler != null ? 1 : 0));
+		int quant = meth.argCount() + (meth.handler != null ? 1 : 0);
+		logger.info("analyzing " + meth.name().uniqueName() + " with " + quant + " total patterns");
+		hsiTree = new HSIArgsTree(quant);
 		nslot = 0;
 		current = null;
 		hsiTree.consider(null);

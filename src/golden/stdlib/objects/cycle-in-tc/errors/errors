@@ -1,2 +1,2 @@
-cycle.fl:     2.12:   genlist k =  _ append k (genlist (k-1))
+cycle.fl:     1.0:     _ genlist 0 = []
                           cycle detected in type

@@ -120,13 +120,13 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			if (tm.type() != null)
 				announce(pos, tm.type());
 			else
-				announce(pos, state.requireVarConstraints(tm.location(), fnCxt, tm.name().uniqueName()));
+				announce(pos, state.requireVarConstraints(tm.location(), tm.name().uniqueName(), tm.name().uniqueName()));
 		} else if (defn instanceof StandaloneMethod) {
 			StandaloneMethod fn = (StandaloneMethod) defn;
 			if (fn.hasType())
 				announce(pos, fn.type());
 			else
-				announce(pos, state.requireVarConstraints(fn.location(), fnCxt, fn.name().uniqueName()));
+				announce(pos, state.requireVarConstraints(fn.location(), fn.name().uniqueName(), fn.name().uniqueName()));
 		} else if (defn instanceof ObjectMethod) {
 			ObjectMethod meth = (ObjectMethod) defn;
 			if (meth.hasType())

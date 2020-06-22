@@ -33,6 +33,11 @@ public class ObjectMethod extends ObjectActionHandler implements HandlerHolder, 
 		this.generate = false;
 	}
 
+	@Override
+	public boolean generate() {
+		return this.generate;
+	}
+	
 	public void eventFor(EventHolder card) {
 		this.eventCard = card;
 	}

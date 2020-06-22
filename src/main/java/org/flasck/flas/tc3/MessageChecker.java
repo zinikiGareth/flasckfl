@@ -81,7 +81,6 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	private final ErrorReporter errors;
 	private final CurrentTCState state;
 	private final NestedVisitor sv;
-	private final String fnCxt;
 	private final ObjectActionHandler inMeth;
 	private final AssignMessage assign;
 	private ExprResult rhsType;
@@ -90,7 +89,6 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		this.errors = errors;
 		this.state = state;
 		this.sv = sv;
-		this.fnCxt = fnCxt;
 		this.inMeth = inMeth;
 		this.assign = assign;
 		sv.push(this);

@@ -1,6 +1,6 @@
-multiple.fl: 20.19:   func (Cons[A] l) =  _ CaseB
+multiple.fl: 19.0:     _ func [] = CaseC
 multiple.fl: 19.10:   func [] =  _ CaseC
 multiple.fl: 20.19:   func (Cons[A] l) =  _ CaseB
                           cannot unify [test.golden.CaseB, test.golden.CaseC]
-multiple.fl: 20.19:   func (Cons[A] l) =  _ CaseB
+multiple.fl: 19.0:     _ func [] = CaseC
                           multiple unions match [test.golden.CaseB, test.golden.CaseC]: [test.golden.OptionA, test.golden.OptionB]
