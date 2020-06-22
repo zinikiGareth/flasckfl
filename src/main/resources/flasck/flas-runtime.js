@@ -1115,6 +1115,13 @@ FLBuiltin.minus = function(_cxt, a, b) {
 
 FLBuiltin.minus.nfargs = function() { return 2; }
 
+FLBuiltin.unaryMinus = function(_cxt, a) {
+	a = _cxt.full(a);
+	return -a;
+}
+
+FLBuiltin.unaryMinus.nfargs = function() { return 1; }
+
 FLBuiltin.mul = function(_cxt, a, b) {
 	a = _cxt.full(a);
 	b = _cxt.full(b);
@@ -1643,6 +1650,14 @@ Random._ctor_seed = function(_cxt, _card, s) {
     return new ResponseWithMessages(_cxt, ret, []);
 }
 Random._ctor_seed.nfargs = function() { return 2; }
+
+Random._ctor_unseeded = function(_cxt, _card) {
+    const ret = new Random(_cxt, _card);
+    var seed = Math.random()*0xFFFFFFFF;
+    ret.generateNext = xoshiro128(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
+    return new ResponseWithMessages(_cxt, ret, []);
+}
+Random._ctor_unseeded.nfargs = function() { return 1; }
 
 Random.prototype.next = function(_cxt, quant) {
     while (this.buffer.length < quant)

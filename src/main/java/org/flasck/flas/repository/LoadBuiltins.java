@@ -91,6 +91,7 @@ public class LoadBuiltins {
 	// Random
 	public static final ObjectDefn random = new ObjectDefn(pos, pos, new SolidName(null, "Random"), false, new ArrayList<>());
 	private static ObjectCtor randomSeed;
+	private static ObjectCtor randomUnseeded;
 	static ObjectAccessor randomNext;
 	static ObjectMethod randomUsed;
 	
@@ -215,22 +216,35 @@ public class LoadBuiltins {
 
 		// add methods to objects
 		{
-			FunctionName ctorSeed = FunctionName.objectCtor(pos, random.name(), "seed");
-			randomSeed = new ObjectCtor(pos, random, ctorSeed, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, ctorSeed, "seed"))));
-			randomSeed.dontGenerate();
-			randomSeed.bindType(new Apply(number, random));
-			random.addConstructor(randomSeed);
-			FunctionName afn = FunctionName.function(pos, random.name(), "next");
-			FunctionDefinition acor = new FunctionDefinition(afn, 1, random);
-			acor.bindType(new Apply(number, new PolyInstance(pos, list, Arrays.asList(number))));
-			randomNext = new ObjectAccessor(random, acor);
-			randomNext.dontGenerate();
-			random.addAccessor(randomNext);
-			FunctionName used = FunctionName.objectMethod(pos, random.name(), "used");
-			randomUsed = new ObjectMethod(pos, used, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, ctorSeed, "quant"))), null, random);
-			randomUsed.dontGenerate();
-			randomUsed.bindType(new Apply(number, listMessages));
-			random.addMethod(randomUsed);
+			{
+				FunctionName ctorSeed = FunctionName.objectCtor(pos, random.name(), "seed");
+				randomSeed = new ObjectCtor(pos, random, ctorSeed, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, ctorSeed, "seed"))));
+				randomSeed.dontGenerate();
+				randomSeed.bindType(new Apply(number, random));
+				random.addConstructor(randomSeed);
+			}
+			{
+				FunctionName ctorUnseeded = FunctionName.objectCtor(pos, random.name(), "unseeded");
+				randomUnseeded = new ObjectCtor(pos, random, ctorUnseeded, new ArrayList<>());
+				randomUnseeded.dontGenerate();
+				randomUnseeded.bindType(random);
+				random.addConstructor(randomUnseeded);
+			}
+			{
+				FunctionName afn = FunctionName.function(pos, random.name(), "next");
+				FunctionDefinition acor = new FunctionDefinition(afn, 1, random);
+				acor.bindType(new Apply(number, new PolyInstance(pos, list, Arrays.asList(number))));
+				randomNext = new ObjectAccessor(random, acor);
+				randomNext.dontGenerate();
+				random.addAccessor(randomNext);
+			}
+			{
+				FunctionName used = FunctionName.objectMethod(pos, random.name(), "used");
+				randomUsed = new ObjectMethod(pos, used, Arrays.asList(new TypedPattern(pos, numberTR, new VarName(pos, used, "quant"))), null, random);
+				randomUsed.dontGenerate();
+				randomUsed.bindType(new Apply(number, listMessages));
+				random.addMethod(randomUsed);
+			}
 		}
 		
 		// add methods to contracts
@@ -337,6 +351,7 @@ public class LoadBuiltins {
 		
 		repository.newObject(errors, random);
 		repository.newObjectMethod(errors, randomSeed);
+		repository.newObjectMethod(errors, randomUnseeded);
 		repository.newObjectAccessor(errors, randomNext);
 		repository.newObjectMethod(errors, randomUsed);
 

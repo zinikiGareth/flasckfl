@@ -19,6 +19,8 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.AccessorHolder;
 import org.flasck.flas.parsedForm.FieldAccessor;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -690,14 +692,25 @@ public class TypeConstraintSet implements UnifiableType {
 			if (r instanceof ErrorType) {
 				resolvedTo = r;
 				return r;
-			} else if (r instanceof AccessorHolder) {
+			}
+			if (r instanceof ObjectDefn) {
+				ObjectDefn od = (ObjectDefn) r;
+				ObjectMethod meth = od.getMethod(ff.fieldName);
+				if (meth != null) {
+					resolved.add(new PosType(pos, meth.type()));
+					continue;
+				}
+			}
+			if (r instanceof AccessorHolder) {
 				AccessorHolder ah = (AccessorHolder) r;
 				FieldAccessor f = ah.getAccessor(ff.fieldName);
-				if (f == null)
-					throw new ShouldBeError("there isn't a '" + ff.fieldName + "'");
-				resolved.add(new PosType(pos, f.type()));
-			} else
-				throw new HaventConsideredThisException("can't extract field '" + ff.fieldName + "' from '" + r + "'");
+				if (f != null) {
+					resolved.add(new PosType(pos, f.type()));
+					continue;
+				}
+			}
+			
+			throw new HaventConsideredThisException("can't extract field '" + ff.fieldName + "' from '" + r + "'");
 		}
 
 		if (resolved.isEmpty()) {

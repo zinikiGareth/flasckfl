@@ -286,7 +286,10 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		case "+":
 			return "FLBuiltin.plus";
 		case "-":
-			return "FLBuiltin.minus";
+			if (nargs == 2)
+				return "FLBuiltin.minus";
+			else
+				return "FLBuiltin.unaryMinus";
 		case "*":
 			return "FLBuiltin.mul";
 		case "/":
