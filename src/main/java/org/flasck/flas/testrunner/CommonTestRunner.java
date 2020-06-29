@@ -52,6 +52,7 @@ public abstract class CommonTestRunner {
 					if (trd == null) {
 						pw = new TestResultWriter(false, System.out);
 					} else {
+						FileUtils.assertDirectory(trd);
 						File out = new File(trd, FileUtils.ensureExtension(f.getName(), ".tr"));
 						try {
 							pw = new TestResultWriter(true, out);
@@ -59,7 +60,8 @@ public abstract class CommonTestRunner {
 							config.errors.message(((InputPosition)null), "cannot create output file " + out);
 						}
 					}
-					writers.put(f, pw);
+					if (pw != null)
+						writers.put(f, pw);
 				}
 			}
 
