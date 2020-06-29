@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
+import org.flasck.flas.assembler.FLASAssembler;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.compiler.PhaseTo;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
 import org.zinutils.streamedlogger.api.Level;
+import org.zinutils.utils.FileUtils;
 
 public class Main {
 	public static void main(String[] args) {
@@ -136,6 +138,21 @@ public class Main {
 		if (compiler.runUnitTests(config))
 			return null;
 
+		if (config.html != null) {
+			try (FileWriter fos = new FileWriter(config.html)) {
+				// we need stdlib to be distributed with the compiler
+				// it should be in a relative directory
+				File fldir = new File(config.root, "flascklib/js");
+				FileUtils.cleanDirectory(fldir);
+				FileUtils.assertDirectory(fldir);
+				for (File f : FileUtils.findFilesMatching(new File(config.flascklib), "*")) {
+					FileUtils.copy(f, fldir);
+				}
+				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
+				compiler.generateHTML(asm, config.html);
+			}
+		}
+		
 		return compiler;
 	}
 
@@ -144,7 +161,7 @@ public class Main {
 		StaticLoggerBinder.setLevel("Lifter", Level.WARN);
 		StaticLoggerBinder.setLevel("Patterns", Level.WARN);
 		StaticLoggerBinder.setLevel("TOPatterns", Level.WARN);
-		StaticLoggerBinder.setLevel("TypeChecker", Level.DEBUG);
+		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
 		StaticLoggerBinder.setLevel("TCUnification", Level.WARN);
 		StaticLoggerBinder.setLevel("HSI", Level.WARN);
 		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);

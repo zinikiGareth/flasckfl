@@ -15,13 +15,14 @@ public class Configuration {
 	public boolean unitjvm = true, unitjs = true;
 	public boolean dumpTypes;
 	private List<File> searchFlim = new ArrayList<>();
-	private File root;
+	File root;
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
 	public boolean generateJVM = true;
 	public File writeFlim;
 	public File writeHSIE;
 	public File writeJS;
+	public File html;
 //	private File writeDroid;
 	public File writeJVM;
 //	private boolean buildDroid = true;
@@ -35,6 +36,7 @@ public class Configuration {
 	private String jstestdir;
 	public String specifiedTestName;
 	public AssemblyVisitor storer;
+	public String flascklib; // needs a default relative to me
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
@@ -64,6 +66,12 @@ public class Configuration {
 					}
 					// was processed above
 					++i;
+				} else if (arg.equals("--flascklib")) {
+					if (hasMore == 0) {
+						System.out.println("--errors <dir>");
+						System.exit(1);
+					}
+					this.flascklib = args[++i]; // definitely NOT under root 
 				} else if (arg.equals("--phase"))
 					upto = PhaseTo.valueOf(args[++i]);
 				else if (arg.equals("--dumprepo"))
@@ -86,6 +94,14 @@ public class Configuration {
 						System.exit(1);
 					}
 					writeTestReportsTo = new File(root, args[++i]);
+				} else if (arg.equals("--html")) {
+					if (hasMore == 0) {
+						System.out.println("--html <dir>");
+						System.exit(1);
+					}
+					html = new File(root, args[++i]);
+					// TODO: will also want "--card-dir" to go and look for other cards
+					// This may also be "--flim"
 				} else if (arg.equals("--store-html")) {
 					if (hasMore == 0) {
 						System.out.println("--store-html <dir>");

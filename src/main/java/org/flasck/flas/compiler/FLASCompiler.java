@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
@@ -15,6 +16,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.flasck.flas.Configuration;
+import org.flasck.flas.assembler.BuildApplicationAssembly;
+import org.flasck.flas.assembler.FLASAssembler;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestFileName;
@@ -45,8 +48,12 @@ import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.flas.testrunner.TestResultWriter;
 import org.flasck.jvm.J;
+import org.flasck.jvm.fl.FLCommonEvalContext;
+import org.flasck.jvm.fl.TrivialEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ziniki.deployment.concepts.ApplicationAssembly;
+import org.ziniki.interfaces.ContentObject;
 import org.ziniki.splitter.SplitMetaData;
 import org.ziniki.splitter.Splitter;
 import org.zinutils.bytecode.BCEClassLoader;
@@ -232,6 +239,66 @@ public class FLASCompiler {
 	public void storeAssemblies(AssemblyVisitor storer) {
 		if (jse != null)
 			repository.traverseAssemblies(errors, jse, storer);
+	}
+
+	public void generateHTML(FLASAssembler asm, File html) {
+		System.err.println("herllo");
+		repository.traverseAssemblies(errors, jse, new BuildApplicationAssembly(new FLCommonEvalContext(new TrivialEnvironment())) {
+			@Override
+			protected ContentObject upload(String name, File f, String ctype) {
+				System.err.println("F called with " + name + " " + ctype);
+				return new ContentObject() {
+					
+					@Override
+					public String url() {
+						// This is a complete hack!
+						// TODO: We should go through the webzip options and find it and put it in a directory somewhere - probably called "css"
+						if (ctype.startsWith("text/javascript")) {
+							return "jsout/" + name;
+						} else {
+							return f.getPath();
+						}
+					}
+					
+					@Override
+					public String asString() {
+						return FileUtils.readFile(f);
+					}
+				};
+			}
+
+			@Override
+			protected ContentObject upload(String name, InputStream byteArrayInputStream, long length, boolean b, String ctype) throws IOException {
+				System.err.println("BS called with " + name + " " + ctype);
+				String val = FileUtils.readNStream(length, byteArrayInputStream);
+				return new ContentObject() {
+					
+					@Override
+					public String url() {
+						if ("text/css".equals(ctype)) {
+							return "ui/" + name;
+						} else {
+							return name;
+						}
+					}
+					
+					@Override
+					public String asString() {
+						return val;
+					}
+				};
+			}
+
+			@Override
+			protected void save(ApplicationAssembly assembly) {
+				try {
+					asm.assemble(assembly);
+				} catch (Exception ex) {
+					System.out.println(ex.toString());
+				}
+			}
+		});
+		
 	}
 
 	private Map<String, String> extractTemplatesFromWebs() {
