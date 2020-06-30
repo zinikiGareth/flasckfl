@@ -140,8 +140,6 @@ public class Main {
 
 		if (config.html != null) {
 			try (FileWriter fos = new FileWriter(config.html)) {
-				// we need stdlib to be distributed with the compiler
-				// it should be in a relative directory
 				File fldir = new File(config.root, "flascklib/js");
 				FileUtils.cleanDirectory(fldir);
 				FileUtils.assertDirectory(fldir);
@@ -149,7 +147,7 @@ public class Main {
 					FileUtils.copy(f, fldir);
 				}
 				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
-				compiler.generateHTML(asm, config.html);
+				compiler.generateHTML(asm, config);
 			}
 		}
 		

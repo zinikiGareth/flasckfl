@@ -23,10 +23,11 @@ public abstract class FlasckAssembler implements VisitingPackageInfo {
 	private final String flasckpath;
 	protected Activatable traverser;
 	private int stdlibpos = 0;
-	private boolean useCachebuster = true;
+	private final boolean useCachebuster;
 
-	public FlasckAssembler(String stdlib) {
+	public FlasckAssembler(String stdlib, boolean usecb) {
 		this.flasckpath = stdlib;
+		useCachebuster = usecb;
 	}
 
 	public void assemble(ApplicationAssembly source) throws Exception {

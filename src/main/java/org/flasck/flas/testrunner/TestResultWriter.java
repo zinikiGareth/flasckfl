@@ -9,6 +9,7 @@ import java.io.StringWriter;
 public class TestResultWriter {
 	private final boolean writeEverthing;
 	private final PrintWriter pw;
+	private boolean doClose;
 
 	public TestResultWriter(boolean writeEverthing, PrintStream out) {
 		this.writeEverthing = writeEverthing;
@@ -23,6 +24,7 @@ public class TestResultWriter {
 	public TestResultWriter(boolean writeEverthing, File out) throws FileNotFoundException {
 		this.writeEverthing = writeEverthing;
 		this.pw = new PrintWriter(out);
+		this.doClose = true;
 	}
 
 	public void pass(String which, String description) {
@@ -49,6 +51,9 @@ public class TestResultWriter {
 	}
 
 	public void close() {
-		pw.close();
+		if (doClose)
+			pw.close();
+		else
+			pw.flush();
 	}
 }

@@ -15,7 +15,7 @@ public class Configuration {
 	public boolean unitjvm = true, unitjs = true;
 	public boolean dumpTypes;
 	private List<File> searchFlim = new ArrayList<>();
-	File root;
+	public File root;
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
 	public boolean generateJVM = true;

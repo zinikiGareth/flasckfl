@@ -9,7 +9,7 @@ public class FLASAssembler extends FlasckAssembler {
 	private final Writer fw;
 
 	public FLASAssembler(Writer fw, String stdlib) {
-		super(stdlib);
+		super(stdlib, false);
 		this.fw = fw;
 	}
 

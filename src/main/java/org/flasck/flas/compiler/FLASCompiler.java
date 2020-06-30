@@ -241,23 +241,18 @@ public class FLASCompiler {
 			repository.traverseAssemblies(errors, jse, storer);
 	}
 
-	public void generateHTML(FLASAssembler asm, File html) {
-		System.err.println("herllo");
+	public void generateHTML(FLASAssembler asm, Configuration config) {
+		final File root = config.root;
+		final File html = config.html;
+		final File cssdir = new File(html.getParent(), "css");
 		repository.traverseAssemblies(errors, jse, new BuildApplicationAssembly(new FLCommonEvalContext(new TrivialEnvironment())) {
 			@Override
 			protected ContentObject upload(String name, File f, String ctype) {
-				System.err.println("F called with " + name + " " + ctype);
 				return new ContentObject() {
 					
 					@Override
 					public String url() {
-						// This is a complete hack!
-						// TODO: We should go through the webzip options and find it and put it in a directory somewhere - probably called "css"
-						if (ctype.startsWith("text/javascript")) {
-							return "jsout/" + name;
-						} else {
-							return f.getPath();
-						}
+						return config.writeJS.getPath().replace(root.getPath(), "").replaceAll("^/*", "") + "/" + name;
 					}
 					
 					@Override
@@ -268,15 +263,16 @@ public class FLASCompiler {
 			}
 
 			@Override
-			protected ContentObject upload(String name, InputStream byteArrayInputStream, long length, boolean b, String ctype) throws IOException {
-				System.err.println("BS called with " + name + " " + ctype);
-				String val = FileUtils.readNStream(length, byteArrayInputStream);
+			protected ContentObject upload(String name, InputStream is, long length, boolean b, String ctype) throws IOException {
+				String val = FileUtils.readNStream(length, is);
 				return new ContentObject() {
 					
 					@Override
 					public String url() {
 						if ("text/css".equals(ctype)) {
-							return "ui/" + name;
+							FileUtils.assertDirectory(cssdir);
+							FileUtils.writeFile(new File(cssdir, name), val);
+							return "css/" + name;
 						} else {
 							return name;
 						}
