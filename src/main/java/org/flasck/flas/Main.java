@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.flasck.flas.assembler.FLASAssembler;
 import org.flasck.flas.blockForm.InputPosition;
@@ -30,6 +31,7 @@ public class Main {
 		try {
 			failed = standardCompiler(args);
 		} catch (Throwable e) {
+			e.printStackTrace();
 			Logger logger = LoggerFactory.getLogger("Compiler");
 			logger.error("exception thrown", e);
 			failed = true;
@@ -143,7 +145,8 @@ public class Main {
 				File fldir = new File(config.root, "flascklib/js");
 				FileUtils.cleanDirectory(fldir);
 				FileUtils.assertDirectory(fldir);
-				for (File f : FileUtils.findFilesMatching(new File(config.flascklib), "*")) {
+				List<File> library = FileUtils.findFilesMatching(new File(config.flascklib), "*");
+				for (File f : library) {
 					FileUtils.copy(f, fldir);
 				}
 				FLASAssembler asm = new FLASAssembler(fos, "flascklib");

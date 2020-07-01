@@ -96,7 +96,7 @@ public class Configuration {
 					writeTestReportsTo = new File(root, args[++i]);
 				} else if (arg.equals("--html")) {
 					if (hasMore == 0) {
-						System.out.println("--html <dir>");
+						System.out.println("--html <file>");
 						System.exit(1);
 					}
 					html = new File(root, args[++i]);
@@ -181,6 +181,9 @@ public class Configuration {
 			} else {
 				inputs.add(new File(root, arg));
 			}
+		}
+		if (html != null && flascklib == null) {
+			errors.message((InputPosition)null, "Use of --html requires --flascklib");
 		}
 	}
 

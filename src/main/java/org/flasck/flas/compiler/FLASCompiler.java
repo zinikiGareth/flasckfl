@@ -252,7 +252,10 @@ public class FLASCompiler {
 					
 					@Override
 					public String url() {
-						return config.writeJS.getPath().replace(root.getPath(), "").replaceAll("^/*", "") + "/" + name;
+						String jsdir = config.jsDir().getPath();
+						if (root != null)
+							jsdir = jsdir.replace(root.getPath(), "");
+						return jsdir.replaceAll("^/*", "") + "/" + name;
 					}
 					
 					@Override
