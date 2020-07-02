@@ -3,6 +3,7 @@ package org.flasck.flas.assembler;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.jvm.ziniki.ContentObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ziniki.deployment.concepts.Activatable;
@@ -10,7 +11,6 @@ import org.ziniki.deployment.concepts.ApplicationAssembly;
 import org.ziniki.deployment.concepts.CardInitializer;
 import org.ziniki.deployment.concepts.VisitingPackageInfo;
 import org.ziniki.deployment.concepts.WaitAMo;
-import org.ziniki.interfaces.ContentObject;
 
 public abstract class FlasckAssembler implements VisitingPackageInfo {
 	protected final static Logger logger = LoggerFactory.getLogger("main");

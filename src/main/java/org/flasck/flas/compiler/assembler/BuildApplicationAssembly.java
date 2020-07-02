@@ -1,4 +1,4 @@
-package org.flasck.flas.assembler;
+package org.flasck.flas.compiler.assembler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,11 +16,11 @@ import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.repository.AssemblyLeaves;
 import org.flasck.jvm.FLEvalContext;
+import org.flasck.jvm.ziniki.ContentObject;
 import org.ziniki.deployment.concepts.CardInitializer;
 import org.ziniki.deployment.fl.JVMApplicationAssembly;
 import org.ziniki.deployment.fl.JVMCardInitializer;
 import org.ziniki.deployment.fl.JVMPackageInfo;
-import org.ziniki.interfaces.ContentObject;
 import org.zinutils.utils.FileUtils;
 
 public abstract class BuildApplicationAssembly extends AssemblyLeaves {
