@@ -16,8 +16,8 @@ import org.flasck.flas.parsedForm.assembly.ApplicationAssembly;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.repository.AssemblyLeaves;
 import org.flasck.jvm.FLEvalContext;
+import org.flasck.jvm.assembly.CardInitializer;
 import org.flasck.jvm.ziniki.ContentObject;
-import org.ziniki.deployment.concepts.CardInitializer;
 import org.ziniki.deployment.fl.JVMApplicationAssembly;
 import org.ziniki.deployment.fl.JVMCardInitializer;
 import org.ziniki.deployment.fl.JVMPackageInfo;
@@ -110,7 +110,7 @@ public abstract class BuildApplicationAssembly extends AssemblyLeaves {
 
 	protected abstract ContentObject upload(String name, File f, String ctype);
 	protected abstract ContentObject upload(String name, InputStream byteArrayInputStream, long length, boolean b, String string) throws IOException;
-	protected abstract void save(org.ziniki.deployment.concepts.ApplicationAssembly assembly);
+	protected abstract void save(org.flasck.jvm.assembly.ApplicationAssembly assembly);
 
 	@Override
 	public void traversalDone() throws Exception {
