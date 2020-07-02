@@ -1,5 +1,6 @@
 package org.flasck.flas;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -152,6 +153,8 @@ public class Main {
 				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
 				compiler.generateHTML(asm, config);
 			}
+			if (config.openHTML)
+				Desktop.getDesktop().open(config.html);
 		}
 		
 		return compiler;

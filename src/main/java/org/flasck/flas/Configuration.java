@@ -37,6 +37,7 @@ public class Configuration {
 	public String specifiedTestName;
 	public AssemblyVisitor storer;
 	public String flascklib; // needs a default relative to me
+	public boolean openHTML;
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
@@ -100,6 +101,8 @@ public class Configuration {
 						System.exit(1);
 					}
 					html = new File(root, args[++i]);
+				} else if (arg.equals("--open")) {
+					openHTML = true;
 					// TODO: will also want "--card-dir" to go and look for other cards
 					// This may also be "--flim"
 				} else if (arg.equals("--store-html")) {
@@ -184,6 +187,9 @@ public class Configuration {
 		}
 		if (html != null && flascklib == null) {
 			errors.message((InputPosition)null, "Use of --html requires --flascklib");
+		}
+		if (openHTML && html == null) {
+			errors.message((InputPosition)null, "Use of --open requires --html");
 		}
 	}
 
