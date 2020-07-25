@@ -148,6 +148,8 @@ public class Grammar {
 	}
 
 	private OrProduction handleOr(int ruleNumber, String ruleName, XMLElement rule) {
+		boolean repeatVarName = rule.optionalBoolean("quietly-repeat-var-name", false);
+		rule.attributesDone();
 		List<XMLElement> options = rule.elementChildren();
 		if (options.size() < 2)
 			throw new RuntimeException("Or must have at least two options");
@@ -155,7 +157,7 @@ public class Grammar {
 		for (XMLElement xe : options) {
 			defns.add(parseDefn(ruleName, xe));
 		}
-		return new OrProduction(ruleNumber, ruleName, defns);
+		return new OrProduction(ruleNumber, ruleName, defns, repeatVarName);
 	}
 	
 	private Definition parseDefn(String ruleName, XMLElement rule) {
@@ -223,8 +225,11 @@ public class Grammar {
 
 	private Definition handleRef(String ruleName, XMLElement rule) {
 		String child = rule.required("production");
+		boolean resetToken = rule.optionalBoolean("reset-current-token", false);
+		int from = rule.optionalInt("from", 0);
+		int to = rule.optionalInt("to", Integer.MAX_VALUE);
 		rule.attributesDone();
-		return new RefDefinition(child);
+		return new RefDefinition(child, resetToken, from, to);
 	}
 
 	private Definition handleSeq(String ruleName, XMLElement rule) {
@@ -246,8 +251,9 @@ public class Grammar {
 			unfs = UseNameForScoping.USE_CURRENT_NAME;
 		else if ("indent".equals(scope))
 			unfs = UseNameForScoping.INDENT_THIS_ONCE;
+		boolean repeatLast = rule.optionalBoolean("maybe-repeat-last", false);
 		rule.attributesDone();
-		final TokenDefinition ret = new TokenDefinition(type, nameAppender, unfs);
+		final TokenDefinition ret = new TokenDefinition(type, nameAppender, unfs, repeatLast);
 		List<XMLElement> matchers = rule.elementChildren("named");
 		for (XMLElement xe : matchers) {
 			String amendedName = xe.required("amended");

@@ -25,11 +25,13 @@ public class TokenDefinition extends Definition {
 	private final String patternMatcher;
 	private final UseNameForScoping scoping;
 	private final List<Matcher> matchers = new ArrayList<>();
+	private final boolean repeatLast;
 
-	public TokenDefinition(String token, String patternMatcher, UseNameForScoping scoping) {
+	public TokenDefinition(String token, String patternMatcher, UseNameForScoping scoping, boolean repeatLast) {
 		this.token = token;
 		this.patternMatcher = patternMatcher;
 		this.scoping = scoping;
+		this.repeatLast = repeatLast;
 	}
 
 	@Override

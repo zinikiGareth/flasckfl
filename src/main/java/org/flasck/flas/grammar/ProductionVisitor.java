@@ -11,16 +11,20 @@ public interface ProductionVisitor {
 	void visit(Definition defn);
 	void exdent();
 
-	void choices(OrProduction prod, List<Definition> defns, List<Integer> probs, int maxProb);
+	void choices(OrProduction prod, Object cxt, List<Definition> defns, List<Integer> probs, int maxProb, boolean repeatVarName);
+	boolean complete(OrProduction prod, Object cxt, List<Definition> choices);
 
 	void zeroOrOne(Definition child);
 	void zeroOrMore(Definition child, boolean withEOL);
 	void oneOrMore(Definition child, boolean withEOL);
 
-	void referTo(String child);
+	void referTo(String child, boolean resetToken);
+	OrProduction isOr(String child);
 
 	void futurePattern(String amended, String pattern);
 	void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers);
 	void nestName(int offset);
 	void pushPart(String prefix, String names, boolean appendFileName);
+
+	void pushCaseNumber();
 }

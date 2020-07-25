@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.flasck.flas.grammar.SentenceProducer.OrState;
 import org.flasck.flas.grammar.TokenDefinition.Matcher;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.xml.XML;
@@ -24,6 +25,15 @@ import org.zinutils.xml.XML;
 // In general, a valid sentence according to the grammar should at least parse
 // (there are many reasons it wouldn't get further, like undefined references, but I can't see why it wouldn't parse short of hitting limits of one kind or another)
 public class SentenceProducer {
+	public class OrState {
+		public List<Integer> cnts = new ArrayList<>();
+
+		public OrState(OrProduction op) {
+			for (int i=0;i<op.size();i++)
+				cnts.add(0);
+		}
+	}
+
 	public enum UseNameForScoping {
 		USE_THIS_NAME,
 		USE_CURRENT_NAME,
@@ -53,7 +63,7 @@ public class SentenceProducer {
 			throw new RuntimeException("Cannot generate " + top);
 		final File tmp = new File(root, "r"+ Long.toString(var) + ext);
 		SPProductionVisitor visitor = new SPProductionVisitor(grammar, pkg, tmp.getName(), var*100L);
-		visitor.referTo(top);
+		visitor.referTo(top, false);
 		FileUtils.writeFile(tmp, visitor.sentence.toString());
 		sendUsed.accept(new SentenceData(visitor.used, visitor.matchers, tmp));
 	}
@@ -115,30 +125,42 @@ public class SentenceProducer {
 
 		@Override
 		public void zeroOrMore(Definition child, boolean withEOL) {
-			int cnt = r.nextInt(3);
+			iterateOver(child, withEOL, r.nextInt(3));
+		}
+
+		@Override
+		public void oneOrMore(Definition child, boolean withEOL) {
+			iterateOver(child, withEOL, r.nextInt(3)+1);
+		}
+
+		private void iterateOver(Definition child, boolean withEOL, int cnt) {
+			OrProduction op = null;
+			Object cxt = null;
+			if (child instanceof RefDefinition) {
+				op = ((RefDefinition)child).isOr(this);
+				if (op != null)
+					cxt = new OrState(op);
+			}
 			if (debug)
 				System.out.println("Choosing " + cnt + " iterations of " + child);
 			for (int i=0;i<cnt;i++) {
-				visit(child);
+				if (op != null) {
+					op.visitWith(cxt, this);
+				} else
+					visit(child);
 				if (withEOL)
 					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>());
+			}
+			if (op != null) {
+				while (!op.wrapUp(cxt, this)) {
+					if (withEOL)
+						token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>());
+				}
 			}
 		}
 		
 		@Override
-		public void oneOrMore(Definition child, boolean withEOL) {
-			int cnt = r.nextInt(3)+1;
-			if (debug)
-				System.out.println("Choosing " + cnt + " iterations of " + child);
-			for (int i=0;i<cnt;i++) {
-				visit(child);
-				if (withEOL)
-					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>());
-			}
-		}
-
-		@Override
-		public void referTo(String child) {
+		public void referTo(String child, boolean resetToken) {
 			Production p;
 			try {
 				p = grammar.findRule(child);
@@ -156,18 +178,53 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void choices(OrProduction prod, List<Definition> asList, List<Integer> probs, int maxProb) {
+		public OrProduction isOr(String child) {
+			Production p = grammar.findRule(child);
+			if (p instanceof OrProduction)
+				return (OrProduction) p;
+			return null;
+		}
+
+		@Override
+		public void choices(OrProduction prod, Object cxt, List<Definition> asList, List<Integer> probs, int maxProb, boolean repeatVarName) {
+			OrState os = (OrState) cxt;
 			final int ni = r.nextInt(maxProb);
 			for (int i=0;i<asList.size();i++) {
-				if (probs.get(i) > ni) {
+				Definition cd = asList.get(i);
+				RefDefinition rd = null;
+				if (cd instanceof RefDefinition) 
+					rd = (RefDefinition) cd;
+				if (probs.get(i) > ni && (rd == null || os == null || os.cnts.get(i) < rd.getTo())) {
 					final String rn = prod.ruleNumber() + "." + (i+1) + " " + prod.ruleName();
 					used.add(rn);
 					if (debug)
 						System.out.println("Rule " + rn);
-					visit(asList.get(i));
+					visit(cd);
+					if (os != null)
+						os.cnts.set(i, os.cnts.get(i)+1);
 					return;
 				}
 			}
+		}
+
+		@Override
+		public boolean complete(OrProduction prod, Object cxt, List<Definition> choices) {
+			OrState os = (OrState) cxt;
+			for (int i=0;i<choices.size();i++) {
+				if (!(choices.get(i) instanceof RefDefinition))
+					continue;
+				RefDefinition d = (RefDefinition) choices.get(i);
+				if (os.cnts.get(i) < d.getFrom()) {
+					final String rn = prod.ruleNumber() + "." + (i+1) + " " + prod.ruleName();
+					used.add(rn);
+					if (debug)
+						System.out.println("Rule " + rn);
+					visit(d);
+					os.cnts.set(i, os.cnts.get(i)+1);
+					return false;
+				}
+			}
+			return true;
 		}
 
 		@Override
@@ -257,6 +314,13 @@ public class SentenceProducer {
 				if (names != null)
 					this.matchers.put(assembleName(finalPart.name, UseNameForScoping.UNSCOPED), names);
 			}
+		}
+		
+		@Override
+		public void pushCaseNumber() {
+			removeAbove(indent + nameNestOffset);
+			final NamePart finalPart = new NamePart(indent + nameNestOffset, "_1", UseNameForScoping.UNSCOPED);
+			nameParts.add(finalPart);
 		}
 
 		private String assembleName(String desiredName, UseNameForScoping scoping) {

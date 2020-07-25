@@ -54,7 +54,7 @@ public class TypedPattern implements Pattern, AsString, RepositoryEntry {
 	
 	@Override
 	public String toString() {
-		return "TypedPattern[" + type + ":" + var.var +"]";
+		return "TypedPattern[" + type + ":" + var.uniqueName() +"]";
 	}
 
 	@Override

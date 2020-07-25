@@ -8,12 +8,14 @@ import java.util.Set;
 public class OrProduction extends Production {
 	private final List<Definition> defns = new ArrayList<>();
 	private final List<Definition> choices;
+	private final boolean repeatVarName;
 	private int maxProb;
 	private List<Integer> probs = new ArrayList<>();
 	
-	public OrProduction(int ruleNumber, String ruleName, List<Definition> defns) {
+	public OrProduction(int ruleNumber, String ruleName, List<Definition> defns, boolean repeatVarName) {
 		super(ruleNumber, ruleName, defns.get(0));
 		this.choices = defns;
+		this.repeatVarName = repeatVarName;
 		this.defns.addAll(defns);
 		this.defns.remove(0);
 		this.maxProb = defns.size();
@@ -50,8 +52,9 @@ public class OrProduction extends Production {
 			d.collectTokens(ret);
 	}
 
+	@Override
 	public void visit(ProductionVisitor visitor) {
-		visitor.choices(this, this.choices, this.probs, this.maxProb);
+		visitor.choices(this, null, this.choices, this.probs, this.maxProb, this.repeatVarName);
 	}
 
 	public void probs(List<Integer> probs) {
@@ -61,5 +64,13 @@ public class OrProduction extends Production {
 		this.maxProb = 0;
 		for (int i : probs)
 			this.probs.add(maxProb += i);
+	}
+
+	public void visitWith(Object cxt, ProductionVisitor visitor) {
+		visitor.choices(this, cxt, this.choices, this.probs, this.maxProb, this.repeatVarName);
+	}
+
+	public boolean wrapUp(Object cxt, ProductionVisitor visitor) {
+		return visitor.complete(this, cxt, this.choices);
 	}
 }

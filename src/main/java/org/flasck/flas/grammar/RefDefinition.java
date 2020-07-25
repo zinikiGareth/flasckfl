@@ -7,9 +7,15 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public class RefDefinition extends Definition {
 	private final String child;
+	private final boolean resetToken;
+	private final int from;
+	private final int to;
 
-	public RefDefinition(String child) {
+	public RefDefinition(String child, boolean resetToken, int from, int to) {
 		this.child = child;
+		this.resetToken = resetToken;
+		this.from = from;
+		this.to = to;
 	}
 
 	@Override
@@ -25,10 +31,22 @@ public class RefDefinition extends Definition {
 	@Override
 	public void collectTokens(Set<String> ret) {
 	}
+	
+	public OrProduction isOr(ProductionVisitor productionVisitor) {
+		return productionVisitor.isOr(child);
+	}
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.referTo(child);
+		productionVisitor.referTo(child, resetToken);
+	}
+	
+	public int getFrom() {
+		return from;
+	}
+	
+	public int getTo() {
+		return to;
 	}
 
 	@Override

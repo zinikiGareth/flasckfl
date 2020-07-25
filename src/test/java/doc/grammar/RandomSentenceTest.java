@@ -23,7 +23,7 @@ public class RandomSentenceTest {
 	@Test
 	public void testRandomSentenceProduction() throws Throwable {
 //		final int seed = 24465;
-		final int seed = 21007;
+		final int seed = 21112;
 		File td = Files.createTempDirectory("flas").toFile();
 		File fd = new File(td, "test.r" + seed);
 		FileUtils.assertDirectory(fd);
@@ -35,8 +35,12 @@ public class RandomSentenceTest {
 		final Consumer<SentenceData> collector = used -> { matchers.putAll(used.matchers); };
 		p.sentence(seed, "source-file", collector);
 		p.sentence(seed, "unit-test-file", collector);
-//		FileUtils.cat(new File(fd, "test.r" + seed + "/r" + seed + ".fl"));
-//		FileUtils.cat(new File(fd, "test.r" + seed + "/r" + seed + ".ut"));
+		File fl = new File(fd, "test.r" + seed + "/r" + seed + ".fl");
+		System.out.println(fl + ":");
+		FileUtils.cat(fl);
+		File ut = new File(fd, "test.r" + seed + "/r" + seed + ".ut");
+		System.out.println(ut + ":");
+		FileUtils.cat(ut);
 //		System.out.println("MSS = " + matchers);
 		try {
 			boolean f = org.flasck.flas.Main.standardCompiler(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), fd.toString() });

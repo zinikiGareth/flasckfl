@@ -278,9 +278,9 @@
     <producer shares='50 20 20 20'/>
     <or>
       <ref production='function-case-definition'/>
-      <ref production='tuple-definition'/>
-      <ref production='standalone-method-definition'/>
-      <ref production='handler-definition'/>
+      <ref production='tuple-definition' reset-current-token='true'/>
+      <ref production='standalone-method-definition' reset-current-token='true'/>
+      <ref production='handler-definition' reset-current-token='true'/>
     </or>
   </production>
   <production name='struct-declaration'>
@@ -374,7 +374,7 @@
 	<tested by='test.parsing.TDAUnionParsingTests' />
     <seq>
       <token type='UNION'/>
-      <token type='type-name' names='Union\[${name}\]'/>
+      <token type='type-name' names='Union\[${name}\[.*\]\]'/>
       <indent-non-zero>
         <ref production='type-reference'/>
       </indent-non-zero>
@@ -544,7 +544,7 @@
 	    </description>
 	</section>
     <tested by='test.parsing.TDAFunctionParsingTests' />
-    <or>
+    <or quietly-repeat-var-name='true'>
       <ref production='simple-function-case-definition'/>
       <ref production='degenerate-guarded-function-case-definition'/>
       <ref production='guarded-function-case-definition'/>
@@ -554,7 +554,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionParsingTests' />
     <seq>
-      <token type='var-name' names='${name}\([0-9]+\)' />
+      <token type='var-name' names='${name}\([0-9]+\)' maybe-repeat-last='true' />
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
       <many>
@@ -720,7 +720,7 @@
     <seq>
       <token type='ORB'/>
       <ref production='type-reference'/>
-      <token type='var-name' names='${name}'/>
+      <token type='var-name' names='TypedPattern\[[A-za-z0-9\[,\] ]+:${name}\]'/>
       <token type='CRB'/>
     </seq>
   </production>
@@ -1002,9 +1002,9 @@
     <seq>
       <token type='GUARD'></token>
       <ref production='expression'/>
-      <many>
+      <indent>
         <ref production='method-action'/>
-      </many>
+      </indent>
     </seq>
   </production>
   <production name='method-actions'>
@@ -1102,21 +1102,27 @@
     </section>
     <tested by='test.parsing.TDAObjectIntroParsingTests' />
     <seq>
-    	  <token type='OBJECT' />
-    	  <token type='type-name' names='ObjectDefinition\[${name}\]' />
-    	  <indent-one>
-    	    <ref production='object-contents'/>
-    	  </indent-one>
+      <token type='OBJECT' />
+      <token type='type-name' names='ObjectDefinition\[${name}\]' />
+      <indent>
+        <ref production='object-scope-unit'/>
+      </indent>
     </seq>
   </production>
-  <production name='object-contents'>
+  <production name='object-scope-unit'>
     <section title='Object'/>
     <tested by='test.parsing.TDAObjectElementParsingTests' />
-    <seq>
-    	  <ref production='state-declaration'/>
-    	  <ref production='many-templates'/>
-      <ref production='object-scope-unit'/>
-    </seq>
+    <producer shares='20 20 10 25 25 10 10'/>
+    <or>
+      <!--  these annotations should be notes on the grammar as well -->
+      <ref production='state-declaration' from='0' to='1'/> <!--  tie this together with the producer shares -->
+      <ref production='object-ctor-definition' from='1'/>
+      <ref production='named-template-definition'/>
+      <ref production='object-acor-definition'/>
+      <ref production='object-method-definition'/>
+      <ref production='function-case-definition'/>
+      <ref production='handler-definition'/>
+    </or>
   </production>
   <production name='state-declaration'>
     <section title='Object'/>
@@ -1127,18 +1133,6 @@
     	    <ref production='struct-field-list'/>
     	  </indent>
     </seq>
-  </production>
-  <production name='object-scope-unit'>
-    <section title='Object'/>
-    <tested by='test.parsing.TDAObjectElementParsingTests' />
-    <producer shares='10 25 25 10 10'/>
-    <or>
-      <ref production='object-ctor-definition'/>
-      <ref production='object-acor-definition'/>
-      <ref production='object-method-definition'/>
-      <ref production='function-case-definition'/>
-      <ref production='handler-definition'/>
-    </or>
   </production>
   <production name='object-ctor-definition'>
     <section title='Object'/>
@@ -1745,7 +1739,6 @@ match style ...
       <token type='var-name' />
       <token type='SEND' />
       <ref production='expression' />
-      <token type='EOL' />
     </seq>
   </production>
   <production name='protocol-test-unit'>
