@@ -9,6 +9,9 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import org.flasck.flas.grammar.RepoChecker;
+import org.flasck.flas.grammar.SentenceData;
+import org.flasck.flas.grammar.SentenceProducer;
 import org.junit.Test;
 import org.zinutils.utils.FileUtils;
 
@@ -19,7 +22,8 @@ public class RandomSentenceTest {
 
 	@Test
 	public void testRandomSentenceProduction() throws Throwable {
-		final int seed = 24465;
+//		final int seed = 24465;
+		final int seed = 21007;
 		File td = Files.createTempDirectory("flas").toFile();
 		File fd = new File(td, "test.r" + seed);
 		FileUtils.assertDirectory(fd);

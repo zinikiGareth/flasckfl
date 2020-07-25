@@ -1,4 +1,4 @@
-package doc.grammar;
+package org.flasck.flas.grammar;
 
 import java.io.File;
 import java.io.FileNotFoundException;

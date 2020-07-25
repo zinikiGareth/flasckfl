@@ -1,4 +1,4 @@
-package doc.grammar;
+package org.flasck.flas.grammar;
 
 import java.util.ArrayList;
 import java.util.List;

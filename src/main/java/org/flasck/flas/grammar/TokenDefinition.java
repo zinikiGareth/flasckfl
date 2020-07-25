@@ -1,4 +1,4 @@
-package doc.grammar;
+package org.flasck.flas.grammar;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-
-import doc.grammar.SentenceProducer.UseNameForScoping;
+import org.flasck.flas.grammar.SentenceProducer.UseNameForScoping;
 
 public class TokenDefinition extends Definition {
 	public class Matcher {

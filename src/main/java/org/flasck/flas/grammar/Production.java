@@ -1,4 +1,4 @@
-package doc.grammar;
+package org.flasck.flas.grammar;
 
 import java.io.PrintWriter;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.Set;
 public class Production {
 	public final int number;
 	public final String name;
-	protected final Definition defn;
+	public final Definition defn;
 	private boolean needsMoreTesting;
 
 	public Production(int ruleNumber, String ruleName, Definition defn) {

@@ -74,8 +74,8 @@
   <lex token='EXPECT' pattern='expect'>
   	<p>The <tt>expect</tt> keyword introduces a mock expectation.</p>
   </lex>
-  <lex token='FALSE' pattern='false'>
-  	<p>The boolean literal <tt>false</tt>.</p>
+  <lex token='FALSE' pattern='False'>
+  	<p>The boolean literal <tt>False</tt>.</p>
   </lex>
   <lex token='GUARD' pattern='\|'>
   	<p>Defines the variable/function definition operator.</p>
@@ -158,8 +158,8 @@
   <lex token='TEXT' pattern='text'>
   	<p>The <tt>text</tt> keyword is used to match text on a card.</p>
   </lex>
-  <lex token='TRUE' pattern='true'>
-  	<p>The boolean literal <tt>true</tt>.</p>
+  <lex token='TRUE' pattern='True'>
+  	<p>The boolean literal <tt>True</tt>.</p>
   </lex>
   <lex token='UNION' pattern='union'>
   	<p>The <tt>union</tt> keyword introduces a union declaration.</p>
@@ -189,9 +189,6 @@
   	the first character must be a lower case alphabetic character.</p>
   </lex>
 
-<!-- todo: 'file' should be an OR of flas-file, ut-file, pt-file or st-file
-   - each of those should then have its own grammar
-  -->  
   <production name='file'>
     <section title='Files'>
 	  <description>
@@ -557,7 +554,8 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionParsingTests' />
     <seq>
-      <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
+      <token type='var-name' names='${name}\([0-9]+\)' />
+      <can-repeat-with-case-number />
       <nested-name offset='1'/>
       <many>
       	<ref production='argument-pattern'/>
@@ -574,7 +572,8 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
-      <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
+      <token type='var-name' names='${name}\([0-9]+\)' />
+      <can-repeat-with-case-number />
       <nested-name offset='1'/>
       <many>
       	<ref production='argument-pattern'/>
@@ -589,7 +588,8 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
-      <token type='var-name' names='FunctionDefinition\[${name}/.*\]' />
+      <token type='var-name' names='${name}\([0-9]+\)' />
+      <can-repeat-with-case-number />
       <nested-name offset='1'/>
       <many>
       	<ref production='argument-pattern'/>
@@ -720,7 +720,7 @@
     <seq>
       <token type='ORB'/>
       <ref production='type-reference'/>
-      <token type='var-name'/>
+      <token type='var-name' names='${name}'/>
       <token type='CRB'/>
     </seq>
   </production>
@@ -968,9 +968,9 @@
         <ref production='argument-pattern'/>
       </many>
       <nested-name offset='0'/>
-      <indent>
+      <indent-one>
       	<ref production='method-guards-or-actions'/>
-      </indent>
+      </indent-one>
     </seq>
   </production>
   <production name='method-guards-or-actions'>

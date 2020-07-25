@@ -1,4 +1,4 @@
-package doc.grammar;
+package org.flasck.flas.grammar;
 
 public class Lexer implements Comparable<Lexer> {
 	public final String token;

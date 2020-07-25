@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.grammar.Generator;
+import org.flasck.flas.grammar.Grammar;
 import org.junit.Test;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.xml.XML;

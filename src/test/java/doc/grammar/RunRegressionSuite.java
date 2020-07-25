@@ -14,7 +14,8 @@ import java.util.TreeSet;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.junit.Ignore;
+import org.flasck.flas.grammar.Grammar;
+import org.flasck.flas.grammar.RepoChecker;
 import org.junit.Test;
 import org.zinutils.collections.CounterSet;
 import org.zinutils.utils.FileUtils;
@@ -23,11 +24,11 @@ public class RunRegressionSuite {
 	final File root = new File("src/regression");
 
 	@Test
-	@Ignore
 	public void testAll() throws Throwable {
-		if (!root.exists()) {
-			GenerateRegressionSuite.generateInto(root);
-		}
+		boolean runMe = Boolean.parseBoolean(System.getProperty("doc.grammar.run"));
+		if (!runMe)
+			return;
+		GenerateRegressionSuite.generateInto(root);
 		List<File> dirs = FileUtils.findDirectoriesUnder(root);
 		JSONObject jo = new JSONObject(FileUtils.readFile(new File(root, "META.json")));
 		Set<String> passed = new TreeSet<>();
@@ -69,16 +70,25 @@ public class RunRegressionSuite {
 		assertEquals("Not all regression tests were run", dirs.size(), passed.size() + failed.size());
 
 		System.out.println("Ran " + dirs.size() + " - " + passed.size() + " passed; " + failed.size() + " failed");
+		Iterator<String> it2 = failed.iterator();
+		for (int i=0;it2.hasNext() && i<10;i++) {
+			System.out.println("failed: " + it2.next());
+		}
 		
-		assertTrue(failed.size() + " regression tests failed", failed.isEmpty());
+		assertTrue(failed.size() + " of " + dirs.size() + " regression tests failed", failed.isEmpty());
 	}
 
 	@Test
-	@Ignore
-	public void testOne() throws Exception {
+	public void testOne() throws Throwable {
+		boolean runMe = Boolean.parseBoolean(System.getProperty("doc.grammar.run"));
+		if (!runMe)
+			return;
+		GenerateRegressionSuite.generateInto(root);
 		JSONObject jo = new JSONObject(FileUtils.readFile(new File(root, "META.json")));
-		final String name = "test.r27825";
-		runCase(new File(name), jo.getJSONObject(name));
+//		final String name = "test.r27825";
+		final String name = "test.r21007";
+		boolean result = runCase(new File(name), jo.getJSONObject(name));
+		assertTrue(result);
 	}
 	
 	public boolean runCase(File f, JSONObject jo) throws JSONException {
@@ -87,7 +97,7 @@ public class RunRegressionSuite {
 		boolean result;
 		try {
 			File repoFile = File.createTempFile("repo", ".txt");
-			result = !org.flasck.flas.Main.standardCompiler(new String[] { "--phase", "TEST_TRAVERSAL", "--dumprepo", repoFile.getPath(), dir.toString() });
+			result = !org.flasck.flas.Main.standardCompiler(new String[] { "--phase", "PARSING", "--dumprepo", repoFile.getPath(), dir.toString() });
 			if (result) {
 				result = RepoChecker.checkRepo(repoFile, asMap(ms));
 			}

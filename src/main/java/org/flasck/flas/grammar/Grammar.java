@@ -1,4 +1,4 @@
-package doc.grammar;
+package org.flasck.flas.grammar;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.grammar.SentenceProducer.UseNameForScoping;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;
-
-import doc.grammar.SentenceProducer.UseNameForScoping;
 
 public class Grammar {
 	public final String title;
@@ -185,8 +184,10 @@ public class Grammar {
 			return handleNestedName(ruleName, rule);
 		case "push-part":
 			return handlePushPart(ruleName, rule);
+		case "can-repeat-with-case-number":
+			return handleCaseNumbering(ruleName, rule);
 		default:
-			throw new RuntimeException("Production '" + ruleName + "' references unknown production rule " + rule.tag());
+			throw new RuntimeException("Production '" + ruleName + "' references unknown operation " + rule.tag());
 		}
 	}
 
@@ -282,6 +283,11 @@ public class Grammar {
 		boolean appendFileName = rule.optionalBoolean("filename", false);
 		rule.attributesDone();
 		return new PushPartDefinition(prefix, names, appendFileName);
+	}
+
+	private Definition handleCaseNumbering(String ruleName, XMLElement rule) {
+		rule.attributesDone();
+		return new CaseNumberingDefinition();
 	}
 
 	public Iterable<Section> sections() {

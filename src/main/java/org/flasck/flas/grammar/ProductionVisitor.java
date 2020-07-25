@@ -1,9 +1,9 @@
-package doc.grammar;
+package org.flasck.flas.grammar;
 
 import java.util.List;
 
-import doc.grammar.SentenceProducer.UseNameForScoping;
-import doc.grammar.TokenDefinition.Matcher;
+import org.flasck.flas.grammar.SentenceProducer.UseNameForScoping;
+import org.flasck.flas.grammar.TokenDefinition.Matcher;
 
 public interface ProductionVisitor {
 

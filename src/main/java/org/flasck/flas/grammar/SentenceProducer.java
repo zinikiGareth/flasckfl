@@ -1,4 +1,4 @@
-package doc.grammar;
+package org.flasck.flas.grammar;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,10 +15,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.flasck.flas.grammar.TokenDefinition.Matcher;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.xml.XML;
-
-import doc.grammar.TokenDefinition.Matcher;
 
 // The idea here is to produce random sentences according to the grammar and see what happens.
 // In general, a valid sentence according to the grammar should at least parse
@@ -31,7 +31,7 @@ public class SentenceProducer {
 		UNSCOPED
 	}
 
-	private boolean debug = false;
+	private boolean debug = true;
 	private final Grammar grammar;
 	private final File td;
 
@@ -327,12 +327,14 @@ public class SentenceProducer {
 			
 			case "COLON":
 			case "COMMA":
+			case "HANDLE":
 			case "PUT":
 			case "SEND":
 			case "SENDTO":
 				return pattern;
 
 			case "ACOR":
+			case "AGENT":
 			case "ASSERT":
 			case "CARD":
 			case "CONTRACT":
@@ -343,7 +345,6 @@ public class SentenceProducer {
 			case "ENVELOPE":
 			case "EVENT":
 			case "EXPECT":
-			case "FALSE":
 			case "HANDLER":
 			case "IMPLEMENTS":
 			case "INVOKE":
@@ -353,17 +354,22 @@ public class SentenceProducer {
 			case "OFFER":
 			case "OPTIONAL":
 			case "PROVIDES":
+			case "REQUIRES":
 			case "SERVICE":
+			case "SHOVE":
 			case "STATE":
 			case "STRUCT":
 			case "STYLE":
 			case "TEMPLATE":
 			case "TEST":
 			case "TEXT":
-			case "TRUE":
 			case "UNION":
 			case "WRAPS":
 				return token.toLowerCase();
+
+			case "FALSE":
+			case "TRUE":
+				return StringUtils.capitalize(token.toLowerCase());
 
 			case "BINOP":
 				return oneOf("+", "-", "*", "/"); // TODO: more operators
