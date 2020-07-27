@@ -37,7 +37,7 @@ public class RepoChecker {
 				if (!ms.containsKey(name)) {
 					if (name.equals("Cons.A") || name.startsWith("Random.")) // I admit this is a hack, but I'm not sure what the real thing would look like ...
 						continue;
-					System.out.println("There is no matcher for: " + name);
+					System.out.println("There is no matcher defined in the grammer for the entry found in repository: " + name);
 					ret = false;
 					continue;
 				}
@@ -53,7 +53,7 @@ public class RepoChecker {
 			}
 		}
 		if (!ms.isEmpty()) {
-			System.out.println("Names not found: " + ms.keySet());
+			System.out.println("Names declared in grammar not found in repository: " + ms.keySet());
 			ret = false;
 		}
 		if (!ret) {

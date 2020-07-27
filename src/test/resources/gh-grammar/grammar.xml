@@ -414,7 +414,7 @@
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
     <seq>
       <ref production='type-reference'/>
-      <token type='var-name' names='Field\[.* ${final} .*\]'/>
+      <token type='var-name' names='StructField\[.*${final}.*\]'/>
       <token type='EOL'/>
     </seq>
   </production>
@@ -473,7 +473,7 @@
       <ref production='contract-intro'/>
       <token type='type-name' names='Contract\[${name}\]'/>
       <indent>
-      	<ref production='contract-method-decls'/>
+      	<ref production='contract-method-decl'/>
       </indent>
     </seq>
   </production>
@@ -494,15 +494,6 @@
       </seq>
     </or>  
   </production>
-  <production name='contract-method-decls'>
-    <section title='Contracts'/>
-    <tested by='test.parsing.TDAContractIntroParsingTests' />
-    <seq>
-      <many>
-      	<ref production='contract-method-decl'/>
-      </many>
-    </seq>
-  </production>
   <production name='contract-method-decl'>
     <section title='Contracts'/>
 	<tested by='test.parsing.TDAContractMethodParsingTests' />
@@ -510,14 +501,15 @@
       <optional>
         <token type='OPTIONAL'/>
       </optional>
-      <token type='var-name'/>
+      <token type='var-name' names='${name}'/>
+      <nested-name offset='1'/>
       <many>
       	<ref production='argument-pattern-typed'/>
       </many>
       <optional>
         <ref production='handled-by' />
       </optional>
-      <token type='EOL' />
+      <nested-name offset='0'/>
     </seq>
   </production>
   <production name='handled-by'>
@@ -640,8 +632,8 @@
     <tested by='test.parsing.TDATupleDeclarationParsingTests' />
     <seq>
       <token type='ORB' />
-      <token type='var-name' names='TupleMember\[${name}.*\]' >
-      	<named amended='_tuple_${final}' pattern='TupleAssignment\{${final}=&gt;\[.*\]=.*\}' scope='true' />
+      <token type='var-name' names='TupleMember\[${name}.*\]' scope='true'>
+      	<named amended='_tuple_${final}' pattern='TupleAssignment\{${final}=&gt;\[.*\]=.*\}' scope='false' />
       </token>
       <one-or-more>
       	<ref production='comma-var-name' />
@@ -686,7 +678,7 @@
   <production name='argument-pattern-variable'>
     <section title='Patterns'/>
     <tested by='test.parsing.TDAPatternParsingTests' />
-    <token type='var-name' names='VarPattern\[${name}\]' scope='false'/>
+    <token type='var-name' names='(HandlerLambda|VarPattern)\[${name}\]' scope='false'/>
   </production>
   <production name='argument-pattern-list'>
     <section title='Patterns'/>
@@ -1230,31 +1222,17 @@
     <seq>
     	  <token type='CARD' />
     	  <token type='type-name' names='Card\[${name}\]'/>
-    	  <indent-one>
-    	    <ref production='card-contents'/>
-    	  </indent-one>
+    	  <indent>
+    	    <ref production='card-scope-unit'/>
+    	  </indent>
     </seq>
-  </production>
-  <production name='card-contents'>
-    <section title='Card'/>
-    <tested by='test.parsing.TDATopLevelCardParsingTests'/>
-    <seq>
-    	  <ref production='state-declaration'/>
-      <ref production='many-templates'/>
-      <ref production='card-scope'/>
-    </seq>
-  </production>
-  <production name='card-scope'>
-    <section title='Card'/>
-    <tested by='test.parsing.TDATopLevelCardParsingTests' />
-    <many>
-      <ref production='card-scope-unit'/>
-    </many>
   </production>
   <production name='card-scope-unit'>
     <section title='Card'/>
     <tested by='test.parsing.TDATopLevelCardParsingTests'/>
     <or>
+      <ref production='state-declaration' from='0' to='1'/>
+      <ref production='named-template-definition'/>
       <ref production='event-handler'/>
       <ref production='requires-contract'/>
       <ref production='implements-contract'/>
@@ -1315,7 +1293,7 @@
     <tested by='test.parsing.TDAImplementationMethodsParsingTests' />
 	<seq>
 	  <token type='HANDLE'/>
-	  <token type='var-name' />
+	  <token type='var-name' names='VarPattern\[${name}\]'/>
 	</seq>    
   </production>
   <production name='event-handler'>
@@ -1334,7 +1312,7 @@
       <ref production='method-definition'/>
     </seq>
   </production>
-  <production name='many-templates'>
+  <production name='named-template-definition'>
     <section title='Templates'>
       <description>
         <p>Each card can have zero or more templates.  If it has no templates, it cannot have any visual representation.</p>
@@ -1348,13 +1326,6 @@
         </p>
       </description>
     </section>
-    <tested by='test.parsing.TDATopLevelCardParsingTests' />
-    <many>
-      <ref production='named-template-definition'/>
-    </many>
-  </production>
-  <production name='named-template-definition'>
-    <section title='Templates'/>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <token type='TEMPLATE'/>
@@ -1520,9 +1491,6 @@
     <seq>
       <token type='SENDTO'/>
       <token type='var-name'/>
-      <many>
-      	<ref production='expression' />
-      </many>
     </seq>
   </production>
   <production name='unit-test-unit'>

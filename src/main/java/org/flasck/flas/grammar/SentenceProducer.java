@@ -16,7 +16,6 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.flasck.flas.grammar.SentenceProducer.OrState;
 import org.flasck.flas.grammar.TokenDefinition.Matcher;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.xml.XML;

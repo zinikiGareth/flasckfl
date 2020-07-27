@@ -257,7 +257,7 @@ public class Grammar {
 		List<XMLElement> matchers = rule.elementChildren("named");
 		for (XMLElement xe : matchers) {
 			String amendedName = xe.required("amended");
-			String pattern = xe.required("pattern");
+			String pattern = xe.optional("pattern");
 			boolean scoper = xe.optionalBoolean("scope", false);
 			ret.addMatcher(amendedName, pattern, scoper?UseNameForScoping.USE_THIS_NAME:UseNameForScoping.USE_CURRENT_NAME);
 			xe.attributesDone();

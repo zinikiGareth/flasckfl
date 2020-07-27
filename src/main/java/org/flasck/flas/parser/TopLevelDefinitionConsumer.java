@@ -17,7 +17,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.ut.IntroductionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 
-public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer, IntroductionConsumer {
+public interface TopLevelDefinitionConsumer extends FunctionScopeUnitConsumer, IntroductionConsumer, ContractConsumer {
 	void newAgent(ErrorReporter errors, AgentDefinition card);
 	void newCard(ErrorReporter errors, CardDefinition card);
 	void newService(ErrorReporter errors, ServiceDefinition card);

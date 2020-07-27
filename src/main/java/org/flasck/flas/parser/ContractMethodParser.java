@@ -100,7 +100,9 @@ public class ContractMethodParser implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 
-		builder.addMethod(new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, targs, handler));
+		ContractMethodDecl ret = new ContractMethodDecl(optLoc, name.location, name.location, required, fnName, targs, handler);
+		builder.addMethod(ret);
+		((ContractConsumer)topLevel).newContractMethod(errors, ret);
 		return new NoNestingParser(errors);
 	}
 

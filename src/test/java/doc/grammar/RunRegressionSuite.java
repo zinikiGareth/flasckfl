@@ -78,19 +78,6 @@ public class RunRegressionSuite {
 		assertTrue(failed.size() + " of " + dirs.size() + " regression tests failed", failed.isEmpty());
 	}
 
-	@Test
-	public void testOne() throws Throwable {
-		boolean runMe = Boolean.parseBoolean(System.getProperty("doc.grammar.run"));
-		if (!runMe)
-			return;
-		GenerateRegressionSuite.generateInto(root);
-		JSONObject jo = new JSONObject(FileUtils.readFile(new File(root, "META.json")));
-//		final String name = "test.r27825";
-		final String name = "test.r21007";
-		boolean result = runCase(new File(name), jo.getJSONObject(name));
-		assertTrue(result);
-	}
-	
 	public boolean runCase(File f, JSONObject jo) throws JSONException {
 		JSONObject ms = jo.getJSONObject("matchers");
 		final File dir = FileUtils.combine(root, f);

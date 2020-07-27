@@ -26,7 +26,7 @@ public class HandlerLambda implements RepositoryEntry {
 
 	@Override
 	public void dumpTo(PrintWriter pw) {
-		pw.println("HandlerLambda");
+		pw.println("HandlerLambda[" + patt + "]");
 	}
 
 }

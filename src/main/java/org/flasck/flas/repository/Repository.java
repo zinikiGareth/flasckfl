@@ -28,6 +28,7 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -160,6 +161,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	@Override
 	public void newContract(ErrorReporter errors, ContractDecl decl) {
+		addEntry(errors, decl.name(), decl);
+	}
+
+	@Override
+	public void newContractMethod(ErrorReporter errors, ContractMethodDecl decl) {
 		addEntry(errors, decl.name(), decl);
 	}
 
