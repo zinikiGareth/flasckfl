@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class RequiresContract extends ContractReferencer implements RepositoryEntry {
 	public final String referAsVar;
@@ -26,7 +25,7 @@ public class RequiresContract extends ContractReferencer implements RepositoryEn
 	
 	@Override
 	public void dumpTo(PrintWriter pw) {
-		throw new NotImplementedException();
+		pw.println("requiredContract " + varName().uniqueName());
 	}
 
 	@Override

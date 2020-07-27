@@ -64,8 +64,8 @@ public class GenerateRegressionSuite {
 		allProds.remove("1.4 file");
 		allProds.remove("4 protocol-test-file");
 		allProds.remove("5 system-test-file");
-		allProds.remove("115 protocol-test-unit");
-		allProds.remove("116 system-test-unit");
+		allProds.remove("114 protocol-test-unit");
+		allProds.remove("115 system-test-unit");
 	}
 
 	private static void store(Set<String> allUsed, JSONObject jo, String key, SentenceData used) {

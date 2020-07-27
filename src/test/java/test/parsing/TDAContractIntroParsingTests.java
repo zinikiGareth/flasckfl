@@ -8,6 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parser.ContractMethodParser;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.PackageNamer;
@@ -73,6 +74,7 @@ public class TDAContractIntroParsingTests {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(builder).newContract(with(tracker), with(any(ContractDecl.class))); will(captureIt);
+			oneOf(builder).newContractMethod(with(tracker), with(any(ContractMethodDecl.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));
@@ -87,6 +89,7 @@ public class TDAContractIntroParsingTests {
 		CaptureAction captureIt = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(builder).newContract(with(tracker), with(any(ContractDecl.class))); will(captureIt);
+			exactly(2).of(builder).newContractMethod(with(tracker), with(any(ContractMethodDecl.class)));
 		}});
 		TDAIntroParser parser = new TDAIntroParser(tracker, namer, builder);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("contract Data"));

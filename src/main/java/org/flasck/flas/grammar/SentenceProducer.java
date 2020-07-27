@@ -99,12 +99,15 @@ public class SentenceProducer {
 		private String futurePattern;
 		private Set<String> tokens = new HashSet<>();
 		private int nameNestOffset;
+		private final List<Map<String, String>> dicts = new ArrayList<>();
 		
 		public SPProductionVisitor(Grammar g, String pkg, String fileName, long l) {
 			this.grammar = g;
 			this.fileName = fileName;
 			this.r = new Random(l);
 			nameParts.add(new NamePart(0, pkg, UseNameForScoping.UNSCOPED));
+			dicts.add(null);
+			dicts.add(new TreeMap<>());
 		}
 
 		@Override
@@ -267,6 +270,25 @@ public class SentenceProducer {
 				this.matchers.put(assembleName(doAmend, scoping), patt);
 			}
 		}
+		
+		@Override
+		public void setDictEntry(String var, String val) {
+			dicts.get(indent).put(var, val);
+		}
+
+		@Override
+		public void condNotEqual(String var, String ne, Definition inner) {
+			for (int i=dicts.size()-1;i>=1;i--) {
+				Map<String, String> m = dicts.get(i);
+				if (m.containsKey(var)) {
+					if (!m.get(var).equals(ne)) {
+						visit(inner);
+					}
+					return;
+				}
+			}
+			throw new RuntimeException("The condition var " + var + " was not set");
+		}
 
 		private void replace(String t, UseNameForScoping scoping) {
 			NamePart np = null;
@@ -341,17 +363,29 @@ public class SentenceProducer {
 			sentence.append("\n");
 			haveSomething = false;
 			indent++;
+			dicts.add(new TreeMap<>());
+			return true;
+		}
+
+		@Override
+		public boolean indent(boolean force) {
+			if (!force && (!haveSomething || indent >= 8))
+				return false;
+			sentence.append("\n");
+			haveSomething = false;
+			indent++;
+			dicts.add(new TreeMap<>());
 			return true;
 		}
 
 		@Override
 		public void exdent() {
-			indent--;
-			int above = indent;
-			removeAbove(above);
+			removeAbove(--indent-1);
 			if (haveSomething)
 				sentence.append("\n");
 			haveSomething = false;
+			while (dicts.size() > indent+1)
+				dicts.remove(dicts.size()-1);
 		}
 
 		public void removeAbove(int above) {

@@ -273,6 +273,8 @@ public class Traverser implements RepositoryVisitor {
 				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract ||
 				   e instanceof Template) {
 			; // do nothing: these are just in the repo for lookup purposes
+		} else if (e instanceof ContractMethodDecl) {
+			; // do nothing; added to repository for consistency reasons
 		} else if (e instanceof Assembly) {
 			;
 		} else

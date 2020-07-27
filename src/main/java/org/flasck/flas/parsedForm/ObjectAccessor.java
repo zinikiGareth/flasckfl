@@ -62,6 +62,6 @@ public class ObjectAccessor implements RepositoryEntry, FieldAccessor {
 
 	@Override
 	public void dumpTo(PrintWriter pw) {
-		pw.print(toString());
+		pw.println(toString());
 	}
 }

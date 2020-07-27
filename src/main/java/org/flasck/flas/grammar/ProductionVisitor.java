@@ -8,6 +8,7 @@ import org.flasck.flas.grammar.TokenDefinition.Matcher;
 public interface ProductionVisitor {
 
 	boolean indent();
+	boolean indent(boolean force);
 	void visit(Definition defn);
 	void exdent();
 
@@ -26,5 +27,7 @@ public interface ProductionVisitor {
 	void nestName(int offset);
 	void pushPart(String prefix, String names, boolean appendFileName);
 
+	void setDictEntry(String var, String val);
+	void condNotEqual(String var, String ne, Definition inner);
 	void pushCaseNumber();
 }

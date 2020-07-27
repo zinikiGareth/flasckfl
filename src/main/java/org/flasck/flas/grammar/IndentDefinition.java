@@ -34,7 +34,7 @@ public class IndentDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		if (!productionVisitor.indent())
+		if (!productionVisitor.indent(!allowZero || exactlyOne))
 			return;
 		if (exactlyOne)
 			defn.visit(productionVisitor);

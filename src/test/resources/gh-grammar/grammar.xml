@@ -296,7 +296,7 @@
         <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
-        <ref production='struct-field-list'/>
+        <ref production='struct-field-decl'/>
       </indent>
     </seq>
   </production>
@@ -310,7 +310,7 @@
         <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
-        <ref production='struct-field-list'/>
+        <ref production='struct-field-decl'/>
       </indent>
     </seq>
   </production>
@@ -324,7 +324,7 @@
         <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
-        <ref production='struct-field-list'/>
+        <ref production='struct-field-decl'/>
       </indent>
     </seq>
   </production>
@@ -338,16 +338,9 @@
         <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
-        <ref production='struct-field-list'/>
+        <ref production='struct-field-decl'/>
       </indent>
     </seq>
-  </production>
-  <production name='struct-field-list'>
-    <section title='Data Declarations'/>
-	<tested by='test.parsing.TDAStructFieldParsingTests' />
-    <many>
-      <ref production='struct-field-decl'/>
-    </many>
   </production>
   <production name='struct-field-decl'>
     <section title='Data Declarations'/>
@@ -358,7 +351,6 @@
       <optional>
       	<ref production='struct-initializer'/>
       </optional>
-      <token type='EOL'/>
     </seq>
   </production>
   <production name='struct-initializer'>
@@ -395,7 +387,7 @@
       <token type='ENVELOPE'/>
       <token type='type-name' names='ENVELOPE\[${name}.*\]'/>
       <many>
-        <token type='poly-var' names='PolyType\[${name}.*\]'/>
+        <token type='poly-var' names='PolyType\[${name}.*\]' scope='indent'/>
       </many>
       <indent>
         <ref production='envelope-field-list'/>
@@ -442,7 +434,7 @@
     <section title='Envelopes'/>
 	<tested by='test.parsing.TDAStructFieldParsingTests' />
     <seq>
-      <token type='var-name' names='Field\[${final}.*\]'/>
+      <token type='var-name' names='StructField\[${name}.*\]'/>
       <ref production='struct-initializer'/>
       <token type='EOL'/>
     </seq>
@@ -546,7 +538,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionParsingTests' />
     <seq>
-      <token type='var-name' names='${name}\([0-9]+\)' maybe-repeat-last='true' />
+      <token type='var-name' names='${name}\(\+?[0-9]+\)' maybe-repeat-last='true' />
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
       <many>
@@ -564,7 +556,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
-      <token type='var-name' names='${name}\([0-9]+\)' />
+      <token type='var-name' names='${name}\(\+?[0-9]+\)' />
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
       <many>
@@ -580,7 +572,7 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
-      <token type='var-name' names='${name}\([0-9]+\)' />
+      <token type='var-name' names='${name}\(\+?[0-9]+\)' />
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
       <many>
@@ -1096,6 +1088,7 @@
     <seq>
       <token type='OBJECT' />
       <token type='type-name' names='ObjectDefinition\[${name}\]' />
+      <dict var='template-posn' val='2' /> 
       <indent>
         <ref production='object-scope-unit'/>
       </indent>
@@ -1122,7 +1115,7 @@
     <seq>
     	  <token type='STATE'/>
     	  <indent>
-    	    <ref production='struct-field-list'/>
+    	    <ref production='struct-field-decl'/>
     	  </indent>
     </seq>
   </production>
@@ -1220,11 +1213,12 @@
     </section>
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
-    	  <token type='CARD' />
-    	  <token type='type-name' names='Card\[${name}\]'/>
-    	  <indent>
-    	    <ref production='card-scope-unit'/>
-    	  </indent>
+      <token type='CARD' />
+      <token type='type-name' names='Card\[${name}\]'/>
+      <dict var='template-posn' val='1' /> 
+      <indent>
+        <ref production='card-scope-unit'/>
+      </indent>
     </seq>
   </production>
   <production name='card-scope-unit'>
@@ -1252,7 +1246,7 @@
       <token type='REQUIRES' />
       <token type='type-name'/>
       <push-part prefix='R' />
-      <token type='var-name'/>
+      <token type='var-name' names='requiredContract ${name}'/>
     </seq>
   </production>
   <production name='implements-contract'>
@@ -1308,8 +1302,13 @@
     <tested by='test.parsing.TDATopLevelCardParsingTests' />
     <seq>
       <token type='EVENT'/>
-      <will-name pattern='ObjectMethod\[${name}\([0-9]+\)\]' />
-      <ref production='method-definition'/>
+      <token type='var-name' names='ObjectMethod\[${name}\([0-9]+\)\]' />
+      <nested-name offset='1'/>
+      <ref production='argument-pattern-typed'/>
+      <nested-name offset='0'/>
+      <indent-one>
+      	<ref production='method-guards-or-actions'/>
+      </indent-one>
     </seq>
   </production>
   <production name='named-template-definition'>
@@ -1323,16 +1322,20 @@
         To solve these problmes, a template may specify variables that are in its enclosing chain.
         In all circumstances, the validity of the claims made here will be checked by the typechecker.
         The card's own template will <b>not</b> have any of these problems, and so cannot have this syntax.
+        Item templates may have nesting chains but (top-level) card templates may not
         </p>
       </description>
     </section>
     <tested by='test.parsing.TDATemplateParsingTests' />
     <seq>
       <token type='TEMPLATE'/>
-      <token type='template-name'/>
-      <optional>
-      	<ref production='define-template-chain'/>
-      </optional>
+      <token type='template-name' names='Template\[${name}\]'/>
+      <cond var='template-posn' ne='1'>
+        <optional>
+      	  <ref production='define-template-chain'/>
+        </optional>
+      </cond>
+      <dict var='template-posn' val='2'/>
       <indent>
         <ref production='template-bind'/>
       </indent>
@@ -1624,6 +1627,8 @@ match style ...
     <tested by='test.parsing.ut.UnitTestStepParsingTests' />
     <seq>
       <token type='SHOVE' />
+      <token type='var-name' />
+      <token type='APPLY' />
       <ref production='member-path' />
       <indent-one>
     	    <ref production='expression' />

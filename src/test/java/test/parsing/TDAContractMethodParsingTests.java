@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorMark;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ContractMethodConsumer;
@@ -38,6 +39,7 @@ public class TDAContractMethodParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred")));
+			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("fred"));
@@ -67,6 +69,7 @@ public class TDAContractMethodParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fredBloggs")));
+			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("fredBloggs"));
@@ -81,6 +84,7 @@ public class TDAContractMethodParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred").optional()));
+			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("optional fred"));
@@ -95,6 +99,7 @@ public class TDAContractMethodParsingTests {
 			allowing(errors).mark(); will(returnValue(mark));
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred").arg(TypedPatternMatcher.typed("Number", "x"))));
+			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 			oneOf(topLevel).argument(with(errors), with(any(TypedPattern.class)));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
@@ -111,6 +116,7 @@ public class TDAContractMethodParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred").handler(TypedPatternMatcher.typed("Handler", "h"))));
 			oneOf(topLevel).argument(with(errors), (TypedPattern)with(TypedPatternMatcher.typed("Handler", "h")));
+			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 		}});
 		ContractMethodParser parser = new ContractMethodParser(errors, builder, topLevel, cname);
 		TDAParsing nested = parser.tryParsing(TDABasicIntroParsingTests.line("fred -> (Handler h)"));
@@ -126,6 +132,7 @@ public class TDAContractMethodParsingTests {
 			allowing(mark).hasMoreNow(); will(returnValue(false));
 			// it constructs the "wrong" thing before complaining
 			oneOf(builder).addMethod(with(ContractMethodMatcher.named("fred")));
+			oneOf(topLevel).newContractMethod(with(errors), with(any(ContractMethodDecl.class)));
 			oneOf(topLevel).argument(with(aNull(ErrorReporter.class)), with(any(VarPattern.class)));
 			// but it does complain and that should stop it doing the wrong thing later ...
 			oneOf(errors).message(with(any(InputPosition.class)), with("contract patterns must be typed"));

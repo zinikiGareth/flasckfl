@@ -61,7 +61,7 @@ public class ContractMethodDecl implements Locatable, RepositoryEntry, Comparabl
 	public String toString() {
 		StringBuilder sb = new StringBuilder(required?"required":"optional");
 		sb.append(" ");
-		sb.append(name.name);
+		sb.append(name.uniqueName());
 		for (Object o : args) {
 			sb.append(" ");
 			sb.append(o.toString());

@@ -186,6 +186,10 @@ public class Grammar {
 			return handleNestedName(ruleName, rule);
 		case "push-part":
 			return handlePushPart(ruleName, rule);
+		case "dict":
+			return dictSet(ruleName, rule);
+		case "cond":
+			return cond(ruleName, rule);
 		case "can-repeat-with-case-number":
 			return handleCaseNumbering(ruleName, rule);
 		default:
@@ -294,6 +298,22 @@ public class Grammar {
 	private Definition handleCaseNumbering(String ruleName, XMLElement rule) {
 		rule.attributesDone();
 		return new CaseNumberingDefinition();
+	}
+
+	private Definition dictSet(String ruleName, XMLElement rule) {
+		String var = rule.required("var");
+		String val = rule.required("val");
+		rule.attributesDone();
+		return new DictSetDefinition(var, val);
+	}
+
+	private Definition cond(String ruleName, XMLElement rule) {
+		String var = rule.required("var");
+		String ne = rule.optional("ne");
+		rule.attributesDone();
+		if (rule.elementChildren().size() != 1)
+			throw new RuntimeException("cond needs 1 child, not " + rule.elementChildren().size());
+		return new CondDefinition(var, ne, parseDefn(ruleName, rule.elementChildren().get(0)));
 	}
 
 	public Iterable<Section> sections() {

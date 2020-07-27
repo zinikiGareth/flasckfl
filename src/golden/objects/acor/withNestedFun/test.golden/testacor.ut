@@ -1,0 +1,4 @@
+	test it gives 4
+		data NestedAcor na <- NestedAcor.make
+		assert (na.nested)
+			4
