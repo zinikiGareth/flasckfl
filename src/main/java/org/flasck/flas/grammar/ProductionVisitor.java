@@ -16,18 +16,23 @@ public interface ProductionVisitor {
 	boolean complete(OrProduction prod, Object cxt, List<Definition> choices);
 
 	void zeroOrOne(Definition child);
-	void zeroOrMore(Definition child, boolean withEOL);
-	void oneOrMore(Definition child, boolean withEOL);
+	int zeroOrMore(Definition child, boolean withEOL);
+	int oneOrMore(Definition child, boolean withEOL);
+	void exactly(int cnt, Definition child, boolean withEOL);
 
 	void referTo(String child, boolean resetToken);
 	OrProduction isOr(String child);
 
 	void futurePattern(String amended, String pattern);
-	void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers);
+	void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers, boolean repeatLast, boolean saveLast);
 	void nestName(int offset);
 	void pushPart(String prefix, String names, boolean appendFileName);
 
 	void setDictEntry(String var, String val);
+	String getDictValue(String var);
+	String getTopDictValue(String var);
+	void clearDictEntry(String var);
 	void condNotEqual(String var, String ne, Definition inner);
+	void condNotSet(String var, Definition inner);
 	void pushCaseNumber();
 }

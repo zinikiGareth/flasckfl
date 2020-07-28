@@ -40,7 +40,7 @@ public class SentenceProducer {
 		UNSCOPED
 	}
 
-	private boolean debug = true;
+	private boolean debug = false;
 	private final Grammar grammar;
 	private final File td;
 
@@ -126,13 +126,22 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void zeroOrMore(Definition child, boolean withEOL) {
-			iterateOver(child, withEOL, r.nextInt(3));
+		public int zeroOrMore(Definition child, boolean withEOL) {
+			int cnt = r.nextInt(3);
+			iterateOver(child, withEOL, cnt);
+			return cnt;
 		}
 
 		@Override
-		public void oneOrMore(Definition child, boolean withEOL) {
-			iterateOver(child, withEOL, r.nextInt(3)+1);
+		public int oneOrMore(Definition child, boolean withEOL) {
+			int cnt = r.nextInt(3)+1;
+			iterateOver(child, withEOL, cnt);
+			return cnt;
+		}
+
+		@Override
+		public void exactly(int cnt, Definition child, boolean withEOL) {
+			iterateOver(child, withEOL, cnt);
 		}
 
 		private void iterateOver(Definition child, boolean withEOL, int cnt) {
@@ -151,18 +160,22 @@ public class SentenceProducer {
 				} else
 					visit(child);
 				if (withEOL)
-					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>());
+					token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>(), false, false);
 			}
 			if (op != null) {
 				while (!op.wrapUp(cxt, this)) {
 					if (withEOL)
-						token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>());
+						token("EOL", null, UseNameForScoping.UNSCOPED, new ArrayList<>(), false, false);
 				}
 			}
 		}
 		
 		@Override
 		public void referTo(String child, boolean resetToken) {
+			if (resetToken) {
+				this.dicts.get(dicts.size()-1).remove("haveLast");
+				this.dicts.get(dicts.size()-1).remove("caseNumber");
+			}
 			Production p;
 			try {
 				p = grammar.findRule(child);
@@ -230,9 +243,17 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers) {
+		public void token(String token, String patternMatcher, UseNameForScoping scoping, List<Matcher> matchers, boolean repeatLast, boolean saveLast) {
 			final Lexer lexer = grammar.findToken(token);
-			String t = genToken(token, lexer.pattern);
+			String t;
+			String haveLast = dicts.get(indent).get("haveLast");
+			if (repeatLast && haveLast != null) {
+				t = haveLast;
+			} else {
+				t = genToken(token, lexer.pattern);
+				if (saveLast)
+					dicts.get(indent).put("haveLast", t);
+			}
 			if (debug)
 				System.out.println("    " + t);
 			Pattern p = Pattern.compile(lexer.pattern);
@@ -277,17 +298,44 @@ public class SentenceProducer {
 		}
 
 		@Override
-		public void condNotEqual(String var, String ne, Definition inner) {
+		public String getDictValue(String var) {
 			for (int i=dicts.size()-1;i>=1;i--) {
 				Map<String, String> m = dicts.get(i);
 				if (m.containsKey(var)) {
-					if (!m.get(var).equals(ne)) {
-						visit(inner);
-					}
-					return;
+					return m.get(var);
 				}
 			}
+			return null;
+		}
+
+		@Override
+		public String getTopDictValue(String var) {
+			return dicts.get(dicts.size()-1).get(var);
+		}
+
+		@Override
+		public void clearDictEntry(String var) {
+			dicts.get(indent).remove(var);
+		}
+
+		@Override
+		public void condNotEqual(String var, String ne, Definition inner) {
+			String val = getDictValue(var);
+			if (val != null) {
+				if (!val.equals(ne)) {
+					visit(inner);
+				}
+				return;
+			}
 			throw new RuntimeException("The condition var " + var + " was not set");
+		}
+
+		@Override
+		public void condNotSet(String var, Definition inner) {
+			Map<String, String> m = dicts.get(dicts.size()-1);
+			if (!m.containsKey(var)) {
+				visit(inner);
+			}
 		}
 
 		private void replace(String t, UseNameForScoping scoping) {
@@ -340,7 +388,14 @@ public class SentenceProducer {
 		@Override
 		public void pushCaseNumber() {
 			removeAbove(indent + nameNestOffset);
-			final NamePart finalPart = new NamePart(indent + nameNestOffset, "_1", UseNameForScoping.UNSCOPED);
+			String cn = getTopDictValue("caseNumber");
+			if (cn == null) {
+				cn = "1";
+			} else {
+				cn = Integer.toString(Integer.parseInt(cn)+1);
+			}
+			setDictEntry("caseNumber", cn);
+			final NamePart finalPart = new NamePart(indent + nameNestOffset, "_" + cn, UseNameForScoping.UNSCOPED);
 			nameParts.add(finalPart);
 		}
 

@@ -26,12 +26,14 @@ public class TokenDefinition extends Definition {
 	private final UseNameForScoping scoping;
 	private final List<Matcher> matchers = new ArrayList<>();
 	private final boolean repeatLast;
+	private final boolean saveLast;
 
-	public TokenDefinition(String token, String patternMatcher, UseNameForScoping scoping, boolean repeatLast) {
+	public TokenDefinition(String token, String patternMatcher, UseNameForScoping scoping, boolean repeatLast, boolean saveLast) {
 		this.token = token;
 		this.patternMatcher = patternMatcher;
 		this.scoping = scoping;
 		this.repeatLast = repeatLast;
+		this.saveLast = saveLast;
 	}
 
 	@Override
@@ -50,7 +52,7 @@ public class TokenDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.token(token, patternMatcher, scoping, matchers);
+		productionVisitor.token(token, patternMatcher, scoping, matchers, repeatLast, saveLast);
 	}
 
 	public void addMatcher(String amendedName, String pattern, UseNameForScoping scoper) {

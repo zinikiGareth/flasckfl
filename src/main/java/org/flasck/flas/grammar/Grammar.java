@@ -188,6 +188,8 @@ public class Grammar {
 			return handlePushPart(ruleName, rule);
 		case "dict":
 			return dictSet(ruleName, rule);
+		case "dict-clear":
+			return dictClear(ruleName, rule);
 		case "cond":
 			return cond(ruleName, rule);
 		case "can-repeat-with-case-number":
@@ -205,12 +207,13 @@ public class Grammar {
 
 	private ManyDefinition handleMany(String ruleName, XMLElement rule, boolean allowZero) {
 		Definition defn;
+		String shared = rule.optional("shared");
 		if (!rule.elementChildren("ref").isEmpty())
 			defn = parseDefn(ruleName, rule.uniqueElement("ref"));
 		else
 			defn = parseDefn(ruleName, rule.uniqueElement("token"));
 		rule.attributesDone();
-		return new ManyDefinition(defn, allowZero);
+		return new ManyDefinition(defn, allowZero, shared);
 	}
 
 	private Definition handleOptional(String ruleName, XMLElement rule) {
@@ -256,8 +259,9 @@ public class Grammar {
 		else if ("indent".equals(scope))
 			unfs = UseNameForScoping.INDENT_THIS_ONCE;
 		boolean repeatLast = rule.optionalBoolean("maybe-repeat-last", false);
+		boolean saveLast = rule.optionalBoolean("save-last", false);
 		rule.attributesDone();
-		final TokenDefinition ret = new TokenDefinition(type, nameAppender, unfs, repeatLast);
+		final TokenDefinition ret = new TokenDefinition(type, nameAppender, unfs, repeatLast, saveLast);
 		List<XMLElement> matchers = rule.elementChildren("named");
 		for (XMLElement xe : matchers) {
 			String amendedName = xe.required("amended");
@@ -307,13 +311,20 @@ public class Grammar {
 		return new DictSetDefinition(var, val);
 	}
 
+	private Definition dictClear(String ruleName, XMLElement rule) {
+		String var = rule.required("var");
+		rule.attributesDone();
+		return new DictClearDefinition(var);
+	}
+
 	private Definition cond(String ruleName, XMLElement rule) {
 		String var = rule.required("var");
 		String ne = rule.optional("ne");
+		String notset = rule.optional("notset");
 		rule.attributesDone();
 		if (rule.elementChildren().size() != 1)
 			throw new RuntimeException("cond needs 1 child, not " + rule.elementChildren().size());
-		return new CondDefinition(var, ne, parseDefn(ruleName, rule.elementChildren().get(0)));
+		return new CondDefinition(var, ne, Boolean.parseBoolean(notset), parseDefn(ruleName, rule.elementChildren().get(0)));
 	}
 
 	public Iterable<Section> sections() {

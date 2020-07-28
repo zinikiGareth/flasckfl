@@ -6,10 +6,12 @@ import java.util.Set;
 public class ManyDefinition extends Definition {
 	private final Definition child;
 	private final boolean allowZero;
+	private final String shared;
 
-	public ManyDefinition(Definition child, boolean allowZero) {
+	public ManyDefinition(Definition child, boolean allowZero, String shared) {
 		this.child = child;
 		this.allowZero = allowZero;
+		this.shared = shared;
 	}
 
 	public void showGrammarFor(PrintWriter str) {
@@ -34,9 +36,20 @@ public class ManyDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
+		if (shared != null) {
+			String cnt = productionVisitor.getTopDictValue(shared);
+			if (cnt != null) {
+				productionVisitor.exactly(Integer.parseInt(cnt), child, false);
+				return;
+			}
+		}
+		int actual;
 		if (allowZero)
-			productionVisitor.zeroOrMore(child, false);
+			actual = productionVisitor.zeroOrMore(child, false);
 		else
-			productionVisitor.oneOrMore(child, false);
+			actual = productionVisitor.oneOrMore(child, false);
+		if (shared != null) {
+			productionVisitor.setDictEntry(shared, Integer.toString(actual));
+		}
 	}
 }

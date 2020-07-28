@@ -61,10 +61,12 @@ public class RunRegressionSuite {
 				allKeys.add(tmp.getString(i));
 		}
 
-		for (String s : allKeys) {
-			final int yes = success.getCount(s);
-			final int no = failure.getCount(s);
-			System.out.println(s + " " + yes + " " + no + " = " + (yes+no == 0?"--":((100*yes)/(yes+no))) + "%");
+		if (!failed.isEmpty()) {
+			for (String s : allKeys) {
+				final int yes = success.getCount(s);
+				final int no = failure.getCount(s);
+				System.out.println(s + " " + yes + " " + no + " = " + (yes+no == 0?"--":((100*yes)/(yes+no))) + "%");
+			}
 		}
 		
 		assertEquals("Not all regression tests were run", dirs.size(), passed.size() + failed.size());

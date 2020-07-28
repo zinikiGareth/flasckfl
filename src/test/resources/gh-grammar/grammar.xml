@@ -538,10 +538,13 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionParsingTests' />
     <seq>
-      <token type='var-name' names='${name}\(\+?[0-9]+\)' maybe-repeat-last='true' />
+      <cond var='haveLast' notset='true'>
+        <dict-clear var='arg-length'/>
+      </cond>
+      <token type='var-name' names='${name}\(\+?[0-9]+\)' maybe-repeat-last='true' save-last='true'/>
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
-      <many>
+      <many shared='arg-length'>
       	<ref production='argument-pattern'/>
       </many>
       <nested-name offset='0'/>
@@ -556,10 +559,10 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
-      <token type='var-name' names='${name}\(\+?[0-9]+\)' />
+      <token type='var-name' names='${name}\(\+?[0-9]+\)' maybe-repeat-last='true' save-last='true'/>
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
-      <many>
+      <many shared='arg-length'>
       	<ref production='argument-pattern'/>
       </many>
       <nested-name offset='0'/>
@@ -572,10 +575,10 @@
     <section title='Functions'/>
     <tested by='test.parsing.TDAFunctionGuardedCaseParsingTests' />
     <seq>
-      <token type='var-name' names='${name}\(\+?[0-9]+\)' />
+      <token type='var-name' names='${name}\(\+?[0-9]+\)' maybe-repeat-last='true' save-last='true'/>
       <can-repeat-with-case-number />
       <nested-name offset='1'/>
-      <many>
+      <many shared='arg-length'>
       	<ref production='argument-pattern'/>
       </many>
       <nested-name offset='0'/>

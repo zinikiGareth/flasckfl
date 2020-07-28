@@ -3,16 +3,16 @@ package org.flasck.flas.grammar;
 import java.io.PrintWriter;
 import java.util.Set;
 
-import org.zinutils.exceptions.NotImplementedException;
-
 public class CondDefinition extends Definition {
 	private final String var;
 	private final String ne;
+	private final boolean notset;
 	private final Definition inner;
 
-	public CondDefinition(String var, String ne, Definition inner) {
+	public CondDefinition(String var, String ne, boolean notset, Definition inner) {
 		this.var = var;
 		this.ne = ne;
+		this.notset = notset;
 		this.inner = inner;
 	}
 
@@ -33,7 +33,12 @@ public class CondDefinition extends Definition {
 
 	@Override
 	public void visit(ProductionVisitor productionVisitor) {
-		productionVisitor.condNotEqual(var, ne, inner);
+		if (ne != null)
+			productionVisitor.condNotEqual(var, ne, inner);
+		else if (notset)
+			productionVisitor.condNotSet(var, inner);
+		else
+			throw new RuntimeException("Cannot handle lack of conditions");
 	}
 
 }
