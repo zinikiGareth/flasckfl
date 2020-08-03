@@ -3,10 +3,19 @@ package org.flasck.flas.golden;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Main;
@@ -21,6 +30,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunnerHelper;
 import org.zinutils.cgharness.TestMethodContentProvider;
+import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
 
@@ -34,6 +44,8 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	static boolean useJSRunner = useRunner == null || useRunner.equals("js") || useRunner.equals("both");
 	static boolean useJVMRunner = useRunner == null || useRunner.equals("jvm") || useRunner.equals("both");
 	static String buildDroidOpt = System.getProperty("org.flasck.golden.buildDroid");
+	static String maxcnt = System.getProperty("org.flasck.golden.cnt");
+	private static int MAXCNT = maxcnt == null ? Integer.MAX_VALUE : Integer.parseInt(maxcnt);
 //	private static boolean buildDroid = buildDroidOpt != null && buildDroidOpt.equals("true");
 	
 	public static final File jvmdir;
@@ -65,26 +77,58 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			p = Pattern.compile(match);
 		}
 
-		List<File> fls = FileUtils.findFilesMatching(new File("src/golden"), "test.golden");
+		DecimalFormat df = new DecimalFormat("000");
+		int cnt = 1;
+		Set<File> sf = new TreeSet<>(new FileNameComparator());
+		sf.addAll(FileUtils.findFilesMatching(new File("src/golden"), "test.golden"));
+		sf = trackOrdering(sf);
 		ByteCodeCreator bcc = CGHarnessRunnerHelper.emptyTestClass(bce, clz.getName());
 		bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
-		for (File f : fls) {
+		for (File f : sf) {
 			File dir = f.getParentFile();
 			if (p == null || p.matcher(dir.getPath()).find()) {
-				addGoldenTest(bcc, dir);
+				addGoldenTest(bcc, "ut"+df.format(cnt++)+"_", dir);
 			}
+			if (cnt > MAXCNT)
+				break;
 		}
 		return CGHarnessRunnerHelper.generate(cl, bcc);
 	}
 
-	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
+	private static Set<File> trackOrdering(Set<File> sf) throws IOException {
+		File orig = new File("testorder");
+		Set<File> ret;
+		if (orig.exists()) {
+			ret = new LinkedHashSet<File>();
+			try (LineNumberReader lnr = new LineNumberReader(new FileReader(orig))) {
+				String s;
+				while ((s = lnr.readLine()) != null) {
+					File t = new File(s);
+					if (t.isDirectory())
+						ret.add(t);
+				}
+			}
+			ret.addAll(sf);
+		} else
+			ret = sf;
+		File out = new File("testorder.new");
+		try (PrintWriter pw = new PrintWriter(out)) {
+			for (File f : ret)
+				pw.println(f.getPath());
+		}
+		Files.move(out.toPath(), orig.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		return ret;
+	}
+
+
+	private static void addGoldenTest(ByteCodeCreator bcc, String prefix, final File f) {
 		boolean ignoreTest = new File(f, "ignore").exists();
 		String phase = new File(f, "phase").exists() ? FileUtils.readFile(new File(f, "phase")) : PhaseTo.COMPLETE.toString();
 		boolean runjvm = !new File(f, "jsonly").exists();
 		boolean runjs = !new File(f, "jvmonly").exists();
 
 		StringBuilder name = makeNameForTest(f);
-		name.insert(0, "test");
+		name.insert(0, prefix);
 		addTests(bcc, f, name.toString(), ignoreTest, runjvm, runjs, phase);
 	}
 
