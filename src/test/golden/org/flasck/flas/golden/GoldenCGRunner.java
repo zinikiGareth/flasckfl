@@ -13,6 +13,7 @@ import org.flasck.flas.Main;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.MethodSorters;
 import org.junit.runners.model.InitializationError;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -50,11 +51,11 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	}
 	
 	public GoldenCGRunner(Class<?> clz) throws InitializationError, IOException, ErrorResultException {
-		super(figureClasses(clz)[0]);
+		super(figureTests(clz));
 	}
 	
 
-	private static Class<?>[] figureClasses(Class<?> clz) throws IOException, ErrorResultException {
+	private static Class<?> figureTests(Class<?> clz) throws IOException, ErrorResultException {
 		ByteCodeEnvironment bce = new ByteCodeEnvironment();
 		CGHClassLoaderImpl cl = new CGHClassLoaderImpl();
 		
@@ -66,13 +67,14 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 
 		List<File> fls = FileUtils.findFilesMatching(new File("src/golden"), "test.golden");
 		ByteCodeCreator bcc = CGHarnessRunnerHelper.emptyTestClass(bce, clz.getName());
+		bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
 		for (File f : fls) {
 			File dir = f.getParentFile();
 			if (p == null || p.matcher(dir.getPath()).find()) {
 				addGoldenTest(bcc, dir);
 			}
 		}
-		return new Class<?>[] { CGHarnessRunnerHelper.generate(cl, bcc) };
+		return CGHarnessRunnerHelper.generate(cl, bcc);
 	}
 
 	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
