@@ -7,25 +7,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.compiler.PhaseTo;
 import org.flasck.flas.errors.ErrorResultException;
+import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
-import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
-import org.zinutils.cgharness.CGHarnessRunner;
-import org.zinutils.utils.FileNameComparator;
+import org.zinutils.cgharness.CGHarnessRunnerHelper;
+import org.zinutils.cgharness.TestMethodContentProvider;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
 
-public class GoldenCGRunner extends CGHarnessRunner {
+public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	static String checkOption = System.getProperty("org.flasck.golden.check");
 	static boolean checkEverything = checkOption == null || !checkOption.equalsIgnoreCase("false");
 	static boolean checkNothing = checkOption != null && checkOption.equalsIgnoreCase("nothing");
@@ -50,16 +48,13 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 		jvmdir = jd;
 	}
+	
+	public GoldenCGRunner(Class<?> clz) throws InitializationError, IOException, ErrorResultException {
+		super(figureClasses(clz)[0]);
+	}
+	
 
-	public GoldenCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException {
-		super(builder, figureClasses());
-	}
-	
-	public GoldenCGRunner(Class<?> klass) throws InitializationError, IOException, ErrorResultException {
-		super(klass, figureClasses());
-	}
-	
-	private static Class<?>[] figureClasses() throws IOException, ErrorResultException {
+	private static Class<?>[] figureClasses(Class<?> clz) throws IOException, ErrorResultException {
 		ByteCodeEnvironment bce = new ByteCodeEnvironment();
 		CGHClassLoaderImpl cl = new CGHClassLoaderImpl();
 		
@@ -69,25 +64,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			p = Pattern.compile(match);
 		}
 
-//		Set<File> dirs = new TreeSet<>(new FileNameComparator());
-		Map<File, ByteCodeCreator> bccs = new TreeMap<>(new FileNameComparator());
-		List<File> fls = FileUtils.findFilesMatching(new File("src/golden"), "*.fl");
-		fls.addAll(FileUtils.findFilesMatching(new File("src/golden"), "*.ut"));
+		List<File> fls = FileUtils.findFilesMatching(new File("src/golden"), "test.golden");
+		ByteCodeCreator bcc = CGHarnessRunnerHelper.emptyTestClass(bce, clz.getName());
 		for (File f : fls) {
-			File dir = f.getParentFile().getParentFile();
+			File dir = f.getParentFile();
 			if (p == null || p.matcher(dir.getPath()).find()) {
-				ByteCodeCreator bcc = emptyTestClass(bce, makeNameForTest(dir).toString());
 				addGoldenTest(bcc, dir);
-				if (bcc.methodCount() > 1)
-					bccs.put(dir, bcc);
 			}
 		}
-		Class<?>[] ret = new Class<?>[bccs.size()];
-		int i=0;
-		for (ByteCodeCreator bcc : bccs.values())
-			ret[i++] = generate(cl, bcc);
-		return ret;
-//		return new Class<?>[] { generate(cl, bcc) };
+		return new Class<?>[] { CGHarnessRunnerHelper.generate(cl, bcc) };
 	}
 
 	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
@@ -112,7 +97,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	}
 
 	private static void addTests(ByteCodeCreator bcc, final File f, String name, boolean ignoreTest, boolean runJvm, boolean runJs, String phase) {
-		addMethod(bcc, name, ignoreTest, new TestMethodContentProvider() {
+		CGHarnessRunnerHelper.addMethod(bcc, name, ignoreTest, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
 				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath()), done.boolConst(runJvm), done.boolConst(runJs), done.stringConst(phase)).flush();
@@ -167,15 +152,5 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			return false; // won't actually happen
 		} else
 			return true;
-	}
-
-	@Override
-	protected void cleanUp() {
-		// compiler.destroy();
-	}
-
-	@Override
-	protected String getName() {
-		return "FLAS Golden Tests";
 	}
 }
