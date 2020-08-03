@@ -12,6 +12,7 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSInheritFrom;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMethod extends JSBlock implements JSMethodCreator {
@@ -76,8 +77,12 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		stmts.add(new JSBlockComplete());
 	}
 
-	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, ByteCodeEnvironment bce) {
+		JVMCreationContext jvm = null;
+
+		if (bce != null) {
+			jvm = new BasicJVMCreationContext(bce, this.pkg, this.name, !this.prototype);
+		}
 		w.println("");
 		w.print(pkg);
 		if (name != null) {
@@ -97,8 +102,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 			w.print(v.asVar());
 		}
 		w.print(") ");
-		super.write(w);
+		super.write(w, jvm);
 		w.println("");
+		if (jvm != null) {
+			jvm.done();
+		}
 		if (name != null) {
 			w.println("");
 			w.print(pkg);

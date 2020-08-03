@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
+import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClass implements JSClassCreator {

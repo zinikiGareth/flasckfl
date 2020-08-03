@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSFile {
@@ -54,20 +55,20 @@ public class JSFile {
 	}
 
 	// untested
-	public void write() throws FileNotFoundException {
+	public void write(ByteCodeEnvironment bce) throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(file);
 		IndentWriter iw = new IndentWriter(pw);
-		writeTo(iw);
+		writeTo(iw, bce);
 		pw.close();
 	}
 
-	public void writeTo(IndentWriter iw) {
+	public void writeTo(IndentWriter iw, ByteCodeEnvironment bce) {
 		declarePackages(iw);
 		for (JSClass c : classes)
 			c.writeTo(iw);
 		for (JSMethod f : functions) {
 			declareContainingPackage(iw, f);
-			f.write(iw);
+			f.write(iw, bce);
 		}
 		for (MethodList m : methodLists)
 			m.write(iw);

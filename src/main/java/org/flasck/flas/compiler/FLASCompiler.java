@@ -73,6 +73,7 @@ public class FLASCompiler {
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;
 	private ByteCodeEnvironment bce;
+	private boolean newJVM = Boolean.parseBoolean(System.getProperty("org.flasck.golden.rejvm"));
 
 	public FLASCompiler(ErrorReporter errors, Repository repository) {
 		this.errors = errors;
@@ -201,7 +202,7 @@ public class FLASCompiler {
 
 		if (config.generateJS)
 			repository.traverseWithHSI(jsstack);
-		if (config.generateJVM)
+		if (config.generateJVM && !newJVM)
 			repository.traverseWithHSI(jvmstack);
 		
 		if (errors.hasErrors()) {
@@ -209,7 +210,7 @@ public class FLASCompiler {
 		}
 		
 		if (config.generateJS)
-			saveJSE(config.jsDir(), jse);
+			saveJSE(config.jsDir(), jse, newJVM?bce:null);
 		if (config.generateJVM)
 			saveBCE(config.jvmDir(), bce);
 
@@ -344,10 +345,10 @@ public class FLASCompiler {
 		}
 	}
 
-	public void saveJSE(File jsDir, JSEnvironment jse) {
+	public void saveJSE(File jsDir, JSEnvironment jse, ByteCodeEnvironment bce) {
 		if (jsDir != null) {
 			try {
-				jse.writeAllTo(jsDir);
+				jse.writeAllTo(jsDir, bce);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				errors.message((InputPosition) null, ex.toString());

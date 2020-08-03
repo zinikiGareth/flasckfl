@@ -20,6 +20,7 @@ import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.FileUtils;
 
 /** The idea here is to create a set of "package" files in memory with abstract constructs.
@@ -132,10 +133,10 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	// untested
-	public void writeAllTo(File jsDir) throws FileNotFoundException {
+	public void writeAllTo(File jsDir, ByteCodeEnvironment bce) throws FileNotFoundException {
 		FileUtils.assertDirectory(jsDir);
 		for (JSFile jsf : files.values()) {
-			jsf.write();
+			jsf.write(bce);
 		}
 	}
 
