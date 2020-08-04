@@ -19,7 +19,7 @@ public class JSMakeArray implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.array(");
 		boolean isFirst = true;
 		for (JSExpr e : args) {
@@ -35,6 +35,12 @@ public class JSMakeArray implements JSExpr {
 	@Override
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

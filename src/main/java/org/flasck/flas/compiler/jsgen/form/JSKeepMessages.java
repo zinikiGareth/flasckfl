@@ -19,7 +19,13 @@ public class JSKeepMessages implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.println("_cxt.addAll(" + ocmsgs.asVar() + ", " + msgs.asVar() + ");");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

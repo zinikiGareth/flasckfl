@@ -17,9 +17,15 @@ public class JSSatisfaction implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print(var);
 		w.println(".assertSatisfied(_cxt);");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

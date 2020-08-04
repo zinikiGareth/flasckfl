@@ -32,7 +32,7 @@ public class JSUpdateStyle implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("this._updateStyle(_cxt, _renderTree, '");
 		w.print(templateName);
 		w.print("', ");
@@ -57,5 +57,11 @@ public class JSUpdateStyle implements JSExpr {
 			w.print(si.style.asVar());
 		}
 		w.println(");");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

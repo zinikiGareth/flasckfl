@@ -25,8 +25,14 @@ public class IsAExpr implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.isA(" + var + ", '" + ctor + "')");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

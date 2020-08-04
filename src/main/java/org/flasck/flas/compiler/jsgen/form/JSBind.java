@@ -1,8 +1,10 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSBind implements JSExpr {
 	private final Slot slot;
@@ -21,10 +23,18 @@ public class JSBind implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.println("const " + var + " = " + slotName + ";");
-		if (jvm != null)
-			jvm.bind(this, slot);
 	}
 
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		if (slot instanceof ArgSlot) {
+			ArgSlot as = (ArgSlot) slot;
+			int pos = as.argpos();
+			
+		} else {
+			throw new NotImplementedException("ctor slots");
+		}
+	}
 }

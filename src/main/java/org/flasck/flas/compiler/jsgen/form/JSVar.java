@@ -11,12 +11,18 @@ public class JSVar implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print(name);
 	}
 
 	@Override
 	public String asVar() {
 		return name;
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

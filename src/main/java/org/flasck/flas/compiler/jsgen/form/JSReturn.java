@@ -12,16 +12,18 @@ public class JSReturn implements JSExpr {
 
 	@Override
 	public String asVar() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("return ");
 		w.print(jsExpr.asVar());
 		w.println(";");
-		if (jvm != null)
-			jvm.returnExpr(jsExpr);
+	}
+	
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		jvm.method().returnObject(jvm.arg(jsExpr)).flush();
 	}
 }

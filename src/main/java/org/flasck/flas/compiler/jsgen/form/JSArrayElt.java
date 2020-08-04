@@ -19,8 +19,14 @@ public class JSArrayElt implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		throw new NotImplementedException("I don't think so, but probably just asVar");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

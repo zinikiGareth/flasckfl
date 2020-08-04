@@ -28,7 +28,7 @@ public class JSUpdateTemplate implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		IndentWriter iw = w;
 		if (expr == null) {
 			// we need to be sure that onObj is defined
@@ -62,6 +62,12 @@ public class JSUpdateTemplate implements JSExpr {
 		if (expr == null) {
 			w.println("}");
 		}
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

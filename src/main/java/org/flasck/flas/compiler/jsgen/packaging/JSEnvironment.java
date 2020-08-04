@@ -133,10 +133,16 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	// untested
-	public void writeAllTo(File jsDir, ByteCodeEnvironment bce) throws FileNotFoundException {
+	public void writeAllTo(File jsDir) throws FileNotFoundException {
 		FileUtils.assertDirectory(jsDir);
 		for (JSFile jsf : files.values()) {
-			jsf.write(bce);
+			jsf.write();
+		}
+	}
+
+	public void generate(ByteCodeEnvironment bce) {
+		for (JSFile jsf : files.values()) {
+			jsf.generate(bce);
 		}
 	}
 

@@ -22,13 +22,19 @@ public class JSCopyContract implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print(copyInto.asVar());
 		w.print(".");
 		w.print(fld);
 		w.print(" = ");
 		w.print(arg);
 		w.println(";");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

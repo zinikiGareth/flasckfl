@@ -18,11 +18,17 @@ public class JSSplitRWM implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.println("if (" + var + " instanceof ResponseWithMessages) {");
 		IndentWriter iw = w.indent();
 		iw.println("_cxt.addAll(" + ocmsgs.asVar() + ", ResponseWithMessages.messages(_cxt, " + var + "));");
 		iw.println(var + " = ResponseWithMessages.response(_cxt, " + var + ");");
 		w.println("}");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

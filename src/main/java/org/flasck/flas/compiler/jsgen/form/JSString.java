@@ -11,7 +11,7 @@ public class JSString implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print(asVar());
 	}
 
@@ -19,6 +19,12 @@ public class JSString implements JSExpr {
 	@Override
 	public String asVar() {
 		return "'" + text + "'";
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

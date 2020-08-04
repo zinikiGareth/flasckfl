@@ -22,12 +22,18 @@ public class JSStoreMock implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.storeMock('");
 		w.print(nameAs.asVar());
 		w.print("', ");
 		w.print(value.asVar());
 		w.print(")");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

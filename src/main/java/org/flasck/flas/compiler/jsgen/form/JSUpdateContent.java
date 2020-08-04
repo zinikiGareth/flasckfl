@@ -26,7 +26,7 @@ public class JSUpdateContent implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("this._updateContent(_cxt, _renderTree, '");
 		w.print(templateName);
 		w.print("', '");
@@ -38,6 +38,12 @@ public class JSUpdateContent implements JSExpr {
 		w.print(", ");
 		w.print(expr.asVar());
 		w.println(");");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

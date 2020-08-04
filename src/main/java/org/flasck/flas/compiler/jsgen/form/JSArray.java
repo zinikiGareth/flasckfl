@@ -17,7 +17,7 @@ public class JSArray implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("[");
 		String sep = "";
 		for (JSExpr e : arr) {
@@ -26,6 +26,12 @@ public class JSArray implements JSExpr {
 			sep = ",";
 		}
 		w.print("]");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

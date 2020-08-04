@@ -16,7 +16,7 @@ public class JSMakeAcor implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.mkacor(");
 		w.print(acorMeth);
 		w.print(",");
@@ -29,5 +29,11 @@ public class JSMakeAcor implements JSExpr {
 	@Override
 	public String asVar() {
 		return var;
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

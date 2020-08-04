@@ -22,11 +22,17 @@ public class JSMockCard implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.mockCard('");
 		w.print(nameAs.asVar());
 		w.print("', new ");
 		w.print(name.jsName());
 		w.print("(_cxt))");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

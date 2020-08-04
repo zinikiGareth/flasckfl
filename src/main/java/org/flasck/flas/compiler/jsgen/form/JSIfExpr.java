@@ -30,19 +30,19 @@ public class JSIfExpr implements JSIfCreator {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("if (");
-		test.write(w, null);
+		test.write(w);
 		w.print(") ");
 		trueCase.write(w);
 		JSExpr ec = falseCase.singleton();
 		if (ec != null) {
 			w.print(" else ");
 			if (ec instanceof JSIfExpr)
-				ec.write(w, null);
+				ec.write(w);
 			else {
 				w.println("");
-				ec.write(w.indent(), null);
+				ec.write(w.indent());
 			}
 		} else if (falseCase.isEmpty()) {
 			w.println("");
@@ -51,5 +51,11 @@ public class JSIfExpr implements JSIfCreator {
 			falseCase.write(w);
 			w.println("");
 		}
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

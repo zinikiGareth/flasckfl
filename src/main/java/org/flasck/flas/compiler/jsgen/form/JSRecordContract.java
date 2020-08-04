@@ -20,12 +20,18 @@ public class JSRecordContract implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("this._contracts.record(_cxt, '");
 		w.print(ctr);
 		w.print("', new ");
 		w.print(impl);
 		w.println("(_cxt, this));");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

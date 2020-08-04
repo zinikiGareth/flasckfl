@@ -1,14 +1,11 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
-import java.util.List;
-
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
-import org.flasck.flas.hsi.Slot;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public interface JVMCreationContext {
 
@@ -18,11 +15,10 @@ public interface JVMCreationContext {
 	IExpr helper();
 	IExpr cxt();
 
-	void bind(JSExpr key, Slot slot);
-	void assignTo(JSLocal jsLocal, JSExpr value);
-	void pushFunction(JSExpr key, FunctionName name);
+	void local(JSExpr key, IExpr e);
+	void bindVar(JSLocal local, Var v);
 	IExpr arg(JSExpr jsExpr);
-	void closure(JSExpr key, boolean wantObject, JSExpr[] args);
-	void eval(JSExpr key, NameOfThing name, List<JSExpr> args);
-	void returnExpr(JSExpr jsExpr);
+	IExpr argAsIs(JSExpr jsExpr);
+
+	String figureName(NameOfThing fn);
 }

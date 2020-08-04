@@ -12,7 +12,7 @@ public class JSTupleMember implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.tupleMember(");
 		// TODO: there should be a higher level of sharing than this, but I'm not sure how
 		// I think it goes into the more general question of Lambda Lifting
@@ -25,6 +25,12 @@ public class JSTupleMember implements JSExpr {
 	@Override
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

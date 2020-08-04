@@ -19,12 +19,18 @@ public class JSRequireContract implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("this._contracts.require(_cxt, '");
 		w.print(var);
 		w.print("', '");
 		w.print(ctr);
 		w.println("');");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -1,6 +1,9 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClosure implements JSExpr, JSEffector {
@@ -13,7 +16,7 @@ public class JSClosure implements JSExpr, JSEffector {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		if (wantObject)
 			w.print("_cxt.oclosure(");
 		else
@@ -27,9 +30,28 @@ public class JSClosure implements JSExpr, JSEffector {
 			w.print(e.asVar());
 		}
 		w.print(")");
-		if (jvm != null) {
-			jvm.closure(this, wantObject, args);
+	}
+	
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		NewMethodDefiner md = jvm.method();
+		IExpr fn = null;
+		IExpr[] grp = new IExpr[args.length-1];
+		for (int i=0;i<args.length;i++) {
+			System.out.println("clos arg " + args[i]);
+			if (i == 0)
+				fn = jvm.arg(args[i]);
+			else
+				grp[i-1] = jvm.arg(args[i]);
 		}
+		IExpr as = md.arrayOf(J.OBJECT, grp);
+
+		IExpr call;
+		if (wantObject)
+			call = md.callInterface(J.FLCLOSURE, jvm.cxt(), "oclosure", md.as(fn, J.APPLICABLE), as);
+		else
+			call = md.callInterface(J.FLCLOSURE, jvm.cxt(), "closure", md.as(fn, J.APPLICABLE), as);
+		jvm.local(this, call);
 	}
 
 	@Override

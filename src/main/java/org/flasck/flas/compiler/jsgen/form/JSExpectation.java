@@ -25,7 +25,7 @@ public class JSExpectation implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print(mock.asVar());
 		w.print(".expect(");
 		w.print("'" + method + "'");
@@ -39,6 +39,12 @@ public class JSExpectation implements JSExpr {
 		w.print("], ");
 		w.print(handler.asVar());
 		w.println(");");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

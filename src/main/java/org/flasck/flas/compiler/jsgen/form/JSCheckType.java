@@ -20,12 +20,18 @@ public class JSCheckType implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.isA(");
 		w.print(res.asVar());
 		w.print(", '");
 		w.print(type.name().uniqueName());
 		w.print("')");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

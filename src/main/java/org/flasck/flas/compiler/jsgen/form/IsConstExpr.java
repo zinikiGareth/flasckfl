@@ -27,12 +27,18 @@ public class IsConstExpr implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		if (cnst != null)
 			w.print("(" + var + " == " + cnst + ")");
 		else
 			w.print("(" + var + " == '" + str + "')");
 			
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -21,7 +21,6 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class HSIGeneration {
@@ -50,7 +49,7 @@ public class HSIGeneration {
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.head("_0");
-		meth.write(w, (ByteCodeEnvironment)null);
+		meth.write(w);
 		assertEquals("\nnull.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 
@@ -61,7 +60,7 @@ public class HSIGeneration {
 		JSIfCreator ifCtor = meth.ifCtor("_0", "Nil");
 		ifCtor.trueCase().returnObject(ifCtor.trueCase().string("hello"));
 		ifCtor.falseCase().returnObject(ifCtor.falseCase().string("other"));
-		ifCtor.write(w, null);
+		ifCtor.write(w);
 		assertEquals("if (_cxt.isA(_0, 'Nil')) {\n  return 'hello';\n} else \n  return 'other';\n", sw.toString());
 	}
 
@@ -72,7 +71,7 @@ public class HSIGeneration {
 		JSIfCreator ifConst = meth.ifConst("_0", "hello");
 		ifConst.trueCase().returnObject(ifConst.trueCase().string("hello"));
 		ifConst.falseCase().returnObject(ifConst.falseCase().string("other"));
-		ifConst.write(w, null);
+		ifConst.write(w);
 		assertEquals("if ((_0 == 'hello')) {\n  return 'hello';\n} else \n  return 'other';\n", sw.toString());
 	}
 
@@ -83,7 +82,7 @@ public class HSIGeneration {
 		JSIfCreator ifTrue = meth.ifTrue(new JSLiteral("true"));
 		ifTrue.trueCase().returnObject(ifTrue.trueCase().string("hello"));
 		ifTrue.falseCase().returnObject(ifTrue.falseCase().string("other"));
-		ifTrue.write(w, null);
+		ifTrue.write(w);
 		assertEquals("if (_cxt.isTruthy(true)) {\n  return 'hello';\n} else \n  return 'other';\n", sw.toString());
 	}
 
@@ -93,7 +92,7 @@ public class HSIGeneration {
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoCase();
-		meth.write(w, (ByteCodeEnvironment)null);
+		meth.write(w);
 		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
@@ -103,7 +102,7 @@ public class HSIGeneration {
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();
-		meth.write(w, (ByteCodeEnvironment)null);
+		meth.write(w);
 		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
@@ -111,7 +110,7 @@ public class HSIGeneration {
 	public void fieldsCanBeExtracted() {
 		ExtractField ef = new ExtractField("_1", "_0", "head");
 		assertEquals("_1", ef.asVar());
-		ef.write(new IndentWriter(new PrintWriter(sw)), null);
+		ef.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("var _1 = _cxt.field(_0, 'head');\n", sw.toString());
 	}
 }

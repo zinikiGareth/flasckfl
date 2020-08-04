@@ -11,7 +11,7 @@ public class JSMakeTuple implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.makeTuple(");
 		boolean isFirst = true;
 		for (JSExpr e : args) {
@@ -27,6 +27,12 @@ public class JSMakeTuple implements JSExpr {
 	@Override
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

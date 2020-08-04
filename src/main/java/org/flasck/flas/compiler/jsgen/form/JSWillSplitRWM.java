@@ -18,7 +18,13 @@ public class JSWillSplitRWM implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.println(var.asVar() + ".splitRWM(" + ocmsgs.asVar() + ");");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

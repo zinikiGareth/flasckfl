@@ -34,7 +34,7 @@ public class JSNew implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("new ");
 		w.print(clz);
 		w.print("(_cxt");
@@ -43,6 +43,12 @@ public class JSNew implements JSExpr {
 			w.print(e.asVar());
 		}
 		w.print(")");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

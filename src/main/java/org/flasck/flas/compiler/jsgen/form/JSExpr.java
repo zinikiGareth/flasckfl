@@ -6,6 +6,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public interface JSExpr {
 
 	String asVar();
-	void write(IndentWriter w, JVMCreationContext jvm);
+	void write(IndentWriter w);
+	void generate(JVMCreationContext jvm);
 
 }

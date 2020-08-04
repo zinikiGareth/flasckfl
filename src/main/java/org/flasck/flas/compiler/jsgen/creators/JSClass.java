@@ -53,13 +53,19 @@ public class JSClass implements JSClassCreator {
 		return ctor;
 	}
 
-	public void writeTo(IndentWriter iw, ByteCodeEnvironment bce) {
-		ctor.write(iw, bce);
+	public void writeTo(IndentWriter iw) {
+		ctor.write(iw);
 		if (this.baseClass != null) {
 			iw.println(name + ".prototype = new " + this.baseClass.jsName() + "();");
 			iw.println(name + ".prototype.constructor = " + name + ";");
 		}
 		for (JSMethod m : methods)
-			m.write(iw, bce);
+			m.write(iw);
+	}
+
+	public void generate(ByteCodeEnvironment bce) {
+		ctor.generate(bce);
+		for (JSMethod m : methods)
+			m.generate(bce);
 	}
 }

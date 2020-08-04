@@ -14,7 +14,7 @@ public class JSCxtMethod implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.");
 		w.print(toCall);
 		String sep = "(";
@@ -29,5 +29,11 @@ public class JSCxtMethod implements JSExpr {
 	@Override
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

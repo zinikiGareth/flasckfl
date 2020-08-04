@@ -27,7 +27,6 @@ import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.flas.compiler.jsgen.packaging.JSFile;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ClassGeneration {
@@ -71,7 +70,7 @@ public class ClassGeneration {
 		JSMethodCreator meth = jsc.createMethod("test", false);
 		meth.argument("_cxt");
 		assertNotNull(meth);
-		meth.write(w, (ByteCodeEnvironment)null);
+		meth.write(w);
 		assertEquals("\npkg.level.Clz.test = function(_cxt) {\n}\n\npkg.level.Clz.test.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
@@ -102,7 +101,7 @@ public class ClassGeneration {
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		JSExpr expr = meth.argument("v");
 		assertNotNull(expr);
-		expr.write(w, null);
+		expr.write(w);
 		assertEquals("v", sw.toString());
 		assertEquals("v", expr.asVar());
 	}
@@ -113,7 +112,7 @@ public class ClassGeneration {
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
 		assertNotNull(expr);
-		expr.write(w, null);
+		expr.write(w);
 		assertEquals("  const v1 = v.called(_cxt, true);\n", sw.toString());
 	}
 
@@ -123,7 +122,7 @@ public class ClassGeneration {
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		JSExpr expr = meth.pushFunction("test.repo.f", null);
 		assertNotNull(expr);
-		expr.write(w, null);
+		expr.write(w);
 		assertEquals("  const v1 = test.repo.f;\n", sw.toString());
 	}
 
@@ -134,12 +133,12 @@ public class ClassGeneration {
 		{
 			JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
 			assertNotNull(expr);
-			expr.write(w, null);
+			expr.write(w);
 		}
 		{
 			JSExpr expr = meth.pushFunction("test.repo.f", null);
 			assertNotNull(expr);
-			expr.write(w, null);
+			expr.write(w);
 		}
 		assertEquals("  const v1 = v.called(_cxt, true);\n  const v2 = test.repo.f;\n", sw.toString());
 	}
@@ -151,7 +150,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		JSExpr obj = new JSVar("runner");
 		meth.assertable(obj, "isSame", obj, new JSLiteral("true"));
-		meth.write(w, (ByteCodeEnvironment)null);
+		meth.write(w);
 		assertEquals("\n  pkg.fred = function(_cxt) {\n    runner.isSame(_cxt, runner, true);\n  }\n\n  pkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
@@ -161,7 +160,7 @@ public class ClassGeneration {
 		JSMethod fn = new JSMethod(jse, null, "pkg", false, "fred");
 		fn.argument("_cxt");
 		fn.returnObject(new JSString("hello"));
-		fn.write(w, new ByteCodeEnvironment());
+		fn.write(w);
 		assertEquals("\n  pkg.fred = function(_cxt) {\n    return 'hello';\n  }\n\n  pkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
@@ -173,7 +172,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		assertNotNull(meth);
 		meth.argument("arg1");
-		meth.write(w, new ByteCodeEnvironment());
+		meth.write(w);
 		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n  }\n\n  pkg.Clz.test.nfargs = function() { return 1; }\n", sw.toString());
 	}
 
@@ -186,7 +185,7 @@ public class ClassGeneration {
 		assertNotNull(meth);
 		meth.argument("arg1");
 		meth.argument("arg2");
-		meth.write(w, new ByteCodeEnvironment());
+		meth.write(w);
 		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1, arg2) {\n  }\n\n  pkg.Clz.test.nfargs = function() { return 2; }\n", sw.toString());
 	}
 
@@ -206,7 +205,7 @@ public class ClassGeneration {
 		w = w.indent();
 		JSMethodCreator meth = new JSMethod(jse, null, "pkg", false, "f");
 		JSExpr callG = meth.pushFunction("g", null);
-		callG.write(w, null);
+		callG.write(w);
 		assertEquals("const v1 = FLEval.closure(g);", sw.toString());
 		assertEquals("v1", callG.asVar());
 	}
@@ -236,14 +235,14 @@ public class ClassGeneration {
 		assertNotNull(meth);
 		JSExpr obj = meth.argument("arg1");
 		meth.callMethod(obj, "mymethod", obj);
-		meth.write(w, (ByteCodeEnvironment)null);
+		meth.write(w);
 		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n    const v1 = arg1.mymethod(_cxt, arg1);\n  }\n\n  pkg.Clz.test.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test
 	public void aPackageDefinesItsNesting() {
 		JSFile f = new JSFile("test.repo.pkg", null);
-		f.writeTo(w, null);
+		f.writeTo(w);
 		assertEquals("if (typeof(test) === 'undefined') test = {};\nif (typeof(test.repo) === 'undefined') test.repo = {};\nif (typeof(test.repo.pkg) === 'undefined') test.repo.pkg = {};\n", sw.toString());
 	}
 	
@@ -251,7 +250,7 @@ public class ClassGeneration {
 	public void aPackageIncludesItsClasses() {
 		JSFile f = new JSFile("test", null);
 		f.addClass(new JSClass(jse, "test.Clazz"));
-		f.writeTo(w, null);
+		f.writeTo(w);
 		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.Clazz = function(_cxt) {\n}\n", sw.toString());
 	}
 	
@@ -261,7 +260,7 @@ public class ClassGeneration {
 		JSMethod meth = new JSMethod(jse, null, "test", false, "f");
 		meth.argument("_cxt");
 		f.addFunction(meth);
-		f.writeTo(w, null);
+		f.writeTo(w);
 		assertEquals("if (typeof(test) === 'undefined') test = {};\n\ntest.f = function(_cxt) {\n}\n\ntest.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
@@ -270,7 +269,7 @@ public class ClassGeneration {
 		JSClass clz = new JSClass(jse, "test.Clazz");
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
-		clz.writeTo(w, null);
+		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
@@ -280,7 +279,7 @@ public class ClassGeneration {
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		meth.closure(false, meth.pushFunction("f", null), meth.string("hello"));
-		clz.writeTo(w, null);
+		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
@@ -290,7 +289,7 @@ public class ClassGeneration {
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		meth.curry(false, 2, meth.pushFunction("f", null), meth.string("hello"));
-		clz.writeTo(w, null);
+		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
@@ -300,7 +299,7 @@ public class ClassGeneration {
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
 		meth.xcurry(false, 2, Arrays.asList(new XCArg(0, meth.pushFunction("f", null)), new XCArg(2, meth.string("hello"))));
-		clz.writeTo(w, null);
+		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function(_cxt) {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
@@ -309,7 +308,7 @@ public class ClassGeneration {
 		JSBlock b = new JSMethod(jse, null, null, false, "fred");
 		JSExpr mc = b.mockContract(new SolidName(new PackageName("org.fred"), "Ctr"));
 		assertEquals("v1", mc.asVar());
-		mc.write(new IndentWriter(new PrintWriter(sw)), null);
+		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("const v1 = _cxt.mockContract(new org.fred.Ctr(_cxt));\n", sw.toString());
 	}
 	
@@ -318,7 +317,7 @@ public class ClassGeneration {
 		JSBlock b = new JSMethod(jse, null, null, false, "fred");
 		JSExpr mc = b.createObject(new SolidName(new PackageName("org.fred"), "MyObj"));
 		assertEquals("v1", mc.asVar());
-		mc.write(new IndentWriter(new PrintWriter(sw)), null);
+		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("const v1 = org.fred.MyObj.eval(_cxt);\n", sw.toString());
 	}
 	
@@ -328,7 +327,7 @@ public class ClassGeneration {
 		JSBlock b = new JSMethod(jse, null, null, false, "fred");
 		JSExpr mc = b.newOf(sn);
 		assertEquals("v1", mc.asVar());
-		mc.write(new IndentWriter(new PrintWriter(sw)), null);
+		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("const v1 = new test.repo.Obj(_cxt);\n", sw.toString());
 	}
 	
@@ -337,7 +336,7 @@ public class ClassGeneration {
 		SolidName sn = new SolidName(pkg, "Obj");
 		JSBlock b = new JSMethod(jse, null, null, false, "fred");
 		JSExpr mc = b.fieldObject("state", sn.javaName());
-		mc.write(new IndentWriter(new PrintWriter(sw)), null);
+		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("this.state = new test.repo.Obj(_cxt);\n", sw.toString());
 	}
 	
@@ -346,7 +345,7 @@ public class ClassGeneration {
 		JSMethod b = new JSMethod(jse, null, null, false, "fred");
 		b.argument("cxt");
 		b.storeField(null, "value", b.string("hello"));
-		b.write(new IndentWriter(new PrintWriter(sw)), (ByteCodeEnvironment)null);
+		b.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("\nnull.fred = function(cxt) {\n  this.state.set('value', 'hello');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
@@ -355,7 +354,7 @@ public class ClassGeneration {
 		JSMethod b = new JSMethod(jse, null, null, false, "fred");
 		b.argument("cxt");
 		b.returnObject(b.loadField(new JSThis(), "value"));
-		b.write(new IndentWriter(new PrintWriter(sw)), (ByteCodeEnvironment)null);
+		b.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("\nnull.fred = function(cxt) {\n  return this.state.get('value');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
@@ -364,7 +363,7 @@ public class ClassGeneration {
 		JSMethod b = new JSMethod(jse, null, null, false, "fred");
 		b.argument("cxt");
 		b.storeField(b.boundVar("x"), "value", b.string("hello"));
-		b.write(new IndentWriter(new PrintWriter(sw)), (ByteCodeEnvironment)null);
+		b.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("\nnull.fred = function(cxt) {\n  x.state.set('value', 'hello');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 }

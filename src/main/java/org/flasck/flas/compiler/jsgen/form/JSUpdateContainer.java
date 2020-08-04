@@ -22,7 +22,7 @@ public class JSUpdateContainer implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("this._updateContainer(_cxt, _renderTree, '");
 		w.print(field.text);
 		w.print("', ");
@@ -31,5 +31,11 @@ public class JSUpdateContainer implements JSExpr {
 		w.print("this._updateContainer");
 		w.print(Integer.toString(ucidx));
 		w.println(");");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

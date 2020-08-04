@@ -13,16 +13,18 @@ public class InitContext implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.println("const _cxt = runner.newContext();");
 		for (String e : env.packages())
 			if (!e.contains("_ut_"))
 				w.println(e + "._init(_cxt);");
-		if (jvm != null) {
-			// we assume that this does nothing in JVM world ...
-		}
 	}
 
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// I don't think this is needed in JVM land
+	}
+	
 	@Override
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");

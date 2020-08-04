@@ -1,18 +1,14 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
 import org.flasck.flas.compiler.jsgen.form.JSString;
-import org.flasck.flas.hsi.ArgSlot;
-import org.flasck.flas.hsi.Slot;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -84,35 +80,19 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	public IExpr cxt() {
 		return cxt;
 	}
-
+	
 	@Override
-	public void bind(JSExpr key, Slot slot) {
-		if (slot instanceof ArgSlot) {
-			ArgSlot as = (ArgSlot) slot;
-			int pos = as.argpos();
-			
-		} else {
-			throw new NotImplementedException("ctor slots");
-		}
-	}
-
-	@Override
-	public void assignTo(JSLocal local, JSExpr value) {
-		if (!stack.containsKey(value))
-			throw new NotImplementedException("there is no value for " + value.getClass() + " " + value);
-		Var v = md.avar(J.OBJECT, local.asVar());
-		md.assign(v, stack.get(value)).flush();
+	public void bindVar(JSLocal local, Var v) {
 		vars.put(local, v);
 	}
 
 	@Override
-	public void pushFunction(JSExpr key, FunctionName fn) {
-		String push = figureName(fn);
-		System.out.println("pushing fn name " + push);
-		stack.put(key, md.makeNew(J.CALLEVAL, md.classConst(push)));
+	public void local(JSExpr key, IExpr e) {
+		stack.put(key, e);
 	}
 
-	private String figureName(NameOfThing fn) {
+	@Override
+	public String figureName(NameOfThing fn) {
 		String push = null;
 		if (fn.container() == null) {
 			push = resolveOpName(fn.baseName());
@@ -128,7 +108,8 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		return md.as(argAsIs(jsExpr), J.OBJECT);
 	}
 
-	private IExpr argAsIs(JSExpr jsExpr) {
+	@Override
+	public IExpr argAsIs(JSExpr jsExpr) {
 		if (vars.containsKey(jsExpr))
 			return vars.get(jsExpr);
 		else if (stack.containsKey(jsExpr))
@@ -146,42 +127,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			return md.stringConst(l.asVar());
 		} else
 			throw new NotImplementedException("there is no var for " + jsExpr.getClass() + " " + jsExpr.asVar());
-	}
-
-	@Override
-	public void closure(JSExpr key, boolean wantObject, JSExpr[] args) {
-		IExpr fn = null;
-		IExpr[] grp = new IExpr[args.length-1];
-		for (int i=0;i<args.length;i++) {
-			System.out.println("clos arg " + args[i]);
-			if (i == 0)
-				fn = arg(args[i]);
-			else
-				grp[i-1] = arg(args[i]);
-		}
-		IExpr as = md.arrayOf(J.OBJECT, grp);
-
-		IExpr call;
-		if (wantObject)
-			call = md.callInterface(J.FLCLOSURE, cxt, "oclosure", md.as(fn, J.APPLICABLE), as);
-		else
-			call = md.callInterface(J.FLCLOSURE, cxt, "closure", md.as(fn, J.APPLICABLE), as);
-		this.stack.put(key, call);
-	}
-
-	@Override
-	public void eval(JSExpr key, NameOfThing clz, List<JSExpr> args) {
-		IExpr[] grp = new IExpr[args.size()];
-		for (int i=0;i<args.size();i++) {
-			grp[i] = arg(args.get(i));
-		}
-		IExpr val = md.callStatic(figureName(clz), J.OBJECT, "eval", this.cxt, md.arrayOf(J.OBJECT, grp));
-		stack.put(key, val);
-	}
-
-	@Override
-	public void returnExpr(JSExpr jsExpr) {
-		md.returnObject(arg(jsExpr)).flush();
 	}
 
 	@Override

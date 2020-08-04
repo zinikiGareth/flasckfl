@@ -348,7 +348,8 @@ public class FLASCompiler {
 	public void saveJSE(File jsDir, JSEnvironment jse, ByteCodeEnvironment bce) {
 		if (jsDir != null) {
 			try {
-				jse.writeAllTo(jsDir, bce);
+				jse.writeAllTo(jsDir);
+				jse.generate(bce);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				errors.message((InputPosition) null, ex.toString());

@@ -55,25 +55,38 @@ public class JSFile {
 	}
 
 	// untested
-	public void write(ByteCodeEnvironment bce) throws FileNotFoundException {
+	public void write() throws FileNotFoundException {
 		PrintWriter pw = new PrintWriter(file);
 		IndentWriter iw = new IndentWriter(pw);
-		writeTo(iw, bce);
+		writeTo(iw);
 		pw.close();
 	}
 
-	public void writeTo(IndentWriter iw, ByteCodeEnvironment bce) {
+	public void writeTo(IndentWriter iw) {
 		declarePackages(iw);
 		for (JSClass c : classes)
-			c.writeTo(iw, bce);
+			c.writeTo(iw);
 		for (JSMethod f : functions) {
 			declareContainingPackage(iw, f);
-			f.write(iw, bce);
+			f.write(iw);
 		}
 		for (MethodList m : methodLists)
 			m.write(iw);
 		for (EventMap m : eventMaps)
 			m.write(iw);
+	}
+
+	public void generate(ByteCodeEnvironment bce) {
+//		declarePackages(iw);
+		for (JSClass c : classes)
+			c.generate(bce);
+		for (JSMethod f : functions) {
+			f.generate(bce);
+		}
+//		for (MethodList m : methodLists)
+//			m.write(iw);
+//		for (EventMap m : eventMaps)
+//			m.write(iw);
 	}
 
 	private void declareContainingPackage(IndentWriter iw, JSMethod f) {

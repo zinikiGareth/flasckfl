@@ -589,18 +589,20 @@ public class JSBlock implements JSBlockCreator {
 		return null;
 	}
 
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	@Override
+	public void write(IndentWriter w) {
 		w.println("{");
 		IndentWriter iw = w.indent();
 		for (JSExpr stmt : stmts) {
-			System.out.println("writing " + stmt.getClass());
-			stmt.write(iw, jvm);
+			stmt.write(iw);
 		}
 		w.print("}");
 	}
 
-	@Override
-	public void write(IndentWriter w) {
-		write(w, null);
+	public void generate(JVMCreationContext jvm) {
+		for (JSExpr stmt : stmts) {
+			System.out.println("generating " + stmt.getClass());
+			stmt.generate(jvm);
+		}
 	}
 }

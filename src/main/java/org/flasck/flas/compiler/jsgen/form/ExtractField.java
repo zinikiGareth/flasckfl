@@ -20,7 +20,7 @@ public class ExtractField implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("var ");
 		w.print(asVar);
 		w.print(" = _cxt.field(");
@@ -28,6 +28,12 @@ public class ExtractField implements JSExpr {
 		w.print(", '");
 		w.print(field);
 		w.println("');");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

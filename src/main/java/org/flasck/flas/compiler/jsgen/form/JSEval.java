@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 // I think this and JSCreateObject are basically the same
@@ -38,7 +41,7 @@ public class JSEval implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print(clz);
 		w.print(".eval(_cxt");
 		for (JSExpr e : args) {
@@ -46,7 +49,16 @@ public class JSEval implements JSExpr {
 			w.print(e.asVar());
 		}
 		w.print(")");
-		if (jvm != null)
-			jvm.eval(this, name, args);
+	}
+	
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		NewMethodDefiner md = jvm.method();
+		IExpr[] grp = new IExpr[args.size()];
+		for (int i=0;i<args.size();i++) {
+			grp[i] = jvm.arg(args.get(i));
+		}
+		IExpr val = md.callStatic(jvm.figureName(name), J.OBJECT, "eval", jvm.cxt(), md.arrayOf(J.OBJECT, grp));
+		jvm.local(this, val);
 	}
 }

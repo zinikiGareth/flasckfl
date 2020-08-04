@@ -80,12 +80,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		stmts.add(new JSBlockComplete());
 	}
 
-	public void write(IndentWriter w, ByteCodeEnvironment bce) {
-		JVMCreationContext jvm = null;
-
-		if (bce != null && fnName != null && !this.name.equals("_init")) {
-			jvm = new BasicJVMCreationContext(bce, fnName, !this.prototype, args.size());
-		}
+	public void write(IndentWriter w) {
 		w.println("");
 		w.print(pkg);
 		if (name != null) {
@@ -105,11 +100,8 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 			w.print(v.asVar());
 		}
 		w.print(") ");
-		super.write(w, jvm);
+		super.write(w);
 		w.println("");
-		if (jvm != null) {
-			jvm.done();
-		}
 		if (name != null) {
 			w.println("");
 			w.print(pkg);
@@ -120,6 +112,14 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 			w.print(".nfargs = function() { return ");
 			w.print(Integer.toString(args.size() - 1)); // -1 for context
 			w.println("; }");
+		}
+	}
+	
+	public void generate(ByteCodeEnvironment bce) {
+		if (bce != null && fnName != null && !this.name.equals("_init")) {
+			JVMCreationContext jvm = new BasicJVMCreationContext(bce, fnName, !this.prototype, args.size());
+			super.generate(jvm);
+			jvm.done();
 		}
 	}
 

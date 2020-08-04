@@ -24,12 +24,18 @@ public class JSSetField implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print(on.asVar());
 		w.print(".");
 		w.print(field);
 		w.print(" = ");
-		value.write(w, null);
+		value.write(w);
 		w.println(";");
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

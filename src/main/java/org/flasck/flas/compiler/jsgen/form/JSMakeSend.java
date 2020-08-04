@@ -18,7 +18,7 @@ public class JSMakeSend implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
+	public void write(IndentWriter w) {
 		w.print("_cxt.mksend(");
 		w.print(new JSString(sendMeth).asVar());
 		w.print(",");
@@ -36,5 +36,11 @@ public class JSMakeSend implements JSExpr {
 	@Override
 	public String asVar() {
 		return var;
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }

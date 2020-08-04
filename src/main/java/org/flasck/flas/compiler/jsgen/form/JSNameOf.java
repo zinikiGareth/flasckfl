@@ -16,7 +16,13 @@ public class JSNameOf implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w, JVMCreationContext jvm) {
-		expr.write(w, null);
+	public void write(IndentWriter w) {
+		expr.write(w);
+	}
+
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		// TODO Auto-generated method stub
+		
 	}
 }
