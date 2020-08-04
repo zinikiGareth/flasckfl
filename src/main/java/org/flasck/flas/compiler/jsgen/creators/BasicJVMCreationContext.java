@@ -67,7 +67,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			args = a1.getVar();
 			runner = null;
 		}
-		md.lenientMode(true);
+//		md.lenientMode(true);
 	}
 
 	@Override
@@ -107,13 +107,20 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 
 	@Override
 	public void pushFunction(JSExpr key, FunctionName fn) {
-		String push = null;
-		if (fn.inContext == null)
-			push = resolveOpName(fn.name);
-		if (push == null)
-			push = fn.javaClassName();
+		String push = figureName(fn);
 		System.out.println("pushing fn name " + push);
 		stack.put(key, md.makeNew(J.CALLEVAL, md.classConst(push)));
+	}
+
+	private String figureName(NameOfThing fn) {
+		String push = null;
+		if (fn.container() == null) {
+			push = resolveOpName(fn.baseName());
+			if (push == null)
+				push = J.BUILTINPKG+"."+fn.baseName();
+		} else
+			push = fn.javaClassName();
+		return push;
 	}
 
 	@Override
@@ -144,15 +151,15 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	@Override
 	public void closure(JSExpr key, boolean wantObject, JSExpr[] args) {
 		IExpr fn = null;
-		IExpr[] stack = new IExpr[args.length-1];
+		IExpr[] grp = new IExpr[args.length-1];
 		for (int i=0;i<args.length;i++) {
 			System.out.println("clos arg " + args[i]);
 			if (i == 0)
 				fn = arg(args[i]);
 			else
-				stack[i-1] = arg(args[i]);
+				grp[i-1] = arg(args[i]);
 		}
-		IExpr as = md.arrayOf(J.OBJECT, stack);
+		IExpr as = md.arrayOf(J.OBJECT, grp);
 
 		IExpr call;
 		if (wantObject)
@@ -163,8 +170,13 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	@Override
-	public void eval(JSExpr key, String clz, List<JSExpr> args) {
-		stack.put(key, md.aNull());
+	public void eval(JSExpr key, NameOfThing clz, List<JSExpr> args) {
+		IExpr[] grp = new IExpr[args.size()];
+		for (int i=0;i<args.size();i++) {
+			grp[i] = arg(args.get(i));
+		}
+		IExpr val = md.callStatic(figureName(clz), J.OBJECT, "eval", this.cxt, md.arrayOf(J.OBJECT, grp));
+		stack.put(key, val);
 	}
 
 	@Override

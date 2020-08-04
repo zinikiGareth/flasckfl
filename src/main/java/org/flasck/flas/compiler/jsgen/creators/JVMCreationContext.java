@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
 import org.flasck.flas.hsi.Slot;
@@ -22,6 +23,6 @@ public interface JVMCreationContext {
 	void pushFunction(JSExpr key, FunctionName name);
 	IExpr arg(JSExpr jsExpr);
 	void closure(JSExpr key, boolean wantObject, JSExpr[] args);
-	void eval(JSExpr key, String clz, List<JSExpr> args);
+	void eval(JSExpr key, NameOfThing name, List<JSExpr> args);
 	void returnExpr(JSExpr jsExpr);
 }

@@ -187,14 +187,14 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr structConst(String name) {
+	public JSExpr structConst(NameOfThing name) {
 		JSLocal stmt = new JSLocal(creating, new JSEval(name, new ArrayList<>()));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
-	public JSExpr structArgs(String name, JSExpr... args) {
+	public JSExpr structArgs(NameOfThing name, JSExpr... args) {
 		JSLocal stmt = new JSLocal(creating, new JSEval(name, Arrays.asList(args)));
 		stmts.add(stmt);
 		return stmt;
@@ -499,11 +499,6 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr createObject(NameOfThing name, List<JSExpr> args) {
-		return createObject(name.jsName(), args);
-	}
-
-	@Override
-	public JSExpr createObject(String name, List<JSExpr> args) {
 		JSLocal ret = new JSLocal(this.creating, new JSEval(name, args));
 		stmts.add(ret);
 		return ret;

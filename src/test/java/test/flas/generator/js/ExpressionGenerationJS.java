@@ -247,7 +247,7 @@ public class ExpressionGenerationJS {
 	public void aStructConstructorWithNoArgsExpectingNoArgsBecomesAConstant() {
 		JSExpr x = context.mock(JSExpr.class, "f");
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(x));
+			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(x));
 			oneOf(nv).result(x);
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
@@ -302,7 +302,7 @@ public class ExpressionGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
-			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));
+			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
 		StackVisitor sv = new StackVisitor();
@@ -328,7 +328,7 @@ public class ExpressionGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction(null, "test.repo", "test.repo", false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
-			oneOf(meth).structConst("test.repo.Ctor"); will(returnValue(nret));
+			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
 		StackVisitor sv = new StackVisitor();
@@ -455,8 +455,8 @@ public class ExpressionGenerationJS {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		context.checking(new Expectations() {{
 			oneOf(meth).string("hello"); will(returnValue(s));
-			oneOf(meth).structConst("Nil"); will(returnValue(nil));
-			oneOf(meth).structArgs("Cons", s, nil); will(returnValue(cons));
+			oneOf(meth).structConst(new SolidName(null, "Nil")); will(returnValue(nil));
+			oneOf(meth).structArgs(new SolidName(null, "Cons"), s, nil); will(returnValue(cons));
 			oneOf(nv).result(cons);
 		}});
 		StackVisitor stackv = new StackVisitor();
@@ -522,7 +522,7 @@ public class ExpressionGenerationJS {
 		JSExpr errjs = context.mock(JSExpr.class, "errjs");
 		context.checking(new Expectations() {{
 			oneOf(meth).string("error message"); will(returnValue(s));
-			oneOf(meth).structArgs("FLError", s); will(returnValue(errjs));
+			oneOf(meth).structArgs(new SolidName(null, "FLError"), s); will(returnValue(errjs));
 			oneOf(nv).result(errjs);
 		}});
 		StackVisitor stackv = new StackVisitor();
@@ -553,7 +553,7 @@ public class ExpressionGenerationJS {
 		ApplyExpr expr = new ApplyExpr(pos, op);
 		JSExpr nil = context.mock(JSExpr.class, "nil");
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst("Nil"); will(returnValue(nil));
+			oneOf(meth).structConst(new SolidName(null, "Nil")); will(returnValue(nil));
 			oneOf(nv).result(nil);
 		}});
 		StackVisitor stackv = new StackVisitor();

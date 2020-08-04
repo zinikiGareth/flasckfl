@@ -168,7 +168,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
 			StructDefn sd = (StructDefn)defn;
 			if (nargs == 0 && sd.argCount() == 0) {
-				sv.result(block.structConst(myName));
+				sv.result(block.structConst(sd.name()));
 			} else if (myName.equals("MakeArray") || sd.argCount() == nargs) {
 				sv.result(null); // MakeArray does not exist
 			} else if (nargs > 0) {
@@ -183,7 +183,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			if (nargs == 0 && hi.argCount() == 0) {
 				List<JSExpr> args = new ArrayList<JSExpr>();
 				args.add(state.container());
-				sv.result(block.createObject(myName, args));
+				sv.result(block.createObject(defn.name(), args));
 			} else if (nargs > 0) {
 				sv.result(block.pushConstructor(myName));
 			} else {

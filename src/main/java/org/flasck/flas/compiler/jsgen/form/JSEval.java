@@ -9,17 +9,27 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 // I think this and JSCreateObject are basically the same
 public class JSEval implements JSExpr {
+	private final NameOfThing name;
 	private final String clz;
 	private final List<JSExpr> args;
 
 	public JSEval(NameOfThing name) {
+		this.name = name;
 		this.clz = name.jsName();
 		this.args = new ArrayList<>();
 	}
 
+	@Deprecated
 	public JSEval(String name, List<JSExpr> args) {
+		this.name = null;
 		this.clz = name;
 		this.args = args;
+	}
+
+	public JSEval(NameOfThing name, List<JSExpr> list) {
+		this.name = name;
+		this.clz = name.jsName();
+		this.args = list;
 	}
 
 	@Override
@@ -37,6 +47,6 @@ public class JSEval implements JSExpr {
 		}
 		w.print(")");
 		if (jvm != null)
-			jvm.eval(this, clz, args);
+			jvm.eval(this, name, args);
 	}
 }

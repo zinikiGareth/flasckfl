@@ -6,6 +6,8 @@ import java.util.List;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
@@ -113,9 +115,9 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.makeArray(stack.toArray(new JSExpr[stack.size()])));
 		} else if (defn instanceof StructDefn && stack.size() > 1) {
 			// do the creation immediately
-			String fn = defn.name().jsName();
-			if (fn.equals("Error"))
-				fn = "FLError";
+			NameOfThing fn = defn.name();
+			if (fn.uniqueName().equals("Error"))
+				fn = new SolidName(null, "FLError");
 			if (stack.size() == expArgs + 1) {
 				stack.remove(0); // we are supplying the op directly here ...
 				sv.result(block.structArgs(fn, stack.toArray(new JSExpr[stack.size()])));

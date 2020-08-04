@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.GuardGeneratorJS;
 import org.flasck.flas.compiler.jsgen.JSFunctionState;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
@@ -56,7 +57,7 @@ public class GuardGenerationJS {
 		JSExpr r1 = context.mock(JSExpr.class, "r1");
 
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst("True"); will(returnValue(ge));
+			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
 			oneOf(yesGuard).returnObject(r1);
@@ -102,7 +103,7 @@ public class GuardGenerationJS {
 		JSExpr r2 = context.mock(JSExpr.class, "r2");
 
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst("True"); will(returnValue(ge));
+			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
 			oneOf(yesGuard).returnObject(r1);
@@ -154,7 +155,7 @@ public class GuardGenerationJS {
 		JSExpr r1 = context.mock(JSExpr.class, "r1");
 
 		context.checking(new Expectations() {{
-			oneOf(meth).structConst("True"); will(returnValue(ge));
+			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));
 			oneOf(meth).ifTrue(ge); will(returnValue(guard));
 			oneOf(yesGuard).literal("42"); will(returnValue(r1));
 			oneOf(yesGuard).returnObject(r1);
@@ -178,7 +179,7 @@ public class GuardGenerationJS {
 		JSExpr r2 = context.mock(JSExpr.class, "r2");
 
 		context.checking(new Expectations() {{
-			oneOf(noGuard).structConst("False"); will(returnValue(ge2));
+			oneOf(noGuard).structConst(new SolidName(null, "False")); will(returnValue(ge2));
 			oneOf(noGuard).ifTrue(ge2); will(returnValue(guard2));
 			oneOf(yesGuard2).literal("42"); will(returnValue(r2));
 			oneOf(yesGuard2).returnObject(r2);

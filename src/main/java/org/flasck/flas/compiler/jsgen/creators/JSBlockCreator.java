@@ -40,12 +40,11 @@ public interface JSBlockCreator {
 	void returnCompare(JSExpr lhs, JSExpr rhs);
 
 	// creating more complex things
-	JSExpr structConst(String name);
+	JSExpr structConst(NameOfThing name);
 	JSExpr mockContract(SolidName name);
 	JSExpr mockHandler(SolidName name);
 	JSExpr createObject(NameOfThing name);
 	JSExpr createObject(NameOfThing name, List<JSExpr> args);
-	JSExpr createObject(String name, List<JSExpr> args);
 	JSExpr createAgent(CardName cardName);
 	JSExpr createCard(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
@@ -90,7 +89,7 @@ public interface JSBlockCreator {
 	void storeField(JSExpr inObj, String field, JSExpr value);
 	JSExpr loadField(JSExpr container, String name);
 	JSExpr contractByVar(JSExpr container, String name);
-	JSExpr structArgs(String string, JSExpr... args);
+	JSExpr structArgs(NameOfThing fn, JSExpr... args);
 	JSExpr closure(boolean wantObject, JSExpr... args);
 	JSExpr curry(boolean wantObject, int expArgs, JSExpr... args);
 	JSExpr xcurry(boolean wantObject, int expArgs, List<XCArg> posargs);
