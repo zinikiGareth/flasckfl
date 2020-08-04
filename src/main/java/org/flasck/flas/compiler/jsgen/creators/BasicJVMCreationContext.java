@@ -107,7 +107,13 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 
 	@Override
 	public void pushFunction(JSExpr key, FunctionName fn) {
-		stack.put(key, md.makeNew(J.CALLEVAL, md.classConst(fn.javaClassName())));
+		String push = null;
+		if (fn.inContext == null)
+			push = resolveOpName(fn.name);
+		if (push == null)
+			push = fn.javaClassName();
+		System.out.println("pushing fn name " + push);
+		stack.put(key, md.makeNew(J.CALLEVAL, md.classConst(push)));
 	}
 
 	@Override
@@ -172,5 +178,60 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			md.callInterface("void", runner, "testComplete").flush();
 			md.returnVoid().flush();
 		}
+	}
+
+	private String resolveOpName(String op) {
+		String inner;
+		switch (op) {
+		case "&&":
+			inner = "And";
+			break;
+		case "||":
+			inner = "Or";
+			break;
+		case "!":
+			inner = "Not";
+			break;
+		case "==":
+			inner = "IsEqual";
+			break;
+		case ">=":
+			inner = "GreaterEqual";
+			break;
+		case ">":
+			inner = "GreaterThan";
+			break;
+		case "<=":
+			inner = "LessEqual";
+			break;
+		case "<":
+			inner = "LessThan";
+			break;
+		case "+":
+			inner = "Plus";
+			break;
+		case "-":
+			inner = "Minus";
+			break;
+		case "*":
+			inner = "Mul";
+			break;
+		case "/":
+			inner = "Div";
+			break;
+		case "%":
+			inner = "Mod";
+			break;
+		case "++":
+			inner = "strAppend";
+			break;
+		case "[]":
+			return J.NIL;
+		case "()":
+			return "MakeTuple";
+		default:
+			return null;
+		}
+		return J.FLEVAL + "$" + inner;
 	}
 }

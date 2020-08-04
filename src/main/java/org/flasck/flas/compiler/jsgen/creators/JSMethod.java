@@ -3,7 +3,6 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
