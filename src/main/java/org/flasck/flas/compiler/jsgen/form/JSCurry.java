@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSCurry implements JSExpr {
@@ -14,7 +15,7 @@ public class JSCurry implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		if (wantObject) {
 			w.print("_cxt.ocurry(");
 			w.print(Integer.toString(required-1));

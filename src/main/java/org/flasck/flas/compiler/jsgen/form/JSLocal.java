@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSLocal implements JSExpr {
@@ -21,13 +22,16 @@ public class JSLocal implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		if (var == null)
 			var = meth.obtainNextVar();
 		w.print("const ");
 		w.print(var);
 		w.print(" = ");
-		value.write(w);
+		if (jvm != null)
+			jvm.assignTo(this);
+		System.out.println("local has class " + value.getClass());
+		value.write(w, jvm);
 		w.println(";");
 	}
 }

@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSSplitRWM implements JSExpr {
@@ -17,7 +18,7 @@ public class JSSplitRWM implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.println("if (" + var + " instanceof ResponseWithMessages) {");
 		IndentWriter iw = w.indent();
 		iw.println("_cxt.addAll(" + ocmsgs.asVar() + ", ResponseWithMessages.messages(_cxt, " + var + "));");

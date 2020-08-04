@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -21,7 +22,7 @@ public class JSStoreMock implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print("_cxt.storeMock('");
 		w.print(nameAs.asVar());
 		w.print("', ");

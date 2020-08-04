@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -12,11 +13,14 @@ public class InitContext implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.println("const _cxt = runner.newContext();");
 		for (String e : env.packages())
 			if (!e.contains("_ut_"))
 				w.println(e + "._init(_cxt);");
+		if (jvm != null) {
+			// we assume that this does nothing in JVM world ...
+		}
 	}
 
 	@Override

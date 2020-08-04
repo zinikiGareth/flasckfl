@@ -18,7 +18,7 @@ public class JSCompare implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print(asVar());
 	}
 

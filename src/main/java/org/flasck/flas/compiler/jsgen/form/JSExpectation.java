@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import java.util.List;
 
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -24,7 +25,7 @@ public class JSExpectation implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print(mock.asVar());
 		w.print(".expect(");
 		w.print("'" + method + "'");

@@ -1,5 +1,7 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSAssertion implements JSExpr {
@@ -15,9 +17,9 @@ public class JSAssertion implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		if (obj != null) {
-			obj.write(w);
+			obj.write(w, null);
 			w.print(".");
 		}
 		w.print(meth);
@@ -27,6 +29,10 @@ public class JSAssertion implements JSExpr {
 			w.print(e.asVar());
 		}
 		w.println(");");
+		if (jvm != null) {
+			IExpr ret = jvm.method().callInterface("void", jvm.helper(), "assertSameValue", jvm.cxt(), jvm.arg(args[0]), jvm.arg(args[1]));
+			ret.flush();
+		}
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSIfExpr implements JSIfCreator {
@@ -29,19 +30,19 @@ public class JSIfExpr implements JSIfCreator {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print("if (");
-		test.write(w);
+		test.write(w, null);
 		w.print(") ");
 		trueCase.write(w);
 		JSExpr ec = falseCase.singleton();
 		if (ec != null) {
 			w.print(" else ");
 			if (ec instanceof JSIfExpr)
-				ec.write(w);
+				ec.write(w, null);
 			else {
 				w.println("");
-				ec.write(w.indent());
+				ec.write(w.indent(), null);
 			}
 		} else if (falseCase.isEmpty()) {
 			w.println("");

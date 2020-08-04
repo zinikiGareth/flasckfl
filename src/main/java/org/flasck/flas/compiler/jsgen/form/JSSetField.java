@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSSetField implements JSExpr {
@@ -23,12 +24,12 @@ public class JSSetField implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print(on.asVar());
 		w.print(".");
 		w.print(field);
 		w.print(" = ");
-		value.write(w);
+		value.write(w, null);
 		w.println(";");
 	}
 }

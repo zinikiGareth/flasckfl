@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClosure implements JSExpr, JSEffector {
@@ -12,7 +13,7 @@ public class JSClosure implements JSExpr, JSEffector {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		if (wantObject)
 			w.print("_cxt.oclosure(");
 		else
@@ -26,6 +27,9 @@ public class JSClosure implements JSExpr, JSEffector {
 			w.print(e.asVar());
 		}
 		w.print(")");
+		if (jvm != null) {
+			jvm.closure(wantObject, args);
+		}
 	}
 
 	@Override

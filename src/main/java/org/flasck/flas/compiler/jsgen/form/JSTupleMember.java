@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -11,7 +12,7 @@ public class JSTupleMember implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print("_cxt.tupleMember(");
 		// TODO: there should be a higher level of sharing than this, but I'm not sure how
 		// I think it goes into the more general question of Lambda Lifting

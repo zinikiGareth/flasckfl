@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMockContract implements JSExpr {
@@ -16,7 +17,7 @@ public class JSMockContract implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print("_cxt.mockContract(new ");
 		w.print(name.jsName());
 		w.print("(_cxt))");

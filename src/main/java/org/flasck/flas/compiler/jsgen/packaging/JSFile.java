@@ -65,7 +65,7 @@ public class JSFile {
 	public void writeTo(IndentWriter iw, ByteCodeEnvironment bce) {
 		declarePackages(iw);
 		for (JSClass c : classes)
-			c.writeTo(iw);
+			c.writeTo(iw, bce);
 		for (JSMethod f : functions) {
 			declareContainingPackage(iw, f);
 			f.write(iw, bce);

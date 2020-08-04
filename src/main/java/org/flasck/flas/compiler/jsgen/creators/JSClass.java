@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
-import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClass implements JSClassCreator {
@@ -53,13 +53,13 @@ public class JSClass implements JSClassCreator {
 		return ctor;
 	}
 
-	public void writeTo(IndentWriter iw) {
-		ctor.write(iw);
+	public void writeTo(IndentWriter iw, ByteCodeEnvironment bce) {
+		ctor.write(iw, bce);
 		if (this.baseClass != null) {
 			iw.println(name + ".prototype = new " + this.baseClass.jsName() + "();");
 			iw.println(name + ".prototype.constructor = " + name + ";");
 		}
 		for (JSMethod m : methods)
-			m.write(iw);
+			m.write(iw, bce);
 	}
 }

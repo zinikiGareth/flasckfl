@@ -598,7 +598,8 @@ public class JSBlock implements JSBlockCreator {
 		w.println("{");
 		IndentWriter iw = w.indent();
 		for (JSExpr stmt : stmts) {
-			stmt.write(iw);
+			System.out.println("writing " + stmt.getClass());
+			stmt.write(iw, jvm);
 		}
 		w.print("}");
 	}

@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen.form;
 import java.util.List;
 
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSXCurry implements JSExpr {
@@ -15,7 +16,7 @@ public class JSXCurry implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print("_cxt.xcurry(" + required);
 		for (XCArg e : args) {
 			w.print(", ");

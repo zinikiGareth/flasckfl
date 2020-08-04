@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 // I think this and JSCreateObject are basically the same
@@ -27,7 +28,7 @@ public class JSEval implements JSExpr {
 	}
 
 	@Override
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, JVMCreationContext jvm) {
 		w.print(clz);
 		w.print(".eval(_cxt");
 		for (JSExpr e : args) {
