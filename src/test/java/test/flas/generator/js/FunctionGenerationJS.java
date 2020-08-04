@@ -46,16 +46,16 @@ public class FunctionGenerationJS {
 	@Test
 	public void aSimpleFunction() {
 		JSExpr nret = context.mock(JSExpr.class, "nret");
+		FunctionName name = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).literal("42"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
-		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 0, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new NumericLiteral(pos, "42", 2));
@@ -75,9 +75,10 @@ public class FunctionGenerationJS {
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
@@ -90,7 +91,6 @@ public class FunctionGenerationJS {
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
-		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
 		FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
@@ -108,16 +108,16 @@ public class FunctionGenerationJS {
 		JSExpr ret = context.mock(JSExpr.class, "ret");
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
 		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		FunctionName name = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", "test.repo", false, "f"); will(returnValue(meth));
+			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 			oneOf(meth).bindVar(with(SlotMatcher.id("0")), with("_0"), with("x"));
 			oneOf(meth).boundVar("x"); will(returnValue(ret));
 			oneOf(meth).returnObject(ret);
 		}});
-		FunctionName name = FunctionName.function(pos, pkg, "f");
 		VarName vnx = new VarName(pos, name, "x");
 		VarPattern vp = new VarPattern(pos, vnx);
 		StackVisitor gen = new StackVisitor();
@@ -146,9 +146,10 @@ public class FunctionGenerationJS {
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		Sequence ordering = context.sequence("ordering");
+		FunctionName name = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", "test.repo", false, "f"); will(returnValue(meth)); inSequence(ordering);
+			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth)); inSequence(ordering);
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
 			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
 			oneOf(meth).argument("_1"); will(returnValue(slot1)); inSequence(ordering);
@@ -159,7 +160,6 @@ public class FunctionGenerationJS {
 			oneOf(isNil).returnObject(ret); inSequence(ordering);
 			oneOf(notNil).errorNoCase();
 		}});
-		FunctionName name = FunctionName.function(pos, pkg, "f");
 		VarName vnx = new VarName(pos, name, "x");
 		VarPattern vp = new VarPattern(pos, vnx);
 		StackVisitor gen = new StackVisitor();
@@ -191,9 +191,10 @@ public class FunctionGenerationJS {
 		JSBlockCreator notCons = context.mock(JSBlockCreator.class, "notCons");
 		JSIfExpr consSwitch = new JSIfExpr(null, isCons, notCons);
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
+		FunctionName name = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
@@ -209,7 +210,6 @@ public class FunctionGenerationJS {
 		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
-		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
 		FunctionIntro f1 = new FunctionIntro(name, new ArrayList<>());
 		{
@@ -616,9 +616,11 @@ public class FunctionGenerationJS {
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
+		FunctionName nameX = FunctionName.function(pos, pkg, "x");
+		FunctionName nameY = FunctionName.function(pos, pkg, "y");
 		context.checking(new Expectations() {{
 			exactly(2).of(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction("test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction(nameX, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
@@ -629,7 +631,7 @@ public class FunctionGenerationJS {
 			
 			oneOf(notNil).errorNoCase();
 
-			oneOf(jss).newFunction("test.repo", "test.repo", false, "y"); will(returnValue(meth));
+			oneOf(jss).newFunction(nameY, "test.repo", "test.repo", false, "y"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
@@ -644,9 +646,8 @@ public class FunctionGenerationJS {
 		new JSGenerator(null, jss, gen, null);
 		Traverser trav = new Traverser(gen).withHSI();
 		{
-			FunctionName name = FunctionName.function(pos, pkg, "x");
-			FunctionDefinition fn = new FunctionDefinition(name, 1, null);
-			FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+			FunctionDefinition fn = new FunctionDefinition(nameX, 1, null);
+			FunctionIntro fi = new FunctionIntro(nameX, new ArrayList<>());
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
 			fn.intro(fi);
@@ -657,9 +658,8 @@ public class FunctionGenerationJS {
 			trav.visitFunction(fn);
 		}
 		{
-			FunctionName name = FunctionName.function(pos, pkg, "y");
-			FunctionDefinition fn = new FunctionDefinition(name, 1, null);
-			FunctionIntro fi = new FunctionIntro(name, new ArrayList<>());
+			FunctionDefinition fn = new FunctionDefinition(nameY, 1, null);
+			FunctionIntro fi = new FunctionIntro(nameY, new ArrayList<>());
 			FunctionCaseDefn fcd = new FunctionCaseDefn(null, new StringLiteral(pos, "hello"));
 			fi.functionCase(fcd);
 			fn.intro(fi);

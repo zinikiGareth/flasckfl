@@ -18,7 +18,7 @@ public interface JSStorage {
 
 	void ensurePackageExists(String filePkg, String pkg);
 
-	JSMethodCreator newFunction(String pkg, String cxt, boolean inPrototype, String name);
+	JSMethodCreator newFunction(NameOfThing fnName, String pkg, String cxt, boolean inPrototype, String name);
 	void methodList(NameOfThing name, List<FunctionName> methods);
 	void eventMap(NameOfThing name, EventTargetZones eventMethods);
 

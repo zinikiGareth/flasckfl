@@ -62,9 +62,9 @@ public class JSEnvironment implements JSStorage {
 	}
 	
 	@Override
-	public JSMethodCreator newFunction(String pkg, String cxt, boolean isPrototype, String name) {
+	public JSMethodCreator newFunction(NameOfThing fnName, String pkg, String cxt, boolean isPrototype, String name) {
 		JSFile inpkg = getPackage(pkg);
-		JSMethod ret = new JSMethod(this, cxt, isPrototype, name);
+		JSMethod ret = new JSMethod(this, fnName, cxt, isPrototype, name);
 		inpkg.addFunction(ret);
 		return ret;
 	}
@@ -112,7 +112,7 @@ public class JSEnvironment implements JSStorage {
 			String pkg = p.getKey();
 			if (pkg.contains("._ut_"))
 				continue;
-			JSMethod ifn = new JSMethod(this, pkg, false, "_init");
+			JSMethod ifn = new JSMethod(this, null, pkg, false, "_init");
 			ifn.argument("_cxt");
 			for (ContractDecl cd : contracts)
 				ifn.cxtMethod("registerContract", new JSString(cd.name().uniqueName()), ifn.newOf(cd.name()));

@@ -39,13 +39,13 @@ public class JSClass implements JSClassCreator {
 
 	@Override
 	public JSMethodCreator createMethod(String name, boolean prototype) {
-		JSMethod meth = new JSMethod(jse, this.name, prototype, name);
+		JSMethod meth = new JSMethod(jse, null, this.name, prototype, name);
 		methods.add(meth);
 		return meth;
 	}
 	
 	public JSMethod classMethod(String mname) {
-		return new JSMethod(jse, this.name, false, mname);
+		return new JSMethod(jse, null, this.name, false, mname);
 	}
 
 	@Override

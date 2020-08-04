@@ -28,10 +28,10 @@ public class JSLocal implements JSExpr {
 		w.print("const ");
 		w.print(var);
 		w.print(" = ");
-		if (jvm != null)
-			jvm.assignTo(this);
 		System.out.println("local has class " + value.getClass());
 		value.write(w, jvm);
+		if (jvm != null)
+			jvm.assignTo(this, value);
 		w.println(";");
 	}
 }

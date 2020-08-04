@@ -113,7 +113,7 @@ public class StructGenerationJS {
 		JSExpr obj = context.mock(JSExpr.class, "obj");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo.Struct");
-			oneOf(jss).newFunction("test.repo", "test.repo.Struct", true, "_field_s"); will(returnValue(sfacc));
+			oneOf(jss).newFunction(null, "test.repo", "test.repo.Struct", true, "_field_s"); will(returnValue(sfacc));
 			oneOf(sfacc).argument("_cxt");
 			oneOf(sfacc).loadField(with(any(JSThis.class)), with("s")); will(returnValue(obj));
 			oneOf(sfacc).returnObject(obj);

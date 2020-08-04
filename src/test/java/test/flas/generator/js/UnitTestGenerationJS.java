@@ -42,16 +42,16 @@ public class UnitTestGenerationJS {
 	public void weDoActuallyCreateATestCaseFunction() {
 		JSStorage jse = context.mock(JSStorage.class);
 		JSMethodCreator meth = context.mock(JSMethodCreator.class);
-		context.checking(new Expectations() {{
-			oneOf(jse).newFunction("test.something._ut_package", "test.something._ut_package", false, "_ut4"); will(returnValue(meth));
-			oneOf(meth).clear();
-			oneOf(meth).argument("runner");
-			oneOf(meth).initContext(pkg);
-		}});
 		JSGenerator gen = new JSGenerator(null, jse, null, null);
 		UnitTestFileName utfn = new UnitTestFileName(pkg, "_ut_package");
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitTestCase utc = new UnitTestCase(utn , "do something");
+		context.checking(new Expectations() {{
+			oneOf(jse).newFunction(utn, "test.something._ut_package", "test.something._ut_package", false, "_ut4"); will(returnValue(meth));
+			oneOf(meth).clear();
+			oneOf(meth).argument("runner");
+			oneOf(meth).initContext(pkg);
+		}});
 		gen.visitUnitTest(utc);
 		context.checking(new Expectations() {{
 			oneOf(meth).testComplete();

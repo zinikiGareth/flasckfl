@@ -137,7 +137,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (defn instanceof FunctionDefinition) {
 			FunctionDefinition fn = (FunctionDefinition) defn;
 			if (nargs == 0) {
-				makeFunctionClosure(fn.hasState(), myName, fn.argCount());
+				makeFunctionClosure(fn.hasState(), fn.name(), myName, fn.argCount());
 			} else if ("MakeTuple".equals(myName))
 				sv.result(null);
 			else {
@@ -146,23 +146,23 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 					String n = myName;
 					if (fn.name().containingCard() != null)
 						n = fn.name().containingCard().jsName()+".prototype."+fn.name().name;
-					sv.result(block.pushFunction(n));
+					sv.result(block.pushFunction(n, null));
 				} else
-					sv.result(block.pushFunction(myName));
+					sv.result(block.pushFunction(myName, fn.name()));
 			}
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;
-				makeFunctionClosure(false, myName, fn.argCount());
+				makeFunctionClosure(false, null, myName, fn.argCount());
 			} else
-				sv.result(block.pushFunction(myName));
+				sv.result(block.pushFunction(myName, null));
 		} else if (defn instanceof ObjectMethod) {
 			// TODO: does this need some kind of "object" closure?
 			if (nargs == 0) {
 				ObjectMethod fn = (ObjectMethod) defn;
-				makeFunctionClosure(true, myName, fn.argCount());
+				makeFunctionClosure(true, null, myName, fn.argCount());
 			} else
-				sv.result(block.pushFunction(myName));
+				sv.result(block.pushFunction(myName, null));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
@@ -211,7 +211,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof ObjectContract) {
 			sv.result(block.member(((ObjectContract)defn).varName().var));
 		} else if (defn instanceof TupleMember) {
-			makeFunctionClosure(false, myName, 0);
+			makeFunctionClosure(false, null, myName, 0);
 		} else if (defn instanceof UnitDataDeclaration) {
 			handleUnitTestData((UnitDataDeclaration) defn);
 		} else if (defn instanceof IntroduceVar) {
@@ -238,12 +238,12 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		sv.result(state.resolveMock(block, udd));
 	}
 
-	private void makeFunctionClosure(boolean hasState, String func, int expArgs) {
+	private void makeFunctionClosure(boolean hasState, FunctionName fnName, String func, int expArgs) {
 		JSExpr[] args;
 		if (hasState)
-			args = new JSExpr[] { block.pushFunction(func), new JSThis() };
+			args = new JSExpr[] { block.pushFunction(func, fnName), new JSThis() };
 		else
-			args = new JSExpr[] { block.pushFunction(func) };
+			args = new JSExpr[] { block.pushFunction(func, fnName) };
 		if (expArgs > 0) {
 			sv.result(block.curry(hasState, expArgs, args));
 		} else

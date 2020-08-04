@@ -66,7 +66,7 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 				else {
 					JSExpr doAnd = cond;
 					if (si.cond != null)
-						doAnd = currentBlock.closure(false, currentBlock.pushFunction("FLBuiltin.boolAnd"), cond, si.cond);
+						doAnd = currentBlock.closure(false, currentBlock.pushFunction("FLBuiltin.boolAnd", null), cond, si.cond);
 					styles.add(new JSStyleIf(doAnd, si.style));
 				}
 			}

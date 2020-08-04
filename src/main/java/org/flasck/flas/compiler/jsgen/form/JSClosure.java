@@ -28,7 +28,7 @@ public class JSClosure implements JSExpr, JSEffector {
 		}
 		w.print(")");
 		if (jvm != null) {
-			jvm.closure(wantObject, args);
+			jvm.closure(this, wantObject, args);
 		}
 	}
 

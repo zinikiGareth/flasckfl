@@ -180,7 +180,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		else
 			cxName = fn.name().inContext.jsName();
 		jse.ensurePackageExists(pkg, cxName);
-		this.meth = jse.newFunction(pkg, cxName, fn.hasState(), fn.name().name);
+		this.meth = jse.newFunction(fn.name(), pkg, cxName, fn.hasState(), fn.name().name);
 		
 		this.meth.argument("_cxt");
 		for (int i=0;i<fn.argCountWithoutHolder();i++)
@@ -204,7 +204,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = e.name().packageName().jsName();
 		String cxName = e.name().inContext.jsName();
 		jse.ensurePackageExists(pkg, cxName);
-		this.meth = jse.newFunction(pkg, cxName, false, e.name().name);
+		this.meth = jse.newFunction(null, pkg, cxName, false, e.name().name);
 			
 		this.meth.argument("_cxt");
 		this.block = meth;
@@ -218,7 +218,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = e.name().packageName().jsName();
 		String cxName = e.name().inContext.jsName();
 		jse.ensurePackageExists(pkg, cxName);
-		this.meth = jse.newFunction(pkg, cxName, false, e.name().name);
+		this.meth = jse.newFunction(null, pkg, cxName, false, e.name().name);
 			
 		this.meth.argument("_cxt");
 		this.block = meth;
@@ -306,7 +306,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = sf.name().packageName().jsName();
 		String cxName = sf.name().container().jsName();
 		jse.ensurePackageExists(pkg, cxName);
-		JSMethodCreator meth = jse.newFunction(pkg, cxName, true, "_field_" + sf.name);
+		JSMethodCreator meth = jse.newFunction(null, pkg, cxName, true, "_field_" + sf.name);
 		meth.argument("_cxt");
 		meth.returnObject(meth.loadField(new JSThis(), sf.name));
 	}
@@ -337,7 +337,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSExpr container = null;
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent(), om.name().name);
+		this.meth = jse.newFunction(null, pkg, om.name().container().jsName(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent(), om.name().name);
 		if (om.hasImplements()) {
 			Implements impl = om.getImplements();
 			this.methodMap.get(impl).add(om.name());
@@ -371,7 +371,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		switchVars.clear();
 		String pkg = oc.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
-		this.meth = jse.newFunction(pkg, oc.name().container().jsName(), false, oc.name().name);
+		this.meth = jse.newFunction(null, pkg, oc.name().container().jsName(), false, oc.name().name);
 		this.meth.argument("_cxt");
 		this.meth.argument("_card");
 		int i;
@@ -718,7 +718,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		if (currentOA != null)
 			throw new NotImplementedException("I don't think you can nest a unit test in an accessor");
 		String pkg = clzName.container().jsName();
-		this.meth = jse.newFunction(pkg, pkg, false, clzName.baseName());
+		this.meth = jse.newFunction(clzName, pkg, pkg, false, clzName.baseName());
 		this.block = meth;
 		runner = meth.argument("runner");
 		meth.clear();

@@ -36,5 +36,7 @@ public class JSEval implements JSExpr {
 			w.print(e.asVar());
 		}
 		w.print(")");
+		if (jvm != null)
+			jvm.eval(this, clz, args);
 	}
 }

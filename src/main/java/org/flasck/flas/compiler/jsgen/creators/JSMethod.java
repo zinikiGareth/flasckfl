@@ -2,6 +2,8 @@ package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
@@ -17,14 +19,16 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final JSStorage jse;
+	private final NameOfThing fnName;
 	private final String pkg;
 	private final boolean prototype;
 	private final String name;
 	final List<JSVar> args = new ArrayList<>();
 	private int nextVar = 1;
 
-	public JSMethod(JSStorage jse, String pkg, boolean prototype, String name) {
+	public JSMethod(JSStorage jse, NameOfThing fnName, String pkg, boolean prototype, String name) {
 		this.jse = jse;
+		this.fnName = fnName;
 		this.pkg = pkg;
 		this.prototype = prototype;
 		this.name = name;
@@ -80,8 +84,8 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	public void write(IndentWriter w, ByteCodeEnvironment bce) {
 		JVMCreationContext jvm = null;
 
-		if (bce != null) {
-			jvm = new BasicJVMCreationContext(bce, this.pkg, this.name, !this.prototype);
+		if (bce != null && fnName != null && !this.name.equals("_init")) {
+			jvm = new BasicJVMCreationContext(bce, fnName, !this.prototype, args.size());
 		}
 		w.println("");
 		w.print(pkg);

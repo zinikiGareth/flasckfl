@@ -33,7 +33,7 @@ public interface JSBlockCreator {
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr callStatic(String clz, String meth);
 	JSExpr cxtMethod(String meth, JSExpr... args);
-	JSExpr pushFunction(String meth);
+	JSExpr pushFunction(String meth, FunctionName name);
 	JSExpr pushConstructor(String clz);
 	JSExpr defineTupleMember(TupleMember e);
 	void returnObject(JSExpr jsExpr);

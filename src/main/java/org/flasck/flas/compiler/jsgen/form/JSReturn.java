@@ -21,5 +21,7 @@ public class JSReturn implements JSExpr {
 		w.print("return ");
 		w.print(jsExpr.asVar());
 		w.println(";");
+		if (jvm != null)
+			jvm.returnExpr(jsExpr);
 	}
 }

@@ -163,17 +163,17 @@ public class JSBlock implements JSBlockCreator {
 	
 	@Override
 	public JSExpr tupleMember(FunctionName name) {
-		JSLocal stmt = new JSLocal(creating, new JSPushFunction(name.jsName()));
+		JSLocal stmt = new JSLocal(creating, new JSPushFunction(name, name.jsName()));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
-	public JSExpr pushFunction(String meth) {
+	public JSExpr pushFunction(String meth, FunctionName name) {
 		JSLocal already = hasFn(meth);
 		if (already != null)
 			return already;
-		JSLocal stmt = new JSLocal(creating, new JSPushFunction(meth));
+		JSLocal stmt = new JSLocal(creating, new JSPushFunction(name, meth));
 		stmts.add(stmt);
 		definedFn(meth, stmt);
 		return stmt;
@@ -393,7 +393,7 @@ public class JSBlock implements JSBlockCreator {
 			if (as.isContainer())
 				return;
 		}
-		stmts.add(new JSBind(slotName, var));
+		stmts.add(new JSBind(slot, slotName, var));
 	}
 
 	@Override
