@@ -117,7 +117,6 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	
 	public void generate(ByteCodeEnvironment bce) {
 		if (bce != null && fnName != null && !this.name.equals("_init")) {
-			System.out.println("generating code for method " + fnName.uniqueName());
 			JVMCreationContext jvm = new BasicJVMCreationContext(bce, fnName, !this.prototype, args.size());
 			super.generate(jvm);
 			jvm.done(this);

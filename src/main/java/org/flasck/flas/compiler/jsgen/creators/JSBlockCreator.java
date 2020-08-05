@@ -74,7 +74,7 @@ public interface JSBlockCreator {
 	void splitRWM(JSExpr ocmsgs, String var);
 	void willSplitRWM(JSExpr r, JSExpr ocmsgs);
 	void keepMessages(JSExpr ocmsgs, JSExpr r);
-	void field(String asVar, String fromVar, String field);
+	void field(String asVar, String fromVar, String field, Slot slot);
 	JSIfCreator ifCtor(String var, String ctor);
 	JSIfCreator ifCtor(JSExpr expr, NameOfThing type);
 	JSIfCreator ifConst(String string, int cnst);

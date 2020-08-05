@@ -418,8 +418,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void field(String asVar, String fromVar, String field) {
-		stmts.add(new ExtractField(asVar, fromVar, field));
+	public void field(String asVar, String fromVar, String field, Slot c) {
+		stmts.add(new ExtractField(asVar, fromVar, field, c));
 	}
 
 	@Override
@@ -603,7 +603,6 @@ public class JSBlock implements JSBlockCreator {
 	public void generate(JVMCreationContext jvm) {
 		List<IExpr> blk = new ArrayList<>();
 		for (JSExpr stmt : stmts) {
-			System.out.println("generating " + stmt.getClass());
 			stmt.generate(jvm);
 			IExpr arg = jvm.stmt(stmt);
 			if (arg != null)

@@ -1,17 +1,20 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.flas.hsi.Slot;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ExtractField implements JSExpr {
 	private final String asVar;
 	private final String fromVar;
 	private final String field;
+	private final Slot child;
 
-	public ExtractField(String asVar, String fromVar, String field) {
+	public ExtractField(String asVar, String fromVar, String field, Slot c) {
 		this.asVar = asVar;
 		this.fromVar = fromVar;
 		this.field = field;
+		this.child = c;
 	}
 
 	@Override
@@ -33,7 +36,8 @@ public class ExtractField implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		// TODO Auto-generated method stub
-		
+		jvm.recordSlot(child, jvm.method().aNull());
+		jvm.local(this, null);
 	}
 
 }

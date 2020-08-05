@@ -68,7 +68,7 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 	@Override
 	public void constructorField(Slot parent, String field, Slot slot) {
 		String var = "_" + switchVars.size();
-		this.block.field(var, switchVars.get(parent), field);
+		this.block.field(var, switchVars.get(parent), field, slot);
 		switchVars.put(slot, var);
 	}
 

@@ -254,7 +254,6 @@ public class FunctionGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(meth).head("_0", a0);
 			oneOf(meth).ifCtor("_0", "Cons"); will(returnValue(outer));
-			oneOf(isCons).field("_1", "_0", "head");
 		}});
 		sv.hsiArgs(Arrays.asList(a0));
 		sv.switchOn(a0);
@@ -262,6 +261,9 @@ public class FunctionGenerationJS {
 		HSIPatternOptions headOpts = new HSIPatternOptions();
 		headOpts.includes(intro);
 		Slot cm1 = new CMSlot("0_head", headOpts, null);
+		context.checking(new Expectations() {{
+			oneOf(isCons).field("_1", "_0", "head", cm1);
+		}});
 		sv.constructorField(a0, "head", cm1);
 
 		JSIfExpr inner = new JSIfExpr(null, context.mock(JSBlockCreator.class, "innerT"), context.mock(JSBlockCreator.class, "innerF"));

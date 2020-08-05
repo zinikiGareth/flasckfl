@@ -108,7 +108,7 @@ public class HSIGeneration {
 	
 	@Test
 	public void fieldsCanBeExtracted() {
-		ExtractField ef = new ExtractField("_1", "_0", "head");
+		ExtractField ef = new ExtractField("_1", "_0", "head", null);
 		assertEquals("_1", ef.asVar());
 		ef.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("var _1 = _cxt.field(_0, 'head');\n", sw.toString());

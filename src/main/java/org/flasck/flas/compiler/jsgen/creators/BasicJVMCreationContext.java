@@ -27,7 +27,6 @@ import org.zinutils.exceptions.NotImplementedException;
 public class BasicJVMCreationContext implements JVMCreationContext {
 	private final ByteCodeSink bcc;
 	private final NewMethodDefiner md;
-	private final boolean isTest;
 	private final Var runner;
 	private final Var cxt;
 	private final Var args;
@@ -40,7 +39,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		if (ac == -420)
 			throw new NotImplementedException();
 		if (fnName instanceof UnitTestName) {
-			isTest = true;
 			bcc = bce.newClass(fnName.javaName());
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "dotest");
 			PendingVar r1 = ann.argument(J.TESTHELPER, "runner");
@@ -53,7 +51,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		} else if (!isStatic) {
 			throw new NotImplementedException();
 		} else {
-			isTest = false;
 			bcc = bce.newClass(fnName.javaClassName());
 			bcc.generateAssociatedSourceFile();
 			IFieldInfo fi = bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
@@ -67,7 +64,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			args = a1.getVar();
 			runner = null;
 		}
-		md.lenientMode(true);
+//		md.lenientMode(true);
 	}
 
 	@Override

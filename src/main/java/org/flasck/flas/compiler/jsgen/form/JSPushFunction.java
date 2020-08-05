@@ -24,7 +24,6 @@ public class JSPushFunction implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		String push = jvm.figureName(name);
-		System.out.println("pushing fn name " + push);
 		jvm.local(this, md.makeNew(J.CALLEVAL, md.classConst(push)));
 	}
 

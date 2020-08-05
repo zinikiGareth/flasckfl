@@ -1,12 +1,15 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class IsConstExpr implements JSExpr {
 	private final String var;
 	private final Integer cnst;
-	private String str;
+	private final String str;
 
 	public IsConstExpr(String var, int cnst) {
 		this.var = var;
@@ -37,8 +40,14 @@ public class IsConstExpr implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner meth = jvm.method();
+		IExpr myVar = meth.aNull();
+		IExpr blk;
+		if (cnst != null)
+			blk = meth.callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isConst", myVar, meth.intConst(cnst));
+		else
+			blk = meth.callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isConst", myVar, meth.stringConst(str));
+		jvm.local(this, blk);
 	}
 
 }
