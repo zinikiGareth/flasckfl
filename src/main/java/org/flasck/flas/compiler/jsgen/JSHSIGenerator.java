@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -17,7 +19,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
 	private static class SwitchLevel {
-		private String currentVar;
+		private JSExpr currentVar;
 		private JSBlockCreator matchDefault;
 		private JSBlockCreator elseBlock;
 	}
@@ -26,10 +28,10 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 	private final NestedVisitor sv;
 	private JSBlockCreator block;
 	private SwitchLevel currentLevel;
-	private final Map<Slot, String> switchVars;
+	private final Map<Slot, JSExpr> switchVars;
 	private final List<SwitchLevel> switchStack = new ArrayList<>();
 
-	public JSHSIGenerator(JSFunctionState state, NestedVisitor sv, Map<Slot, String> switchVars, Slot slot, JSBlockCreator block) {
+	public JSHSIGenerator(JSFunctionState state, NestedVisitor sv, Map<Slot, JSExpr> switchVars, Slot slot, JSBlockCreator block) {
 		this.state = state;
 		this.sv = sv;
 		this.block = block;
@@ -54,7 +56,7 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 	}
 
 	@Override
-	public void withConstructor(String ctor) {
+	public void withConstructor(NameOfThing ctor) {
 		if (currentLevel.elseBlock != null) {
 //			if (!stack.isEmpty())
 //				this.block.returnObject(stack.remove(0));
@@ -68,8 +70,9 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 	@Override
 	public void constructorField(Slot parent, String field, Slot slot) {
 		String var = "_" + switchVars.size();
-		this.block.field(var, switchVars.get(parent), field, slot);
-		switchVars.put(slot, var);
+		JSVar jv = new JSVar(var);
+		this.block.field(jv, switchVars.get(parent), field, slot);
+		switchVars.put(slot, jv);
 	}
 
 	// TODO: would this be better as a switch?

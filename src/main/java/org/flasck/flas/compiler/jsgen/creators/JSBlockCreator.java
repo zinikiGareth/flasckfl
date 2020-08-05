@@ -69,16 +69,15 @@ public interface JSBlockCreator {
 	JSExpr member(String var);
 
 	// HSIE logic statements
-	void bindVar(Slot slot, String slotName, String var);
-	void head(String var, Slot slot);
-	void splitRWM(JSExpr ocmsgs, String var);
+	void bindVar(Slot slot, JSExpr jsExpr, String var);
+	void head(JSExpr currentVar, Slot slot);
+	void splitRWM(JSExpr ocmsgs, JSExpr currentVar);
 	void willSplitRWM(JSExpr r, JSExpr ocmsgs);
 	void keepMessages(JSExpr ocmsgs, JSExpr r);
-	void field(String asVar, String fromVar, String field, Slot slot);
-	JSIfCreator ifCtor(String var, String ctor);
-	JSIfCreator ifCtor(JSExpr expr, NameOfThing type);
-	JSIfCreator ifConst(String string, int cnst);
-	JSIfCreator ifConst(String string, String cnst);
+	void field(JSVar jv, JSExpr jsExpr, String field, Slot slot);
+	JSIfCreator ifCtor(JSExpr var, NameOfThing type);
+	JSIfCreator ifConst(JSExpr var, int cnst);
+	JSIfCreator ifConst(JSExpr var, String cnst);
 	JSIfCreator ifTrue(JSExpr ge);
 	void errorNoCase();
 	void errorNoDefaultGuard();

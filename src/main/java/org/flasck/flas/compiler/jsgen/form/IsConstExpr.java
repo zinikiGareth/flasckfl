@@ -7,17 +7,17 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class IsConstExpr implements JSExpr {
-	private final String var;
+	private final JSExpr var;
 	private final Integer cnst;
 	private final String str;
 
-	public IsConstExpr(String var, int cnst) {
+	public IsConstExpr(JSExpr var, int cnst) {
 		this.var = var;
 		this.cnst = cnst;
 		this.str = null;
 	}
 
-	public IsConstExpr(String var, String str) {
+	public IsConstExpr(JSExpr var, String str) {
 		this.var = var;
 		this.cnst = null;
 		this.str = str;
@@ -32,9 +32,9 @@ public class IsConstExpr implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		if (cnst != null)
-			w.print("(" + var + " == " + cnst + ")");
+			w.print("(" + var.asVar() + " == " + cnst + ")");
 		else
-			w.print("(" + var + " == '" + str + "')");
+			w.print("(" + var.asVar() + " == '" + str + "')");
 			
 	}
 

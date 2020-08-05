@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -27,6 +28,7 @@ import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.hsi.ArgSlot;
@@ -119,7 +121,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSMethodCreator meth;
 	private JSBlockCreator block;
 	private JSExpr runner;
-	private final Map<Slot, String> switchVars = new HashMap<>();
+	private final Map<Slot, JSExpr> switchVars = new HashMap<>();
 	private JSFunctionState state;
 	private JSExpr evalRet;
 	private ObjectAccessor currentOA;
@@ -404,7 +406,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (Slot s : slots) {
 			if (((ArgSlot)s).isContainer())
 				continue;
-			switchVars.put(s, "_" + switchVars.size());
+			switchVars.put(s, new JSVar("_" + switchVars.size()));
 		}
 	}
 
@@ -423,7 +425,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	@Override
-	public void withConstructor(String string) {
+	public void withConstructor(NameOfThing string) {
 		throw new NotImplementedException();
 	}
 

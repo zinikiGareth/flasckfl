@@ -19,6 +19,7 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DeferMeException;
 import org.flasck.flas.hsi.ArgSlot;
@@ -1039,7 +1040,7 @@ public class Traverser implements RepositoryVisitor {
 						hsi.switchOn(s);
 						needSwitch = false;
 					}
-					hsi.withConstructor(c.name.uniqueName());
+					hsi.withConstructor(c.name);
 					BackupPlan backupPlan = new BackupPlan(updatedVars, indent, remaining);
 					for (NamedType ty : opts.unionsIncluding(c))
 						backupPlan.allows(opts.getIntrosForType(ty));
@@ -1075,7 +1076,7 @@ public class Traverser implements RepositoryVisitor {
 						continue;
 					}
 					hsiLogger.info(indent + "slot " + s + ": considering type " + ty.name().uniqueName() + " intros = " + intersect);
-					String name = ty.name().uniqueName();
+					NameOfThing name = ty.name();
 					if (needSwitch) {
 						hsi.switchOn(s);
 						needSwitch = false;
@@ -1085,7 +1086,7 @@ public class Traverser implements RepositoryVisitor {
 					for (NamedType t2 : still)
 						backupPlan.allows(opts.getIntrosForType(t2));
 					backupPlan.allows(opts.getDefaultIntros(intros));
-					if ("Number".equals(name)) {
+					if ("Number".equals(name.uniqueName())) {
 						Set<Integer> numbers = opts.numericConstants(intersect);
 						if (!numbers.isEmpty()) {
 							for (int k : numbers) {
@@ -1099,7 +1100,7 @@ public class Traverser implements RepositoryVisitor {
 							hsi.matchDefault();
 						}
 					}
-					if ("String".equals(name)) {
+					if ("String".equals(name.uniqueName())) {
 						Set<String> strings = opts.stringConstants(intersect);
 						if (!strings.isEmpty()) {
 							for (String k : strings) {

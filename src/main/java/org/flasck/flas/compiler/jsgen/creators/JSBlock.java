@@ -388,7 +388,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void bindVar(Slot slot, String slotName, String var) {
+	public void bindVar(Slot slot, JSExpr slotName, String var) {
 		if (slot instanceof ArgSlot) {
 			ArgSlot as = (ArgSlot) slot;
 			if (as.isContainer())
@@ -398,12 +398,12 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void head(String var, Slot slot) {
+	public void head(JSExpr var, Slot slot) {
 		stmts.add(new JSHead(var, slot));
 	}
 	
 	@Override
-	public void splitRWM(JSExpr ocmsgs, String var) {
+	public void splitRWM(JSExpr ocmsgs, JSExpr var) {
 		stmts.add(new JSSplitRWM(ocmsgs, var));
 	}
 	
@@ -418,15 +418,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void field(String asVar, String fromVar, String field, Slot c) {
+	public void field(JSVar asVar, JSExpr fromVar, String field, Slot c) {
 		stmts.add(new ExtractField(asVar, fromVar, field, c));
-	}
-
-	@Override
-	public JSIfCreator ifCtor(String var, String ctor) {
-		JSIfExpr ret = new JSIfExpr(new IsAExpr(var, ctor), new JSBlock(this.creating, fns, closures), new JSBlock(this.creating, fns, closures));
-		stmts.add(ret);
-		return ret;
 	}
 
 	@Override
@@ -437,14 +430,14 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSIfCreator ifConst(String var, int cnst) {
+	public JSIfCreator ifConst(JSExpr var, int cnst) {
 		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating, fns, closures), new JSBlock(this.creating, fns, closures));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
-	public JSIfCreator ifConst(String var, String cnst) {
+	public JSIfCreator ifConst(JSExpr var, String cnst) {
 		JSIfExpr ret = new JSIfExpr(new IsConstExpr(var, cnst), new JSBlock(this.creating, fns, closures), new JSBlock(this.creating, fns, closures));
 		stmts.add(ret);
 		return ret;

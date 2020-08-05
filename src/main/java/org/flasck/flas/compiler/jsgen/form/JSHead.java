@@ -9,28 +9,28 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSHead implements JSExpr {
-	private final String var;
+	private final JSExpr var;
 	private final Slot slot;
 
-	public JSHead(String var, Slot slot) {
+	public JSHead(JSExpr var, Slot slot) {
 		this.var = var;
 		this.slot = slot;
 	}
 
 	@Override
 	public String asVar() {
-		return var;
+		return var.asVar();
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		w.println(var + " = _cxt.head(" + var + ");");
+		w.println(var.asVar() + " = _cxt.head(" + var.asVar() + ");");
 	}
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		Var var = md.avar(J.OBJECT, this.var);
+		Var var = md.avar(J.OBJECT, this.var.asVar());
 		IExpr assign = md.assign(var, md.callInterface(J.OBJECT, jvm.cxt(), "head", jvm.slot(slot)));
 		jvm.bindVar(this, var);
 		jvm.local(this, assign);

@@ -415,7 +415,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
-	public void withConstructor(String ctor) {
+	public void withConstructor(NameOfThing ctor) {
 	}
 
 	@Override

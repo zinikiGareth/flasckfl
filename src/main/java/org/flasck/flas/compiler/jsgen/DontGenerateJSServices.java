@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen;
 
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -42,7 +43,7 @@ public class DontGenerateJSServices extends LeafAdapter implements HSIVisitor{
 	}
 
 	@Override
-	public void withConstructor(String string) {
+	public void withConstructor(NameOfThing name) {
 	}
 
 	@Override

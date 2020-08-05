@@ -5,12 +5,12 @@ import org.flasck.flas.hsi.Slot;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ExtractField implements JSExpr {
-	private final String asVar;
-	private final String fromVar;
+	private final JSVar asVar;
+	private final JSExpr fromVar;
 	private final String field;
 	private final Slot child;
 
-	public ExtractField(String asVar, String fromVar, String field, Slot c) {
+	public ExtractField(JSVar asVar, JSExpr fromVar, String field, Slot c) {
 		this.asVar = asVar;
 		this.fromVar = fromVar;
 		this.field = field;
@@ -19,15 +19,15 @@ public class ExtractField implements JSExpr {
 
 	@Override
 	public String asVar() {
-		return asVar;
+		return asVar.asVar();
 	}
 
 	@Override
 	public void write(IndentWriter w) {
 		w.print("var ");
-		w.print(asVar);
+		w.print(asVar.asVar());
 		w.print(" = _cxt.field(");
-		w.print(fromVar);
+		w.print(fromVar.asVar());
 		w.print(", '");
 		w.print(field);
 		w.println("');");

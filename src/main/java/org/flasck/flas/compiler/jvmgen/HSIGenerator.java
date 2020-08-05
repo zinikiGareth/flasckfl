@@ -2,6 +2,8 @@ package org.flasck.flas.compiler.jvmgen;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -72,8 +74,8 @@ public class HSIGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
-	public void withConstructor(String ctor) {
-		SwitchCase current = new SwitchCase(ctor, currentBlock);
+	public void withConstructor(NameOfThing ctor) {
+		SwitchCase current = new SwitchCase(ctor.uniqueName(), currentBlock);
 		cases.add(0, current);
 		currentBlock = current.block;
 	}
