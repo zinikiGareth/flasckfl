@@ -36,6 +36,7 @@ public class IsAExpr implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		IExpr myVar = md.aNull();
-		md.callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isA", myVar , md.stringConst(ctor));
+		IExpr ret = md.callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isA", myVar , md.stringConst(ctor));
+		jvm.local(this, ret);
 	}
 }

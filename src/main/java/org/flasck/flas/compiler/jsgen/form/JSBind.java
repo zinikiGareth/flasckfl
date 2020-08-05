@@ -35,5 +35,8 @@ public class JSBind implements JSExpr {
 		} else {
 			throw new NotImplementedException("ctor slots");
 		}
+		
+		// HACK!
+		jvm.local(this, null);
 	}
 }

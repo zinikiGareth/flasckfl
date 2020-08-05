@@ -82,6 +82,7 @@ import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.tc3.NamedType;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSBlock implements JSBlockCreator {
@@ -600,9 +601,14 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	public void generate(JVMCreationContext jvm) {
+		List<IExpr> blk = new ArrayList<>();
 		for (JSExpr stmt : stmts) {
 			System.out.println("generating " + stmt.getClass());
 			stmt.generate(jvm);
+			IExpr arg = jvm.stmt(stmt);
+			if (arg != null)
+				blk.add(arg);
 		}
+		jvm.block(this, blk);
 	}
 }

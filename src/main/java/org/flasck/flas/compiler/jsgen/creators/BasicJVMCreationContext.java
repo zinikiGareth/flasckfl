@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -33,6 +34,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	private final Map<JSExpr, Var> vars = new HashMap<>();
 	private final Map<JSExpr, IExpr> stack = new HashMap<>();
 	private final Map<Slot, IExpr> slots = new HashMap<>();
+	private final Map<JSBlockCreator, IExpr> blocks = new HashMap<>();
 	
 	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing fnName, boolean isStatic, int ac) {
 		if (ac == -420)
@@ -65,7 +67,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			args = a1.getVar();
 			runner = null;
 		}
-//		md.lenientMode(true);
+		md.lenientMode(true);
 	}
 
 	@Override
@@ -99,6 +101,11 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	@Override
+	public void block(JSBlock key, List<IExpr> blk) {
+		blocks.put(key, md.block(blk.toArray(new IExpr[blk.size()])));
+	}
+
+	@Override
 	public String figureName(NameOfThing fn) {
 		String push = null;
 		if (fn.container() == null) {
@@ -124,13 +131,26 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	@Override
+	public IExpr stmt(JSExpr stmt) {
+		if (!stack.containsKey(stmt))
+			throw new NotImplementedException("there is nothing in the stack for " + stmt);
+		return stack.get(stmt);
+	}
+
+	@Override
 	public IExpr arg(JSExpr jsExpr) {
-		return md.as(argAsIs(jsExpr), J.OBJECT);
+		IExpr a = argAsIs(jsExpr);
+		if (a == null)
+			return null;
+		return md.as(a, J.OBJECT);
 	}
 
 	@Override
 	public IExpr argAs(JSExpr jsExpr, JavaType type) {
-		return md.as(argAsIs(jsExpr), type.getActual());
+		IExpr a = argAsIs(jsExpr);
+		if (a == null)
+			return null;
+		return md.as(a, type.getActual());
 	}
 
 	@Override
@@ -156,15 +176,14 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 
 	@Override
 	public IExpr blk(JSBlockCreator blk) {
-		throw new NotImplementedException();
+		if (!blocks.containsKey(blk))
+			throw new NotImplementedException("there is no block " + blk);
+		return blocks.get(blk);
 	}
 
 	@Override
-	public void done() {
-		if (isTest) {
-			md.callInterface("void", runner, "testComplete").flush();
-			md.returnVoid().flush();
-		}
+	public void done(JSBlockCreator blk) {
+		blk(blk).flush();
 	}
 
 	private String resolveOpName(String op) {

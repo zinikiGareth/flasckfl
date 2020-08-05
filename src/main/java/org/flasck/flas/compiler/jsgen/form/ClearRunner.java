@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ClearRunner implements JSExpr {
@@ -15,7 +16,8 @@ public class ClearRunner implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		jvm.method().callInterface("void", jvm.helper(), "clearBody", jvm.cxt()).flush();
+		IExpr ret = jvm.method().callInterface("void", jvm.helper(), "clearBody", jvm.cxt());
+		jvm.local(this, ret);
 	}
 	
 	@Override

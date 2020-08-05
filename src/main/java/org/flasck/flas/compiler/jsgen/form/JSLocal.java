@@ -45,7 +45,7 @@ public class JSLocal implements JSExpr {
 			throw new NotImplementedException("there is no value for " + value.getClass() + " " + value);
 		NewMethodDefiner md = jvm.method();
 		Var v = md.avar(J.OBJECT, var);
-		md.assign(v, arg).flush();
+		jvm.local(this, md.assign(v, arg));
 		jvm.bindVar(this, v);
 	}
 }

@@ -1,6 +1,9 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSError implements JSExpr {
@@ -27,7 +30,9 @@ public class JSError implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr err = md.callStatic(J.FLERROR, J.FLERROR, "eval", jvm.cxt(), md.arrayOf(J.OBJECT, md.stringConst(msg.asVar())));
+		IExpr ret = md.returnObject(err);
+		jvm.local(this, ret);
 	}
 }

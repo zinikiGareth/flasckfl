@@ -23,6 +23,7 @@ public class InitContext implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		// I don't think this is needed in JVM land
+		jvm.local(this, null);
 	}
 	
 	@Override
