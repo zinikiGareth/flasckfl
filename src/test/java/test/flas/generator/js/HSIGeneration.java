@@ -48,7 +48,7 @@ public class HSIGeneration {
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
-		meth.head("_0");
+		meth.head("_0", null);
 		meth.write(w);
 		assertEquals("\nnull.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}

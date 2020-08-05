@@ -76,19 +76,6 @@ public class FunctionGenerationJS {
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
-			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
-			oneOf(meth).argument("_0"); will(returnValue(slot0));
-
-			oneOf(meth).head("_0");
-			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
-			oneOf(isNil).string("hello"); will(returnValue(sret));
-			oneOf(isNil).returnObject(sret);
-			
-			oneOf(notNil).errorNoCase();
-		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
@@ -100,6 +87,20 @@ public class FunctionGenerationJS {
 		hsi.consider(fi);
 		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 		fn.bindHsi(hsi);
+		Slot s = fn.slots().get(0);
+		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("_0"); will(returnValue(slot0));
+
+			oneOf(meth).head("_0", s);
+			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+			oneOf(isNil).string("hello"); will(returnValue(sret));
+			oneOf(isNil).returnObject(sret);
+			
+			oneOf(notNil).errorNoCase();
+		}});
 		new Traverser(gen).withHSI().visitFunction(fn);
 	}
 
@@ -147,19 +148,6 @@ public class FunctionGenerationJS {
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		Sequence ordering = context.sequence("ordering");
 		FunctionName name = FunctionName.function(pos, pkg, "f");
-		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth)); inSequence(ordering);
-			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
-			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
-			oneOf(meth).argument("_1"); will(returnValue(slot1)); inSequence(ordering);
-			oneOf(meth).head("_0"); inSequence(ordering);
-			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch)); inSequence(ordering);
-			oneOf(isNil).bindVar(with(SlotMatcher.id("1")), with("_1"), with("x")); inSequence(ordering);
-			oneOf(isNil).boundVar("x"); will(returnValue(ret)); inSequence(ordering);
-			oneOf(isNil).returnObject(ret); inSequence(ordering);
-			oneOf(notNil).errorNoCase();
-		}});
 		VarName vnx = new VarName(pos, name, "x");
 		VarPattern vp = new VarPattern(pos, vnx);
 		StackVisitor gen = new StackVisitor();
@@ -176,6 +164,20 @@ public class FunctionGenerationJS {
 		hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 		hsi.get(1).addVar(vp, fi);
 		fn.bindHsi(hsi);
+		Slot s = fn.slots().get(0);
+		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth)); inSequence(ordering);
+			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
+			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
+			oneOf(meth).argument("_1"); will(returnValue(slot1)); inSequence(ordering);
+			oneOf(meth).head("_0", s); inSequence(ordering);
+			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch)); inSequence(ordering);
+			oneOf(isNil).bindVar(with(SlotMatcher.id("1")), with("_1"), with("x")); inSequence(ordering);
+			oneOf(isNil).boundVar("x"); will(returnValue(ret)); inSequence(ordering);
+			oneOf(isNil).returnObject(ret); inSequence(ordering);
+			oneOf(notNil).errorNoCase();
+		}});
 		new Traverser(gen).withHSI().visitFunction(fn);
 	}
 
@@ -192,22 +194,6 @@ public class FunctionGenerationJS {
 		JSIfExpr consSwitch = new JSIfExpr(null, isCons, notCons);
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
-		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
-			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
-			oneOf(meth).argument("_0"); will(returnValue(slot0));
-
-			oneOf(meth).head("_0");
-			oneOf(meth).ifCtor("_0", "Cons"); will(returnValue(consSwitch));
-			oneOf(isCons).string("goodbye"); will(returnValue(gret));
-			oneOf(isCons).returnObject(gret);
-			oneOf(notCons).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
-			oneOf(isNil).string("hello"); will(returnValue(sret));
-			oneOf(isNil).returnObject(sret);
-			
-			oneOf(notNil).errorNoCase();
-		}});
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
 		FunctionDefinition fn = new FunctionDefinition(name, 1, null);
@@ -229,6 +215,23 @@ public class FunctionGenerationJS {
 		hsi.consider(f2);
 		hsi.get(0).requireCM(LoadBuiltins.cons).consider(f2);
 		fn.bindHsi(hsi);
+		Slot s = fn.slots().get(0);
+		context.checking(new Expectations() {{
+			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argument("_0"); will(returnValue(slot0));
+
+			oneOf(meth).head("_0", s);
+			oneOf(meth).ifCtor("_0", "Cons"); will(returnValue(consSwitch));
+			oneOf(isCons).string("goodbye"); will(returnValue(gret));
+			oneOf(isCons).returnObject(gret);
+			oneOf(notCons).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+			oneOf(isNil).string("hello"); will(returnValue(sret));
+			oneOf(isNil).returnObject(sret);
+			
+			oneOf(notNil).errorNoCase();
+		}});
 		new Traverser(gen).withHSI().visitFunction(fn);
 	}
 
@@ -247,12 +250,12 @@ public class FunctionGenerationJS {
 		StringLiteral expr = new StringLiteral(pos, "hello");
 		intro.functionCase(new FunctionCaseDefn(null, expr));
 		
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0");
+			oneOf(meth).head("_0", a0);
 			oneOf(meth).ifCtor("_0", "Cons"); will(returnValue(outer));
 			oneOf(isCons).field("_1", "_0", "head");
 		}});
-		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		sv.hsiArgs(Arrays.asList(a0));
 		sv.switchOn(a0);
 		sv.withConstructor("Cons");
@@ -263,7 +266,7 @@ public class FunctionGenerationJS {
 
 		JSIfExpr inner = new JSIfExpr(null, context.mock(JSBlockCreator.class, "innerT"), context.mock(JSBlockCreator.class, "innerF"));
 		context.checking(new Expectations() {{
-			oneOf(isCons).head("_1");
+			oneOf(isCons).head("_1", cm1);
 			oneOf(isCons).ifCtor("_1", "True"); will(returnValue(inner));
 		}});
 		sv.switchOn(cm1);
@@ -281,11 +284,11 @@ public class FunctionGenerationJS {
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil0");
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0");
+			oneOf(meth).head("_0", a0);
 			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(outer));
 		}});
-		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
 		gen.withConstructor("Nil");
@@ -338,11 +341,11 @@ public class FunctionGenerationJS {
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil0");
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0");
+			oneOf(meth).head("_0", a0);
 			oneOf(meth).ifCtor("_0", "Number"); will(returnValue(outer));
 		}});
-		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
 		gen.withConstructor("Number");
@@ -393,11 +396,11 @@ public class FunctionGenerationJS {
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil0");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil0");
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0");
+			oneOf(meth).head("_0", a0);
 			oneOf(meth).ifCtor("_0", "String"); will(returnValue(outer));
 		}});
-		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
 		gen.withConstructor("String");
@@ -447,11 +450,11 @@ public class FunctionGenerationJS {
 		JSBlockCreator isNil0 = context.mock(JSBlockCreator.class, "isNil0");
 		JSBlockCreator notNil0 = context.mock(JSBlockCreator.class, "notNil0");
 		JSIfExpr outer = new JSIfExpr(null, isNil0, notNil0);
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0");
+			oneOf(meth).head("_0", a0);
 			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(outer));
 		}});
-		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0, a1));
 		gen.switchOn(a0);
@@ -461,7 +464,7 @@ public class FunctionGenerationJS {
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
 		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
 		context.checking(new Expectations() {{
-			oneOf(isNil0).head("_1");
+			oneOf(isNil0).head("_1", a1);
 			oneOf(isNil0).ifCtor("_1", "Nil"); will(returnValue(inner));
 		}});
 		gen.switchOn(a1);
@@ -510,11 +513,11 @@ public class FunctionGenerationJS {
 		JSBlockCreator isTrue0 = context.mock(JSBlockCreator.class, "isTrue0");
 		JSBlockCreator notTrue0 = context.mock(JSBlockCreator.class, "notTrue0");
 		JSIfExpr outer = new JSIfExpr(null, isTrue0, notTrue0);
+		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0");
+			oneOf(meth).head("_0", a0);
 			oneOf(meth).ifCtor("_0", "True"); will(returnValue(outer));
 		}});
-		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0, a1));
 		gen.switchOn(a0);
@@ -524,7 +527,7 @@ public class FunctionGenerationJS {
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
 		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
 		context.checking(new Expectations() {{
-			oneOf(isTrue0).head("_1");
+			oneOf(isTrue0).head("_1", a1);
 			oneOf(isTrue0).ifCtor("_1", "Nil"); will(returnValue(inner));
 		}});
 		gen.switchOn(a1);
@@ -568,7 +571,7 @@ public class FunctionGenerationJS {
 		JSBlockCreator notNil1b = context.mock(JSBlockCreator.class, "notNil1b");
 		JSIfExpr innerB = new JSIfExpr(null, isNil1b, notNil1b);
 		context.checking(new Expectations() {{
-			oneOf(isFalse0).head("_1");
+			oneOf(isFalse0).head("_1", a1);
 			oneOf(isFalse0).ifCtor("_1", "Nil"); will(returnValue(innerB));
 		}});
 		gen.switchOn(a1);
@@ -618,30 +621,7 @@ public class FunctionGenerationJS {
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		FunctionName nameY = FunctionName.function(pos, pkg, "y");
-		context.checking(new Expectations() {{
-			exactly(2).of(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(nameX, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
-			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
-			oneOf(meth).argument("_0"); will(returnValue(slot0));
-
-			oneOf(meth).head("_0");
-			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
-			oneOf(isNil).string("hello"); will(returnValue(sret));
-			oneOf(isNil).returnObject(sret);
-			
-			oneOf(notNil).errorNoCase();
-
-			oneOf(jss).newFunction(nameY, "test.repo", "test.repo", false, "y"); will(returnValue(meth));
-			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
-			oneOf(meth).argument("_0"); will(returnValue(slot0));
-
-			oneOf(meth).head("_0");
-			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
-			oneOf(isNil).string("hello"); will(returnValue(sret));
-			oneOf(isNil).returnObject(sret);
-			
-			oneOf(notNil).errorNoCase();
-		}});
+		
 		StackVisitor gen = new StackVisitor();
 		new JSGenerator(null, jss, gen, null);
 		Traverser trav = new Traverser(gen).withHSI();
@@ -655,8 +635,22 @@ public class FunctionGenerationJS {
 			hsi.consider(fi);
 			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
+			context.checking(new Expectations() {{
+				oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+				oneOf(jss).newFunction(nameX, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
+				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+				oneOf(meth).argument("_0"); will(returnValue(slot0));
+
+				oneOf(meth).head("_0", fn.slots().get(0));
+				oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+				oneOf(isNil).string("hello"); will(returnValue(sret));
+				oneOf(isNil).returnObject(sret);
+				
+				oneOf(notNil).errorNoCase();
+			}});
 			trav.visitFunction(fn);
 		}
+		context.assertIsSatisfied();
 		{
 			FunctionDefinition fn = new FunctionDefinition(nameY, 1, null);
 			FunctionIntro fi = new FunctionIntro(nameY, new ArrayList<>());
@@ -667,6 +661,19 @@ public class FunctionGenerationJS {
 			hsi.consider(fi);
 			hsi.get(0).requireCM(LoadBuiltins.nil).consider(fi);
 			fn.bindHsi(hsi);
+			context.checking(new Expectations() {{
+				oneOf(jss).ensurePackageExists("test.repo", "test.repo");
+				oneOf(jss).newFunction(nameY, "test.repo", "test.repo", false, "y"); will(returnValue(meth));
+				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+				oneOf(meth).argument("_0"); will(returnValue(slot0));
+
+				oneOf(meth).head("_0", fn.slots().get(0));
+				oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+				oneOf(isNil).string("hello"); will(returnValue(sret));
+				oneOf(isNil).returnObject(sret);
+				
+				oneOf(notNil).errorNoCase();
+			}});
 			trav.visitFunction(fn);
 		}
 	}

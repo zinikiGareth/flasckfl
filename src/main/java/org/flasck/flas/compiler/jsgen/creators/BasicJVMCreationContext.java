@@ -7,8 +7,9 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
-import org.flasck.flas.compiler.jsgen.form.JSLocal;
 import org.flasck.flas.compiler.jsgen.form.JSString;
+import org.flasck.flas.hsi.ArgSlot;
+import org.flasck.flas.hsi.Slot;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -29,8 +30,9 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	private final Var runner;
 	private final Var cxt;
 	private final Var args;
-	private final Map<JSLocal, Var> vars = new HashMap<>();
+	private final Map<JSExpr, Var> vars = new HashMap<>();
 	private final Map<JSExpr, IExpr> stack = new HashMap<>();
+	private final Map<Slot, IExpr> slots = new HashMap<>();
 	
 	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing fnName, boolean isStatic, int ac) {
 		if (ac == -420)
@@ -82,7 +84,12 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 	
 	@Override
-	public void bindVar(JSLocal local, Var v) {
+	public void recordSlot(Slot s, IExpr e) {
+		slots.put(s, e);
+	}
+
+	@Override
+	public void bindVar(JSExpr local, Var v) {
 		vars.put(local, v);
 	}
 
@@ -104,8 +111,26 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	@Override
+	public IExpr slot(Slot slot) {
+		IExpr ret = slots.get(slot);
+		if (ret == null) {
+			if (slot instanceof ArgSlot) {
+				int ap = ((ArgSlot) slot).argpos();
+				ret = md.arrayElt(args, md.intConst(ap));
+			} else
+				throw new NotImplementedException("there is nothing in slot " + slot);
+		}
+		return ret;
+	}
+
+	@Override
 	public IExpr arg(JSExpr jsExpr) {
 		return md.as(argAsIs(jsExpr), J.OBJECT);
+	}
+
+	@Override
+	public IExpr argAs(JSExpr jsExpr, JavaType type) {
+		return md.as(argAsIs(jsExpr), type.getActual());
 	}
 
 	@Override
@@ -126,7 +151,12 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			JSString l = (JSString) jsExpr;
 			return md.stringConst(l.asVar());
 		} else
-			throw new NotImplementedException("there is no var for " + jsExpr.getClass() + " " + jsExpr.asVar());
+			throw new NotImplementedException("there is no var for " + jsExpr.getClass() + " " + jsExpr);
+	}
+
+	@Override
+	public IExpr blk(JSBlockCreator blk) {
+		throw new NotImplementedException();
 	}
 
 	@Override

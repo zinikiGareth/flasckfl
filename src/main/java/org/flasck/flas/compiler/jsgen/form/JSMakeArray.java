@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMakeArray implements JSExpr {
@@ -16,6 +19,11 @@ public class JSMakeArray implements JSExpr {
 
 	public JSMakeArray(List<JSExpr> args) {
 		this.args = new ArrayList<>(args);
+	}
+	
+	@Override
+	public String asVar() {
+		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
 	}
 
 	@Override
@@ -33,14 +41,15 @@ public class JSMakeArray implements JSExpr {
 	}
 
 	@Override
-	public String asVar() {
-		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
-	}
-
-	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner meth = jvm.method();
+		IExpr[] grp = new IExpr[args.size()];
+		for (int i=0;i<args.size();i++) {
+			grp[i] = jvm.arg(args.get(i));
+		}
+		IExpr args = meth.arrayOf(J.OBJECT, grp);
+		IExpr arr = meth.callInterface("java.util.List", jvm.cxt(), "array", args);
+		jvm.local(this, arr);
 	}
 
 }

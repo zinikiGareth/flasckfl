@@ -397,8 +397,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void head(String var) {
-		stmts.add(new JSHead(var));
+	public void head(String var, Slot slot) {
+		stmts.add(new JSHead(var, slot));
 	}
 	
 	@Override

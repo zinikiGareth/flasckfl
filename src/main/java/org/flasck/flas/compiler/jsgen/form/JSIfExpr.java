@@ -3,6 +3,9 @@ package org.flasck.flas.compiler.jsgen.form;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSIfExpr implements JSIfCreator {
@@ -55,7 +58,11 @@ public class JSIfExpr implements JSIfCreator {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		test.generate(jvm);
+		trueCase.generate(jvm);
+		falseCase.generate(jvm);
+		IExpr ret = md.ifBoolean(jvm.argAs(test, JavaType.boolean_), jvm.blk(trueCase), jvm.blk(falseCase));
+		jvm.local(this, ret);
 	}
 }

@@ -2,6 +2,9 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class IsAExpr implements JSExpr {
@@ -31,8 +34,8 @@ public class IsAExpr implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr myVar = md.aNull();
+		md.callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isA", myVar , md.stringConst(ctor));
 	}
-
 }

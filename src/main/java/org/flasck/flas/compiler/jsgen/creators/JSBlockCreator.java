@@ -70,7 +70,7 @@ public interface JSBlockCreator {
 
 	// HSIE logic statements
 	void bindVar(Slot slot, String slotName, String var);
-	void head(String var);
+	void head(String var, Slot slot);
 	void splitRWM(JSExpr ocmsgs, String var);
 	void willSplitRWM(JSExpr r, JSExpr ocmsgs);
 	void keepMessages(JSExpr ocmsgs, JSExpr r);
@@ -112,4 +112,5 @@ public interface JSBlockCreator {
 	JSExpr singleton();
 	boolean isEmpty();
 	void write(IndentWriter w);
+	void generate(JVMCreationContext jvm);
 }

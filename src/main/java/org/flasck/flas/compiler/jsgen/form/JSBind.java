@@ -32,7 +32,6 @@ public class JSBind implements JSExpr {
 		if (slot instanceof ArgSlot) {
 			ArgSlot as = (ArgSlot) slot;
 			int pos = as.argpos();
-			
 		} else {
 			throw new NotImplementedException("ctor slots");
 		}

@@ -33,6 +33,7 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	private AccessRestrictions restricted;
 	private boolean isObjAccessor;
 	public boolean generate = true;
+	private List<Slot> slots;
 
 	public FunctionDefinition(FunctionName name, int nargs, StateHolder holder) {
 		this.name = name;
@@ -134,6 +135,10 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	
 	public void bindHsi(HSITree hsiTree) {
 		this.hsiTree = hsiTree;
+		slots = new ArrayList<>();
+		for (int i=0;i<hsiTree.width();i++) {
+			slots.add(new ArgSlot(i, hsiTree.get(i)));
+		}
 	}
 
 	public HSITree hsiTree() {
@@ -141,10 +146,6 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 	}
 
 	public List<Slot> slots() {
-		List<Slot> slots = new ArrayList<>();
-		for (int i=0;i<hsiTree.width();i++) {
-			slots.add(new ArgSlot(i, hsiTree.get(i)));
-		}
 		return slots;
 	}
 

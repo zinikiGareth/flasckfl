@@ -36,7 +36,7 @@ public class JSHSIGenerator extends LeafAdapter implements HSIVisitor, ResultAwa
 		currentLevel = new SwitchLevel();
 		this.switchVars = switchVars;
 		currentLevel.currentVar = switchVars.get(slot);
-		this.block.head(currentLevel.currentVar);
+		this.block.head(currentLevel.currentVar, slot);
 		if (state != null && state.ocret() != null) {
 			this.block.splitRWM(state.ocmsgs(), currentLevel.currentVar);
 		}
