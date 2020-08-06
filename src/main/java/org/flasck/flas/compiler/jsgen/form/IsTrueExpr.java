@@ -1,6 +1,8 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class IsTrueExpr implements JSExpr {
@@ -24,8 +26,8 @@ public class IsTrueExpr implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		IExpr ret = jvm.method().callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isTruthy", jvm.arg(expr));
+		jvm.local(this, ret);
 	}
 
 }
