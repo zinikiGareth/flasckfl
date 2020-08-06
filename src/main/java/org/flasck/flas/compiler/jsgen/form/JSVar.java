@@ -27,6 +27,16 @@ public class JSVar implements JSExpr {
 	}
 	
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JSVar && ((JSVar)obj).name.equals(name);
+	}
+	
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		return "JSVar[" + name + "]";
 	}

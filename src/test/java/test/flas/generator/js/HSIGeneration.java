@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
@@ -13,6 +14,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.ExtractField;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
@@ -38,7 +40,7 @@ public class HSIGeneration {
 		Slot slot = new ArgSlot(3, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(slot));
 		context.checking(new Expectations() {{
-			oneOf(meth).bindVar(slot, "_0", "x");
+			oneOf(meth).bindVar(slot, new JSVar("_0"), "x");
 		}});
 		gen.bind(slot , "x");
 	}
@@ -48,7 +50,7 @@ public class HSIGeneration {
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
-		meth.head("_0", null);
+		meth.head(new JSVar("_0"), null);
 		meth.write(w);
 		assertEquals("\nnull.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
@@ -57,7 +59,7 @@ public class HSIGeneration {
 	public void ifCtorProducesAnIfWithTwoBlocks() {
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		meth.argument("_cxt");
-		JSIfCreator ifCtor = meth.ifCtor("_0", "Nil");
+		JSIfCreator ifCtor = meth.ifCtor(new JSVar("_0"), new SolidName(null, "Nil"));
 		ifCtor.trueCase().returnObject(ifCtor.trueCase().string("hello"));
 		ifCtor.falseCase().returnObject(ifCtor.falseCase().string("other"));
 		ifCtor.write(w);
@@ -68,7 +70,7 @@ public class HSIGeneration {
 	public void ifConstProducesAnIfWithTwoBlocks() {
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		meth.argument("_cxt");
-		JSIfCreator ifConst = meth.ifConst("_0", "hello");
+		JSIfCreator ifConst = meth.ifConst(new JSVar("_0"), "hello");
 		ifConst.trueCase().returnObject(ifConst.trueCase().string("hello"));
 		ifConst.falseCase().returnObject(ifConst.falseCase().string("other"));
 		ifConst.write(w);
@@ -108,7 +110,7 @@ public class HSIGeneration {
 	
 	@Test
 	public void fieldsCanBeExtracted() {
-		ExtractField ef = new ExtractField("_1", "_0", "head", null);
+		ExtractField ef = new ExtractField(new JSVar("_1"), new JSVar("_0"), "head", null);
 		assertEquals("_1", ef.asVar());
 		ef.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("var _1 = _cxt.field(_0, 'head');\n", sw.toString());

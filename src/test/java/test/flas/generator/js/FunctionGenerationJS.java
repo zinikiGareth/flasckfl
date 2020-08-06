@@ -8,12 +8,14 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
@@ -94,8 +96,8 @@ public class FunctionGenerationJS {
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
-			oneOf(meth).head("_0", s);
-			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+			oneOf(meth).head(new JSVar("_0"), s);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch));
 			oneOf(isNil).string("hello"); will(returnValue(sret));
 			oneOf(isNil).returnObject(sret);
 			
@@ -115,7 +117,7 @@ public class FunctionGenerationJS {
 			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
-			oneOf(meth).bindVar(with(SlotMatcher.id("0")), with("_0"), with("x"));
+			oneOf(meth).bindVar(with(SlotMatcher.id("0")), with(new JSVar("_0")), with("x"));
 			oneOf(meth).boundVar("x"); will(returnValue(ret));
 			oneOf(meth).returnObject(ret);
 		}});
@@ -171,9 +173,9 @@ public class FunctionGenerationJS {
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
 			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
 			oneOf(meth).argument("_1"); will(returnValue(slot1)); inSequence(ordering);
-			oneOf(meth).head("_0", s); inSequence(ordering);
-			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch)); inSequence(ordering);
-			oneOf(isNil).bindVar(with(SlotMatcher.id("1")), with("_1"), with("x")); inSequence(ordering);
+			oneOf(meth).head(new JSVar("_0"), s); inSequence(ordering);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch)); inSequence(ordering);
+			oneOf(isNil).bindVar(with(SlotMatcher.id("1")), with(new JSVar("_1")), with("x")); inSequence(ordering);
 			oneOf(isNil).boundVar("x"); will(returnValue(ret)); inSequence(ordering);
 			oneOf(isNil).returnObject(ret); inSequence(ordering);
 			oneOf(notNil).errorNoCase();
@@ -222,11 +224,11 @@ public class FunctionGenerationJS {
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
-			oneOf(meth).head("_0", s);
-			oneOf(meth).ifCtor("_0", "Cons"); will(returnValue(consSwitch));
+			oneOf(meth).head(new JSVar("_0"), s);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Cons")); will(returnValue(consSwitch));
 			oneOf(isCons).string("goodbye"); will(returnValue(gret));
 			oneOf(isCons).returnObject(gret);
-			oneOf(notCons).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+			oneOf(notCons).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch));
 			oneOf(isNil).string("hello"); will(returnValue(sret));
 			oneOf(isNil).returnObject(sret);
 			
@@ -252,27 +254,27 @@ public class FunctionGenerationJS {
 		
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0", a0);
-			oneOf(meth).ifCtor("_0", "Cons"); will(returnValue(outer));
+			oneOf(meth).head(new JSVar("_0"), a0);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Cons")); will(returnValue(outer));
 		}});
 		sv.hsiArgs(Arrays.asList(a0));
 		sv.switchOn(a0);
-		sv.withConstructor("Cons");
+		sv.withConstructor(new SolidName(null, "Cons"));
 		HSIPatternOptions headOpts = new HSIPatternOptions();
 		headOpts.includes(intro);
 		Slot cm1 = new CMSlot("0_head", headOpts, null);
 		context.checking(new Expectations() {{
-			oneOf(isCons).field("_1", "_0", "head", cm1);
+			oneOf(isCons).field(new JSVar("_1"), new JSVar("_0"), "head", cm1);
 		}});
 		sv.constructorField(a0, "head", cm1);
 
 		JSIfExpr inner = new JSIfExpr(null, context.mock(JSBlockCreator.class, "innerT"), context.mock(JSBlockCreator.class, "innerF"));
 		context.checking(new Expectations() {{
-			oneOf(isCons).head("_1", cm1);
-			oneOf(isCons).ifCtor("_1", "True"); will(returnValue(inner));
+			oneOf(isCons).head(new JSVar("_1"), cm1);
+			oneOf(isCons).ifCtor(new JSVar("_1"), new SolidName(null, "True")); will(returnValue(inner));
 		}});
 		sv.switchOn(cm1);
-		sv.withConstructor("True");
+		sv.withConstructor(new SolidName(null, "True"));
 	}
 
 	@Test
@@ -288,12 +290,12 @@ public class FunctionGenerationJS {
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0", a0);
-			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(outer));
+			oneOf(meth).head(new JSVar("_0"), a0);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(outer));
 		}});
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
-		gen.withConstructor("Nil");
+		gen.withConstructor(new SolidName(null, "Nil"));
 
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");
@@ -345,18 +347,18 @@ public class FunctionGenerationJS {
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0", a0);
-			oneOf(meth).ifCtor("_0", "Number"); will(returnValue(outer));
+			oneOf(meth).head(new JSVar("_0"), a0);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Number")); will(returnValue(outer));
 		}});
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
-		gen.withConstructor("Number");
+		gen.withConstructor(new SolidName(null, "Number"));
 
 		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
 		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
 		context.checking(new Expectations() {{
-			oneOf(isNil).ifConst("_0", 42); will(returnValue(inner));
+			oneOf(isNil).ifConst(new JSVar("_0"), 42); will(returnValue(inner));
 		}});
 		gen.matchNumber(42);
 
@@ -400,18 +402,18 @@ public class FunctionGenerationJS {
 		JSIfExpr outer = new JSIfExpr(null, isNil, notNil);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0", a0);
-			oneOf(meth).ifCtor("_0", "String"); will(returnValue(outer));
+			oneOf(meth).head(new JSVar("_0"), a0);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "String")); will(returnValue(outer));
 		}});
 		gen.hsiArgs(Arrays.asList(a0));
 		gen.switchOn(a0);
-		gen.withConstructor("String");
+		gen.withConstructor(new SolidName(null, "String"));
 
 		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
 		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
 		context.checking(new Expectations() {{
-			oneOf(isNil).ifConst("_0", "hello"); will(returnValue(inner));
+			oneOf(isNil).ifConst(new JSVar("_0"), "hello"); will(returnValue(inner));
 		}});
 		gen.matchString("hello");
 
@@ -454,23 +456,23 @@ public class FunctionGenerationJS {
 		JSIfExpr outer = new JSIfExpr(null, isNil0, notNil0);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0", a0);
-			oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(outer));
+			oneOf(meth).head(new JSVar("_0"), a0);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(outer));
 		}});
 		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0, a1));
 		gen.switchOn(a0);
-		gen.withConstructor("Nil");
+		gen.withConstructor(new SolidName(null, "Nil"));
 
 		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
 		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
 		context.checking(new Expectations() {{
-			oneOf(isNil0).head("_1", a1);
-			oneOf(isNil0).ifCtor("_1", "Nil"); will(returnValue(inner));
+			oneOf(isNil0).head(new JSVar("_1"), a1);
+			oneOf(isNil0).ifCtor(new JSVar("_1"), new SolidName(null, "Nil")); will(returnValue(inner));
 		}});
 		gen.switchOn(a1);
-		gen.withConstructor("Nil");
+		gen.withConstructor(new SolidName(null, "Nil"));
 		
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
@@ -517,23 +519,23 @@ public class FunctionGenerationJS {
 		JSIfExpr outer = new JSIfExpr(null, isTrue0, notTrue0);
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		context.checking(new Expectations() {{
-			oneOf(meth).head("_0", a0);
-			oneOf(meth).ifCtor("_0", "True"); will(returnValue(outer));
+			oneOf(meth).head(new JSVar("_0"), a0);
+			oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "True")); will(returnValue(outer));
 		}});
 		ArgSlot a1 = new ArgSlot(1, new HSIPatternOptions());
 		gen.hsiArgs(Arrays.asList(a0, a1));
 		gen.switchOn(a0);
-		gen.withConstructor("True");
+		gen.withConstructor(new SolidName(null, "True"));
 
 		JSBlockCreator isNil1 = context.mock(JSBlockCreator.class, "isNil1");
 		JSBlockCreator notNil1 = context.mock(JSBlockCreator.class, "notNil1");
 		JSIfExpr inner = new JSIfExpr(null, isNil1, notNil1);
 		context.checking(new Expectations() {{
-			oneOf(isTrue0).head("_1", a1);
-			oneOf(isTrue0).ifCtor("_1", "Nil"); will(returnValue(inner));
+			oneOf(isTrue0).head(new JSVar("_1"), a1);
+			oneOf(isTrue0).ifCtor(new JSVar("_1"), new SolidName(null, "Nil")); will(returnValue(inner));
 		}});
 		gen.switchOn(a1);
-		gen.withConstructor("Nil");
+		gen.withConstructor(new SolidName(null, "Nil"));
 		
 		{
 			FunctionIntro intro1 = new FunctionIntro(name, new ArrayList<>());
@@ -565,19 +567,19 @@ public class FunctionGenerationJS {
 		JSBlockCreator notFalse0 = context.mock(JSBlockCreator.class, "notFalse0");
 		JSIfExpr outer2 = new JSIfExpr(null, isFalse0, notFalse0);
 		context.checking(new Expectations() {{
-			oneOf(notTrue0).ifCtor("_0", "False"); will(returnValue(outer2));
+			oneOf(notTrue0).ifCtor(new JSVar("_0"), new SolidName(null, "False")); will(returnValue(outer2));
 		}});
-		gen.withConstructor("False");
+		gen.withConstructor(new SolidName(null, "False"));
 
 		JSBlockCreator isNil1b = context.mock(JSBlockCreator.class, "isNil1b");
 		JSBlockCreator notNil1b = context.mock(JSBlockCreator.class, "notNil1b");
 		JSIfExpr innerB = new JSIfExpr(null, isNil1b, notNil1b);
 		context.checking(new Expectations() {{
-			oneOf(isFalse0).head("_1", a1);
-			oneOf(isFalse0).ifCtor("_1", "Nil"); will(returnValue(innerB));
+			oneOf(isFalse0).head(new JSVar("_1"), a1);
+			oneOf(isFalse0).ifCtor(new JSVar("_1"), new SolidName(null, "Nil")); will(returnValue(innerB));
 		}});
 		gen.switchOn(a1);
-		gen.withConstructor("Nil");
+		gen.withConstructor(new SolidName(null, "Nil"));
 
 		{
 			FunctionIntro intro2 = new FunctionIntro(name, new ArrayList<>());
@@ -643,8 +645,8 @@ public class FunctionGenerationJS {
 				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 				oneOf(meth).argument("_0"); will(returnValue(slot0));
 
-				oneOf(meth).head("_0", fn.slots().get(0));
-				oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+				oneOf(meth).head(new JSVar("_0"), fn.slots().get(0));
+				oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch));
 				oneOf(isNil).string("hello"); will(returnValue(sret));
 				oneOf(isNil).returnObject(sret);
 				
@@ -669,8 +671,8 @@ public class FunctionGenerationJS {
 				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 				oneOf(meth).argument("_0"); will(returnValue(slot0));
 
-				oneOf(meth).head("_0", fn.slots().get(0));
-				oneOf(meth).ifCtor("_0", "Nil"); will(returnValue(nilSwitch));
+				oneOf(meth).head(new JSVar("_0"), fn.slots().get(0));
+				oneOf(meth).ifCtor(new JSVar("_0"), new SolidName(null, "Nil")); will(returnValue(nilSwitch));
 				oneOf(isNil).string("hello"); will(returnValue(sret));
 				oneOf(isNil).returnObject(sret);
 				

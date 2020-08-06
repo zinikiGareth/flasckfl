@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.CMSlot;
@@ -309,7 +310,7 @@ public class FunctionGeneration {
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		sv.hsiArgs(Arrays.asList(a0));
 		sv.switchOn(a0);
-		sv.withConstructor("Cons");
+		sv.withConstructor(new SolidName(null, "Cons"));
 		context.assertIsSatisfied();
 		IExpr var25 = (IExpr) captureHead0.get(0);
 		
@@ -330,7 +331,7 @@ public class FunctionGeneration {
 			oneOf(meth).assign(with(VarMatcher.local(27)), with(dummy)); will(captureHead1);
 		}});
 		sv.switchOn(cm1);
-		sv.withConstructor("True");
+		sv.withConstructor(new SolidName(null, "True"));
 	}
 
 
@@ -358,7 +359,7 @@ public class FunctionGeneration {
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		sv.hsiArgs(Arrays.asList(a0));
 		sv.switchOn(a0);
-		sv.withConstructor("Nil");
+		sv.withConstructor(new SolidName(null, "Nil"));
 		context.assertIsSatisfied();
 		IExpr head0 = (IExpr) captureHead0.get(0);
 
@@ -445,7 +446,7 @@ public class FunctionGeneration {
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		sv.hsiArgs(Arrays.asList(a0));
 		sv.switchOn(a0);
-		sv.withConstructor("Number");
+		sv.withConstructor(new SolidName(null, "Number"));
 		context.assertIsSatisfied();
 		sv.matchNumber(42);
 
@@ -527,7 +528,7 @@ public class FunctionGeneration {
 		ArgSlot a0 = new ArgSlot(0, new HSIPatternOptions());
 		sv.hsiArgs(Arrays.asList(a0));
 		sv.switchOn(a0);
-		sv.withConstructor("Number");
+		sv.withConstructor(new SolidName(null, "Number"));
 		sv.matchString("hello");
 		context.assertIsSatisfied();
 
@@ -612,7 +613,7 @@ public class FunctionGeneration {
 		sv.hsiArgs(Arrays.asList(a0, a1));
 		
 		sv.switchOn(a0);
-		sv.withConstructor("Nil");
+		sv.withConstructor(new SolidName(null, "Nil"));
 		
 		IExpr ass2 = context.mock(IExpr.class, "ass2");
 		CaptureAction captureHead1 = new CaptureAction(ass2);
@@ -622,7 +623,7 @@ public class FunctionGeneration {
 			oneOf(meth).assign(with(VarMatcher.local(26)), with(dummy)); will(captureHead1);
 		}});
 		sv.switchOn(a1);
-		sv.withConstructor("Nil");
+		sv.withConstructor(new SolidName(null, "Nil"));
 		
 		FunctionIntro intro = new FunctionIntro(name, new ArrayList<>());
 		StringLiteral expr = new StringLiteral(pos, "hello");

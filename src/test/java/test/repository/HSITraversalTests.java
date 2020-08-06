@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
@@ -91,7 +92,7 @@ public class HSITraversalTests {
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
-			oneOf(v).withConstructor("Nil");
+			oneOf(v).withConstructor(new SolidName(null, "Nil"));
 			oneOf(v).startInline(fi);
 			oneOf(v).visitCase(fcd);
 			oneOf(v).leaveCase(fcd);
@@ -128,7 +129,7 @@ public class HSITraversalTests {
 			oneOf(v).visitFunction(fn);
 			oneOf(v).hsiArgs(with(any(List.class))); will(slots);
 			oneOf(v).switchOn(with(SlotMatcher.from(slots, 0)));
-			oneOf(v).withConstructor("Number");
+			oneOf(v).withConstructor(new SolidName(null, "Number"));
 			oneOf(v).bind(with(SlotMatcher.from(slots, 0)), with("x"));
 			oneOf(v).startInline(fi);
 			oneOf(v).visitCase(fcd);
