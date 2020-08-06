@@ -60,9 +60,11 @@ public class JSIfExpr implements JSIfCreator {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		test.generate(jvm);
-		trueCase.generate(jvm);
-		falseCase.generate(jvm);
-		IExpr ret = md.ifBoolean(jvm.argAs(test, JavaType.boolean_), jvm.blk(trueCase), jvm.blk(falseCase));
+		JVMCreationContext jt = jvm.split();
+		trueCase.generate(jt);
+		JVMCreationContext jf = jvm.split();
+		falseCase.generate(jf);
+		IExpr ret = md.ifBoolean(jvm.argAs(test, JavaType.boolean_), jt.blk(trueCase), jf.blk(falseCase));
 		jvm.local(this, ret);
 	}
 }

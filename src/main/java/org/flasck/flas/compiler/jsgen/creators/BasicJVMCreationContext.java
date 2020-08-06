@@ -40,6 +40,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			throw new NotImplementedException();
 		if (fnName instanceof UnitTestName) {
 			bcc = bce.newClass(fnName.javaName());
+			bcc.generateAssociatedSourceFile();
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "dotest");
 			PendingVar r1 = ann.argument(J.TESTHELPER, "runner");
 			PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
@@ -67,6 +68,24 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 //		md.lenientMode(true);
 	}
 
+	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, Var runner, Var cxt, Var args) {
+		this.bcc = bcc;
+		this.md = md;
+		this.runner = runner;
+		this.cxt = cxt;
+		this.args = args;
+	}
+
+	@Override
+	public JVMCreationContext split() {
+		BasicJVMCreationContext ret = new BasicJVMCreationContext(bcc, md, runner, cxt, args);
+		ret.vars.putAll(vars);
+		ret.stack.putAll(stack);
+		ret.slots.putAll(slots);
+		ret.blocks.putAll(blocks);
+		return ret;
+	}
+	
 	@Override
 	public NewMethodDefiner method() {
 		return md;
@@ -82,6 +101,11 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		return cxt;
 	}
 	
+	@Override
+	public Var fargs() {
+		return args;
+	}
+
 	@Override
 	public void recordSlot(Slot s, IExpr e) {
 		slots.put(s, e);
@@ -166,7 +190,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			}
 		} else if (jsExpr instanceof JSString) {
 			JSString l = (JSString) jsExpr;
-			return md.stringConst(l.asVar());
+			return md.stringConst(l.value());
 		} else
 			throw new NotImplementedException("there is no var for " + jsExpr.getClass() + " " + jsExpr);
 	}

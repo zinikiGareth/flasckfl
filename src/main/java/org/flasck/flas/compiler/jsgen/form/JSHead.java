@@ -32,7 +32,7 @@ public class JSHead implements JSExpr {
 		NewMethodDefiner md = jvm.method();
 		Var var = md.avar(J.OBJECT, this.var.asVar());
 		IExpr assign = md.assign(var, md.callInterface(J.OBJECT, jvm.cxt(), "head", jvm.slot(slot)));
-		jvm.bindVar(this, var);
+		jvm.bindVar(this.var, var);
 		jvm.local(this, assign);
 		jvm.recordSlot(slot, var);
 

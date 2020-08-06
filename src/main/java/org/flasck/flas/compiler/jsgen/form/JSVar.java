@@ -25,4 +25,9 @@ public class JSVar implements JSExpr {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public String toString() {
+		return "JSVar[" + name + "]";
+	}
 }

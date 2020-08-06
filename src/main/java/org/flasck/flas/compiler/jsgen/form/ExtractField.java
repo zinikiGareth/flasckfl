@@ -2,6 +2,10 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class ExtractField implements JSExpr {
@@ -35,9 +39,13 @@ public class ExtractField implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		jvm.recordSlot(child, jvm.method().aNull());
-		jvm.local(this, null);
+		NewMethodDefiner md = jvm.method();
+		IExpr f = md.callInterface(J.OBJECT, jvm.cxt(), "field", jvm.arg(fromVar), md.stringConst(field));
+		Var v = md.avar(J.OBJECT, asVar.asVar());
+		IExpr assign = md.assign(v, f);
+		jvm.recordSlot(child, v);
+		jvm.local(this, assign);
+		jvm.bindVar(asVar, v);
 	}
 
 }

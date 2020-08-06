@@ -41,7 +41,7 @@ public class IsConstExpr implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner meth = jvm.method();
-		IExpr myVar = meth.aNull();
+		IExpr myVar = jvm.arg(var);
 		IExpr blk;
 		if (cnst != null)
 			blk = meth.callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isConst", myVar, meth.intConst(cnst));

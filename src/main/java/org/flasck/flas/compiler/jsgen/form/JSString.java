@@ -21,10 +21,11 @@ public class JSString implements JSExpr {
 		return "'" + text + "'";
 	}
 
-	@Override
-	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+	public String value() {
+		return text;
 	}
 
+	@Override
+	public void generate(JVMCreationContext jvm) {
+	}
 }

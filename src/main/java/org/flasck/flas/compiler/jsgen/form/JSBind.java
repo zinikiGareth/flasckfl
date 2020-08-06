@@ -3,6 +3,10 @@ package org.flasck.flas.compiler.jsgen.form;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -29,14 +33,19 @@ public class JSBind implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		if (slot instanceof ArgSlot) {
-			ArgSlot as = (ArgSlot) slot;
-			int pos = as.argpos();
-		} else {
-			throw new NotImplementedException("ctor slots");
-		}
+//		NewMethodDefiner md = jvm.method();
+//		IExpr ret;
+//		if (slot instanceof ArgSlot) {
+//			ArgSlot as = (ArgSlot) slot;
+//			int pos = as.argpos();
+//			ret = md.arrayItem(J.OBJECT, jvm.fargs(), pos/* -ignoreContainer+state.ignoreSpecial */);
+//		} else {
+//			throw new NotImplementedException("ctor slots");
+//		}
 		
-		// HACK!
+		IExpr s = jvm.slot(slot);
+		if (s instanceof Var)
+			jvm.bindVar(slotName, (Var)s);
 		jvm.local(this, null);
 	}
 }

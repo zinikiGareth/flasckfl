@@ -11,12 +11,13 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 
 public interface JVMCreationContext {
-
+	JVMCreationContext split();
 	void done(JSBlockCreator meth);
 
 	NewMethodDefiner method();
 	IExpr helper();
 	IExpr cxt();
+	Var fargs();
 
 	void recordSlot(Slot s, IExpr e);
 	void local(JSExpr key, IExpr e);
@@ -30,6 +31,4 @@ public interface JVMCreationContext {
 	IExpr blk(JSBlockCreator blk);
 
 	String figureName(NameOfThing fn);
-
-
 }
