@@ -21,7 +21,6 @@ import org.flasck.flas.compiler.jsgen.form.JSArray;
 import org.flasck.flas.compiler.jsgen.form.JSArrayElt;
 import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
-import org.flasck.flas.compiler.jsgen.form.JSBoundVar;
 import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
 import org.flasck.flas.compiler.jsgen.form.JSCheckType;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
@@ -149,7 +148,7 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr boundVar(String var) {
-		return new JSBoundVar(var);
+		return new JSVar(var);
 	}
 	
 	@Override

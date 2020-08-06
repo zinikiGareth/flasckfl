@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.jvm.J;
@@ -35,7 +36,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	private final Map<Slot, IExpr> slots = new HashMap<>();
 	private final Map<JSBlockCreator, IExpr> blocks = new HashMap<>();
 	
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing fnName, boolean isStatic, int ac) {
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing fnName, boolean isStatic, int ac, JSVar runner) {
 		if (ac == -420)
 			throw new NotImplementedException();
 		if (fnName instanceof UnitTestName) {
@@ -48,7 +49,8 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			md = ann.done();
 			cxt = c1.getVar();
 			args = null;
-			runner = r1.getVar();
+			this.runner = r1.getVar();
+			vars.put(runner, this.runner);
 		} else if (!isStatic) {
 			throw new NotImplementedException();
 		} else {
@@ -63,7 +65,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			md = ann.done();
 			cxt = c1.getVar();
 			args = a1.getVar();
-			runner = null;
+			this.runner = null;
 		}
 //		md.lenientMode(true);
 	}

@@ -33,7 +33,7 @@ public class JSAssertion implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		IExpr ret = jvm.method().callInterface("void", jvm.helper(), "assertSameValue", jvm.cxt(), jvm.arg(args[0]), jvm.arg(args[1]));
+		IExpr ret = jvm.method().callInterface("void", jvm.argAsIs(obj), "assertSameValue", jvm.cxt(), jvm.arg(args[0]), jvm.arg(args[1]));
 		jvm.local(this, ret);
 	}
 	

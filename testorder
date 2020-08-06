@@ -19,6 +19,7 @@ src/golden/methods/objects/errors/test.golden
 src/golden/objects/converrors/test.golden
 src/golden/objects/errors/test.golden
 src/golden/objects/typeerrors/test.golden
+src/golden/unittests/typeerrors/test.golden
 src/golden/offers/errors/test.golden
 src/golden/services/errors/test.golden
 src/golden/structs/errors/test.golden
@@ -30,12 +31,13 @@ src/golden/functions/simple/booleanlogic/test.golden
 src/golden/functions/simple/logic/test.golden
 src/golden/functions/simple/must-have-case/test.golden
 src/golden/functions/patterns/basic/test.golden
-src/golden/functions/patterns/binding/test.golden
 src/golden/functions/patterns/constants/multiple/test.golden
-src/golden/functions/patterns/poly/test.golden
-src/golden/functions/patterns/unions/test.golden
 src/golden/functions/returns/unionErrors/test.golden
 src/golden/functions/returns/unions/test.golden
+src/golden/primitive/strings/utf8/test.golden
+src/golden/functions/patterns/binding/test.golden
+src/golden/functions/patterns/poly/test.golden
+src/golden/functions/patterns/unions/test.golden
 src/golden/functions/currying/test.golden
 src/golden/functions/eventnv/test.golden
 src/golden/functions/guards/test.golden
@@ -121,7 +123,6 @@ src/golden/objects/events/test.golden
 src/golden/objects/methods/guarded/test.golden
 src/golden/objects/state/assignfn/test.golden
 src/golden/objects/templates/updates/test.golden
-src/golden/primitive/strings/utf8/test.golden
 src/golden/services/allcontract/test.golden
 src/golden/services/trampoline/test.golden
 src/golden/stdlib/functions/test.golden
@@ -133,4 +134,3 @@ src/golden/structs/basic/test.golden
 src/golden/structs/constructors/curried/test.golden
 src/golden/structs/fields/cycle/test.golden
 src/golden/tuples/assignment/test.golden
-src/golden/unittests/typeerrors/test.golden

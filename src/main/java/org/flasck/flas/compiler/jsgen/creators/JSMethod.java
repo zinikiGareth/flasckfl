@@ -1,7 +1,9 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -23,6 +25,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final boolean prototype;
 	private final String name;
 	final List<JSVar> args = new ArrayList<>();
+	final Map<String, JSVar> varmap = new HashMap<>();
 	private int nextVar = 1;
 
 	public JSMethod(JSStorage jse, NameOfThing fnName, String pkg, boolean prototype, String name) {
@@ -53,6 +56,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	public JSExpr argument(String name) {
 		JSVar ret = new JSVar(name);
 		args.add(ret);
+		varmap.put(name, ret);
 		return ret;
 	}
 
@@ -117,7 +121,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	
 	public void generate(ByteCodeEnvironment bce) {
 		if (bce != null && fnName != null && !this.name.equals("_init")) {
-			JVMCreationContext jvm = new BasicJVMCreationContext(bce, fnName, !this.prototype, args.size());
+			JVMCreationContext jvm = new BasicJVMCreationContext(bce, fnName, !this.prototype, args.size(), varmap.get("runner"));
 			super.generate(jvm);
 			jvm.done(this);
 		}
