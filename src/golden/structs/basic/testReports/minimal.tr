@@ -1,4 +1,6 @@
 JVM PASS s1 is hello
 JVM PASS s2 is world
+JVM PASS s3 is moose
 JS PASS s1 is hello
 JS PASS s2 is world
+JS PASS s3 is moose

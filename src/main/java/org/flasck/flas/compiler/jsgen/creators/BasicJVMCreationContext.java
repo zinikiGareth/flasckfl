@@ -124,7 +124,10 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			cxt = c1 == null ? null : c1.getVar();
 			if (wantArgumentList) {
 				args = a1.getVar();
-				// TODO: should we populate vars with all the array expressions now?
+				for (int ap=1;ap<as.size();ap++) {
+					JSVar v = as.get(ap);
+					stack.put(v, md.arrayElt(args, md.intConst(ap-1)));
+				}
 			} else {
 				args = null;
 				for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
