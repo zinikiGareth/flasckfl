@@ -42,7 +42,6 @@ src/golden/structs/acor/test.golden
 src/golden/structs/constructors/curried/test.golden
 src/golden/functions/patterns/unions/test.golden
 src/golden/functions/currying/test.golden
-src/golden/functions/eventnv/test.golden
 src/golden/functions/guards/test.golden
 src/golden/functions/hofcurry/test.golden
 src/golden/functions/hofs/test.golden
@@ -134,3 +133,4 @@ src/golden/stdlib/objects/cycle-in-tc/test.golden
 src/golden/stdlib/objects/random/test.golden
 src/golden/stdlib/objects/shuffle/test.golden
 src/golden/tuples/assignment/test.golden
+src/golden/functions/eventnv/test.golden

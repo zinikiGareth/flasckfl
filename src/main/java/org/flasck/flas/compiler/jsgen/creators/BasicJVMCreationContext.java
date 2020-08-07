@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
@@ -213,8 +214,12 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		String push = null;
 		if (fn.container() == null) {
 			push = resolveOpName(fn.baseName());
-			if (push == null)
-				push = J.BUILTINPKG+"."+fn.baseName();
+			if (push == null) {
+				if (fn instanceof FunctionName)
+					push = J.FLEVAL+"$"+fn.baseName();
+				else
+					push = J.BUILTINPKG+"."+fn.baseName();
+			}
 		} else
 			push = fn.javaClassName();
 		return push;

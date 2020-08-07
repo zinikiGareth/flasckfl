@@ -1,14 +1,17 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSPushConstructor implements JSExpr {
+	private final NameOfThing name;
 	private final String clz;
 
-	public JSPushConstructor(String clz) {
+	public JSPushConstructor(NameOfThing name, String clz) {
+		this.name = name;
 		this.clz = clz;
 	}
 
@@ -26,6 +29,6 @@ public class JSPushConstructor implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		jvm.local(this, md.makeNew(J.CALLEVAL, md.classConst(clz)));
+		jvm.local(this, md.makeNew(J.CALLEVAL, md.classConst(jvm.figureName(name))));
 	}
 }

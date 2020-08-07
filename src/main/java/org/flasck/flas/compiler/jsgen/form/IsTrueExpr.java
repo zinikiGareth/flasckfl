@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen.form;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class IsTrueExpr implements JSExpr {
@@ -29,8 +30,10 @@ public class IsTrueExpr implements JSExpr {
 		if (!jvm.hasLocal(expr))
 			expr.generate(jvm);
 		IExpr ret = jvm.argAsIs(expr);
-		if (!ret.getType().equals("boolean"))
-			ret = jvm.method().callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isTruthy", ret);
+		if (!ret.getType().equals("boolean")) {
+			NewMethodDefiner md = jvm.method();
+			ret = md.callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isTruthy", md.as(ret, J.OBJECT));
+		}
 		jvm.local(this, ret);
 	}
 

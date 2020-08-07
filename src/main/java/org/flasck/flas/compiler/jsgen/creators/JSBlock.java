@@ -180,8 +180,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr pushConstructor(String clz) {
-		JSLocal stmt = new JSLocal(creating, new JSPushConstructor(clz));
+	public JSExpr pushConstructor(NameOfThing name, String clz) {
+		JSLocal stmt = new JSLocal(creating, new JSPushConstructor(name, clz));
 		stmts.add(stmt);
 		return stmt;
 	}

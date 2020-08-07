@@ -264,7 +264,7 @@ public class ExpressionGenerationJS {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		JSExpr curry = context.mock(JSExpr.class, "curry");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushConstructor("Cons"); will(returnValue(cons));
+			oneOf(meth).pushConstructor(new SolidName(null, "Cons"), "Cons"); will(returnValue(cons));
 			oneOf(meth).curry(false, 2, cons); will(returnValue(curry));
 			oneOf(nv).result(curry);
 		}});
@@ -281,7 +281,7 @@ public class ExpressionGenerationJS {
 	public void aStructConstructorWithOneArgExpectingTwoArgsIsPushedByExprGenerator() {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushConstructor("Cons"); will(returnValue(cons));
+			oneOf(meth).pushConstructor(new SolidName(null, "Cons"), "Cons"); will(returnValue(cons));
 			oneOf(nv).result(cons);
 		}});
 		UnresolvedVar expr = new UnresolvedVar(pos, "Cons");
@@ -476,7 +476,7 @@ public class ExpressionGenerationJS {
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		JSExpr curry = context.mock(JSExpr.class, "curry");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushConstructor("Cons"); will(returnValue(cons));
+			oneOf(meth).pushConstructor(new SolidName(null, "Cons"), "Cons"); will(returnValue(cons));
 			oneOf(meth).string("hello"); will(returnValue(s));
 			oneOf(meth).curry(false, 2, cons, s); will(returnValue(curry));
 			oneOf(nv).result(curry);

@@ -172,9 +172,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			} else if (myName.equals("MakeArray") || sd.argCount() == nargs) {
 				sv.result(null); // MakeArray does not exist
 			} else if (nargs > 0) {
-				sv.result(block.pushConstructor(myName));
+				sv.result(block.pushConstructor(defn.name(), myName));
 			} else {
-				sv.result(block.curry(false, sd.argCount(), block.pushConstructor(myName)));
+				sv.result(block.curry(false, sd.argCount(), block.pushConstructor(defn.name(), myName)));
 			}
 		} else if (defn instanceof HandlerImplements) {
 			// if the constructor has no args, eval it here
@@ -185,9 +185,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				args.add(state.container());
 				sv.result(block.createObject(defn.name(), args));
 			} else if (nargs > 0) {
-				sv.result(block.pushConstructor(myName));
+				sv.result(block.pushConstructor(defn.name(), myName));
 			} else {
-				sv.result(block.curry(false, hi.argCount(), block.pushConstructor(myName)));
+				sv.result(block.curry(false, hi.argCount(), block.pushConstructor(defn.name(), myName)));
 			}
 		} else if (defn instanceof VarPattern) {
 			sv.result(block.boundVar(((VarPattern)defn).var));
