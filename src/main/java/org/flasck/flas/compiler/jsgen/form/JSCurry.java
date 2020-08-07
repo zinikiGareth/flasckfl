@@ -1,6 +1,12 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSCurry implements JSExpr {
@@ -29,15 +35,31 @@ public class JSCurry implements JSExpr {
 		}
 		w.print(")");
 	}
+	
+	@Override
+	public void generate(JVMCreationContext jvm) {
+		NewMethodDefiner meth = jvm.method();
+		IExpr fn = null;
+		List<IExpr> stack = new ArrayList<>();
+		for (JSExpr e : args) {
+			if (!jvm.hasLocal(e))
+				e.generate(jvm);
+			if (fn == null)
+				fn = jvm.arg(e);
+			else
+				stack.add(jvm.arg(e));
+		}
+		IExpr as = meth.arrayOf(J.OBJECT, stack);
+		IExpr call;
+		if (wantObject)
+			call = meth.callInterface(J.FLCURRY, jvm.cxt(), "ocurry", meth.intConst(required-1), meth.as(fn, J.APPLICABLE), as);
+		else
+			call = meth.callInterface(J.FLCURRY, jvm.cxt(), "curry", meth.intConst(required), meth.as(fn, J.APPLICABLE), as);
+		jvm.local(this, call);
+	}
 
 	@Override
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
-	}
-
-	@Override
-	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
 	}
 }
