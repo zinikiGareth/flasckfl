@@ -68,4 +68,9 @@ public class JSClass implements JSClassCreator {
 		for (JSMethod m : methods)
 			m.generate(bce);
 	}
+	
+	@Override
+	public String toString() {
+		return "JSClass[" + name + "]";
+	}
 }

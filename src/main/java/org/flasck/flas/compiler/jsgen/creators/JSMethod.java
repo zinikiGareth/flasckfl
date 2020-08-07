@@ -1,10 +1,7 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
@@ -15,29 +12,31 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSInheritFrom;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final JSStorage jse;
 	private final NameOfThing fnName;
-	private final String pkg;
+	private final String clzName;
 	private final boolean prototype;
 	private final String name;
 	final List<JSVar> args = new ArrayList<>();
-	final Map<String, JSVar> varmap = new HashMap<>();
 	private int nextVar = 1;
+	private boolean wantArgumentList = false;
+	private String returnsA = J.OBJECT;
 
 	public JSMethod(JSStorage jse, NameOfThing fnName, String pkg, boolean prototype, String name) {
 		this.jse = jse;
 		this.fnName = fnName;
-		this.pkg = pkg;
+		this.clzName = pkg;
 		this.prototype = prototype;
 		this.name = name;
 	}
 	
 	public String getPackage() {
-		return pkg;
+		return clzName;
 	}
 	
 	public String getName() {
@@ -47,17 +46,33 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	@Override
 	public String jsName() {
 		if (name == null)
-			return pkg;
+			return clzName;
 		else
-			return pkg +"." + name;
+			return clzName +"." + name;
 	}
 	
+	@Override
+	public void argumentList() {
+		wantArgumentList = true;
+	}
+
+	@Override
+	public JSExpr argument(String type, String name) {
+		JSVar ret = new JSVar(type, name);
+		args.add(ret);
+		return ret;
+	}
+
 	@Override
 	public JSExpr argument(String name) {
 		JSVar ret = new JSVar(name);
 		args.add(ret);
-		varmap.put(name, ret);
 		return ret;
+	}
+
+	@Override
+	public void returnsType(String ty) {
+		this.returnsA = ty;
 	}
 
 	public void inheritFrom(NameOfThing baseClass) {
@@ -86,7 +101,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 
 	public void write(IndentWriter w) {
 		w.println("");
-		w.print(pkg);
+		w.print(clzName);
 		if (name != null) {
 			w.print(".");
 			if (prototype)
@@ -108,7 +123,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		w.println("");
 		if (name != null) {
 			w.println("");
-			w.print(pkg);
+			w.print(clzName);
 			w.print(".");
 			if (prototype)
 				w.print("prototype.");
@@ -120,8 +135,8 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 	
 	public void generate(ByteCodeEnvironment bce) {
-		if (bce != null && fnName != null && !this.name.equals("_init")) {
-			JVMCreationContext jvm = new BasicJVMCreationContext(bce, fnName, !this.prototype, args.size(), varmap.get("runner"));
+		if (bce != null && !"_init".equals(this.name)) {
+			JVMCreationContext jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, !this.prototype, wantArgumentList, args, returnsA);
 			super.generate(jvm);
 			jvm.done(this);
 		}

@@ -53,6 +53,7 @@ public class FunctionGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
+			oneOf(meth).argumentList();
 			oneOf(meth).literal("42"); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
@@ -94,6 +95,7 @@ public class FunctionGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
 			oneOf(meth).head(new JSVar("_0"), s);
@@ -116,6 +118,7 @@ public class FunctionGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 			oneOf(meth).bindVar(with(SlotMatcher.id("0")), with(new JSVar("_0")), with("x"));
 			oneOf(meth).boundVar("x"); will(returnValue(ret));
@@ -171,6 +174,7 @@ public class FunctionGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth)); inSequence(ordering);
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
+			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
 			oneOf(meth).argument("_1"); will(returnValue(slot1)); inSequence(ordering);
 			oneOf(meth).head(new JSVar("_0"), s); inSequence(ordering);
@@ -222,6 +226,7 @@ public class FunctionGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
 
 			oneOf(meth).head(new JSVar("_0"), s);
@@ -643,6 +648,7 @@ public class FunctionGenerationJS {
 				oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 				oneOf(jss).newFunction(nameX, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+				oneOf(meth).argumentList();
 				oneOf(meth).argument("_0"); will(returnValue(slot0));
 
 				oneOf(meth).head(new JSVar("_0"), fn.slots().get(0));
@@ -669,6 +675,7 @@ public class FunctionGenerationJS {
 				oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 				oneOf(jss).newFunction(nameY, "test.repo", "test.repo", false, "y"); will(returnValue(meth));
 				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
+				oneOf(meth).argumentList();
 				oneOf(meth).argument("_0"); will(returnValue(slot0));
 
 				oneOf(meth).head(new JSVar("_0"), fn.slots().get(0));

@@ -24,7 +24,7 @@ public class StructFieldGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void result(Object r) {
-		currentBlock.storeField(ret, fieldName, (JSExpr) r);
+		currentBlock.storeField(false, ret, fieldName, (JSExpr) r);
 		sv.result(null);
 	}
 }

@@ -36,7 +36,7 @@ public class ObjectCtorStateGeneratorJS extends LeafAdapter implements ResultAwa
 	@Override
 	public void leaveStructField(StructField sf) {
 		if (fieldValue != null) {
-			block.storeField(state.ocret(), sf.name, fieldValue);
+			block.storeField(true, state.ocret(), sf.name, fieldValue);
 			this.fieldValue = null;
 		}
 	}

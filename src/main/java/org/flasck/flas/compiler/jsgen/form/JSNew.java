@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSNew implements JSExpr {
@@ -47,8 +48,8 @@ public class JSNew implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		IExpr ret = jvm.method().makeNew(clz, jvm.cxt());
+		jvm.local(this, ret);
 	}
 
 }

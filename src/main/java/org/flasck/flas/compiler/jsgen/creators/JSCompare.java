@@ -1,6 +1,8 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSCompare implements JSExpr {
@@ -24,8 +26,9 @@ public class JSCompare implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr ret = md.callVirtual("boolean", jvm.arg(lhs), "equals", jvm.arg(rhs));
+		jvm.local(this, ret);
 	}
 
 }

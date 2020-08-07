@@ -1,7 +1,11 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSLiteral implements JSExpr {
 	private final String text;
@@ -22,8 +26,25 @@ public class JSLiteral implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr ret = null;
+		if ("true".equals(text)) {
+			ret = md.boolConst(true);
+		} else if ("false".equals(text)) {
+			ret = md.boolConst(false);
+		} else {
+			try {
+				int x = Integer.parseInt(text);
+				ret = md.makeNew(J.NUMBER, md.box(md.intConst(x)), md.castTo(md.aNull(), "java.lang.Double"));
+			} catch (NumberFormatException ex) {
+				throw new NotImplementedException("non-integer cases: " + text);
+			}
+		}
+		jvm.local(this, ret);
 	}
 
+	@Override
+	public String toString() {
+		return "Literal[" + text + "]";
+	}
 }

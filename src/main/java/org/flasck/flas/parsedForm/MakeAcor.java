@@ -27,7 +27,7 @@ public class MakeAcor implements Expr, WithTypeSignature {
 
 	@Override
 	public NameOfThing name() {
-		throw new NotImplementedException();
+		return acorMeth;
 	}
 
 	@Override

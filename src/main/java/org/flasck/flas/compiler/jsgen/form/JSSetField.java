@@ -35,7 +35,6 @@ public class JSSetField implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
 		
 	}
 }

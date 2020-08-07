@@ -47,7 +47,7 @@ public class HIGeneratorJS extends LeafAdapter {
 			args.add(new JSLiteral("_card"));
 		}
 		this.evalRet = meth.newOf(hi.name(), args);
-		this.meth.storeField(this.evalRet, "_type", this.meth.string(name.uniqueName()));
+		this.meth.storeField(true, this.evalRet, "_type", this.meth.string(name.uniqueName()));
 		jse.handler(hi);
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(hi, methods);
@@ -63,7 +63,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		else
 			throw new NotImplementedException("pattern " + hl);
 		JSExpr arg = this.meth.argument(name);
-		this.meth.storeField(this.evalRet, name, arg);
+		this.meth.storeField(true, this.evalRet, name, arg);
 	}
 	
 	@Override

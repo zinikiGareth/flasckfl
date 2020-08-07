@@ -344,7 +344,7 @@ public class ClassGeneration {
 	public void weCanStoreValuesInTheFieldsContainer() {
 		JSMethod b = new JSMethod(jse, null, null, false, "fred");
 		b.argument("cxt");
-		b.storeField(null, "value", b.string("hello"));
+		b.storeField(true, null, "value", b.string("hello"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("\nnull.fred = function(cxt) {\n  this.state.set('value', 'hello');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
@@ -362,7 +362,7 @@ public class ClassGeneration {
 	public void weCanStoreValuesInAForeignFieldsContainer() {
 		JSMethod b = new JSMethod(jse, null, null, false, "fred");
 		b.argument("cxt");
-		b.storeField(b.boundVar("x"), "value", b.string("hello"));
+		b.storeField(true, b.boundVar("x"), "value", b.string("hello"));
 		b.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("\nnull.fred = function(cxt) {\n  x.state.set('value', 'hello');\n}\n\nnull.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}

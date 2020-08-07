@@ -168,7 +168,7 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 		if (stack.size() != 1)
 			throw new NotImplementedException(); // I don't think I understand this case, yet
 		JSExpr obj = stack.remove(0);
-		sv.result(block.makeAcor(expr.acorMeth.jsPName(), obj, expr.nargs));
+		sv.result(block.makeAcor(expr.acorMeth, obj, expr.nargs));
 	}
 	
 	@Override

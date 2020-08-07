@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSReturn implements JSExpr {
@@ -25,7 +26,14 @@ public class JSReturn implements JSExpr {
 	
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		IExpr ret = jvm.method().returnObject(jvm.arg(jsExpr));
+		NewMethodDefiner md = jvm.method();
+		if (!jvm.hasLocal(jsExpr))
+			jsExpr.generate(jvm);
+		IExpr ret = jvm.argAsIs(jsExpr);
+		if ("boolean".contentEquals(ret.getType()))
+			ret = md.returnBool(ret);
+		else
+			ret = md.returnObject(ret);
 		jvm.local(this, ret);
 	}
 }

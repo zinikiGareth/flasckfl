@@ -1,6 +1,8 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSNewState implements JSExpr {
@@ -15,13 +17,12 @@ public class JSNewState implements JSExpr {
 
 	@Override
 	public void write(IndentWriter w) {
-		w.print("_cxt.fields()");
+		w.println("this.state = _cxt.fields();");
 	}
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		jvm.inherit(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
+		jvm.local(this, jvm.method().callSuper("void", J.JVM_FIELDS_CONTAINER_WRAPPER, "<init>", jvm.cxt()));
 	}
-
 }

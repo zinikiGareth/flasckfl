@@ -37,6 +37,10 @@ src/golden/functions/returns/unions/test.golden
 src/golden/primitive/strings/utf8/test.golden
 src/golden/functions/patterns/binding/test.golden
 src/golden/functions/patterns/poly/test.golden
+src/golden/structs/acor/test.golden
+src/golden/structs/basic/test.golden
+src/golden/structs/constructors/curried/test.golden
+src/golden/structs/fields/cycle/test.golden
 src/golden/functions/patterns/unions/test.golden
 src/golden/functions/currying/test.golden
 src/golden/functions/eventnv/test.golden
@@ -129,8 +133,4 @@ src/golden/stdlib/functions/test.golden
 src/golden/stdlib/objects/cycle-in-tc/test.golden
 src/golden/stdlib/objects/random/test.golden
 src/golden/stdlib/objects/shuffle/test.golden
-src/golden/structs/acor/test.golden
-src/golden/structs/basic/test.golden
-src/golden/structs/constructors/curried/test.golden
-src/golden/structs/fields/cycle/test.golden
 src/golden/tuples/assignment/test.golden

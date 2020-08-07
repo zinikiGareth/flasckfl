@@ -310,7 +310,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs) {
+	public JSExpr makeAcor(FunctionName acorMeth, JSExpr obj, int nargs) {
 		JSLocal ma = new JSLocal(creating, new JSMakeAcor(acorMeth, obj, nargs));
 		stmts.add(ma);
 		return ma;
@@ -522,13 +522,12 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public void stateField() {
-		JSSetField state = new JSSetField("state", new JSNewState());
-		stmts.add(state);
+		stmts.add(new JSNewState());
 	}
 
 	@Override
-	public void storeField(JSExpr inObj, String field, JSExpr value) {
-		stmts.add(new JSStoreField(inObj, field, value));
+	public void storeField(boolean jsOnly, JSExpr inObj, String field, JSExpr value) {
+		stmts.add(new JSStoreField(jsOnly, inObj, field, value));
 	}
 
 	@Override

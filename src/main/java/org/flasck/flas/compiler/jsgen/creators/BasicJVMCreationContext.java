@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -35,11 +36,23 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	private final Map<JSExpr, IExpr> stack = new HashMap<>();
 	private final Map<Slot, IExpr> slots = new HashMap<>();
 	private final Map<JSBlockCreator, IExpr> blocks = new HashMap<>();
+	private final boolean isCtor;
 	
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing fnName, boolean isStatic, int ac, JSVar runner) {
-		if (ac == -420)
-			throw new NotImplementedException();
-		if (fnName instanceof UnitTestName) {
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, String clzName, String name, NameOfThing fnName, boolean isStatic, boolean wantArgumentList, List<JSVar> as, String returnsA) {
+		if (fnName == null && name == null) {
+			// it's a constructor
+			bcc = bce.newClass(clzName);
+			bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
+			bcc.implementsInterface(J.AREYOUA);
+			bcc.generateAssociatedSourceFile();
+			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
+			md = ann.done();
+			cxt = c1.getVar();
+			args = null;
+			this.runner = null;
+			this.isCtor = true;
+		} else if (fnName instanceof UnitTestName) {
 			bcc = bce.newClass(fnName.javaName());
 			bcc.generateAssociatedSourceFile();
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "dotest");
@@ -50,42 +63,102 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			cxt = c1.getVar();
 			args = null;
 			this.runner = r1.getVar();
-			vars.put(runner, this.runner);
+			vars.put(as.get(0), this.runner);
+			this.isCtor = false;
 		} else if (!isStatic) {
-			throw new NotImplementedException();
+			bcc = bce.get(clzName);
+			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, name);
+			PendingVar c1 = null;
+			PendingVar a1 = null;
+			Map<JSVar, PendingVar> tmp = new HashMap<>();
+			if (wantArgumentList) {
+				c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
+				a1 = ann.argument("[" + J.OBJECT, "args");
+			} else {
+				for (JSVar v : as) {
+					PendingVar ai = ann.argument(v.type(), v.asVar());
+					tmp.put(v, ai);
+					if (v.asVar().equals("_cxt"))
+						c1 = ai; 
+				}
+			}
+			ann.returns(returnsA);
+			md = ann.done();
+			cxt = c1 == null ? null : c1.getVar();
+			if (wantArgumentList) {
+				args = a1.getVar();
+				// TODO: should we populate vars with all the array expressions now?
+			} else {
+				args = null;
+				for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
+					vars.put(e.getKey(), e.getValue().getVar());
+				}
+			}
+			this.runner = null;
+			this.isCtor = false;
 		} else {
-			bcc = bce.newClass(fnName.javaClassName());
+			if (fnName == null)
+				bcc = bce.getOrCreate(clzName);
+			else
+				bcc = bce.getOrCreate(fnName.javaClassName());
 			bcc.generateAssociatedSourceFile();
 			IFieldInfo fi = bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
-			fi.constValue(ac);
+			fi.constValue(as.size());
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "eval");
-			PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
-			PendingVar a1 = ann.argument("[" + J.OBJECT, "args");
+			PendingVar c1 = null;
+			PendingVar a1 = null;
+			Map<JSVar, PendingVar> tmp = new HashMap<>();
+			if (wantArgumentList) {
+				c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
+				a1 = ann.argument("[" + J.OBJECT, "args");
+			} else {
+				for (JSVar v : as) {
+					PendingVar ai = ann.argument(v.type(), v.asVar());
+					tmp.put(v, ai);
+					if (v.asVar().equals("_cxt"))
+						c1 = ai; 
+				}
+			}
 			ann.returns(J.OBJECT);
 			md = ann.done();
-			cxt = c1.getVar();
-			args = a1.getVar();
+			cxt = c1 == null ? null : c1.getVar();
+			if (wantArgumentList) {
+				args = a1.getVar();
+				// TODO: should we populate vars with all the array expressions now?
+			} else {
+				args = null;
+				for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
+					vars.put(e.getKey(), e.getValue().getVar());
+				}
+			}
 			this.runner = null;
+			this.isCtor = false;
 		}
 //		md.lenientMode(true);
 	}
 
-	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, Var runner, Var cxt, Var args) {
+	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, Var runner, Var cxt, Var args, boolean isCtor) {
 		this.bcc = bcc;
 		this.md = md;
 		this.runner = runner;
 		this.cxt = cxt;
 		this.args = args;
+		this.isCtor = isCtor;
 	}
 
 	@Override
 	public JVMCreationContext split() {
-		BasicJVMCreationContext ret = new BasicJVMCreationContext(bcc, md, runner, cxt, args);
+		BasicJVMCreationContext ret = new BasicJVMCreationContext(bcc, md, runner, cxt, args, isCtor);
 		ret.vars.putAll(vars);
 		ret.stack.putAll(stack);
 		ret.slots.putAll(slots);
 		ret.blocks.putAll(blocks);
 		return ret;
+	}
+	
+	@Override
+	public void inherit(boolean isFinal, Access access, String type, String name) {
+		bcc.inheritsField(isFinal, access, type, name);
 	}
 	
 	@Override
@@ -119,7 +192,14 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	@Override
+	public boolean hasLocal(JSExpr key) {
+		return stack.containsKey(key);
+	}
+
+	@Override
 	public void local(JSExpr key, IExpr e) {
+		if (stack.containsKey(key))
+			throw new NotImplementedException("duplicate entry for: " + key);
 		stack.put(key, e);
 	}
 
@@ -184,12 +264,8 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			return stack.get(jsExpr);
 		else if (jsExpr instanceof JSLiteral) {
 			JSLiteral l = (JSLiteral) jsExpr;
-			try {
-				int x = Integer.parseInt(l.asVar());
-				return md.makeNew(J.NUMBER, md.box(md.intConst(x)), md.castTo(md.aNull(), "java.lang.Double"));
-			} catch (NumberFormatException ex) {
-				throw new NotImplementedException("non-integer cases");
-			}
+			l.generate(this);
+			return stack.get(l);
 		} else if (jsExpr instanceof JSString) {
 			JSString l = (JSString) jsExpr;
 			return md.stringConst(l.value());
@@ -207,6 +283,10 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	@Override
 	public void done(JSBlockCreator blk) {
 		blk(blk).flush();
+		// we could avoid this hack by introducing an explicit JSReturnVoid which does nothing for JS but does this for JVM
+		if (isCtor) {
+			md.returnVoid().flush();
+		}
 	}
 
 	private String resolveOpName(String op) {

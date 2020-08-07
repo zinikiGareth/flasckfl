@@ -302,6 +302,7 @@ public class ExpressionGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
+			oneOf(meth).argumentList();
 			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(nret));
 			oneOf(meth).returnObject(nret);
 		}});
@@ -676,7 +677,7 @@ public class ExpressionGenerationJS {
 		JSExpr fv = context.mock(JSExpr.class, "fv");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("from"); will(returnValue(fv));
-			oneOf(meth).makeAcor("test.repo.Obj.prototype.f", fv, 0);
+			oneOf(meth).makeAcor((FunctionName) ma.name(), fv, 0);
 		}});
 		new ApplyExprGeneratorJS(state, stackv, meth);
 		Traverser gen = new Traverser(stackv).withHSI();
@@ -705,7 +706,7 @@ public class ExpressionGenerationJS {
 		JSExpr s1 = context.mock(JSExpr.class, "s1");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("from"); will(returnValue(fv));
-			oneOf(meth).makeAcor("test.repo.Obj.prototype.f", fv, 2); will(returnValue(msi));
+			oneOf(meth).makeAcor((FunctionName) ma.name(), fv, 2); will(returnValue(msi));
 			oneOf(meth).literal("42"); will(returnValue(n1));
 			oneOf(meth).string("hello"); will(returnValue(s1));
 			oneOf(meth).closure(false, msi, n1, s1); will(returnValue(res));

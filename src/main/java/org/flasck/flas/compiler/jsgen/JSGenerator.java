@@ -83,6 +83,7 @@ import org.flasck.flas.resolver.NestingChain;
 import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
@@ -185,6 +186,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth = jse.newFunction(fn.name(), pkg, cxName, fn.hasState(), fn.name().name);
 		
 		this.meth.argument("_cxt");
+		this.meth.argumentList();
 		for (int i=0;i<fn.argCountWithoutHolder();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
@@ -238,10 +240,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
 		JSBlockCreator ctor = ctr.constructor();
 		ctor.stateField();
-		ctor.storeField(this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
+		ctor.storeField(true, this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
 		JSMethodCreator areYouA = ctr.createMethod("_areYouA", true);
-		areYouA.argument("_cxt");
-		areYouA.argument("ty");
+		areYouA.argument(J.EVALCONTEXT, "_cxt");
+		areYouA.argument(J.STRING, "ty");
+		areYouA.returnsType("boolean");
 		JSExpr aya = areYouA.arg(1);
 		JSIfCreator ifblk = areYouA.ifTrue(new JSCompare(aya, areYouA.string(obj.name().jsName())));
 		ifblk.trueCase().returnObject(ifblk.trueCase().literal("true"));
@@ -253,7 +256,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		fc.returnObject(fc.literal("false"));
 		this.meth = ctr.createMethod("eval", false);
-		this.meth.argument("_cxt");
+		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
+		this.meth.argumentList();
 		this.evalRet = meth.newOf(obj.name());
 		this.block = meth;
 		this.structFieldHandler = sf -> {
@@ -261,7 +265,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 				return;
 			if (sf.init == null) {
 				JSExpr arg = this.meth.argument(sf.name);
-				this.meth.storeField(this.evalRet, sf.name, arg);
+				this.meth.storeField(false, this.evalRet, sf.name, arg);
 			} else {
 				new StructFieldGeneratorJS(state, sv, block, sf.name, evalRet);
 			}
@@ -310,6 +314,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, cxName);
 		JSMethodCreator meth = jse.newFunction(null, pkg, cxName, true, "_field_" + sf.name);
 		meth.argument("_cxt");
+		meth.argumentList();
 		meth.returnObject(meth.loadField(new JSThis(), sf.name));
 	}
 	

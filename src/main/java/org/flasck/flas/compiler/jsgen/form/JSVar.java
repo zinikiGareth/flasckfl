@@ -1,12 +1,20 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSVar implements JSExpr {
+	private final String type;
 	private final String name;
 
 	public JSVar(String name) {
+		this.type = J.OBJECT;
+		this.name = name;
+	}
+	
+	public JSVar(String type, String name) {
+		this.type = type;
 		this.name = name;
 	}
 
@@ -15,6 +23,10 @@ public class JSVar implements JSExpr {
 		w.print(name);
 	}
 
+	public String type() {
+		return type;
+	}
+	
 	@Override
 	public String asVar() {
 		return name;

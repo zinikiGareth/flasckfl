@@ -26,7 +26,11 @@ public class IsTrueExpr implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		IExpr ret = jvm.method().callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isTruthy", jvm.arg(expr));
+		if (!jvm.hasLocal(expr))
+			expr.generate(jvm);
+		IExpr ret = jvm.argAsIs(expr);
+		if (!ret.getType().equals("boolean"))
+			ret = jvm.method().callInterface(J.BOOLEANP.getActual(), jvm.cxt(), "isTruthy", ret);
 		jvm.local(this, ret);
 	}
 

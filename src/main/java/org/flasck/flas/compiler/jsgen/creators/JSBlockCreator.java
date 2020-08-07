@@ -48,7 +48,7 @@ public interface JSBlockCreator {
 	JSExpr createAgent(CardName cardName);
 	JSExpr createCard(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
-	JSExpr makeAcor(String acorMeth, JSExpr obj, int nargs);
+	JSExpr makeAcor(FunctionName acorMeth, JSExpr obj, int nargs);
 	JSExpr introduceVar(String var);
 	JSExpr fromIntroduction(JSExpr boundVar);
 	void recordContract(String ctr, String impl);
@@ -85,7 +85,7 @@ public interface JSBlockCreator {
 	JSExpr checkType(NamedType type, JSExpr res);
 
 	// main logic statements
-	void storeField(JSExpr inObj, String field, JSExpr value);
+	void storeField(boolean jsOnly, JSExpr inObj, String field, JSExpr value);
 	JSExpr loadField(JSExpr container, String name);
 	JSExpr contractByVar(JSExpr container, String name);
 	JSExpr structArgs(NameOfThing fn, JSExpr... args);
