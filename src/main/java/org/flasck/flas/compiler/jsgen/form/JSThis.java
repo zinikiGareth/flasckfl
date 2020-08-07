@@ -15,11 +15,10 @@ public class JSThis implements JSExpr {
 	public void write(IndentWriter w) {
 		throw new NotImplementedException();
 	}
-
+	
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		jvm.local(this, jvm.method().myThis());
 	}
 
 }

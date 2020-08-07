@@ -40,7 +40,6 @@ src/golden/functions/patterns/poly/test.golden
 src/golden/structs/basic/test.golden
 src/golden/structs/acor/test.golden
 src/golden/structs/constructors/curried/test.golden
-src/golden/structs/fields/cycle/test.golden
 src/golden/functions/patterns/unions/test.golden
 src/golden/functions/currying/test.golden
 src/golden/functions/eventnv/test.golden
@@ -72,6 +71,7 @@ src/golden/cards/events/source/test.golden
 src/golden/cards/nesting/functions/test.golden
 src/golden/cards/state/guard/test.golden
 src/golden/cards/state/standalone/test.golden
+src/golden/structs/fields/cycle/test.golden
 src/golden/cards/templates/apply/test.golden
 src/golden/cards/templates/bindEvents/test.golden
 src/golden/cards/templates/bindexpr/test.golden

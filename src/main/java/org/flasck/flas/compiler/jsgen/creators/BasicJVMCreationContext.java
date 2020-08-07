@@ -41,10 +41,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	public BasicJVMCreationContext(ByteCodeEnvironment bce, String clzName, String name, NameOfThing fnName, boolean isStatic, boolean wantArgumentList, List<JSVar> as, String returnsA) {
 		if (fnName == null && name == null) {
 			// it's a constructor
-			bcc = bce.newClass(clzName);
-			bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
-			bcc.implementsInterface(J.AREYOUA);
-			bcc.generateAssociatedSourceFile();
+			bcc = bce.get(clzName);
 			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
 			md = ann.done();

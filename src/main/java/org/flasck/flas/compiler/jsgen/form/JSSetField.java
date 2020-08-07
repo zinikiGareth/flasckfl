@@ -35,6 +35,5 @@ public class JSSetField implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		
 	}
 }

@@ -24,8 +24,6 @@ public class JSInheritFrom implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		jvm.local(this, null);
 	}
-
 }

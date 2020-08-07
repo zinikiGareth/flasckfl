@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
 
@@ -64,6 +66,13 @@ public class JSClass implements JSClassCreator {
 	}
 
 	public void generate(ByteCodeEnvironment bce) {
+		if (bce == null)
+			return;
+		
+		ByteCodeCreator bcc = bce.newClass(name);
+		bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
+		bcc.implementsInterface(J.AREYOUA);
+		bcc.generateAssociatedSourceFile();
 		ctor.generate(bce);
 		for (JSMethod m : methods)
 			m.generate(bce);

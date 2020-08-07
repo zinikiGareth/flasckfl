@@ -38,7 +38,7 @@ public class JSCurry implements JSExpr {
 	
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		NewMethodDefiner meth = jvm.method();
+		NewMethodDefiner md = jvm.method();
 		IExpr fn = null;
 		List<IExpr> stack = new ArrayList<>();
 		for (JSExpr e : args) {
@@ -49,12 +49,12 @@ public class JSCurry implements JSExpr {
 			else
 				stack.add(jvm.arg(e));
 		}
-		IExpr as = meth.arrayOf(J.OBJECT, stack);
+		IExpr as = md.arrayOf(J.OBJECT, stack);
 		IExpr call;
 		if (wantObject)
-			call = meth.callInterface(J.FLCURRY, jvm.cxt(), "ocurry", meth.intConst(required-1), meth.as(fn, J.APPLICABLE), as);
+			call = md.callInterface(J.FLCURRY, jvm.cxt(), "ocurry", md.intConst(required-1), md.as(fn, J.APPLICABLE), as);
 		else
-			call = meth.callInterface(J.FLCURRY, jvm.cxt(), "curry", meth.intConst(required), meth.as(fn, J.APPLICABLE), as);
+			call = md.callInterface(J.FLCURRY, jvm.cxt(), "curry", md.intConst(required), md.as(fn, J.APPLICABLE), as);
 		jvm.local(this, call);
 	}
 
