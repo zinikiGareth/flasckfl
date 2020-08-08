@@ -13,7 +13,7 @@ public class IsAExpr implements JSExpr {
 
 	public IsAExpr(JSExpr var, NameOfThing ctor) {
 		this.var = var;
-		this.ctor = ctor.jsName();
+		this.ctor = ctor.uniqueName();
 	}
 
 	@Override

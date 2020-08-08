@@ -22,7 +22,6 @@ import org.flasck.flas.compiler.jsgen.form.JSArrayElt;
 import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
 import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
-import org.flasck.flas.compiler.jsgen.form.JSCheckType;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
 import org.flasck.flas.compiler.jsgen.form.JSCurry;
@@ -466,7 +465,7 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSLocal checkType(NamedType type, JSExpr res) {
-		JSLocal ret = new JSLocal(creating, new JSCheckType(type, res));
+		JSLocal ret = new JSLocal(creating, new IsAExpr(res, type.name()));
 		stmts.add(ret);
 		return ret;
 	}
