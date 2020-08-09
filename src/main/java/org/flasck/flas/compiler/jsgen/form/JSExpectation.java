@@ -1,8 +1,12 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -43,8 +47,23 @@ public class JSExpectation implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		if (!jvm.hasLocal(mock))
+			mock.generate(jvm);
+		List<IExpr> stack = new ArrayList<>();
+		for (JSExpr je : args) {
+			if (!jvm.hasLocal(je))
+				je.generate(jvm);
+			stack.add(jvm.arg(je));
+		}
+		if (!jvm.hasLocal(handler)) {
+			if (handler != null)
+				handler.generate(jvm);
+			else
+				jvm.local(handler, md.aNull());
+		}
+		IExpr x = md.voidExpr(md.callInterface(J.MOCKEXPECTATION, jvm.arg(mock), "expect", md.stringConst(method), md.arrayOf(J.OBJECT, stack), jvm.arg(handler)));
+		jvm.local(this, x);
 	}
 
 }

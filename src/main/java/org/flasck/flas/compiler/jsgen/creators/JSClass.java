@@ -8,14 +8,33 @@ import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSClass implements JSClassCreator {
+	public class Field {
+		private final boolean isFinal;
+		private final Access access;
+		private final NameOfThing type;
+		private final String var;
+
+		public Field(boolean isFinal, Access access, NameOfThing type, String var) {
+			this.isFinal = isFinal;
+			this.access = access;
+			this.type = type;
+			this.var = var;
+		}
+	}
+
 	private final JSEnvironment jse;
 	private final String name;
-	private final List<JSMethod> methods = new ArrayList<>();
 	private final JSMethod ctor;
 	private NameOfThing baseClass;
+	private String javaBase;
+	private boolean isInterface;
+	private final List<JSMethod> methods = new ArrayList<>();
+	private final List<Field> fields = new ArrayList<>();
+	private final List<String> intfs = new ArrayList<>();
 	
 	public JSClass(JSEnvironment jse, String fullName) {
 		this.jse = jse;
@@ -29,11 +48,28 @@ public class JSClass implements JSClassCreator {
 	}
 
 	@Override
-	public void inheritsFrom(NameOfThing baseClass) {
+	public void inheritsFrom(NameOfThing baseClass, String javaName) {
 		this.baseClass = baseClass;
-		this.ctor.inheritFrom(baseClass);
+		this.javaBase = javaName;
+		if (this.baseClass != null)
+			this.ctor.inheritFrom(baseClass);
 	}
 	
+	@Override
+	public void implementsJava(String clz) {
+		this.intfs.add(clz);
+	}
+	
+	@Override
+	public void justAnInterface() {
+		this.isInterface = true;
+	}
+	
+	@Override
+	public void field(NameOfThing type, String var) {
+		fields.add(new Field(true, Access.PRIVATE, type, var));
+	}
+
 	@Override
 	public void arg(String a) {
 		this.ctor.argument(a);
@@ -70,12 +106,25 @@ public class JSClass implements JSClassCreator {
 			return;
 		
 		ByteCodeCreator bcc = bce.newClass(name);
-		bcc.superclass(J.JVM_FIELDS_CONTAINER_WRAPPER);
-		bcc.implementsInterface(J.AREYOUA);
+		if (isInterface) {
+			bcc.makeInterface();
+		}
+		if (javaBase != null)
+			bcc.superclass(javaBase);
+		else if (baseClass != null)
+			bcc.superclass(baseClass.javaName());
+		else
+			bcc.superclass(J.OBJECT);
+		for (String s : intfs)
+			bcc.implementsInterface(s);
 		bcc.generateAssociatedSourceFile();
-		ctor.generate(bce);
+		for (Field f : fields) {
+			bcc.defineField(f.isFinal, f.access, f.type.javaName(), f.var);
+		}
+		if (!isInterface)
+			ctor.generate(bce, false);
 		for (JSMethod m : methods)
-			m.generate(bce);
+			m.generate(bce, isInterface);
 	}
 	
 	@Override

@@ -27,7 +27,7 @@ public interface JSBlockCreator {
 	JSExpr newOf(NameOfThing clz, List<JSExpr> args);
 	JSExpr makeArray(JSExpr... args);
 	JSExpr makeArray(List<JSExpr> args);
-	JSExpr jsArray(Iterable<JSExpr> arr);
+	JSExpr jsArray(List<JSExpr> arr);
 	JSExpr arrayElt(JSExpr tc, int i);
 	JSExpr makeTuple(JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
@@ -104,7 +104,7 @@ public interface JSBlockCreator {
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
 	void expect(JSExpr mock, String var, List<JSExpr> args, JSExpr handler);
 	JSExpr storeMockObject(UnitDataDeclaration udd, JSExpr value);
-	void assertSatisfied(String var);
+	void assertSatisfied(JSExpr m);
 	void newdiv(Integer cnt);
 
 	// Send the block to disk

@@ -134,11 +134,13 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		}
 	}
 	
-	public void generate(ByteCodeEnvironment bce) {
-		if (bce != null && !"_init".equals(this.name)) {
+	public void generate(ByteCodeEnvironment bce, boolean isInterface) {
+		if (bce != null && !"_init".equals(this.name) && !"_methods".equals(this.name) && !"_contract".equals(this.name)) {
 			JVMCreationContext jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, !this.prototype, wantArgumentList, args, returnsA);
-			super.generate(jvm);
-			jvm.done(this);
+			if (!isInterface) {
+				super.generate(jvm);
+				jvm.done(this);
+			}
 		}
 	}
 

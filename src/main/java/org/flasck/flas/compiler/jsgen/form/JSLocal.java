@@ -18,6 +18,12 @@ public class JSLocal implements JSExpr {
 		this.value = value;
 	}
 
+	public JSLocal(JSMethod meth, JSVar var, JSExpr value) {
+		this.meth = meth;
+		this.var = var.asVar();
+		this.value = value;
+	}
+
 	@Override
 	public String asVar() {
 		if (var == null)
@@ -38,7 +44,8 @@ public class JSLocal implements JSExpr {
 	
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		value.generate(jvm);
+		if (!jvm.hasLocal(value))
+			value.generate(jvm);
 		IExpr arg = jvm.argAsIs(value);
 		if (arg == null)
 			throw new NotImplementedException("there is no value for " + value.getClass() + " " + value);

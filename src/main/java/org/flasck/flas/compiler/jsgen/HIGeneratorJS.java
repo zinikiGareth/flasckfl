@@ -33,7 +33,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		
 		HandlerName name = (HandlerName)hi.name();
 		this.hdlr = jse.newClass(name.packageName().jsName(), name.jsName());
-		this.hdlr.inheritsFrom(hi.actualType().name());
+		this.hdlr.inheritsFrom(hi.actualType().name(), null);
 
 		this.hdlrCtor = hdlr.constructor();
 		this.hdlrCtor.stateField();

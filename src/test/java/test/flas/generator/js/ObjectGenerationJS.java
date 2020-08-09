@@ -42,7 +42,7 @@ public class ObjectGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).object(od);
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
-			oneOf(clz).inheritsFrom(with(any(PackageName.class)));
+			oneOf(clz).inheritsFrom(with(any(PackageName.class)), with(aNull(String.class)));
 			oneOf(clz).createMethod("_areYouA", true);
 			oneOf(clz).createMethod("_updateDisplay", true);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
@@ -69,7 +69,7 @@ public class ObjectGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).object(od);
 			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
-			oneOf(clz).inheritsFrom(with(any(PackageName.class)));
+			oneOf(clz).inheritsFrom(with(any(PackageName.class)), with(aNull(String.class)));
 			oneOf(clz).createMethod("_areYouA", true);
 			oneOf(clz).createMethod("_updateDisplay", true);
 			oneOf(ctorBlock).argument("_card");

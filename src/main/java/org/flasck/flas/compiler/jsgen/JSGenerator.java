@@ -238,6 +238,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = ((SolidName)obj.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, obj.name().container().jsName());
 		JSClassCreator ctr = jse.newClass(pkg, obj.name().jsName());
+		ctr.inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
+		ctr.implementsJava(J.AREYOUA);
 		JSBlockCreator ctor = ctr.constructor();
 		ctor.stateField();
 		ctor.storeField(true, this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
@@ -280,7 +282,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, obj.name().container().jsName());
 		jse.object(obj);
 		templateCreator = jse.newClass(pkg, obj.name().jsName());
-		templateCreator.inheritsFrom(new PackageName("FLObject"));
+		templateCreator.inheritsFrom(new PackageName("FLObject"), null);
 		JSMethodCreator areYouA = templateCreator.createMethod("_areYouA", true);
 		areYouA.argument("_cxt");
 		areYouA.argument("ty");
@@ -361,6 +363,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
+		this.meth.argumentList();
 		int i;
 		for (i=0;i<om.argCountWithoutHolder();i++)
 			this.meth.argument("_" + i);
@@ -530,9 +533,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = ((SolidName)cd.name()).packageName().jsName();
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
 		currentContract = jse.newClass(pkg, cd.name().jsName());
+		currentContract.justAnInterface();
 		jse.contract(cd);
-		if (cd.type == ContractType.HANDLER)
-			this.currentContract.inheritsFrom(new PackageName("IdempotentHandler"));
+		if (cd.type == ContractType.HANDLER) {
+			this.currentContract.inheritsFrom(new PackageName("IdempotentHandler"), J.OBJECT);
+			this.currentContract.implementsJava(J.IDEMPOTENTHANDLER);
+		}
 		JSMethodCreator ctrName = currentContract.createMethod("name", true);
 		ctrName.returnObject(new JSString(cd.name().uniqueName()));
 		JSMethodCreator methods = currentContract.createMethod("_methods", true);
@@ -562,6 +568,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = ad.name().container().jsName();
 		jse.ensurePackageExists(pkg, pkg);
 		agentCreator = jse.newClass(pkg, ad.name().jsName());
+		agentCreator.inheritsFrom(null, J.FLAGENT);
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.stateField();
 		ctor.fieldObject("_contracts", "ContractStore");
@@ -584,7 +591,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, pkg);
 		agentCreator = jse.newClass(pkg, cd.name().jsName());
 		templateCreator = agentCreator;
-		agentCreator.inheritsFrom(new PackageName("FLCard"));
+		agentCreator.inheritsFrom(new PackageName("FLCard"), J.FLCARD);
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.fieldObject("_contracts", "ContractStore");
 		if (!cd.templates.isEmpty()) {
@@ -633,6 +640,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(p.actualType().name().jsName(), csn.jsName());
 		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn.jsName());
+		svc.field(csn.container(), "_card");
+		// TODO: we need to "declare" the field _card here for the benefit of the JVM generator
+		// TODO: we probably also need to start declaring base classes - because that is currently assumed to be struct
 		svc.arg("_card");
 		svc.constructor().setField("_card", new JSLiteral("_card"));
 		List<FunctionName> methods = new ArrayList<>();
@@ -847,7 +857,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void leaveUnitTest(UnitTestCase e) {
 		for (JSExpr m : explodingMocks) {
-			meth.assertSatisfied(m.asVar());
+			meth.assertSatisfied(m);
 		}
 		meth.testComplete();
 		meth = null;

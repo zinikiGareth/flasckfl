@@ -1,13 +1,15 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.List;
+
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSArray implements JSExpr {
-	private final Iterable<JSExpr> arr;
+	private final List<JSExpr> arr;
 
-	public JSArray(Iterable<JSExpr> arr) {
+	public JSArray(List<JSExpr> arr) {
 		this.arr = arr;
 	}
 
@@ -30,8 +32,5 @@ public class JSArray implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
 	}
-
 }

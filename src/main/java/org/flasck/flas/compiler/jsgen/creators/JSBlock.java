@@ -274,12 +274,12 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr introduceVar(String var) {
-		JSExpr iv = new JSIntroducedVar();
 		if (var != null) {
-			iv = new JSLocal(creating, iv);
+			JSExpr iv = new JSLocal(creating, new JSIntroducedVar(new JSVar(var)));
 			stmts.add(iv);
-		}
-		return iv;
+			return iv;
+		} else
+			return new JSIntroducedVar(null);
 	}
 
 	@Override
@@ -288,7 +288,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr jsArray(Iterable<JSExpr> arr) {
+	public JSExpr jsArray(List<JSExpr> arr) {
 		JSLocal ma = new JSLocal(creating, new JSArray(arr));
 		stmts.add(ma);
 		return ma;
@@ -337,7 +337,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void assertSatisfied(String var) {
+	public void assertSatisfied(JSExpr var) {
 		JSSatisfaction stmt = new JSSatisfaction(var);
 		stmts.add(stmt);
 	}

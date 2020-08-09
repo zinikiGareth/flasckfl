@@ -1,6 +1,8 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSSetField implements JSExpr {
@@ -35,5 +37,20 @@ public class JSSetField implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
+		if ("_contracts".equals(field)) {
+			// I believe that this is handled through reflection in Java
+			jvm.local(this, null);
+			return;
+		}
+		if (!jvm.hasLocal(value))
+			value.generate(jvm);
+		NewMethodDefiner ctor = jvm.method();
+		IExpr ret = ctor.assign(ctor.getField(field), jvm.argAsIs(value));
+		jvm.local(this, ret);
+	}
+	
+	@Override
+	public String toString() {
+		return "JSSetField[" + field + " <- " + value + "]";
 	}
 }

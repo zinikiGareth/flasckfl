@@ -2,6 +2,9 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMockAgent implements JSExpr {
@@ -25,7 +28,9 @@ public class JSMockAgent implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr agent = md.makeNew(name.javaName(), jvm.cxt());
+		IExpr mc = md.callInterface(J.MOCKAGENT, jvm.cxt(), "mockAgent", md.as(agent, J.CONTRACT_HOLDER));
+		jvm.local(this, mc);
 	}
 }

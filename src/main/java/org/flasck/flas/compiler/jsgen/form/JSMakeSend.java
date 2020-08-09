@@ -1,6 +1,9 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMakeSend implements JSExpr {
@@ -40,7 +43,21 @@ public class JSMakeSend implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		if (!jvm.hasLocal(obj))
+			obj.generate(jvm);
+		if (!jvm.hasLocal(handler)) {
+			if (handler != null)
+				handler.generate(jvm);
+			else
+				jvm.local(handler, md.aNull());
+		}
+		IExpr mksend = md.callInterface(J.OBJECT, jvm.cxt(), "mksend", md.stringConst(sendMeth), jvm.arg(obj), md.intConst(nargs), jvm.arg(handler));
+		jvm.local(this, mksend);
+	}
+	
+	@Override
+	public String toString() {
+		return "MakeSend[" + sendMeth + "]";
 	}
 }

@@ -57,10 +57,10 @@ src/golden/functions/multifields/test.golden
 src/golden/functions/nestedvars/test.golden
 src/golden/functions/ski/test.golden
 src/golden/functions/complex/transpose/test.golden
-src/golden/agents/handlers/test.golden
-src/golden/agents/implements/test.golden
 src/golden/agents/minimal/test.golden
 src/golden/agents/state/test.golden
+src/golden/agents/implements/test.golden
+src/golden/agents/handlers/test.golden
 src/golden/agents/trampoline/test.golden
 src/golden/cards/events/cond/test.golden
 src/golden/cards/events/cond2/test.golden

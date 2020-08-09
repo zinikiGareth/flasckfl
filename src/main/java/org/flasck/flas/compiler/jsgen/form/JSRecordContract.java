@@ -30,8 +30,8 @@ public class JSRecordContract implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		// I believe that this is handled through reflection in Java
+		jvm.local(this, null);
 	}
 
 }

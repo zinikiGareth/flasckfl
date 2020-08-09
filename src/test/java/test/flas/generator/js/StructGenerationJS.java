@@ -49,6 +49,8 @@ public class StructGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
+			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
+			oneOf(clz).implementsJava(J.AREYOUA);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
 			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));
@@ -89,6 +91,8 @@ public class StructGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
+			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
+			oneOf(clz).implementsJava(J.AREYOUA);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField();
 			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));

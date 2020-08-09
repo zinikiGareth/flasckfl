@@ -2,6 +2,9 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMockHandler implements JSExpr {
@@ -25,7 +28,8 @@ public class JSMockHandler implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr mc = md.callInterface(J.OBJECT, jvm.cxt(), "mockContract", md.castTo(jvm.cxt(), J.ERRORCOLLECTOR), md.classConst(name.javaClassName()));
+		jvm.local(this, mc);
 	}
 }

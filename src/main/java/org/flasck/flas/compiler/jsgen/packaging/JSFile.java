@@ -81,7 +81,7 @@ public class JSFile {
 		for (JSClass c : classes)
 			c.generate(bce);
 		for (JSMethod f : functions) {
-			f.generate(bce);
+			f.generate(bce, false);
 		}
 //		for (MethodList m : methodLists)
 //			m.write(iw);

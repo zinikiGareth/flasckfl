@@ -39,6 +39,7 @@ public class ContractGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
+			oneOf(clz).justAnInterface();
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));
@@ -62,6 +63,7 @@ public class ContractGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
+			oneOf(clz).justAnInterface();
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));

@@ -1,6 +1,9 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -32,8 +35,11 @@ public class JSStoreMock implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		if (!jvm.hasLocal(value))
+			value.generate(jvm);
+		NewMethodDefiner md = jvm.method();
+		IExpr ret = md.callInterface(J.OBJECT, jvm.cxt(), "storeMock", jvm.arg(value));
+		jvm.local(this, ret);
 	}
 
 }
