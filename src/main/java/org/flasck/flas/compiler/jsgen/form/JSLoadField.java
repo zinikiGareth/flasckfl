@@ -32,7 +32,9 @@ public class JSLoadField implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner meth = jvm.method();
-		IExpr ret = meth.callInterface(J.OBJECT, meth.getField("state"), "get", meth.stringConst(field));
+		if (!jvm.hasLocal(container))
+			container.generate(jvm);
+		IExpr ret = meth.callInterface(J.OBJECT, meth.getField(jvm.argAsIs(container), "state"), "get", meth.stringConst(field));
 		jvm.local(this, ret);
 	}
 }

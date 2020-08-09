@@ -56,7 +56,10 @@ public class JSEval implements JSExpr {
 		NewMethodDefiner md = jvm.method();
 		IExpr[] grp = new IExpr[args.size()];
 		for (int i=0;i<args.size();i++) {
-			grp[i] = jvm.arg(args.get(i));
+			JSExpr ai = args.get(i);
+			if (!jvm.hasLocal(ai))
+				ai.generate(jvm);
+			grp[i] = jvm.arg(ai);
 		}
 		IExpr val = md.callStatic(jvm.figureName(name), J.OBJECT, "eval", jvm.cxt(), md.arrayOf(J.OBJECT, grp));
 		jvm.local(this, val);

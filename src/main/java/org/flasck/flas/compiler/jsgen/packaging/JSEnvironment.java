@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JSClass;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethod;
@@ -54,7 +55,7 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	@Override
-	public JSClassCreator newClass(String pkg, String clz) {
+	public JSClassCreator newClass(String pkg, NameOfThing clz) {
 		JSFile inpkg = getPackage(pkg);
 		JSClass ret = new JSClass(this, clz);
 		inpkg.addClass(ret);
@@ -62,7 +63,7 @@ public class JSEnvironment implements JSStorage {
 	}
 	
 	@Override
-	public JSMethodCreator newFunction(NameOfThing fnName, String pkg, String cxt, boolean isPrototype, String name) {
+	public JSMethodCreator newFunction(NameOfThing fnName, String pkg, NameOfThing cxt, boolean isPrototype, String name) {
 		JSFile inpkg = getPackage(pkg);
 		JSMethod ret = new JSMethod(this, fnName, cxt, isPrototype, name);
 		inpkg.addFunction(ret);
@@ -112,7 +113,7 @@ public class JSEnvironment implements JSStorage {
 			String pkg = p.getKey();
 			if (pkg.contains("._ut_"))
 				continue;
-			JSMethod ifn = new JSMethod(this, null, pkg, false, "_init");
+			JSMethod ifn = new JSMethod(this, null, new PackageName(pkg), false, "_init");
 			ifn.argument("_cxt");
 			for (ContractDecl cd : contracts)
 				ifn.cxtMethod("registerContract", new JSString(cd.name().uniqueName()), ifn.newOf(cd.name()));

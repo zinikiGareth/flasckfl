@@ -41,7 +41,7 @@ public class ObjectGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).object(od);
-			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
+			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Obj")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(with(any(PackageName.class)), with(aNull(String.class)));
 			oneOf(clz).createMethod("_areYouA", true);
 			oneOf(clz).createMethod("_updateDisplay", true);
@@ -68,7 +68,7 @@ public class ObjectGenerationJS {
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).object(od);
-			oneOf(jss).newClass("test.repo", "test.repo.Obj"); will(returnValue(clz));
+			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Obj")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(with(any(PackageName.class)), with(aNull(String.class)));
 			oneOf(clz).createMethod("_areYouA", true);
 			oneOf(clz).createMethod("_updateDisplay", true);

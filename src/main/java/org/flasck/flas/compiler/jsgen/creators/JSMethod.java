@@ -19,15 +19,16 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final JSStorage jse;
 	private final NameOfThing fnName;
-	private final String clzName;
+	private final NameOfThing clzName;
 	private final boolean prototype;
 	private final String name;
 	final List<JSVar> args = new ArrayList<>();
 	private int nextVar = 1;
 	private boolean wantArgumentList = false;
 	private String returnsA = J.OBJECT;
+	private List<JSVar> superArgs = new ArrayList<>();
 
-	public JSMethod(JSStorage jse, NameOfThing fnName, String pkg, boolean prototype, String name) {
+	public JSMethod(JSStorage jse, NameOfThing fnName, NameOfThing pkg, boolean prototype, String name) {
 		this.jse = jse;
 		this.fnName = fnName;
 		this.clzName = pkg;
@@ -36,7 +37,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 	
 	public String getPackage() {
-		return clzName;
+		return clzName.jsName();
 	}
 	
 	public String getName() {
@@ -46,9 +47,9 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	@Override
 	public String jsName() {
 		if (name == null)
-			return clzName;
+			return clzName.jsName();
 		else
-			return clzName +"." + name;
+			return clzName.jsName() +"." + name;
 	}
 	
 	@Override
@@ -57,14 +58,14 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 
 	@Override
-	public JSExpr argument(String type, String name) {
+	public JSVar argument(String type, String name) {
 		JSVar ret = new JSVar(type, name);
 		args.add(ret);
 		return ret;
 	}
 
 	@Override
-	public JSExpr argument(String name) {
+	public JSVar argument(String name) {
 		JSVar ret = new JSVar(name);
 		args.add(ret);
 		return ret;
@@ -75,6 +76,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		this.returnsA = ty;
 	}
 
+	@Override
+	public void superArg(JSVar a) {
+		superArgs.add(a);
+	}
+	
 	public void inheritFrom(NameOfThing baseClass) {
 		stmts.add(new JSInheritFrom(baseClass));
 	}
@@ -101,7 +107,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 
 	public void write(IndentWriter w) {
 		w.println("");
-		w.print(clzName);
+		w.print(clzName.jsName());
 		if (name != null) {
 			w.print(".");
 			if (prototype)
@@ -123,7 +129,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		w.println("");
 		if (name != null) {
 			w.println("");
-			w.print(clzName);
+			w.print(clzName.jsName());
 			w.print(".");
 			if (prototype)
 				w.print("prototype.");
@@ -136,7 +142,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	
 	public void generate(ByteCodeEnvironment bce, boolean isInterface) {
 		if (bce != null && !"_init".equals(this.name) && !"_methods".equals(this.name) && !"_contract".equals(this.name)) {
-			JVMCreationContext jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, !this.prototype, wantArgumentList, args, returnsA);
+			JVMCreationContext jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, !this.prototype, wantArgumentList, args, returnsA, superArgs);
 			if (!isInterface) {
 				super.generate(jvm);
 				jvm.done(this);

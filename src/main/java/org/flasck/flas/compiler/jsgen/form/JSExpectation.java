@@ -62,7 +62,8 @@ public class JSExpectation implements JSExpr {
 			else
 				jvm.local(handler, md.aNull());
 		}
-		IExpr x = md.voidExpr(md.callInterface(J.MOCKEXPECTATION, jvm.arg(mock), "expect", md.stringConst(method), md.arrayOf(J.OBJECT, stack), jvm.arg(handler)));
+		IExpr mk = md.castTo(jvm.argAsIs(mock), J.EXPECTING);
+		IExpr x = md.voidExpr(md.callInterface(J.MOCKEXPECTATION, mk, "expect", md.stringConst(method), md.arrayOf(J.OBJECT, stack), jvm.arg(handler)));
 		jvm.local(this, x);
 	}
 

@@ -17,8 +17,7 @@ public class JSFromCard implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		jvm.local(this, jvm.method().getField("_card"));
 	}
 
 }

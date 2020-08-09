@@ -1,15 +1,19 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSRecordContract implements JSExpr {
+	private final NameOfThing ctr;
+	private final CSName impl;
 
-	private final String ctr;
-	private final String impl;
-
-	public JSRecordContract(String ctr, String impl) {
+	public JSRecordContract(NameOfThing ctr, CSName impl) {
 		this.ctr = ctr;
 		this.impl = impl;
 	}
@@ -22,16 +26,21 @@ public class JSRecordContract implements JSExpr {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("this._contracts.record(_cxt, '");
-		w.print(ctr);
+		w.print(ctr.jsName());
 		w.print("', new ");
-		w.print(impl);
+		w.print(impl.jsName());
 		w.println("(_cxt, this));");
 	}
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// I believe that this is handled through reflection in Java
-		jvm.local(this, null);
+		NewMethodDefiner md = jvm.method();
+		IExpr ctrs = md.getField("store");
+		IExpr ret = md.callInterface("void", ctrs, "recordContract",
+				md.stringConst(ctr.uniqueName()),
+				md.as(md.makeNew(impl.javaClassName(), md.getArgument(0),
+						md.as(md.myThis(), J.OBJECT)), J.OBJECT));
+		jvm.local(this, ret);
 	}
 
 }

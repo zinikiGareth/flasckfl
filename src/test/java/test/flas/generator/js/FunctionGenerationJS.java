@@ -51,7 +51,7 @@ public class FunctionGenerationJS {
 		FunctionName name = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).argumentList();
 			oneOf(meth).literal("42"); will(returnValue(nret));
@@ -93,7 +93,7 @@ public class FunctionGenerationJS {
 		Slot s = fn.slots().get(0);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
@@ -116,7 +116,7 @@ public class FunctionGenerationJS {
 		FunctionName name = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth));
+			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "f"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
@@ -172,7 +172,7 @@ public class FunctionGenerationJS {
 		Slot s = fn.slots().get(0);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "f"); will(returnValue(meth)); inSequence(ordering);
+			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "f"); will(returnValue(meth)); inSequence(ordering);
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt)); inSequence(ordering);
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0)); inSequence(ordering);
@@ -224,7 +224,7 @@ public class FunctionGenerationJS {
 		Slot s = fn.slots().get(0);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(name, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
+			oneOf(jss).newFunction(name, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 			oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_0"); will(returnValue(slot0));
@@ -646,7 +646,7 @@ public class FunctionGenerationJS {
 			fn.bindHsi(hsi);
 			context.checking(new Expectations() {{
 				oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-				oneOf(jss).newFunction(nameX, "test.repo", "test.repo", false, "x"); will(returnValue(meth));
+				oneOf(jss).newFunction(nameX, "test.repo", new PackageName("test.repo"), false, "x"); will(returnValue(meth));
 				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 				oneOf(meth).argumentList();
 				oneOf(meth).argument("_0"); will(returnValue(slot0));
@@ -673,7 +673,7 @@ public class FunctionGenerationJS {
 			fn.bindHsi(hsi);
 			context.checking(new Expectations() {{
 				oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-				oneOf(jss).newFunction(nameY, "test.repo", "test.repo", false, "y"); will(returnValue(meth));
+				oneOf(jss).newFunction(nameY, "test.repo", new PackageName("test.repo"), false, "y"); will(returnValue(meth));
 				oneOf(meth).argument("_cxt"); will(returnValue(cxt));
 				oneOf(meth).argumentList();
 				oneOf(meth).argument("_0"); will(returnValue(slot0));

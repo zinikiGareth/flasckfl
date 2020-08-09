@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
@@ -47,12 +48,12 @@ public class HSIGeneration {
 	
 	@Test
 	public void headProducesAnEvalStatement() {
-		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.head(new JSVar("_0"), null);
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
+		assertEquals("\npkg.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 
 	@Test
@@ -90,22 +91,22 @@ public class HSIGeneration {
 
 	@Test
 	public void errorCreatesAnError() {
-		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoCase();
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
+		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test
 	public void errorNoDefaultGuardCreatesAnError() {
-		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
+		JSMethod meth = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();
 		meth.write(w);
-		assertEquals("\nnull.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n\nnull.fred.nfargs = function() { return 1; }\n", sw.toString());
+		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
 	@Test

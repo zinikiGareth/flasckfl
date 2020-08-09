@@ -47,7 +47,7 @@ public class UnitTestGenerationJS {
 		UnitTestName utn = new UnitTestName(utfn, 4);
 		UnitTestCase utc = new UnitTestCase(utn , "do something");
 		context.checking(new Expectations() {{
-			oneOf(jse).newFunction(utn, "test.something._ut_package", "test.something._ut_package", false, "_ut4"); will(returnValue(meth));
+			oneOf(jse).newFunction(utn, "test.something._ut_package", utfn, false, "_ut4"); will(returnValue(meth));
 			oneOf(meth).clear();
 			oneOf(meth).argument("runner");
 			oneOf(meth).initContext(pkg);

@@ -14,11 +14,11 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 
 public interface JSStorage {
 
-	JSClassCreator newClass(String pkg, String clz);
+	JSClassCreator newClass(String pkg, NameOfThing clz);
 
 	void ensurePackageExists(String filePkg, String pkg);
 
-	JSMethodCreator newFunction(NameOfThing fnName, String pkg, String cxt, boolean inPrototype, String name);
+	JSMethodCreator newFunction(NameOfThing fnName, String pkg, NameOfThing cxt, boolean inPrototype, String name);
 	void methodList(NameOfThing name, List<FunctionName> methods);
 	void eventMap(NameOfThing name, EventTargetZones eventMethods);
 

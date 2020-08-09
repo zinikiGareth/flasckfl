@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -39,17 +40,35 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	private final Map<JSBlockCreator, IExpr> blocks = new HashMap<>();
 	private final boolean isCtor;
 	
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, String clzName, String name, NameOfThing fnName, boolean isStatic, boolean wantArgumentList, List<JSVar> as, String returnsA) {
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean isStatic, boolean wantArgumentList, List<JSVar> as, String returnsA, List<JSVar> superArgs) {
 		if (fnName == null && name == null) {
 			// it's a constructor
-			bcc = bce.get(clzName);
+			if (clzName instanceof CSName)
+				bcc = bce.get(clzName.javaClassName());
+			else
+				bcc = bce.get(clzName.javaName());
 			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
+			PendingVar c1 = null;
+			Map<JSVar, PendingVar> tmp = new HashMap<>();
+			for (JSVar v : as) {
+				PendingVar ai = ann.argument(v.type(), v.asVar());
+				tmp.put(v, ai);
+				if (v.asVar().equals("_cxt"))
+					c1 = ai; 
+			}
 			md = ann.done();
 			cxt = c1.getVar();
+			for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
+				vars.put(e.getKey(), e.getValue().getVar());
+			}
 			args = null;
 			this.runner = null;
 			this.isCtor = true;
+			IExpr[] sas = new IExpr[superArgs.size()];
+			int i=0;
+			for (JSVar jv : superArgs)
+				sas[i++] = vars.get(jv);
+			md.callSuper("void", bcc.getSuperClass(), "<init>", sas).flush();
 		} else if (fnName instanceof UnitTestName) {
 			bcc = bce.newClass(fnName.javaName());
 			bcc.generateAssociatedSourceFile();
@@ -64,7 +83,10 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			vars.put(as.get(0), this.runner);
 			this.isCtor = false;
 		} else if (!isStatic) {
-			bcc = bce.get(clzName);
+			if (clzName instanceof CSName)
+				bcc = bce.get(clzName.javaClassName());
+			else
+				bcc = bce.get(clzName.javaName());
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, name);
 			PendingVar c1 = null;
 			PendingVar a1 = null;
@@ -96,7 +118,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			this.isCtor = false;
 		} else {
 			if (fnName == null)
-				bcc = bce.getOrCreate(clzName);
+				bcc = bce.getOrCreate(clzName.javaName());
 			else
 				bcc = bce.getOrCreate(fnName.javaClassName());
 			bcc.generateAssociatedSourceFile();

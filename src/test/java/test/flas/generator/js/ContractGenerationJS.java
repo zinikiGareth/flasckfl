@@ -38,7 +38,7 @@ public class ContractGenerationJS {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
+			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
 			oneOf(clz).justAnInterface();
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
@@ -62,7 +62,7 @@ public class ContractGenerationJS {
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newClass("test.repo", "test.repo.MyContract"); will(returnValue(clz));
+			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
 			oneOf(clz).justAnInterface();
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));

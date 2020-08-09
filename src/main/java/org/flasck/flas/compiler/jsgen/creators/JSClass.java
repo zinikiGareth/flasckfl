@@ -3,13 +3,16 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSClass implements JSClassCreator {
 	public class Field {
@@ -17,34 +20,36 @@ public class JSClass implements JSClassCreator {
 		private final Access access;
 		private final NameOfThing type;
 		private final String var;
+		private final Integer value;
 
-		public Field(boolean isFinal, Access access, NameOfThing type, String var) {
+		public Field(boolean isFinal, Access access, NameOfThing type, String var, Integer value) {
 			this.isFinal = isFinal;
 			this.access = access;
 			this.type = type;
 			this.var = var;
+			this.value = value;
 		}
 	}
 
 	private final JSEnvironment jse;
-	private final String name;
+	private final NameOfThing name;
 	private final JSMethod ctor;
 	private NameOfThing baseClass;
 	private String javaBase;
 	private boolean isInterface;
 	private final List<JSMethod> methods = new ArrayList<>();
 	private final List<Field> fields = new ArrayList<>();
+	private final List<Field> ifields = new ArrayList<>();
 	private final List<String> intfs = new ArrayList<>();
 	
-	public JSClass(JSEnvironment jse, String fullName) {
+	public JSClass(JSEnvironment jse, NameOfThing clz) {
 		this.jse = jse;
-		this.name = fullName;
+		this.name = clz;
 		ctor = classMethod(null);
-		this.ctor.argument("_cxt");
 	}
 
 	public String name() {
-		return name;
+		return name.jsName();
 	}
 
 	@Override
@@ -66,13 +71,18 @@ public class JSClass implements JSClassCreator {
 	}
 	
 	@Override
-	public void field(NameOfThing type, String var) {
-		fields.add(new Field(true, Access.PRIVATE, type, var));
+	public void field(boolean isStatic, Access access, NameOfThing type, String var) {
+		fields.add(new Field(isStatic, access, type, var, null));
 	}
 
 	@Override
-	public void arg(String a) {
-		this.ctor.argument(a);
+	public void field(boolean isStatic, Access access, NameOfThing type, String var, int value) {
+		fields.add(new Field(isStatic, access, type, var, value));
+	}
+
+	@Override
+	public void inheritsField(boolean isStatic, Access access, NameOfThing type, String var) {
+		ifields.add(new Field(isStatic, access, type, var, null));
 	}
 
 	@Override
@@ -105,7 +115,11 @@ public class JSClass implements JSClassCreator {
 		if (bce == null)
 			return;
 		
-		ByteCodeCreator bcc = bce.newClass(name);
+		ByteCodeCreator bcc;
+		if (name instanceof CSName)
+			bcc = bce.newClass(name.javaClassName());
+		else
+			bcc = bce.newClass(name.javaName());
 		if (isInterface) {
 			bcc.makeInterface();
 		}
@@ -119,7 +133,12 @@ public class JSClass implements JSClassCreator {
 			bcc.implementsInterface(s);
 		bcc.generateAssociatedSourceFile();
 		for (Field f : fields) {
-			bcc.defineField(f.isFinal, f.access, f.type.javaName(), f.var);
+			FieldInfo fi = bcc.defineField(f.isFinal, f.access, f.type.javaName(), f.var);
+			if (f.value != null)
+				fi.constValue(f.value);
+		}
+		for (Field f : ifields) {
+			bcc.inheritsField(f.isFinal, f.access, f.type.javaName(), f.var);
 		}
 		if (!isInterface)
 			ctor.generate(bce, false);

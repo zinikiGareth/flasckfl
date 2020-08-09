@@ -2,6 +2,7 @@ package org.flasck.flas.compiler.jsgen.creators;
 
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -51,7 +52,7 @@ public interface JSBlockCreator {
 	JSExpr makeAcor(FunctionName acorMeth, JSExpr obj, int nargs);
 	JSExpr introduceVar(String var);
 	JSExpr fromIntroduction(JSExpr boundVar);
-	void recordContract(String ctr, String impl);
+	void recordContract(NameOfThing ctr, CSName impl);
 	void requireContract(String referAsVar, String jsName);
 	
 	// create an object of clz and store in a field

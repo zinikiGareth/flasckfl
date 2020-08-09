@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -555,7 +556,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void recordContract(String ctr, String impl) {
+	public void recordContract(NameOfThing ctr, CSName impl) {
 		stmts.add(new JSRecordContract(ctr, impl));
 	}
 

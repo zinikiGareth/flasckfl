@@ -32,7 +32,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		sv.push(this);
 		
 		HandlerName name = (HandlerName)hi.name();
-		this.hdlr = jse.newClass(name.packageName().jsName(), name.jsName());
+		this.hdlr = jse.newClass(name.packageName().jsName(), name);
 		this.hdlr.inheritsFrom(hi.actualType().name(), null);
 
 		this.hdlrCtor = hdlr.constructor();
@@ -41,7 +41,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		this.meth.argument("_cxt");
 		List<JSExpr> args = new ArrayList<JSExpr>();
 		if (sh != null) {
-			hdlr.arg("_card");
+			hdlr.constructor().argument("_card");
 			hdlr.constructor().setField("_card", new JSLiteral("_card"));
 			this.meth.argument("_card");
 			args.add(new JSLiteral("_card"));

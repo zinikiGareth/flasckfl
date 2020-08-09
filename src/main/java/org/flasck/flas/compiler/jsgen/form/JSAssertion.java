@@ -1,11 +1,13 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSAssertion implements JSExpr {
-
 	private final JSExpr obj;
 	private final String meth;
 	private final JSExpr[] args;
@@ -33,7 +35,14 @@ public class JSAssertion implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		IExpr ret = jvm.method().callInterface("void", jvm.argAsIs(obj), "assertSameValue", jvm.cxt(), jvm.arg(args[0]), jvm.arg(args[1]));
+ 		List<IExpr> as = new ArrayList<>();
+ 		as.add(jvm.cxt());
+		for (JSExpr e : args) {
+			if (!jvm.hasLocal(e))
+				e.generate(jvm);
+			as.add(jvm.arg(e));
+		}
+		IExpr ret = jvm.method().callInterface("void", jvm.argAsIs(obj), meth, as.toArray(new IExpr[as.size()]));
 		jvm.local(this, ret);
 	}
 	

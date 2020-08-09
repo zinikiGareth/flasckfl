@@ -48,7 +48,7 @@ public class StructGenerationJS {
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
+			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
@@ -90,7 +90,7 @@ public class StructGenerationJS {
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newClass("test.repo", "test.repo.Struct"); will(returnValue(clz));
+			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
@@ -121,7 +121,7 @@ public class StructGenerationJS {
 		JSExpr obj = context.mock(JSExpr.class, "obj");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo.Struct");
-			oneOf(jss).newFunction(null, "test.repo", "test.repo.Struct", true, "_field_s"); will(returnValue(sfacc));
+			oneOf(jss).newFunction(null, "test.repo", new SolidName(new PackageName("test.repo"), "Struct"), true, "_field_s"); will(returnValue(sfacc));
 			oneOf(sfacc).argument("_cxt");
 			oneOf(sfacc).argumentList();
 			oneOf(sfacc).loadField(with(any(JSThis.class)), with("s")); will(returnValue(obj));
