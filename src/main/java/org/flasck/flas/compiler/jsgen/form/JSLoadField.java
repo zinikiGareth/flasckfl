@@ -3,6 +3,7 @@ package org.flasck.flas.compiler.jsgen.form;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
@@ -34,7 +35,7 @@ public class JSLoadField implements JSExpr {
 		NewMethodDefiner meth = jvm.method();
 		if (!jvm.hasLocal(container))
 			container.generate(jvm);
-		IExpr ret = meth.callInterface(J.OBJECT, meth.getField(jvm.argAsIs(container), "state"), "get", meth.stringConst(field));
+		IExpr ret = meth.callInterface(J.OBJECT, jvm.argAs(container, new JavaType(J.FIELDS_CONTAINER_WRAPPER)), "get", meth.stringConst(field));
 		jvm.local(this, ret);
 	}
 }

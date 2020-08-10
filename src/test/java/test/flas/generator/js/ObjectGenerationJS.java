@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -46,6 +47,7 @@ public class ObjectGenerationJS {
 			oneOf(clz).createMethod("_areYouA", true);
 			oneOf(clz).createMethod("_updateDisplay", true);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
+			oneOf(ctorBlock).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(ctorBlock).argument("_card");
 			oneOf(ctorBlock).arg(1); will(returnValue(v));
 			oneOf(ctorBlock).setField("_card", v);
@@ -72,6 +74,7 @@ public class ObjectGenerationJS {
 			oneOf(clz).inheritsFrom(with(any(PackageName.class)), with(aNull(String.class)));
 			oneOf(clz).createMethod("_areYouA", true);
 			oneOf(clz).createMethod("_updateDisplay", true);
+			oneOf(ctorBlock).argument(J.FLEVALCONTEXT, "_cxt");
 			oneOf(ctorBlock).argument("_card");
 			oneOf(ctorBlock).arg(1); will(returnValue(v));
 			oneOf(ctorBlock).setField("_card", v);

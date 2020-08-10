@@ -77,4 +77,8 @@ public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 		throw new RuntimeException("No PackageName found");
 	}
 
+	@Override
+	public String toString() {
+		throw new NotImplementedException();
+	}
 }

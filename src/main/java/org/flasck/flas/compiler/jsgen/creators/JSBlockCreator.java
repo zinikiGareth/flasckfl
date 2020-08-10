@@ -60,7 +60,7 @@ public interface JSBlockCreator {
 	void stateField();
 	void setField(String field, JSExpr value);
 	void setField(JSExpr obj, String field, JSExpr value);
-	JSExpr fromCard();
+	JSExpr fromCard(NameOfThing name);
 	JSVar arg(int pos);
 
 	// Stored values

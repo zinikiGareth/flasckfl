@@ -551,8 +551,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr fromCard() {
-		return new JSFromCard();
+	public JSExpr fromCard(NameOfThing name) {
+		return new JSFromCard(name);
 	}
 
 	@Override

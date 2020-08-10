@@ -185,6 +185,11 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 	
 	@Override
+	public ByteCodeSink clazz() {
+		return bcc;
+	}
+	
+	@Override
 	public NewMethodDefiner method() {
 		return md;
 	}

@@ -14,6 +14,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -27,6 +28,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.bytecode.JavaInfo.Access;
 
 public class StructGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -46,12 +48,16 @@ public class StructGenerationJS {
 		JSIfCreator ie = context.mock(JSIfCreator.class, "ie");
 		RepositoryReader repo = context.mock(RepositoryReader.class);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
+		JSVar jsa = new JSVar("_cxt");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
+			oneOf(clz).inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
+			oneOf(ctorBlock).argument(J.FLEVALCONTEXT, "_cxt"); will(returnValue(jsa));
+			oneOf(ctorBlock).superArg(jsa);
 			oneOf(ctorBlock).stateField();
 			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));
 			oneOf(ctorBlock).storeField(true, null, "_type", str);
@@ -88,12 +94,16 @@ public class StructGenerationJS {
 		JSExpr strS = context.mock(JSExpr.class, "s");
 		RepositoryReader repo = context.mock(RepositoryReader.class);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
+		JSVar jsa = new JSVar("_cxt");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "Struct")); will(returnValue(clz));
 			oneOf(clz).inheritsFrom(null, J.JVM_FIELDS_CONTAINER_WRAPPER);
 			oneOf(clz).implementsJava(J.AREYOUA);
+			oneOf(clz).inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
+			oneOf(ctorBlock).argument(J.FLEVALCONTEXT, "_cxt"); will(returnValue(jsa));
+			oneOf(ctorBlock).superArg(jsa);
 			oneOf(ctorBlock).stateField();
 			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));
 			oneOf(repo).unionsContaining(sd); will(returnValue(new ArrayList<>()));

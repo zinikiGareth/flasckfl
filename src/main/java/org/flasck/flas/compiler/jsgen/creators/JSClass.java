@@ -12,7 +12,6 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.mock.IndentWriter;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class JSClass implements JSClassCreator {
 	public class Field {
@@ -104,8 +103,8 @@ public class JSClass implements JSClassCreator {
 	public void writeTo(IndentWriter iw) {
 		ctor.write(iw);
 		if (this.baseClass != null) {
-			iw.println(name + ".prototype = new " + this.baseClass.jsName() + "();");
-			iw.println(name + ".prototype.constructor = " + name + ";");
+			iw.println(name.jsName() + ".prototype = new " + this.baseClass.jsName() + "();");
+			iw.println(name.jsName() + ".prototype.constructor = " + name.jsName() + ";");
 		}
 		for (JSMethod m : methods)
 			m.write(iw);

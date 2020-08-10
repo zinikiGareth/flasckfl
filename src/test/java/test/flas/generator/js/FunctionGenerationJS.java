@@ -73,8 +73,8 @@ public class FunctionGenerationJS {
 	@Test
 	public void aMinimalHSIFunction() {
 		JSExpr sret = context.mock(JSExpr.class, "sret");
-		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		JSExpr cxt = new JSVar("cxt");
+		JSExpr slot0 = new JSVar("slot0");
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
@@ -111,8 +111,8 @@ public class FunctionGenerationJS {
 	@Test
 	public void functionArgsAreBoundToRealVars() {
 		JSExpr ret = context.mock(JSExpr.class, "ret");
-		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		JSExpr cxt = new JSVar("cxt");
+		JSExpr slot0 = new JSVar("slot0");
 		FunctionName name = FunctionName.function(pos, pkg, "f");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
@@ -145,9 +145,9 @@ public class FunctionGenerationJS {
 	@Test
 	public void argsAreBoundInsideBlocks() {
 		JSExpr ret = context.mock(JSExpr.class, "ret");
-		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
-		JSExpr slot1 = context.mock(JSExpr.class, "slot1");
+		JSExpr cxt = new JSVar("cxt");
+		JSExpr slot0 = new JSVar("slot0");
+		JSExpr slot1 = new JSVar("slot1");
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);
@@ -191,8 +191,8 @@ public class FunctionGenerationJS {
 	public void aTwoConstructorHSIFunction() {
 		JSExpr sret = context.mock(JSExpr.class, "sret");
 		JSExpr gret = context.mock(JSExpr.class, "gret");
-		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		JSExpr cxt = new JSVar("cxt");
+		JSExpr slot0 = new JSVar("slot0");
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSBlockCreator isCons = context.mock(JSBlockCreator.class, "isCons");
@@ -623,8 +623,8 @@ public class FunctionGenerationJS {
 	@Test
 	public void stateIsCleanedUpBetweenFunctions() {
 		JSExpr sret = context.mock(JSExpr.class, "sret");
-		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr slot0 = context.mock(JSExpr.class, "slot0");
+		JSExpr cxt = new JSVar("cxt");
+		JSExpr slot0 = new JSVar("slot0");
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
 		JSBlockCreator notNil = context.mock(JSBlockCreator.class, "notNil");
 		JSIfExpr nilSwitch = new JSIfExpr(null, isNil, notNil);

@@ -22,6 +22,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.zinutils.bytecode.JavaInfo.Access;
 
 public class ContractGenerationJS {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -40,6 +41,7 @@ public class ContractGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
 			oneOf(clz).justAnInterface();
+			oneOf(clz).constructor();
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));
@@ -64,6 +66,7 @@ public class ContractGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
 			oneOf(clz).justAnInterface();
+			oneOf(clz).constructor();
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));
@@ -71,6 +74,7 @@ public class ContractGenerationJS {
 			oneOf(meth).string("m"); will(returnValue(jse));
 			oneOf(meth).jsArray(Arrays.asList(jse)); will(returnValue(jsa));
 			oneOf(meth).returnObject(jsa);
+			oneOf(clz).field(true, Access.PUBLICSTATIC, new PackageName("int"), "_nf_m", 0);
 			oneOf(clz).createMethod("m", true);
 		}});
 		StackVisitor gen = new StackVisitor();

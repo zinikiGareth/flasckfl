@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.hsi.Slot;
+import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
@@ -16,6 +17,7 @@ public interface JVMCreationContext {
 	void inherit(boolean isFinal, Access access, String type, String name);
 	void done(JSBlockCreator meth);
 
+	ByteCodeSink clazz();
 	NewMethodDefiner method();
 	IExpr helper();
 	IExpr cxt();

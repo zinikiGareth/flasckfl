@@ -297,6 +297,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSIfCreator ifud = ifcard.trueCase().ifTrue(ud.literal("this._card._updateDisplay"));
 		ifud.trueCase().assertable(ud.literal("this._card"), "_updateDisplay", ud.literal("this._card._renderTree"));
 		JSMethodCreator ctor = templateCreator.constructor();
+		ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.argument("_card");
 		ctor.setField("_card", ctor.arg(1));
 		ctor.stateField();
@@ -357,7 +358,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			if (impl instanceof HandlerImplements && ((HandlerImplements)impl).getParent() == null)
 				container = new JSThis();
 			else
-				container = new JSFromCard();
+				container = new JSFromCard(om.name().container());
 		} else if (om.hasObject()) {
 			this.methodMap.get(om.getObject()).add(om.name());
 			container = new JSThis();
@@ -602,7 +603,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		agentCreator = jse.newClass(pkg, cd.name());
 		templateCreator = agentCreator;
 		agentCreator.inheritsFrom(new PackageName("FLCard"), J.FLCARD);
-		JSBlockCreator ctor = agentCreator.constructor();
+		JSMethodCreator ctor = agentCreator.constructor();
+		ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.fieldObject("_contracts", "ContractStore");
 		if (!cd.templates.isEmpty()) {
 			ctor.setField(new JSThis(), "_template", ctor.string(cd.templates.get(0).webinfo().id()));
@@ -637,8 +639,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(ic.actualType().name(), csn);
 		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn);
-		svc.constructor().argument("_card");
-		svc.constructor().setField("_card", new JSLiteral("_card"));
+		svc.constructor().argument(J.FLEVALCONTEXT, "_cxt");
+		svc.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
+		svc.constructor().argument(J.OBJECT, "_incard");
+		svc.constructor().setField("_card", new JSVar("_incard"));
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(ic, methods);
 		jse.methodList(ic.name(), methods);
