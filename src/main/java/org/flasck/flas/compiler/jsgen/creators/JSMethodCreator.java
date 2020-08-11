@@ -10,6 +10,7 @@ public interface JSMethodCreator extends JSBlockCreator {
 	void argumentList();
 	JSVar argument(String type, String name);
 	JSVar argument(String name);
+	JSVar handlerArg();
 	void superArg(JSVar a);
 	void returnsType(String ty);
 	void clear();

@@ -1,6 +1,7 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -23,8 +24,9 @@ public class JSExtractFromBoundVar implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		if (!jvm.hasLocal(boundVar))
+			boundVar.generate(jvm);
+		jvm.local(this, jvm.method().callVirtual(J.OBJECT, jvm.argAsIs(boundVar), "introduced"));
 	}
 
 }

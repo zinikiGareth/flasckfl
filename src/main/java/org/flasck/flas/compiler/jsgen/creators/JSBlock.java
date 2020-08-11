@@ -38,7 +38,6 @@ import org.flasck.flas.compiler.jsgen.form.JSHead;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIntroducedVar;
 import org.flasck.flas.compiler.jsgen.form.JSKeepMessages;
-import org.flasck.flas.compiler.jsgen.form.JSLambda;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSLoadField;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
@@ -66,6 +65,7 @@ import org.flasck.flas.compiler.jsgen.form.JSSplitRWM;
 import org.flasck.flas.compiler.jsgen.form.JSStoreField;
 import org.flasck.flas.compiler.jsgen.form.JSStoreMock;
 import org.flasck.flas.compiler.jsgen.form.JSString;
+import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSTupleMember;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateContainer;
 import org.flasck.flas.compiler.jsgen.form.JSUpdateContent;
@@ -79,6 +79,7 @@ import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.bytecode.IExpr;
@@ -153,7 +154,7 @@ public class JSBlock implements JSBlockCreator {
 	
 	@Override
 	public JSExpr lambda(HandlerLambda hl) {
-		return new JSLambda(hl);
+		return new JSLoadField(new JSThis(), ((TypedPattern)hl.patt).var.var);
 	}
 	
 	@Override
@@ -276,11 +277,11 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr introduceVar(String var) {
 		if (var != null) {
-			JSExpr iv = new JSLocal(creating, new JSIntroducedVar(new JSVar(var)));
+			JSExpr iv = new JSLocal(creating, new JSIntroducedVar());
 			stmts.add(iv);
 			return iv;
 		} else
-			return new JSIntroducedVar(null);
+			return new JSIntroducedVar();
 	}
 
 	@Override

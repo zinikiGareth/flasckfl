@@ -4,14 +4,10 @@ import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
-import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSIntroducedVar implements JSExpr {
-	private final JSVar var;
-
-	public JSIntroducedVar(JSVar var) {
-		this.var = var;
+	public JSIntroducedVar() {
 	}
 
 	@Override
@@ -28,12 +24,6 @@ public class JSIntroducedVar implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		IExpr ret = md.makeNew(J.BOUNDVAR);
-		if (this.var != null) {
-			Var v = md.avar(J.BOUNDVAR, var.asVar());
-			jvm.bindVar(this, v);
-			jvm.local(var, md.assign(v, ret));
-		}
-		else
 			jvm.local(this, ret);
 	}
 }

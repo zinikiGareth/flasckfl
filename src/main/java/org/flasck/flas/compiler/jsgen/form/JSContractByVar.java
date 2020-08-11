@@ -28,6 +28,8 @@ public class JSContractByVar implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
+		if (!jvm.hasLocal(container))
+			container.generate(jvm);
 		IExpr ret = md.callInterface(J.OBJECT, md.as(jvm.argAsIs(container), J.CONTRACT_RETRIEVER), "require", jvm.cxt(), md.stringConst(cvar));
 		jvm.local(this, ret);
 	}

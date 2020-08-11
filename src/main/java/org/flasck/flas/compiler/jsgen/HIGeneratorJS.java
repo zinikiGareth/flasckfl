@@ -35,12 +35,14 @@ public class HIGeneratorJS extends LeafAdapter {
 		
 		HandlerName name = (HandlerName)hi.name();
 		this.hdlr = jse.newClass(name.packageName().jsName(), name);
-		this.hdlr.inheritsFrom(hi.actualType().name(), J.LOGGINGIDEMPOTENTHANDLER);
+		this.hdlr.inheritsFrom(hi.actualType().name(), J.HANDLERBASE);
 		this.hdlr.implementsJava(hi.actualType().name().javaName());
+		this.hdlr.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
 
 		this.hdlrCtor = hdlr.constructor();
-		this.hdlrCtor.argument(J.FLEVALCONTEXT, "_cxt");
+		JSVar cx = this.hdlrCtor.argument(J.FLEVALCONTEXT, "_cxt");
 		this.hdlrCtor.stateField();
+		this.hdlrCtor.superArg(cx);
 		this.eval = hdlr.createMethod("eval", false);
 		this.eval.argument("_cxt");
 		List<JSExpr> args = new ArrayList<JSExpr>();
@@ -69,7 +71,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		else
 			throw new NotImplementedException("pattern " + hl);
 		JSExpr arg = this.eval.argument(name);
-		this.eval.storeField(true, this.evalRet, name, arg);
+		this.eval.storeField(false, this.evalRet, name, arg);
 	}
 	
 	@Override

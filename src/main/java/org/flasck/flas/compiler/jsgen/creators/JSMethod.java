@@ -27,6 +27,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private boolean wantArgumentList = false;
 	private String returnsA = J.OBJECT;
 	private List<JSVar> superArgs = new ArrayList<>();
+	private boolean hasHandler;
 
 	public JSMethod(JSStorage jse, NameOfThing fnName, NameOfThing pkg, boolean prototype, String name) {
 		this.jse = jse;
@@ -69,6 +70,12 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		JSVar ret = new JSVar(name);
 		args.add(ret);
 		return ret;
+	}
+
+	@Override
+	public JSVar handlerArg() {
+		hasHandler = true;
+		return argument("_ih");
 	}
 
 	@Override
@@ -135,7 +142,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 				w.print("prototype.");
 			w.print(name);
 			w.print(".nfargs = function() { return ");
-			w.print(Integer.toString(args.size() - 1)); // -1 for context
+			w.print(Integer.toString(args.size() - (hasHandler?2:1))); // -1 for context, -1 for handler if present
 			w.println("; }");
 		}
 	}

@@ -6,15 +6,15 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSLambda implements JSExpr {
-	private final HandlerLambda lambda;
+	private final String var;
 
 	public JSLambda(HandlerLambda lambda) {
-		this.lambda = lambda;
+		this.var = ((TypedPattern)lambda.patt).var.var;
 	}
 
 	@Override
 	public String asVar() {
-		return "this.state.get('" + ((TypedPattern)lambda.patt).var.var + "')";
+		return "this.state.get('" + var + "')";
 	}
 
 	@Override
@@ -23,8 +23,7 @@ public class JSLambda implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		jvm.local(this, jvm.method().getField(var));
 	}
 
 }
