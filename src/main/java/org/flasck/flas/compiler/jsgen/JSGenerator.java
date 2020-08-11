@@ -25,7 +25,6 @@ import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSFromCard;
-import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
@@ -582,7 +581,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSVar ctrCxt = ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.superArg(ctrCxt);
 		ctor.stateField();
-		ctor.fieldObject("_contracts", "ContractStore");
+		ctor.fieldObject("_contracts", new PackageName("ContractStore"));
 		JSMethodCreator meth = agentCreator.createMethod("name", true);
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(ad.name().uniqueName()));
@@ -605,7 +604,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		agentCreator.inheritsFrom(new PackageName("FLCard"), J.FLCARD);
 		JSMethodCreator ctor = agentCreator.constructor();
 		ctor.argument(J.FLEVALCONTEXT, "_cxt");
-		ctor.fieldObject("_contracts", "ContractStore");
+		ctor.fieldObject("_contracts", new PackageName("ContractStore"));
 		if (!cd.templates.isEmpty()) {
 			ctor.setField(new JSThis(), "_template", ctor.string(cd.templates.get(0).webinfo().id()));
 		}
@@ -680,7 +679,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	@Override
 	public void visitRequires(RequiresContract rc) {
 		JSBlockCreator ctor = agentCreator.constructor();
-		ctor.requireContract(rc.referAsVar, rc.actualType().name().jsName());
+		ctor.requireContract(rc.referAsVar, rc.actualType().name());
 	}
 	
 	@Override

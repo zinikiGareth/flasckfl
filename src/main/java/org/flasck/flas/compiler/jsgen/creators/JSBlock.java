@@ -514,7 +514,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr fieldObject(String field, String clz) {
+	public JSExpr fieldObject(String field, NameOfThing clz) {
 		JSSetField ret = new JSSetField(field, new JSNew(clz));
 		stmts.add(ret);
 		return ret;
@@ -561,7 +561,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void requireContract(String var, String impl) {
+	public void requireContract(String var, NameOfThing impl) {
 		stmts.add(new JSRequireContract(var, impl));
 	}
 

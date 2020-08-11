@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.jvm.J;
@@ -115,7 +116,7 @@ public class JSClass implements JSClassCreator {
 			return;
 		
 		ByteCodeCreator bcc;
-		if (name instanceof CSName)
+		if (name instanceof CSName || name instanceof HandlerName)
 			bcc = bce.newClass(name.javaClassName());
 		else
 			bcc = bce.newClass(name.javaName());

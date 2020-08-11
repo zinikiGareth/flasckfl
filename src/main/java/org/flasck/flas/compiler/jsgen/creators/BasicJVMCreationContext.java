@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
@@ -43,7 +44,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean isStatic, boolean wantArgumentList, List<JSVar> as, String returnsA, List<JSVar> superArgs) {
 		if (fnName == null && name == null) {
 			// it's a constructor
-			if (clzName instanceof CSName)
+			if (clzName instanceof CSName || clzName instanceof HandlerName)
 				bcc = bce.get(clzName.javaClassName());
 			else
 				bcc = bce.get(clzName.javaName());
@@ -83,7 +84,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			vars.put(as.get(0), this.runner);
 			this.isCtor = false;
 		} else if (!isStatic) {
-			if (clzName instanceof CSName)
+			if (clzName instanceof CSName || clzName instanceof HandlerName)
 				bcc = bce.get(clzName.javaClassName());
 			else
 				bcc = bce.get(clzName.javaName());
@@ -117,9 +118,12 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			this.runner = null;
 			this.isCtor = false;
 		} else {
-			if (fnName == null)
-				bcc = bce.getOrCreate(clzName.javaName());
-			else
+			if (fnName == null) {
+				if (clzName instanceof CSName || clzName instanceof HandlerName)
+					bcc = bce.getOrCreate(clzName.javaClassName());
+				else
+					bcc = bce.getOrCreate(clzName.javaName());
+			} else
 				bcc = bce.getOrCreate(fnName.javaClassName());
 			bcc.generateAssociatedSourceFile();
 			IFieldInfo fi = bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");

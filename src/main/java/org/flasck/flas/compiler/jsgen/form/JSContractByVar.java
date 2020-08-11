@@ -1,6 +1,9 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSContractByVar implements JSExpr {
@@ -24,7 +27,8 @@ public class JSContractByVar implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr ret = md.callInterface(J.OBJECT, md.as(jvm.argAsIs(container), J.CONTRACT_RETRIEVER), "require", jvm.cxt(), md.stringConst(cvar));
+		jvm.local(this, ret);
 	}
 }

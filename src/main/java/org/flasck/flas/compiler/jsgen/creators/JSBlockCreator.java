@@ -53,10 +53,10 @@ public interface JSBlockCreator {
 	JSExpr introduceVar(String var);
 	JSExpr fromIntroduction(JSExpr boundVar);
 	void recordContract(NameOfThing ctr, CSName impl);
-	void requireContract(String referAsVar, String jsName);
+	void requireContract(String referAsVar, NameOfThing impl);
 	
 	// create an object of clz and store in a field
-	JSExpr fieldObject(String field, String clz);
+	JSExpr fieldObject(String field, NameOfThing clz);
 	void stateField();
 	void setField(String field, JSExpr value);
 	void setField(JSExpr obj, String field, JSExpr value);

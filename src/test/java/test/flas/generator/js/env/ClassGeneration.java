@@ -335,7 +335,7 @@ public class ClassGeneration {
 	public void weCanCreateANewJavascriptLevelObjectAndStoreItAsAField() {
 		SolidName sn = new SolidName(pkg, "Obj");
 		JSBlock b = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
-		JSExpr mc = b.fieldObject("state", sn.javaName());
+		JSExpr mc = b.fieldObject("state", sn);
 		mc.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("this.state = new test.repo.Obj(_cxt);\n", sw.toString());
 	}
