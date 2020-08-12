@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IntroduceVar;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.MakeAcor;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.Messages;
@@ -146,23 +147,23 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 					String n = myName;
 					if (fn.name().containingCard() != null)
 						n = fn.name().containingCard().jsName()+".prototype."+fn.name().name;
-					sv.result(block.pushFunction(n, null));
+					sv.result(block.pushFunction(n, fn.name(), nargs));
 				} else
-					sv.result(block.pushFunction(myName, fn.name()));
+					sv.result(block.pushFunction(myName, fn.name(), nargs));
 			}
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;
 				makeFunctionClosure(false, null, myName, fn.argCount());
 			} else
-				sv.result(block.pushFunction(myName, null));
+				sv.result(block.pushFunction(myName, (FunctionName) defn.name(), nargs));
 		} else if (defn instanceof ObjectMethod) {
 			// TODO: does this need some kind of "object" closure?
 			if (nargs == 0) {
 				ObjectMethod fn = (ObjectMethod) defn;
 				makeFunctionClosure(true, null, myName, fn.argCount());
 			} else
-				sv.result(block.pushFunction(myName, null));
+				sv.result(block.pushFunction(myName, null, nargs));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
@@ -241,9 +242,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 	private void makeFunctionClosure(boolean hasState, FunctionName fnName, String func, int expArgs) {
 		JSExpr[] args;
 		if (hasState)
-			args = new JSExpr[] { block.pushFunction(func, fnName), new JSThis() };
+			args = new JSExpr[] { block.pushFunction(func, fnName, expArgs), new JSThis() };
 		else
-			args = new JSExpr[] { block.pushFunction(func, fnName) };
+			args = new JSExpr[] { block.pushFunction(func, fnName, expArgs) };
 		if (expArgs > 0) {
 			sv.result(block.curry(hasState, expArgs, args));
 		} else
@@ -259,7 +260,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			return "FLBuiltin." + un;
 		} else if (defn instanceof ObjectMethod) {
 			return ((FunctionName)name).jsPName();
-		} else if (defn instanceof FunctionDefinition && ((FunctionDefinition)defn).hasState())
+		} else if (defn instanceof LogicHolder && ((LogicHolder)defn).hasState())
 			return ((FunctionName)name).jsPName();
 		else
 			return name.jsName();

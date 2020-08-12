@@ -349,6 +349,7 @@ public class FLASCompiler {
 		if (jsDir != null) {
 			try {
 				jse.writeAllTo(jsDir);
+				jse.asivm();
 				jse.generate(bce);
 			} catch (Exception ex) {
 				ex.printStackTrace();

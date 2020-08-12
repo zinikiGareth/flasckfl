@@ -51,7 +51,7 @@ public class HSIGeneration {
 		JSMethod meth = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		meth.argument("_cxt");
 		meth.argument("_0");
-		meth.head(new JSVar("_0"), null);
+		meth.head(new JSVar("_0"));
 		meth.write(w);
 		assertEquals("\npkg.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
@@ -111,7 +111,7 @@ public class HSIGeneration {
 	
 	@Test
 	public void fieldsCanBeExtracted() {
-		ExtractField ef = new ExtractField(new JSVar("_1"), new JSVar("_0"), "head", null);
+		ExtractField ef = new ExtractField(new JSVar("_1"), new JSVar("_0"), "head");
 		assertEquals("_1", ef.asVar());
 		ef.write(new IndentWriter(new PrintWriter(sw)));
 		assertEquals("var _1 = _cxt.field(_0, 'head');\n", sw.toString());

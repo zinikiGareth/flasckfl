@@ -34,7 +34,7 @@ public interface JSBlockCreator {
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr callStatic(String clz, String meth);
 	JSExpr cxtMethod(String meth, JSExpr... args);
-	JSExpr pushFunction(String meth, FunctionName name);
+	JSExpr pushFunction(String meth, FunctionName name, int argcount);
 	JSExpr pushConstructor(NameOfThing name, String clz);
 	JSExpr defineTupleMember(TupleMember e);
 	void returnObject(JSExpr jsExpr);
@@ -71,11 +71,11 @@ public interface JSBlockCreator {
 
 	// HSIE logic statements
 	void bindVar(Slot slot, JSExpr jsExpr, String var);
-	void head(JSExpr currentVar, Slot slot);
+	void head(JSExpr currentVar);
 	void splitRWM(JSExpr ocmsgs, JSExpr currentVar);
 	void willSplitRWM(JSExpr r, JSExpr ocmsgs);
 	void keepMessages(JSExpr ocmsgs, JSExpr r);
-	void field(JSVar jv, JSExpr jsExpr, String field, Slot slot);
+	void field(JSVar jv, JSExpr jsExpr, String field);
 	JSIfCreator ifCtor(JSExpr var, NameOfThing type);
 	JSIfCreator ifConst(JSExpr var, int cnst);
 	JSIfCreator ifConst(JSExpr var, String cnst);

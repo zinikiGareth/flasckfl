@@ -15,6 +15,8 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.JSStyleIf;
 import org.flasck.flas.compiler.jsgen.form.ExtractField;
+import org.flasck.flas.compiler.jsgen.form.IVFWriter;
+import org.flasck.flas.compiler.jsgen.form.IVForm;
 import org.flasck.flas.compiler.jsgen.form.IsAExpr;
 import org.flasck.flas.compiler.jsgen.form.IsConstExpr;
 import org.flasck.flas.compiler.jsgen.form.IsTrueExpr;
@@ -164,17 +166,17 @@ public class JSBlock implements JSBlockCreator {
 	
 	@Override
 	public JSExpr tupleMember(FunctionName name) {
-		JSLocal stmt = new JSLocal(creating, new JSPushFunction(name, name.jsName()));
+		JSLocal stmt = new JSLocal(creating, new JSPushFunction(name, name.jsName(), -1));
 		stmts.add(stmt);
 		return stmt;
 	}
 
 	@Override
-	public JSExpr pushFunction(String meth, FunctionName name) {
+	public JSExpr pushFunction(String meth, FunctionName name, int argcount) {
 		JSLocal already = hasFn(meth);
 		if (already != null)
 			return already;
-		JSLocal stmt = new JSLocal(creating, new JSPushFunction(name, meth));
+		JSLocal stmt = new JSLocal(creating, new JSPushFunction(name, meth, argcount));
 		stmts.add(stmt);
 		definedFn(meth, stmt);
 		return stmt;
@@ -394,12 +396,12 @@ public class JSBlock implements JSBlockCreator {
 			if (as.isContainer())
 				return;
 		}
-		stmts.add(new JSBind(slot, slotName, var));
+		stmts.add(new JSBind(slotName, var));
 	}
 
 	@Override
-	public void head(JSExpr var, Slot slot) {
-		stmts.add(new JSHead(var, slot));
+	public void head(JSExpr var) {
+		stmts.add(new JSHead(var));
 	}
 	
 	@Override
@@ -418,8 +420,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void field(JSVar asVar, JSExpr fromVar, String field, Slot c) {
-		stmts.add(new ExtractField(asVar, fromVar, field, c));
+	public void field(JSVar asVar, JSExpr fromVar, String field) {
+		stmts.add(new ExtractField(asVar, fromVar, field));
 	}
 
 	@Override
@@ -601,5 +603,14 @@ public class JSBlock implements JSBlockCreator {
 				blk.add(arg);
 		}
 		jvm.block(this, blk);
+	}
+
+	public void asivm(IVFWriter iw) {
+		for (JSExpr s : stmts) {
+			if (s instanceof IVForm)
+				((IVForm)s).asivm(iw.indent());
+			else
+				iw.indent().println(s.toString());
+		}
 	}
 }

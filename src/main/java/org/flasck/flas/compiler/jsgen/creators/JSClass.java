@@ -1,11 +1,14 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.compiler.jsgen.form.IVFWriter;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -146,6 +149,22 @@ public class JSClass implements JSClassCreator {
 			m.generate(bce, isInterface);
 	}
 	
+	public String asivm() {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		IVFWriter iw = new IVFWriter(pw);
+		asivm(iw);
+		return sw.toString();
+	}
+
+	private void asivm(IVFWriter iw) {
+		iw.println("class " + this.name.uniqueName());
+		if (ctor != null)
+			ctor.asivm(iw.indent());
+		for (JSMethod m : this.methods)
+			m.asivm(iw.indent());
+	}
+
 	@Override
 	public String toString() {
 		return "JSClass[" + name + "]";

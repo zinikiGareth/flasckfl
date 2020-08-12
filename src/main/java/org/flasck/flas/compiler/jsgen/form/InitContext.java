@@ -5,7 +5,7 @@ import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class InitContext implements JSExpr {
+public class InitContext implements IVForm {
 	private final JSStorage env;
 
 	public InitContext(PackageName packageName, JSStorage jse) {
@@ -29,5 +29,10 @@ public class InitContext implements JSExpr {
 	@Override
 	public String asVar() {
 		throw new RuntimeException("This should be wrapped in a JSLocal or JSThis");
+	}
+
+	@Override
+	public void asivm(IVFWriter iw) {
+		iw.println("create context");
 	}
 }

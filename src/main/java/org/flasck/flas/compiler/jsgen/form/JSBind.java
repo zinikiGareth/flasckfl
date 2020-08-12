@@ -1,7 +1,6 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
-import org.flasck.flas.hsi.Slot;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
@@ -9,12 +8,10 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSBind implements JSExpr {
-	private final Slot slot;
 	private final JSExpr slotName;
 	private final String var;
 
-	public JSBind(Slot slot, JSExpr slotName, String var) {
-		this.slot = slot;
+	public JSBind(JSExpr slotName, String var) {
 		this.slotName = slotName;
 		this.var = var;
 	}
@@ -31,7 +28,7 @@ public class JSBind implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		IExpr s = jvm.slot(slot);
+		IExpr s = jvm.arg(slotName);
 		Var v;
 		if (!(s instanceof Var)) {
 			NewMethodDefiner md = jvm.method();

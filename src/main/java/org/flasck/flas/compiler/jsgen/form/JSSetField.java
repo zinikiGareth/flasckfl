@@ -5,7 +5,7 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSSetField implements JSExpr {
+public class JSSetField implements IVForm {
 	private final JSExpr on;
 	private final String field;
 	private final JSExpr value;
@@ -42,6 +42,11 @@ public class JSSetField implements JSExpr {
 			jvm.local(this, null);
 			return;
 		}
+		else if ("_template".equals(field)) {
+			// I believe that this is a constructor arg in Java
+			jvm.local(this, null);
+			return;
+		}
 		if (!jvm.hasLocal(value))
 			value.generate(jvm);
 		NewMethodDefiner ctor = jvm.method();
@@ -49,6 +54,13 @@ public class JSSetField implements JSExpr {
 		jvm.local(this, ret);
 	}
 	
+	@Override
+	public void asivm(IVFWriter iw) {
+		iw.print(on.asVar() + "[" + field + "] <- ");
+		iw.write(value);
+		iw.println("");
+	}
+
 	@Override
 	public String toString() {
 		return "JSSetField[" + field + " <- " + value + "]";

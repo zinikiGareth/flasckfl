@@ -350,7 +350,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSExpr container = null;
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
-		this.meth = jse.newFunction(null, pkg, om.name().container(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent(), om.name().name);
+		this.meth = jse.newFunction(null, pkg, om.name().container(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent() /**/ || om.hasState() /**/, om.name().name);
 		if (om.hasImplements()) {
 			Implements impl = om.getImplements();
 			this.methodMap.get(impl).add(om.name());
@@ -603,11 +603,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		agentCreator = jse.newClass(pkg, cd.name());
 		templateCreator = agentCreator;
 		agentCreator.inheritsFrom(new PackageName("FLCard"), J.FLCARD);
+		agentCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
+		agentCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.CONTRACTSTORE), "store");
 		JSMethodCreator ctor = agentCreator.constructor();
-		ctor.argument(J.FLEVALCONTEXT, "_cxt");
+		JSVar ctrCxt = ctor.argument(J.FLEVALCONTEXT, "_cxt");
+		ctor.superArg(ctrCxt);
 		ctor.fieldObject("_contracts", new PackageName("ContractStore"));
 		if (!cd.templates.isEmpty()) {
+			ctor.superArg(ctor.string(cd.templates.get(0).webinfo().id()));
 			ctor.setField(new JSThis(), "_template", ctor.string(cd.templates.get(0).webinfo().id()));
+		} else {
+			ctor.superArg(ctor.string(null));
 		}
 		ctor.stateField();
 		JSMethodCreator meth = agentCreator.createMethod("name", true);

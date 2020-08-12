@@ -8,7 +8,7 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class JSLocal implements JSExpr {
+public class JSLocal implements IVForm {
 	private final JSMethod meth;
 	private final JSExpr value;
 	private String var;
@@ -57,5 +57,12 @@ public class JSLocal implements JSExpr {
 			v = md.avar(arg.getType(), var);
 		jvm.local(this, md.assign(v, arg));
 		jvm.bindVar(this, v);
+	}
+
+	@Override
+	public void asivm(IVFWriter iw) {
+		iw.print(asVar() + " <- ");
+		iw.write(value);
+		iw.println("");
 	}
 }

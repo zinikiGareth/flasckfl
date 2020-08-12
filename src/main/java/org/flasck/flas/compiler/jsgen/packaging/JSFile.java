@@ -85,8 +85,8 @@ public class JSFile {
 		}
 //		for (MethodList m : methodLists)
 //			m.write(iw);
-//		for (EventMap m : eventMaps)
-//			m.write(iw);
+		for (EventMap m : eventMaps)
+			m.generate(bce);
 	}
 
 	private void declareContainingPackage(IndentWriter iw, JSMethod f) {
@@ -129,5 +129,12 @@ public class JSFile {
 
 	public List<JSMethod> functions() {
 		return functions;
+	}
+
+	public void asivm() {
+		for (JSClass c : classes)
+			System.out.println(c.asivm());
+		for (JSMethod m : functions)
+			System.out.println(m.asivm());
 	}
 }

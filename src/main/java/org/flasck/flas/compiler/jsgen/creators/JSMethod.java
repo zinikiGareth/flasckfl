@@ -1,10 +1,14 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
+import org.flasck.flas.compiler.jsgen.form.IVFWriter;
 import org.flasck.flas.compiler.jsgen.form.InitContext;
 import org.flasck.flas.compiler.jsgen.form.JSBlockComplete;
 import org.flasck.flas.compiler.jsgen.form.JSCopyContract;
@@ -26,7 +30,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private int nextVar = 1;
 	private boolean wantArgumentList = false;
 	private String returnsA = J.OBJECT;
-	private List<JSVar> superArgs = new ArrayList<>();
+	private List<JSExpr> superArgs = new ArrayList<>();
 	private boolean hasHandler;
 
 	public JSMethod(JSStorage jse, NameOfThing fnName, NameOfThing pkg, boolean prototype, String name) {
@@ -84,7 +88,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 
 	@Override
-	public void superArg(JSVar a) {
+	public void superArg(JSExpr a) {
 		superArgs.add(a);
 	}
 	
@@ -155,6 +159,22 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 				jvm.done(this);
 			}
 		}
+	}
+	
+	public String asivm() {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		IVFWriter iw = new IVFWriter(pw);
+		asivm(iw);
+		return sw.toString();
+	}
+
+	public void asivm(IVFWriter iw) {
+		if (this.name == null)
+			iw.println("ctor");
+		else
+			iw.println("method " + this.name);
+		super.asivm(iw);
 	}
 
 	public String obtainNextVar() {

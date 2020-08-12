@@ -120,7 +120,7 @@ public class ClassGeneration {
 	public void methodsCanCallStaticFunctions() {
 		w = w.indent();
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
-		JSExpr expr = meth.pushFunction("test.repo.f", null);
+		JSExpr expr = meth.pushFunction("test.repo.f", null, -1);
 		assertNotNull(expr);
 		expr.write(w);
 		assertEquals("  const v1 = test.repo.f;\n", sw.toString());
@@ -136,7 +136,7 @@ public class ClassGeneration {
 			expr.write(w);
 		}
 		{
-			JSExpr expr = meth.pushFunction("test.repo.f", null);
+			JSExpr expr = meth.pushFunction("test.repo.f", null, -1);
 			assertNotNull(expr);
 			expr.write(w);
 		}
@@ -204,7 +204,7 @@ public class ClassGeneration {
 	public void aFunctionCallDefinesAVar() {
 		w = w.indent();
 		JSMethodCreator meth = new JSMethod(jse, null, new PackageName("pkg"), false, "f");
-		JSExpr callG = meth.pushFunction("g", null);
+		JSExpr callG = meth.pushFunction("g", null, -1);
 		callG.write(w);
 		assertEquals("const v1 = FLEval.closure(g);", sw.toString());
 		assertEquals("v1", callG.asVar());
@@ -214,7 +214,7 @@ public class ClassGeneration {
 	public void aConstructorWithNoArgsGeneratesAConstant() {
 		w = w.indent();
 		JSMethodCreator meth = new JSMethod(jse, null, new PackageName("pkg"), false, "f");
-		JSExpr callG = meth.pushFunction("g", null);
+		JSExpr callG = meth.pushFunction("g", null, -1);
 		assertEquals("v1", callG.asVar());
 	}
 
@@ -222,7 +222,7 @@ public class ClassGeneration {
 	public void aConstructorWithArgsGeneratesACreationExpression() {
 		w = w.indent();
 		JSMethodCreator meth = new JSMethod(jse, null, new PackageName("pkg"), false, "f");
-		JSExpr callG = meth.pushFunction("g", null);
+		JSExpr callG = meth.pushFunction("g", null, -1);
 		assertEquals("v1", callG.asVar());
 	}
 
@@ -278,7 +278,7 @@ public class ClassGeneration {
 		JSClass clz = new JSClass(jse, new SolidName(new PackageName("test"), "Clazz"));
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
-		meth.closure(false, meth.pushFunction("f", null), meth.string("hello"));
+		meth.closure(false, meth.pushFunction("f", null, -1), meth.string("hello"));
 		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.closure(v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
@@ -288,7 +288,7 @@ public class ClassGeneration {
 		JSClass clz = new JSClass(jse, new SolidName(new PackageName("test"), "Clazz"));
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
-		meth.curry(false, 2, meth.pushFunction("f", null), meth.string("hello"));
+		meth.curry(false, 2, meth.pushFunction("f", null, -1), meth.string("hello"));
 		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.curry(2, v1, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}
@@ -298,7 +298,7 @@ public class ClassGeneration {
 		JSClass clz = new JSClass(jse, new SolidName(new PackageName("test"), "Clazz"));
 		JSMethodCreator meth = clz.createMethod("f", false);
 		meth.argument("_cxt");
-		meth.xcurry(false, 2, Arrays.asList(new XCArg(0, meth.pushFunction("f", null)), new XCArg(2, meth.string("hello"))));
+		meth.xcurry(false, 2, Arrays.asList(new XCArg(0, meth.pushFunction("f", null, -1)), new XCArg(2, meth.string("hello"))));
 		clz.writeTo(w);
 		assertEquals("\ntest.Clazz = function() {\n}\n\ntest.Clazz.f = function(_cxt) {\n  const v1 = f;\n  const v2 = _cxt.xcurry(2, 0, v1, 2, 'hello');\n}\n\ntest.Clazz.f.nfargs = function() { return 0; }\n", sw.toString());
 	}

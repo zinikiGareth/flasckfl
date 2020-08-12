@@ -101,7 +101,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.x", nameX); will(returnValue(r));
+			oneOf(meth).pushFunction("test.repo.x", nameX, 2); will(returnValue(r));
 			oneOf(nv).result(r);
 		}});
 		expr.bind(new FunctionDefinition(nameX, 0, null));
@@ -212,7 +212,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.x", nameX); will(returnValue(x));
+			oneOf(meth).pushFunction("test.repo.x", nameX, 0); will(returnValue(x));
 			oneOf(meth).closure(false, x); will(returnValue(clos));
 			oneOf(nv).result(clos);
 		}});
@@ -231,7 +231,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar expr = new UnresolvedVar(pos, "x");
 		FunctionName nameX = FunctionName.function(pos, pkg, "x");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.x", nameX); will(returnValue(x));
+			oneOf(meth).pushFunction("test.repo.x", nameX, 2); will(returnValue(x));
 			oneOf(meth).curry(false, 2, x); will(returnValue(clos));
 			oneOf(nv).result(clos);
 		}});
@@ -357,7 +357,7 @@ public class ExpressionGenerationJS {
 		UnresolvedOperator expr = new UnresolvedOperator(pos, "+");
 		FunctionName plus = FunctionName.function(pos, null, "+");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("FLBuiltin.plus", plus); will(returnValue(r));
+			oneOf(meth).pushFunction("FLBuiltin.plus", plus, 2); will(returnValue(r));
 			oneOf(nv).result(r);
 		}});
 		expr.bind(new FunctionDefinition(plus, 2, null));
@@ -380,7 +380,7 @@ public class ExpressionGenerationJS {
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.f", fnName); will(returnValue(f));
+			oneOf(meth).pushFunction("test.repo.f", fnName, 2); will(returnValue(f));
 			oneOf(meth).literal("42"); will(returnValue(iv));
 			oneOf(meth).string("hello"); will(returnValue(sv));
 			oneOf(meth).closure(false, f, iv, sv); will(returnValue(res));
@@ -404,7 +404,7 @@ public class ExpressionGenerationJS {
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.f", null); will(returnValue(f));
+			oneOf(meth).pushFunction("test.repo.f", fnName, 2); will(returnValue(f));
 			oneOf(meth).literal("42"); will(returnValue(iv));
 			oneOf(meth).string("hello"); will(returnValue(sv));
 			oneOf(meth).closure(false, f, iv, sv); will(returnValue(res));
@@ -430,9 +430,9 @@ public class ExpressionGenerationJS {
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.x", varName); will(returnValue(x));
+			oneOf(meth).pushFunction("test.repo.x", varName, 0); will(returnValue(x));
 			oneOf(meth).closure(false, x); will(returnValue(v1));
-			oneOf(meth).pushFunction("test.repo.f", fnName); will(returnValue(f));
+			oneOf(meth).pushFunction("test.repo.f", fnName, 1); will(returnValue(f));
 			oneOf(meth).closure(false, f, v1); will(returnValue(res));
 			oneOf(nv).result(res);
 		}});
@@ -500,7 +500,7 @@ public class ExpressionGenerationJS {
 		JSExpr f = context.mock(JSExpr.class, "f");
 		JSExpr sv = context.mock(JSExpr.class, "sv");
 		context.checking(new Expectations() {{
-			oneOf(meth).pushFunction("test.repo.f", fnName); will(returnValue(f));
+			oneOf(meth).pushFunction("test.repo.f", fnName, 2); will(returnValue(f));
 			oneOf(meth).string("hello"); will(returnValue(sv));
 			oneOf(meth).xcurry(with(false), with(2), (List<XCArg>) with(Matchers.contains(Matchers.equalTo(new XCArg(0, f)), Matchers.equalTo(new XCArg(2, sv))))); will(returnValue(res));
 			oneOf(nv).result(res);

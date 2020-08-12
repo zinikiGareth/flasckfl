@@ -2,9 +2,12 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSMockCard implements JSExpr {
+public class JSMockCard implements IVForm {
 	private final CardName name;
 	private JSLocal nameAs;
 
@@ -32,7 +35,14 @@ public class JSMockCard implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr agent = md.makeNew(name.javaName(), jvm.cxt());
+		IExpr mc = md.callInterface(J.MOCKCARD, jvm.cxt(), "mockCard", md.as(agent, J.FLCARD));
+		jvm.local(this, mc);
+	}
+
+	@Override
+	public void asivm(IVFWriter iw) {
+		iw.print("mockCard[" + name.uniqueName() + "]");
 	}
 }

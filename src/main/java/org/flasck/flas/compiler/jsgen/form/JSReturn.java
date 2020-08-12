@@ -5,7 +5,7 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSReturn implements JSExpr {
+public class JSReturn implements IVForm {
 	private final JSExpr jsExpr;
 
 	public JSReturn(JSExpr jsExpr) {
@@ -35,5 +35,10 @@ public class JSReturn implements JSExpr {
 		else
 			ret = md.returnObject(ret);
 		jvm.local(this, ret);
+	}
+
+	@Override
+	public void asivm(IVFWriter iw) {
+		iw.println("return " + jsExpr.asVar());
 	}
 }

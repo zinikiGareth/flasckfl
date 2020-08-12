@@ -5,7 +5,7 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSBlockComplete implements JSExpr {
+public class JSBlockComplete implements IVForm {
 
 	@Override
 	public String asVar() {
@@ -24,6 +24,11 @@ public class JSBlockComplete implements JSExpr {
 		IExpr rv = md.returnVoid();
 
 		jvm.local(this, md.block(tc, rv));
+	}
+
+	@Override
+	public void asivm(IVFWriter iw) {
+		iw.println("test complete");
 	}
 
 }

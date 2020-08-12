@@ -150,4 +150,10 @@ public class JSEnvironment implements JSStorage {
 	public Iterable<String> packages() {
 		return files.keySet();
 	}
+
+	public void asivm() {
+		for (JSFile f : files.values()) {
+			f.asivm();
+		}
+	}
 }

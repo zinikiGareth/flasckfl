@@ -7,7 +7,7 @@ import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class JSAssertion implements JSExpr {
+public class JSAssertion implements IVForm {
 	private final JSExpr obj;
 	private final String meth;
 	private final JSExpr[] args;
@@ -44,6 +44,30 @@ public class JSAssertion implements JSExpr {
 		}
 		IExpr ret = jvm.method().callInterface("void", jvm.argAsIs(obj), meth, as.toArray(new IExpr[as.size()]));
 		jvm.local(this, ret);
+	}
+
+	@Override
+	public void asivm(IVFWriter iw) {
+		switch (meth) {
+		case "assertSameValue": {
+			iw.println("assert same value");
+			IVFWriter inner = iw.indent();
+			for (JSExpr e : args) {
+				if (e instanceof JSLocal)
+					inner.println(e.asVar());
+				else
+					inner.write(e);
+			}
+			break;
+		}
+		default: {
+			iw.println("assertion " + meth);
+			IVFWriter inner = iw.indent();
+			for (JSExpr e : args) {
+				inner.write(e);
+			}
+		}
+		}
 	}
 	
 	@Override

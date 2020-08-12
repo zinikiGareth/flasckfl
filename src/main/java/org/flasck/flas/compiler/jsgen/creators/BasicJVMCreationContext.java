@@ -14,7 +14,6 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
-import org.flasck.flas.hsi.ArgSlot;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -39,9 +38,11 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	private final Map<JSExpr, IExpr> stack = new HashMap<>();
 	private final Map<Slot, IExpr> slots = new HashMap<>();
 	private final Map<JSBlockCreator, IExpr> blocks = new HashMap<>();
+	private final boolean isStatic;
 	private final boolean isCtor;
 	
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean isStatic, boolean wantArgumentList, List<JSVar> as, String returnsA, List<JSVar> superArgs) {
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean isStatic, boolean wantArgumentList, List<JSVar> as, String returnsA, List<JSExpr> superArgs) {
+		this.isStatic = isStatic;
 		if (fnName == null && name == null) {
 			// it's a constructor
 			if (clzName instanceof CSName || clzName instanceof HandlerName)
@@ -67,8 +68,14 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			this.isCtor = true;
 			IExpr[] sas = new IExpr[superArgs.size()];
 			int i=0;
-			for (JSVar jv : superArgs)
-				sas[i++] = vars.get(jv);
+			for (JSExpr jv : superArgs) {
+				if (jv instanceof JSVar)
+					sas[i++] = vars.get(jv);
+				else {
+					jv.generate(this);
+					sas[i++] = argAsIs(jv);
+				}
+			}
 			md.callSuper("void", bcc.getSuperClass(), "<init>", sas).flush();
 		} else if (fnName instanceof UnitTestName) {
 			bcc = bce.newClass(fnName.javaName());
@@ -108,7 +115,10 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			cxt = c1 == null ? null : c1.getVar();
 			if (wantArgumentList) {
 				args = a1.getVar();
-				// TODO: should we populate vars with all the array expressions now?
+				for (int ap=1;ap<as.size();ap++) {
+					JSVar v = as.get(ap);
+					stack.put(v, md.arrayElt(args, md.intConst(ap-1)));
+				}
 			} else {
 				args = null;
 				for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
@@ -164,18 +174,19 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 //		md.lenientMode(true);
 	}
 
-	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, Var runner, Var cxt, Var args, boolean isCtor) {
+	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, Var runner, Var cxt, Var args, boolean isCtor, boolean isStatic) {
 		this.bcc = bcc;
 		this.md = md;
 		this.runner = runner;
 		this.cxt = cxt;
 		this.args = args;
 		this.isCtor = isCtor;
+		this.isStatic = isStatic;
 	}
 
 	@Override
 	public JVMCreationContext split() {
-		BasicJVMCreationContext ret = new BasicJVMCreationContext(bcc, md, runner, cxt, args, isCtor);
+		BasicJVMCreationContext ret = new BasicJVMCreationContext(bcc, md, runner, cxt, args, isCtor, isStatic);
 		ret.vars.putAll(vars);
 		ret.stack.putAll(stack);
 		ret.slots.putAll(slots);
@@ -211,11 +222,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	@Override
 	public Var fargs() {
 		return args;
-	}
-
-	@Override
-	public void recordSlot(Slot s, IExpr e) {
-		slots.put(s, e);
 	}
 
 	@Override
@@ -257,19 +263,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	@Override
-	public IExpr slot(Slot slot) {
-		IExpr ret = slots.get(slot);
-		if (ret == null) {
-			if (slot instanceof ArgSlot) {
-				int ap = ((ArgSlot) slot).argpos();
-				ret = md.arrayElt(args, md.intConst(ap));
-			} else
-				throw new NotImplementedException("there is nothing in slot " + slot);
-		}
-		return ret;
-	}
-
-	@Override
 	public IExpr stmt(JSExpr stmt) {
 		if (!stack.containsKey(stmt))
 			throw new NotImplementedException("there is nothing in the stack for " + stmt);
@@ -304,7 +297,10 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			return stack.get(l);
 		} else if (jsExpr instanceof JSString) {
 			JSString l = (JSString) jsExpr;
-			return md.stringConst(l.value());
+			if (l.value() == null)
+				return md.as(md.aNull(), J.STRING);
+			else
+				return md.stringConst(l.value());
 		} else
 			throw new NotImplementedException("there is no var for " + jsExpr.getClass() + " " + jsExpr);
 	}

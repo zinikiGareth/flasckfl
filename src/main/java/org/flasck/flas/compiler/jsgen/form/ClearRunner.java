@@ -4,7 +4,7 @@ import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
 
-public class ClearRunner implements JSExpr {
+public class ClearRunner implements IVForm {
 
 	public ClearRunner() {
 	}
@@ -23,5 +23,10 @@ public class ClearRunner implements JSExpr {
 	@Override
 	public String asVar() {
 		throw new RuntimeException("Not a var");
+	}
+
+	@Override
+	public void asivm(IVFWriter iw) {
+		iw.println("clear runner");
 	}
 }

@@ -1,12 +1,19 @@
 package org.flasck.flas.compiler.jsgen.packaging;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.templates.EventPlacement.HandlerInfo;
 import org.flasck.flas.compiler.templates.EventPlacement.TemplateTarget;
 import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.GenericAnnotator;
+import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class EventMap {
@@ -90,5 +97,19 @@ public class EventMap {
 		}
 		lw.print(" }");
 		return false;
+	}
+
+	public void generate(ByteCodeEnvironment bce) {
+		if (bce == null)
+			return;
+		
+		ByteCodeSink bcc = bce.getOrCreate(cardName.javaName());
+		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_eventHandlers");
+		gen.returns(Map.class.getName());
+		NewMethodDefiner meth = gen.done();
+		meth.lenientMode(true);
+		Var v = meth.avar(Map.class.getName(), "ret");
+		meth.assign(v, meth.makeNew(TreeMap.class.getName())).flush();
+		meth.returnObject(v).flush();
 	}
 }

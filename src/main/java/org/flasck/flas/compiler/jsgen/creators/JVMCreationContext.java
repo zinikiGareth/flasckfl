@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.hsi.Slot;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
@@ -23,12 +22,10 @@ public interface JVMCreationContext {
 	IExpr cxt();
 	Var fargs();
 
-	void recordSlot(Slot s, IExpr e);
 	boolean hasLocal(JSExpr key);
 	void local(JSExpr key, IExpr e);
 	void bindVar(JSExpr local, Var v);
 	void block(JSBlock jsBlock, List<IExpr> blk);
-	IExpr slot(Slot slot);
 	IExpr stmt(JSExpr stmt);
 	IExpr arg(JSExpr jsExpr);
 	IExpr argAsIs(JSExpr jsExpr);
