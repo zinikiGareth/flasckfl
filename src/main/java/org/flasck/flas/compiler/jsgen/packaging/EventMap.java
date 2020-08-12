@@ -1,5 +1,7 @@
 package org.flasck.flas.compiler.jsgen.packaging;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -9,9 +11,11 @@ import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.templates.EventPlacement.HandlerInfo;
 import org.flasck.flas.compiler.templates.EventPlacement.TemplateTarget;
 import org.flasck.flas.compiler.templates.EventTargetZones;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.GenericAnnotator;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -110,6 +114,51 @@ public class EventMap {
 		meth.lenientMode(true);
 		Var v = meth.avar(Map.class.getName(), "ret");
 		meth.assign(v, meth.makeNew(TreeMap.class.getName())).flush();
+		
+		for (String t : methods.templateNames()) {
+			Var hl = meth.avar(List.class.getName(), "hl");
+			meth.assign(hl, meth.makeNew(ArrayList.class.getName())).flush();
+			for (TemplateTarget tt : methods.targets(t)) {
+				HandlerInfo hi = methods.getHandler(tt.handler);
+				IExpr classArgs = meth.arrayOf(Class.class.getName(), meth.classConst(J.FLEVALCONTEXT),
+						meth.classConst("[L" + J.OBJECT + ";"));
+				IExpr ehm = meth.callVirtual(Method.class.getName(),
+						meth.classConst(cardName.javaName()), "getDeclaredMethod",
+						meth.stringConst(hi.name.name), classArgs);
+
+				IExpr ety, esl;
+				if (tt.type != null) {
+					ety = meth.stringConst(tt.type);
+					esl = meth.stringConst(tt.slot);
+				} else {
+					ety = meth.as(meth.aNull(), J.STRING);
+					esl = meth.as(meth.aNull(), J.STRING);
+				}
+				IExpr icond;
+				if (tt.evcond != null) {
+					icond = meth.box(meth.intConst(tt.evcond));
+				} else
+					icond = meth.as(meth.aNull(), J.INTEGER);
+				IExpr ghi = meth.makeNew(J.HANDLERINFO, ety, esl, meth.box(meth.intConst(tt.option)), meth.stringConst(hi.event), ehm, icond);
+				meth.voidExpr(meth.callInterface("boolean", hl, "add", meth.as(ghi, J.OBJECT))).flush();
+			}
+			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(t), J.OBJECT), meth.as(hl, J.OBJECT))).flush();
+		}
+		
+		for (HandlerInfo hi : methods.unboundHandlers()) {
+			Var hl = meth.avar(List.class.getName(), "hl");
+			meth.assign(hl, meth.makeNew(ArrayList.class.getName())).flush();
+			IExpr classArgs = meth.arrayOf(Class.class.getName(), meth.classConst(J.FLEVALCONTEXT),
+					meth.classConst("[L" + J.OBJECT + ";"));
+			IExpr ehm = meth.callVirtual(Method.class.getName(), meth.classConst(cardName.javaName()),
+					"getDeclaredMethod", meth.stringConst(hi.name.name), classArgs);
+			IExpr ghi = meth.makeNew(J.HANDLERINFO, meth.as(meth.aNull(), J.STRING),
+					meth.as(meth.aNull(), J.STRING), meth.as(meth.aNull(), J.INTEGER),
+					meth.stringConst(hi.event), ehm, meth.as(meth.aNull(), J.INTEGER));
+			meth.voidExpr(meth.callInterface("boolean", hl, "add", meth.as(ghi, J.OBJECT))).flush();
+			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("_"), J.OBJECT), meth.as(hl, J.OBJECT))).flush();
+		}
+		
 		meth.returnObject(v).flush();
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSAssertion implements IVForm {
@@ -37,10 +38,15 @@ public class JSAssertion implements IVForm {
 	public void generate(JVMCreationContext jvm) {
  		List<IExpr> as = new ArrayList<>();
  		as.add(jvm.cxt());
+ 		int ai = 0;
 		for (JSExpr e : args) {
 			if (!jvm.hasLocal(e))
 				e.generate(jvm);
-			as.add(jvm.arg(e));
+			if ("event".equals(meth) && ai == 1)
+				as.add(jvm.argAs(e, new JavaType(List.class.getName())));
+			else
+				as.add(jvm.arg(e));
+			ai++;
 		}
 		IExpr ret = jvm.method().callInterface("void", jvm.argAsIs(obj), meth, as.toArray(new IExpr[as.size()]));
 		jvm.local(this, ret);
