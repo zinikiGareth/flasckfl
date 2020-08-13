@@ -52,7 +52,7 @@ public class DoUTEventGeneratorJS extends LeafAdapter implements ResultAware {
 		for (int i=0;i<targetZone.fields.size();i++) {
 			String ty = targetZone.types().get(i).toString().toLowerCase();
 			JSExpr je = makeEventZone(block, targetZone.fields.get(i));
-			al.add(block.makeArray(Arrays.asList(block.string(ty), je)));
+			al.add(block.makeEventZone(block.string(ty), je));
 		}
 		return block.makeArray(al);
 	}

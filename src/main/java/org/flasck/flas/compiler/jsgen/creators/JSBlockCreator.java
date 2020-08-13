@@ -28,6 +28,7 @@ public interface JSBlockCreator {
 	JSExpr newOf(NameOfThing clz, List<JSExpr> args);
 	JSExpr makeArray(JSExpr... args);
 	JSExpr makeArray(List<JSExpr> args);
+	JSExpr makeEventZone(JSExpr string, JSExpr je);
 	JSExpr jsArray(List<JSExpr> arr);
 	JSExpr arrayElt(JSExpr tc, int i);
 	JSExpr makeTuple(JSExpr... args);
@@ -37,6 +38,7 @@ public interface JSBlockCreator {
 	JSExpr pushFunction(String meth, FunctionName name, int argcount);
 	JSExpr pushConstructor(NameOfThing name, String clz);
 	JSExpr defineTupleMember(TupleMember e);
+	void returnVoid();
 	void returnObject(JSExpr jsExpr);
 	void returnCompare(JSExpr lhs, JSExpr rhs);
 

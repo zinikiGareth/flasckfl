@@ -28,7 +28,9 @@ public class JSLiteral implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		IExpr ret = null;
-		if ("true".equals(text)) {
+		if ("null".equals(text))
+			ret = md.aNull();
+		else if ("true".equals(text)) {
 			ret = md.boolConst(true);
 		} else if ("false".equals(text)) {
 			ret = md.boolConst(false);

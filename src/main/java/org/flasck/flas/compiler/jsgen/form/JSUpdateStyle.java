@@ -6,6 +6,10 @@ import java.util.List;
 import org.flasck.flas.compiler.jsgen.JSStyleIf;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.parsedForm.TemplateField;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -61,7 +65,30 @@ public class JSUpdateStyle implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr ty;
+		IExpr tx;
+		if (field == null) {
+			ty = md.as(md.aNull(), J.STRING);
+			tx = md.as(md.aNull(), J.STRING);
+		} else {
+			ty = md.stringConst(field.type().toString().toLowerCase());
+			tx = md.stringConst(field.text);
+		}
+		IExpr ce;
+		if (constant == null)
+			ce = md.as(md.aNull(), J.STRING);
+		else {
+			if (!jvm.hasLocal(constant))
+				constant.generate(jvm);
+			ce = jvm.argAs(constant, JavaType.string);
+		}
+		List<IExpr> arr = new ArrayList<>();
+		for (JSStyleIf si : vars) {
+			arr.add(jvm.arg(si.cond));
+			arr.add(jvm.arg(si.style));
+		}
+		IExpr me = md.callVirtual("void", jvm.argAsIs(new JSThis()), "_updateStyles", jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), md.stringConst(templateName), ty, tx, md.intConst(this.option), jvm.arg(source), ce, md.arrayOf(J.OBJECT, arr));
+		jvm.local(this, me);
 	}
 }

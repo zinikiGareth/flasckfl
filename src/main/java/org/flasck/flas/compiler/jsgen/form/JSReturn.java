@@ -20,25 +20,31 @@ public class JSReturn implements IVForm {
 	@Override
 	public void write(IndentWriter w) {
 		w.print("return ");
-		w.print(jsExpr.asVar());
+		if (jsExpr != null)
+			w.print(jsExpr.asVar());
 		w.println(";");
 	}
 	
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		if (!jvm.hasLocal(jsExpr))
-			jsExpr.generate(jvm);
-		IExpr ret = jvm.argAsIs(jsExpr);
-		if ("boolean".contentEquals(ret.getType()))
-			ret = md.returnBool(ret);
-		else
-			ret = md.returnObject(ret);
+		IExpr ret;
+		if (jsExpr == null)
+			ret = md.returnVoid();
+		else {
+			if (!jvm.hasLocal(jsExpr))
+				jsExpr.generate(jvm);
+			ret = jvm.argAsIs(jsExpr);
+			if ("boolean".contentEquals(ret.getType()))
+				ret = md.returnBool(ret);
+			else
+				ret = md.returnObject(ret);
+		}
 		jvm.local(this, ret);
 	}
 
 	@Override
 	public void asivm(IVFWriter iw) {
-		iw.println("return " + jsExpr.asVar());
+		iw.println("return " + (jsExpr == null ?"": jsExpr.asVar()));
 	}
 }

@@ -292,6 +292,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().jsName()));
 		JSMethodCreator ud = templateCreator.createMethod("_updateDisplay", true);
 		ud.argument("_cxt");
+		ud.returnsType("void");
 		JSIfCreator ifcard = ud.ifTrue(ud.literal("this._card"));
 		JSIfCreator ifud = ifcard.trueCase().ifTrue(ud.literal("this._card._updateDisplay"));
 		ifud.trueCase().assertable(ud.literal("this._card"), "_updateDisplay", ud.literal("this._card._renderTree"));
@@ -702,8 +703,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		
 		JSMethodCreator updateDisplay = templateCreator.createMethod(name, true);
-		updateDisplay.argument("_cxt");
-		updateDisplay.argument("_renderTree");
+		updateDisplay.argument(J.FLEVALCONTEXT, "_cxt");
+		updateDisplay.argument(J.RENDERTREE, "_renderTree");
+		updateDisplay.returnsType("void");
 		Iterator<Link> links = null;
 		Link n1 = null;
 		NestingChain chain = t.nestingChain();

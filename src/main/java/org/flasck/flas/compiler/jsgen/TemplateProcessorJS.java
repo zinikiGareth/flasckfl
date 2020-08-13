@@ -64,6 +64,7 @@ public class TemplateProcessorJS extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveTemplate(Template t) {
 		TemplateBindingProcessorJS.applyStyles(templateBlock, t.webinfo().id(), null, 0, source, styles, cexpr, hasStylingEvents);
+		templateBlock.returnVoid();
 		sv.result(null);
 	}
 }

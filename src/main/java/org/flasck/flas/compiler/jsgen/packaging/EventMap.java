@@ -111,7 +111,7 @@ public class EventMap {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_eventHandlers");
 		gen.returns(Map.class.getName());
 		NewMethodDefiner meth = gen.done();
-		meth.lenientMode(true);
+		meth.lenientMode(false);
 		Var v = meth.avar(Map.class.getName(), "ret");
 		meth.assign(v, meth.makeNew(TreeMap.class.getName())).flush();
 		

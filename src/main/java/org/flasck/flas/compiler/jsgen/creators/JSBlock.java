@@ -45,6 +45,7 @@ import org.flasck.flas.compiler.jsgen.form.JSLoadField;
 import org.flasck.flas.compiler.jsgen.form.JSLocal;
 import org.flasck.flas.compiler.jsgen.form.JSMakeAcor;
 import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
+import org.flasck.flas.compiler.jsgen.form.JSMakeEventZone;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMakeTuple;
 import org.flasck.flas.compiler.jsgen.form.JSMember;
@@ -272,6 +273,13 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public JSExpr makeEventZone(JSExpr type, JSExpr expr) {
+		JSLocal ma = new JSLocal(creating, new JSMakeEventZone(type, expr));
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
 	public JSExpr arrayElt(JSExpr tc, int i) {
 		return new JSArrayElt(tc, i);
 	}
@@ -349,6 +357,12 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void newdiv(Integer cnt) {
 		JSNewDiv stmt = new JSNewDiv(cnt);
+		stmts.add(stmt);
+	}
+
+	@Override
+	public void returnVoid() {
+		JSReturn stmt = new JSReturn(null);
 		stmts.add(stmt);
 	}
 

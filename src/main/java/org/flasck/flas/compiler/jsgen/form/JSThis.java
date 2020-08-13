@@ -20,5 +20,15 @@ public class JSThis implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		jvm.local(this, jvm.method().myThis());
 	}
+	
+	@Override
+	public int hashCode() {
+		return "this".hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof JSThis;
+	}
 
 }
