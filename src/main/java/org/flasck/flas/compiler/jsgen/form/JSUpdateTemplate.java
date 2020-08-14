@@ -1,7 +1,14 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+
+import java.util.List;
+
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.parsedForm.TemplateField;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -16,7 +23,7 @@ public class JSUpdateTemplate implements JSExpr {
 	public JSUpdateTemplate(TemplateField field, int posn, boolean isOtherObject, String templateName, JSExpr expr, JSExpr tc) {
 		this.field = field;
 		this.posn = posn;
-		this.onObj = isOtherObject ? expr : new JSLiteral("this");
+		this.onObj = isOtherObject ? expr : new JSThis();
 		this.templateName = templateName;
 		this.expr = isOtherObject ? null : expr;
 		this.tc = tc;
@@ -66,8 +73,18 @@ public class JSUpdateTemplate implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr ci = md.callInterface("void", jvm.argAs(onObj, new JavaType(J.TEMPLATE_HOLDER)), "_updateTemplate",
+				jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), 
+				md.stringConst(field.type().toString().toLowerCase()), md.stringConst(field.text),
+				md.intConst(posn),
+				md.stringConst(templateName),
+				expr == null ? md.makeNew(J.OBJECT) : jvm.arg(expr),
+				jvm.argAs(tc, new JavaType(List.class.getName())));
+		if (expr == null) {
+			ci = md.ifNotNull(jvm.arg(onObj), ci, null);
+		}
+		jvm.local(this, ci);
 	}
 
 }

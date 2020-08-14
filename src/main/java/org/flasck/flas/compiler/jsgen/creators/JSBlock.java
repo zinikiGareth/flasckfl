@@ -61,6 +61,7 @@ import org.flasck.flas.compiler.jsgen.form.JSNewState;
 import org.flasck.flas.compiler.jsgen.form.JSPushConstructor;
 import org.flasck.flas.compiler.jsgen.form.JSPushFunction;
 import org.flasck.flas.compiler.jsgen.form.JSRecordContract;
+import org.flasck.flas.compiler.jsgen.form.JSRenderObject;
 import org.flasck.flas.compiler.jsgen.form.JSRequireContract;
 import org.flasck.flas.compiler.jsgen.form.JSReturn;
 import org.flasck.flas.compiler.jsgen.form.JSSatisfaction;
@@ -123,7 +124,7 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr string(String string) {
+	public JSString string(String string) {
 		return new JSString(string);
 	}
 
@@ -331,6 +332,12 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void assertable(JSExpr obj, String assertion, JSExpr... args) {
 		JSAssertion stmt = new JSAssertion(obj, assertion, args);
+		stmts.add(stmt);
+	}
+
+	@Override
+	public void renderObject(JSExpr runner, JSExpr obj, SolidName on, int which, JSString templateName) {
+		JSRenderObject stmt = new JSRenderObject(runner, obj, on, which, templateName);
 		stmts.add(stmt);
 	}
 

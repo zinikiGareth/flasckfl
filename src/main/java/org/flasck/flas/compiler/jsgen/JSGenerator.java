@@ -726,7 +726,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator updateDisplay = templateCreator.createMethod(name, true);
 		updateDisplay.argument(J.FLEVALCONTEXT, "_cxt");
 		updateDisplay.argument(J.RENDERTREE, "_renderTree");
-		updateDisplay.returnsType("void");
 		Iterator<Link> links = null;
 		Link n1 = null;
 		NestingChain chain = t.nestingChain();
@@ -734,8 +733,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			links = chain.iterator();
 			n1 = links.next();
 			updateDisplay.argument(n1.name().var);
-			updateDisplay.argument("_tc");
+			updateDisplay.argument(List.class.getName(), "_tc");
 		}
+		updateDisplay.returnsType("void");
 		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
 		JSExpr source;
 		if (n1 != null) {

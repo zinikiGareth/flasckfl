@@ -117,13 +117,13 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 				if (currentTBO.sendsTo != null) {
 					IExpr tc;
 					if (fs.templateObj == null)
-						tc = fs.meth.arrayOf(J.OBJECT);
+						tc = fs.meth.as(fs.meth.makeNew(ArrayList.class.getName()), List.class.getName());
 					else {
 						ArrayList<IExpr> wanted = new ArrayList<>();
 						for (int i : currentTBO.sendsTo.contextPosns()) {
-							wanted.add(CollectionUtils.nth(fs.templateObj.values(), i));
+							wanted.add(fs.meth.as(CollectionUtils.nth(fs.templateObj.values(), i), J.OBJECT));
 						}
-						tc = fs.meth.arrayOf(J.OBJECT, wanted);
+						tc = fs.meth.callStatic("java.util.Arrays", List.class.getName(), "asList", fs.meth.arrayOf(J.OBJECT, wanted));
 					}
 					boolean isOtherObject = (currentTBO.expr instanceof UnresolvedVar) &&
 						((UnresolvedVar)currentTBO.expr).defn() instanceof StructField &&

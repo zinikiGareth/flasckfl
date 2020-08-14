@@ -887,7 +887,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			links = chain.iterator();
 			n1 = links.next();
 			item = gen.argument(J.OBJECT, n1.name().var);
-			tc = gen.argument("[" + J.OBJECT, "templateContext");
+			tc = gen.argument(List.class.getName(), "templateContext");
 		}
 		gen.returns("void");
 		MethodDefiner tf = gen.done();
@@ -902,7 +902,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			popVar(tom, n1, source);
 			int pos = 0;
 			while (links.hasNext())
-				popVar(tom, links.next(), fs.meth.arrayElt(tc.getVar(), fs.meth.intConst(pos++)));
+				popVar(tom, links.next(), fs.meth.callInterface(Object.class.getName(), tc.getVar(), "get", fs.meth.intConst(pos++)));
 			fs.provideTemplateObject(tom);
 			tf.ifNull(item.getVar(), tf.returnVoid(), null).flush();
 		} else

@@ -72,6 +72,14 @@ public class JSAssertion implements IVForm {
 			}
 			break;
 		}
+//		case "invoke": {
+//			iw.println("invoke");
+//			break;
+//		}
+//		case "matchText": {
+//			iw.println("matchText");
+//			break;
+//		}
 		default: {
 			iw.println("assertion " + meth);
 			IVFWriter inner = iw.indent();

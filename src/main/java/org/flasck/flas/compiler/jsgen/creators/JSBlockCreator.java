@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.JSStyleIf;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -22,7 +23,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public interface JSBlockCreator {
 	// very simple and obvious things
 	JSExpr literal(String text);
-	JSExpr string(String string);
+	JSString string(String string);
 	JSExpr nameOf(JSExpr expr);
 	JSExpr newOf(NameOfThing clz);
 	JSExpr newOf(NameOfThing clz, List<JSExpr> args);
@@ -105,6 +106,7 @@ public interface JSBlockCreator {
 	
 	// unit testing
 	void assertable(JSExpr runner, String assertion, JSExpr... args);
+	void renderObject(JSExpr runner, JSExpr obj, SolidName on, int which, JSString templateName);
 	void expect(JSExpr mock, String var, List<JSExpr> args, JSExpr handler);
 	JSExpr storeMockObject(UnitDataDeclaration udd, JSExpr value);
 	void assertSatisfied(JSExpr m);

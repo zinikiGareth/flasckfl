@@ -10,8 +10,10 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -19,6 +21,8 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.jvm.J;
+import org.zinutils.bytecode.GenericAnnotator;
+import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -37,6 +41,8 @@ public class HIGeneratorJS extends LeafAdapter {
 		this.hdlr = jse.newClass(name.packageName().jsName(), name);
 		this.hdlr.inheritsFrom(hi.actualType().name(), J.HANDLERBASE);
 		this.hdlr.implementsJava(hi.actualType().name().javaName());
+		if (sh != null)
+			this.hdlr.implementsJava(J.CONTAINS_CARD);
 		this.hdlr.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
 
 		this.hdlrCtor = hdlr.constructor();
@@ -62,6 +68,11 @@ public class HIGeneratorJS extends LeafAdapter {
 		methodMap.put(hi, methods);
 		jse.methodList(hi.name(), methods);
 
+		if (sh != null) {
+			JSMethodCreator getcard = hdlr.createMethod("_card", true);
+			getcard.returnsType(J.UPDATES_DISPLAY);
+			getcard.returnObject(new JSLiteral("this._card"));
+		}
 	}
 
 	@Override
