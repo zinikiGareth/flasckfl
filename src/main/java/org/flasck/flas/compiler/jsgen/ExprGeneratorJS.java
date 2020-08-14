@@ -219,9 +219,9 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.fromIntroduction(state.resolveIntroduction((IntroduceVar) defn)));
 		} else if (defn instanceof ObjectCtor) {
 			ObjectCtor oc = (ObjectCtor) defn;
-			JSExpr fn = block.callStatic(oc.name().container().jsName(), oc.name().name);
+			int expArgs = oc.argCountIncludingContracts();
+			JSExpr fn = block.callStatic(oc.name(), expArgs + 1);
 			if (nargs == 0) {
-				int expArgs = oc.argCountIncludingContracts();
 				JSExpr call;
 				if (expArgs > 0) {
 					call = block.curry(false, expArgs + 1, new JSExpr[] { fn });

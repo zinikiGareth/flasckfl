@@ -9,9 +9,11 @@ public class JSSetField implements IVForm {
 	private final JSExpr on;
 	private final String field;
 	private final JSExpr value;
+	private boolean jsOnly;
 
-	public JSSetField(String field, JSExpr value) {
+	public JSSetField(boolean jsOnly, String field, JSExpr value) {
 		this(new JSThis(), field, value);
+		this.jsOnly = jsOnly;
 	}
 
 	public JSSetField(JSExpr on, String field, JSExpr value) {
@@ -37,7 +39,10 @@ public class JSSetField implements IVForm {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		if ("_contracts".equals(field)) {
+		if (jsOnly) {
+			jvm.local(this, null);
+			return;
+		} else if ("_contracts".equals(field)) {
 			// I believe that this is handled through reflection in Java
 			jvm.local(this, null);
 			return;

@@ -138,7 +138,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			bcc.generateAssociatedSourceFile();
 			IFieldInfo fi = bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 			fi.constValue(as.size()-1);
-			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "eval");
+			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, fnName != null || name == null ? "eval" : name);
 			PendingVar c1 = null;
 			PendingVar a1 = null;
 			Map<JSVar, PendingVar> tmp = new HashMap<>();
@@ -301,8 +301,13 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 				return md.as(md.aNull(), J.STRING);
 			else
 				return md.stringConst(l.value());
-		} else
-			throw new NotImplementedException("there is no var for " + jsExpr.getClass() + " " + jsExpr);
+		} else {
+			jsExpr.generate(this);
+			if (stack.containsKey(jsExpr))
+				return stack.get(jsExpr);
+			else
+				throw new NotImplementedException("there is no var for " + jsExpr.getClass() + " " + jsExpr);
+		}
 	}
 
 	@Override

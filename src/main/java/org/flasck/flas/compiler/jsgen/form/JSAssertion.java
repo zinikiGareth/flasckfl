@@ -48,6 +48,8 @@ public class JSAssertion implements IVForm {
 				as.add(jvm.argAs(e, JavaType.boolean_));
 			else if ("matchText".equals(meth) && ai == 3)
 				as.add(jvm.argAs(e, JavaType.string));
+			else if ("shove".equals(meth) && ai == 1)
+				as.add(jvm.argAs(e, JavaType.string));
 			else
 				as.add(jvm.arg(e));
 			ai++;

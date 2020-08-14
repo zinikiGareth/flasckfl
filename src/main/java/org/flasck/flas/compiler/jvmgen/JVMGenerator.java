@@ -609,7 +609,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 		templateClass.implementsInterface(J.AREYOUA);
 		templateClass.generateAssociatedSourceFile();
 		templateClass.inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
-		templateClass.inheritsField(true, Access.PROTECTED, J.FLCARD, "_containingCard");
+		templateClass.inheritsField(true, Access.PROTECTED, J.FLCARD, "_card");
 		for (ObjectContract oc : od.contracts) {
 			templateClass.defineField(false, Access.PRIVATE, J.OBJECT, oc.varName().var);
 		}
@@ -637,7 +637,7 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 			gen.argument(J.RENDERTREE, "rt");
 			gen.returns("void");
 			NewMethodDefiner ud = gen.done();
-			IExpr card = ud.getField("_containingCard");
+			IExpr card = ud.getField("_card");
 			IExpr callCardUpdate = ud.callInterface("void", card, "_updateDisplay",
 				cx.getVar(),
 				ud.callInterface(J.RENDERTREE, card, "_renderTree")

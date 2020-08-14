@@ -41,7 +41,7 @@ public class HIGeneratorJS extends LeafAdapter {
 
 		this.hdlrCtor = hdlr.constructor();
 		JSVar cx = this.hdlrCtor.argument(J.FLEVALCONTEXT, "_cxt");
-		this.hdlrCtor.stateField();
+		this.hdlrCtor.stateField(true);
 		this.hdlrCtor.superArg(cx);
 		this.eval = hdlr.createMethod("eval", false);
 		this.eval.argument("_cxt");
@@ -49,7 +49,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		if (sh != null) {
 			hdlr.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
 			hdlrCtor.argument("_incard");
-			hdlrCtor.setField("_card", new JSVar("_incard"));
+			hdlrCtor.setField(false, "_card", new JSVar("_incard"));
 			this.eval.argumentList();
 			this.eval.argument("_incard");
 			args.add(new JSVar("_incard"));

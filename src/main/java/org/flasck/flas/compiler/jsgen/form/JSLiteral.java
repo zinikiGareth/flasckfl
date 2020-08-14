@@ -34,8 +34,10 @@ public class JSLiteral implements JSExpr {
 			ret = md.boolConst(true);
 		} else if ("false".equals(text)) {
 			ret = md.boolConst(false);
-		} else if ("_card".equals(text)) {
+		} else if ("_card".equals(text) || "this._card".equals(text)) {
 			ret = md.getField("_card");
+		} else if ("this._card._renderTree".equals(text)) {
+			ret = md.getField(md.getField("_card"), "_renderTree");
 		} else {
 			try {
 				int x = Integer.parseInt(text);

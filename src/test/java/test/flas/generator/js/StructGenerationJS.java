@@ -58,7 +58,7 @@ public class StructGenerationJS {
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).argument(J.FLEVALCONTEXT, "_cxt"); will(returnValue(jsa));
 			oneOf(ctorBlock).superArg(jsa);
-			oneOf(ctorBlock).stateField();
+			oneOf(ctorBlock).stateField(true);
 			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));
 			oneOf(ctorBlock).storeField(true, null, "_type", str);
 			oneOf(clz).createMethod("_areYouA", true); will(returnValue(aya));
@@ -104,7 +104,7 @@ public class StructGenerationJS {
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).argument(J.FLEVALCONTEXT, "_cxt"); will(returnValue(jsa));
 			oneOf(ctorBlock).superArg(jsa);
-			oneOf(ctorBlock).stateField();
+			oneOf(ctorBlock).stateField(true);
 			oneOf(ctorBlock).string("test.repo.Struct"); will(returnValue(str));
 			oneOf(repo).unionsContaining(sd); will(returnValue(new ArrayList<>()));
 			oneOf(ctorBlock).storeField(true, null, "_type", str);

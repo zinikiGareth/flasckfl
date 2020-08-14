@@ -66,7 +66,7 @@ public class ObjectGeneration {
 			oneOf(ctor).returnVoid(); will(returnValue(doret));
 			oneOf(doret).flush();
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
-			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FLCARD, "_containingCard");
+			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FLCARD, "_card");
 		}});
 		MethodDefiner aa = context.mock(MethodDefiner.class, "aa");
 		context.checking(new Expectations() {{
@@ -130,7 +130,7 @@ public class ObjectGeneration {
 			oneOf(ctor).returnVoid(); will(returnValue(doret));
 			oneOf(doret).flush();
 			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FIELDS_CONTAINER, "state");
-			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FLCARD, "_containingCard");
+			oneOf(eclz).inheritsField(true, Access.PROTECTED, J.FLCARD, "_card");
 		}});
 		MethodDefiner aa = context.mock(MethodDefiner.class, "aa");
 		context.checking(new Expectations() {{

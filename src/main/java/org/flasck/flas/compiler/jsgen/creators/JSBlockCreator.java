@@ -33,7 +33,7 @@ public interface JSBlockCreator {
 	JSExpr arrayElt(JSExpr tc, int i);
 	JSExpr makeTuple(JSExpr... args);
 	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
-	JSExpr callStatic(String clz, String meth);
+	JSExpr callStatic(NameOfThing clz, int nargs);
 	JSExpr cxtMethod(String meth, JSExpr... args);
 	JSExpr pushFunction(String meth, FunctionName name, int argcount);
 	JSExpr pushConstructor(NameOfThing name, String clz);
@@ -59,8 +59,8 @@ public interface JSBlockCreator {
 	
 	// create an object of clz and store in a field
 	JSExpr fieldObject(String field, NameOfThing clz);
-	void stateField();
-	void setField(String field, JSExpr value);
+	void stateField(boolean jsOnly);
+	void setField(boolean jsOnly, String field, JSExpr value);
 	void setField(JSExpr obj, String field, JSExpr value);
 	JSExpr fromCard(NameOfThing name);
 	JSVar arg(int pos);

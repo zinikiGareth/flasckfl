@@ -6,9 +6,12 @@ import java.util.List;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSNew implements JSExpr {
 	private final NameOfThing clz;
@@ -43,7 +46,16 @@ public class JSNew implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		String clzName;
-		if (clz instanceof CSName || clz instanceof HandlerName)
+		if (clz instanceof PackageName) {
+			switch (clz.baseName()) {
+			case "ResponseWithMessages": {
+				clzName = J.RESPONSE_WITH_MESSAGES;
+				break;
+			}
+			default:
+				throw new NotImplementedException("cannot handle builtin name " + clz);
+			}
+		} else if (clz instanceof CSName || clz instanceof HandlerName)
 			clzName = clz.javaClassName();
 		else
 			clzName = clz.javaName();

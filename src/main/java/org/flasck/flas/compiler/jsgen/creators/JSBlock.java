@@ -25,6 +25,7 @@ import org.flasck.flas.compiler.jsgen.form.JSArrayElt;
 import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
 import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
+import org.flasck.flas.compiler.jsgen.form.JSCallStatic;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
 import org.flasck.flas.compiler.jsgen.form.JSCurry;
@@ -212,8 +213,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public JSExpr callStatic(String clz, String meth) {
-		JSLocal stmt = new JSLocal(creating, new JSCxtMethod("makeStatic", string(clz), string(meth)));
+	public JSExpr callStatic(NameOfThing meth, int nargs) {
+		JSLocal stmt = new JSLocal(creating, new JSCallStatic(meth, nargs));
 		stmts.add(stmt);
 		return stmt;
 	}
@@ -532,14 +533,14 @@ public class JSBlock implements JSBlockCreator {
 
 	@Override
 	public JSExpr fieldObject(String field, NameOfThing clz) {
-		JSSetField ret = new JSSetField(field, new JSNew(clz));
+		JSSetField ret = new JSSetField(false, field, new JSNew(clz));
 		stmts.add(ret);
 		return ret;
 	}
 
 	@Override
-	public void stateField() {
-		stmts.add(new JSNewState());
+	public void stateField(boolean jsOnly) {
+		stmts.add(new JSNewState(jsOnly));
 	}
 
 	@Override
@@ -558,8 +559,8 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
-	public void setField(String field, JSExpr expr) {
-		stmts.add(new JSSetField(field, expr));
+	public void setField(boolean jsOnly, String field, JSExpr expr) {
+		stmts.add(new JSSetField(jsOnly, field, expr));
 	}
 
 	@Override

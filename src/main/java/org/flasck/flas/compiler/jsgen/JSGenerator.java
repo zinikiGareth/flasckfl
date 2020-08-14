@@ -244,7 +244,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator ctor = ctr.constructor();
 		JSVar cx = ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.superArg(cx);
-		ctor.stateField();
+		ctor.stateField(true);
 		ctor.storeField(true, this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
 		JSMethodCreator areYouA = ctr.createMethod("_areYouA", true);
 		areYouA.argument(J.EVALCONTEXT, "_cxt");
@@ -285,22 +285,29 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, obj.name().container().jsName());
 		jse.object(obj);
 		templateCreator = jse.newClass(pkg, obj.name());
-		templateCreator.inheritsFrom(new PackageName("FLObject"), null);
+		templateCreator.inheritsFrom(new PackageName("FLObject"), J.FLOBJECT);
+		templateCreator.implementsJava(J.AREYOUA);
+		templateCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
+		templateCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.FLCARD), "_card");
+
 		JSMethodCreator areYouA = templateCreator.createMethod("_areYouA", true);
 		areYouA.argument("_cxt");
 		areYouA.argument("ty");
+		areYouA.returnsType("boolean");
 		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().jsName()));
 		JSMethodCreator ud = templateCreator.createMethod("_updateDisplay", true);
 		ud.argument("_cxt");
 		ud.returnsType("void");
 		JSIfCreator ifcard = ud.ifTrue(ud.literal("this._card"));
-		JSIfCreator ifud = ifcard.trueCase().ifTrue(ud.literal("this._card._updateDisplay"));
-		ifud.trueCase().assertable(ud.literal("this._card"), "_updateDisplay", ud.literal("this._card._renderTree"));
+		ifcard.trueCase().assertable(ud.literal("this._card"), "_updateDisplay", ud.literal("this._card._renderTree"));
+		ud.returnVoid();
 		JSMethodCreator ctor = templateCreator.constructor();
-		ctor.argument(J.FLEVALCONTEXT, "_cxt");
-		ctor.argument("_card");
-		ctor.setField("_card", ctor.arg(1));
-		ctor.stateField();
+		JSVar cx = ctor.argument(J.FLEVALCONTEXT, "_cxt");
+		JSVar ic = ctor.argument("_incard");
+		ctor.superArg(cx);
+		ctor.superArg(ic);
+		ctor.setField(true, "_card", ctor.arg(1));
+		ctor.stateField(true);
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(obj, methods);
 		jse.eventMap(obj.name(), eventMap.get(obj));
@@ -387,8 +394,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = oc.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, oc.name().inContext.jsName());
 		this.meth = jse.newFunction(null, pkg, oc.name().container(), false, oc.name().name);
-		this.meth.argument("_cxt");
-		this.meth.argument("_card");
+		this.meth.argumentList();
+		this.meth.argument(J.FLEVALCONTEXT, "_cxt");
+		this.meth.argument(J.FLCARD, "_card");
 		int i;
 		for (i=0;i<oc.argCount();i++)
 			this.meth.argument("_" + i);
@@ -396,7 +404,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		
 		ObjectDefn od = oc.getObject();
 		JSExpr ocret = meth.newOf(od.name(), Arrays.asList(this.meth.arg(1)));
-		JSExpr ocmsgs = meth.jsArray(new ArrayList<JSExpr>());
+		JSExpr ocmsgs = meth.makeArray(new ArrayList<JSExpr>());
 		JSExpr container = ocret; 
 		this.state = new JSFunctionStateStore(meth, container);
 		this.state.objectCtor(ocret, ocmsgs);
@@ -582,8 +590,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSMethodCreator ctor = agentCreator.constructor();
 		JSVar ctrCxt = ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.superArg(ctrCxt);
-		ctor.stateField();
+		ctor.stateField(true);
 		ctor.fieldObject("_contracts", new PackageName("ContractStore"));
+		JSMethodCreator updateDisplay = agentCreator.createMethod("_updateDisplay", true);
+		updateDisplay.argument(J.FLEVALCONTEXT, "_cxt");
+		updateDisplay.argument(J.RENDERTREE, "_renderTree");
+		updateDisplay.returnsType("void");
+		updateDisplay.returnVoid();
 		JSMethodCreator meth = agentCreator.createMethod("name", true);
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(ad.name().uniqueName()));
@@ -615,8 +628,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			ctor.setField(new JSThis(), "_template", ctor.string(cd.templates.get(0).webinfo().id()));
 		} else {
 			ctor.superArg(ctor.string(null));
+			JSMethodCreator updateDisplay = agentCreator.createMethod("_updateDisplay", true);
+			updateDisplay.argument(J.FLEVALCONTEXT, "_cxt");
+			updateDisplay.argument(J.RENDERTREE, "_renderTree");
+			updateDisplay.returnsType("void");
+			updateDisplay.returnVoid();
 		}
-		ctor.stateField();
+		ctor.stateField(true);
 		JSMethodCreator meth = agentCreator.createMethod("name", true);
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(cd.name().uniqueName()));
@@ -649,7 +667,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		svc.constructor().argument(J.FLEVALCONTEXT, "_cxt");
 		svc.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
 		svc.constructor().argument(J.OBJECT, "_incard");
-		svc.constructor().setField("_card", new JSVar("_incard"));
+		svc.constructor().setField(false, "_card", new JSVar("_incard"));
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(ic, methods);
 		jse.methodList(ic.name(), methods);
@@ -666,7 +684,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		// TODO: we need to "declare" the field _card here for the benefit of the JVM generator
 		// TODO: we probably also need to start declaring base classes - because that is currently assumed to be struct
 		svc.constructor().argument(J.OBJECT, "_incard");
-		svc.constructor().setField("_card", new JSVar("_incard"));
+		svc.constructor().setField(false, "_card", new JSVar("_incard"));
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(p, methods);
 		jse.methodList(p.name(), methods);

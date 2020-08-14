@@ -4,8 +4,7 @@ import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSNewState implements JSExpr {
-
-	public JSNewState() {
+	public JSNewState(boolean jsOnly) {
 	}
 
 	@Override

@@ -91,4 +91,9 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 			return other.getClass().getName().compareTo(this.getClass().getName());
 		return this.compareTo((PackageName)other);
 	}
+	
+	@Override
+	public String toString() {
+		return "Pkg[" + name + "]";
+	}
 }

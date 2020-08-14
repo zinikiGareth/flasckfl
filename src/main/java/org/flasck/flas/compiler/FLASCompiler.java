@@ -320,9 +320,13 @@ public class FLASCompiler {
 	}
 
 	public void populateBCE(ByteCodeEnvironment bce) {
-		ByteCodeCreator ec = bce.newClass("org.flasck.flas.testrunner.JVMRunner");
-		ec.dontGenerate();
-		ec.defineField(true, Access.PUBLIC, J.FLEVALCONTEXT, "cxt");
+		ByteCodeCreator jr = bce.newClass("org.flasck.flas.testrunner.JVMRunner");
+		jr.dontGenerate();
+		jr.defineField(true, Access.PUBLIC, J.FLEVALCONTEXT, "cxt");
+		ByteCodeCreator card = bce.newClass(J.FLCARD);
+		card.dontGenerate();
+		card.defineField(false, Access.PUBLIC, J.RENDERTREE, "_renderTree");
+		card.defineField(true, Access.PROTECTED, J.STRING, "_rootTemplate");
 	}
 
 	public void saveBCE(File jvmDir, ByteCodeEnvironment bce) {

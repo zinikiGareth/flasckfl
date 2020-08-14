@@ -1,6 +1,8 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -25,7 +27,9 @@ public class JSKeepMessages implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		IExpr coll = jvm.argAsIs(ocmsgs);
+		IExpr add = jvm.arg(msgs);
+		NewMethodDefiner md = jvm.method();
+		jvm.local(this, md.callInterface("void", jvm.cxt(), "addAll", coll, add));
 	}
 }
