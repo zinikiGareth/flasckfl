@@ -325,9 +325,10 @@ public class ExpressionGenerationJS {
 	public void aStandaloneMethod() {
 		JSStorage jss = context.mock(JSStorage.class);
 		JSExpr nret = context.mock(JSExpr.class, "nret");
+		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
 		context.checking(new Expectations() {{
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
-			oneOf(jss).newFunction(null, "test.repo", new PackageName("test.repo"), false, "f"); will(returnValue(meth));
+			oneOf(jss).newFunction(fnName, "test.repo", new PackageName("test.repo"), false, "f"); will(returnValue(meth));
 			oneOf(meth).argumentList();
 			oneOf(meth).argument("_cxt");
 			oneOf(meth).structConst(new SolidName(null, "test.repo.Ctor")); will(returnValue(nret));
@@ -335,7 +336,6 @@ public class ExpressionGenerationJS {
 		}});
 		StackVisitor sv = new StackVisitor();
 		new JSGenerator(null, jss, sv, null);
-		FunctionName fnName = FunctionName.standaloneMethod(pos, pkg, "f");
 		UnresolvedVar expr = new UnresolvedVar(pos, "Ctor");
 		expr.bind(new StructDefn(pos, FieldsType.STRUCT, "test.repo", "Ctor", true));
 		ObjectMethod om = new ObjectMethod(pos, fnName, new ArrayList<>(), null, null);

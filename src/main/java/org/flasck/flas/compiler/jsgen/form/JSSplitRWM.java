@@ -1,5 +1,7 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.List;
+
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
@@ -32,8 +34,9 @@ public class JSSplitRWM implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		IExpr then = md.voidExpr(md.aNull());
-		IExpr ib = md.ifBoolean(md.instanceOf(jvm.arg(var), J.RESPONSE_WITH_MESSAGES), then, null);
+		IExpr extract = md.callInterface("void", jvm.cxt(), "addAll", jvm.argAsIs(ocmsgs), md.as(md.callStatic(J.RESPONSE_WITH_MESSAGES, List.class.getName(), "messages", jvm.cxt(), jvm.arg(var)), J.OBJECT));
+		IExpr reassign = md.assign(jvm.argAsIs(var), md.callStatic(J.RESPONSE_WITH_MESSAGES, Object.class.getName(), "response", jvm.cxt(), jvm.arg(var)));
+		IExpr ib = md.ifBoolean(md.instanceOf(jvm.arg(var), J.RESPONSE_WITH_MESSAGES), md.block(extract, reassign), null);
 		jvm.local(this, ib);
 	}
 }
