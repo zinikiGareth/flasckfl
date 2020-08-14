@@ -55,7 +55,7 @@ public class JSNew implements JSExpr {
 			default:
 				throw new NotImplementedException("cannot handle builtin name " + clz);
 			}
-		} else if (clz instanceof CSName || clz instanceof HandlerName)
+		} else if (clz instanceof CSName)
 			clzName = clz.javaClassName();
 		else
 			clzName = clz.javaName();

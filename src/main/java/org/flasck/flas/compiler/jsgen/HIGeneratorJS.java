@@ -44,6 +44,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		this.hdlrCtor.stateField(true);
 		this.hdlrCtor.superArg(cx);
 		this.eval = hdlr.createMethod("eval", false);
+		this.eval.argumentList();
 		this.eval.argument("_cxt");
 		List<JSExpr> args = new ArrayList<JSExpr>();
 		if (sh != null) {

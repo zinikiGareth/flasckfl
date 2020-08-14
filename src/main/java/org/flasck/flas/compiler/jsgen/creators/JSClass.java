@@ -119,7 +119,7 @@ public class JSClass implements JSClassCreator {
 			return;
 		
 		ByteCodeCreator bcc;
-		if (name instanceof CSName || name instanceof HandlerName)
+		if (name instanceof CSName)
 			bcc = bce.newClass(name.javaClassName());
 		else
 			bcc = bce.newClass(name.javaName());

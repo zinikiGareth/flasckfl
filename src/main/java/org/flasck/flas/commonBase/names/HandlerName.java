@@ -35,7 +35,10 @@ public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 	
 	@Override
 	public String javaName() {
-		throw new NotImplementedException();
+		if (name instanceof PackageName)
+			return name.uniqueName() + "." + baseName;
+		else
+			return javaClassName();
 	}
 
 	@Override

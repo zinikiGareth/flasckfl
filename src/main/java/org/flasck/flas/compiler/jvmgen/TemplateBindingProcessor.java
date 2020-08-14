@@ -186,9 +186,7 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 	}
 	
 	private IExpr templateMember(MethodDefiner uc, Var cx, Var rt, Var parent, IExpr currNode, Template t, Var e) {
-		ArrayList<IExpr> wanted = new ArrayList<>();
-		// TODO: the context needs to be considered properly
-		IExpr tc = fs.meth.arrayOf(J.OBJECT, wanted);
+		IExpr tc = fs.meth.as(fs.meth.makeNew(ArrayList.class.getName()), List.class.getName());
 		
 		return uc.callVirtual("void", uc.myThis(), "_addItemWithName", cx, rt, parent, currNode, uc.stringConst(t.webinfo().id()), uc.intConst(t.position()), e, tc);
 	}

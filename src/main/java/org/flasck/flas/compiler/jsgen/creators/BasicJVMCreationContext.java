@@ -45,7 +45,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		this.isStatic = isStatic;
 		if (fnName == null && name == null) {
 			// it's a constructor
-			if (clzName instanceof CSName || clzName instanceof HandlerName)
+			if (clzName instanceof CSName)
 				bcc = bce.get(clzName.javaClassName());
 			else
 				bcc = bce.get(clzName.javaName());
@@ -91,7 +91,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			vars.put(as.get(0), this.runner);
 			this.isCtor = false;
 		} else if (!isStatic) {
-			if (clzName instanceof CSName || clzName instanceof HandlerName)
+			if (clzName instanceof CSName)
 				bcc = bce.get(clzName.javaClassName());
 			else
 				bcc = bce.get(clzName.javaName());
@@ -129,7 +129,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			this.isCtor = false;
 		} else {
 			if (fnName == null) {
-				if (clzName instanceof CSName || clzName instanceof HandlerName)
+				if (clzName instanceof CSName)
 					bcc = bce.getOrCreate(clzName.javaClassName());
 				else
 					bcc = bce.getOrCreate(clzName.javaName());
@@ -257,6 +257,8 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 				else
 					push = J.BUILTINPKG+"."+fn.baseName();
 			}
+		} else if (fn instanceof HandlerName) {
+			push = fn.javaName();
 		} else
 			push = fn.javaClassName();
 		return push;
