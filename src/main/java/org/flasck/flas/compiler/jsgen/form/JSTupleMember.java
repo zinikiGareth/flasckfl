@@ -2,6 +2,9 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSTupleMember implements JSExpr {
@@ -29,8 +32,11 @@ public class JSTupleMember implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr mt = md.callInterface(J.OBJECT, jvm.cxt(), "tupleMember",
+			md.callStatic(tm.ta.exprFnName().javaClassName(), J.OBJECT, "eval", jvm.cxt(), md.arrayOf(J.OBJECT)),
+			md.intConst(tm.which));
+		jvm.local(this, mt);
 	}
 
 }

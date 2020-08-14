@@ -22,6 +22,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
+import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.AnonymousVar;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -82,7 +83,7 @@ public class ExpressionGenerationJS {
 
 	@Test
 	public void aSimpleString() {
-		JSExpr r = context.mock(JSExpr.class, "r");
+		JSString r = new JSString("s");
 		context.checking(new Expectations() {{
 			oneOf(meth).string("hello"); will(returnValue(r));
 			oneOf(nv).result(r);
@@ -376,7 +377,7 @@ public class ExpressionGenerationJS {
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		JSExpr f = context.mock(JSExpr.class, "f");
 		JSExpr iv = context.mock(JSExpr.class, "iv");
-		JSExpr sv = context.mock(JSExpr.class, "sv");
+		JSString sv = new JSString("s");
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
@@ -400,7 +401,7 @@ public class ExpressionGenerationJS {
 		ApplyExpr ae = new ApplyExpr(pos, fn, new NumericLiteral(pos, "42", 2), new StringLiteral(pos, "hello"));
 		JSExpr f = context.mock(JSExpr.class, "f");
 		JSExpr iv = context.mock(JSExpr.class, "iv");
-		JSExpr sv = context.mock(JSExpr.class, "sv");
+		JSString sv = new JSString("s");
 		StackVisitor stackv = new StackVisitor();
 		stackv.push(nv);
 		context.checking(new Expectations() {{
@@ -452,7 +453,7 @@ public class ExpressionGenerationJS {
 		fn.bind(consT);
 		nilOp.bind(nilT);
 		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"), nilOp);
-		JSExpr s = context.mock(JSExpr.class, "s");
+		JSString s = new JSString("s");
 		JSExpr nil = context.mock(JSExpr.class, "nil");
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		context.checking(new Expectations() {{
@@ -473,7 +474,7 @@ public class ExpressionGenerationJS {
 		UnresolvedVar fn = new UnresolvedVar(pos, "Cons");
 		fn.bind(LoadBuiltins.cons);
 		ApplyExpr ae = new ApplyExpr(pos, fn, new StringLiteral(pos, "hello"));
-		JSExpr s = context.mock(JSExpr.class, "s");
+		JSString s = new JSString("s");
 		JSExpr cons = context.mock(JSExpr.class, "cons");
 		JSExpr curry = context.mock(JSExpr.class, "curry");
 		context.checking(new Expectations() {{
@@ -498,7 +499,7 @@ public class ExpressionGenerationJS {
 		AnonymousVar uv = new AnonymousVar(pos);
 		ApplyExpr ae = new ApplyExpr(pos, fn, uv, new StringLiteral(pos, "hello"));
 		JSExpr f = context.mock(JSExpr.class, "f");
-		JSExpr sv = context.mock(JSExpr.class, "sv");
+		JSString sv = new JSString("s");
 		context.checking(new Expectations() {{
 			oneOf(meth).pushFunction("test.repo.f", fnName, 2); will(returnValue(f));
 			oneOf(meth).string("hello"); will(returnValue(sv));
@@ -520,7 +521,7 @@ public class ExpressionGenerationJS {
 		errT.addField(new StructField(pos, errT, false, LoadBuiltins.stringTR, "msg"));
 		err.bind(errT);
 		ApplyExpr ae = new ApplyExpr(pos, err, lit);
-		JSExpr s = context.mock(JSExpr.class, "s");
+		JSString s = new JSString("s");
 		JSExpr errjs = context.mock(JSExpr.class, "errjs");
 		context.checking(new Expectations() {{
 			oneOf(meth).string("error message"); will(returnValue(s));
@@ -647,7 +648,7 @@ public class ExpressionGenerationJS {
 		JSExpr fv = context.mock(JSExpr.class, "fv");
 		JSExpr msi = context.mock(JSExpr.class, "msi");
 		JSExpr n1 = context.mock(JSExpr.class, "n1");
-		JSExpr s1 = context.mock(JSExpr.class, "s1");
+		JSString s1 = new JSString("s");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("from"); will(returnValue(fv));
 			oneOf(meth).makeSend("f", fv, 2, null); will(returnValue(msi));
@@ -704,7 +705,7 @@ public class ExpressionGenerationJS {
 		JSExpr fv = context.mock(JSExpr.class, "fv");
 		JSExpr msi = context.mock(JSExpr.class, "msi");
 		JSExpr n1 = context.mock(JSExpr.class, "n1");
-		JSExpr s1 = context.mock(JSExpr.class, "s1");
+		JSString s1 = new JSString("s");
 		context.checking(new Expectations() {{
 			oneOf(meth).boundVar("from"); will(returnValue(fv));
 			oneOf(meth).makeAcor((FunctionName) ma.name(), fv, 2); will(returnValue(msi));

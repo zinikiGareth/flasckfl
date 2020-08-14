@@ -13,7 +13,6 @@ import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
-import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -21,8 +20,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.jvm.J;
-import org.zinutils.bytecode.GenericAnnotator;
-import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.exceptions.NotImplementedException;
 

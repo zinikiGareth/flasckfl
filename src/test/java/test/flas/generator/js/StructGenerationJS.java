@@ -13,6 +13,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSCompare;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
@@ -44,7 +45,7 @@ public class StructGenerationJS {
 		JSMethodCreator eval = context.mock(JSMethodCreator.class, "eval");
 		JSMethodCreator aya = context.mock(JSMethodCreator.class, "areYouA");
 		JSExpr obj = context.mock(JSExpr.class);
-		JSExpr str = context.mock(JSExpr.class, "str");
+		JSString str = new JSString("str");
 		JSIfCreator ie = context.mock(JSIfCreator.class, "ie");
 		RepositoryReader repo = context.mock(RepositoryReader.class);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
@@ -90,8 +91,8 @@ public class StructGenerationJS {
 		JSMethodCreator ctorBlock = context.mock(JSMethodCreator.class, "ctor");
 		JSMethodCreator eval = context.mock(JSMethodCreator.class);
 		JSExpr obj = context.mock(JSExpr.class, "obj");
-		JSExpr str = context.mock(JSExpr.class, "str");
-		JSExpr strS = context.mock(JSExpr.class, "s");
+		JSString str = new JSString("str");
+		JSString strS = new JSString("s");
 		RepositoryReader repo = context.mock(RepositoryReader.class);
 		StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, sn, true, new ArrayList<>());
 		JSVar jsa = new JSVar("_cxt");

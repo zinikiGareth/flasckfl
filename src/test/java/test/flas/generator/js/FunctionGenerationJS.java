@@ -15,6 +15,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
+import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.hsi.ArgSlot;
@@ -72,7 +73,7 @@ public class FunctionGenerationJS {
 	
 	@Test
 	public void aMinimalHSIFunction() {
-		JSExpr sret = context.mock(JSExpr.class, "sret");
+		JSString sret = new JSString("s");
 		JSExpr cxt = new JSVar("cxt");
 		JSExpr slot0 = new JSVar("slot0");
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
@@ -187,8 +188,8 @@ public class FunctionGenerationJS {
 
 	@Test
 	public void aTwoConstructorHSIFunction() {
-		JSExpr sret = context.mock(JSExpr.class, "sret");
-		JSExpr gret = context.mock(JSExpr.class, "gret");
+		JSString sret = new JSString("s");
+		JSString gret = new JSString("g");
 		JSExpr cxt = new JSVar("cxt");
 		JSExpr slot0 = new JSVar("slot0");
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");
@@ -282,7 +283,7 @@ public class FunctionGenerationJS {
 	@Test
 	public void constructorOrVar() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
 		JSGenerator.forTests(meth, cxt, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
@@ -339,7 +340,7 @@ public class FunctionGenerationJS {
 	@Test
 	public void numericConstants() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
 		JSGenerator.forTests(meth, cxt, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
@@ -394,7 +395,7 @@ public class FunctionGenerationJS {
 	@Test
 	public void stringConstants() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
 		JSGenerator.forTests(meth, cxt, gen);
 		FunctionName name = FunctionName.function(pos, pkg, "x");
@@ -449,7 +450,7 @@ public class FunctionGenerationJS {
 	@Test
 	public void nestedSwitching() {
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
 		JSGenerator.forTests(meth, cxt, gen);
 		
@@ -512,7 +513,7 @@ public class FunctionGenerationJS {
 	public void nestedSwitchingWithTwoCases() {
 		FunctionName name = FunctionName.function(pos, pkg, "c");
 		JSExpr cxt = context.mock(JSExpr.class, "cxt");
-		JSExpr dummy = context.mock(JSExpr.class, "dummy");
+		JSString dummy = new JSString("s");
 		StackVisitor gen = new StackVisitor();
 		JSGenerator.forTests(meth, cxt, gen);
 		
@@ -619,7 +620,7 @@ public class FunctionGenerationJS {
 
 	@Test
 	public void stateIsCleanedUpBetweenFunctions() {
-		JSExpr sret = context.mock(JSExpr.class, "sret");
+		JSString sret = new JSString("s");
 		JSExpr cxt = new JSVar("cxt");
 		JSExpr slot0 = new JSVar("slot0");
 		JSBlockCreator isNil = context.mock(JSBlockCreator.class, "isNil");

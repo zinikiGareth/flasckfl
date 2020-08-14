@@ -58,7 +58,7 @@ public class ContractGenerationJS {
 	public void contractMethodGetsGenerated() {
 		JSClassCreator clz = context.mock(JSClassCreator.class, "clz");
 		JSMethodCreator meth = context.mock(JSMethodCreator.class, "meth");
-		JSExpr jse = context.mock(JSExpr.class, "string");
+		JSString jse = new JSString("jse");
 		JSExpr jsa = context.mock(JSExpr.class, "array");
 		SolidName cname = new SolidName(pkg, "MyContract");
 		ContractDecl cd = new ContractDecl(pos, pos, ContractType.CONTRACT, cname);

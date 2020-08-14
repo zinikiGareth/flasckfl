@@ -14,6 +14,7 @@ import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
+import org.flasck.flas.compiler.jsgen.form.JSString;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -100,7 +101,7 @@ public class GuardGenerationJS {
 		JSBlockCreator noGuard = context.mock(JSBlockCreator.class, "noGuard");
 		JSIfExpr guard = new JSIfExpr(null, yesGuard, noGuard);
 		JSExpr r1 = context.mock(JSExpr.class, "r1");
-		JSExpr r2 = context.mock(JSExpr.class, "r2");
+		JSExpr r2 = new JSString("hello");
 
 		context.checking(new Expectations() {{
 			oneOf(meth).structConst(new SolidName(null, "True")); will(returnValue(ge));

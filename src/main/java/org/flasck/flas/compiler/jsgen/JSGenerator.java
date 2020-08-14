@@ -208,9 +208,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = e.name().packageName().jsName();
 		NameOfThing cxName = e.name().inContext;
 		jse.ensurePackageExists(pkg, cxName.jsName());
-		this.meth = jse.newFunction(null, pkg, cxName, false, e.name().name);
+		this.meth = jse.newFunction(e.name(), pkg, cxName, false, e.name().name);
 			
 		this.meth.argument("_cxt");
+		this.meth.argumentList();
 		this.block = meth;
 		this.state = new JSFunctionStateStore(meth, null);
 		sv.push(new ExprGeneratorJS(state, sv, this.block, false));
@@ -222,9 +223,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		String pkg = e.name().packageName().jsName();
 		NameOfThing cxName = e.name().inContext;
 		jse.ensurePackageExists(pkg, cxName.jsName());
-		this.meth = jse.newFunction(null, pkg, cxName, false, e.name().name);
+		this.meth = jse.newFunction(e.name(), pkg, cxName, false, e.name().name);
 			
 		this.meth.argument("_cxt");
+		this.meth.argumentList();
 		this.block = meth;
 		this.state = new JSFunctionStateStore(meth, null);
 		this.meth.returnObject(meth.defineTupleMember(e));

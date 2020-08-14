@@ -1,6 +1,12 @@
 package org.flasck.flas.compiler.jsgen.form;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSMakeTuple implements JSExpr {
@@ -31,8 +37,13 @@ public class JSMakeTuple implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		List<IExpr> arr = new ArrayList<IExpr>();
+		for (JSExpr e : args) {
+			arr.add(jvm.arg(e));
+		}
+		IExpr mt = md.callInterface(J.OBJECT, jvm.cxt(), "makeTuple", md.arrayOf(J.OBJECT, arr));
+		jvm.local(this, mt);
 	}
 
 }
