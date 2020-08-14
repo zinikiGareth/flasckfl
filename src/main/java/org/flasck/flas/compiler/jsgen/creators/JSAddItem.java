@@ -1,6 +1,9 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
+import org.flasck.flas.compiler.jsgen.form.JSVar;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -38,8 +41,9 @@ public class JSAddItem implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr ai = md.callVirtual("void", md.myThis(), "_addItemWithName", jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), jvm.argAsIs(new JSVar("parent")), jvm.argAsIs(new JSVar("currNode")), md.stringConst(templateName), md.intConst(posn), jvm.arg(expr), jvm.argAsIs(tc));
+		jvm.local(this, ai);
 	}
 
 }

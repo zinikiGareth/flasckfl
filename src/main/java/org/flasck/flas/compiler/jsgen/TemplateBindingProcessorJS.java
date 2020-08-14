@@ -26,6 +26,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.jvm.J;
 import org.ziniki.splitter.FieldType;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.NotImplementedException;
@@ -122,11 +123,12 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 						throw new NotImplementedException("No mapping for " + currentTBO.assignsTo.text);
 					int ucidx = containerIdx.getAndIncrement();
 					JSMethodCreator uc = templateCreator.createMethod("_updateContainer" + ucidx, true);
-					uc.argument("_cxt");
-					uc.argument("_renderTree");
-					uc.argument("parent");
-					uc.argument("currNode");
+					uc.argument(J.FLEVALCONTEXT, "_cxt");
+					uc.argument(J.RENDERTREE, "_renderTree");
+					uc.argument(J.ELEMENT, "parent");
+					uc.argument(J.ELEMENT, "currNode");
 					uc.argument("e");
+					uc.returnsType("void");
 					JSVar expr = uc.arg(4);
 					if (mapping.size() == 1) {
 						templateMember(uc, mapping.values().iterator().next(), expr);
@@ -139,6 +141,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 						}
 						block.error(expr);
 					}
+					uc.returnVoid();
 					bindingBlock.updateContainer(b.assignsTo, (JSExpr) r, ucidx);
 				} else
 					bindingBlock.updateContent(templateName, b.assignsTo, option, source, (JSExpr) r);

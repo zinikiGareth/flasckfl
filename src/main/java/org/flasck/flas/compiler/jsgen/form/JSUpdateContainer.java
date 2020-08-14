@@ -2,6 +2,9 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.parsedForm.TemplateField;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -35,7 +38,8 @@ public class JSUpdateContainer implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr uc = md.callVirtual("void", jvm.argAsIs(new JSThis()), "_updateContainer", jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), md.stringConst(field.text), jvm.arg(expr), md.intConst(ucidx));
+		jvm.local(this, uc);
 	}
 }
