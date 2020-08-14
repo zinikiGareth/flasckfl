@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
@@ -66,7 +67,7 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 				else {
 					JSExpr doAnd = cond;
 					if (si.cond != null)
-						doAnd = currentBlock.closure(false, currentBlock.pushFunction("FLBuiltin.boolAnd", null, -1), cond, si.cond);
+						doAnd = currentBlock.closure(false, currentBlock.pushFunction("FLBuiltin.boolAnd", FunctionName.function(null, null, "And"), -1), cond, si.cond);
 					styles.add(new JSStyleIf(doAnd, si.style));
 				}
 			}

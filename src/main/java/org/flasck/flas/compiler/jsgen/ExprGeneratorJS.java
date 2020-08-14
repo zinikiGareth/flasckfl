@@ -154,7 +154,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
 				StandaloneMethod fn = (StandaloneMethod) defn;
-				makeFunctionClosure(false, null, myName, fn.argCount());
+				makeFunctionClosure(false, fn.name(), myName, fn.argCount());
 			} else
 				sv.result(block.pushFunction(myName, (FunctionName) defn.name(), nargs));
 		} else if (defn instanceof ObjectMethod) {
@@ -163,7 +163,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				ObjectMethod fn = (ObjectMethod) defn;
 				makeFunctionClosure(true, null, myName, fn.argCount());
 			} else
-				sv.result(block.pushFunction(myName, null, nargs));
+				sv.result(block.pushFunction(myName, (FunctionName) defn.name(), nargs));
 		} else if (defn instanceof StructDefn) {
 			// if the constructor has no args, eval it here
 			// otherwise leave it until "leaveExpr" or "leaveFunction"
