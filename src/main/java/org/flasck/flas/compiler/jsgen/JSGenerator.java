@@ -289,10 +289,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		templateCreator.implementsJava(J.AREYOUA);
 		templateCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
 		templateCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.FLCARD), "_card");
+		for (ObjectContract c : obj.contracts) {
+			templateCreator.field(false, Access.PROTECTED, c.implementsType().defn().name(), c.varName().baseName());
+		}
 
 		JSMethodCreator areYouA = templateCreator.createMethod("_areYouA", true);
-		areYouA.argument("_cxt");
-		areYouA.argument("ty");
+		areYouA.argument(J.EVALCONTEXT, "_cxt");
+		areYouA.argument(J.STRING, "ty");
 		areYouA.returnsType("boolean");
 		areYouA.returnCompare(areYouA.arg(1), areYouA.string(obj.name().jsName()));
 		JSMethodCreator ud = templateCreator.createMethod("_updateDisplay", true);

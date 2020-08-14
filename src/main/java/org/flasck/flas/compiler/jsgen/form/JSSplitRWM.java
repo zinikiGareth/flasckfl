@@ -1,6 +1,9 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.flasck.jvm.J;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSSplitRWM implements JSExpr {
@@ -28,7 +31,9 @@ public class JSSplitRWM implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr then = md.voidExpr(md.aNull());
+		IExpr ib = md.ifBoolean(md.instanceOf(jvm.arg(var), J.RESPONSE_WITH_MESSAGES), then, null);
+		jvm.local(this, ib);
 	}
 }

@@ -6,14 +6,12 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IExpr;
-import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 
 public interface JVMCreationContext {
 	JVMCreationContext split();
-	void inherit(boolean isFinal, Access access, String type, String name);
 	void done(JSBlockCreator meth);
 
 	ByteCodeSink clazz();

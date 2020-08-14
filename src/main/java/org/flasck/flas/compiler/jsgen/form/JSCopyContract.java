@@ -1,6 +1,8 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -33,8 +35,9 @@ public class JSCopyContract implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr ac = md.assign(md.getField(jvm.argAsIs(copyInto), fld), jvm.arg(new JSVar(arg)));
+		jvm.local(this, ac);
 	}
 
 }

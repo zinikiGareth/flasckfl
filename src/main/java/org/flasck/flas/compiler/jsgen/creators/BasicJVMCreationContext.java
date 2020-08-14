@@ -195,11 +195,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 	
 	@Override
-	public void inherit(boolean isFinal, Access access, String type, String name) {
-		bcc.inheritsField(isFinal, access, type, name);
-	}
-	
-	@Override
 	public ByteCodeSink clazz() {
 		return bcc;
 	}

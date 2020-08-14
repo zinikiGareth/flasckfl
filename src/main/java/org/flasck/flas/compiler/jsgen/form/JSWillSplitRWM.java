@@ -1,6 +1,8 @@
 package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class JSWillSplitRWM implements JSExpr {
@@ -24,7 +26,8 @@ public class JSWillSplitRWM implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// TODO Auto-generated method stub
-		
+		NewMethodDefiner md = jvm.method();
+		IExpr cv = md.callVirtual("void", jvm.argAsIs(var), "splitRWM", jvm.argAsIs(ocmsgs));
+		jvm.local(this, cv);
 	}
 }

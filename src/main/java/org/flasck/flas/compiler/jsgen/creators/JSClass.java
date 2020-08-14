@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.CSName;
-import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.IVFWriter;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
@@ -136,7 +135,7 @@ public class JSClass implements JSClassCreator {
 			bcc.implementsInterface(s);
 		bcc.generateAssociatedSourceFile();
 		for (Field f : fields) {
-			FieldInfo fi = bcc.defineField(f.isFinal, f.access, f.type.javaName(), f.var);
+			FieldInfo fi = bcc.defineField(f.isFinal, f.access, f.type.javaClassName(), f.var);
 			if (f.value != null)
 				fi.constValue(f.value);
 		}
