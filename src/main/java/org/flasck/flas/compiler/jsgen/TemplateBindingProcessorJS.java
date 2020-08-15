@@ -141,7 +141,6 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 							templateMember(ifExpr.trueCase(), e.getValue(), expr);
 							block = ifExpr.falseCase();
 						}
-						block.error(expr);
 					}
 					uc.returnVoid();
 					bindingBlock.updateContainer(b.assignsTo, (JSExpr) r, ucidx);

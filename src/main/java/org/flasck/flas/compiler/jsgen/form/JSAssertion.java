@@ -42,11 +42,11 @@ public class JSAssertion implements IVForm {
 		for (JSExpr e : args) {
 			if (!jvm.hasLocal(e))
 				e.generate(jvm);
-			if (("event".equals(meth) || "matchText".equals(meth)) && ai == 1)
+			if (("event".equals(meth) || "matchText".equals(meth) || "matchStyle".equals(meth)) && ai == 1)
 				as.add(jvm.argAs(e, new JavaType(List.class.getName())));
-			else if ("matchText".equals(meth) && ai == 2)
+			else if (("matchText".equals(meth) || "matchStyle".equals(meth)) && ai == 2)
 				as.add(jvm.argAs(e, JavaType.boolean_));
-			else if ("matchText".equals(meth) && ai == 3)
+			else if (("matchText".equals(meth) || "matchStyle".equals(meth)) && ai == 3)
 				as.add(jvm.argAs(e, JavaType.string));
 			else if ("shove".equals(meth) && ai == 1)
 				as.add(jvm.argAs(e, JavaType.string));
