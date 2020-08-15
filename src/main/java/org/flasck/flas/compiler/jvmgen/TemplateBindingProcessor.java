@@ -221,12 +221,12 @@ public class TemplateBindingProcessor extends LeafAdapter implements ResultAware
 				arr.add(si.style);
 			}
 			
-			IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(templateName), ty, tx, fs.meth.intConst(option), source, ce, fs.meth.arrayOf(J.OBJECT, arr));
+			IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(templateName), ty, tx, fs.meth.intConst(option), source, fs.meth.as(ce, J.OBJECT), fs.meth.arrayOf(J.OBJECT, arr));
 			block.add(doUpdate);
 			styles.clear();
 			cexpr.clear();
 		} else if (hasStylingEvents) {
-			IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(templateName), ty, tx, fs.meth.intConst(option), source, fs.meth.as(fs.meth.aNull(), J.STRING), fs.meth.arrayOf(J.OBJECT));
+			IExpr doUpdate = fs.meth.callVirtual("void", fs.container, "_updateStyles", fs.fcx, fs.renderTree(), fs.meth.stringConst(templateName), ty, tx, fs.meth.intConst(option), source, fs.meth.aNull(), fs.meth.arrayOf(J.OBJECT));
 			block.add(doUpdate);
 		}
 	}

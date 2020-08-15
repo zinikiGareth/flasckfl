@@ -77,11 +77,11 @@ public class JSUpdateStyle implements JSExpr {
 		}
 		IExpr ce;
 		if (constant == null)
-			ce = md.as(md.aNull(), J.STRING);
+			ce = md.aNull();
 		else {
 			if (!jvm.hasLocal(constant))
 				constant.generate(jvm);
-			ce = jvm.argAs(constant, JavaType.string);
+			ce = jvm.arg(constant);
 		}
 		List<IExpr> arr = new ArrayList<>();
 		for (JSStyleIf si : vars) {

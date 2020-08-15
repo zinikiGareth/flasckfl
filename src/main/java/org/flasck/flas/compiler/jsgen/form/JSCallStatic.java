@@ -33,7 +33,10 @@ public class JSCallStatic implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		IExpr expr = md.makeNew(J.CALLSTATIC, md.classConst(meth.container().javaName()), md.stringConst(meth.baseName()), md.intConst(nargs));
+		String name = meth.container().javaName();
+		if ("FLBuiltin".equals(name))
+			name = J.FLEVAL;
+		IExpr expr = md.makeNew(J.CALLSTATIC, md.classConst(name), md.stringConst(meth.baseName()), md.intConst(nargs));
 		jvm.local(this, expr);
 	}
 }

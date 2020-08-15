@@ -182,7 +182,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 			else if (cexpr.size() == 1)
 				ce = cexpr.get(0);
 			else
-				ce = bindingBlock.closure(false, bindingBlock.callStatic(FunctionName.function(null, new PackageName("FLBuiltin"), "concatMany"), 1), bindingBlock.jsArray(cexpr));
+				ce = bindingBlock.closure(false, bindingBlock.callStatic(FunctionName.function(null, new PackageName("FLBuiltin"), "concatMany"), 1), bindingBlock.makeArray(cexpr));
 
 			bindingBlock.updateStyle(templateName, update, option, source, ce, styles);
 			styles.clear();

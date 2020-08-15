@@ -86,7 +86,6 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 		else {
 			if (c != null)
 				exprs.add(0, currentBlock.string(c));
-//			ret = currentBlock.callMethod(new PackageName("FLBuiltin"), "concatMany", exprs.toArray(new JSExpr[exprs.size()]));
 			ret = currentBlock.closure(false, currentBlock.callStatic(FunctionName.function(null, new PackageName("FLBuiltin"), "concatMany"), 1), currentBlock.makeArray(exprs));
 		}
 		
