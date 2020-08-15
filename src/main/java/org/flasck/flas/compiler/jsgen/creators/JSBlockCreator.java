@@ -48,8 +48,6 @@ public interface JSBlockCreator {
 	JSExpr mockHandler(SolidName name);
 	JSExpr createObject(NameOfThing name);
 	JSExpr createObject(NameOfThing name, List<JSExpr> args);
-	JSExpr createAgent(CardName cardName);
-	JSExpr createCard(CardName cardName);
 	JSExpr makeSend(String sendMeth, JSExpr obj, int nargs, JSExpr handler);
 	JSExpr makeAcor(FunctionName acorMeth, JSExpr obj, int nargs);
 	JSExpr introduceVar(String var);
@@ -110,6 +108,9 @@ public interface JSBlockCreator {
 	JSExpr storeMockObject(UnitDataDeclaration udd, JSExpr value);
 	void assertSatisfied(JSExpr m);
 	void newdiv(Integer cnt);
+	JSExpr createAgent(CardName cardName);
+	JSExpr createCard(CardName cardName);
+	JSExpr createService(CardName name);
 
 	// Send the block to disk
 	JSExpr singleton();

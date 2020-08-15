@@ -4,6 +4,8 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.bytecode.JavaInfo.Access;
 
 public interface JSClassCreator {
+	void notJS();
+	boolean wantJS();
 	void justAnInterface();
 	void inheritsFrom(NameOfThing baseClass, String javaName);
 	void implementsJava(String clz);

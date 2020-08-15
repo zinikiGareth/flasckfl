@@ -36,6 +36,7 @@ public class JSClass implements JSClassCreator {
 	private final JSEnvironment jse;
 	private final NameOfThing name;
 	private final JSMethod ctor;
+	private boolean genJS = true;
 	private NameOfThing baseClass;
 	private String javaBase;
 	private boolean isInterface;
@@ -52,6 +53,16 @@ public class JSClass implements JSClassCreator {
 
 	public String name() {
 		return name.jsName();
+	}
+
+	@Override
+	public void notJS() {
+		this.genJS = false;
+	}
+
+	@Override
+	public boolean wantJS() {
+		return genJS;
 	}
 
 	@Override
@@ -104,6 +115,8 @@ public class JSClass implements JSClassCreator {
 	}
 
 	public void writeTo(IndentWriter iw) {
+		if (!genJS)
+			return;
 		ctor.write(iw);
 		if (this.baseClass != null) {
 			iw.println(name.jsName() + ".prototype = new " + this.baseClass.jsName() + "();");

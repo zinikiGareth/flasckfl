@@ -351,10 +351,6 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public void visitObjectMethod(ObjectMethod om) {
 		if (!om.generate)
 			return;
-		if (om.hasImplements() && om.getImplements().getParent() instanceof ServiceDefinition) {
-			new DontGenerateJSServices(sv);
-			return;
-		}
 		switchVars.clear();
 		if (!om.isConverted()) {
 			this.meth = null;
@@ -365,6 +361,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
 		this.meth = jse.newFunction(om.name(), pkg, om.name().container(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent() /**/ || om.hasState() /**/, om.name().name);
 		if (om.hasImplements()) {
+			if (om.getImplements().getParent() instanceof ServiceDefinition) {
+				this.meth.noJS();
+			}
 			Implements impl = om.getImplements();
 			this.methodMap.get(impl).add(om.name());
 			if (impl instanceof HandlerImplements && ((HandlerImplements)impl).getParent() == null)
@@ -659,8 +658,23 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 	
 	@Override
-	public void visitServiceDefn(ServiceDefinition ad) {
-		new DontGenerateJSServices(sv);
+	public void visitServiceDefn(ServiceDefinition sd) {
+		String pkg = sd.name().container().jsName();
+		jse.ensurePackageExists(pkg, pkg);
+		agentCreator = jse.newClass(pkg, sd.name());
+		agentCreator.notJS();
+		templateCreator = agentCreator;
+		agentCreator.inheritsFrom(null, J.CONTRACT_HOLDER);
+		agentCreator.inheritsField(true, Access.PROTECTED, new PackageName(J.CONTRACTSTORE), "store");
+		JSMethodCreator ctor = agentCreator.constructor();
+		JSVar ctrCxt = ctor.argument(J.FLEVALCONTEXT, "_cxt");
+		ctor.superArg(ctrCxt);
+		JSMethodCreator meth = agentCreator.createMethod("name", true);
+		meth.argument("_cxt");
+		meth.returnObject(new JSString(sd.name().uniqueName()));
+		containerIdx = new AtomicInteger(1);
+		List<FunctionName> methods = new ArrayList<>();
+		methodMap.put(sd, methods);
 	}
 	
 	@Override
@@ -684,6 +698,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(p.actualType().name(), csn);
 		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn);
+		if (!agentCreator.wantJS())
+			svc.notJS();
 		svc.constructor().argument(J.FLEVALCONTEXT, "_cxt");
 		svc.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
 		// TODO: we need to "declare" the field _card here for the benefit of the JVM generator
@@ -692,7 +708,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		svc.constructor().setField(false, "_card", new JSVar("_incard"));
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(p, methods);
-		jse.methodList(p.name(), methods);
+		if (agentCreator.wantJS()) {
+			jse.methodList(p.name(), methods);
+		}
 	}
 	
 	@Override
@@ -766,6 +784,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 
 	@Override
+	public void leaveServiceDefn(ServiceDefinition s) {
+		agentCreator = null;
+		templateCreator = null;
+		containerIdx = null;
+	}
+
+	@Override
 	public void leaveObjectDefn(ObjectDefn s) {
 		templateCreator = null;
 		containerIdx = null;
@@ -773,15 +798,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void visitUnitTest(UnitTestCase e) {
-		if (involvesServices(e)) {
-			new DontGenerateJSServices(sv);
-			return;
-		}
 		UnitTestName clzName = e.name;
 		if (currentOA != null)
 			throw new NotImplementedException("I don't think you can nest a unit test in an accessor");
 		NameOfThing pkg = clzName.container();
 		this.meth = jse.newFunction(clzName, pkg.jsName(), pkg, false, clzName.baseName());
+		if (involvesServices(e)) {
+			this.meth.noJS();
+		}
 		this.block = meth;
 		runner = meth.argument("runner");
 		meth.clear();
@@ -834,6 +858,9 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			state.addMock(udd, obj);
 		} else if (objty instanceof CardDefinition) {
 			JSExpr obj = meth.createCard((CardName) objty.name());
+			state.addMock(udd, obj);
+		} else if (objty instanceof ServiceDefinition) {
+			JSExpr obj = meth.createService((CardName) objty.name());
 			state.addMock(udd, obj);
 		} else if (objty instanceof StructDefn || objty instanceof UnionTypeDefn) {
 			new UDDGeneratorJS(sv, meth, state, this.block);

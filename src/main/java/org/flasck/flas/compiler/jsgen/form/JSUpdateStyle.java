@@ -8,7 +8,6 @@ import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
-import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;

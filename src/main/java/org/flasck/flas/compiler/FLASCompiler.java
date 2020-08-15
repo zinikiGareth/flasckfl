@@ -73,7 +73,8 @@ public class FLASCompiler {
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;
 	private ByteCodeEnvironment bce;
-	private boolean newJVM = Boolean.parseBoolean(System.getProperty("org.flasck.golden.rejvm"));
+	private String newJVMArg = System.getProperty("org.flasck.golden.rejvm");
+	private boolean newJVM = newJVMArg == null || Boolean.parseBoolean(newJVMArg);
 
 	public FLASCompiler(ErrorReporter errors, Repository repository) {
 		this.errors = errors;

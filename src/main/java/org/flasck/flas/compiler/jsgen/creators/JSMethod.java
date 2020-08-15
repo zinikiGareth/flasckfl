@@ -32,6 +32,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private String returnsA = J.OBJECT;
 	private List<JSExpr> superArgs = new ArrayList<>();
 	private boolean hasHandler;
+	private boolean genJS = true;
 
 	public JSMethod(JSStorage jse, NameOfThing fnName, NameOfThing pkg, boolean prototype, String name) {
 		this.jse = jse;
@@ -49,6 +50,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		return name;
 	}
 	
+	@Override
+	public void noJS() {
+		genJS = false;
+	}
+
 	@Override
 	public String jsName() {
 		if (name == null)
@@ -117,6 +123,8 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 
 	public void write(IndentWriter w) {
+		if (!genJS)
+			return;
 		w.println("");
 		w.print(clzName.jsName());
 		if (name != null) {

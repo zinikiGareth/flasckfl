@@ -7,6 +7,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public interface JSMethodCreator extends JSBlockCreator {
 	String jsName();
+	void noJS();
 	void argumentList();
 	JSVar argument(String type, String name);
 	JSVar argument(String name);
