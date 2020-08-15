@@ -24,7 +24,6 @@ import org.flasck.flas.compiler.jsgen.form.JSArray;
 import org.flasck.flas.compiler.jsgen.form.JSArrayElt;
 import org.flasck.flas.compiler.jsgen.form.JSAssertion;
 import org.flasck.flas.compiler.jsgen.form.JSBind;
-import org.flasck.flas.compiler.jsgen.form.JSCallMethod;
 import org.flasck.flas.compiler.jsgen.form.JSCallStatic;
 import org.flasck.flas.compiler.jsgen.form.JSClosure;
 import org.flasck.flas.compiler.jsgen.form.JSContractByVar;
@@ -202,13 +201,6 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr structArgs(NameOfThing name, JSExpr... args) {
 		JSLocal stmt = new JSLocal(creating, new JSEval(name, Arrays.asList(args)));
-		stmts.add(stmt);
-		return stmt;
-	}
-
-	@Override
-	public JSExpr callMethod(JSExpr obj, String meth, JSExpr... args) {
-		JSLocal stmt = new JSLocal(creating, new JSCallMethod(obj, meth, args));
 		stmts.add(stmt);
 		return stmt;
 	}

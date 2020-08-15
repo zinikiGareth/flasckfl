@@ -6,6 +6,7 @@ const CommonEnv = function(logger, broker) {
     this.structs = {};
     this.objects = {};
     this.objects['Random'] = Random;
+    this.objects['FLBuiltin'] = FLBuiltin;
     this.logger = logger;
     this.broker = broker;
 	this.nextDivId = 1;
@@ -677,11 +678,11 @@ FLCard.prototype._updateContent = function(_cxt, rt, templateName, field, option
 FLCard.prototype._updateStyle = function(_cxt, rt, templateName, type, field, option, source, constant, ...rest) {
     var styles = '';
     if (constant)
-        styles = constant;
+        styles = _cxt.full(constant);
     var evconds = [];
     for (var i=0;i<rest.length;i+=2) {
         if (_cxt.isTruthy(rest[i])) {
-            styles += ' ' + rest[i+1];
+            styles += ' ' + _cxt.full(rest[i+1]);
             evconds.push(true);
         } else {
             evconds.push(false);
@@ -1273,7 +1274,7 @@ FLBuiltin.drop = function(_cxt, quant, list) {
 }
 FLBuiltin.drop.nfargs = function() { return 2; }
 
-FLBuiltin.concatMany = function(_cxt, ...rest) {
+FLBuiltin.concatMany = function(_cxt, rest) {
 	var ret = "";
 	for (var i=0;i<rest.length;i++) {
 		var tmp = _cxt.full(rest[i]);
@@ -1285,6 +1286,7 @@ FLBuiltin.concatMany = function(_cxt, ...rest) {
 	}
 	return ret;
 }
+FLBuiltin.concatMany.nfargs = function() { return 1; }
 
 FLBuiltin.strlen = function(_cxt, str) {
 	str = _cxt.head(str);

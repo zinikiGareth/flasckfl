@@ -107,16 +107,6 @@ public class ClassGeneration {
 	}
 
 	@Test
-	public void methodsCanCreateApplyExprs() {
-		w = w.indent();
-		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
-		JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
-		assertNotNull(expr);
-		expr.write(w);
-		assertEquals("  const v1 = v.called(_cxt, true);\n", sw.toString());
-	}
-
-	@Test
 	public void methodsCanCallStaticFunctions() {
 		w = w.indent();
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
@@ -131,7 +121,7 @@ public class ClassGeneration {
 		w = w.indent();
 		JSMethod meth = new JSMethod(jse, null, null, false, "fred");
 		{
-			JSExpr expr = meth.callMethod(new JSVar("v"), "called", new JSLiteral("true"));
+			JSExpr expr = meth.pushFunction("test.repo.g", null, -1);
 			assertNotNull(expr);
 			expr.write(w);
 		}
@@ -140,7 +130,7 @@ public class ClassGeneration {
 			assertNotNull(expr);
 			expr.write(w);
 		}
-		assertEquals("  const v1 = v.called(_cxt, true);\n  const v2 = test.repo.f;\n", sw.toString());
+		assertEquals("  const v1 = test.repo.g;\n  const v2 = test.repo.f;\n", sw.toString());
 	}
 
 	@Test
@@ -226,19 +216,6 @@ public class ClassGeneration {
 		assertEquals("v1", callG.asVar());
 	}
 
-	@Test
-	public void aMethodIncludesItsActions() {
-		w = w.indent();
-		JSClass jsc = new JSClass(jse, new SolidName(new PackageName("pkg"), "Clz"));
-		JSMethodCreator meth = jsc.createMethod("test", false);
-		meth.argument("_cxt");
-		assertNotNull(meth);
-		JSExpr obj = meth.argument("arg1");
-		meth.callMethod(obj, "mymethod", obj);
-		meth.write(w);
-		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n    const v1 = arg1.mymethod(_cxt, arg1);\n  }\n\n  pkg.Clz.test.nfargs = function() { return 1; }\n", sw.toString());
-	}
-	
 	@Test
 	public void aPackageDefinesItsNesting() {
 		JSFile f = new JSFile("test.repo.pkg", null);

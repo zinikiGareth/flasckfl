@@ -31,7 +31,11 @@ public class JSError implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		IExpr err = md.callStatic(J.FLERROR, J.OBJECT, "eval", jvm.cxt(), md.arrayOf(J.OBJECT, md.stringConst(((JSString)msg).value())));
+		IExpr err;
+		if (msg instanceof JSString)
+			err = md.callStatic(J.FLERROR, J.OBJECT, "eval", jvm.cxt(), md.arrayOf(J.OBJECT, md.stringConst(((JSString)msg).value())));
+		else
+			err = md.callStatic(J.FLERROR, J.OBJECT, "eval", jvm.cxt(), md.arrayOf(J.OBJECT, jvm.arg(msg)));
 		IExpr ret = md.returnObject(err);
 		jvm.local(this, ret);
 	}

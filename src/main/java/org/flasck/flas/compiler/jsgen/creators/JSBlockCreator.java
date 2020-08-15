@@ -33,7 +33,6 @@ public interface JSBlockCreator {
 	JSExpr jsArray(List<JSExpr> arr);
 	JSExpr arrayElt(JSExpr tc, int i);
 	JSExpr makeTuple(JSExpr... args);
-	JSExpr callMethod(JSExpr obj, String meth, JSExpr... args);
 	JSExpr callStatic(NameOfThing clz, int nargs);
 	JSExpr cxtMethod(String meth, JSExpr... args);
 	JSExpr pushFunction(String meth, FunctionName name, int argcount);

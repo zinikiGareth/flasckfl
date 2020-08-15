@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.commonBase.Expr;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSIfCreator;
@@ -181,7 +183,7 @@ public class TemplateBindingProcessorJS extends LeafAdapter implements ResultAwa
 			else if (cexpr.size() == 1)
 				ce = cexpr.get(0);
 			else
-				ce = bindingBlock.callMethod(bindingBlock.literal("FLBuiltin"), "concatMany", cexpr.toArray(new JSExpr[cexpr.size()]));
+				ce = bindingBlock.closure(false, bindingBlock.callStatic(FunctionName.function(null, new PackageName("FLBuiltin"), "concatMany"), 1), bindingBlock.jsArray(cexpr));
 
 			bindingBlock.updateStyle(templateName, update, option, source, ce, styles);
 			styles.clear();

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
@@ -85,7 +86,8 @@ public class TemplateStylingJS extends LeafAdapter implements ResultAware {
 		else {
 			if (c != null)
 				exprs.add(0, currentBlock.string(c));
-			ret = currentBlock.callMethod(currentBlock.literal("FLBuiltin"), "concatMany", exprs.toArray(new JSExpr[exprs.size()]));
+//			ret = currentBlock.callMethod(new PackageName("FLBuiltin"), "concatMany", exprs.toArray(new JSExpr[exprs.size()]));
+			ret = currentBlock.closure(false, currentBlock.callStatic(FunctionName.function(null, new PackageName("FLBuiltin"), "concatMany"), 1), currentBlock.makeArray(exprs));
 		}
 		
 		// put ours before the nested ones because that is where it 'logically' comes
