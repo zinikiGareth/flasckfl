@@ -134,6 +134,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	private JSClassCreator agentCreator;
 	private JSClassCreator templateCreator;
 	private AtomicInteger containerIdx;
+	private boolean currentContractIsHandler;
 
 	public JSGenerator(RepositoryReader repository, JSStorage jse, StackVisitor sv, Map<EventHolder, EventTargetZones> eventMap) {
 		this.repository = repository;
@@ -554,12 +555,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		currentContract.constructor().argument(J.FLEVALCONTEXT, "_cxt");
 		jse.contract(cd);
 		if (cd.type == ContractType.HANDLER) {
+			this.currentContractIsHandler = true;
 			this.currentContract.inheritsFrom(new PackageName("IdempotentHandler"), J.OBJECT);
 			this.currentContract.implementsJava(J.IDEMPOTENTHANDLER);
 		}
 		JSMethodCreator ctrName = currentContract.createMethod("name", true);
 		ctrName.returnObject(new JSString(cd.name().uniqueName()));
 		JSMethodCreator methods = currentContract.createMethod("_methods", true);
+		methods.noJVM();
 		List<JSExpr> names = new ArrayList<>();
 		for (ContractMethodDecl m : cd.methods)
 			names.add(methods.string(m.name.name));
@@ -576,11 +579,15 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		meth.handlerArg();
 		meth.returnObject(new JSString("interface method for " + cmd.name.uniqueName()));
+
+		if (this.currentContractIsHandler && (cmd.name.name.equals("success") || cmd.name.name.contentEquals("failure")))
+			meth.noJVM();
 	}
 	
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
 		currentContract = null;
+		this.currentContractIsHandler = false;
 	}
 
 	@Override
@@ -605,6 +612,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(ad.name().uniqueName()));
 		JSMethodCreator ctrProvider = agentCreator.createMethod("_contract", false);
+		ctrProvider.noJVM();
 		ctrProvider.argument("_cxt");
 		ctrProvider.argument("_ctr");
 		this.structFieldHandler = sf -> {
@@ -643,6 +651,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		meth.argument("_cxt");
 		meth.returnObject(new JSString(cd.name().uniqueName()));
 		JSMethodCreator ctrProvider = agentCreator.createMethod("_contract", false);
+		ctrProvider.noJVM();
 		ctrProvider.argument("_cxt");
 		ctrProvider.argument("_ctr");
 		List<FunctionName> methods = new ArrayList<>();

@@ -33,6 +33,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	private List<JSExpr> superArgs = new ArrayList<>();
 	private boolean hasHandler;
 	private boolean genJS = true;
+	private boolean genJVM = true;
 
 	public JSMethod(JSStorage jse, NameOfThing fnName, NameOfThing pkg, boolean prototype, String name) {
 		this.jse = jse;
@@ -53,6 +54,11 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	@Override
 	public void noJS() {
 		genJS = false;
+	}
+
+	@Override
+	public void noJVM() {
+		genJVM = false;
 	}
 
 	@Override
@@ -160,7 +166,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 	
 	public void generate(ByteCodeEnvironment bce, boolean isInterface) {
-		if (bce != null && !"_init".equals(this.name) && !"_methods".equals(this.name) && !"_contract".equals(this.name)) {
+		if (bce != null && genJVM) {
 			JVMCreationContext jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, !this.prototype, wantArgumentList, args, returnsA, superArgs);
 			if (!isInterface) {
 				super.generate(jvm);

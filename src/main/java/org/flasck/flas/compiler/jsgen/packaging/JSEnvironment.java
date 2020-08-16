@@ -114,6 +114,7 @@ public class JSEnvironment implements JSStorage {
 			if (pkg.contains("._ut_"))
 				continue;
 			JSMethod ifn = new JSMethod(this, null, new PackageName(pkg), false, "_init");
+			ifn.noJVM();
 			ifn.argument("_cxt");
 			for (ContractDecl cd : contracts)
 				ifn.cxtMethod("registerContract", new JSString(cd.name().uniqueName()), ifn.newOf(cd.name()));
