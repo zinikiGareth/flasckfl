@@ -38,155 +38,148 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	private final Map<JSExpr, IExpr> stack = new HashMap<>();
 	private final Map<Slot, IExpr> slots = new HashMap<>();
 	private final Map<JSBlockCreator, IExpr> blocks = new HashMap<>();
-	private final boolean isStatic;
-	private final boolean isCtor;
+
+	static class MethodCxt {
+		ByteCodeSink bcc;
+		GenericAnnotator ann;
+		String returnsA;
+	}
+
+	// unit test
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, UnitTestName fnName, List<JSVar> as) {
+		bcc = bce.newClass(fnName.javaName());
+		bcc.generateAssociatedSourceFile();
+		GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "dotest");
+		PendingVar r1 = ann.argument(J.TESTHELPER, "runner");
+		PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
+		ann.returns(JavaType.void_);
+		md = ann.done();
+		cxt = c1.getVar();
+		args = null;
+		this.runner = r1.getVar();
+		vars.put(as.get(0), this.runner);
+	}
+
+	// ctor
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, List<JSVar> as, List<JSExpr> superArgs) {
+		if (clzName instanceof CSName)
+			bcc = bce.get(clzName.javaClassName());
+		else
+			bcc = bce.get(clzName.javaName());
+		GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+		PendingVar c1 = null;
+		Map<JSVar, PendingVar> tmp = new HashMap<>();
+		for (JSVar v : as) {
+			PendingVar ai = ann.argument(v.type(), v.asVar());
+			tmp.put(v, ai);
+			if (v.asVar().equals("_cxt"))
+				c1 = ai; 
+		}
+		md = ann.done();
+		cxt = c1.getVar();
+		for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
+			vars.put(e.getKey(), e.getValue().getVar());
+		}
+		args = null;
+		this.runner = null;
+		IExpr[] sas = new IExpr[superArgs.size()];
+		int i=0;
+		for (JSExpr jv : superArgs) {
+			if (jv instanceof JSVar)
+				sas[i++] = vars.get(jv);
+			else {
+				jv.generate(this);
+				sas[i++] = argAsIs(jv);
+			}
+		}
+		md.callSuper("void", bcc.getSuperClass(), "<init>", sas).flush();
+	}
+
+	// class member
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, boolean wantArgumentList, List<JSVar> as, String returnsA) {
+		this(figureMemberClassThings(bce, clzName, name, returnsA), wantArgumentList, as);
+	}
+
+	private static MethodCxt figureMemberClassThings(ByteCodeEnvironment bce, NameOfThing clzName, String name, String returnsA) {
+		MethodCxt ret = new MethodCxt();
+		ret.returnsA = returnsA;
+		if (clzName instanceof CSName)
+			ret.bcc = bce.get(clzName.javaClassName());
+		else
+			ret.bcc = bce.get(clzName.javaName());
+		ret.ann = GenericAnnotator.newMethod(ret.bcc, false, name);
+		return ret;
+	}
 	
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean isStatic, boolean wantArgumentList, List<JSVar> as, String returnsA, List<JSExpr> superArgs) {
-		this.isStatic = isStatic;
-		if (fnName == null && name == null) {
-			// it's a constructor
+	// "static" function
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean wantArgumentList, List<JSVar> as) {
+		this(figureStaticClassThings(bce, fnName, clzName, name, as.size()-1), wantArgumentList, as);
+	}
+
+	private static MethodCxt figureStaticClassThings(ByteCodeEnvironment bce, NameOfThing fnName, NameOfThing clzName, String name, int nfargs) {
+		MethodCxt ret = new MethodCxt();
+		ret.returnsA = J.OBJECT;
+		if (fnName == null) {
 			if (clzName instanceof CSName)
-				bcc = bce.get(clzName.javaClassName());
+				ret.bcc = bce.getOrCreate(clzName.javaClassName());
 			else
-				bcc = bce.get(clzName.javaName());
-			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar c1 = null;
-			Map<JSVar, PendingVar> tmp = new HashMap<>();
+				ret.bcc = bce.getOrCreate(clzName.javaName());
+		} else
+			ret.bcc = bce.getOrCreate(fnName.javaClassName());
+		ret.bcc.generateAssociatedSourceFile();
+		IFieldInfo fi = ret.bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
+		fi.constValue(nfargs);
+		ret.ann = GenericAnnotator.newMethod(ret.bcc, true, fnName != null || name == null ? "eval" : name);
+		return ret;
+	}
+
+	private BasicJVMCreationContext(MethodCxt mc, boolean wantArgumentList, List<JSVar> as) {
+		this.bcc = mc.bcc;
+		PendingVar c1 = null;
+		PendingVar a1 = null;
+		Map<JSVar, PendingVar> tmp = new HashMap<>();
+		if (wantArgumentList) {
+			c1 = mc.ann.argument(J.FLEVALCONTEXT, "cxt");
+			a1 = mc.ann.argument("[" + J.OBJECT, "args");
+		} else {
 			for (JSVar v : as) {
-				PendingVar ai = ann.argument(v.type(), v.asVar());
+				PendingVar ai = mc.ann.argument(v.type(), v.asVar());
 				tmp.put(v, ai);
 				if (v.asVar().equals("_cxt"))
 					c1 = ai; 
 			}
-			md = ann.done();
-			cxt = c1.getVar();
+		}
+		mc.ann.returns(mc.returnsA);
+		md = mc.ann.done();
+		cxt = c1 == null ? null : c1.getVar();
+		if (wantArgumentList) {
+			args = a1.getVar();
+			for (int ap=1;ap<as.size();ap++) {
+				JSVar v = as.get(ap);
+				stack.put(v, md.arrayElt(args, md.intConst(ap-1)));
+			}
+		} else {
+			args = null;
 			for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
 				vars.put(e.getKey(), e.getValue().getVar());
 			}
-			args = null;
-			this.runner = null;
-			this.isCtor = true;
-			IExpr[] sas = new IExpr[superArgs.size()];
-			int i=0;
-			for (JSExpr jv : superArgs) {
-				if (jv instanceof JSVar)
-					sas[i++] = vars.get(jv);
-				else {
-					jv.generate(this);
-					sas[i++] = argAsIs(jv);
-				}
-			}
-			md.callSuper("void", bcc.getSuperClass(), "<init>", sas).flush();
-		} else if (fnName instanceof UnitTestName) {
-			bcc = bce.newClass(fnName.javaName());
-			bcc.generateAssociatedSourceFile();
-			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "dotest");
-			PendingVar r1 = ann.argument(J.TESTHELPER, "runner");
-			PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
-			ann.returns(JavaType.void_);
-			md = ann.done();
-			cxt = c1.getVar();
-			args = null;
-			this.runner = r1.getVar();
-			vars.put(as.get(0), this.runner);
-			this.isCtor = false;
-		} else if (!isStatic) {
-			if (clzName instanceof CSName)
-				bcc = bce.get(clzName.javaClassName());
-			else
-				bcc = bce.get(clzName.javaName());
-			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, name);
-			PendingVar c1 = null;
-			PendingVar a1 = null;
-			Map<JSVar, PendingVar> tmp = new HashMap<>();
-			if (wantArgumentList) {
-				c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
-				a1 = ann.argument("[" + J.OBJECT, "args");
-			} else {
-				for (JSVar v : as) {
-					PendingVar ai = ann.argument(v.type(), v.asVar());
-					tmp.put(v, ai);
-					if (v.asVar().equals("_cxt"))
-						c1 = ai; 
-				}
-			}
-			ann.returns(returnsA);
-			md = ann.done();
-			cxt = c1 == null ? null : c1.getVar();
-			if (wantArgumentList) {
-				args = a1.getVar();
-				for (int ap=1;ap<as.size();ap++) {
-					JSVar v = as.get(ap);
-					stack.put(v, md.arrayElt(args, md.intConst(ap-1)));
-				}
-			} else {
-				args = null;
-				for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
-					vars.put(e.getKey(), e.getValue().getVar());
-				}
-			}
-			this.runner = null;
-			this.isCtor = false;
-		} else {
-			if (fnName == null) {
-				if (clzName instanceof CSName)
-					bcc = bce.getOrCreate(clzName.javaClassName());
-				else
-					bcc = bce.getOrCreate(clzName.javaName());
-			} else
-				bcc = bce.getOrCreate(fnName.javaClassName());
-			bcc.generateAssociatedSourceFile();
-			IFieldInfo fi = bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
-			fi.constValue(as.size()-1);
-			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, fnName != null || name == null ? "eval" : name);
-			PendingVar c1 = null;
-			PendingVar a1 = null;
-			Map<JSVar, PendingVar> tmp = new HashMap<>();
-			if (wantArgumentList) {
-				c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
-				a1 = ann.argument("[" + J.OBJECT, "args");
-			} else {
-				for (JSVar v : as) {
-					PendingVar ai = ann.argument(v.type(), v.asVar());
-					tmp.put(v, ai);
-					if (v.asVar().equals("_cxt"))
-						c1 = ai; 
-				}
-			}
-			ann.returns(J.OBJECT);
-			md = ann.done();
-			cxt = c1 == null ? null : c1.getVar();
-			if (wantArgumentList) {
-				args = a1.getVar();
-				for (int ap=1;ap<as.size();ap++) {
-					JSVar v = as.get(ap);
-					stack.put(v, md.arrayElt(args, md.intConst(ap-1)));
-				}
-			} else {
-				args = null;
-				for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
-					vars.put(e.getKey(), e.getValue().getVar());
-				}
-			}
-			this.runner = null;
-			this.isCtor = false;
 		}
+		this.runner = null;
 //		md.lenientMode(true);
 	}
 
-	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, Var runner, Var cxt, Var args, boolean isCtor, boolean isStatic) {
+	// split for if true/false blocks
+	private BasicJVMCreationContext(ByteCodeSink bcc, NewMethodDefiner md, Var runner, Var cxt, Var args) {
 		this.bcc = bcc;
 		this.md = md;
 		this.runner = runner;
 		this.cxt = cxt;
 		this.args = args;
-		this.isCtor = isCtor;
-		this.isStatic = isStatic;
 	}
 
 	@Override
 	public JVMCreationContext split() {
-		BasicJVMCreationContext ret = new BasicJVMCreationContext(bcc, md, runner, cxt, args, isCtor, isStatic);
+		BasicJVMCreationContext ret = new BasicJVMCreationContext(bcc, md, runner, cxt, args);
 		ret.vars.putAll(vars);
 		ret.stack.putAll(stack);
 		ret.slots.putAll(slots);
@@ -317,10 +310,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	@Override
 	public void done(JSBlockCreator blk) {
 		blk(blk).flush();
-		// we could avoid this hack by introducing an explicit JSReturnVoid which does nothing for JS but does this for JVM
-		if (isCtor) {
-			md.returnVoid().flush();
-		}
 	}
 
 	private String resolveOpName(String op) {

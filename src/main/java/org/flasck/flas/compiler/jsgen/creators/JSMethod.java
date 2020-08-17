@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
 import org.flasck.flas.compiler.jsgen.form.IVFWriter;
 import org.flasck.flas.compiler.jsgen.form.InitContext;
@@ -167,7 +168,15 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	
 	public void generate(ByteCodeEnvironment bce, boolean isInterface) {
 		if (bce != null && genJVM) {
-			JVMCreationContext jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, !this.prototype, wantArgumentList, args, returnsA, superArgs);
+			JVMCreationContext jvm;
+			if (fnName instanceof UnitTestName)
+				jvm = new BasicJVMCreationContext(bce, (UnitTestName)fnName, args);
+			else if (fnName == null && name == null)
+				jvm = new BasicJVMCreationContext(bce, clzName, args, superArgs);
+			else if (this.prototype)
+				jvm = new BasicJVMCreationContext(bce, clzName, name, wantArgumentList, args, returnsA);
+			else
+				jvm = new BasicJVMCreationContext(bce, clzName, name, fnName, wantArgumentList, args);
 			if (!isInterface) {
 				super.generate(jvm);
 				jvm.done(this);

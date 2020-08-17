@@ -249,6 +249,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		ctor.superArg(cx);
 		ctor.stateField(true);
 		ctor.storeField(true, this.evalRet, "_type", ctor.string(obj.name.uniqueName()));
+		ctor.returnVoid();
 		JSMethodCreator areYouA = ctr.createMethod("_areYouA", true);
 		areYouA.argument(J.EVALCONTEXT, "_cxt");
 		areYouA.argument(J.STRING, "ty");
@@ -314,6 +315,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		ctor.superArg(ic);
 		ctor.setField(true, "_card", ctor.arg(1));
 		ctor.stateField(true);
+		ctor.returnVoid();
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(obj, methods);
 		jse.eventMap(obj.name(), eventMap.get(obj));
@@ -552,7 +554,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		jse.ensurePackageExists(pkg, cd.name().container().jsName());
 		currentContract = jse.newClass(pkg, cd.name());
 		currentContract.justAnInterface();
-		currentContract.constructor().argument(J.FLEVALCONTEXT, "_cxt");
+		JSMethodCreator ctor = currentContract.constructor();
+		ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		jse.contract(cd);
 		if (cd.type == ContractType.HANDLER) {
 			this.currentContractIsHandler = true;
@@ -586,6 +589,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void leaveContractDecl(ContractDecl cd) {
+		currentContract.constructor().returnVoid();
 		currentContract = null;
 		this.currentContractIsHandler = false;
 	}
@@ -692,10 +696,12 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSBlockCreator ctor = agentCreator.constructor();
 		ctor.recordContract(ic.actualType().name(), csn);
 		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn);
-		svc.constructor().argument(J.FLEVALCONTEXT, "_cxt");
+		JSMethodCreator svcCtor = svc.constructor();
+		svcCtor.argument(J.FLEVALCONTEXT, "_cxt");
 		svc.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
-		svc.constructor().argument(J.OBJECT, "_incard");
-		svc.constructor().setField(false, "_card", new JSVar("_incard"));
+		svcCtor.argument(J.OBJECT, "_incard");
+		svcCtor.setField(false, "_card", new JSVar("_incard"));
+		svcCtor.returnVoid();
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(ic, methods);
 		jse.methodList(ic.name(), methods);
@@ -709,12 +715,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSClassCreator svc = jse.newClass(csn.packageName().jsName(), csn);
 		if (!agentCreator.wantJS())
 			svc.notJS();
-		svc.constructor().argument(J.FLEVALCONTEXT, "_cxt");
+		JSMethodCreator svcCtor = svc.constructor();
+		svcCtor.argument(J.FLEVALCONTEXT, "_cxt");
 		svc.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
 		// TODO: we need to "declare" the field _card here for the benefit of the JVM generator
 		// TODO: we probably also need to start declaring base classes - because that is currently assumed to be struct
-		svc.constructor().argument(J.OBJECT, "_incard");
-		svc.constructor().setField(false, "_card", new JSVar("_incard"));
+		svcCtor.argument(J.OBJECT, "_incard");
+		svcCtor.setField(false, "_card", new JSVar("_incard"));
+		svcCtor.returnVoid();
 		List<FunctionName> methods = new ArrayList<>();
 		methodMap.put(p, methods);
 		if (agentCreator.wantJS()) {
@@ -742,6 +750,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void leaveAgentDefn(AgentDefinition s) {
+		agentCreator.constructor().returnVoid();
 		agentCreator = null;
 	}
 	
@@ -787,6 +796,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void leaveCardDefn(CardDefinition s) {
+		agentCreator.constructor().returnVoid();
 		agentCreator = null;
 		templateCreator = null;
 		containerIdx = null;
@@ -794,6 +804,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	@Override
 	public void leaveServiceDefn(ServiceDefinition s) {
+		agentCreator.constructor().returnVoid();
 		agentCreator = null;
 		templateCreator = null;
 		containerIdx = null;

@@ -58,6 +58,7 @@ public class HIGeneratorJS extends LeafAdapter {
 			this.eval.argument("_incard");
 			args.add(new JSVar("_incard"));
 		}
+		hdlrCtor.returnVoid();
 		this.evalRet = eval.newOf(hi.name(), args);
 		this.eval.storeField(true, this.evalRet, "_type", this.eval.string(name.uniqueName()));
 		jse.handler(hi);
