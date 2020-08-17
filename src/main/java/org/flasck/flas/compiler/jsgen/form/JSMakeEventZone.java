@@ -33,8 +33,6 @@ public class JSMakeEventZone implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner meth = jvm.method();
 		JSString ty = (JSString) type;
-		if (!jvm.hasLocal(expr))
-			expr.generate(jvm);
 		IExpr ez = meth.makeNew(J.EVENTZONE, meth.stringConst(ty.value()), jvm.arg(expr));
 		jvm.local(this, ez);
 	}

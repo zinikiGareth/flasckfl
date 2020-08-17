@@ -39,8 +39,6 @@ public class JSClosure implements JSExpr, JSEffector {
 		IExpr[] grp = new IExpr[args.length-1];
 		for (int i=0;i<args.length;i++) {
 			JSExpr ai = args[i];
-			if (!jvm.hasLocal(ai))
-				ai.generate(jvm);
 			if (i == 0)
 				fn = jvm.arg(ai);
 			else

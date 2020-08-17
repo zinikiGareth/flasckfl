@@ -32,8 +32,6 @@ public class JSReturn implements IVForm {
 		if (jsExpr == null)
 			ret = md.returnVoid();
 		else {
-			if (!jvm.hasLocal(jsExpr))
-				jsExpr.generate(jvm);
 			ret = jvm.argAsIs(jsExpr);
 			if ("boolean".contentEquals(ret.getType()))
 				ret = md.returnBool(ret);

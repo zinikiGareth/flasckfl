@@ -40,15 +40,11 @@ public class JSStoreField implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		if (!jsOnly) {
-			if (!jvm.hasLocal(value))
-				value.generate(jvm);
 			IExpr arg = jvm.arg(value);
 			IExpr item;
 			if (inObj == null)
 				item = md.myThis();
 			else {
-				if (!jvm.hasLocal(inObj))
-					inObj.generate(jvm);
 				item = jvm.argAsIs(inObj);
 			}
 			IExpr svar = md.getField(item, "state");

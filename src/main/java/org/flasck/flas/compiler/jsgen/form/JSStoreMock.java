@@ -35,8 +35,6 @@ public class JSStoreMock implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		if (!jvm.hasLocal(value))
-			value.generate(jvm);
 		NewMethodDefiner md = jvm.method();
 		IExpr ret = md.callInterface(J.OBJECT, jvm.cxt(), "storeMock", jvm.arg(value));
 		jvm.local(this, ret);

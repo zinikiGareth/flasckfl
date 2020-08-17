@@ -44,8 +44,6 @@ public class JSLocal implements IVForm {
 	
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		if (!jvm.hasLocal(value))
-			value.generate(jvm);
 		IExpr arg = jvm.argAsIs(value);
 		if (arg == null)
 			throw new NotImplementedException("there is no value for " + value.getClass() + " " + value);

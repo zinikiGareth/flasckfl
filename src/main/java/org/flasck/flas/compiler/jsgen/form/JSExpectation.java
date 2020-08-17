@@ -48,12 +48,8 @@ public class JSExpectation implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		if (!jvm.hasLocal(mock))
-			mock.generate(jvm);
 		List<IExpr> stack = new ArrayList<>();
 		for (JSExpr je : args) {
-			if (!jvm.hasLocal(je))
-				je.generate(jvm);
 			stack.add(jvm.arg(je));
 		}
 		if (!jvm.hasLocal(handler)) {

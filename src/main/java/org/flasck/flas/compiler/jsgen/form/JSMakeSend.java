@@ -44,8 +44,6 @@ public class JSMakeSend implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		if (!jvm.hasLocal(obj))
-			obj.generate(jvm);
 		if (!jvm.hasLocal(handler)) {
 			if (handler != null)
 				handler.generate(jvm);

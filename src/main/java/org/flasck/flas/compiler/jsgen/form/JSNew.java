@@ -61,8 +61,6 @@ public class JSNew implements JSExpr {
 		List<IExpr> stack = new ArrayList<IExpr>();
 		stack.add(jvm.cxt());
 		for (JSExpr a : args) {
-			if (!jvm.hasLocal(a))
-				a.generate(jvm);
 			stack.add(jvm.arg(a));
 		}
 		IExpr ret = jvm.method().makeNew(clzName, stack.toArray(new IExpr[stack.size()]));

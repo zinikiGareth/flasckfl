@@ -24,8 +24,6 @@ public class JSExtractFromBoundVar implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		if (!jvm.hasLocal(boundVar))
-			boundVar.generate(jvm);
 		jvm.local(this, jvm.method().callVirtual(J.OBJECT, jvm.argAsIs(boundVar), "introduced"));
 	}
 

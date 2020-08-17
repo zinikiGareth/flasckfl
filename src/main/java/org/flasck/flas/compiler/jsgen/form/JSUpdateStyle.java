@@ -78,8 +78,6 @@ public class JSUpdateStyle implements JSExpr {
 		if (constant == null)
 			ce = md.aNull();
 		else {
-			if (!jvm.hasLocal(constant))
-				constant.generate(jvm);
 			ce = jvm.arg(constant);
 		}
 		List<IExpr> arr = new ArrayList<>();

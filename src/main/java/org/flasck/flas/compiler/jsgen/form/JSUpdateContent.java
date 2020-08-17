@@ -45,10 +45,6 @@ public class JSUpdateContent implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		if (!jvm.hasLocal(source))
-			source.generate(jvm);
-		if (!jvm.hasLocal(expr))
-			expr.generate(jvm);
 		IExpr me = md.callVirtual("void", jvm.argAsIs(new JSThis()), "_updateContent", jvm.cxt(), jvm.argAsIs(new JSVar("_renderTree")), md.stringConst(templateName), md.stringConst(field.text), md.intConst(this.option), jvm.arg(source), jvm.arg(expr));
 		jvm.local(this, me);
 	}

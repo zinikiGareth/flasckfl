@@ -28,8 +28,6 @@ public class JSSatisfaction implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner meth = jvm.method();
-		if (!jvm.hasLocal(expr))
-			expr.generate(jvm);
 		IExpr ret = meth.callInterface("void", meth.castTo(jvm.arg(expr), J.EXPECTING), "assertSatisfied", jvm.cxt());
 		jvm.local(this, ret);
 	}

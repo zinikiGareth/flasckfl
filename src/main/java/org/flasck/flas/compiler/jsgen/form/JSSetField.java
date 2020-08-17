@@ -52,8 +52,6 @@ public class JSSetField implements IVForm {
 			jvm.local(this, null);
 			return;
 		}
-		if (!jvm.hasLocal(value))
-			value.generate(jvm);
 		NewMethodDefiner ctor = jvm.method();
 		IExpr ret = ctor.assign(ctor.getField(field), jvm.argAsIs(value));
 		jvm.local(this, ret);

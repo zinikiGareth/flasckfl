@@ -44,8 +44,6 @@ public class JSXCurry implements JSExpr {
 		List<IExpr> stack = new ArrayList<>();
 		for (XCArg xc : args) {
 			JSExpr e = xc.expr;
-			if (!jvm.hasLocal(e))
-				e.generate(jvm);
 			if (fn == null)
 				fn = jvm.arg(e);
 			else {

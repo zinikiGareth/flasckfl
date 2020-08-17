@@ -27,8 +27,6 @@ public class IsTrueExpr implements JSExpr {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		if (!jvm.hasLocal(expr))
-			expr.generate(jvm);
 		IExpr ret = jvm.argAsIs(expr);
 		if (!ret.getType().equals("boolean")) {
 			NewMethodDefiner md = jvm.method();

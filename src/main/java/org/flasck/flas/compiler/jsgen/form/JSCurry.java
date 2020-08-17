@@ -42,8 +42,6 @@ public class JSCurry implements JSExpr {
 		IExpr fn = null;
 		List<IExpr> stack = new ArrayList<>();
 		for (JSExpr e : args) {
-			if (!jvm.hasLocal(e))
-				e.generate(jvm);
 			if (fn == null)
 				fn = jvm.arg(e);
 			else

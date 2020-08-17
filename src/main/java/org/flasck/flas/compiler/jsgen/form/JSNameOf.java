@@ -25,8 +25,6 @@ public class JSNameOf implements IVForm {
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		if (!jvm.hasLocal(expr))
-			expr.generate(jvm);
 		jvm.local(this, jvm.arg(expr));
 	}
 
