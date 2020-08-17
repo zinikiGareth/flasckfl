@@ -99,6 +99,7 @@ src/golden/stdlib/objects/random/test.golden
 src/golden/stdlib/objects/shuffle/test.golden
 src/golden/tuples/assignment/test.golden
 src/golden/functions/eventnv/test.golden
+src/golden/cards/events/calltop/test.golden
 src/golden/cards/templates/apply/test.golden
 src/golden/cards/templates/bindEvents/test.golden
 src/golden/cards/templates/bindexpr/test.golden
@@ -134,3 +135,5 @@ src/golden/entities/simple/fields-default/test.golden
 src/golden/entities/simple/fields/test.golden
 src/golden/services/trampoline/test.golden
 src/golden/services/allcontract/test.golden
+src/golden/functions/nestfunctions/test.golden
+src/golden/methods/eventnestfns/test.golden

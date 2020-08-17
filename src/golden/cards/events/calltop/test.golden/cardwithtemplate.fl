@@ -1,0 +1,8 @@
+	card WithTemplate
+		state
+			Number counter <- 0
+		
+		template hello
+		
+		event ontop (ClickEvent e)
+			counter <- 3

@@ -1,0 +1,6 @@
+One of the important features of FLAS is the ability to nest functions in inner scopes with variable bindings
+Check that this is all named correctly
+
+	test we can call a function that depends on a nested function
+		assert (f "hello")
+			2

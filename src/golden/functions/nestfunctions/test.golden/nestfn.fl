@@ -1,0 +1,5 @@
+	f x = g x
+		g y = 2
+	
+	h x = g
+		g = x

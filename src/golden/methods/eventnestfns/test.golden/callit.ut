@@ -1,0 +1,10 @@
+Event handlers should correctly name nested functions, which was not always the case (regression).
+
+This just checks that the eventual code works
+
+	test we can call an event handler with a correctly named nested method
+		data Nester n
+		event n _ (ClickEvent)
+		assert (n.counter)
+			3
+		

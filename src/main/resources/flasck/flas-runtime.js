@@ -1416,7 +1416,7 @@ ClickEvent.prototype._areYouA = function(cx, name) {
 }
 
 ClickEvent.prototype._makeJSEvent = function (_cxt) {
-    const ev = new Event("click");
+    const ev = new Event("click", { bubbles: true });
     return ev;
 }
 

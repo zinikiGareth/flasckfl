@@ -1,0 +1,8 @@
+Ensure that even when templates are defined, it is possible to call event handlers bound to the top card (regression).
+
+	test we can call an event handler on the top card even when it has a template
+		data WithTemplate n
+		event n _ (ClickEvent)
+		assert (n.counter)
+			3
+		

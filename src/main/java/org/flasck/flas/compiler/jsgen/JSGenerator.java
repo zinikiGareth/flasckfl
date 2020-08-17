@@ -193,10 +193,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = meth;
 		JSExpr st = null;
 		if (fn.hasState()) {
-//			if (fn.state() instanceof ObjectDefn) { // for acors at least ... what about just random nested functions?
-				st = new JSThis();
-//			} else
-//				st = new JSLiteral("_0");
+			st = new JSThis();
 		}
 		this.state = new JSFunctionStateStore(meth, st);
 	}

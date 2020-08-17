@@ -1,0 +1,14 @@
+	card Nester
+		state
+			Number counter <- 0
+		
+		template hello
+		
+		event useFn (ClickEvent e)
+			counter <- f 3
+				f x = counter + x 
+
+		event otherFn (ClickEvent e)
+			counter <- f 1
+				f n = n * 2
+	
