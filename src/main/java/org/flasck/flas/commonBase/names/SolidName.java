@@ -42,7 +42,7 @@ public class SolidName implements NameOfThing, Comparable<NameOfThing> {
 	public String javaPackageName() {
 		if (container == null)
 			return null;
-		return container.javaClassName();
+		return container.javaName();
 	}
 	
 	@Override

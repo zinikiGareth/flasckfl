@@ -21,6 +21,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -101,7 +102,7 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		List<Object> args = new ArrayList<>();
 		if (slotContainer == null) {
 			inner = (UnresolvedVar) msg.slot;
-			args.add(new CurrentContainer(msg.kw, null));
+			args.add(new CurrentContainer(msg.kw, (NamedType) this.oah.state()));
 		} else if (slotContainer instanceof UnresolvedVar && msg.assignsToCons()) {
 			inner = null;
 			args.add(slotContainer);

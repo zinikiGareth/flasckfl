@@ -35,7 +35,7 @@ public class JSRequireContract implements JSExpr {
 		NewMethodDefiner md = jvm.method();
 		IExpr ctrs = md.getField("store");
 		IExpr ret = md.callInterface("void", ctrs, "requireService", jvm.cxt(),
-				md.classConst(ctr.javaClassName()), md.stringConst(var));
+				md.classConst(ctr.javaName()), md.stringConst(var));
 		jvm.local(this, ret);
 	}
 

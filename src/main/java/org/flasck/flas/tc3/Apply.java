@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.StateHolder;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.ShouldBeError;
 
 public class Apply implements Type, SignatureNeedsParensType {
@@ -14,13 +15,20 @@ public class Apply implements Type, SignatureNeedsParensType {
 		if (types.length < 2)
 			throw new RuntimeException("Must have at least one input and one output");
 		tys = new ArrayList<>();
-		for (Type t : types)
+		for (Type t : types) {
+			if (t == null)
+				throw new CantHappenException("cannot have null type");
 			tys.add(t);
+		}
 	}
 
 	public Apply(List<Type> types) {
 		if (types.size() < 2)
 			throw new RuntimeException("Must have at least one input and one output");
+		for (Type t : types) {
+			if (t == null)
+				throw new CantHappenException("cannot have null type");
+		}
 		this.tys = types;
 	}
 
@@ -30,6 +38,10 @@ public class Apply implements Type, SignatureNeedsParensType {
 		tys = new ArrayList<>();
 		tys.addAll(argTypes);
 		tys.add(result);
+		for (Type t : tys) {
+			if (t == null)
+				throw new CantHappenException("cannot have null type");
+		}
 	}
 
 	@Override

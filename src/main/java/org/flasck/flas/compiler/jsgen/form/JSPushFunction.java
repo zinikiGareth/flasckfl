@@ -31,7 +31,7 @@ public class JSPushFunction implements JSExpr {
 			String push = jvm.figureName(name);
 			jvm.local(this, md.makeNew(J.CALLEVAL, md.classConst(push)));
 		} else {
-			jvm.local(this, md.makeNew(J.CALLMETHOD, md.classConst(clzName.javaName()), md.stringConst(name.name), md.intConst(argCount)));
+			jvm.local(this, md.makeNew(J.CALLMETHOD, md.classConst(name.javaClassName()), md.stringConst(name.javaMethodName()), md.intConst(argCount)));
 		}
 	}
 

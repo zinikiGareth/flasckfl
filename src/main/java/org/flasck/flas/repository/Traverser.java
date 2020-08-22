@@ -1513,7 +1513,6 @@ public class Traverser implements RepositoryVisitor {
 		return null;
 	}
 
-
 	@Override
 	public void leaveApplyExpr(ApplyExpr expr) {
 		visitor.leaveApplyExpr(expr);
@@ -1559,8 +1558,9 @@ public class Traverser implements RepositoryVisitor {
 		if (nargs == 0 && wantNestedPatterns) {
 			StateHolder sh = containedState(var);
 			List<Object> args = new ArrayList<>();
-			CurrentContainer cc = new CurrentContainer(var.location(), (NamedType) sh);
+			CurrentContainer cc = null;
 			if (sh != null && currFnHasState && !(var.defn() instanceof ObjectCtor)) {
+				cc = new CurrentContainer(var.location(), (NamedType) sh);
 				// this is not good enough because it may be passed in as arg 0 to us
 				args.add(cc);
 			}

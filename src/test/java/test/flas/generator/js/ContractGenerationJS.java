@@ -41,7 +41,7 @@ public class ContractGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
 			oneOf(clz).justAnInterface();
-			oneOf(clz).constructor();
+			exactly(2).of(clz).constructor();
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).noJVM();
@@ -67,7 +67,7 @@ public class ContractGenerationJS {
 			oneOf(jss).ensurePackageExists("test.repo", "test.repo");
 			oneOf(jss).newClass("test.repo", new SolidName(new PackageName("test.repo"), "MyContract")); will(returnValue(clz));
 			oneOf(clz).justAnInterface();
-			oneOf(clz).constructor();
+			exactly(2).of(clz).constructor();
 			oneOf(jss).contract(cd);
 			oneOf(clz).createMethod("name", true); will(returnValue(meth));
 			oneOf(meth).returnObject(with(any(JSString.class)));

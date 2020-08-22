@@ -3,6 +3,8 @@
 
 	card FunctionInContractMethod
 		state
+			Number five <- 5
+			Number t21 <- 21
 			Number first
 			Number val
 
@@ -10,4 +12,9 @@
 			init
 				first <- compute
 				val <- compute
-					compute = 42 * 10
+					compute = n1 * n2 * n3
+					n1 = five
+		
+		n2 = t21
+		
+	n3 = 2

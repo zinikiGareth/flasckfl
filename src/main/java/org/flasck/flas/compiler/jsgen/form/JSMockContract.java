@@ -29,7 +29,7 @@ public class JSMockContract implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		IExpr mc = md.callInterface(J.OBJECT, jvm.cxt(), "mockContract", md.castTo(jvm.cxt(), J.ERRORCOLLECTOR), md.classConst(name.javaClassName()));
+		IExpr mc = md.callInterface(J.OBJECT, jvm.cxt(), "mockContract", md.castTo(jvm.cxt(), J.ERRORCOLLECTOR), md.classConst(name.javaName()));
 		jvm.local(this, mc);
 	}
 }

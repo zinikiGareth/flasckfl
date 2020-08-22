@@ -59,6 +59,7 @@ public class ObjectGenerationJS {
 			oneOf(ctorBlock).arg(1); will(returnValue(v));
 			oneOf(ctorBlock).setField(true, "_card", v);
 			oneOf(ctorBlock).stateField(true);
+			oneOf(ctorBlock).returnVoid();
 			oneOf(jss).eventMap(sn, null);
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});
@@ -93,6 +94,7 @@ public class ObjectGenerationJS {
 			oneOf(ctorBlock).setField(true, "_card", v);
 			oneOf(clz).constructor(); will(returnValue(ctorBlock));
 			oneOf(ctorBlock).stateField(true);
+			oneOf(ctorBlock).returnVoid();
 			oneOf(jss).eventMap(sn, null);
 			oneOf(jss).methodList(sn, new ArrayList<>());
 		}});

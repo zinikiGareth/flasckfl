@@ -38,7 +38,7 @@ public class JSMakeAcor implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		IExpr mkacor = md.callInterface(J.OBJECT, jvm.cxt(), "mkacor", md.classConst(acorMeth.inContext.javaClassName()), md.stringConst(acorMeth.name), jvm.arg(obj), md.intConst(nargs));
+		IExpr mkacor = md.callInterface(J.OBJECT, jvm.cxt(), "mkacor", md.classConst(acorMeth.inContext.javaName()), md.stringConst(acorMeth.name), jvm.arg(obj), md.intConst(nargs));
 		jvm.local(this, mkacor);
 	}
 }

@@ -34,7 +34,7 @@ public class JSTupleMember implements JSExpr {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		IExpr mt = md.callInterface(J.OBJECT, jvm.cxt(), "tupleMember",
-			md.callStatic(tm.ta.exprFnName().javaClassName(), J.OBJECT, "eval", jvm.cxt(), md.arrayOf(J.OBJECT)),
+			md.callStatic(tm.ta.exprFnName().javaName(), J.OBJECT, "eval", jvm.cxt(), md.arrayOf(J.OBJECT)),
 			md.intConst(tm.which));
 		jvm.local(this, mt);
 	}

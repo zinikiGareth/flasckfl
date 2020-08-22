@@ -3,7 +3,6 @@ package org.flasck.flas.compiler.jsgen.form;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
@@ -54,9 +53,7 @@ public class JSNew implements JSExpr {
 			default:
 				throw new NotImplementedException("cannot handle builtin name " + clz);
 			}
-		} else if (clz instanceof CSName)
-			clzName = clz.javaClassName();
-		else
+		} else
 			clzName = clz.javaName();
 		List<IExpr> stack = new ArrayList<IExpr>();
 		stack.add(jvm.cxt());

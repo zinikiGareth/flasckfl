@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
@@ -62,10 +60,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 
 	// ctor
 	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, List<JSVar> as, List<JSExpr> superArgs) {
-		if (clzName instanceof CSName)
-			bcc = bce.get(clzName.javaClassName());
-		else
-			bcc = bce.get(clzName.javaName());
+		bcc = bce.get(clzName.javaName());
 		GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
 		PendingVar c1 = null;
 		Map<JSVar, PendingVar> tmp = new HashMap<>();
@@ -96,18 +91,20 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 	}
 
 	// class member
-	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, boolean wantArgumentList, List<JSVar> as, String returnsA) {
-		this(figureMemberClassThings(bce, clzName, name, returnsA), wantArgumentList, as);
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, boolean wantArgumentList, List<JSVar> as, String returnsA) {
+		this(figureMemberClassThings(bce, clzName, name, fnName, returnsA), wantArgumentList, as);
 	}
 
-	private static MethodCxt figureMemberClassThings(ByteCodeEnvironment bce, NameOfThing clzName, String name, String returnsA) {
+	private static MethodCxt figureMemberClassThings(ByteCodeEnvironment bce, NameOfThing clzName, String name, NameOfThing fnName, String returnsA) {
 		MethodCxt ret = new MethodCxt();
 		ret.returnsA = returnsA;
-		if (clzName instanceof CSName)
-			ret.bcc = bce.get(clzName.javaClassName());
-		else
-			ret.bcc = bce.get(clzName.javaName());
-		ret.ann = GenericAnnotator.newMethod(ret.bcc, false, name);
+		if (fnName == null) {
+			ret.bcc = bce.getOrCreate(clzName.javaName());
+			ret.ann = GenericAnnotator.newMethod(ret.bcc, false, name);
+		} else {
+			ret.bcc = bce.getOrCreate(fnName.javaClassName());
+			ret.ann = GenericAnnotator.newMethod(ret.bcc, false, ((FunctionName)fnName).javaMethodName());
+		}
 		return ret;
 	}
 	
@@ -120,12 +117,9 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		MethodCxt ret = new MethodCxt();
 		ret.returnsA = J.OBJECT;
 		if (fnName == null) {
-			if (clzName instanceof CSName)
-				ret.bcc = bce.getOrCreate(clzName.javaClassName());
-			else
-				ret.bcc = bce.getOrCreate(clzName.javaName());
+			ret.bcc = bce.getOrCreate(clzName.javaName());
 		} else
-			ret.bcc = bce.getOrCreate(fnName.javaClassName());
+			ret.bcc = bce.getOrCreate(fnName.javaName());
 		ret.bcc.generateAssociatedSourceFile();
 		IFieldInfo fi = ret.bcc.defineField(true, Access.PUBLICSTATIC, JavaType.int_, "nfargs");
 		fi.constValue(nfargs);
@@ -133,6 +127,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		return ret;
 	}
 
+	// common to anything that is in a class (static or member)
 	private BasicJVMCreationContext(MethodCxt mc, boolean wantArgumentList, List<JSVar> as) {
 		this.bcc = mc.bcc;
 		PendingVar c1 = null;
@@ -245,10 +240,8 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 				else
 					push = J.BUILTINPKG+"."+fn.baseName();
 			}
-		} else if (fn instanceof HandlerName) {
-			push = fn.javaName();
 		} else
-			push = fn.javaClassName();
+			push = fn.javaName();
 		return push;
 	}
 

@@ -1,0 +1,18 @@
+	contract handler BoringHandler
+		boreMe
+		boreMeMore
+
+	object TopHasState
+		state
+			Number counter
+			
+		ctor create
+			
+		acor f x = NestedHandler
+			handler BoringHandler NestedHandler
+				boreMe
+					counter <- g 7
+						g y = x + y
+				boreMeMore
+					counter <- g
+						g = 12

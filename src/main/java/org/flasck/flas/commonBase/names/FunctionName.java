@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.jvm.J;
-import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.UtilException;
 
 public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
@@ -37,23 +37,6 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 		return new FunctionName(inside.location, inside, "_" + cs);
 	}
 
-	// struct initializers
-	public static FunctionName initializer(InputPosition location, NameOfThing inStruct, String name) {
-		return new FunctionName(location, inStruct, name);
-	}
-
-	public static FunctionName functionInCardContext(InputPosition location, NameOfThing card, String name) {
-		return new FunctionName(location, card, name);
-	}
-
-	public static FunctionName functionInHandlerContext(InputPosition location, NameOfThing inScope, String name) {
-		return new FunctionName(location, inScope, name);
-	}
-
-	public static FunctionName eventTrampoline(InputPosition location, NameOfThing fnName, String name) {
-		return new FunctionName(location, fnName, name);
-	}
-
 	public static FunctionName eventMethod(InputPosition location, NameOfThing cardName, String name) {
 		return new FunctionName(location, cardName, name);
 	}
@@ -66,10 +49,6 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 		return new FunctionName(location, ctr, name);
 	}
 
-	public static FunctionName serviceMethod(InputPosition location, CSName csName, String name) {
-		return new FunctionName(location, csName, name);
-	}
-	
 	public static FunctionName handlerMethod(InputPosition location, HandlerName hn, String name) {
 		return new FunctionName(location, hn, name);
 	}
@@ -109,22 +88,29 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 
 	@Override
 	public String javaName() {
-		throw new NotImplementedException();
+		if (inContext == null)
+			return J.FLEVAL + "." + name;
+		else if (inContext instanceof FunctionName)
+			return inContext.javaName() + "_" + name;
+		else
+			return inContext.javaName() + "." + name;
 	}
 
 	@Override
 	public String javaClassName() {
-		if (inContext == null) {
-			String bi = bimap.get(name);
-			if (bi == null)
-				bi = name;
-			return J.BUILTINPKG+".PACKAGEFUNCTIONS$"+bi;
-		} else if (inContext instanceof SolidName && inContext.container() == null) {
-			return J.BUILTINPKG+"."+inContext.baseName()+"$"+name;
-		} else if (inContext.containingCard() != null)
-			return inContext.uniqueName()+"$"+name;
+		if (inContext == null)
+			return J.FLEVAL;
+		else if (inContext instanceof FunctionName)
+			return inContext.javaClassName();
 		else
-			return inContext.uniqueName()+".PACKAGEFUNCTIONS$"+name;
+			return inContext.javaName();
+	}
+
+	public String javaMethodName() {
+		if (inContext instanceof FunctionName)
+			return ((FunctionName) inContext).javaMethodName() + "_" + name;
+		else
+			return name;
 	}
 
 	public String uniqueName() {
@@ -170,7 +156,7 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 
 	@Override
 	public String javaPackageName() {
-		return inContext.javaClassName();
+		return inContext.javaName();
 	}
 
 	@Override
@@ -196,5 +182,16 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 			return true;
 		// are there other cases?
 		return false;
+	}
+
+	public NameOfThing wrappingObject() {
+		if (inContext == null || inContext instanceof PackageName)
+			return null;
+		else if (inContext instanceof FunctionName)
+			return ((FunctionName)inContext).wrappingObject();
+		else if (inContext instanceof CardName || inContext instanceof HandlerName || inContext instanceof CSName)
+			return inContext;
+		else
+			throw new HaventConsideredThisException("where is this function?");
 	}
 }

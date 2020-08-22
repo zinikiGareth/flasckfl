@@ -38,7 +38,7 @@ public class JSRecordContract implements JSExpr {
 		IExpr ctrs = md.getField("store");
 		IExpr ret = md.callInterface("void", ctrs, "recordContract",
 				md.stringConst(ctr.uniqueName()),
-				md.as(md.makeNew(impl.javaClassName(), md.getArgument(0),
+				md.as(md.makeNew(impl.javaName(), md.getArgument(0),
 						md.as(md.myThis(), J.OBJECT)), J.OBJECT));
 		jvm.local(this, ret);
 	}

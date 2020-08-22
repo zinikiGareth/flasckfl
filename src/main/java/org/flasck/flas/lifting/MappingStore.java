@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -143,8 +144,10 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 				FunctionDefinition fn = (FunctionDefinition) sd;
 				for (FunctionIntro fi : fn.intros())
 					more |= patterns.add(new PO(o, fi, null));
+			} else if (sd instanceof ObjectMethod) {
+				more |= patterns.add(new PO(o, null, (ObjectMethod)sd));
 			} else
-				throw new NotImplementedException();
+				throw new NotImplementedException("cannot enhance a " + sd.getClass().getName() + ": " + sd.name());
 		}
 		return more;
 	}

@@ -3,17 +3,17 @@ package org.flasck.flas.commonBase.names;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
-	public final NameOfThing name;
+	public final NameOfThing container;
 	public final String baseName;
 
 	public HandlerName(NameOfThing n, String baseName) {
-		this.name = n;
+		this.container = n;
 		this.baseName = baseName;
 	}
 	
 	@Override
 	public NameOfThing container() {
-		return name;
+		return container;
 	}
 
 	@Override
@@ -23,27 +23,24 @@ public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 	
 	@Override
 	public NameOfThing containingCard() {
-		return name.containingCard();
+		return container.containingCard();
 	}
 
 	public String uniqueName() {
-		if (name == null || name.uniqueName() == null || name.uniqueName().length() == 0)
+		if (container == null || container.uniqueName() == null || container.uniqueName().length() == 0)
 			return baseName;
 		else
-			return name.uniqueName() + "." + baseName;
+			return container.uniqueName() + "." + baseName;
 	}
 	
 	@Override
 	public String javaName() {
-		if (name instanceof PackageName)
-			return name.uniqueName() + "." + baseName;
-		else
-			return javaClassName();
+		return container.javaName() + "." + baseName;
 	}
 
 	@Override
 	public String javaClassName() {
-		return name.uniqueName() + "$" + baseName;
+		return container.uniqueName() + "$" + baseName;
 	}
 
 	@Override
@@ -53,16 +50,16 @@ public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 
 	@Override
 	public String jsName() {
-		if (name == null)
+		if (container == null)
 			return baseName;
-		return name.jsName() + "." + baseName;
+		return container.jsName() + "." + baseName;
 	}
 
 	@Override
 	public String jsUName() {
-		if (name == null)
+		if (container == null)
 			return baseName;
-		return name.jsName() + "._" + baseName;
+		return container.jsName() + "._" + baseName;
 	}
 
 	@Override
@@ -71,7 +68,7 @@ public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 	}
 
 	public PackageName packageName() {
-		NameOfThing ret = name;
+		NameOfThing ret = container;
 		while (ret != null) {
 			if (ret instanceof PackageName)
 				return (PackageName) ret;

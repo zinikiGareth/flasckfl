@@ -137,3 +137,4 @@ src/golden/services/trampoline/test.golden
 src/golden/services/allcontract/test.golden
 src/golden/functions/nestfunctions/test.golden
 src/golden/methods/eventnestfns/test.golden
+src/golden/handlers/nesting/deep/test.golden
