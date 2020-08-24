@@ -3,7 +3,9 @@ package org.flasck.flas.compiler.jsgen.creators;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.IVFWriter;
@@ -50,7 +52,12 @@ public class JSClass implements JSClassCreator {
 		ctor = classMethod(null);
 	}
 
-	public String name() {
+	@Override
+	public NameOfThing name() {
+		return name;
+	}
+
+	public String clzname() {
 		return name.jsName();
 	}
 
@@ -116,13 +123,15 @@ public class JSClass implements JSClassCreator {
 	public void writeTo(IndentWriter iw) {
 		if (!genJS)
 			return;
-		ctor.write(iw);
+		Set<NameOfThing> names = new HashSet<>();
+		names.add(name);
+		ctor.write(iw, names);
 		if (this.baseClass != null) {
 			iw.println(name.jsName() + ".prototype = new " + this.baseClass.jsName() + "();");
 			iw.println(name.jsName() + ".prototype.constructor = " + name.jsName() + ";");
 		}
 		for (JSMethod m : methods)
-			m.write(iw);
+			m.write(iw, names);
 	}
 
 	public void generate(ByteCodeEnvironment bce) {

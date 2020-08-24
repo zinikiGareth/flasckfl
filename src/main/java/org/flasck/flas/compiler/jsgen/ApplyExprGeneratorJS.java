@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.jsgen.JSGenerator.XCArg;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
@@ -98,10 +99,10 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 			HandlerImplements hi = (HandlerImplements)defn;
 			if (hi.getParent() != null) {
 				expArgs++;
-				stack.add(1, state.container(hi.name()));
+				stack.add(1, state.container(hi.getParent().name()));
 			}
 		} else if (defn instanceof ObjectCtor) {
-			stack.add(1, state.container(defn.name()));
+			stack.add(1, state.container(new PackageName("_DisplayUpdater")));
 			expArgs++;
 			expArgs += ((ObjectCtor)defn).getObject().contracts.size();
 		}

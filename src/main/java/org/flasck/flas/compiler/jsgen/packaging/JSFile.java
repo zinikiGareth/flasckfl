@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -66,9 +67,10 @@ public class JSFile {
 		declarePackages(iw);
 		for (JSClass c : classes)
 			c.writeTo(iw);
+		Set<NameOfThing> names = new HashSet<>();
 		for (JSMethod f : functions) {
 			declareContainingPackage(iw, f);
-			f.write(iw);
+			f.write(iw, names);
 		}
 		for (MethodList m : methodLists)
 			m.write(iw);
@@ -94,7 +96,7 @@ public class JSFile {
 		int li = full.lastIndexOf('.');
 		full = full.substring(0, li);
 		for (JSClass clz : classes) {
-			if (clz.name().equals(full))
+			if (clz.clzname().equals(full))
 				return;
 		}
 		if (packages.contains(full)) {

@@ -23,6 +23,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DeferMeException;
@@ -1527,7 +1528,7 @@ public class Traverser implements RepositoryVisitor {
 			return null;
 		else if (o instanceof FunctionName)
 			return containingMe((FunctionName)o);
-		else if (o instanceof CardName)
+		else if (o instanceof CardName || o instanceof ObjectName)
 			return repository.get(o.uniqueName());
 		else if (o instanceof CSName) {
 			RepositoryEntry ret = repository.get(o.uniqueName());

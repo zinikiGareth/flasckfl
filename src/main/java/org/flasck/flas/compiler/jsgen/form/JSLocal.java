@@ -18,12 +18,6 @@ public class JSLocal implements IVForm {
 		this.value = value;
 	}
 
-	public JSLocal(JSMethod meth, JSVar var, JSExpr value) {
-		this.meth = meth;
-		this.var = var.asVar();
-		this.value = value;
-	}
-
 	@Override
 	public String asVar() {
 		if (var == null)
@@ -55,6 +49,7 @@ public class JSLocal implements IVForm {
 			v = md.avar(arg.getType(), var);
 		jvm.local(this, md.assign(v, arg));
 		jvm.bindVar(this, v);
+		jvm.bindVar(new JSVar(var), v);
 	}
 
 	@Override

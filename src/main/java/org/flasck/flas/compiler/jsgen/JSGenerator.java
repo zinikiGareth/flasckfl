@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -410,6 +411,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		JSExpr ocret = meth.newOf(od.name(), Arrays.asList(this.meth.arg(1)));
 		JSExpr ocmsgs = meth.makeArray(new ArrayList<JSExpr>());
 		this.state = new JSFunctionStateStore(meth);
+		loadContainers(state, oc.name());
 		this.state.objectCtor(ocret, ocmsgs);
 		for (ObjectContract ctr : od.contracts) {
 			String cname = "_ctr_" + ctr.varName().var;
@@ -771,6 +773,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 		updateDisplay.returnsType("void");
 		this.state = new JSFunctionStateStore(updateDisplay);
+		this.loadContainers(state, FunctionName.function(t.kw, templateCreator.name(), name));
 		JSExpr source;
 		if (n1 != null) {
 			Map<String, JSExpr> tom = new LinkedHashMap<>();
@@ -827,12 +830,14 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		meth.clear();
 		meth.initContext(e.name.packageName());
 		this.state = new JSFunctionStateStore(meth);
+		this.state.container(new PackageName("_DisplayUpdater"), runner);
 		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
 			if (udd.ofType.defn() instanceof ContractDecl)
 				visitUnitDataDeclaration(udd);
 		}
+		// and then declare non-contracts
 		for (UnitDataDeclaration udd : globalMocks) {
 			if (!(udd.ofType.defn() instanceof ContractDecl))
 				visitUnitDataDeclaration(udd);
@@ -967,20 +972,27 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	private void loadContainers(JSFunctionState fs, FunctionName name) {
 		NameOfThing top = name.wrappingObject();
+		NameOfThing first = top;
 		if (top == null)
 			return; // there are no containers
 		
-		// So top will always be "this"
-		fs.container(top, new JSThis());
+		// So top will always be "this" if it has one (or the equivalent if not)
+		if (name.name.startsWith("_ctor_"))
+			fs.container(top, new JSVar("v1")); // I'm concerned about how tightly coupled this is ... thoughts?
+		else
+			fs.container(top, new JSThis());
 		do {
+			if (top instanceof CardName || top instanceof ObjectName) {
+				if (runner != null)
+					fs.container(new PackageName("_DisplayUpdater"), runner);
+				else
+					fs.container(new PackageName("_DisplayUpdater"), fs.container(first));
+			}
 			top = top.container();
-			if (top instanceof CardName)
+			if (top instanceof CardName || top instanceof ObjectName) {
 				fs.container(top, new JSFromCard(top));
+			}
 		} while (top != null && !(top instanceof PackageName));
-//		if (fn.name().wrappingObject() instanceof CSName)
-//			st = new JSFromCard(fn.name().containingCard());
-//		else
-//			st = new JSThis();
 	}
 
 	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv) {

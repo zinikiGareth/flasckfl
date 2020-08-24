@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.form.JSCurryArg;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
@@ -176,7 +177,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			HandlerImplements hi = (HandlerImplements)defn;
 			if (nargs == 0 && hi.argCount() == 0) {
 				List<JSExpr> args = new ArrayList<JSExpr>();
-				args.add(state.container(hi.name()));
+				args.add(state.container(hi.getParent().name()));
 				sv.result(block.createObject(defn.name(), args));
 			} else if (nargs > 0) {
 				sv.result(block.pushConstructor(defn.name(), myName));
@@ -203,7 +204,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			}
 		} else if (defn instanceof RequiresContract) {
 			RequiresContract rc = (RequiresContract)defn;
-			sv.result(block.contractByVar(state.container(rc.name()), rc.referAsVar));
+			sv.result(block.contractByVar(state.container(rc.getParent().name()), rc.referAsVar));
 		} else if (defn instanceof ObjectContract) {
 			sv.result(block.member(((ObjectContract)defn).varName().var));
 		} else if (defn instanceof TupleMember) {
@@ -221,7 +222,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				if (expArgs > 0) {
 					call = block.curry(false, expArgs + 1, new JSExpr[] { fn });
 				} else {
-					call = block.closure(false, new JSExpr[] { fn, state.container(oc.name().container()) });
+					call = block.closure(false, new JSExpr[] { fn, state.container(new PackageName("_DisplayUpdater")) });
 				}
 				sv.result(call);
 			} else

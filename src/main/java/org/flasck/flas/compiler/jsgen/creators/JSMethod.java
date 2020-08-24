@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
@@ -21,7 +22,6 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final JSStorage jse;
@@ -131,13 +131,15 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		stmts.add(new JSBlockComplete());
 	}
 
-	public void write(IndentWriter w) {
+	public void write(IndentWriter w, Set<NameOfThing> names) {
 		if (!genJS)
 			return;
 		w.println("");
-		if (fnName != null && fnName instanceof FunctionName)
-			w.print(((FunctionName)fnName).jsPName());
-		else {
+		if (fnName != null && fnName instanceof FunctionName) {
+			FunctionName fn = (FunctionName)fnName;
+			ensureContainingNames(w, fn, names);
+			w.print(fn.jsPName());
+		} else {
 			w.print(clzName.jsName());
 			if (name != null) {
 				w.print(".");
@@ -174,8 +176,18 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 			w.print(Integer.toString(args.size() - (hasHandler?2:1))); // -1 for context, -1 for handler if present
 			w.println("; }");
 		}
-		}
+	}
 	
+	private void ensureContainingNames(IndentWriter w, FunctionName name, Set<NameOfThing> curr) {
+		if (name.container() instanceof FunctionName && !curr.contains(name.container())) {
+			FunctionName fn = (FunctionName) name.container();
+			ensureContainingNames(w, fn, curr);
+			w.println("");
+			w.println(fn.jsPName() + " = function() { }");
+		}
+		curr.add(name);
+	}
+
 	public void generate(ByteCodeEnvironment bce, boolean isInterface) {
 		if (bce != null && genJVM) {
 			JVMCreationContext jvm;

@@ -1,5 +1,8 @@
 package org.flasck.flas.compiler.jsgen.creators;
 
+import java.util.Set;
+
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
@@ -19,5 +22,5 @@ public interface JSMethodCreator extends JSBlockCreator {
 	void initContext(PackageName packageName);
 	void testComplete();
 	void copyContract(JSExpr copyInto, String fld, String arg);
-	void write(IndentWriter w);
+	void write(IndentWriter w, Set<NameOfThing> names);
 }

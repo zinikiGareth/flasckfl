@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.PackageName;
@@ -70,7 +71,7 @@ public class ClassGeneration {
 		JSMethodCreator meth = jsc.createMethod("test", false);
 		meth.argument("_cxt");
 		assertNotNull(meth);
-		meth.write(w);
+		meth.write(w, new HashSet<>());
 		assertEquals("\npkg.level.Clz.test = function(_cxt) {\n}\n\npkg.level.Clz.test.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
@@ -140,7 +141,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		JSExpr obj = new JSVar("runner");
 		meth.assertable(obj, "isSame", obj, new JSLiteral("true"));
-		meth.write(w);
+		meth.write(w, new HashSet<>());
 		assertEquals("\n  pkg.fred = function(_cxt) {\n    runner.isSame(_cxt, runner, true);\n  }\n\n  pkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
@@ -150,7 +151,7 @@ public class ClassGeneration {
 		JSMethod fn = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		fn.argument("_cxt");
 		fn.returnObject(new JSString("hello"));
-		fn.write(w);
+		fn.write(w, new HashSet<>());
 		assertEquals("\n  pkg.fred = function(_cxt) {\n    return 'hello';\n  }\n\n  pkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
@@ -162,7 +163,7 @@ public class ClassGeneration {
 		meth.argument("_cxt");
 		assertNotNull(meth);
 		meth.argument("arg1");
-		meth.write(w);
+		meth.write(w, new HashSet<>());
 		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1) {\n  }\n\n  pkg.Clz.test.nfargs = function() { return 1; }\n", sw.toString());
 	}
 
@@ -175,7 +176,7 @@ public class ClassGeneration {
 		assertNotNull(meth);
 		meth.argument("arg1");
 		meth.argument("arg2");
-		meth.write(w);
+		meth.write(w, new HashSet<>());
 		assertEquals("\n  pkg.Clz.test = function(_cxt, arg1, arg2) {\n  }\n\n  pkg.Clz.test.nfargs = function() { return 2; }\n", sw.toString());
 	}
 
@@ -322,7 +323,7 @@ public class ClassGeneration {
 		JSMethod b = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		b.argument("cxt");
 		b.storeField(true, null, "value", b.string("hello"));
-		b.write(new IndentWriter(new PrintWriter(sw)));
+		b.write(new IndentWriter(new PrintWriter(sw)), new HashSet<>());
 		assertEquals("\npkg.fred = function(cxt) {\n  this.state.set('value', 'hello');\n}\n\npkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 	
@@ -331,7 +332,7 @@ public class ClassGeneration {
 		JSMethod b = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		b.argument("cxt");
 		b.returnObject(b.loadField(new JSThis(), "value"));
-		b.write(new IndentWriter(new PrintWriter(sw)));
+		b.write(new IndentWriter(new PrintWriter(sw)), new HashSet<>());
 		assertEquals("\npkg.fred = function(cxt) {\n  return this.state.get('value');\n}\n\npkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 
@@ -340,7 +341,7 @@ public class ClassGeneration {
 		JSMethod b = new JSMethod(jse, null, new PackageName("pkg"), false, "fred");
 		b.argument("cxt");
 		b.storeField(true, b.boundVar("x"), "value", b.string("hello"));
-		b.write(new IndentWriter(new PrintWriter(sw)));
+		b.write(new IndentWriter(new PrintWriter(sw)), new HashSet<>());
 		assertEquals("\npkg.fred = function(cxt) {\n  x.state.set('value', 'hello');\n}\n\npkg.fred.nfargs = function() { return 0; }\n", sw.toString());
 	}
 }

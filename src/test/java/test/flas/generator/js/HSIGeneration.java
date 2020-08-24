@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -52,7 +53,7 @@ public class HSIGeneration {
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.head(new JSVar("_0"));
-		meth.write(w);
+		meth.write(w, new HashSet<>());
 		assertEquals("\npkg.fred = function(_cxt, _0) {\n  _0 = _cxt.head(_0);\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 
@@ -95,7 +96,7 @@ public class HSIGeneration {
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoCase();
-		meth.write(w);
+		meth.write(w, new HashSet<>());
 		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no matching case');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	
@@ -105,7 +106,7 @@ public class HSIGeneration {
 		meth.argument("_cxt");
 		meth.argument("_0");
 		meth.errorNoDefaultGuard();
-		meth.write(w);
+		meth.write(w, new HashSet<>());
 		assertEquals("\npkg.fred = function(_cxt, _0) {\n  return FLError.eval(_cxt, 'no default guard');\n}\n\npkg.fred.nfargs = function() { return 1; }\n", sw.toString());
 	}
 	

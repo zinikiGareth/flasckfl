@@ -176,7 +176,7 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 			return null;
 		else if (inContext instanceof FunctionName)
 			return ((FunctionName)inContext).wrappingObject();
-		else if (inContext instanceof CardName || inContext instanceof HandlerName || inContext instanceof CSName)
+		else if (inContext instanceof CardName || inContext instanceof HandlerName || inContext instanceof CSName || inContext instanceof ObjectName)
 			return inContext;
 		else
 			throw new HaventConsideredThisException("where is this function?");
