@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestName;
@@ -20,6 +21,7 @@ import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSMethod extends JSBlock implements JSMethodCreator {
 	private final JSStorage jse;
@@ -133,12 +135,16 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		if (!genJS)
 			return;
 		w.println("");
-		w.print(clzName.jsName());
-		if (name != null) {
-			w.print(".");
-			if (prototype)
-				w.print("prototype.");
-			w.print(name);
+		if (fnName != null && fnName instanceof FunctionName)
+			w.print(((FunctionName)fnName).jsPName());
+		else {
+			w.print(clzName.jsName());
+			if (name != null) {
+				w.print(".");
+				if (prototype)
+					w.print("prototype.");
+				w.print(name);
+			}
 		}
 		w.print(" = function");
 		w.print("(");
@@ -155,16 +161,20 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		w.println("");
 		if (name != null) {
 			w.println("");
-			w.print(clzName.jsName());
-			w.print(".");
-			if (prototype)
-				w.print("prototype.");
-			w.print(name);
+			if (fnName != null && fnName instanceof FunctionName)
+				w.print(((FunctionName)fnName).jsPName());
+			else {
+				w.print(clzName.jsName());
+				w.print(".");
+				if (prototype)
+					w.print("prototype.");
+				w.print(name);
+			}
 			w.print(".nfargs = function() { return ");
 			w.print(Integer.toString(args.size() - (hasHandler?2:1))); // -1 for context, -1 for handler if present
 			w.println("; }");
 		}
-	}
+		}
 	
 	public void generate(ByteCodeEnvironment bce, boolean isInterface) {
 		if (bce != null && genJVM) {

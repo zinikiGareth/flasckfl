@@ -19,7 +19,11 @@ import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.compiler.DeferMeException;
 import org.flasck.flas.hsi.ArgSlot;
@@ -108,6 +112,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Primitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -147,6 +152,7 @@ public class Traverser implements RepositoryVisitor {
 			return NamedType.nameComparator.compare(o1, o2);
 		}
 	};
+	private Repository repository;
 
 	public Traverser(RepositoryVisitor visitor) {
 		this.visitor = visitor;
@@ -183,6 +189,7 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	public void doTraversal(Repository repository) {
+		this.repository = repository;
 		if (functionOrder != null) {
 			Iterator<FunctionGroup> todo = functionOrder.iterator();
 			int cnt = functionOrder.size();
@@ -271,7 +278,7 @@ public class Traverser implements RepositoryVisitor {
 		} else if (e instanceof StructField) {
 			visitStructFieldAccessor((StructField) e);
 		} else if (e instanceof VarPattern || e instanceof TypedPattern || e instanceof IntroduceVar || e instanceof HandlerLambda ||
-				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract ||
+				   e instanceof PolyType || e instanceof RequiresContract || e instanceof ObjectContract || e instanceof ImplementsContract ||
 				   e instanceof Template) {
 			; // do nothing: these are just in the repo for lookup purposes
 		} else if (e instanceof ContractMethodDecl) {
@@ -1440,7 +1447,7 @@ public class Traverser implements RepositoryVisitor {
 			fn = expr;
 		else
 			return false;
-		return isFnNeedingNesting(fn) != null || containedState(fn) != null;
+		return isFnNeedingNesting(fn) != null || containingMe(fn) != null;
 	}
 
 	private boolean convertedMemberExpr(Expr expr) {
@@ -1451,11 +1458,11 @@ public class Traverser implements RepositoryVisitor {
 		ApplyExpr ae = expr;
 		Expr fn = (Expr) expr.fn;
 		if (wantNestedPatterns && !isConverted) {
-			StateHolder sh = containedState(fn);
+			NamedType sh = containingMe(fn);
 			List<Object> args = new ArrayList<>();
 			if (sh != null && currFnHasState && (!(fn instanceof UnresolvedVar) || !(((UnresolvedVar)fn).defn() instanceof ObjectCtor))) {
 				// this is not good enough because it may be passed in as arg 0 to us
-				args.add(new CurrentContainer(fn.location(), (NamedType) sh));
+				args.add(new CurrentContainer(fn.location(), sh));
 			}
 			NestedVarReader nv = isFnNeedingNesting(fn);
 			if (nv != null) {
@@ -1504,13 +1511,34 @@ public class Traverser implements RepositoryVisitor {
 		return null;
 	}
 
-	private StateHolder containedState(Expr fn) {
+	private NamedType containingMe(Expr fn) {
 		if (fn instanceof UnresolvedVar) {
 			UnresolvedVar uv = (UnresolvedVar)fn;
-			if (uv.defn() instanceof LogicHolder)
-				return ((LogicHolder)uv.defn()).state();
+			if (uv.defn() instanceof LogicHolder) {
+				return containingMe((FunctionName)uv.defn().name());
+			}
 		}
 		return null;
+	}
+
+	private NamedType containingMe(FunctionName n) {
+		NameOfThing o = n.container();
+		if (o == null || o instanceof PackageName)
+			return null;
+		else if (o instanceof FunctionName)
+			return containingMe((FunctionName)o);
+		else if (o instanceof CardName)
+			return repository.get(o.uniqueName());
+		else if (o instanceof CSName) {
+			RepositoryEntry ret = repository.get(o.uniqueName());
+			if (ret == null)
+				throw new CantHappenException("there was no type for " + o.uniqueName());
+			if (ret instanceof NamedType)
+				return (NamedType) ret;
+			else
+				throw new NotImplementedException(ret + " for " + o + " was not a namedType");
+		} else
+			throw new NotImplementedException("o is " + o.getClass() + ": " + o.uniqueName());
 	}
 
 	@Override
@@ -1556,11 +1584,11 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
 		if (nargs == 0 && wantNestedPatterns) {
-			StateHolder sh = containedState(var);
+			NamedType sh = containingMe(var);
 			List<Object> args = new ArrayList<>();
 			CurrentContainer cc = null;
 			if (sh != null && currFnHasState && !(var.defn() instanceof ObjectCtor)) {
-				cc = new CurrentContainer(var.location(), (NamedType) sh);
+				cc = new CurrentContainer(var.location(), sh);
 				// this is not good enough because it may be passed in as arg 0 to us
 				args.add(cc);
 			}

@@ -12,7 +12,7 @@
 			init
 				first <- compute
 				val <- compute
-					compute = n1 * n2 * n3
+					compute = n1 * n2 * n3 * n3
 					n1 = five
 		
 		n2 = t21

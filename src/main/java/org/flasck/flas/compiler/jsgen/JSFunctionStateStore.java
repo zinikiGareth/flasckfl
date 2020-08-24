@@ -1,27 +1,30 @@
 package org.flasck.flas.compiler.jsgen;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSFunctionStateStore implements JSFunctionState {
 	public final Map<UnitDataDeclaration, JSExpr> mocks = new TreeMap<>();
 	public final Map<IntroduceVar, JSExpr> introductions = new TreeMap<>(IntroduceVar.comparator);
-	private final JSExpr container;
+	private final Map<NameOfThing, JSExpr> containers = new HashMap<>();
 	private Map<String, JSExpr> templateObj;
 	private final JSMethodCreator meth;
 	private JSExpr ocret;
 	private JSExpr ocmsgs;
 
-	public JSFunctionStateStore(JSMethodCreator meth, JSExpr container) {
+	public JSFunctionStateStore(JSMethodCreator meth) {
 		this.meth = meth;
-		this.container = container;
+		System.out.println("Have method " + meth.jsName());
 	}
 
 	@Override
@@ -30,8 +33,18 @@ public class JSFunctionStateStore implements JSFunctionState {
 	}
 	
 	@Override
-	public JSExpr container() {
-		return container;
+	public void container(NameOfThing name, JSExpr expr) {
+		if (containers.containsKey(name))
+			throw new CantHappenException("should not offer multiple definitions for " + name);
+		containers.put(name, expr);
+	}
+
+	@Override
+	public JSExpr container(NameOfThing name) {
+		System.out.println("  looking for container called " + name.uniqueName());
+		if (!containers.containsKey(name))
+			throw new CantHappenException("There is no container for " + name.uniqueName() + " in " + meth.jsName());
+		return containers.get(name);
 	}
 	
 	public void provideTemplateObject(Map<String, JSExpr> tc) {

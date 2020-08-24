@@ -113,7 +113,8 @@ public class TDAAgentElementsParser implements TDAParsing, FunctionNameProvider,
 			final CSName cin = namer.csn(tn.location, "C");
 			final ImplementsContract ci = new ImplementsContract(kw.location, tn.location, (NamedType)consumer, ctr, cin);
 			consumer.addContractImplementation(ci);
-			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel, holder);
+			topLevel.newContractImpl(errors, ci);
+			return new TDAImplementationMethodsParser(errors, (loc, text) -> FunctionName.contractMethod(loc, cin, text), ci, topLevel, ci);
 		}
 		case "method": {
 			FunctionNameProvider namer = (loc, text) -> FunctionName.standaloneMethod(loc, consumer.cardName(), text);

@@ -11,6 +11,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ActionMessage;
 import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.CurrentContainer;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.MakeSend;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.StructField;
@@ -102,7 +103,11 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 		List<Object> args = new ArrayList<>();
 		if (slotContainer == null) {
 			inner = (UnresolvedVar) msg.slot;
-			args.add(new CurrentContainer(msg.kw, (NamedType) this.oah.state()));
+			NamedType nt = (NamedType) this.oah.state();
+			if (nt instanceof ImplementsContract) {
+				nt = ((ImplementsContract)nt).getParent();
+			}
+			args.add(new CurrentContainer(msg.kw, nt));
 		} else if (slotContainer instanceof UnresolvedVar && msg.assignsToCons()) {
 			inner = null;
 			args.add(slotContainer);

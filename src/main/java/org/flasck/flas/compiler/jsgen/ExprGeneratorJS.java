@@ -71,7 +71,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 
 	@Override
 	public void visitCurrentContainer(CurrentContainer expr, boolean isObjState, boolean wouldWantState) {
-		sv.result(state.container());
+		sv.result(state.container(expr.type.name()));
 	}
 	
 	@Override
@@ -142,14 +142,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			} else if ("MakeTuple".equals(myName))
 				sv.result(null);
 			else {
-				// It worries me that some of the things we got into FunctionName for are starting to creep back into the code ...
-				if (fn.hasState()) {
-					String n = myName;
-					if (fn.name().containingCard() != null)
-						n = fn.name().containingCard().jsName()+".prototype."+fn.name().name;
-					sv.result(block.pushFunction(n, fn.name(), nargs));
-				} else
-					sv.result(block.pushFunction(myName, fn.name(), nargs));
+				sv.result(block.pushFunction(myName, fn.name(), nargs));
 			}
 		} else if (defn instanceof StandaloneMethod) {
 			if (nargs == 0) {
@@ -183,7 +176,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 			HandlerImplements hi = (HandlerImplements)defn;
 			if (nargs == 0 && hi.argCount() == 0) {
 				List<JSExpr> args = new ArrayList<JSExpr>();
-				args.add(state.container());
+				args.add(state.container(hi.name()));
 				sv.result(block.createObject(defn.name(), args));
 			} else if (nargs > 0) {
 				sv.result(block.pushConstructor(defn.name(), myName));
@@ -197,7 +190,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof HandlerLambda) {
 			sv.result(block.lambda((HandlerLambda)defn));
 		} else if (defn instanceof StructField) {
-			sv.result(block.loadField(state.container(), ((StructField)defn).name));
+			StructField sf = (StructField)defn;
+			sv.result(block.loadField(state.container(sf.container.name()), sf.name));
 		} else if (defn instanceof TemplateNestedField) {
 			TemplateNestedField tnf = (TemplateNestedField)defn;
 			StructField sf = tnf.getField();
@@ -208,7 +202,8 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				sv.result(from);
 			}
 		} else if (defn instanceof RequiresContract) {
-			sv.result(block.contractByVar(state.container(), ((RequiresContract)defn).referAsVar));
+			RequiresContract rc = (RequiresContract)defn;
+			sv.result(block.contractByVar(state.container(rc.name()), rc.referAsVar));
 		} else if (defn instanceof ObjectContract) {
 			sv.result(block.member(((ObjectContract)defn).varName().var));
 		} else if (defn instanceof TupleMember) {
@@ -226,7 +221,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 				if (expArgs > 0) {
 					call = block.curry(false, expArgs + 1, new JSExpr[] { fn });
 				} else {
-					call = block.closure(false, new JSExpr[] { fn, state.container() });
+					call = block.closure(false, new JSExpr[] { fn, state.container(oc.name().container()) });
 				}
 				sv.result(call);
 			} else

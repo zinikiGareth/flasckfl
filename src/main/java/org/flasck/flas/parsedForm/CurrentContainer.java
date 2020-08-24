@@ -13,6 +13,7 @@ public class CurrentContainer implements Expr {
 		this.pos = pos;
 		if (type == null)
 			throw new NotImplementedException("Type cannot be null");
+		System.out.println("Creating container with type " + type);
 		this.type = type;
 	}
 

@@ -132,26 +132,13 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 		throw new UtilException("I don't think so");
 	}
 
-	public String jsSPname() {
-		String jsname = uniqueName();
-		int idx = jsname.lastIndexOf(".");
-		jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
-		return jsname;
-	}
-
 	public String jsPName() {
-		return inContext.jsName() + ".prototype." + name;
-	}
-
-	public String javaNameAsNestedClass() {
-		String prefix;
-		if (inContext == null)
-			prefix = "PACKAGEFUNCTIONS";
-		else if (inContext.containingCard() != null)
-			prefix = inContext.containingCard().uniqueName();
+		if (inContext instanceof FunctionName)
+			return ((FunctionName) inContext).jsPName() + "." + name;
+		else if (inContext == null || inContext instanceof PackageName)
+			return inContext.jsName() + "." + name;
 		else
-			prefix = inContext.uniqueName();
-		return prefix +"$"+ name;
+			return inContext.jsName() + ".prototype." + name;
 	}
 
 	@Override

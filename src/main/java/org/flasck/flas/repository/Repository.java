@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.IntroduceVar;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.ObjectAccessor;
@@ -135,6 +136,11 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 	@Override
 	public void newRequiredContract(ErrorReporter errors, RequiresContract rc) {
 		addEntry(errors, rc.varName(), rc);
+	}
+	
+	@Override
+	public void newContractImpl(ErrorReporter errors, ImplementsContract ci) {
+		addEntry(errors, ci.name(), ci);
 	}
 	
 	@Override

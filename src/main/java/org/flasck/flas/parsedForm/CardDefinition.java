@@ -156,6 +156,6 @@ public class CardDefinition implements Locatable, CardElementsConsumer, Reposito
 		if (other == this)
 			return true;
 		else
-			throw new NotImplementedException();
+			throw new NotImplementedException("cannot handle card defn incorporates " + other);
 	}
 }

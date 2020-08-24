@@ -1,4 +1,7 @@
 test.golden.FunctionInContractMethod._C0.init :: List[Message]
-test.golden.FunctionInContractMethod._C0.init.compute :: test.golden.FunctionInContractMethod->Number
+test.golden.FunctionInContractMethod._C0.init.compute :: test.golden.FunctionInContractMethod._C0->Number
+test.golden.FunctionInContractMethod._C0.init.n1 :: test.golden.FunctionInContractMethod._C0->Number
+test.golden.FunctionInContractMethod.n2 :: test.golden.FunctionInContractMethod->Number
 test.golden.FunctionInEventMethod.doit :: ClickEvent->List[Message]
 test.golden.FunctionInEventMethod.show :: test.golden.FunctionInEventMethod->List[String]->Number
+test.golden.n3 :: Number

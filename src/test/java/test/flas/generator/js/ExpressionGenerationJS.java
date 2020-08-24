@@ -150,13 +150,14 @@ public class ExpressionGenerationJS {
 	@Test
 	public void aVarBoundToAStructFieldInsideAnAccessor() {
 		UnresolvedVar expr = new UnresolvedVar(pos, "p");
-		StructField sf = new StructField(pos, null, false, LoadBuiltins.stringTR, "x");
+		StructDefn ctr = new StructDefn(pos, FieldsType.STRUCT, pkg.uniqueName(), "All", true);
+		StructField sf = new StructField(pos, ctr, false, LoadBuiltins.stringTR, "x");
 		sf.fullName(new VarName(pos, pkg, "x"));
 		expr.bind(sf);
 		JSExpr r = context.mock(JSExpr.class, "r");
 		JSExpr c = context.mock(JSExpr.class, "container");
 		context.checking(new Expectations() {{
-			oneOf(state).container(); will(returnValue(c));
+			oneOf(state).container(ctr.name()); will(returnValue(c));
 			oneOf(meth).loadField(c, "x"); will(returnValue(r));
 			oneOf(nv).result(r);
 		}});

@@ -1,5 +1,7 @@
 package org.flasck.flas.parsedForm;
 
-public interface FieldsHolder {
+import org.flasck.flas.commonBase.names.NameOfThing;
 
+public interface FieldsHolder {
+	NameOfThing name();
 }

@@ -191,14 +191,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		for (int i=0;i<fn.argCountWithoutHolder();i++)
 			this.meth.argument("_" + i);
 		this.block = meth;
-		JSExpr st = null;
+		this.state = new JSFunctionStateStore(meth);
 		if (fn.hasState()) {
-			if (fn.name().wrappingObject() instanceof CSName)
-				st = new JSFromCard(fn.name().containingCard());
-			else
-				st = new JSThis();
+			loadContainers(this.state, fn.name());
 		}
-		this.state = new JSFunctionStateStore(meth, st);
 	}
 
 	// When generating a tuple assignment, we have to create a closure which is the "main thing"
@@ -214,7 +210,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth.argument("_cxt");
 		this.meth.argumentList();
 		this.block = meth;
-		this.state = new JSFunctionStateStore(meth, null);
+		this.state = new JSFunctionStateStore(meth);
 		sv.push(new ExprGeneratorJS(state, sv, this.block, false));
 	}
 	
@@ -229,7 +225,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.meth.argument("_cxt");
 		this.meth.argumentList();
 		this.block = meth;
-		this.state = new JSFunctionStateStore(meth, null);
+		this.state = new JSFunctionStateStore(meth);
 		this.meth.returnObject(meth.defineTupleMember(e));
 //		sv.push(new ExprGeneratorJS(state, sv, this.block));
 	}
@@ -359,7 +355,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth = null;
 			return;
 		}
-		JSExpr container = null;
+//		JSExpr container = null;
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
 		this.meth = jse.newFunction(om.name(), pkg, om.name().container(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent() /**/ || om.hasState() /**/, om.name().name);
@@ -369,17 +365,17 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			}
 			Implements impl = om.getImplements();
 			this.methodMap.get(impl).add(om.name());
-			if (impl instanceof HandlerImplements && ((HandlerImplements)impl).getParent() == null)
-				container = new JSThis();
-			else
-				container = new JSFromCard(om.name().container());
+//			if (impl instanceof HandlerImplements && ((HandlerImplements)impl).getParent() == null)
+//				container = new JSThis();
+//			else
+//				container = new JSFromCard(om.name().container());
 		} else if (om.hasObject()) {
 			this.methodMap.get(om.getObject()).add(om.name());
-			container = new JSThis();
-		} else if (om.isEvent()) {
-			container = new JSThis();
-		} else if (om.hasState()) {
-			container = new JSThis();
+//			container = new JSThis();
+//		} else if (om.isEvent()) {
+//			container = new JSThis();
+//		} else if (om.hasState()) {
+//			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
 		this.meth.argumentList();
@@ -390,7 +386,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			this.meth.argument("_" + i);
 		}
 		this.block = meth;
-		this.state = new JSFunctionStateStore(meth, container);
+		this.state = new JSFunctionStateStore(meth);
+		loadContainers(state, om.name());
 	}
 
 	@Override
@@ -412,8 +409,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		ObjectDefn od = oc.getObject();
 		JSExpr ocret = meth.newOf(od.name(), Arrays.asList(this.meth.arg(1)));
 		JSExpr ocmsgs = meth.makeArray(new ArrayList<JSExpr>());
-		JSExpr container = ocret; 
-		this.state = new JSFunctionStateStore(meth, container);
+		this.state = new JSFunctionStateStore(meth);
 		this.state.objectCtor(ocret, ocmsgs);
 		for (ObjectContract ctr : od.contracts) {
 			String cname = "_ctr_" + ctr.varName().var;
@@ -774,7 +770,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 			updateDisplay.argument(List.class.getName(), "_tc");
 		}
 		updateDisplay.returnsType("void");
-		this.state = new JSFunctionStateStore(updateDisplay, new JSThis());
+		this.state = new JSFunctionStateStore(updateDisplay);
 		JSExpr source;
 		if (n1 != null) {
 			Map<String, JSExpr> tom = new LinkedHashMap<>();
@@ -830,7 +826,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		runner = meth.argument("runner");
 		meth.clear();
 		meth.initContext(e.name.packageName());
-		this.state = new JSFunctionStateStore(meth, runner);
+		this.state = new JSFunctionStateStore(meth);
 		explodingMocks.clear();
 		// Make sure we declare contracts first - others may use them
 		for (UnitDataDeclaration udd : globalMocks) {
@@ -967,6 +963,24 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		if (r != null) {
 			block.returnObject((JSExpr)r);
 		}
+	}
+
+	private void loadContainers(JSFunctionState fs, FunctionName name) {
+		NameOfThing top = name.wrappingObject();
+		if (top == null)
+			return; // there are no containers
+		
+		// So top will always be "this"
+		fs.container(top, new JSThis());
+		do {
+			top = top.container();
+			if (top instanceof CardName)
+				fs.container(top, new JSFromCard(top));
+		} while (top != null && !(top instanceof PackageName));
+//		if (fn.name().wrappingObject() instanceof CSName)
+//			st = new JSFromCard(fn.name().containingCard());
+//		else
+//			st = new JSThis();
 	}
 
 	public static JSGenerator forTests(JSMethodCreator meth, JSExpr runner, NestedVisitor nv) {
