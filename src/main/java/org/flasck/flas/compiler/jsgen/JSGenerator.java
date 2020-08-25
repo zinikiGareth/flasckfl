@@ -972,25 +972,32 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 
 	private void loadContainers(JSFunctionState fs, FunctionName name) {
 		NameOfThing top = name.wrappingObject();
-		NameOfThing first = top;
+		JSExpr first = null;
 		if (top == null)
 			return; // there are no containers
 		
 		// So top will always be "this" if it has one (or the equivalent if not)
-		if (name.name.startsWith("_ctor_"))
-			fs.container(top, new JSVar("v1")); // I'm concerned about how tightly coupled this is ... thoughts?
-		else
+		if (name.name.startsWith("_ctor_")) {
+			first = new JSVar("v1"); // I'm concerned about how tightly coupled this is ... thoughts?
+			fs.container(top, first);
+		} else
 			fs.container(top, new JSThis());
 		do {
 			if (top instanceof CardName || top instanceof ObjectName) {
 				if (runner != null)
 					fs.container(new PackageName("_DisplayUpdater"), runner);
-				else
-					fs.container(new PackageName("_DisplayUpdater"), fs.container(first));
+				else {
+					if (first == null)
+						first = new JSThis();
+					fs.container(new PackageName("_DisplayUpdater"), first);
+				}
 			}
 			top = top.container();
 			if (top instanceof CardName || top instanceof ObjectName) {
-				fs.container(top, new JSFromCard(top));
+				JSFromCard fc = new JSFromCard(top);
+				if (first == null)
+					first = fc;
+				fs.container(top, fc);
 			}
 		} while (top != null && !(top instanceof PackageName));
 	}

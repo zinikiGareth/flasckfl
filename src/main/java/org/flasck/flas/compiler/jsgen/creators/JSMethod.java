@@ -137,7 +137,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		w.println("");
 		if (fnName != null && fnName instanceof FunctionName) {
 			FunctionName fn = (FunctionName)fnName;
-			ensureContainingNames(w, fn, names);
+			ensureContainingNames(w, fn.container(), names);
 			w.print(fn.jsPName());
 		} else {
 			w.print(clzName.jsName());
@@ -178,14 +178,20 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		}
 	}
 	
-	private void ensureContainingNames(IndentWriter w, FunctionName name, Set<NameOfThing> curr) {
-		if (name.container() instanceof FunctionName && !curr.contains(name.container())) {
-			FunctionName fn = (FunctionName) name.container();
-			ensureContainingNames(w, fn, curr);
-			w.println("");
-			w.println(fn.jsPName() + " = function() { }");
+	private void ensureContainingNames(IndentWriter w, NameOfThing container, Set<NameOfThing> curr) {
+		if (container != null && !curr.contains(container)) {
+			ensureContainingNames(w, container.container(), curr);
+			if (container instanceof FunctionName) {
+				String full = ((FunctionName) container).jsPName();
+				w.print("if (typeof(");
+				w.print(full);
+				w.print(") === 'undefined') ");
+				w.print(full);
+				w.println(" = {};");
+				w.println("");
+			}
+			curr.add(container);
 		}
-		curr.add(name);
 	}
 
 	public void generate(ByteCodeEnvironment bce, boolean isInterface) {
