@@ -1,2 +1,4 @@
+test.golden.Nester.otherFn :: ClickEvent->List[Message]
+test.golden.Nester.otherFn.f :: test.golden.Nester->Number->Number
 test.golden.Nester.useFn :: ClickEvent->List[Message]
 test.golden.Nester.useFn.f :: test.golden.Nester->Number->Number

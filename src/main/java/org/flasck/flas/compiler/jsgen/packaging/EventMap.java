@@ -144,18 +144,20 @@ public class EventMap {
 			}
 			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst(t), J.OBJECT), meth.as(hl, J.OBJECT))).flush();
 		}
-		
-		for (HandlerInfo hi : methods.unboundHandlers()) {
+
+		if (!methods.unboundHandlers().isEmpty()) {
 			Var hl = meth.avar(List.class.getName(), "hl");
 			meth.assign(hl, meth.makeNew(ArrayList.class.getName())).flush();
-			IExpr classArgs = meth.arrayOf(Class.class.getName(), meth.classConst(J.FLEVALCONTEXT),
-					meth.classConst("[L" + J.OBJECT + ";"));
-			IExpr ehm = meth.callVirtual(Method.class.getName(), meth.classConst(cardName.javaName()),
-					"getDeclaredMethod", meth.stringConst(hi.name.name), classArgs);
-			IExpr ghi = meth.makeNew(J.HANDLERINFO, meth.as(meth.aNull(), J.STRING),
-					meth.as(meth.aNull(), J.STRING), meth.as(meth.aNull(), J.INTEGER),
-					meth.stringConst(hi.event), ehm, meth.as(meth.aNull(), J.INTEGER));
-			meth.voidExpr(meth.callInterface("boolean", hl, "add", meth.as(ghi, J.OBJECT))).flush();
+			for (HandlerInfo hi : methods.unboundHandlers()) {
+				IExpr classArgs = meth.arrayOf(Class.class.getName(), meth.classConst(J.FLEVALCONTEXT),
+						meth.classConst("[L" + J.OBJECT + ";"));
+				IExpr ehm = meth.callVirtual(Method.class.getName(), meth.classConst(cardName.javaName()),
+						"getDeclaredMethod", meth.stringConst(hi.name.name), classArgs);
+				IExpr ghi = meth.makeNew(J.HANDLERINFO, meth.as(meth.aNull(), J.STRING),
+						meth.as(meth.aNull(), J.STRING), meth.as(meth.aNull(), J.INTEGER),
+						meth.stringConst(hi.event), ehm, meth.as(meth.aNull(), J.INTEGER));
+				meth.voidExpr(meth.callInterface("boolean", hl, "add", meth.as(ghi, J.OBJECT))).flush();
+			}
 			meth.voidExpr(meth.callInterface(J.OBJECT, v, "put", meth.as(meth.stringConst("_"), J.OBJECT), meth.as(hl, J.OBJECT))).flush();
 		}
 		

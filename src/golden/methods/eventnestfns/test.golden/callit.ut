@@ -5,6 +5,8 @@ This just checks that the eventual code works
 	test we can call an event handler with a correctly named nested method
 		data Nester n
 		event n _ (ClickEvent)
-		assert (n.counter)
+		assert (n.countA)
 			3
+		assert (n.countB)
+			2
 		

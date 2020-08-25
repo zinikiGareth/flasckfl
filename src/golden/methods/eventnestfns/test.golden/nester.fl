@@ -1,14 +1,15 @@
 	card Nester
 		state
-			Number counter <- 0
+			Number countA <- 0
+			Number countB <- 0
 		
 		template hello
 		
 		event useFn (ClickEvent e)
-			counter <- f 3
-				f x = counter + x 
+			countA <- f 3
+				f x = countA + x 
 
 		event otherFn (ClickEvent e)
-			counter <- f 1
-				f n = n * 2
+			countB <- f 1
+				f n = countB + n * 2
 	
