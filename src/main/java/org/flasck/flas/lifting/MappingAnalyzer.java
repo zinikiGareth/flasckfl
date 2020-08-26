@@ -70,9 +70,8 @@ public class MappingAnalyzer {
 			if (defn != fn)
 				collector.recordDependency((LogicHolder) defn);
 		} else if (defn instanceof HandlerImplements) {
-//			throw new NotImplementedException("Cannot handle dependency on " + defn);
+			if (defn != fn)
+				collector.recordHandlerDependency((HandlerImplements) defn);
 		}
 	}
-	
-
 }

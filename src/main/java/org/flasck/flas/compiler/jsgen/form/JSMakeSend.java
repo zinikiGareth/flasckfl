@@ -44,13 +44,12 @@ public class JSMakeSend implements JSExpr {
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
-		if (!jvm.hasLocal(handler)) {
-			if (handler != null)
-				handler.generate(jvm);
-			else
-				jvm.local(handler, md.aNull());
-		}
-		IExpr mksend = md.callInterface(J.OBJECT, jvm.cxt(), "mksend", md.stringConst(sendMeth), jvm.arg(obj), md.intConst(nargs), jvm.arg(handler));
+		IExpr h;
+		if (handler != null)
+			h = jvm.arg(handler);
+		else
+			h = md.aNull();
+		IExpr mksend = md.callInterface(J.OBJECT, jvm.cxt(), "mksend", md.stringConst(sendMeth), jvm.arg(obj), md.intConst(nargs), h);
 		jvm.local(this, mksend);
 	}
 	

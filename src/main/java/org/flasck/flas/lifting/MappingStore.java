@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.LogicHolder;
@@ -83,6 +84,7 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	private final FunctionName name; 
 	private TreeSet<PO> patterns = new TreeSet<>();
 	private Set<LogicHolder> deps = new HashSet<>();
+	private Set<HandlerImplements> hideps = new HashSet<>();
 	
 	public MappingStore(FunctionName name) {
 		logger.info("Checking dependencies for " + name.uniqueName());
@@ -108,6 +110,14 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	@Override
+	public void recordHandlerDependency(HandlerImplements hi) {
+		if (hi == null)
+			throw new RuntimeException("Cannot depend on null function");
+		logger.debug("  " + this + " depends on " + hi.name().uniqueName());
+		hideps.add(hi);
+	}
+
+	@Override
 	public int size() {
 		return patterns.size();
 	}
@@ -122,6 +132,11 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	@Override
 	public Set<LogicHolder> references() {
 		return deps;
+	}
+	
+	@Override
+	public Set<HandlerImplements> referencesHI() {
+		return hideps;
 	}
 	
 	@Override
@@ -168,9 +183,14 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 
 	public boolean isInteresting() {
-		return !patterns.isEmpty() || !deps.isEmpty();
+		return !patterns.isEmpty() || !deps.isEmpty() || !hideps.isEmpty();
 	}
 	
+	@Override
+	public void clearPatterns() {
+		patterns.clear();
+	}
+
 	@Override
 	public String toString() {
 		return name.uniqueName();

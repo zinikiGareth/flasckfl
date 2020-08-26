@@ -69,7 +69,7 @@ public class TDAHandlerParser implements TDAParsing {
 		final HandlerName hn = namer.handlerName(named.text);
 		VarNamer vn = new SimpleVarNamer(hn); 
 		while (line.hasMoreContent() && !errors.hasErrors()) {
-			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(new HandlerLambda(patt)), topLevel);
+			TDAPatternParser pp = new TDAPatternParser(errors, vn, patt -> lambdas.add(new HandlerLambda(patt, false)), topLevel);
 			pp.tryParsing(line);
 		}
 		for (HandlerLambda hl : lambdas)

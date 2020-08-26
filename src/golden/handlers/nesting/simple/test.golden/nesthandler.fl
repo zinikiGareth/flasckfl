@@ -4,7 +4,9 @@
 	contract handler Callback
 		reply (Number n)
 
-	f (Callback ic) ix = Handler ic ix
-		handler Call Handler (Callback c) (Number x)
+// TODO: need to come back and make this work without explicit "Number" here ...
+
+	f (Callback c) (Number x) = Handler
+		handler Call Handler
 			msg
 				<- c.reply (x+2)

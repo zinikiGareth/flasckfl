@@ -24,6 +24,7 @@ import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class BasicJVMCreationContext implements JVMCreationContext {
@@ -219,8 +220,10 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 
 	@Override
 	public void local(JSExpr key, IExpr e) {
+		if (key == null)
+			throw new CantHappenException("cannot have key be null");
 		if (stack.containsKey(key))
-			throw new NotImplementedException("duplicate entry for: " + key);
+			throw new CantHappenException("duplicate entry for: " + key);
 		stack.put(key, e);
 	}
 

@@ -1,9 +1,5 @@
 package org.flasck.flas.tc3;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.hsi.ArgSlot;
@@ -20,26 +16,22 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.tc3.FunctionChecker.ArgResult;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor  {
 	private final ErrorReporter errors;
 	private final NestedVisitor sv;
-	private final CurrentTCState state;
 	private final ContractMethodDecl cmd;
-	private final List<Pattern> nvs;
 	private int pos;
 	private Type ty;
 
 	public ContractSlotChecker(ErrorReporter errors, NestedVisitor sv, CurrentTCState state, ObjectActionHandler inMeth) {
 		this.errors = errors;
 		this.sv = sv;
-		this.state = state;
 		this.cmd = inMeth.contractMethod();
-		if (inMeth.nestedVars() != null)
-			this.nvs = inMeth.nestedVars().patterns();
-		else
-			this.nvs = new ArrayList<>();
+		if (inMeth.nestedVars() != null && !inMeth.nestedVars().patterns().isEmpty())
+			throw new CantHappenException("contract methods cannot handle nested vars; handler methods should add lambdas, I don't know about other cases");
 		this.pos = 0;
 	}
 
@@ -70,27 +62,16 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 
 	@Override
 	public void varInIntro(VarName vn, VarPattern vp, FunctionIntro intro) {
-		if (pos < nvs.size()) {
-			Pattern p = nvs.get(pos);
-			if (p instanceof TypedPattern)
-				ty = ((TypedPattern)p).type();
-			else if (p instanceof VarPattern) {
-				ty = state.createUT(p.location(), cmd.name.uniqueName() + " nv " + pos);
-			} else
-				throw new NotImplementedException("varInIntro for nv " + pos + ": " + p.getClass());
+		if (pos > cmd.args.size())
+			throw new NotImplementedException("Argument is out of range: " + pos + " " + cmd.args.size());
+		if (pos == cmd.args.size() && cmd.handler == null)
+			throw new NotImplementedException("There is no handler for " + cmd.name.uniqueName() + " but have var arg with pos = " + pos);
+		if (pos == cmd.args.size()) {
+			ty = cmd.handler.type.defn();
 		} else {
-			int p = pos - nvs.size();
-			if (p > cmd.args.size())
-				throw new NotImplementedException("Argument is out of range: " + p + " " + cmd.args.size());
-			if (p == cmd.args.size() && cmd.handler == null)
-				throw new NotImplementedException("There is no handler for " + cmd.name.uniqueName());
-			if (p == cmd.args.size()) {
-				ty = cmd.handler.type.defn();
-			} else {
-				ty = ((TypedPattern)cmd.args.get(p)).type.defn();
-			}
-			pos++;
+			ty = ((TypedPattern)cmd.args.get(pos)).type.defn();
 		}
+		pos++;
 		vp.bindType(ty);
 	}
 

@@ -1398,7 +1398,6 @@ public class Traverser implements RepositoryVisitor {
 	public void visitExpr(Expr expr, int nargs) {
 		if (!isNeedingEnhancement(expr, nargs) && !convertedMemberExpr(expr))
 			visitor.visitExpr(expr, nargs);
-		boolean wouldWantState = false; // This is almost undoubtedly wrong ... but can we hold off until we refactor?
 		if (expr == null)
 			return;
 		else if (expr instanceof ApplyExpr)
@@ -1424,7 +1423,7 @@ public class Traverser implements RepositoryVisitor {
 		else if (expr instanceof MakeAcor)
 			visitMakeAcor((MakeAcor)expr);
 		else if (expr instanceof CurrentContainer)
-			visitCurrentContainer((CurrentContainer)expr, false, wouldWantState);
+			visitCurrentContainer((CurrentContainer)expr, false, false);
 		else if (expr instanceof CheckTypeExpr)
 			visitCheckTypeExpr((CheckTypeExpr)expr);
 		else
@@ -1514,6 +1513,8 @@ public class Traverser implements RepositoryVisitor {
 			UnresolvedVar uv = (UnresolvedVar)fn;
 			if (uv.defn() instanceof LogicHolder)
 				return ((LogicHolder)uv.defn()).nestedVars();
+			else if (uv.defn() instanceof HandlerImplements)
+				return ((HandlerImplements)uv.defn()).nestedVars();
 		}
 		return null;
 	}

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.patterns.HSIOptions;
@@ -16,6 +17,8 @@ public interface NestedVarReader {
 	List<Pattern> patterns();
 	boolean containsReferencesNotIn(Set<LogicHolder> processedFns);
 	Set<LogicHolder> references();
+	Set<HandlerImplements> referencesHI();
 	boolean enhanceWith(LogicHolder fn, NestedVarReader nestedVars);
 	boolean dependsOn(LogicHolder f);
+	void clearPatterns();
 }

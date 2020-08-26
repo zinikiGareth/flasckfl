@@ -9,9 +9,11 @@ import org.flasck.flas.repository.RepositoryEntry;
 
 public class HandlerLambda implements RepositoryEntry {
 	public final Pattern patt;
+	public final boolean isNested;
 
-	public HandlerLambda(Pattern patt) {
+	public HandlerLambda(Pattern patt, boolean nested) {
 		this.patt = patt;
+		this.isNested = nested;
 	}
 
 	@Override
