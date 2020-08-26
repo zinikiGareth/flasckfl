@@ -1,0 +1,8 @@
+It should be possible to call a function and pass it arguments that can be used inside a scoped handler.
+The arguments obviously need to be attached to the handler implicitly as lambdas.
+
+	test that we can call it
+		data Callback cb
+		expect cb reply 5
+		data Call c <- f cb 3
+		invoke c.msg

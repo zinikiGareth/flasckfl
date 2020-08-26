@@ -88,9 +88,6 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 
 	@Override
 	public void visitStandaloneMethod(StandaloneMethod meth) {
-//		dependencies.recordFunction(meth);
-//		ms = new MappingStore();
-//		ma = new MappingAnalyzer(meth, ms, dependencies);
 	}
 	
 	@Override
@@ -175,15 +172,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	
 	@Override
 	public void leaveStandaloneMethod(StandaloneMethod meth) {
-//		if (ms.isInteresting()) {
-//			meth.nestedVars(ms);
-//			interesting.add(meth);
-//		} else {
-//			dull.add(meth);
-//		}
 		meth.reportHolderInArgCount();
-//		ma = null;
-//		ms = null;
 	}
 
 	@Override

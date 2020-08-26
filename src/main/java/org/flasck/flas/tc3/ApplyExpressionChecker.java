@@ -115,6 +115,7 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 				if (ai instanceof EnsureListMessage && TypeHelpers.isListMessage(loc, fi))
 					; // that's OK ...
 				else {
+					logger.info("TC Error: " + expr.fn + " was expecting " + fi.signature() + " not " + ai.signature());
 					errors.message(loc, "function '" + expr.fn + "' was expecting " + fi.signature() + " not " + ai.signature());
 					nv.result(new ErrorType());
 					return;

@@ -22,6 +22,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -1185,14 +1186,19 @@ public class Traverser implements RepositoryVisitor {
 
 	// is public because this is a useful entry point for unit testing
 	public void visitPatterns(PatternsHolder fn) {
-		if (wantNestedPatterns && currentFunction != null) {
-			NamedType sh = (NamedType) currentFunction.state();
-			if (!currentFunction.isObjAccessor() && !(currentFunction instanceof ObjectCtor) && sh != null) {
-				TypeReference tr = new TypeReference(fn.location(), sh.name().baseName());
-				tr.bind(sh);
-				visitPattern(new TypedPattern(fn.location(), tr, new VarName(fn.location(), fn.name(), "_this")), true);
+		if (wantNestedPatterns) {
+			NestedVarReader nv = null;
+			if (currentFunction != null) {
+				NamedType sh = (NamedType) currentFunction.state();
+				if (!currentFunction.isObjAccessor() && !(currentFunction instanceof ObjectCtor) && sh != null) {
+					TypeReference tr = new TypeReference(fn.location(), sh.name().baseName());
+					tr.bind(sh);
+					visitPattern(new TypedPattern(fn.location(), tr, new VarName(fn.location(), fn.name(), "_this")), true);
+				}
+				nv = currentFunction.nestedVars();
+			} else if (fn instanceof LogicHolder) {
+				nv = ((LogicHolder)fn).nestedVars();
 			}
-			NestedVarReader nv = currentFunction.nestedVars();
 			if (nv != null) {
 				for (Pattern p : nv.patterns())
 					visitPattern(p, true);
@@ -1530,7 +1536,7 @@ public class Traverser implements RepositoryVisitor {
 			return containingMe((FunctionName)o);
 		else if (o instanceof CardName || o instanceof ObjectName)
 			return repository.get(o.uniqueName());
-		else if (o instanceof CSName) {
+		else if (o instanceof CSName || o instanceof HandlerName) {
 			RepositoryEntry ret = repository.get(o.uniqueName());
 			if (ret == null)
 				throw new CantHappenException("there was no type for " + o.uniqueName());

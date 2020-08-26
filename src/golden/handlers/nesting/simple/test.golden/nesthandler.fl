@@ -1,0 +1,10 @@
+	contract handler Call
+		msg
+		
+	contract handler Callback
+		reply (Number n)
+
+	f (Callback ic) ix = Handler ic ix
+		handler Call Handler (Callback c) (Number x)
+			msg
+				<- c.reply (x+2)

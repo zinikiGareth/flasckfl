@@ -2,6 +2,7 @@ package org.flasck.flas.lifting;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.TypeBinder;
@@ -12,6 +13,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class MappingAnalyzer {
 	public static final Logger logger = LoggerFactory.getLogger("Lifter");
@@ -67,6 +69,8 @@ public class MappingAnalyzer {
 		} else if (defn instanceof LogicHolder) {
 			if (defn != fn)
 				collector.recordDependency((LogicHolder) defn);
+		} else if (defn instanceof HandlerImplements) {
+//			throw new NotImplementedException("Cannot handle dependency on " + defn);
 		}
 	}
 	

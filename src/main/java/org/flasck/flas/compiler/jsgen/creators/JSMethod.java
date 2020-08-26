@@ -178,7 +178,7 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 		}
 	}
 	
-	private void ensureContainingNames(IndentWriter w, NameOfThing container, Set<NameOfThing> curr) {
+	static void ensureContainingNames(IndentWriter w, NameOfThing container, Set<NameOfThing> curr) {
 		if (container != null && !curr.contains(container)) {
 			ensureContainingNames(w, container.container(), curr);
 			if (container instanceof FunctionName) {

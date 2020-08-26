@@ -1,0 +1,2 @@
+test.golden.f :: test.golden.Callback->Number->test.golden.f._1.Handler
+test.golden.f._1.Handler.msg :: List[Message]

@@ -8,7 +8,7 @@ import org.flasck.flas.tc3.NamedType;
 public class ContractReferencer implements Locatable {
 	public final InputPosition kw;
 	private InputPosition location;
-	private final NamedType parent;
+	protected final NamedType parent;
 	private TypeReference implementing;
 	private final NameOfThing myName;
 

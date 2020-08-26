@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.compiler.jsgen.form.IVFWriter;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
@@ -125,6 +126,8 @@ public class JSClass implements JSClassCreator {
 			return;
 		Set<NameOfThing> names = new HashSet<>();
 		names.add(name);
+		if (name.container() instanceof FunctionName)
+			JSMethod.ensureContainingNames(iw, name.container(), names);
 		ctor.write(iw, names);
 		if (this.baseClass != null) {
 			iw.println(name.jsName() + ".prototype = new " + this.baseClass.jsName() + "();");

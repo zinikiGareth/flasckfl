@@ -730,6 +730,8 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	
 	@Override
 	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
+		String pkg = hi.name().packageName().jsName();
+		jse.ensurePackageExists(pkg, hi.name().container().jsName());
 		new HIGeneratorJS(sv, jse, methodMap, hi, sh);
 	}
 
@@ -868,9 +870,13 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		if (objty instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) objty;
 			JSExpr mock;
-			if (cd.type == ContractType.HANDLER)
+			if (cd.type == ContractType.HANDLER) {
+				if (udd.expr != null) {
+					new UDDGeneratorJS(sv, meth, state, this.block);
+					return;
+				}
 				mock = meth.mockHandler((SolidName) objty.name());
-			else
+			} else
 				mock = meth.mockContract((SolidName) objty.name());
 			state.addMock(udd, mock);
 			explodingMocks.add(mock);

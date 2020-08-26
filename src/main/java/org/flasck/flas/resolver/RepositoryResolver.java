@@ -935,8 +935,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		if (defn instanceof PolyInstance)
 			defn = ((PolyInstance)defn).struct();
 		if (defn instanceof ContractDecl) {
-			if (udd.expr != null || !udd.fields.isEmpty()) {
+			ContractDecl cd = (ContractDecl) defn;
+			if (udd.expr != null && cd.type != ContractType.HANDLER) {
 				errors.message(udd.location(), "a contract data declaration may not be initialized");
+			}
+			if (!udd.fields.isEmpty()) {
+				errors.message(udd.location(), "a contract data declaration does not have fields to initialize");
 			}
 		} else if (defn instanceof StructDefn) {
 			StructDefn sd = (StructDefn) defn;

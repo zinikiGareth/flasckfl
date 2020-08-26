@@ -450,7 +450,7 @@ const MockHandler = function(ctr) {
 MockHandler.prototype = new ExplodingIdempotentHandler();
 MockHandler.prototype.constructor = MockHandler;
 
-MockHandler.prototype._areYouA = MockContract.prototype.areYouA;
+MockHandler.prototype._areYouA = MockContract.prototype._areYouA;
 MockHandler.prototype.expect = MockContract.prototype.expect;
 MockHandler.prototype.serviceMethod = MockContract.prototype.serviceMethod;
 MockHandler.prototype.assertSatisfied = MockContract.prototype.assertSatisfied;

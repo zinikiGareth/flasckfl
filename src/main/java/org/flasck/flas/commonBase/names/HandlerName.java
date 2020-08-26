@@ -79,6 +79,6 @@ public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 
 	@Override
 	public String toString() {
-		throw new NotImplementedException();
+		return "Handler[" + this.uniqueName() + "]";
 	}
 }

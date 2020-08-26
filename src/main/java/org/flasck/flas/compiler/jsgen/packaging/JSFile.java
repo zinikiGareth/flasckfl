@@ -16,6 +16,8 @@ import org.flasck.flas.compiler.jsgen.creators.JSMethod;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.collections.ListMap;
+import org.zinutils.exceptions.CantHappenException;
 
 public class JSFile {
 	private final String pkg;
@@ -65,12 +67,27 @@ public class JSFile {
 
 	public void writeTo(IndentWriter iw) {
 		declarePackages(iw);
-		for (JSClass c : classes)
-			c.writeTo(iw);
+		ListMap<String, JSClass> deferred = new ListMap<>();
+		for (JSClass c : classes) {
+			// Handlers can be nested inside functions, so defer them ...
+			if (c.name().container() instanceof FunctionName) {
+				FunctionName fn = (FunctionName) c.name().container();
+				if (!fn.baseName().startsWith("_"))
+					throw new CantHappenException("was expecting a function case name");
+				deferred.add(fn.container().jsName(), c);
+			} else
+				c.writeTo(iw);
+		}
+		System.out.println("deferred = " + deferred);
 		Set<NameOfThing> names = new HashSet<>();
 		for (JSMethod f : functions) {
 			declareContainingPackage(iw, f);
 			f.write(iw, names);
+			System.out.println("Handling defer for " + f.jsName());
+			if (deferred.contains(f.jsName())) {
+				for (JSClass c : deferred.get(f.jsName()))
+					c.writeTo(iw);
+			}
 		}
 		for (MethodList m : methodLists)
 			m.write(iw);

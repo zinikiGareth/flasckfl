@@ -10,7 +10,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
-public class HandlerImplements extends Implements implements RepositoryEntry, NamedType, WithTypeSignature {
+public class HandlerImplements extends Implements implements RepositoryEntry, NamedType, WithTypeSignature, StateHolder {
 	public final String baseName;
 	public final List<HandlerLambda> boundVars;
 	public final boolean inCard;
@@ -62,6 +62,14 @@ public class HandlerImplements extends Implements implements RepositoryEntry, Na
 	@Override
 	public Type type() {
 		return this;
+	}
+
+	@Override
+	public StateDefinition state() {
+		if (parent instanceof StateHolder)
+			return ((StateHolder)parent).state();
+		else
+			throw new NotImplementedException();
 	}
 
 	@Override
