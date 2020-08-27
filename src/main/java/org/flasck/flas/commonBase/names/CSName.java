@@ -32,11 +32,6 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 	}
 
 	@Override
-	public String jsUName() {
-		return card.jsName() + "._" + cname;
-	}
-	
-	@Override
 	public String javaName() {
 		return card.javaName() + "." + cname;
 	}

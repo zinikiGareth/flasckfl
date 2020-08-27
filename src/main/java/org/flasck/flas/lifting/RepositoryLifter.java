@@ -19,7 +19,6 @@ import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StandaloneMethod;
-import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -35,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class RepositoryLifter extends LeafAdapter implements Lifter {
 	public static final Logger logger = LoggerFactory.getLogger("Lifter");
@@ -82,6 +80,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 			logger.info("  " + lh.name() + " => " + lh.nestedVars().vars());
 			logger.info("    depends on " + lh.nestedVars().references() + " " + lh.nestedVars().referencesHI());
 		}
+		enhanceAll();
 		refhandlers();
 		resolve();
 		logger.info("group ordering = " + ordering);
@@ -95,7 +94,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	}
 
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
+	public void visitHandlerImplements(HandlerImplements hi) {
 		logger.info("saw HI " + hi);
 		his.ensure(hi.handlerName);
 	}
@@ -216,6 +215,16 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		ms = null;
 	}
 
+	private void enhanceAll() {
+		boolean hasMore = true;
+		while (hasMore) {
+			hasMore = false;
+			for (LogicHolder f : interesting) {
+				hasMore |= enhance(f);
+			}
+		}
+	}
+
 	// If a method references handlers, that means it references all the methods in the handler ...
 	private void refhandlers() {
 		for (LogicHolder f : interesting) {
@@ -225,10 +234,9 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 				for (LogicHolder m : his.get(hi.handlerName)) {
 					logger.info("  " + f.name() + " therefore depends on " + m.name());
 					f.nestedVars().dependsOn(m);
-					if (m.nestedVars() != null)
-						m.nestedVars().dependsOn(f);
 					if (m.nestedVars() == null)
 						continue;
+					m.nestedVars().dependsOn(f);
 					for (Pattern p : m.nestedVars().patterns()) {
 						if (p instanceof TypedPattern) {
 							TypedPattern tp = (TypedPattern) p;
@@ -246,7 +254,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 					HandlerLambda hl = new HandlerLambda(p, true);
 					hi.boundVars.add(pos++, hl);
 					Traverser trav = new Traverser(new HLRewriter(p, hl)).withImplementedMethods();
-					trav.visitHandlerImplements(hi, null);
+					trav.visitHandlerImplements(hi);
 				}
 			}
 		}
@@ -263,13 +271,6 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		for (LogicHolder f : dull)
 			ordering.add(new DependencyGroup(f));
 
-		boolean hasMore = true;
-		while (hasMore) {
-			hasMore = false;
-			for (LogicHolder f : interesting) {
-				hasMore |= enhance(f);
-			}
-		}
 		Set<LogicHolder> processedFns = new TreeSet<>(LoadBuiltins.allFunctions);
 		processedFns.addAll(dull);
 		Set<LogicHolder> remainingFns = new TreeSet<>(interesting);

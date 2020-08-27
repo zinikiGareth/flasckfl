@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.zinutils.exceptions.NotImplementedException;
-
 public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 	public final NameOfThing container;
 	public final String baseName;
@@ -53,13 +51,6 @@ public class HandlerName implements NameOfThing, Comparable<NameOfThing> {
 		if (container == null)
 			return baseName;
 		return container.jsName() + "." + baseName;
-	}
-
-	@Override
-	public String jsUName() {
-		if (container == null)
-			return baseName;
-		return container.jsName() + "._" + baseName;
 	}
 
 	@Override

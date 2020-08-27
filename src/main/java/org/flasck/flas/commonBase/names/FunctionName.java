@@ -6,7 +6,6 @@ import java.util.Map;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.jvm.J;
 import org.zinutils.exceptions.HaventConsideredThisException;
-import org.zinutils.exceptions.UtilException;
 
 public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 	public final InputPosition location;
@@ -123,13 +122,10 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 	public String jsName() {
 		if (inContext == null || inContext.jsName() == null || inContext.jsName().length() == 0)
 			return name;
+		else if (inContext instanceof FunctionName)
+			return ((FunctionName) inContext).jsPName() + "." + name;
 		else
 			return inContext.jsName() + "." + name;
-	}
-
-	@Override
-	public String jsUName() {
-		throw new UtilException("I don't think so");
 	}
 
 	public String jsPName() {

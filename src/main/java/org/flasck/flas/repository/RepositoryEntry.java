@@ -24,8 +24,10 @@ public interface RepositoryEntry {
 		private int category(RepositoryEntry o1) {
 			if (o1 instanceof ContractDecl)
 				return 1;
+//			else if (o1 instanceof HandlerImplements)
+//				return 2;
 			else
-				return 2;
+				return 99;
 		}
 	};
 	

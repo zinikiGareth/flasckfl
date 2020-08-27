@@ -244,7 +244,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
+	public void visitHandlerImplements(HandlerImplements hi) {
 		scopeStack.add(0, scope);
 		this.scope = hi.name();
 		currentlyImplementing = hi;

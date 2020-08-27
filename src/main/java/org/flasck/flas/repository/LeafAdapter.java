@@ -39,7 +39,6 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
@@ -248,7 +247,7 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
+	public void visitHandlerImplements(HandlerImplements hi) {
 	}
 
 	@Override

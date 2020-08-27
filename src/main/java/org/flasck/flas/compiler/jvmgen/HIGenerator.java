@@ -30,9 +30,10 @@ public class HIGenerator extends LeafAdapter {
 	private final JVMBlockCreator currentBlock;
 	private final AtomicInteger nextArg = new AtomicInteger();
 
-	public HIGenerator(StackVisitor sv, ByteCodeStorage bce, HandlerImplements hi, StateHolder sh, IExpr runner) {
+	public HIGenerator(StackVisitor sv, ByteCodeStorage bce, HandlerImplements hi, IExpr runner) {
 		this.sv = sv;
 		sv.push(this);
+		StateHolder sh = (StateHolder) hi.getParent();
 		
 		HandlerName name = (HandlerName) hi.name();
 		String clzName = name.javaClassName();

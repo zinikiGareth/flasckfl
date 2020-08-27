@@ -5,7 +5,6 @@ public interface NameOfThing {
 	String uniqueName();
 	
 	String jsName();
-	String jsUName();
 	String javaName();
 	String javaPackageName();
 	String javaClassName();

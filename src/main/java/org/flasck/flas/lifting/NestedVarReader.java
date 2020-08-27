@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.patterns.HSIOptions;
@@ -22,4 +23,5 @@ public interface NestedVarReader {
 	boolean enhanceWith(LogicHolder fn, NestedVarReader nestedVars);
 	boolean dependsOn(LogicHolder f);
 	void clearPatterns();
+	void bindLambda(int which, HandlerLambda hl);
 }

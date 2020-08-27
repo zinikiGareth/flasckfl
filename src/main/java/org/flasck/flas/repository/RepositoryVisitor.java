@@ -39,7 +39,6 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
@@ -140,7 +139,7 @@ public interface RepositoryVisitor {
 	void visitRequires(RequiresContract rc);
 	void visitImplements(ImplementsContract ic);
 	void leaveImplements(ImplementsContract ic);
-	void visitHandlerImplements(HandlerImplements hi, StateHolder sh);
+	void visitHandlerImplements(HandlerImplements hi);
 	void visitHandlerLambda(HandlerLambda hl);
 	void leaveHandlerImplements(HandlerImplements hi);
 	void leaveAgentDefn(AgentDefinition s);

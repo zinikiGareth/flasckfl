@@ -1,7 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.exceptions.UtilException;
 
 public class UnitTestFileName implements NameOfThing {
 	private final PackageName container;
@@ -36,11 +35,6 @@ public class UnitTestFileName implements NameOfThing {
 		return container.uniqueName() + "." + name;
 	}
 
-	@Override
-	public String jsUName() {
-		throw new UtilException("I don't think so");
-	}
-	
 	@Override
 	public String javaName() {
 		return container.uniqueName() + "." + name;

@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.stories.TDAParserConstructor;
+import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -74,7 +75,7 @@ public class TDAHandlerParser implements TDAParsing {
 		}
 		for (HandlerLambda hl : lambdas)
 			((TopLevelDefinitionConsumer) topLevel).replaceDefinition(hl);
-		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, builder, hn, new TypeReference(tn.location, tn.text), inCard, lambdas);
+		final HandlerImplements hi = new HandlerImplements(kw, named.location, tn.location, (NamedType) holder, hn, new TypeReference(tn.location, tn.text), inCard, lambdas);
 		if (builder != null)
 			builder.newHandler(errors, hi);
 		topLevel.newHandler(errors, hi);

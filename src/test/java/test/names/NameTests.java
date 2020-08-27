@@ -60,6 +60,7 @@ public class NameTests {
 	public void anObjectMethod() {
 		assertEquals("demo.ziniki.Account.m", acctM.javaName());
 		assertEquals("demo.ziniki.Account.m", acctM.jsName());
+		assertEquals("demo.ziniki.Account.prototype.m", acctM.jsPName());
 	}
 
 	@Test
@@ -67,12 +68,23 @@ public class NameTests {
 		FunctionName fn = FunctionName.function(pos, acctM, "f");
 		assertEquals("demo.ziniki.Account.m_f", fn.javaName());
 		assertEquals("demo.ziniki.Account.m.f", fn.jsName());
+		assertEquals("demo.ziniki.Account.prototype.m.f", fn.jsPName());
 	}
 
 	@Test
 	public void aHandlerMethod() {
 		assertEquals("demo.ziniki.BaseHandler.q", hdlr1.javaName());
 		assertEquals("demo.ziniki.BaseHandler.q", hdlr1.jsName());
+	}
+
+	@Test
+	public void aHandlerInObjectAcor() {
+		FunctionName fn = FunctionName.function(pos, acctM, "f");
+		FunctionName fc = FunctionName.caseName(fn, 1);
+		HandlerName hn = new HandlerName(fc, "Nested");
+		assertEquals("demo.ziniki.Account.m_f__1.Nested", hn.javaName());
+		assertEquals("demo.ziniki.Account.prototype.m.f._1.Nested", hn.jsName());
+//		assertEquals("demo.ziniki.Account.prototype.m.f", hn.jsPName());
 	}
 
 	@Test

@@ -127,7 +127,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	@Override
 	public UnifiableType requireVarConstraints(InputPosition pos, String fnCxt, String var) {
 		if (!constraints.contains(fnCxt, var))
-			throw new RuntimeException("We don't have var constraints for " + var + " in " + fnCxt + " but it should have been bound during arg processing");
+			throw new RuntimeException("We don't have var constraints for " + var + " in " + fnCxt + " but it should have been bound during arg processing: " + constraints.key2Set(fnCxt));
 		return constraints.get(fnCxt, var);
 	}
 

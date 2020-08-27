@@ -30,11 +30,6 @@ public class AssemblyName implements NameOfThing {
 	}
 
 	@Override
-	public String jsUName() {
-		throw new NotImplementedException();
-	}
-
-	@Override
 	public String javaName() {
 		throw new NotImplementedException();
 	}

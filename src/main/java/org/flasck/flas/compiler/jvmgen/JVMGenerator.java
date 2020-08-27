@@ -851,8 +851,8 @@ public class JVMGenerator extends LeafAdapter implements HSIVisitor, ResultAware
 	}
 
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
-		new HIGenerator(sv, bce, hi, sh, runner);
+	public void visitHandlerImplements(HandlerImplements hi) {
+		new HIGenerator(sv, bce, hi, runner);
 	}
 
 	@Override

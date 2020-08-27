@@ -71,7 +71,6 @@ import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StandaloneMethod;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
@@ -119,6 +118,7 @@ import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class Traverser implements RepositoryVisitor {
+	final static Logger logger = LoggerFactory.getLogger("Traverser");
 	final static Logger patternsLogger = LoggerFactory.getLogger("TOPatterns");
 	final static Logger hsiLogger = LoggerFactory.getLogger("HSI");
 	private final RepositoryVisitor visitor;
@@ -215,7 +215,9 @@ public class Traverser implements RepositoryVisitor {
 		}
 		Set<RepositoryEntry> entriesInSomeOrder = new TreeSet<RepositoryEntry>(RepositoryEntry.preferredOrder);
 		entriesInSomeOrder.addAll(repository.dict.values());
+		logger.info("about to visit " + entriesInSomeOrder);
 		for (RepositoryEntry e : entriesInSomeOrder) {
+			logger.debug("visiting " + e);
 			visitEntry(e);
 		}
 		traversalDone();
@@ -264,8 +266,7 @@ public class Traverser implements RepositoryVisitor {
 				visitStandaloneMethod((StandaloneMethod)e);
 		} else if (e instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements) e;
-			if (hi.getParent() == null)
-				visitHandlerImplements(hi, null);
+			visitHandlerImplements(hi);
 		} else if (e instanceof StructDefn)
 			visitStructDefn((StructDefn)e);
 		else if (e instanceof UnionTypeDefn)
@@ -354,8 +355,8 @@ public class Traverser implements RepositoryVisitor {
 		visitStateDefinition(obj.state());
 		for (ObjectContract oc : obj.contracts)
 			visitObjectContract(oc);
-		for (HandlerImplements ic : obj.handlers)
-			visitHandlerImplements(ic, obj);
+//		for (HandlerImplements ic : obj.handlers)
+//			visitHandlerImplements(ic, obj);
 		for (Template t : obj.templates) {
 			visitTemplate(t, false);
 		}
@@ -404,8 +405,8 @@ public class Traverser implements RepositoryVisitor {
 			visitProvides(p);
 		for (ImplementsContract ic : cd.contracts)
 			visitImplements(ic);
-		for (HandlerImplements ic : cd.handlers)
-			visitHandlerImplements(ic, cd);
+//		for (HandlerImplements ic : cd.handlers)
+//			visitHandlerImplements(ic, cd);
 		boolean isFirst = true;
 		for (Template t : cd.templates) {
 			visitTemplate(t, isFirst);
@@ -424,8 +425,8 @@ public class Traverser implements RepositoryVisitor {
 			visitProvides(p);
 		for (ImplementsContract ic : s.contracts)
 			visitImplements(ic);
-		for (HandlerImplements ic : s.handlers)
-			visitHandlerImplements(ic, s);
+//		for (HandlerImplements ic : s.handlers)
+//			visitHandlerImplements(ic, s);
 		leaveAgentDefn(s);
 	}
 
@@ -436,8 +437,8 @@ public class Traverser implements RepositoryVisitor {
 			visitRequires(rc);
 		for (Provides p : s.provides)
 			visitProvides(p);
-		for (HandlerImplements ic : s.handlers)
-			visitHandlerImplements(ic, null);
+//		for (HandlerImplements ic : s.handlers)
+//			visitHandlerImplements(ic, null);
 		leaveServiceDefn(s);
 	}
 
@@ -475,8 +476,8 @@ public class Traverser implements RepositoryVisitor {
 		visitor.leaveImplements(ic);
 	}
 
-	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
-		visitor.visitHandlerImplements(hi, sh);
+	public void visitHandlerImplements(HandlerImplements hi) {
+		visitor.visitHandlerImplements(hi);
 		visitTypeReference(hi.implementsType(), true);
 		traverseHandlerLambdas(hi);
 		if (wantImplementedMethods) {

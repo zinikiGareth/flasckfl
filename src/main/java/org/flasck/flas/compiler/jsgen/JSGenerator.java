@@ -54,7 +54,6 @@ import org.flasck.flas.parsedForm.Provides;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.ServiceDefinition;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
@@ -84,10 +83,13 @@ import org.flasck.flas.resolver.TemplateNestingChain.Link;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.jvm.J;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware {
+	private final static Logger logger = LoggerFactory.getLogger("Generator");
 	public static class XCArg {
 		public final int arg;
 		public final JSExpr expr;
@@ -351,32 +353,23 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	public void visitObjectMethod(ObjectMethod om) {
 		if (!om.generate)
 			return;
+		logger.info("visiting object method " + om.name());
 		switchVars.clear();
 		if (!om.isConverted()) {
 			this.meth = null;
 			return;
 		}
-//		JSExpr container = null;
 		String pkg = om.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, om.name().inContext.jsName());
-		this.meth = jse.newFunction(om.name(), pkg, om.name().container(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent() /**/ || om.hasState() /**/, om.name().name);
+		this.meth = jse.newFunction(om.name(), pkg, om.name().container(), currentOA != null || om.contractMethod() != null || om.hasObject() || om.isEvent() || om.hasState(), om.name().name);
 		if (om.hasImplements()) {
 			if (om.getImplements().getParent() instanceof ServiceDefinition) {
 				this.meth.noJS();
 			}
 			Implements impl = om.getImplements();
 			this.methodMap.get(impl).add(om.name());
-//			if (impl instanceof HandlerImplements && ((HandlerImplements)impl).getParent() == null)
-//				container = new JSThis();
-//			else
-//				container = new JSFromCard(om.name().container());
 		} else if (om.hasObject()) {
 			this.methodMap.get(om.getObject()).add(om.name());
-//			container = new JSThis();
-//		} else if (om.isEvent()) {
-//			container = new JSThis();
-//		} else if (om.hasState()) {
-//			container = new JSThis();
 		}
 		this.meth.argument("_cxt");
 		this.meth.argumentList();
@@ -729,10 +722,10 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 	
 	@Override
-	public void visitHandlerImplements(HandlerImplements hi, StateHolder sh) {
+	public void visitHandlerImplements(HandlerImplements hi) {
 		String pkg = hi.name().packageName().jsName();
 		jse.ensurePackageExists(pkg, hi.name().container().jsName());
-		new HIGeneratorJS(sv, jse, methodMap, hi, sh);
+		new HIGeneratorJS(sv, jse, methodMap, hi);
 	}
 
 	@Override

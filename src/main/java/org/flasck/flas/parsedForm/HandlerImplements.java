@@ -10,7 +10,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.lifting.NestedVarReader;
-import org.flasck.flas.parsedForm.HandlerImplements.AsNested;
 import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;

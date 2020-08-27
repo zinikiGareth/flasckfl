@@ -121,7 +121,7 @@ public class JSEnvironment implements JSStorage {
 			for (ObjectDefn od : objects)
 				ifn.cxtMethod("registerObject", new JSString(od.name().uniqueName()), ifn.literal(od.name().uniqueName()));
 			for (HandlerImplements hi : handlers)
-				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().uniqueName()));
+				ifn.cxtMethod("registerStruct", new JSString(hi.name().uniqueName()), ifn.literal(hi.name().jsName()));
 			p.getValue().addFunction(ifn);
 		}
 	}

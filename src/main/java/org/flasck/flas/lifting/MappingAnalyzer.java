@@ -13,7 +13,6 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class MappingAnalyzer {
 	public static final Logger logger = LoggerFactory.getLogger("Lifter");

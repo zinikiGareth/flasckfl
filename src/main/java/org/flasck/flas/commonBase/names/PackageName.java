@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.zinutils.exceptions.UtilException;
-
 public class PackageName implements NameOfThing, Comparable<PackageName> {
 	private final String name;
 
@@ -38,11 +36,6 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 		return name;
 	}
 
-	@Override
-	public String jsUName() {
-		throw new UtilException("I don't think so");
-	}
-	
 	@Override
 	public String javaName() {
 		return name;

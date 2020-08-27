@@ -15,23 +15,27 @@ import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.jvm.J;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class HIGeneratorJS extends LeafAdapter {
+	private final static Logger logger = LoggerFactory.getLogger("Generator");
 	private NestedVisitor sv;
 	private JSMethodCreator hdlrCtor;
 	private JSClassCreator hdlr;
 	private JSMethodCreator eval;
 	private JSExpr evalRet;
 
-	public HIGeneratorJS(NestedVisitor sv, JSStorage jse, Map<Object, List<FunctionName>> methodMap, HandlerImplements hi, StateHolder sh) {
+	public HIGeneratorJS(NestedVisitor sv, JSStorage jse, Map<Object, List<FunctionName>> methodMap, HandlerImplements hi) {
+		logger.info("creating higenerator for " + hi);
+		boolean hasParent = hi.getParent() != null;
 		this.sv = sv;
 		sv.push(this);
 		
@@ -39,7 +43,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		this.hdlr = jse.newClass(name.packageName().jsName(), name);
 		this.hdlr.inheritsFrom(hi.actualType().name(), J.HANDLERBASE);
 		this.hdlr.implementsJava(hi.actualType().name().javaName());
-		if (sh != null)
+		if (hasParent)
 			this.hdlr.implementsJava(J.CONTAINS_CARD);
 		this.hdlr.inheritsField(true, Access.PROTECTED, new PackageName(J.FIELDS_CONTAINER), "state");
 
@@ -51,7 +55,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		this.eval.argumentList();
 		this.eval.argument("_cxt");
 		List<JSExpr> args = new ArrayList<JSExpr>();
-		if (sh != null) {
+		if (hasParent) {
 			hdlr.field(true, Access.PRIVATE, new PackageName(J.OBJECT), "_card");
 			hdlrCtor.argument("_incard");
 			hdlrCtor.setField(false, "_card", new JSVar("_incard"));
@@ -67,7 +71,7 @@ public class HIGeneratorJS extends LeafAdapter {
 		methodMap.put(hi, methods);
 		jse.methodList(hi.name(), methods);
 
-		if (sh != null) {
+		if (hasParent) {
 			JSMethodCreator getcard = hdlr.createMethod("_card", true);
 			getcard.returnsType(J.UPDATES_DISPLAY);
 			getcard.returnObject(new JSLiteral("this._card"));

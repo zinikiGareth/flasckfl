@@ -8,9 +8,12 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tc3.UnifiableType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
 
 public class HandlerLambda implements RepositoryEntry {
+	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	public final Pattern patt;
 	public final boolean isNested;
 	private UnifiableType ut;
@@ -31,6 +34,7 @@ public class HandlerLambda implements RepositoryEntry {
 	}
 	
 	public void unifiableType(UnifiableType lt) {
+		logger.debug("binding HL " + patt + " to " + lt);
 		ut = lt;
 	}
 

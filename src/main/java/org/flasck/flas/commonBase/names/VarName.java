@@ -2,7 +2,6 @@ package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.exceptions.UtilException;
 
 public class VarName implements NameOfThing, Comparable<VarName> {
 	public final InputPosition loc;
@@ -46,11 +45,6 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 		return scope.jsName() + "." + var;
 	}
 
-	@Override
-	public String jsUName() {
-		throw new UtilException("I don't think so");
-	}
-	
 	@Override
 	public String javaName() {
 		throw new NotImplementedException();

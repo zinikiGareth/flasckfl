@@ -48,11 +48,6 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 	}
 
 	@Override
-	public String jsUName() {
-		return cardName.jsName() + "._" + name;
-	}
-	
-	@Override
 	public String javaName() {
 		throw new NotImplementedException();
 	}

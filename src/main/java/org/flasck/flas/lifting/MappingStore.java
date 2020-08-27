@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.LogicHolder;
@@ -23,6 +24,7 @@ import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.patterns.HSIPatternOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.NotImplementedException;
 
 // This is a record for a single function
@@ -122,6 +124,11 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 		return patterns.size();
 	}
 
+	@Override
+	public void bindLambda(int which, HandlerLambda hl) {
+		CollectionUtils.nth(patterns, which).var.bind(hl);
+	}
+	
 	@Override
 	public boolean containsReferencesNotIn(Set<LogicHolder> resolved) {
 		Set<LogicHolder> ret = new HashSet<>(deps);

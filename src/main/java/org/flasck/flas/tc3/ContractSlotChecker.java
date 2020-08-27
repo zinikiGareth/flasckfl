@@ -31,7 +31,7 @@ public class ContractSlotChecker extends LeafAdapter implements TreeOrderVisitor
 		this.sv = sv;
 		this.cmd = inMeth.contractMethod();
 		if (inMeth.nestedVars() != null && !inMeth.nestedVars().patterns().isEmpty())
-			throw new CantHappenException("contract methods cannot handle nested vars; handler methods should add lambdas, I don't know about other cases");
+			throw new CantHappenException("contract method " + inMeth.name() + " cannot handle nested vars; handler methods should add lambdas, I don't know about other cases");
 		this.pos = 0;
 	}
 

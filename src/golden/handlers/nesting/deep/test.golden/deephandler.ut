@@ -1,0 +1,10 @@
+It should be possible to call a function and pass it arguments that can be used inside a scoped handler.
+The arguments obviously need to be attached to the handler implicitly as lambdas.
+This is true even if the function is inside an object
+
+	test that we can call it
+		data TopHasState ths <- TopHasState.create
+		data BoringHandler bh <- ths.f 5
+		invoke bh.boreMe
+		assert (ths.counter)
+			12

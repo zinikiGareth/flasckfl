@@ -1,7 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
 import org.zinutils.exceptions.NotImplementedException;
-import org.zinutils.exceptions.UtilException;
 
 public class PolyName implements NameOfThing, Comparable<PolyName> {
 	private final String name;
@@ -32,11 +31,6 @@ public class PolyName implements NameOfThing, Comparable<PolyName> {
 	@Override
 	public String jsName() {
 		return name;
-	}
-
-	@Override
-	public String jsUName() {
-		throw new UtilException("I don't think so");
 	}
 
 	public String simpleName() {

@@ -95,7 +95,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 		if (patt instanceof VarPattern) {
 			VarPattern vp = (VarPattern) patt;
 			UnifiableType lt = state.createUT(null, "hl " + vp.var);
-			state.bindVarToUT(hl.name().uniqueName(), vp.name().uniqueName(), lt);
+			state.bindVarToUT(name.uniqueName(), vp.name().uniqueName(), lt);
 			if (hl.isNested)
 				hl.unifiableType(lt);
 			state.bindVarPatternToUT(vp, lt);
