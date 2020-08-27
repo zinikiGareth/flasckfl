@@ -91,7 +91,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			throw new NotImplementedException("Where did this come from?");
 		if (constraints.contains(fnCxt, name))
 			throw new CantHappenException("duplicate name for one var: " + name + " in " + fnCxt);
-		logger.info("binding " + fnCxt + " :: " + name + " to " + ty.id());
+		logger.info("binding " + fnCxt + " :: " + name + " to " + ty.id() + " for " + ty.motive());
 		constraints.add(fnCxt, name, ty);
 	}
 

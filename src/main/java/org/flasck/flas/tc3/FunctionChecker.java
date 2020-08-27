@@ -35,9 +35,12 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.ExpressionChecker.GuardResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrderVisitor {
+	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	public static class ArgResult extends PosType {
 		// We just can't know a position for this, because it's a slot that can map to many
 		// We need to capture them later
@@ -57,6 +60,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private FunctionName name;
 
 	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, FunctionName name, CurrentTCState state, ObjectActionHandler inMeth) {
+		logger.info("checking function " + name.uniqueName());
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
@@ -92,6 +96,8 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			VarPattern vp = (VarPattern) patt;
 			UnifiableType lt = state.createUT(null, "hl " + vp.var);
 			state.bindVarToUT(hl.name().uniqueName(), vp.name().uniqueName(), lt);
+			if (hl.isNested)
+				hl.unifiableType(lt);
 			state.bindVarPatternToUT(vp, lt);
 		} else if (patt instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) patt;

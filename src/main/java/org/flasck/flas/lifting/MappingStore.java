@@ -125,6 +125,10 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	@Override
 	public boolean containsReferencesNotIn(Set<LogicHolder> resolved) {
 		Set<LogicHolder> ret = new HashSet<>(deps);
+		for (HandlerImplements hi : hideps) {
+			for (ObjectMethod mi : hi.implementationMethods)
+				ret.add(mi);
+		}
 		ret.removeAll(resolved);
 		return !ret.isEmpty();
 	}
@@ -140,8 +144,22 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 	}
 	
 	@Override
+	public Set<LogicHolder> referencesHIMethods() {
+		Set<LogicHolder> ret = new HashSet<>();
+		for (HandlerImplements hi : hideps) {
+			for (ObjectMethod m : hi.implementationMethods)
+				ret.add(m);
+		}
+		return ret;
+	}
+	
+	@Override
 	public boolean dependsOn(LogicHolder fn) {
-		return deps.contains(fn);
+		if (deps.contains(fn))
+			return true;
+		if (referencesHIMethods().contains(fn))
+			return true;
+		return false;
 	}
 
 	@Override
@@ -193,6 +211,6 @@ public class MappingStore implements MappingCollector, NestedVarReader {
 
 	@Override
 	public String toString() {
-		return name.uniqueName();
+		return "NV[" + name.uniqueName() + "]";
 	}
 }

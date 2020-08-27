@@ -15,6 +15,7 @@ import org.flasck.flas.patterns.HSIOptions;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class HandlerImplements extends Implements implements RepositoryEntry, NamedType, WithTypeSignature, StateHolder {
@@ -38,10 +39,18 @@ public class HandlerImplements extends Implements implements RepositoryEntry, Na
 			List<UnresolvedVar> ret = new ArrayList<>();
 			for (HandlerLambda hl : boundVars)
 				if (hl.isNested) {
-					TypedPattern tp = (TypedPattern)hl.patt;
-					UnresolvedVar uv = new UnresolvedVar(hl.location(), tp.var.var);
-					uv.bind(tp);
-					ret.add(uv);
+					if (hl.patt instanceof TypedPattern) {
+						TypedPattern tp = (TypedPattern)hl.patt;
+						UnresolvedVar uv = new UnresolvedVar(hl.location(), tp.var.var);
+						uv.bind(tp);
+						ret.add(uv);
+					} else if (hl.patt instanceof VarPattern) {
+						VarPattern vp = (VarPattern)hl.patt;
+						UnresolvedVar uv = new UnresolvedVar(hl.location(), vp.var);
+						uv.bind(vp);
+						ret.add(uv);
+					} else
+						throw new CantHappenException("cannot have a pattern " + hl.patt.getClass());
 				}
 			return ret;
 		}
@@ -63,6 +72,11 @@ public class HandlerImplements extends Implements implements RepositoryEntry, Na
 
 		@Override
 		public Set<HandlerImplements> referencesHI() {
+			throw new NotImplementedException();
+		}
+
+		@Override
+		public Set<LogicHolder> referencesHIMethods() {
 			throw new NotImplementedException();
 		}
 
@@ -111,11 +125,17 @@ public class HandlerImplements extends Implements implements RepositoryEntry, Na
 	public Type get(int pos) {
 		if (pos == boundVars.size())
 			return this;
-		HandlerLambda p = boundVars.get(pos);
-		if (p.patt instanceof TypedPattern)
-			return ((TypedPattern)p.patt).type();
+		HandlerLambda hl = boundVars.get(pos);
+		if (hl.patt instanceof TypedPattern)
+			return ((TypedPattern)hl.patt).type();
+		else if (hl.patt instanceof VarPattern) {
+			if (hl.isNested)
+				return hl.unifiableType();
+			else
+				throw new NotImplementedException("Cannot handle var pattern in non-nested lambda: " + hl.patt);
+		}
 		else
-			throw new NotImplementedException("Pattern not handled: " + p.getClass());
+			throw new NotImplementedException("Pattern not handled: " + hl.getClass());
 	}
 
 	public ObjectMethod getMethod(String called) {

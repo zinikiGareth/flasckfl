@@ -145,8 +145,8 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 			TypedPattern vp = (TypedPattern) defn;
 			announce(pos, (Type) vp.type.defn());
 		} else if (defn instanceof HandlerLambda) {
-			TypedPattern vp = (TypedPattern) ((HandlerLambda)defn).patt;
-			announce(pos, (Type) vp.type.defn());
+			HandlerLambda hl = (HandlerLambda)defn;
+			announce(pos, (Type) hl.type());
 		} else if (defn instanceof StructField) {
 			StructField sf = (StructField) defn;
 			announce(pos, (Type) sf.type.defn());

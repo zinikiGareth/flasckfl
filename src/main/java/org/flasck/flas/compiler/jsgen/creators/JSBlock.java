@@ -85,10 +85,12 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.TemplateField;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.CantHappenException;
 
 public class JSBlock implements JSBlockCreator {
 	final List<JSExpr> stmts = new ArrayList<>();
@@ -159,7 +161,12 @@ public class JSBlock implements JSBlockCreator {
 	
 	@Override
 	public JSExpr lambda(HandlerLambda hl) {
-		return new JSLoadField(new JSThis(), ((TypedPattern)hl.patt).var.var);
+		if (hl.patt instanceof TypedPattern)
+			return new JSLoadField(new JSThis(), ((TypedPattern)hl.patt).var.var);
+		else if (hl.patt instanceof VarPattern)
+			return new JSLoadField(new JSThis(), ((VarPattern)hl.patt).var);
+		else
+			throw new CantHappenException("patt is " + hl.patt);
 	}
 	
 	@Override

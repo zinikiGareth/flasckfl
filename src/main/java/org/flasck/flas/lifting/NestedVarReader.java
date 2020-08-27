@@ -18,6 +18,7 @@ public interface NestedVarReader {
 	boolean containsReferencesNotIn(Set<LogicHolder> processedFns);
 	Set<LogicHolder> references();
 	Set<HandlerImplements> referencesHI();
+	Set<LogicHolder> referencesHIMethods();
 	boolean enhanceWith(LogicHolder fn, NestedVarReader nestedVars);
 	boolean dependsOn(LogicHolder f);
 	void clearPatterns();

@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.jvm.J;
@@ -78,6 +79,8 @@ public class HIGeneratorJS extends LeafAdapter {
 		String name;
 		if (hl.patt instanceof TypedPattern)
 			name = ((TypedPattern)hl.patt).var.var;
+		else if (hl.patt instanceof VarPattern)
+			name = ((VarPattern)hl.patt).var;
 		else
 			throw new NotImplementedException("pattern " + hl);
 		JSExpr arg = this.eval.argument(name);

@@ -225,6 +225,8 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 				for (LogicHolder m : his.get(hi.handlerName)) {
 					logger.info("  " + f.name() + " therefore depends on " + m.name());
 					f.nestedVars().dependsOn(m);
+					if (m.nestedVars() != null)
+						m.nestedVars().dependsOn(f);
 					if (m.nestedVars() == null)
 						continue;
 					for (Pattern p : m.nestedVars().patterns()) {
@@ -327,6 +329,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	private Set<LogicHolder> buildTransitiveClosure(LogicHolder fn, Set<LogicHolder> resolved) {
 		Set<LogicHolder> closure = new TreeSet<>();
 		buildMaximalTransitiveClosure(fn, resolved, closure);
+		logger.info("built maximal transitive closure " + closure);
 		for (LogicHolder f : closure) {
 			if (!checkFn(f, closure))
 				return null;
@@ -335,11 +338,14 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	}
 
 	private boolean checkFn(LogicHolder f, Set<LogicHolder> closure) {
+		logger.debug("checking if " + f + " is integral to " + closure);
 		for (LogicHolder g : closure) {
 			NestedVarReader nv = g.nestedVars();
+			logger.debug("  for " + g + " nv = " + nv + (nv != null ? " " + nv.references() + " and " + nv.dependsOn(f) : ""));
 			if (nv != null && nv.dependsOn(f))
 				return true;
 		}
+		logger.info("rejecting " + closure + " because none of them depend on " + f);
 		return false;
 	}
 
@@ -350,6 +356,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		NestedVarReader nv = fn.nestedVars();
 		if (nv != null) {
 			Set<LogicHolder> added = new TreeSet<>(nv.references());
+			added.addAll(nv.referencesHIMethods());
 			added.removeAll(resolved);
 			added.removeAll(closure);
 			for (LogicHolder o : added) {
