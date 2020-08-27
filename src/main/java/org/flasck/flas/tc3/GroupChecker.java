@@ -86,12 +86,12 @@ public class GroupChecker extends LeafAdapter implements ResultAware {
 
 	public static PosType extractResult(TypeBinder fn, PosType pt) {
 		if (pt == null) {
-			logger.info("nothing deduced for " + fn);
+			logger.info("  nothing deduced for " + fn);
 			return null;
 		}
-		logger.debug("deduced type of " + fn + " is: " + pt.type);
+		logger.debug("  deduced type of " + fn + " is: " + pt.type);
 		int ac = fn.argCount();
-		logger.debug("argCount including everything = " + ac);
+		logger.debug("    argCount including everything = " + ac);
 		if (ac == 0)
 			return pt;
 		else if (!(pt.type instanceof Apply)) {

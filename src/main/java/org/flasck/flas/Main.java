@@ -169,7 +169,7 @@ public class Main {
 		StaticLoggerBinder.setLevel("TypeChecker", Level.DEBUG);
 		StaticLoggerBinder.setLevel("TCUnification", Level.DEBUG);
 		StaticLoggerBinder.setLevel("HSI", Level.WARN);
-		StaticLoggerBinder.setLevel("Generator", Level.DEBUG);
+		StaticLoggerBinder.setLevel("Generator", Level.WARN);
 		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);
 		StaticLoggerBinder.setLevel("io.webfolder.ui4j", Level.WARN);
 		StaticLoggerBinder.setLevel("IdemHandler", Level.WARN);

@@ -60,7 +60,6 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	private FunctionName name;
 
 	public FunctionChecker(ErrorReporter errors, RepositoryReader repository, NestedVisitor sv, FunctionName name, CurrentTCState state, ObjectActionHandler inMeth) {
-		logger.info("checking function " + name.uniqueName());
 		this.errors = errors;
 		this.repository = repository;
 		this.sv = sv;
@@ -93,12 +92,14 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 	public void visitHandlerLambda(HandlerLambda hl) {
 		Pattern patt = hl.patt;
 		if (patt instanceof VarPattern) {
-			VarPattern vp = (VarPattern) patt;
-			UnifiableType lt = state.createUT(null, "hl " + vp.var);
-			state.bindVarToUT(name.uniqueName(), vp.name().uniqueName(), lt);
-			if (hl.isNested)
-				hl.unifiableType(lt);
-			state.bindVarPatternToUT(vp, lt);
+			if (hl.usedBy.contains(this.name)) {
+				VarPattern vp = (VarPattern) patt;
+				UnifiableType lt = state.createUT(null, "hl " + vp.var);
+				state.bindVarToUT(name.uniqueName(), vp.name().uniqueName(), lt);
+				if (hl.isNested)
+					hl.unifiableType(lt);
+				state.bindVarPatternToUT(vp, lt);
+			}
 		} else if (patt instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) patt;
 			UnifiableType lt = state.createUT(null, "hl " + tp.var);

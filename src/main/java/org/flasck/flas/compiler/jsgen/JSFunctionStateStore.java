@@ -24,7 +24,6 @@ public class JSFunctionStateStore implements JSFunctionState {
 
 	public JSFunctionStateStore(JSMethodCreator meth) {
 		this.meth = meth;
-		System.out.println("Have method " + meth.jsName());
 	}
 
 	@Override
@@ -41,7 +40,6 @@ public class JSFunctionStateStore implements JSFunctionState {
 
 	@Override
 	public JSExpr container(NameOfThing name) {
-		System.out.println("  looking for container called " + name.uniqueName());
 		if (!containers.containsKey(name))
 			throw new CantHappenException("There is no container for " + name.uniqueName() + " in " + meth.jsName());
 		return containers.get(name);

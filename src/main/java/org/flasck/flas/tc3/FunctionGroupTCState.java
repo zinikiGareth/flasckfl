@@ -38,7 +38,7 @@ import org.zinutils.graphs.Node;
 import org.zinutils.graphs.NodeWalker;
 
 public class FunctionGroupTCState implements CurrentTCState {
-	private final static Logger logger = LoggerFactory.getLogger("TCUnification");
+	private final static Logger uniflogger = LoggerFactory.getLogger("TCUnification");
 	private final RepositoryReader repository;
 	private final MapMap<String, String, UnifiableType> constraints = new MapMap<>();
 	private final Map<VarPattern, UnifiableType> patts = new TreeMap<>(VarPattern.comparator);
@@ -50,6 +50,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	
 	public FunctionGroupTCState(RepositoryReader repository, FunctionGroup grp) {
 		this.repository = repository;
+		uniflogger.info("  binding return types for group");
 		for (LogicHolder x : grp.functions())
 			bindVarToUT(x.name().uniqueName(), x.name().uniqueName(), createUT(x.location(), x.name().uniqueName() + " returns", false));
 		this.hasGroup = !grp.isEmpty();
@@ -91,7 +92,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			throw new NotImplementedException("Where did this come from?");
 		if (constraints.contains(fnCxt, name))
 			throw new CantHappenException("duplicate name for one var: " + name + " in " + fnCxt);
-		logger.info("binding " + fnCxt + " :: " + name + " to " + ty.id() + " for " + ty.motive());
+		uniflogger.info("    binding " + fnCxt + " :: " + name + " to " + ty.id() + " for " + ty.motive());
 		constraints.add(fnCxt, name, ty);
 	}
 
@@ -153,7 +154,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 				// something went wrong - probably just "do not generate"; anyway, we won't be able to do anything
 				return;
 			}
-			logger.debug("  " + e.getKey() + " :: " + e.getValue().type);
+			uniflogger.debug("  " + e.getKey() + " :: " + e.getValue().type);
 		}
 		
 		// When traversing the group, we should have managed to figure out some kind of type for it
@@ -181,7 +182,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		if (dag == null) { // cycle detected and error reported
 			return;
 		}
-		logger.debug("UT DAG:\n" + dag.toString());
+		uniflogger.debug("UT DAG:\n" + dag.toString());
 		List<UnifiableType> roots = dag.roots();
 		Comparator<UnifiableType> order = new Comparator<UnifiableType>() {
 			@Override
@@ -190,7 +191,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			}
 		};
 		Collections.sort(roots, order);
-		logger.debug("ROOTS: " + dag.roots());
+		uniflogger.debug("ROOTS: " + dag.roots());
 		
 		for (UnifiableType r : roots) {
 			dag.postOrderFromWithOrder(new NodeWalker<UnifiableType>() {
@@ -217,10 +218,10 @@ public class FunctionGroupTCState implements CurrentTCState {
 		}
 		
 		// Then we can bind the types
-		logger.debug("binding group:");
+		uniflogger.debug("binding group:");
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
 			Type as = cleanUTs(errors, e.getValue().pos, e.getValue().type, new ArrayList<>(), new HashMap<>());
-			logger.debug(e.getKey() + " :: " + as);
+			uniflogger.debug(e.getKey() + " :: " + as);
 			TypeChecker.logger.info(e.getKey() + " :: " + as);
 			e.getKey().bindType(as);
 		}
@@ -261,7 +262,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 			UnifiableType ut = allUTs.get(i);
 			ret.ensure(ut);
 			if (ut.isRedirected()) {
-				logger.debug("not collecting info on " + ut.id() + " because redirected to " + ut.redirectedTo());
+				uniflogger.debug("not collecting info on " + ut.id() + " because redirected to " + ut.redirectedTo());
 				ret.ensure(ut.redirectedTo());
 				ret.ensureLink(ut, ut.redirectedTo());
 				continue;
@@ -277,7 +278,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	}
 
 	private Type cleanUTs(ErrorReporter errors, InputPosition pos, Type ty, List<UnifiableType> recs, Map<PolyType, PolyType> inorderPolys) {
-		logger.debug("Cleaning " + ty + " " + ty.getClass());
+		uniflogger.debug("Cleaning " + ty + " " + ty.getClass());
 //		if (ty instanceof EnsureListMessage)
 //			((EnsureListMessage)ty).validate(errors);
 		if (ty instanceof UnifiableType) {
@@ -398,7 +399,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 				motive.append(tt.signature());
 		}
 		UnifiableType ut = createUT(pos, motive.toString(), false);
-		logger.debug("  " + motive + " as " + ut.id());
+		uniflogger.debug("  " + motive + " as " + ut.id());
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication(pos, (Apply) t.type);
@@ -444,7 +445,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 		// OK, let the first UT acquire the others
 		UnifiableType ut = (UnifiableType) uts.iterator().next().type;
-		logger.debug("  allowing " + ut.id() + " to collapse " + types);
+		uniflogger.debug("  allowing " + ut.id() + " to collapse " + types);
 		for (PosType t : types) {
 			if (t.type instanceof Apply) {
 				((TypeConstraintSet) ut).consolidatedApplication(t.pos, (Apply) t.type);
@@ -458,11 +459,11 @@ public class FunctionGroupTCState implements CurrentTCState {
 
 	@Override
 	public void debugInfo(String when) {
-		logger.debug("------ " + when + " # = " + allUTs.size());
+		uniflogger.debug("------ " + when + " # = " + allUTs.size());
 		for (UnifiableType ut : allUTs) {
 			TypeConstraintSet tcs = (TypeConstraintSet)ut;
-			logger.debug(tcs.debugInfo());
+			uniflogger.debug(tcs.debugInfo());
 		}
-		logger.debug("======");
+		uniflogger.debug("======");
 	}
 }

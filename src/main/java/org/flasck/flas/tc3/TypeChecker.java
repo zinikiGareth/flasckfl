@@ -83,7 +83,6 @@ public class TypeChecker extends LeafAdapter {
 
 	@Override
 	public void visitFunctionGroup(FunctionGroup grp) {
-		logger.info("Checking group " + grp.functions());
 		new GroupChecker(errors, repository, sv, new FunctionGroupTCState(repository, grp), mark);
 	}
 

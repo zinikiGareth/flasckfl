@@ -1,0 +1,2 @@
+checklambda.  5.16:   h = WantsNumber  _ "hello"
+                          function 'WantsNumber' was expecting Number not String

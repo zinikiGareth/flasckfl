@@ -40,7 +40,8 @@ public class UDDChecker extends LeafAdapter implements ResultAware {
 	public void result(Object r) {
 		ExprResult exprType = (ExprResult) r;
 		if (!actualType.incorporates(exprType.pos, exprType.type)) {
-			errors.message(exprType.pos, "cannot store " + exprType.type.signature() + " in data " + actualType.signature());
+			if (!(exprType.type instanceof ErrorType))
+				errors.message(exprType.pos, "cannot store " + exprType.type.signature() + " in data " + actualType.signature());
 			sv.result(null);
 			return;
 		}

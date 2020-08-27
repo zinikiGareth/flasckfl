@@ -78,12 +78,10 @@ public class JSFile {
 			} else
 				c.writeTo(iw);
 		}
-		System.out.println("deferred = " + deferred);
 		Set<NameOfThing> names = new HashSet<>();
 		for (JSMethod f : functions) {
 			declareContainingPackage(iw, f);
 			f.write(iw, names);
-			System.out.println("Handling defer for " + f.jsName());
 			if (deferred.contains(f.jsName())) {
 				for (JSClass c : deferred.get(f.jsName()))
 					c.writeTo(iw);

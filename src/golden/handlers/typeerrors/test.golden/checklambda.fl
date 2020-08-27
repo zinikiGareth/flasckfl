@@ -1,0 +1,5 @@
+	contract handler Fred
+	
+	handler Fred WantsNumber (Number x)
+	
+	h = WantsNumber "hello"

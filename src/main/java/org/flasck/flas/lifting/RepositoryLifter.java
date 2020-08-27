@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -33,6 +35,7 @@ import org.flasck.flas.repository.Traverser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.collections.ListMap;
+import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.CantHappenException;
 
 public class RepositoryLifter extends LeafAdapter implements Lifter {
@@ -230,6 +233,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		for (LogicHolder f : interesting) {
 			for (HandlerImplements hi : f.nestedVars().referencesHI()) {
 				final Map<String, Pattern> scoped = new TreeMap<>();
+				final SetMap<String, FunctionName> users = new SetMap<>();
 				logger.info(f.name() + " depends on " + hi.handlerName);
 				for (LogicHolder m : his.get(hi.handlerName)) {
 					logger.info("  " + f.name() + " therefore depends on " + m.name());
@@ -241,17 +245,22 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 						if (p instanceof TypedPattern) {
 							TypedPattern tp = (TypedPattern) p;
 							scoped.put(tp.var.uniqueName(), tp);
+							users.add(tp.var.uniqueName(), m.name());
 						} else if (p instanceof VarPattern) {
 							VarPattern vp = (VarPattern) p;
 							scoped.put(vp.name().uniqueName(), vp);
+							users.add(vp.name().uniqueName(), m.name());
 						} else
 							throw new CantHappenException("cannot handle pattern " + p + " as nested var");
 					}
 					m.nestedVars().clearPatterns();
 				}
 				int pos = 0;
-				for (Pattern p : scoped.values()) {
+				for (Entry<String, Pattern> q : scoped.entrySet()) {
+					Pattern p = q.getValue();
 					HandlerLambda hl = new HandlerLambda(p, true);
+					for (FunctionName n : users.get(q.getKey()))
+						hl.usedBy(n);
 					hi.boundVars.add(pos++, hl);
 					Traverser trav = new Traverser(new HLRewriter(p, hl)).withImplementedMethods();
 					trav.visitHandlerImplements(hi);

@@ -1,9 +1,12 @@
 package org.flasck.flas.parsedForm;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Pattern;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
@@ -13,9 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.CantHappenException;
 
 public class HandlerLambda implements RepositoryEntry {
-	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
+	public final static Logger unilogger = LoggerFactory.getLogger("TCUnification");
 	public final Pattern patt;
 	public final boolean isNested;
+	public final List<FunctionName> usedBy = new ArrayList<>();
 	private UnifiableType ut;
 
 	public HandlerLambda(Pattern patt, boolean nested) {
@@ -33,8 +37,12 @@ public class HandlerLambda implements RepositoryEntry {
 		return ((RepositoryEntry)patt).name();
 	}
 	
+	public void usedBy(FunctionName n) {
+		this.usedBy.add(n);
+	}
+	
 	public void unifiableType(UnifiableType lt) {
-		logger.debug("binding HL " + patt + " to " + lt);
+		unilogger.info("    binding HL " + patt + " to " + lt);
 		ut = lt;
 	}
 

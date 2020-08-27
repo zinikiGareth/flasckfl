@@ -73,6 +73,7 @@ src/golden/cards/events/cond2/test.golden
 src/golden/cards/events/nested/source/test.golden
 src/golden/cards/events/source/test.golden
 src/golden/structs/fields/cycle/test.golden
+src/golden/handlers/typeerrors/test.golden
 src/golden/handlers/locations/test.golden
 src/golden/handlers/nesting/simple/test.golden
 src/golden/methods/objects/assign/test.golden

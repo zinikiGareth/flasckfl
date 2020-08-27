@@ -120,6 +120,7 @@ import org.zinutils.exceptions.NotImplementedException;
 public class Traverser implements RepositoryVisitor {
 	final static Logger logger = LoggerFactory.getLogger("Traverser");
 	final static Logger patternsLogger = LoggerFactory.getLogger("TOPatterns");
+	final static Logger tcLogger = LoggerFactory.getLogger("TypeChecker");
 	final static Logger hsiLogger = LoggerFactory.getLogger("HSI");
 	private final RepositoryVisitor visitor;
 	private LogicHolder currentFunction;
@@ -653,10 +654,11 @@ public class Traverser implements RepositoryVisitor {
 	public void visitFunctionGroup(FunctionGroup grp) {
 		if (grp.size() == 1 && !grp.functions().iterator().next().generate())
 			return;
+		tcLogger.info("Checking group " + grp.functions());
 		visitor.visitFunctionGroup(grp);
 		// visit the patterns for all the cases first
-		patternsLogger.debug("processing patterns for " + grp);
 		for (LogicHolder sd : grp.functions()) {
+			tcLogger.info("  processing patterns for " + sd.name().uniqueName());
 			if (sd instanceof FunctionDefinition)
 				visitor.visitFunction((FunctionDefinition) sd);
 			else if (sd instanceof ObjectCtor)
@@ -699,7 +701,7 @@ public class Traverser implements RepositoryVisitor {
 		}
 		// then visit the logic
 		for (LogicHolder sd : grp.functions()) {
-			patternsLogger.debug("processing logic for " + sd);
+			tcLogger.info("  processing logic for " + sd.name().uniqueName());
 			if (sd instanceof FunctionDefinition)
 				visitFunction((FunctionDefinition) sd);
 			else if (sd instanceof StandaloneMethod)

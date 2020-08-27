@@ -90,6 +90,11 @@ public class HandlerImplements extends Implements implements RepositoryEntry, Na
 		}
 
 		@Override
+		public void bindLambda(int which, HandlerLambda hl) {
+			throw new NotImplementedException();
+		}
+
+		@Override
 		public void clearPatterns() {
 			throw new NotImplementedException();
 		}
