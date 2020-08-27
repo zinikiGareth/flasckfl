@@ -14,6 +14,7 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.ImplementsContract;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.RequiresContract;
 import org.flasck.flas.parsedForm.StandaloneMethod;
@@ -173,6 +174,9 @@ public class TDATopLevelCardParsingTests {
 
 	@Test
 	public void cardsCanImplementBehaviorThroughContracts() {
+		context.checking(new Expectations() {{
+			oneOf(builder).newContractImpl(with(tracker), with(any(ImplementsContract.class)));
+		}});
 		cardParser.tryParsing(TDABasicIntroParsingTests.line("implements org.ziniki.ContractName"));
 		assertEquals(1, card.contracts.size());
 	}

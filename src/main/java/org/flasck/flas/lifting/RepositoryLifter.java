@@ -218,7 +218,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		ms = null;
 	}
 
-	private void enhanceAll() {
+	public void enhanceAll() {
 		boolean hasMore = true;
 		while (hasMore) {
 			hasMore = false;
@@ -229,7 +229,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 	}
 
 	// If a method references handlers, that means it references all the methods in the handler ...
-	private void refhandlers() {
+	public void refhandlers() {
 		for (LogicHolder f : interesting) {
 			for (HandlerImplements hi : f.nestedVars().referencesHI()) {
 				final Map<String, Pattern> scoped = new TreeMap<>();

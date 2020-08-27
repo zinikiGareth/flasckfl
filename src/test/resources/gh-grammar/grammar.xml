@@ -216,7 +216,7 @@
     <section title='Files' />
 	<tested by='test.parsing.ut.UnitTestTopLevelParsingTests' />
     <seq>
-    	  <push-part filename='true'/>
+      <push-part filename='true'/>
       <many>
         <ref production='unit-test-unit' />
       </many>
@@ -1261,7 +1261,7 @@
     <seq>
       <token type='IMPLEMENTS' />
       <token type='type-name'/>
-      <push-part prefix='C' />
+      <push-part prefix='C' names='.*_C[0-9]*'/>
       <indent>
         <ref production='implementation-method'/>
       </indent>
@@ -1562,7 +1562,7 @@ match style ...
       <one-or-more>
       	<token type='DOCWORD' />
       </one-or-more>
-    	  <push-part prefix='ut' />
+      <push-part prefix='ut' />
       <indent>
       	<ref production='unit-test-step'/>
       </indent>

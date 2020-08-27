@@ -116,7 +116,7 @@ public class UnitDataDeclTypesTests {
 		context.checking(new Expectations() {{
 			oneOf(rr).get("test.repo.Nested.udd.Contract"); will(returnValue(null));
 			oneOf(rr).get("test.repo.Nested.Contract"); will(returnValue(cd));
-			oneOf(errors).message(pos, "a contract data declaration may not be initialized");
+			oneOf(errors).message(pos, "a contract data declaration does not have fields to initialize");
 		}});
 		TypeReference ctr = new TypeReference(pos, "Contract");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, ctr, FunctionName.function(pos, nested, "udd"), null);

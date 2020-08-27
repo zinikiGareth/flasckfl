@@ -129,6 +129,8 @@ public class InsertorTests {
 		lifter.visitFunctionIntro(fiH);
 		lifter.visitUnresolvedVar(xr, 0);
 		lifter.leaveFunction(fnH);
+		lifter.enhanceAll();
+		lifter.refhandlers();
 		FunctionGroupOrdering ordering = lifter.resolve();
 		assertOrder(ordering, "test.foo.f//test.foo.f.g//test.foo.f.g.h");
 		

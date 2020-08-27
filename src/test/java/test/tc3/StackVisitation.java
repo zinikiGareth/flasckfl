@@ -343,8 +343,8 @@ public class StackVisitation {
 			oneOf(fnt).get(1); will(returnValue(nbr));
 			oneOf(nbr).incorporates(pos, nbr); will(returnValue(true));
 			oneOf(nbr).incorporates(pos, str); will(returnValue(false));
-			oneOf(nbr).signature(); will(returnValue("nbr"));
-			oneOf(str).signature(); will(returnValue("str"));
+			allowing(nbr).signature(); will(returnValue("nbr"));
+			allowing(str).signature(); will(returnValue("str"));
 			oneOf(errors).message(pos, "function '+' was expecting nbr not str");
 			oneOf(nv).result(with(any(ErrorType.class)));
 		}});
