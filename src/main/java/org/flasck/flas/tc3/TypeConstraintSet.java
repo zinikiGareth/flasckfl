@@ -85,6 +85,8 @@ public class TypeConstraintSet implements UnifiableType {
 		}
 
 		public PosType asApply() {
+			if (args.isEmpty())
+				return new PosType(pos, ret);
 			return new PosType(pos, new Apply(args, ret));
 		}
 
@@ -110,6 +112,7 @@ public class TypeConstraintSet implements UnifiableType {
 				errors.message(location, err);
 		}
 	}
+	
 	public class FieldOf {
 		private final MemberExpr fieldExpr;
 		private final UnifiableType fieldOf;
@@ -986,7 +989,12 @@ public class TypeConstraintSet implements UnifiableType {
 		// This is the same implementation as "canBeType" - is that correct?
 		types.add(new PosType(loc, ai));
 	}
-	
+
+	@Override
+	public void requireListMessage(InputPosition pos, String err) {
+		errorConstraints.add(new ErrorConstraint(x -> TypeHelpers.isListMessage(pos, x), pos, err));
+	}
+
 	@Override
 	public void requirePrimitive(InputPosition pos, String err) {
 		errorConstraints.add(new ErrorConstraint(x -> TypeHelpers.isPrimitive(x), pos, err));

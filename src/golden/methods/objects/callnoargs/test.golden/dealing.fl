@@ -1,0 +1,21 @@
+This is mainly a test of typechecking.
+Because we make methods dependent on the handler methods that they call, this is mutually recursive.
+Thus the type of "advance" must be inferred at the same time that we are typechecking DealNext.call 
+
+	object Dealing
+		state
+			Repeater repeater
+			Number x <- 0
+	
+		ctor with (Repeater r)
+			repeater <- r
+			<- r.callMe -> DealNext
+		
+		method advance
+			<- repeater.callMe -> DealNext
+		
+		handler CallMe DealNext
+			call
+				<- advance
+				
+		

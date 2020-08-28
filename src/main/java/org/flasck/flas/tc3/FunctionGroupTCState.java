@@ -148,7 +148,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 	public void groupDone(ErrorReporter errors, Map<TypeBinder, PosType> memberTypes, Map<TypeBinder, PosType> resultTypes) {
 		ErrorMark mark = errors.mark();
 		// TODO: should we use an ErrorMark so as to stop when errors occur and avoid cascades?
-		TypeChecker.logger.debug("starting to check group: " + memberTypes.keySet());
+		TypeChecker.logger.debug("starting to unify types found in group: " + memberTypes.keySet());
 		for (Entry<TypeBinder, PosType> e : memberTypes.entrySet()) {
 			if (e.getValue() == null) {
 				// something went wrong - probably just "do not generate"; anyway, we won't be able to do anything

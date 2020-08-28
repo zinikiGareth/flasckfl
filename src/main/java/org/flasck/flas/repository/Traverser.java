@@ -1624,7 +1624,7 @@ public class Traverser implements RepositoryVisitor {
 						throw new NotImplementedException();
 				}
 				visitor.leaveApplyExpr(ae);
-				return; // don't just visit the var ...
+				return; // we are done now - don't do the regular 'visit var' thing
 			}
 		}
 		if (isNeedingEnhancement(var, nargs))

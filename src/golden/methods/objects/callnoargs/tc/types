@@ -1,0 +1,3 @@
+test.golden.Dealing.DealNext.call :: List[Message]
+test.golden.Dealing._ctor_with :: Repeater->test.golden.Dealing
+test.golden.Dealing.advance :: List[Message]

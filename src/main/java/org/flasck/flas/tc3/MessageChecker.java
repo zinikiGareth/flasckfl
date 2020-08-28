@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -271,11 +272,16 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 	@Override
 	public void leaveMessage(ActionMessage msg) {
 		InputPosition pos = rhsType.pos;
-		if (msg instanceof AssignMessage) {
-			sv.result(new ExprResult(pos, LoadBuiltins.listMessages));
-			return;
+		Type ty = rhsType.type;
+		
+		if (msg instanceof SendMessage) {
+			if (!TypeHelpers.isListMessage(pos, ty)) {
+				errors.message(pos, "must return a message or list of messages");
+				sv.result(new ExprResult(pos, new ErrorType()));
+				return;
+			}
 		}
 		
-		sv.result(new ExprResult(pos, new EnsureListMessage(pos, rhsType.type)));
+		sv.result(new ExprResult(pos, LoadBuiltins.listMessages));
 	}
 }

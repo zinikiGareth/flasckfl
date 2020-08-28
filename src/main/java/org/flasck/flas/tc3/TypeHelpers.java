@@ -72,15 +72,21 @@ public class TypeHelpers {
 		if (check instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) check;
 			NamedType nt = pi.struct();
-			if (nt == LoadBuiltins.cons || nt == LoadBuiltins.list)
-				check = pi.getPolys().get(0);
-			else {
+			if (nt == LoadBuiltins.cons || nt == LoadBuiltins.list) {
+				Type pv = pi.getPolys().get(0);
+				if (LoadBuiltins.message.incorporates(pos, pv)) {
+					return true;
+				}
+			} else {
 				return false;
 			}
 		}
-		if (LoadBuiltins.message.incorporates(pos, check)) {
+		if (LoadBuiltins.listMessages.incorporates(pos, check)) {
+			return true;
+		} else if (LoadBuiltins.message.incorporates(pos, check)) {
 			return true;
 		}
+
 		return false;
 	}
 
