@@ -50,7 +50,7 @@ public class EnsureListMessage implements Type {
 			PolyInstance pi = (PolyInstance) check;
 			NamedType nt = pi.struct();
 			if (nt == LoadBuiltins.cons || nt == LoadBuiltins.list)
-				check = pi.getPolys().get(0);
+				check = pi.polys().get(0);
 			else {
 				errors.message(pos, check.signature() + " cannot be a Message");
 				return false;

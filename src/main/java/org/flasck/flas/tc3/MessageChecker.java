@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
@@ -130,7 +131,7 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		if (assign != null && container instanceof PolyInstance) {
 			PolyInstance tmp = (PolyInstance)container;
 			if (tmp.struct() == LoadBuiltins.assignItem) {
-				container = tmp.getPolys().get(0);
+				container = tmp.polys().get(0);
 				assign.willAssignToCons();
 			}
 		}
@@ -276,7 +277,10 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		
 		if (msg instanceof SendMessage) {
 			if (!TypeHelpers.isListMessage(pos, ty)) {
-				errors.message(pos, "must return a message or list of messages");
+				if (TypeHelpers.isList(ty))
+					errors.message(pos, ((PolyInstance)ty).polys().get(0).signature() + " cannot be a Message");
+				else
+					errors.message(pos, ty.signature() + " cannot be a Message");
 				sv.result(new ExprResult(pos, new ErrorType()));
 				return;
 			}

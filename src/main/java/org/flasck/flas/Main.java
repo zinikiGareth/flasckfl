@@ -163,11 +163,11 @@ public class Main {
 	public static void setLogLevels() {
 		StaticLoggerBinder.setLevel("Compiler", Level.WARN);
 		StaticLoggerBinder.setLevel("Traverser", Level.WARN);
-		StaticLoggerBinder.setLevel("Lifter", Level.DEBUG);
+		StaticLoggerBinder.setLevel("Lifter", Level.WARN);
 		StaticLoggerBinder.setLevel("Patterns", Level.WARN);
 		StaticLoggerBinder.setLevel("TOPatterns", Level.WARN);
-		StaticLoggerBinder.setLevel("TypeChecker", Level.DEBUG);
-		StaticLoggerBinder.setLevel("TCUnification", Level.DEBUG);
+		StaticLoggerBinder.setLevel("TypeChecker", Level.WARN);
+		StaticLoggerBinder.setLevel("TCUnification", Level.WARN);
 		StaticLoggerBinder.setLevel("HSI", Level.WARN);
 		StaticLoggerBinder.setLevel("Generator", Level.WARN);
 		StaticLoggerBinder.setLevel("TestRunner", Level.WARN);

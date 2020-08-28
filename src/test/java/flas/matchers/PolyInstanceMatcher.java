@@ -30,7 +30,7 @@ public class PolyInstanceMatcher extends TypeSafeMatcher<Type>{
 		if (!(arg0 instanceof PolyInstance))
 			return false;
 		PolyInstance pi = (PolyInstance) arg0;
-		List<Type> polys = pi.getPolys();
+		List<Type> polys = pi.polys();
 		if (polys.size() != asList.size())
 			return false;
 		for (int i=0;i<polys.size();i++) {

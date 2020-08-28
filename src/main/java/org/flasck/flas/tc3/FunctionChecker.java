@@ -222,7 +222,7 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			((UnifiableType)ret).isReturned(pos);
 		} else if (ret instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) ret;
-			for (Type ty : pi.getPolys())
+			for (Type ty : pi.polys())
 				markUsed(pos, ty);
 		}
 	}

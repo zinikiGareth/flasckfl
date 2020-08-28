@@ -87,7 +87,7 @@ public class TupleAssignment implements RepositoryEntry, LogicHolder, TypeBinder
 		if (!(ty instanceof PolyInstance))
 			throw new NotImplementedException();
 		PolyInstance pi = (PolyInstance) ty;
-		List<Type> tys = pi.getPolys();
+		List<Type> tys = pi.polys();
 		if (tys.size() != members.size())
 			throw new NotImplementedException("Counts don't match");
 		for (int i=0;i<members.size();i++) {

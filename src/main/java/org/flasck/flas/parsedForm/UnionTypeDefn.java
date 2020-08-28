@@ -100,7 +100,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 					if (mine == null)
 						return null;
 				}
-				List<Type> pip = pi.getPolys();
+				List<Type> pip = pi.polys();
 				if (!mine.hasPolys() || pip.size() != mine.polys().size())
 					throw new NotImplementedException("I can't see how this isn't an error that should have been caught somewhere else");
 				for (int i=0;i<pip.size();i++) {

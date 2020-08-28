@@ -783,7 +783,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 					PolyInstance pi = (PolyInstance)st;
 					NamedType pis = pi.struct();
 					if (pis.equals(LoadBuiltins.list))
-						st = pi.getPolys().get(0);
+						st = pi.polys().get(0);
 				}
 				if (st instanceof StructDefn)
 					return st;

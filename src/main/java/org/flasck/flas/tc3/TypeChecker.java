@@ -285,7 +285,7 @@ public class TypeChecker extends LeafAdapter {
 		} else if (type instanceof PolyInstance) {
 			PolyInstance inst = (PolyInstance) type;
 			List<Type> polys = new ArrayList<>();
-			for (Type t : inst.getPolys())
+			for (Type t : inst.polys())
 				polys.add(instantiateFreshPolys(tmp, state, uts, new PosType(pos, t), true).type);
 			PolyInstance pi = new PolyInstance(pos, inst.struct(), polys);
 			if (type instanceof FieldsDefn) {

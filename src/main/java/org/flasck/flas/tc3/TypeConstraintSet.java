@@ -348,7 +348,7 @@ public class TypeConstraintSet implements UnifiableType {
 			}
 		} else if (type instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) type;
-			for (Type e : pi.getPolys())
+			for (Type e : pi.polys())
 				expandUsage(e);
 		}
 	}
@@ -382,7 +382,7 @@ public class TypeConstraintSet implements UnifiableType {
 				UnionTypeDefn utd = (UnionTypeDefn) pi.struct();
 				Map<PolyType, Type> mt = new HashMap<>();
 				for (int p=0;p<utd.polys().size();p++) {
-					mt.put(utd.polys().get(p), pi.getPolys().get(p));
+					mt.put(utd.polys().get(p), pi.polys().get(p));
 				}
 				for (TypeReference c : utd.cases) {
 					if (c.defn() instanceof StructDefn) {
@@ -393,7 +393,7 @@ public class TypeConstraintSet implements UnifiableType {
 					} else if (c.defn() instanceof PolyInstance) {
 						PolyInstance pc = (PolyInstance) c.defn();
 						List<Type> pm = new ArrayList<>();
-						for (Type p : pc.getPolys())
+						for (Type p : pc.polys())
 							pm.add(mt.get(p));
 						addMore.add(new PosType(pos, new PolyInstance(pos, pc.struct(), pm)));
 					} else
@@ -433,7 +433,7 @@ public class TypeConstraintSet implements UnifiableType {
 				for (int i=0;i<e.polys().size();i++) {
 					List<PosType> tojoin = new ArrayList<>();
 					for (PolyInstance pi : list) {
-						tojoin.add(new PosType(pi.location(), pi.getPolys().get(i)));
+						tojoin.add(new PosType(pi.location(), pi.polys().get(i)));
 					}
 					state.consolidate(tojoin.get(0).location(), tojoin);
 				}
@@ -519,7 +519,7 @@ public class TypeConstraintSet implements UnifiableType {
 					dag.ensureLink(this, ut);
 				} else if (t instanceof PolyInstance) {
 					PolyInstance pi = (PolyInstance) t;
-					for (Type ti : pi.getPolys()) {
+					for (Type ti : pi.polys()) {
 						if (ti instanceof UnifiableType) {
 							UnifiableType ut = ((UnifiableType)ti).redirectedTo();
 							dag.ensure(ut);
@@ -535,7 +535,7 @@ public class TypeConstraintSet implements UnifiableType {
 				dag.ensureLink(this, ut);
 			} else if (ua.ret instanceof PolyInstance) {
 				PolyInstance pi = (PolyInstance) ua.ret;
-				for (Type t : pi.getPolys()) {
+				for (Type t : pi.polys()) {
 					if (t instanceof UnifiableType) {
 						UnifiableType ut = ((UnifiableType)t).redirectedTo();
 						dag.ensure(ut);
@@ -570,7 +570,7 @@ public class TypeConstraintSet implements UnifiableType {
 						dag.ensureLink(this, ut);
 					} else if (t instanceof PolyInstance) {
 						PolyInstance pi = (PolyInstance) t;
-						for (Type ti : pi.getPolys()) {
+						for (Type ti : pi.polys()) {
 							if (ti instanceof UnifiableType) {
 								UnifiableType ut = ((UnifiableType)ti).redirectedTo();
 								dag.ensure(ut);
@@ -607,7 +607,7 @@ public class TypeConstraintSet implements UnifiableType {
 					dag.ensureLink(this, ut);
 				} else if (r instanceof PolyInstance) {
 					PolyInstance pi = (PolyInstance) r;
-					for (Type t : pi.getPolys()) {
+					for (Type t : pi.polys()) {
 						if (t instanceof UnifiableType) {
 							UnifiableType ut = ((UnifiableType)t).redirectedTo();
 							dag.ensure(ut);
@@ -656,7 +656,7 @@ public class TypeConstraintSet implements UnifiableType {
 	}
 	
 	private void linkToPVs(DirectedAcyclicGraph<UnifiableType> dag, PolyInstance pi) {
-		for (Type pv : pi.getPolys()) {
+		for (Type pv : pi.polys()) {
 			linkPVs(dag, pv);
 		}
 	}
@@ -818,7 +818,7 @@ public class TypeConstraintSet implements UnifiableType {
 
 	private Type resolvePolyArgs(HashSet<UnifiableType> workingOn, PolyInstance pi) {
 		List<Type> rps = new ArrayList<Type>();
-		for (Type t : pi.getPolys()) {
+		for (Type t : pi.polys()) {
 			Type curr = resolvePolyArg(workingOn, t);
 			if (curr != null)
 				rps.add(curr);
@@ -1051,7 +1051,7 @@ public class TypeConstraintSet implements UnifiableType {
 			PolyInstance pi = (PolyInstance) t;
 			ret.append(pi.struct().signature());
 			String sep = "[";
-			for (Type i : pi.getPolys()) {
+			for (Type i : pi.polys()) {
 				ret.append(sep);
 				showType(ret, i);
 				sep = ",";

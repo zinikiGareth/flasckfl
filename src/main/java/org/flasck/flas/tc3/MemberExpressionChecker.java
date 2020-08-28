@@ -83,7 +83,7 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		List<Type> polys = null;
 		if (ty instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) ty;
-			polys = pi.getPolys();
+			polys = pi.polys();
 			ty = pi.struct();
 		}
 		// TODO: can I move this to resolver?
@@ -178,7 +178,7 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		if (found instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) found;
 			List<Type> mapped = new ArrayList<>();
-			for (Type pt : pi.getPolys()) {
+			for (Type pt : pi.polys()) {
 				mapped.add(processPolys(polys, (PolyHolder)pi.struct(), pt));
 			}
 			return new PolyInstance(pi.location(), pi.struct(), mapped);

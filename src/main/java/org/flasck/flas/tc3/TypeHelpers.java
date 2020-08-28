@@ -41,7 +41,7 @@ public class TypeHelpers {
 		if (!pi.struct().equals(LoadBuiltins.list))
 			return false;
 		
-		Type ty = pi.getPolys().get(0);
+		Type ty = pi.polys().get(0);
 		if (!ty.equals(LoadBuiltins.string))
 			return false;
 		
@@ -51,7 +51,7 @@ public class TypeHelpers {
 	public static Type extractListPoly(Type etype) {
 		if (!isList(etype))
 			throw new NotImplementedException("not a list");
-		return ((PolyInstance)etype).getPolys().get(0);
+		return ((PolyInstance)etype).polys().get(0);
 	}
 
 	public static boolean isListMessage(InputPosition pos, Type check) {
@@ -68,12 +68,20 @@ public class TypeHelpers {
 			return true;
 		}
 		
+		if (check instanceof Apply) {
+			Apply ac = (Apply) check;
+			if (ac.argCount() == 1) {
+				if (ac.tys.get(0) == LoadBuiltins.contract)
+					check = ac.tys.get(1);
+			}
+		}
+		
 		// a poly list is fine (cons or list) as long as the type is some kind of Message
 		if (check instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) check;
 			NamedType nt = pi.struct();
 			if (nt == LoadBuiltins.cons || nt == LoadBuiltins.list) {
-				Type pv = pi.getPolys().get(0);
+				Type pv = pi.polys().get(0);
 				if (LoadBuiltins.message.incorporates(pos, pv)) {
 					return true;
 				}

@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -89,14 +90,14 @@ public class LoadBuiltins {
 	public static final StructDefn assignItem = new StructDefn(pos, FieldsType.STRUCT, null, "AssignItem", false, polyA);
 
 	// Random
-	public static final ObjectDefn random = new ObjectDefn(pos, pos, new SolidName(null, "Random"), false, new ArrayList<>());
+	public static final ObjectDefn random = new ObjectDefn(pos, pos, new ObjectName(null, "Random"), false, new ArrayList<>());
 	private static ObjectCtor randomSeed;
 	private static ObjectCtor randomUnseeded;
 	static ObjectAccessor randomNext;
 	static ObjectMethod randomUsed;
 	
 	// Crobags
-	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new SolidName(null, "Crobag"), false, Arrays.asList(polyA));
+	public static final ObjectDefn crobag = new ObjectDefn(pos, pos, new ObjectName(null, "Crobag"), false, Arrays.asList(polyA));
 	
 	// Messages
 	public static final StructDefn debug = new StructDefn(pos, FieldsType.STRUCT, null, "Debug", false);

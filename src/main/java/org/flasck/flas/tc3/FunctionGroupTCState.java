@@ -300,7 +300,7 @@ public class FunctionGroupTCState implements CurrentTCState {
 		} else if (ty instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) ty;
 			List<Type> polys = new ArrayList<>();
-			for (Type t : pi.getPolys()) {
+			for (Type t : pi.polys()) {
 				if (recs.contains(t)) {
 					errors.message(pos, "circular polymorphic type inferred");
 					return new ErrorType();

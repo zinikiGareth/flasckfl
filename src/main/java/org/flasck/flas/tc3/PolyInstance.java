@@ -54,7 +54,7 @@ public class PolyInstance implements NamedType, RepositoryEntry, AccessorHolder 
 		return ty;
 	}
 	
-	public List<Type> getPolys() {
+	public List<Type> polys() {
 		return polys;
 	}
 

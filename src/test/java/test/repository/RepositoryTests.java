@@ -412,7 +412,7 @@ public class RepositoryTests {
 		assertNotNull(u);
 		assertTrue(u instanceof PolyInstance);
 		PolyInstance pi = (PolyInstance) u;
-		assertEquals(1, pi.getPolys().size());
-		assertEquals(LoadBuiltins.bool, pi.getPolys().get(0));
+		assertEquals(1, pi.polys().size());
+		assertEquals(LoadBuiltins.bool, pi.polys().get(0));
 	}
 }
