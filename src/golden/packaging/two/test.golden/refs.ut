@@ -1,0 +1,9 @@
+The basic idea here is to show that we can put things in two separate packages and one can refer to the other
+
+	test that we can reference x from a test
+		assert test.references.x
+			42
+
+	test that y has referenced x
+		assert y
+			420

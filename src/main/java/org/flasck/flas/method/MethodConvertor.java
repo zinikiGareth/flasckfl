@@ -65,9 +65,10 @@ public class MethodConvertor extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr, int nargs) {
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
 		if (haveGuards)
 			new MemberExprConvertor(errors, sv, oah, (MemberExpr) expr);
+		return false;
 	}
 
 	@Override

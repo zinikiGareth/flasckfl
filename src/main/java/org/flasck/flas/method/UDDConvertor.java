@@ -36,8 +36,9 @@ public class UDDConvertor extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr, int nargs) {
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
 		new MemberExprConvertor(errors, nv, null, convert);
+		return false;
 	}
 	
 	@Override

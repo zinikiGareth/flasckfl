@@ -33,6 +33,7 @@ import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.CantHappenException;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class AccessorConvertor extends LeafAdapter {
@@ -74,11 +75,21 @@ public class AccessorConvertor extends LeafAdapter {
 	}
 
 	@Override
-	public void visitMemberExpr(MemberExpr expr, int nargs) {
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
 		UnresolvedVar meth = (UnresolvedVar) expr.fld;
 		Expr from = expr.from;
 		RepositoryEntry defn;
-		if (from instanceof UnresolvedVar) {
+		boolean ret = expr.boundEarly();
+		if (ret) {
+			defn = expr.defn();
+			if (defn instanceof FunctionDefinition) {
+				UnresolvedVar uv = new UnresolvedVar(expr.location, "expr");
+				uv.bind(defn);
+				expr.conversion(uv);
+			} else
+				throw new HaventConsideredThisException("was not a function");
+			return true;
+		} else if (from instanceof UnresolvedVar) {
 			UnresolvedVar uv = (UnresolvedVar) expr.from;
 			defn = uv.defn();
 		} else if (from instanceof MemberExpr) {
@@ -104,7 +115,7 @@ public class AccessorConvertor extends LeafAdapter {
 				StateHolder sh = (StateHolder)td;
 				if (sh.state() != null && sh.state().hasMember(meth.var)) {
 					expr.conversion(new ApplyExpr(expr.location, LoadBuiltins.probeState, expr.from, new StringLiteral(meth.location, meth.var)));
-					return;
+					return ret;
 				}
 			}
 			RepositoryEntry entry = repository.get(FunctionName.function(meth.location, td.name(), meth.var).uniqueName());
@@ -112,7 +123,7 @@ public class AccessorConvertor extends LeafAdapter {
 				UnresolvedVar call = new UnresolvedVar(meth.location, meth.var);
 				call.bind(entry);
 				expr.conversion(new ApplyExpr(expr.location, call, new ApplyExpr(expr.location, LoadBuiltins.getUnderlying, from)));
-				return;
+				return ret;
 			}
 
 			if (td instanceof AccessorHolder && ((AccessorHolder)td).getAccessor(meth.var) != null) 
@@ -121,10 +132,10 @@ public class AccessorConvertor extends LeafAdapter {
 				ObjectDefn od = (ObjectDefn) td;
 				ObjectMethod m = od.getMethod(meth.var);
 				expr.conversion(new MakeSend(expr.location(), m.name(), from, m.argCount(), null));
-				return;
+				return ret;
 			} else {
 				errors.message(meth.location, "there is no suitable value for '" + meth.var + "' on " + td.name().uniqueName());
-				return;
+				return ret;
 			}
 		} else if (defn instanceof StructDefn) {
 			ah = (AccessorHolder) defn;
@@ -137,7 +148,7 @@ public class AccessorConvertor extends LeafAdapter {
 			UnresolvedVar cv = new UnresolvedVar(from.location(), meth.var);
 			cv.bind(ctor);
 			expr.conversion(cv);
-			return;
+			return ret;
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)defn;
 			Type ty = tp.type();
@@ -171,5 +182,6 @@ public class AccessorConvertor extends LeafAdapter {
 			errors.message(meth.location, "there is no accessor '" + meth.var + "' on " + ah.name().uniqueName());
 		else
 			expr.conversion(acc.acor(expr.from));
+		return ret;
 	}
 }

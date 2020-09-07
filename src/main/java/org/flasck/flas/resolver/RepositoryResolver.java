@@ -354,7 +354,24 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 
 	@Override
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
+		String s = expr.asName();
+		if (s != null) {
+			RepositoryEntry e = repository.get(s);
+			if (e != null) {
+				expr.bind(e, true);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
+		// don't bother if we've already dealt with it ...
+		if (expr.boundEarly())
+			return;
+		
 		Expr from = expr.from;
 		RepositoryEntry defn;
 		if (from instanceof MemberExpr) {
@@ -384,7 +401,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " cannot be created outside card or object scope");
 				return;
 			}
-			expr.bind(ctor);
+			expr.bind(ctor, false);
 		} else if (defn instanceof UnitDataDeclaration) {
 			NamedType nt = ((UnitDataDeclaration) defn).ofType.defn();
 			processMemberOfType(expr, nt, fld.var);
@@ -429,7 +446,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			StructField sf = sd.findField(var);
 			if (LoadBuiltins.event.hasCase(sd)) {
 				if ("source".equals(var)) {
-					expr.bind(LoadBuiltins.event); // needs to be something more precise
+					expr.bind(LoadBuiltins.event, false); // needs to be something more precise
 					return;
 				}
 			}
@@ -437,7 +454,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 				errors.message(expr.fld.location(), "there is no field '" + var + "' in " + nt.name().uniqueName());
 				return;
 			}
-			expr.bind(sf);
+			expr.bind(sf, false);
 		} else if (nt instanceof ObjectDefn) {
 			ObjectDefn od = (ObjectDefn) nt;
 			if (od.getConstructor(var) != null) {
@@ -446,12 +463,12 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			}
 			FieldAccessor acor = od.getAccessor(var);
 			if (acor != null) {
-				expr.bind((RepositoryEntry) acor);
+				expr.bind((RepositoryEntry) acor, false);
 				return;
 			}
 			ObjectMethod om = od.getMethod(var);
 			if (om != null) {
-				expr.bind((RepositoryEntry) om);
+				expr.bind((RepositoryEntry) om, false);
 				return;
 			}
 			if (od.state() != null) {
@@ -461,7 +478,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 //					throw new NotImplementedException("no member " + var + " in " + cd);
 					return;
 				}
-				expr.bind(sf);
+				expr.bind(sf, false);
 				return;
 			}
 			errors.message(expr.fld.location(), "object " + od.name().uniqueName() + " does not have a method, acor or member " + var);
@@ -474,7 +491,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 //					throw new NotImplementedException("no member " + var + " in " + cd);
 					return;
 				}
-				expr.bind(sf);
+				expr.bind(sf, false);
 				return;
 			}
 			throw new NotImplementedException("no member " + var + " in " + cd);
@@ -487,7 +504,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 //					throw new NotImplementedException("no member " + var + " in " + cd);
 					return;
 				}
-				expr.bind(sf);
+				expr.bind(sf, false);
 				return;
 			}
 			throw new NotImplementedException("no member " + var + " in " + cd);
@@ -496,13 +513,13 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			ObjectMethod method = hi.getMethod(var);
 			if (method == null)
 				throw new NotImplementedException("no method " + var + " in " + hi);
-			expr.bind(method);
+			expr.bind(method, false);
 		} else if (nt instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) nt;
 			ContractMethodDecl method = cd.getMethod(var);
 			if (method == null)
 				throw new NotImplementedException("no method " + var + " in " + cd);
-			expr.bind((RepositoryEntry) method);
+			expr.bind((RepositoryEntry) method, false);
 		} else if (nt instanceof UnionTypeDefn) {
 			errors.message(expr.fld.location(), "cannot access members of unions");
 		} else

@@ -463,7 +463,8 @@ public class LeafAdapter implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitMemberExpr(MemberExpr expr, int nargs) {
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
+		return expr.boundEarly();
 	}
 
 	@Override

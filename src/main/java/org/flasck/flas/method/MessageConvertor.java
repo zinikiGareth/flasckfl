@@ -67,7 +67,7 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr, int nargs) {
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
 		if (mode == Mode.SLOT) {
 			mode = Mode.NESTEDSLOT;
 			if (!(expr.from instanceof MemberExpr))
@@ -76,6 +76,7 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 			new MemberExprConvertor(errors, nv, oah, (MemberExpr) expr);
 		} else
 			throw new CantHappenException("shouldn't see ME in mode " + mode);
+		return false;
 	}
 	
 	// Never forget that we assign the slot AT THE END

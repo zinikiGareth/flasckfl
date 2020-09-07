@@ -37,6 +37,7 @@ import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.repository.Traverser;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ExpressionChecker extends LeafAdapter implements ResultAware {
@@ -203,9 +204,23 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr, int nargs) {
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
 		this.exprPos = expr.location;
-		nv.push(new MemberExpressionChecker(errors, repository, state, nv, fnCxt, inTemplate));
+		if (!expr.boundEarly())
+			nv.push(new MemberExpressionChecker(errors, repository, state, nv, fnCxt, inTemplate));
+		return expr.boundEarly();
+	}
+
+	@Override
+	public void leaveMemberExpr(MemberExpr expr) {
+		if (expr.boundEarly()) {
+			if (expr.defn() instanceof Type)
+				announce(exprPos, (Type)expr.defn());
+			else if (expr.defn() instanceof FunctionDefinition)
+				announce(exprPos, ((FunctionDefinition)expr.defn()).type());
+			else
+				throw new HaventConsideredThisException("non-function package names");
+		}
 	}
 	
 	@Override

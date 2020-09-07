@@ -1558,7 +1558,7 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
-	public void visitMemberExpr(MemberExpr expr, int nargs) {
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
 		if (wantHSI) {
 			// generate the converted code
 			if (expr.isConverted()) {
@@ -1566,12 +1566,16 @@ public class Traverser implements RepositoryVisitor {
 			}
 			else
 				throw new NotImplementedException("You need to convert this expression: " + expr);
+			return true;
 		} else {
-			visitor.visitMemberExpr(expr, nargs);
-			visitExpr(expr.from, 0);
-			if (visitMemberFields)
-				visitExpr(expr.fld, 0);
+			boolean done = visitor.visitMemberExpr(expr, nargs);
+			if (!done) {
+				visitExpr(expr.from, 0);
+				if (visitMemberFields)
+					visitExpr(expr.fld, 0);
+			}
 			leaveMemberExpr(expr);
+			return done;
 		}
 	}
 

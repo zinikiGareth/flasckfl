@@ -2,6 +2,7 @@ package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.exceptions.NotImplementedException;
@@ -16,6 +17,7 @@ public class MemberExpr implements Expr {
 	private ContractMethodDecl contractMethod;
 	private Type containerType;
 	private Type containedType;
+	private boolean boundEarly;
 
 	public MemberExpr(InputPosition location, Expr from, Expr fld) {
 		if (location == null)
@@ -28,6 +30,19 @@ public class MemberExpr implements Expr {
 	@Override
 	public InputPosition location() {
 		return location;
+	}
+
+	public String asName() {
+		if (from instanceof UnresolvedVar)
+			return ((UnresolvedVar)from).var + "." + fld;
+		else if (from instanceof MemberExpr) {
+			String n = ((MemberExpr)from).asName();
+			if (n == null)
+				return null;
+			else
+				return n + "." + fld;
+		} else
+			return null;
 	}
 	
 	public void bindContainerType(Type ty) {
@@ -91,9 +106,13 @@ public class MemberExpr implements Expr {
 		return contractMethod;
 	}
 
-	public void bind(RepositoryEntry entry) {
+	public void bind(RepositoryEntry entry, boolean early) {
 		this.entry = entry;
-		
+		this.boundEarly = early;
+	}
+	
+	public boolean boundEarly() {
+		return boundEarly;
 	}
 	
 	public RepositoryEntry defn() {

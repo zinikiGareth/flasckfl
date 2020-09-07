@@ -61,8 +61,9 @@ public class MemberExprConvertor extends LeafAdapter {
 	}
 	
 	@Override
-	public void visitMemberExpr(MemberExpr expr, int nargs) {
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
 		new MemberExprConvertor(errors, nv, oah, expr);
+		return false;
 	}
 	
 	@Override
