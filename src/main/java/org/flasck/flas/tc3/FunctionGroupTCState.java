@@ -315,10 +315,6 @@ public class FunctionGroupTCState implements CurrentTCState {
 			PolyType ret = new PolyType(curr.location(), new SolidName(curr.name().container(), new String(new char[] { (char)('A' + inorderPolys.size()) })));
 			inorderPolys.put(curr, ret);
 			return ret;
-		} else if (ty instanceof EnsureListMessage) {
-			EnsureListMessage elm = (EnsureListMessage) ty;
-			elm.validate(errors);
-			return elm;
 		} else {
 			return ty;
 		}

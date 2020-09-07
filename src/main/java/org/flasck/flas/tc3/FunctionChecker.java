@@ -259,7 +259,20 @@ public class FunctionChecker extends LeafAdapter implements ResultAware, TreeOrd
 			sv.result(null);
 		} else {
 			PosType posty = state.consolidate(meth.location(), resultTypes);
-			sv.result(buildApplyType(meth.location(), new PosType(posty.pos, new EnsureListMessage(meth.location(), posty.type))));
+
+			InputPosition pos = posty.pos;
+			Type ty = posty.type;
+			
+			if (!TypeHelpers.isListMessage(pos, ty)) {
+				if (TypeHelpers.isList(ty))
+					errors.message(pos, ((PolyInstance)ty).polys().get(0).signature() + " cannot be a Message");
+				else
+					errors.message(pos, ty.signature() + " cannot be a Message");
+				sv.result(new ExprResult(pos, new ErrorType()));
+				return;
+			}
+
+			sv.result(buildApplyType(meth.location(), new PosType(posty.pos, LoadBuiltins.listMessages)));
 		}
 	}
 

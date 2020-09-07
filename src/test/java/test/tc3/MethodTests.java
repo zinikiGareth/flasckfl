@@ -39,7 +39,6 @@ import org.flasck.flas.repository.RepositoryVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
-import org.flasck.flas.tc3.EnsureListMessage;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
@@ -58,7 +57,6 @@ import org.junit.Test;
 import org.zinutils.support.jmock.CaptureAction;
 
 import flas.matchers.ApplyMatcher;
-import flas.matchers.ExprResultMatcher;
 import flas.matchers.PosMatcher;
 import test.parsing.LocalErrorTracker;
 
@@ -84,7 +82,6 @@ public class MethodTests {
 		sv.push(r);
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void aSingleDebugMessageGivesAListOfMessage() {
 		new FunctionChecker(tracker, repository, sv, FunctionName.objectMethod(pos, null, "m"), state, null);
@@ -94,7 +91,7 @@ public class MethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(PosMatcher.type((Matcher)any(EnsureListMessage.class))));
+			oneOf(r).result(with(PosMatcher.type(Matchers.is(LoadBuiltins.listMessages))));
 		}});
 		sv.leaveObjectMethod(meth);
 	}
@@ -125,7 +122,7 @@ public class MethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type((Matcher)Matchers.any(UnifiableType.class), (Matcher)Matchers.any(EnsureListMessage.class)))));
+			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type((Matcher)Matchers.any(UnifiableType.class), Matchers.is(LoadBuiltins.listMessages)))));
 		}});
 		sv.leaveObjectMethod(meth);
 	}
@@ -151,7 +148,7 @@ public class MethodTests {
 		sv.visitAssignSlot(msg.slot);
 		sv.leaveMessage(msg);
 		context.checking(new Expectations() {{
-			oneOf(r).result(new PosType(pos, new EnsureListMessage(pos, LoadBuiltins.message)));
+			oneOf(r).result(new PosType(pos, LoadBuiltins.listMessages));
 		}});
 		sv.leaveObjectMethod(meth);
 	}
@@ -400,7 +397,8 @@ public class MethodTests {
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "Number cannot be a Message");
-			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(EnsureListMessage.class)))); will(capture);
+			oneOf(errors).message(pos, "ERROR cannot be a Message"); // cascade that should be eliminated
+			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(ErrorType.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.number));
 		sv.leaveMessage(msg);
@@ -422,7 +420,8 @@ public class MethodTests {
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "Number cannot be a Message");
-			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(EnsureListMessage.class)))); will(capture);
+			oneOf(errors).message(pos, "ERROR cannot be a Message"); // cascade that should be eliminated
+			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(ErrorType.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, pi));
 		sv.leaveMessage(msg);
@@ -445,7 +444,8 @@ public class MethodTests {
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "test.repo.Foo[Message] cannot be a Message");
-			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(EnsureListMessage.class)))); will(capture);
+			oneOf(errors).message(pos, "ERROR cannot be a Message"); // cascade that should be eliminated
+			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(ErrorType.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, pi));
 		sv.leaveMessage(msg);

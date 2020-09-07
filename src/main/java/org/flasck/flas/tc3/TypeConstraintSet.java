@@ -217,9 +217,6 @@ public class TypeConstraintSet implements UnifiableType {
 
 	@Override
 	public boolean mustBeMessage(ErrorReporter errors) {
-		if (resolvedTo != null) {
-			return EnsureListMessage.validate(errors, pos, resolvedTo);
-		}
 		throw new NotImplementedException();
 	}
 
@@ -470,14 +467,6 @@ public class TypeConstraintSet implements UnifiableType {
 					polys.add(LoadBuiltins.any);
 				}
 				tys.add(new PosType(pt.pos, new PolyInstance(pos, sd, polys)));
-			} else if (t instanceof EnsureListMessage) {
-				EnsureListMessage elm = (EnsureListMessage) t;
-				if (elm.checking() instanceof UnifiableType) {
-					UnifiableType ut = ((UnifiableType) elm.checking()).redirectedTo();
-					dag.ensure(ut);
-					dag.ensureLink(this, ut);
-				}
-				tys.add(pt);
 			} else if (t instanceof Apply) {
 				Apply a = (Apply) t;
 				for (Type t1 : a.tys) {
@@ -677,11 +666,7 @@ public class TypeConstraintSet implements UnifiableType {
 			if (ty.type != this) {
 				Type rt = resolvePolyArg(new HashSet<UnifiableType>(), ty.type);
 				if (rt != null) {
-					if (rt instanceof EnsureListMessage) {
-						Type mt = ((EnsureListMessage)rt).validate(errors);
-						resolved.add(new PosType(ty.pos, mt));
-					} else
-						resolved.add(new PosType(ty.pos, rt));
+					resolved.add(new PosType(ty.pos, rt));
 				}
 			}
 		}

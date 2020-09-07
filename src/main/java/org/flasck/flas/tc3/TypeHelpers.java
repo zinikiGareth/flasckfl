@@ -64,10 +64,6 @@ public class TypeHelpers {
 			return true;
 		}
 		
-		if (check instanceof EnsureListMessage) {
-			return true;
-		}
-		
 		if (check instanceof Apply) {
 			Apply ac = (Apply) check;
 			if (ac.argCount() == 1) {

@@ -30,9 +30,4 @@ public class ExprResultMatcher extends TypeSafeMatcher<ExprResult> {
 	public static ExprResultMatcher expr(Matcher<Type> ty) {
 		return new ExprResultMatcher(ty);
 	}
-
-	public static ExprResultMatcher elm(Matcher<Type> ty) {
-		return new ExprResultMatcher(new ElmMatcher(ty));
-	}
-
 }

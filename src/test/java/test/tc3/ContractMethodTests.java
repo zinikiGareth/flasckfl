@@ -26,7 +26,6 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryReader;
 import org.flasck.flas.repository.StackVisitor;
 import org.flasck.flas.tc3.CurrentTCState;
-import org.flasck.flas.tc3.EnsureListMessage;
 import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.FunctionChecker;
@@ -82,7 +81,7 @@ public class ContractMethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), (Matcher)Matchers.any(EnsureListMessage.class)))));
+			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), (Matcher)Matchers.is(LoadBuiltins.listMessages)))));
 		}});
 		sv.leaveObjectMethod(meth);
 	}
@@ -104,7 +103,7 @@ public class ContractMethodTests {
 		sv.result(new ExprResult(pos, LoadBuiltins.debug));
 		sv.leaveMessage(null);
 		context.checking(new Expectations() {{
-			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), (Matcher)Matchers.any(EnsureListMessage.class)))));
+			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type(Matchers.is(LoadBuiltins.string), (Matcher)Matchers.is(LoadBuiltins.listMessages)))));
 		}});
 		sv.leaveObjectMethod(meth);
 	}
@@ -121,7 +120,7 @@ public class ContractMethodTests {
 		meth.sendMessage(msg);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "cannot bind str to Number when the contract specifies String");
-			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type((Matcher)Matchers.any(ErrorType.class), (Matcher)Matchers.any(EnsureListMessage.class)))));
+			oneOf(r).result(with(PosMatcher.type((Matcher)ApplyMatcher.type((Matcher)Matchers.any(ErrorType.class), (Matcher)Matchers.is(LoadBuiltins.listMessages)))));
 		}});
 		ArgSlot s = new ArgSlot(0, new HSIPatternOptions());
 		sv.argSlot(s);

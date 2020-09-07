@@ -13,7 +13,6 @@ import org.flasck.flas.parsedForm.AssignMessage;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ObjectActionHandler;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.PolyHolder;
 import org.flasck.flas.parsedForm.SendMessage;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
