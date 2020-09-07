@@ -65,17 +65,34 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof PackageName && name.equals(((PackageName)obj).name);
+		if (!(obj instanceof PackageName))
+			return false;
+		PackageName pn = (PackageName) obj;
+		if (name == null && pn.name == null)
+			return true;
+		else if (name == null)
+			return false;
+		else
+			return obj instanceof PackageName && name.equals(pn.name);
 	}
 	
 	@Override
 	public int hashCode() {
+		if (name == null)
+			return 0;
 		return name.hashCode();
 	}
 	
 	@Override
 	public int compareTo(PackageName o) {
-		return name.compareTo(o.name);
+		if (name == null && o.name == null)
+			return 0;
+		else if (name == null)
+			return -1;
+		else if (o.name == null)
+			return 1;
+		else
+			return name.compareTo(o.name);
 	}
 	
 	@Override

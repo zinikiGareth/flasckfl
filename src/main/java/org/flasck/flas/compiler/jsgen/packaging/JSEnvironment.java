@@ -47,6 +47,10 @@ public class JSEnvironment implements JSStorage {
 
 	@Override
 	public void ensurePackageExists(String filePkg, String pkg) {
+		if (filePkg == null)
+			filePkg = "root.package";
+		if (pkg == null)
+			pkg = "root.package";
 		if (filePkg.equals(pkg))
 			return;
 		if (!pkg.startsWith(filePkg))
@@ -83,6 +87,8 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	public JSFile getPackage(String pkg) {
+		if (pkg == null)
+			pkg = "root.package";
 		JSFile inpkg = files.get(pkg);
 		if (inpkg == null) {
 			File f = new File(root, pkg + ".js");

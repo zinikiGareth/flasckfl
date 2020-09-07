@@ -1,0 +1,4 @@
+JVM PASS that we can reference x from a test
+JVM PASS that y has referenced x
+JS PASS that we can reference x from a test
+JS PASS that y has referenced x

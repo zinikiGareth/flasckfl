@@ -160,9 +160,6 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File expectedErrors = new File(s, "errors");
 		final File tr = new File(s, "testReports-tmp");
 		final File packages = new File(s, "packages");
-		List<String> packageNames = null;
-		if (packages.exists())
-			packageNames = FileUtils.readFileAsLines(packages);
 		FileUtils.cleanDirectory(actualErrors);
 		FileUtils.cleanDirectory(tr);
 		FileUtils.assertDirectory(actualErrors);
@@ -183,9 +180,9 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			args.add("--no-unit-js");
 		args.add("--testname");
 		args.add(s.replace("/", "-").replace("src-golden-", ""));
-		if (packageNames != null)
-			args.addAll(packageNames);
-		else
+		if (packages.exists()) {
+			args.addAll(FileUtils.readFileAsLines(packages));
+		} else
 			args.add("test.golden");
 		Main.standardCompiler(args.toArray(new String[args.size()]));
 		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {

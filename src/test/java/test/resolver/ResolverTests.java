@@ -359,11 +359,13 @@ public class ResolverTests {
 		MemberExpr dot = new MemberExpr(pos, from, fld);
 		VarPattern vp = new VarPattern(pos, new VarName(pos, pkg, "obj"));
 		context.checking(new Expectations() {{
+			oneOf(rr).get("obj.m"); will(returnValue(null));
 			oneOf(rr).get("test.repo.obj"); will(returnValue(vp));
 		}});
 		Resolver r = new RepositoryResolver(errors, rr);
 		r.currentScope(pkg);
-		new Traverser(r).visitMemberExpr(dot, 0);
+		Traverser tr = new Traverser(r);
+		tr.visitMemberExpr(dot, 0);
 		assertEquals(vp, from.defn());
 		assertNull(fld.defn());
 	}

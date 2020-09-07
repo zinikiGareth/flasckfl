@@ -129,7 +129,9 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 	}
 
 	public String jsPName() {
-		if (inContext instanceof FunctionName)
+		if (inContext == null || inContext.jsName() == null || inContext.jsName().length() == 0)
+			return name;
+		else if (inContext instanceof FunctionName)
 			return ((FunctionName) inContext).jsPName() + "." + name;
 		else if (inContext == null || inContext instanceof PackageName)
 			return inContext.jsName() + "." + name;
