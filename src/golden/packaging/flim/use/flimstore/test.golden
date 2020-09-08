@@ -1,0 +1,7 @@
+	function test.golden g
+		apply
+			named test.from.Hello
+			named Number
+			named Number
+	function test.golden newHello
+		named test.from.Hello

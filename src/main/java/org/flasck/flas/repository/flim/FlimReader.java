@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
@@ -22,10 +24,14 @@ public class FlimReader {
 		this.repository = repository;
 	}
 
-	public void read(File flimdir) {
+	public void read(File flimdir, List<File> butNot) {
+		List<String> ignore = new ArrayList<>();
+		for (File i : butNot)
+			ignore.add(i.getName());
 		FileUtils.assertDirectory(flimdir);
 		for (File f : FileUtils.findFilesMatching(flimdir, "*")) {
-			importFlim(f);
+			if (!ignore.contains(f.getName()))
+				importFlim(f);
 		}
 	}
 

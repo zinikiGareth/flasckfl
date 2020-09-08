@@ -7,10 +7,10 @@ import org.flasck.flas.tc3.ErrorType;
 import org.flasck.flas.tc3.Type;
 import org.flasck.flas.tokenizers.PackageNameToken;
 
-public class PendingArg {
+public class PendingNamedType implements PendingType {
 	private final PackageNameToken ty;
 
-	public PendingArg(PackageNameToken ty) {
+	public PendingNamedType(PackageNameToken ty) {
 		this.ty = ty;
 	}
 

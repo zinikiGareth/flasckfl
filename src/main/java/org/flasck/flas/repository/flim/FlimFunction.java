@@ -8,42 +8,21 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StateHolder;
-import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.repository.Repository;
-import org.flasck.flas.tc3.Apply;
-import org.flasck.flas.tc3.Type;
-import org.flasck.flas.tokenizers.KeywordToken;
-import org.flasck.flas.tokenizers.PackageNameToken;
-import org.flasck.flas.tokenizers.Tokenizable;
-import org.zinutils.exceptions.NotImplementedException;
+import org.zinutils.exceptions.CantHappenException;
 
-public class FlimFunction implements TDAParsing {
-	private final ErrorReporter errors;
+public class FlimFunction extends FlimTypeReader implements TDAParsing {
 	private final Repository repository;
 	private final FunctionName fn;
-	private final List<PendingArg> args = new ArrayList<>();
+	private final List<PendingType> args = new ArrayList<>();
 	private StateHolder holder;
 	private FunctionDefinition fd;
 
 	public FlimFunction(ErrorReporter errors, Repository repository, FunctionName fn) {
-		this.errors = errors;
+		super(errors);
 		this.repository = repository;
 		this.fn = fn;
-	}
-
-	@Override
-	public TDAParsing tryParsing(Tokenizable toks) {
-		KeywordToken kw = KeywordToken.from(toks);
-		switch (kw.text) {
-		case "arg": {
-			PackageNameToken ty = PackageNameToken.from(toks);
-			args.add(new PendingArg(ty));
-			return new NoNestingParser(errors);
-		}
-		default:
-			throw new NotImplementedException("cannot handle flim field keyword " + kw.text);
-		}
 	}
 
 	public void create() {
@@ -52,16 +31,14 @@ public class FlimFunction implements TDAParsing {
 		repository.functionDefn(errors, fd);
 	}
 
+	public void collect(PendingType ty) {
+		args.add(ty);
+	}
+	
 	public void bindType() {
-		if (args.size() == 1) {
-			fd.bindType(args.get(0).resolve(errors, repository));
-		} else {
-			List<Type> as = new ArrayList<>();
-			for (PendingArg pa : args) {
-				as.add(pa.resolve(errors, repository));
-			}
-			fd.bindType(new Apply(as));
-		}
+		if (args.size() != 1)
+			throw new CantHappenException("should have one arg at the end of the day, even if it's an apply");
+		fd.bindType(args.get(0).resolve(errors, repository));
 	}
 
 	@Override

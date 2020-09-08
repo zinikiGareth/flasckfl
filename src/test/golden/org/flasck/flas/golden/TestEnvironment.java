@@ -78,11 +78,11 @@ public class TestEnvironment {
 			for (String f : testReportTo.list()) {
 				FileUtils.assertFile(new File(testReports, f));
 			}
-			assertGolden(testReports, testReportTo);
+			assertGolden(testReports, testReportTo, false);
 		}
 	}
 	
-	public void assertGolden(File golden, File genned) {
+	public void assertGolden(File golden, File genned, boolean allowMissingGolden) {
 		if (checkNothing)
 			return;
 		if (!golden.isDirectory()) {
@@ -97,7 +97,7 @@ public class TestEnvironment {
 		}
 		List<File> missing = new ArrayList<>();
 		for (File f : genned.listFiles()) {
-			if (!new File(golden, f.getName()).exists()) {
+			if (!new File(golden, f.getName()).exists() && !allowMissingGolden) {
 				System.out.println("--- missing " + f);
 				FileUtils.cat(f);
 				System.out.println("---");
@@ -130,7 +130,7 @@ public class TestEnvironment {
 			return;
 		if (!tmpfd.exists())
 			fail("flim store was not created");
-		assertGolden(goldfd, tmpfd);
+		assertGolden(goldfd, tmpfd, true);
 	}
 
 	public void checkTypes() throws IOException {
@@ -138,6 +138,6 @@ public class TestEnvironment {
 			return;
 		FileUtils.assertDirectory(goldtc);
 		FileUtils.assertFile(new File(goldtc, "types"));
-		assertGolden(goldtc, tc2);
+		assertGolden(goldtc, tc2, false);
 	}
 }

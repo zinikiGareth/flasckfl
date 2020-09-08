@@ -1,5 +1,6 @@
 	struct test.from Hello
 		field Number n
 	function test.from f
-		arg test.from.Hello
-		arg Number
+		apply
+			named test.from.Hello
+			named Number

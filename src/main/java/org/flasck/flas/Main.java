@@ -94,7 +94,7 @@ public class Main {
 		Repository repository = new Repository();
 		LoadBuiltins.applyTo(errors, repository);
 		if (config.flimdir() != null) {
-			new FlimReader(errors, repository).read(config.flimdir());
+			new FlimReader(errors, repository).read(config.flimdir(), config.inputs);
 			if (errors.hasErrors())
 				return null;
 		}

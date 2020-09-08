@@ -21,7 +21,10 @@ public class FlimWriter {
 		try {
 			PrintWriter pw = new PrintWriter(new File(flimdir, pkg));
 			IndentWriter iw = new IndentWriter(pw, "\t").indent();
-			new Traverser(new FlimVisitor(pkg, iw)).doTraversal(repository);
+			String pkgName = null;
+			if (!"root.package".equals(pkg))
+				pkgName = pkg;
+			new Traverser(new FlimVisitor(pkgName, iw)).doTraversal(repository);
 			pw.close();
 			return true;
 		} catch (FileNotFoundException e) {

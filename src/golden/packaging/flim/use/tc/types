@@ -1,0 +1,2 @@
+test.golden.g :: test.from.Hello->Number->Number
+test.golden.newHello :: test.from.Hello
