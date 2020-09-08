@@ -1,6 +1,0 @@
-	function test.golden g
-		arg test.from.Hello
-		arg Number
-		arg Number
-	function test.golden newHello
-		arg Number
