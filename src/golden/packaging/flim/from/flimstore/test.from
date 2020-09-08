@@ -1,0 +1,5 @@
+	struct test.from.Hello
+		field Number n
+	function test.from.f
+		arg struct test.from.Hello
+		arg Number

@@ -30,6 +30,8 @@ public class TestEnvironment {
 	private boolean checkNothing;
 	private boolean checkEverything;
 	private File goldtc;
+	private File goldfd;
+	private File tmpfd;
 
 	public TestEnvironment(File jvmdir, String root, boolean useJSRunner, boolean useJVMRunner, boolean checkNothing, boolean checkEverything) throws FileNotFoundException, IOException {
 		this.rootdir = new File(root, "test.golden");
@@ -39,6 +41,8 @@ public class TestEnvironment {
 		this.checkEverything = checkEverything;
 		jsout = new File(root, "jsout");
 		jvmout = new File(root, "jvmout");
+		goldfd = new File(root, "flimstore");
+		tmpfd = new File(root, "flimstore-tmp");
 		goldtc = new File(root, "tc");
 		tc2 = new File(root, "tc-tmp");
 		testReports = new File(root, "testReports");
@@ -53,7 +57,7 @@ public class TestEnvironment {
 	}
 
 	public boolean haveTests() {
-		return !FileUtils.findFilesMatching(rootdir, "*.ut").isEmpty();
+		return rootdir.isDirectory() && !FileUtils.findFilesMatching(rootdir, "*.ut").isEmpty();
 	}
 
 	public void cleanUp() {
@@ -119,6 +123,14 @@ public class TestEnvironment {
 			}
 			assertEquals("Files " + f + " and " + gen + " differed", goldhash, genhash);
 		}
+	}
+
+	public void checkFlimStore() throws IOException {
+		if (!goldfd.exists())
+			return;
+		if (!tmpfd.exists())
+			fail("flim store was not created");
+		assertGolden(goldfd, tmpfd);
 	}
 
 	public void checkTypes() throws IOException {

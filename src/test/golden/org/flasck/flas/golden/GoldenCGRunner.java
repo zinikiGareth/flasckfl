@@ -80,12 +80,14 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		DecimalFormat df = new DecimalFormat("000");
 		int cnt = 1;
 		Set<File> sf = new TreeSet<>(new FileNameComparator());
-		sf.addAll(FileUtils.findFilesMatching(new File("src/golden"), "test.golden"));
+		for (File f : FileUtils.findFilesMatching(new File("src/golden"), "test.golden"))
+			sf.add(f.getParentFile());
+		for (File f : FileUtils.findFilesMatching(new File("src/golden"), "packages"))
+			sf.add(f.getParentFile());
 		sf = trackOrdering(sf);
 		ByteCodeCreator bcc = CGHarnessRunnerHelper.emptyTestClass(bce, clz.getName());
 		bcc.addRTVAnnotation("org.junit.FixMethodOrder").addEnumParam(MethodSorters.NAME_ASCENDING);
-		for (File f : sf) {
-			File dir = f.getParentFile();
+		for (File dir : sf) {
 			if (p == null || p.matcher(dir.getPath()).find()) {
 				addGoldenTest(bcc, "ut"+df.format(cnt++)+"_", dir);
 			}
@@ -160,10 +162,18 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File expectedErrors = new File(s, "errors");
 		final File tr = new File(s, "testReports-tmp");
 		final File packages = new File(s, "packages");
+		final File flimstore = new File(s, "flimstore");
+		final File flimstoreTo = new File(s, "flimstore-tmp");
 		FileUtils.cleanDirectory(actualErrors);
 		FileUtils.cleanDirectory(tr);
 		FileUtils.assertDirectory(actualErrors);
 		FileUtils.assertDirectory(tr);
+		if (flimstore.exists()) {
+			FileUtils.deleteDirectoryTree(flimstoreTo);
+			// TODO: we should create flimstoreTo & populate it with all the things not in "packages" (or test.golden) so that it is ready to go
+			// If there are no such things, do not create it ...
+//			FileUtils.assertDirectory(flimstoreTo);
+		}
 		List<String> args = new ArrayList<String>();
 		args.addAll(Arrays.asList("--root", s, "--jvmout", "jvmout", "--jsout", "jsout", "--testReports", "testReports-tmp", "--errors", "errors-tmp/errors", "--types", "tc-tmp/types"));
 		for (File wf : new File(s).listFiles()) {
@@ -178,6 +188,10 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			args.add("--no-unit-jvm");
 		if (!useJSRunner || !runJs)
 			args.add("--no-unit-js");
+		if (flimstore.exists()) {
+			args.add("--flim");
+			args.add(flimstoreTo.getPath());
+		}
 		args.add("--testname");
 		args.add(s.replace("/", "-").replace("src-golden-", ""));
 		if (packages.exists()) {
@@ -187,6 +201,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		Main.standardCompiler(args.toArray(new String[args.size()]));
 		if (checkExpectedErrors(te, expectedErrors, actualErrors)) {
 			te.checkTestResults();
+			te.checkFlimStore();
 			te.checkTypes();
 		}
 	}

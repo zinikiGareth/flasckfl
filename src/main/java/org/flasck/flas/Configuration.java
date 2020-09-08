@@ -14,12 +14,11 @@ public class Configuration {
 	public final ErrorReporter errors;
 	public boolean unitjvm = true, unitjs = true;
 	public boolean dumpTypes;
-	private List<File> searchFlim = new ArrayList<>();
+	private File flimDir;
 	public File root;
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
 	public boolean generateJVM = true;
-	public File writeFlim;
 	public File writeHSIE;
 	public File writeJS;
 	public File html;
@@ -122,13 +121,11 @@ public class Configuration {
 						System.out.println("--flim <dir>");
 						System.exit(1);
 					}
-					searchFlim.add(new File(root, args[++i]));
-				} else if (arg.equals("--wflim")) {
-					if (hasMore == 0) {
-						System.out.println("--wflim <dir>");
+					if (flimDir != null) {
+						System.out.println("cannot set flim dir more than once");
 						System.exit(1);
 					}
-					writeFlim = new File(root, args[++i]);
+					flimDir = new File(args[++i]);
 				} else if (arg.equals("--hsie")) {
 					if (hasMore == 0) {
 						System.out.println("--hsie <dir>");
@@ -235,5 +232,9 @@ public class Configuration {
 			return writeTestReportsTo;
 		else
 			return null;
+	}
+
+	public File flimdir() {
+		return flimDir;
 	}
 }

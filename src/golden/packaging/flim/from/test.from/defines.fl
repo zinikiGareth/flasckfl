@@ -1,0 +1,6 @@
+This is a package of definitions to go in the store
+
+	struct Hello
+		Number n
+		
+	f (Hello h) = h.n

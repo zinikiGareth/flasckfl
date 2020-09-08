@@ -18,6 +18,8 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.repository.flim.FlimReader;
+import org.flasck.flas.repository.flim.FlimWriter;
 import org.flasck.jvm.assembly.FLASAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +92,9 @@ public class Main {
 		}
 
 		Repository repository = new Repository();
+		if (config.flimdir() != null) {
+			new FlimReader(repository).read(config.flimdir());
+		}
 		FLASCompiler compiler = new FLASCompiler(errors, repository);
 		LoadBuiltins.applyTo(errors, repository);
 		if (config.inputs.isEmpty()) {
@@ -156,7 +161,14 @@ public class Main {
 			if (config.openHTML)
 				Desktop.getDesktop().open(config.html);
 		}
-		
+
+		if (config.flimdir() != null) {
+			FlimWriter writer = new FlimWriter(repository, config.flimdir());
+			for (File input : config.inputs)
+				if (!writer.export(input.getName()))
+					return null;
+		}
+
 		return compiler;
 	}
 
