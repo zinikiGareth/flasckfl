@@ -144,3 +144,4 @@ src/golden/methods/objects/callnoargs
 src/golden/packaging/two
 src/golden/packaging/root
 src/golden/packaging/flim/from
+src/golden/packaging/flim/use

@@ -1,0 +1,3 @@
+	newHello = test.from.Hello 42
+	
+	g x y = test.from.f x * y

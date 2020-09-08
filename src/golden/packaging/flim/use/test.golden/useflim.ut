@@ -1,0 +1,9 @@
+Test that we can pull things in from previously defined flim functions
+
+	test that we can call the function directly
+		assert (test.from.f newHello)
+			42
+			
+	test that we can call it indirectly
+		assert (g newHello 10)
+			420
