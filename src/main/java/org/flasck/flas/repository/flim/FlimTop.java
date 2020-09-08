@@ -27,7 +27,7 @@ public class FlimTop implements TDAParsing {
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final String pkg;
-	private final List<PendingFunction> functions = new ArrayList<>();
+	private final List<FlimFunction> functions = new ArrayList<>();
 
 	public FlimTop(ErrorReporter errors, Repository repository, String pkg) {
 		this.errors = errors;
@@ -60,13 +60,13 @@ public class FlimTop implements TDAParsing {
 			List<PolyType> polys = new ArrayList<>();
 			StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, tn, false, polys);
 			repository.newStruct(errors, sd);
-			return new FlimStructField(errors);
+			return new FlimStructField(errors, sd);
 		}
 		case "function": {
 			ValidIdentifierToken ft = VarNameToken.from(toks);
-			PendingFunction pf = new PendingFunction(FunctionName.function(pos, container, ft.text));
+			FlimFunction pf = new FlimFunction(errors, repository, FunctionName.function(pos, container, ft.text));
 			functions.add(pf);
-			return new FlimFunction(errors, repository, pf);
+			return pf;
 		}
 		default:
 			throw new NotImplementedException("cannot handle flim keyword " + kw.text);
@@ -75,7 +75,7 @@ public class FlimTop implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		for (PendingFunction pf : functions)
-			pf.bindType(errors, repository);
+		for (FlimFunction pf : functions)
+			pf.bindType();
 	}
 }
