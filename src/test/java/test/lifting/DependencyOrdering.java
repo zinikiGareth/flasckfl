@@ -2,6 +2,7 @@ package test.lifting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -13,6 +14,7 @@ import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.LogicHolder;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
@@ -252,7 +254,9 @@ public class DependencyOrdering {
 	}
 
 	private void assertOrder(String... fns) {
-		FunctionGroupOrdering ordering = lifter.resolve();
+		TreeSet<LogicHolder> used = new TreeSet<>();
+		used.add(LoadBuiltins.length);
+		FunctionGroupOrdering ordering = lifter.resolve(used);
 		InsertorTests.assertOrder(ordering, fns);
 	}
 }

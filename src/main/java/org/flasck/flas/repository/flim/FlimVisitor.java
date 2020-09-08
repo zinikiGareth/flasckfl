@@ -22,7 +22,7 @@ public class FlimVisitor extends LeafAdapter {
 	@Override
 	public void visitStructDefn(StructDefn s) {
 		if (s.name.uniqueName().startsWith(pkg)) {
-			iw.println("struct " + s.name.uniqueName());
+			iw.println("struct " + s.name.container().uniqueName() + " " + s.name.baseName());
 			sfw = iw.indent();
 		}
 	}
@@ -42,7 +42,7 @@ public class FlimVisitor extends LeafAdapter {
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
 		if (fn.name().uniqueName().startsWith(pkg)) {
-			iw.println("function " + fn.name().uniqueName());
+			iw.println("function " + fn.name().container().uniqueName() + " " + fn.name().baseName());
 			IndentWriter aiw = iw.indent();
 			for (int i=0;i<=fn.argCount();i++) {
 				aiw.print("arg ");

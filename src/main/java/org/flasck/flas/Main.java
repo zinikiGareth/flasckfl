@@ -93,7 +93,9 @@ public class Main {
 
 		Repository repository = new Repository();
 		if (config.flimdir() != null) {
-			new FlimReader(repository).read(config.flimdir());
+			new FlimReader(errors, repository).read(config.flimdir());
+			if (errors.hasErrors())
+				return null;
 		}
 		FLASCompiler compiler = new FLASCompiler(errors, repository);
 		LoadBuiltins.applyTo(errors, repository);

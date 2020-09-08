@@ -41,8 +41,9 @@ public class FunctionDefinition implements RepositoryEntry, Locatable, WithTypeS
 		this.holder = holder;
 	}
 	
-	public void dontGenerate() {
+	public FunctionDefinition dontGenerate() {
 		this.generate = false;
+		return this;
 	}
 
 	@Override

@@ -157,7 +157,7 @@ public class UnionTypeDefn implements Locatable, UnionFieldConsumer, RepositoryE
 
 	@Override
 	public int argCount() {
-		throw new NotImplementedException();
+		return 0;
 	}
 
 	@Override

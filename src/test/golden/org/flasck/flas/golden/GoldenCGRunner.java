@@ -3,6 +3,7 @@ package org.flasck.flas.golden;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -164,12 +165,17 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		final File packages = new File(s, "packages");
 		final File flimstore = new File(s, "flimstore");
 		final File flimstoreTo = new File(s, "flimstore-tmp");
+		final File flimfrom = new File(s, "flim-imports");
 		FileUtils.cleanDirectory(actualErrors);
 		FileUtils.cleanDirectory(tr);
 		FileUtils.assertDirectory(actualErrors);
 		FileUtils.assertDirectory(tr);
+		FileUtils.deleteDirectoryTree(flimstoreTo);
+		if (flimfrom.exists()) {
+			FileUtils.assertDirectory(flimstoreTo);
+			copyFlimstoresTo(flimstoreTo, flimfrom);
+		}
 		if (flimstore.exists()) {
-			FileUtils.deleteDirectoryTree(flimstoreTo);
 			// TODO: we should create flimstoreTo & populate it with all the things not in "packages" (or test.golden) so that it is ready to go
 			// If there are no such things, do not create it ...
 //			FileUtils.assertDirectory(flimstoreTo);
@@ -188,7 +194,7 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			args.add("--no-unit-jvm");
 		if (!useJSRunner || !runJs)
 			args.add("--no-unit-js");
-		if (flimstore.exists()) {
+		if (flimstore.exists() || flimstoreTo.exists()) {
 			args.add("--flim");
 			args.add(flimstoreTo.getPath());
 		}
@@ -205,6 +211,25 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			te.checkTypes();
 		}
 	}
+
+	private static void copyFlimstoresTo(File flimstoreTo, File flimfrom) throws FileNotFoundException, IOException {
+		try (LineNumberReader lnr = new LineNumberReader(new FileReader(flimfrom))) {
+			String s;
+			while ((s = lnr.readLine()) != null) {
+				File f = new File("src/golden", s);
+				if (!f.isDirectory())
+					throw new RuntimeException("No golden test " + s);
+				File g = new File(f, "flimstore");
+				if (!g.isDirectory())
+					throw new RuntimeException("Test " + s + " does not provide a flimstore");
+				for (File z : FileUtils.findFilesMatching(g, "*")) {
+					FileUtils.copy(z, flimstoreTo);
+				}
+				// TODO: I think we also want to copy the jsout & jvmout bits ... 
+			}
+		}
+	}
+
 
 	private static boolean checkExpectedErrors(TestEnvironment te, File expectedErrors, File actualErrors) {
 		final File aef = new File(actualErrors, "errors");

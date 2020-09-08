@@ -8,11 +8,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.Tokenizable;
 
-/** I'm wondering if we actually need "Story" as such.
- * Some version of this class needs to exist to be a BlockConsumer and to hand off to the child
- * -- and somebody somewhere needs to maintain a stack
- * -- I'm just not sure it's at this level
- */
 public class TDANester implements BlockConsumer {
 	private final List<TDAParsing> stack = new ArrayList<>();
 	private InputPosition lastloc;

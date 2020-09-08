@@ -29,8 +29,8 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.FunctionGroup;
 import org.flasck.flas.repository.FunctionGroups;
 import org.flasck.flas.repository.LeafAdapter;
-import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.repository.RepositoryExtractor;
 import org.flasck.flas.repository.Traverser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 		}
 		enhanceAll();
 		refhandlers();
-		resolve();
+		resolve(RepositoryExtractor.nongenFunctions(r));
 		logger.info("group ordering = " + ordering);
 		int k = 0;
 		for (FunctionGroup grp : ordering) {
@@ -273,15 +273,13 @@ public class RepositoryLifter extends LeafAdapter implements Lifter {
 
 	// Resolve all fn-to-fn references
 	// Return the ordering for the benefit of unit tests
-	public FunctionGroupOrdering resolve() {
+	public FunctionGroupOrdering resolve(Set<LogicHolder> processedFns) {
 		// TODO: we should probably have more direct unit tests of this
 		// It possibly should also have its own class of some kind
 		ordering = new ArrayList<>();
 		
 		for (LogicHolder f : dull)
 			ordering.add(new DependencyGroup(f));
-
-		Set<LogicHolder> processedFns = new TreeSet<>(LoadBuiltins.allFunctions);
 		processedFns.addAll(dull);
 		Set<LogicHolder> remainingFns = new TreeSet<>(interesting);
 		while (!remainingFns.isEmpty()) {

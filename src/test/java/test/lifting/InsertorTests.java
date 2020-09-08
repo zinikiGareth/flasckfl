@@ -3,6 +3,7 @@ package test.lifting;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -131,7 +132,7 @@ public class InsertorTests {
 		lifter.leaveFunction(fnH);
 		lifter.enhanceAll();
 		lifter.refhandlers();
-		FunctionGroupOrdering ordering = lifter.resolve();
+		FunctionGroupOrdering ordering = lifter.resolve(new TreeSet<>());
 		assertOrder(ordering, "test.foo.f//test.foo.f.g//test.foo.f.g.h");
 		
 		Traverser t = new Traverser(hsi).withNestedPatterns();

@@ -47,7 +47,7 @@ public class ApplicationElementParser implements TDAParsing {
 			return new NoNestingParser(errors);
 		}
 		default: {
-			errors.message(toks, "expected 'application' or 'card'");
+			errors.message(toks, "expected 'title' or 'main'");
 			return new IgnoreNestedParser();
 		}
 		}
