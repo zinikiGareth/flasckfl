@@ -15,7 +15,6 @@ public class FlimWriter {
 	public FlimWriter(Repository repository, File flimdir) {
 		this.repository = repository;
 		this.flimdir = flimdir;
-		System.out.println(flimdir);
 	}
 
 	public boolean export(String pkg) {
