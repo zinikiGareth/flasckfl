@@ -74,6 +74,9 @@ public class MemberExpr implements Expr {
 	
 	@Override
 	public String toString() {
+		if (boundEarly) {
+			return entry.name().uniqueName();
+		}
 		StringBuilder ret = new StringBuilder();
 		ret.append("(. ");
 		ret.append(" ");

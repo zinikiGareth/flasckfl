@@ -75,7 +75,6 @@ public class FlimTop implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		System.out.println("completed with " + functions);
 		for (PendingFunction pf : functions)
 			pf.bindType(errors, repository);
 	}

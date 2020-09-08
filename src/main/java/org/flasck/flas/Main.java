@@ -92,13 +92,13 @@ public class Main {
 		}
 
 		Repository repository = new Repository();
+		LoadBuiltins.applyTo(errors, repository);
 		if (config.flimdir() != null) {
 			new FlimReader(errors, repository).read(config.flimdir());
 			if (errors.hasErrors())
 				return null;
 		}
 		FLASCompiler compiler = new FLASCompiler(errors, repository);
-		LoadBuiltins.applyTo(errors, repository);
 		if (config.inputs.isEmpty()) {
 			errors.message((InputPosition)null, "there are no input packages");
 			return null;

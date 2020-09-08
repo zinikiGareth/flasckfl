@@ -6,6 +6,7 @@ import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.PackageNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -25,6 +26,8 @@ public class FlimFunction implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(toks);
 		switch (kw.text) {
 		case "arg": {
+			PackageNameToken ty = PackageNameToken.from(toks);
+			fn.arg(ty);
 			return new NoNestingParser(errors);
 		}
 		default:

@@ -24,14 +24,12 @@ public class FlimReader {
 
 	public void read(File flimdir) {
 		FileUtils.assertDirectory(flimdir);
-		System.out.println("Reading from " + flimdir);
 		for (File f : FileUtils.findFilesMatching(flimdir, "*")) {
 			importFlim(f);
 		}
 	}
 
 	private void importFlim(File f) {
-		System.out.println("  importing " + f);
 		Blocker blocker = new Blocker(errors, new TDANester(new FlimTop(errors, repository, f.getName())));
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(f))) {
 			String s;
