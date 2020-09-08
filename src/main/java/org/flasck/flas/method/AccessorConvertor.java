@@ -82,7 +82,7 @@ public class AccessorConvertor extends LeafAdapter {
 		boolean ret = expr.boundEarly();
 		if (ret) {
 			defn = expr.defn();
-			if (defn instanceof FunctionDefinition) {
+			if (defn instanceof FunctionDefinition || defn instanceof StructDefn) {
 				UnresolvedVar uv = new UnresolvedVar(expr.location, "expr");
 				uv.bind(defn);
 				expr.conversion(uv);

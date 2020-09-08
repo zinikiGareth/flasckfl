@@ -9,9 +9,6 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.parsedForm.PolyType;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.repository.Repository;
@@ -28,6 +25,7 @@ public class FlimTop implements TDAParsing {
 	private final Repository repository;
 	private final String pkg;
 	private final List<FlimFunction> functions = new ArrayList<>();
+	private final List<FlimStruct> structs = new ArrayList<>();
 
 	public FlimTop(ErrorReporter errors, Repository repository, String pkg) {
 		this.errors = errors;
@@ -57,10 +55,9 @@ public class FlimTop implements TDAParsing {
 		case "struct": {
 			TypeNameToken tnt = TypeNameToken.unqualified(toks);
 			SolidName tn = new SolidName(container, tnt.text);
-			List<PolyType> polys = new ArrayList<>();
-			StructDefn sd = new StructDefn(pos, pos, FieldsType.STRUCT, tn, false, polys);
-			repository.newStruct(errors, sd);
-			return new FlimStructField(errors, sd);
+			FlimStruct fs = new FlimStruct(errors, repository, tn);
+			structs.add(fs);
+			return fs;
 		}
 		case "function": {
 			ValidIdentifierToken ft = VarNameToken.from(toks);
@@ -75,6 +72,8 @@ public class FlimTop implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+		for (FlimStruct ps : structs)
+			ps.resolve();
 		for (FlimFunction pf : functions)
 			pf.bindType();
 	}
