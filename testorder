@@ -40,6 +40,7 @@ src/golden/functions/patterns/poly
 src/golden/structs/basic
 src/golden/structs/acor
 src/golden/structs/constructors/curried
+src/golden/structs/fields/lists
 src/golden/functions/patterns/unions
 src/golden/functions/currying
 src/golden/functions/guards
@@ -146,3 +147,4 @@ src/golden/packaging/root
 src/golden/packaging/flim/from
 src/golden/packaging/flim/use
 src/golden/packaging/flim/root
+src/golden/packaging/flim/useroot

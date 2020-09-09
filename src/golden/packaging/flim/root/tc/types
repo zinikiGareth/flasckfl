@@ -1,0 +1,2 @@
+first :: List[A]->A
+listLength :: List[Any]->Number

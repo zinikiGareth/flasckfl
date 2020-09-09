@@ -1,0 +1,9 @@
+	struct PolyContainer I
+		List[I] x
+		
+	first [] = Error "empty list"
+	first (Cons { head: x }) = x
+	
+	x = PolyContainer [4,5]
+	
+	z = first x.x

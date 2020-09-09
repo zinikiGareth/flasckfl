@@ -76,7 +76,7 @@ public class FlimVisitor extends LeafAdapter {
 
 	private void showType(IndentWriter aiw, Type type) {
 		if (type instanceof PolyType) {
-			aiw.println("poly " + type);
+			aiw.println("poly " + ((PolyType)type).name().uniqueName());
 		} else if (type instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) type;
 			aiw.println("instance");

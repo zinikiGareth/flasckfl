@@ -3,13 +3,13 @@
 		field x
 			instance
 				named List
-				poly A
+				poly InRoot.A
 		field head
-			poly A
+			poly InRoot.A
 	function null first
 		apply
 			instance
-				named Cons
+				named List
 				poly A
 			poly A
 	function null listLength

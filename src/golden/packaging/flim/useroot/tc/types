@@ -1,0 +1,3 @@
+test.golden.x :: InRoot[Number]
+test.golden.y :: Number
+test.golden.z :: Number

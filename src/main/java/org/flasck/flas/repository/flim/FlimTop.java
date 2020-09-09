@@ -38,18 +38,14 @@ public class FlimTop implements TDAParsing {
 		InputPosition pos = toks.realinfo();
 		KeywordToken kw = KeywordToken.from(toks);
 		NameOfThing container;
-		if (pkg == null) {
+		PackageNameToken inpkg = PackageNameToken.from(toks);
+		if (pkg.equals("root.package") && "null".equals(inpkg.text))
 			container = new PackageName(null);
+		else if (inpkg.text.equals(pkg)) {
+			container = new PackageName(pkg);
 		} else {
-			PackageNameToken inpkg = PackageNameToken.from(toks);
-			if (pkg == null && "null".equals(inpkg))
-				container = new PackageName(null);
-			else if (inpkg.text.equals(pkg)) {
-				container = new PackageName(pkg);
-			} else {
-				errors.message(pos, "invalid package name");
-				return new IgnoreNestedParser();
-			}
+			errors.message(pos, "invalid package name");
+			return new IgnoreNestedParser();
 		}
 		switch (kw.text) {
 		case "struct": {

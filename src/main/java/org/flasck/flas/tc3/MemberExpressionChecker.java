@@ -1,8 +1,10 @@
 package org.flasck.flas.tc3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
@@ -100,9 +102,13 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 				errors.message(fld.location(), "there is no field '" + fld.var + "' in " + sd.name().uniqueName());
 				announce(expr, new ErrorType());
 			} else {
-				if (polys != null)
-					announce(expr, processPolys(polys, sd, sf.type.defn()));
-				else
+				if (polys != null) {
+					Map<String, Type> mapping = new HashMap<>();
+					for (int i=0;i<polys.size();i++) {
+						mapping.put(sd.polys().get(i).shortName(), polys.get(i));
+					}
+					announce(expr, replacePolyVarsWithDeducedTypes(mapping, sf.type.defn()));
+				} else
 					announce(expr, sf.type.defn());
 			}
 		} else if (ty instanceof ObjectDefn) {
@@ -150,10 +156,6 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		} else if (ty instanceof UnionTypeDefn) {
 			errors.message(expr.fld.location(), "cannot access members of unions");
 			announce(expr, new ErrorType());
-//		} else if (expr.from instanceof UnresolvedVar) {
-//			UnresolvedVar var = (UnresolvedVar) expr.from;
-//			errors.message(var.location(), "there is insufficient information to deduce the type of '" + var.var + "' in order to apply it to '" + fld.var + "'");
-//			announce(expr, new ErrorType());
 		} else
 			throw new NotImplementedException("Not yet handled: " + ty);
 	}
@@ -174,23 +176,26 @@ public class MemberExpressionChecker extends LeafAdapter implements ResultAware 
 		nv.result(ty);
 	}
 
-	private Type processPolys(List<Type> polys, PolyHolder ph, Type found) {
+	private Type replacePolyVarsWithDeducedTypes(Map<String, Type> mapping, Type found) {
 		if (found instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) found;
+			Map<String, Type> remapped = new HashMap<>();
+			Iterator<PolyType> ipt = ((PolyHolder)pi.struct()).polys().iterator();
+			Iterator<Type> it = pi.polys().iterator();
+			while (ipt.hasNext()) {
+				remapped.put(ipt.next().shortName(), mapping.get(((PolyType)it.next()).shortName()));
+			}
 			List<Type> mapped = new ArrayList<>();
-			for (Type pt : pi.polys()) {
-				mapped.add(processPolys(polys, (PolyHolder)pi.struct(), pt));
+			for (PolyType pt : ((PolyHolder)pi.struct()).polys()) {
+				mapped.add(replacePolyVarsWithDeducedTypes(remapped, pt));
 			}
 			return new PolyInstance(pi.location(), pi.struct(), mapped);
 		} else if (found instanceof PolyType) {
-			Iterator<PolyType> ipt = ph.polys().iterator();
-			Iterator<Type> it = polys.iterator();
-			while (ipt.hasNext()) {
-				Type ret = it.next();
-				if (ipt.next() == found)
-					return ret;
-			}
-			throw new CantHappenException("the poly type was not in the list");
+			PolyType pt = (PolyType) found;
+			if (mapping.containsKey(pt.shortName()))
+				return mapping.get(pt.shortName());
+			else
+				throw new CantHappenException("the poly type was not in the list");
 		} else
 			return found;
 	}

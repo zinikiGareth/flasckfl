@@ -1,0 +1,5 @@
+This is a regression test based on finding that I had failures when nested a polymorphic list in a polymorphic struct
+
+	test we did it right
+		assert (z)
+			4

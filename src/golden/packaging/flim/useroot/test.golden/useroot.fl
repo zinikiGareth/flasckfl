@@ -1,0 +1,5 @@
+	x = InRoot [4,5] 10
+	
+	y = listLength x.x
+	
+	z = first x.x

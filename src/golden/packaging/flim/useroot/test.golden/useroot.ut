@@ -1,0 +1,9 @@
+Test that we are able to successfully use the methods we pulled in
+
+.	test we did it right
+.		assert (z)
+.			4
+.		assert (y)
+.			2
+.		assert (x.head)
+.			10

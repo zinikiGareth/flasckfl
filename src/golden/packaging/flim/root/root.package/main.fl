@@ -5,5 +5,6 @@
 	listLength [] = 0
 	listLength (Cons { tail: x }) = 1 + listLength x
 	
+	first [] = Error "empty list"
 	first (Cons { head: x }) = x
 	
