@@ -6,9 +6,15 @@
 				poly A
 		field head
 			poly A
+	function null first
+		apply
+			instance
+				named Cons
+				poly A
+			poly A
 	function null listLength
 		apply
 			instance
 				named List
-				poly A
+				named Any
 			named Number

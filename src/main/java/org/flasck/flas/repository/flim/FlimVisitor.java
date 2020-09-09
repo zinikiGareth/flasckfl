@@ -3,11 +3,13 @@ package org.flasck.flas.repository.flim;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
+import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
@@ -28,6 +30,8 @@ public class FlimVisitor extends LeafAdapter {
 		if (pkn != null) {
 			iw.println("struct " + pkn + " " + s.name.baseName());
 			sfw = iw.indent();
+			for (PolyType v : s.polys())
+				sfw.println("poly " + v);
 		}
 	}
 	
@@ -71,7 +75,16 @@ public class FlimVisitor extends LeafAdapter {
 	}
 
 	private void showType(IndentWriter aiw, Type type) {
-		if (type instanceof NamedType)
+		if (type instanceof PolyType) {
+			aiw.println("poly " + type);
+		} else if (type instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) type;
+			aiw.println("instance");
+			IndentWriter piw = aiw.indent();
+			showType(piw, pi.struct());
+			for (Type pt : pi.polys())
+				showType(piw, pt);
+		} else if (type instanceof NamedType)
 			aiw.println("named " + ((NamedType)type).signature());
 		else if (type instanceof Apply) {
 			aiw.println("apply");

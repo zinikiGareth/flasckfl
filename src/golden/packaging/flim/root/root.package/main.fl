@@ -4,3 +4,6 @@
 		
 	listLength [] = 0
 	listLength (Cons { tail: x }) = 1 + listLength x
+	
+	first (Cons { head: x }) = x
+	
