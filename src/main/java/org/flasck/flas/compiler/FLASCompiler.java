@@ -223,6 +223,8 @@ public class FLASCompiler {
 		Map<File, TestResultWriter> writers = new HashMap<>();
 		if (config.generateJVM && config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
+			for (File f : config.includeFrom)
+				bcl.addClassesFrom(f);
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
 			jvmRunner.runAll(writers);
 			jvmRunner.reportErrors(errors);

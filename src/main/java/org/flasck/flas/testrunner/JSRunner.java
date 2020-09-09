@@ -185,6 +185,10 @@ public class JSRunner extends CommonTestRunner {
 			copyResourceIntoScript(pw, "flas-unittest.js", testDirJS);
 			for (File f : jse.files())
 				includeFileAsScript(pw, f, testDirJS);
+			for (File f : config.includeFrom) {
+				for (File i : FileUtils.findFilesMatching(f, "*.js"))
+					includeFileAsScript(pw, i, testDirJS);
+			}
 			pw.println("</head>");
 			pw.println("<body>");
 			pw.println("</body>");

@@ -19,7 +19,6 @@ public class Configuration {
 	public boolean doTypeCheck = true;
 	public boolean generateJS = true;
 	public boolean generateJVM = true;
-	public File writeHSIE;
 	public File writeJS;
 	public File html;
 //	private File writeDroid;
@@ -37,6 +36,7 @@ public class Configuration {
 	public AssemblyVisitor storer;
 	public String flascklib; // needs a default relative to me
 	public boolean openHTML;
+	public final List<File> includeFrom = new ArrayList<File>();
 
 	public Configuration(ErrorReporter errors, String[] args) {
 		this.errors = errors;
@@ -126,12 +126,12 @@ public class Configuration {
 						System.exit(1);
 					}
 					flimDir = new File(args[++i]);
-				} else if (arg.equals("--hsie")) {
+				} else if (arg.equals("--incl")) {
 					if (hasMore == 0) {
-						System.out.println("--hsie <dir>");
+						System.out.println("--incl <dir>");
 						System.exit(1);
 					}
-					writeHSIE = new File(root, args[++i]);
+					includeFrom.add(new File(args[++i]));
 				} else if (arg.equals("--jsout")) {
 					if (hasMore == 0) {
 						System.out.println("--jsout <dir>");

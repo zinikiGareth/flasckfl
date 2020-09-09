@@ -211,6 +211,14 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 			args.add("--flim");
 			args.add(flimstoreTo.getPath());
 		}
+		if (flimfrom.exists()) {
+			for (String ff : FileUtils.readFileAsLines(flimfrom)) {
+				args.add("--incl");
+				args.add("src/golden/" + ff + "/jsout");
+				args.add("--incl");
+				args.add("src/golden/" + ff + "/jvmout");
+			}
+		}
 		args.add("--testname");
 		args.add(s.replace("/", "-").replace("src-golden-", ""));
 		if (packages.exists()) {

@@ -54,7 +54,7 @@ public abstract class BaseRunnerTests {
 	
 	@Test
 	public void testAssertIsOKIfXDoesIndeedEqualX() throws Exception {
-		Configuration config = null;
+		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();
 		CommonTestRunner runner = prepareRunner(config, repository);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
@@ -66,7 +66,7 @@ public abstract class BaseRunnerTests {
 
 	@Test
 	public void testAssertFailsIfXDoesNotEqualAGivenValue() throws Exception {
-		Configuration config = null;
+		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();
 		CommonTestRunner runner = prepareRunner(config, repository);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
@@ -78,7 +78,7 @@ public abstract class BaseRunnerTests {
 
 	@Test
 	public void testAClosureIsFullyEvaluatedBeforeTheComparisonIsDone() throws Exception {
-		Configuration config = null;
+		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();
 		CommonTestRunner runner = prepareRunner(config, repository);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
