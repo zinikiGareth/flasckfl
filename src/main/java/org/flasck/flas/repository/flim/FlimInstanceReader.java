@@ -5,12 +5,12 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class FlimInstanceReader extends FlimTypeReader implements PendingType {
 	private final FlimTypeReader parent;
@@ -34,21 +34,21 @@ public class FlimInstanceReader extends FlimTypeReader implements PendingType {
 	}
 
 	@Override
-	public Type resolve(ErrorReporter errors, Repository repository) {
-		NamedType nt = (NamedType) args.get(0).resolve(errors, repository);
-		List<Type> polys = new ArrayList<>();
+	public Type resolve(ErrorReporter errors, Repository repository, List<PolyType> polys) {
+		NamedType nt = (NamedType) args.get(0).resolve(errors, repository, polys);
+		List<Type> inpolys = new ArrayList<>();
 		for (int i=1;i<args.size();i++)
-			polys.add(args.get(i).resolve(errors, repository));
-		return new PolyInstance(location, nt, polys);
+			inpolys.add(args.get(i).resolve(errors, repository, polys));
+		return new PolyInstance(location, nt, inpolys);
 	}
 
 	@Override
-	public TypeReference resolveAsRef(ErrorReporter errors, Repository repository) {
-		PolyInstance pi = (PolyInstance) resolve(errors, repository);
-		List<TypeReference> polys = new ArrayList<>();
+	public TypeReference resolveAsRef(ErrorReporter errors, Repository repository, List<PolyType> polys) {
+		PolyInstance pi = (PolyInstance) resolve(errors, repository, polys);
+		List<TypeReference> inpolys = new ArrayList<>();
 		for (int i=1;i<args.size();i++)
-			polys.add(args.get(i).resolveAsRef(errors, repository));
-		TypeReference tr = new TypeReference(pi.location(), pi.name().baseName(), polys);
+			inpolys.add(args.get(i).resolveAsRef(errors, repository, polys));
+		TypeReference tr = new TypeReference(pi.location(), pi.name().baseName(), inpolys);
 		tr.bind(pi);
 		return tr;
 	}

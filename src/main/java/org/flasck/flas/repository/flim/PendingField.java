@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FieldsHolder;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.Repository;
@@ -25,10 +26,10 @@ public class PendingField extends FlimTypeReader {
 		tys.add(ty);
 	}
 
-	public StructField resolve(Repository repository, FieldsHolder parent) {
+	public StructField resolve(Repository repository, FieldsHolder parent, List<PolyType> polys) {
 		if (tys.size() != 1)
 			throw new CantHappenException("there should be exactly one type here");
-		TypeReference tr = tys.get(0).resolveAsRef(errors, repository);
+		TypeReference tr = tys.get(0).resolveAsRef(errors, repository, polys);
 		return new StructField(tok.location, tok.location, parent, true, tr, tok.text, null);
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.RepositoryEntry;
@@ -19,7 +20,7 @@ public class PendingNamedType implements PendingType {
 		this.pnt = ty;
 	}
 
-	public Type resolve(ErrorReporter errors, Repository repository) {
+	public Type resolve(ErrorReporter errors, Repository repository, List<PolyType> polys) {
 		RepositoryEntry ret = repository.get(pnt.text);
 		if (ret == null) {
 			errors.message(pnt.location, "no such type " + pnt.text);
@@ -33,10 +34,12 @@ public class PendingNamedType implements PendingType {
 	}
 
 	@Override
-	public TypeReference resolveAsRef(ErrorReporter errors, Repository repository) {
-		NamedType ty = (NamedType) resolve(errors, repository);
+	public TypeReference resolveAsRef(ErrorReporter errors, Repository repository, List<PolyType> polys) {
 		List<TypeReference> ftpolys = new ArrayList<>();
-		TypeReference tr = new TypeReference(this.pnt.location, ty.name().baseName(), ftpolys);
+		TypeReference tr = new TypeReference(this.pnt.location, this.pnt.text, ftpolys);
+		Type r = resolve(errors, repository, polys);
+		if (r instanceof NamedType)
+			tr.bind((NamedType) r);
 		return tr;
 	}
 

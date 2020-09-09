@@ -3,10 +3,11 @@
 		field x
 			instance
 				named List
-				poly InRoot.A
+				poly A
 		field head
-			poly InRoot.A
+			poly A
 	function null first
+		var A
 		apply
 			instance
 				named List

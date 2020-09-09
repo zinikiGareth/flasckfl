@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.repository.Repository;
@@ -27,16 +28,16 @@ public class FlimApplyReader extends FlimTypeReader implements TDAParsing, Pendi
 	}
 
 	@Override
-	public Type resolve(ErrorReporter errors, Repository repository) {
+	public Type resolve(ErrorReporter errors, Repository repository, List<PolyType> polys) {
 		List<Type> as = new ArrayList<>();
 		for (PendingType pa : args) {
-			as.add(pa.resolve(errors, repository));
+			as.add(pa.resolve(errors, repository, polys));
 		}
 		return new Apply(as);
 	}
 
 	@Override
-	public TypeReference resolveAsRef(ErrorReporter errors, Repository repository) {
+	public TypeReference resolveAsRef(ErrorReporter errors, Repository repository, List<PolyType> polys) {
 		throw new NotImplementedException();
 	}
 

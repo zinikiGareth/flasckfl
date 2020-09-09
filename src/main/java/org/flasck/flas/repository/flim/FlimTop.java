@@ -26,6 +26,7 @@ public class FlimTop implements TDAParsing {
 	private final String pkg;
 	private final List<FlimFunction> functions = new ArrayList<>();
 	private final List<FlimStruct> structs = new ArrayList<>();
+	private final List<FlimUnion> unions = new ArrayList<>();
 
 	public FlimTop(ErrorReporter errors, Repository repository, String pkg) {
 		this.errors = errors;
@@ -53,6 +54,13 @@ public class FlimTop implements TDAParsing {
 			SolidName tn = new SolidName(container, tnt.text);
 			FlimStruct fs = new FlimStruct(errors, repository, tn);
 			structs.add(fs);
+			return fs;
+		}
+		case "union": {
+			TypeNameToken tnt = TypeNameToken.unqualified(toks);
+			SolidName tn = new SolidName(container, tnt.text);
+			FlimUnion fs = new FlimUnion(errors, repository, tn);
+			unions.add(fs);
 			return fs;
 		}
 		case "function": {

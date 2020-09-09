@@ -6,6 +6,7 @@ import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PackageNameToken;
+import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -36,11 +37,20 @@ public abstract class FlimTypeReader implements TDAParsing {
 			collect(new PendingPolyType(ty));
 			return new NoNestingParser(errors);
 		}
+		case "var": {
+			PolyTypeToken ty = PolyTypeToken.from(toks);
+			definePolyVar(ty.location, ty.text);
+			return new NoNestingParser(errors);
+		}
 		default:
 			throw new NotImplementedException("cannot handle flim field keyword " + kw.text);
 		}
 	}
 	
+	protected void definePolyVar(InputPosition location, String text) {
+		throw new NotImplementedException("not defined here but in subclass");
+	}
+
 	@Override
 	public void scopeComplete(InputPosition location) {
 	}

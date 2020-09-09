@@ -1,1 +1,2 @@
+test.from.apply :: (A->B)->A->B
 test.from.f :: test.from.Hello->Number

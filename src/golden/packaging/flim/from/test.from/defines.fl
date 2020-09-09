@@ -3,4 +3,10 @@ This is a package of definitions to go in the store
 	struct Hello
 		Number n
 		
+	union Something
+		Hello
+		Number
+
 	f (Hello h) = h.n
+	
+	apply f x = f x

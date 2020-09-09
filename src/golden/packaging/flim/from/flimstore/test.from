@@ -1,6 +1,20 @@
 	struct test.from Hello
 		field n
 			named Number
+	union test.from Something
+		member
+			named test.from.Hello
+		member
+			named Number
+	function test.from apply
+		var A
+		var B
+		apply
+			apply
+				poly A
+				poly B
+			poly A
+			poly B
 	function test.from f
 		apply
 			named test.from.Hello

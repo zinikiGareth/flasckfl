@@ -1,15 +1,20 @@
 package org.flasck.flas.repository.flim;
 
+import java.util.TreeSet;
+
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
+import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.bytecode.mock.IndentWriter;
 import org.zinutils.exceptions.NotImplementedException;
@@ -31,7 +36,22 @@ public class FlimVisitor extends LeafAdapter {
 			iw.println("struct " + pkn + " " + s.name.baseName());
 			sfw = iw.indent();
 			for (PolyType v : s.polys())
-				sfw.println("poly " + v);
+				sfw.println("poly " + v.shortName());
+		}
+	}
+	
+	@Override
+	public void visitUnionTypeDefn(UnionTypeDefn ud) {
+		String pkn = figurePackageName(ud.name().container());
+		if (pkn != null) {
+			iw.println("union " + pkn + " " + ud.name().baseName());
+			IndentWriter ufw = iw.indent();
+			for (PolyType v : ud.polys())
+				ufw.println("poly " + v.shortName());
+			for (TypeReference e : ud.cases) {
+				ufw.println("member");
+				showType(ufw.indent(), e.defn());
+			}
 		}
 	}
 	
@@ -54,8 +74,33 @@ public class FlimVisitor extends LeafAdapter {
 		if (pkn != null) {
 			iw.println("function " + pkn + " " + fn.name().baseName());
 			IndentWriter aiw = iw.indent();
+			showPolyVars(aiw, fn.type());
 			showType(aiw, fn.type());
 		}
+	}
+
+	private void showPolyVars(IndentWriter aiw, Type type) {
+		TreeSet<String> vars = new TreeSet<>();
+		figurePolyVars(vars, type);
+		for (String s : vars)
+			aiw.println("var " + s);
+	}
+
+	private void figurePolyVars(TreeSet<String> vars, Type type) {
+		if (type instanceof PolyType)
+			vars.add(((PolyType)type).shortName());
+		else if (type instanceof Apply) {
+			Apply a = (Apply) type;
+			for (int i=0;i<=a.argCount();i++)
+				figurePolyVars(vars, a.get(i));
+		} else if (type instanceof PolyInstance) {
+			PolyInstance pi = (PolyInstance) type;
+			for (Type t : pi.polys())
+				figurePolyVars(vars, t);
+		} else if (type instanceof StructDefn || type instanceof Primitive) {
+				// nothing here
+		} else
+			throw new NotImplementedException("poly vars from type " + type.getClass());
 	}
 
 	private String figurePackageName(NameOfThing container) {
@@ -76,7 +121,7 @@ public class FlimVisitor extends LeafAdapter {
 
 	private void showType(IndentWriter aiw, Type type) {
 		if (type instanceof PolyType) {
-			aiw.println("poly " + ((PolyType)type).name().uniqueName());
+			aiw.println("poly " + ((PolyType)type).shortName());
 		} else if (type instanceof PolyInstance) {
 			PolyInstance pi = (PolyInstance) type;
 			aiw.println("instance");
