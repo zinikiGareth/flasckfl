@@ -1,0 +1,14 @@
+	struct null InRoot
+		poly A
+		field x
+			instance
+				named List
+				poly A
+		field head
+			poly A
+	function null listLength
+		apply
+			instance
+				named List
+				poly A
+			named Number

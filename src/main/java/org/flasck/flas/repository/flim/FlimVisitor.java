@@ -1,5 +1,6 @@
 package org.flasck.flas.repository.flim;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -23,8 +24,9 @@ public class FlimVisitor extends LeafAdapter {
 	
 	@Override
 	public void visitStructDefn(StructDefn s) {
-		if (s.name.container() instanceof PackageName && s.name.container().uniqueName().equals(pkg)) {
-			iw.println("struct " + s.name.container().uniqueName() + " " + s.name.baseName());
+		String pkn = figurePackageName(s.name().container());
+		if (pkn != null) {
+			iw.println("struct " + pkn + " " + s.name.baseName());
 			sfw = iw.indent();
 		}
 	}
@@ -37,24 +39,35 @@ public class FlimVisitor extends LeafAdapter {
 	@Override
 	public void visitStructField(StructField sf) {
 		if (sfw != null) {
-			sfw.println("field " + sf.type.defn().name().uniqueName() + " " + sf.name);
+			sfw.println("field " + sf.name);
+			showType(sfw.indent(), sf.type());
 		}
 	}
 	
 	@Override
 	public void visitFunction(FunctionDefinition fn) {
-		if (fn.name().container() != null && fn.name().container() instanceof PackageName) {
-			PackageName pn = (PackageName) fn.name().container();
-			if (pn.uniqueName() == null && pkg != null)
-				return;
-			else if (pn.uniqueName() != null && pkg == null)
-				return;
-			else if (pkg != null && !pkg.equals(pn.uniqueName()))
-				return;
-			iw.println("function " + fn.name().container().uniqueName() + " " + fn.name().baseName());
+		String pkn = figurePackageName(fn.name().container());
+		if (pkn != null) {
+			iw.println("function " + pkn + " " + fn.name().baseName());
 			IndentWriter aiw = iw.indent();
 			showType(aiw, fn.type());
 		}
+	}
+
+	private String figurePackageName(NameOfThing container) {
+		if (container == null || !(container instanceof PackageName))
+			return null;
+		PackageName pn = (PackageName) container;
+		if (pn.uniqueName() == null && pkg != null)
+			return null;
+		else if (pn.uniqueName() != null && pkg == null)
+			return null;
+		else if (pkg != null && !pkg.equals(pn.uniqueName()))
+			return null;
+		if (pkg == null)
+			return "null";
+		else
+			return pn.uniqueName();
 	}
 
 	private void showType(IndentWriter aiw, Type type) {

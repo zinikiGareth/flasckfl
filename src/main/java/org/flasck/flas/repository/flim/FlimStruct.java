@@ -6,14 +6,12 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
-import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tokenizers.KeywordToken;
-import org.flasck.flas.tokenizers.PackageNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
@@ -37,10 +35,11 @@ public class FlimStruct implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(toks);
 		switch (kw.text) {
 		case "field": {
-			PackageNameToken ty = PackageNameToken.from(toks);
+//			PackageNameToken ty = PackageNameToken.from(toks);
 			ValidIdentifierToken tok = VarNameToken.from(toks);
-			fields.add(new PendingField(ty, tok));
-			return new NoNestingParser(errors);
+			PendingField f = new PendingField(errors, tok);
+			fields.add(f);
+			return f;
 		}
 		default:
 			throw new NotImplementedException("cannot handle flim field keyword " + kw.text);
@@ -55,7 +54,7 @@ public class FlimStruct implements TDAParsing {
 	
 	public void resolve() {
 		for (PendingField pf : fields) {
-			sd.addField(pf.resolve(sd));
+			sd.addField(pf.resolve(repository, sd));
 		}
 	}
 

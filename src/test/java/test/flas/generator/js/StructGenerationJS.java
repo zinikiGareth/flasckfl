@@ -133,7 +133,6 @@ public class StructGenerationJS {
 		JSMethodCreator sfacc = context.mock(JSMethodCreator.class);
 		JSExpr obj = context.mock(JSExpr.class, "obj");
 		context.checking(new Expectations() {{
-			oneOf(jss).ensurePackageExists("test.repo", "test.repo.Struct");
 			oneOf(jss).newFunction(null, "test.repo", new SolidName(new PackageName("test.repo"), "Struct"), true, "_field_s"); will(returnValue(sfacc));
 			oneOf(sfacc).argument("_cxt");
 			oneOf(sfacc).argumentList();

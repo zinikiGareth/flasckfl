@@ -42,13 +42,13 @@ public class FlimTop implements TDAParsing {
 			container = new PackageName(null);
 		} else {
 			PackageNameToken inpkg = PackageNameToken.from(toks);
-			if (inpkg.text.equals(pkg)) {
+			if (pkg == null && "null".equals(inpkg))
+				container = new PackageName(null);
+			else if (inpkg.text.equals(pkg)) {
 				container = new PackageName(pkg);
-			} else if (!inpkg.text.startsWith(pkg)) {
+			} else {
 				errors.message(pos, "invalid package name");
 				return new IgnoreNestedParser();
-			} else {
-				container = repository.get(inpkg.text);
 			}
 		}
 		switch (kw.text) {

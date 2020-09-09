@@ -1,5 +1,6 @@
 package org.flasck.flas.repository.flim;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -30,6 +31,10 @@ public abstract class FlimTypeReader implements TDAParsing {
 		default:
 			throw new NotImplementedException("cannot handle flim field keyword " + kw.text);
 		}
+	}
+	
+	@Override
+	public void scopeComplete(InputPosition location) {
 	}
 	
 	public abstract void collect(PendingType ty);

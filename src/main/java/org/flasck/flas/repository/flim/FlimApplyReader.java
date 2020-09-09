@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class FlimApplyReader extends FlimTypeReader implements TDAParsing, PendingType {
 	private final FlimTypeReader collector;
@@ -31,6 +33,11 @@ public class FlimApplyReader extends FlimTypeReader implements TDAParsing, Pendi
 			as.add(pa.resolve(errors, repository));
 		}
 		return new Apply(as);
+	}
+
+	@Override
+	public TypeReference resolveAsRef(ErrorReporter errors, Repository repository) {
+		throw new NotImplementedException();
 	}
 
 	@Override

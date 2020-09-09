@@ -1,0 +1,6 @@
+	struct InRoot A
+		List[A] x
+		A head
+		
+	listLength [] = 0
+	listLength (Cons { tail: x }) = 1 + listLength x
