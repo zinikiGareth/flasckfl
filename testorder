@@ -150,3 +150,5 @@ src/golden/packaging/flim/root
 src/golden/packaging/flim/useroot
 src/golden/packaging/flim/contracts
 src/golden/packaging/flim/usecontracts
+src/golden/packaging/flim/objects
+src/golden/packaging/flim/useobjects

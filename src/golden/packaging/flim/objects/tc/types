@@ -1,0 +1,3 @@
+test.objects.Accumulator._ctor_makeMe :: test.objects.Accumulator
+test.objects.Accumulator.inc :: List[Message]
+test.objects.Accumulator.value :: Number

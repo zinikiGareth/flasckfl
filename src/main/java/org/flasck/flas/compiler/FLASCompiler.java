@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -191,8 +192,8 @@ public class FLASCompiler {
 		return errors.hasErrors();
 	}
 	
-	public boolean generateCode(Configuration config) {
-		jse = new JSEnvironment(config.jsDir());
+	public boolean generateCode(Configuration config, Set<String> importedPackages) {
+		jse = new JSEnvironment(config.jsDir(), importedPackages);
 		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
 		

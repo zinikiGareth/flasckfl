@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -29,6 +30,7 @@ public class FlimTop implements TDAParsing {
 	private final List<FlimFunction> functions = new ArrayList<>();
 	private final List<FlimStruct> structs = new ArrayList<>();
 	private final List<FlimUnion> unions = new ArrayList<>();
+	private final List<FlimObject> objects = new ArrayList<>();
 
 	public FlimTop(ErrorReporter errors, Repository repository, String pkg) {
 		this.errors = errors;
@@ -79,6 +81,13 @@ public class FlimTop implements TDAParsing {
 			functions.add(pf);
 			return pf;
 		}
+		case "object": {
+			TypeNameToken tnt = TypeNameToken.unqualified(toks);
+			ObjectName on = new ObjectName(container, tnt.text);
+			FlimObject fs = new FlimObject(errors, repository, on);
+			objects.add(fs);
+			return fs;
+		}
 		default:
 			throw new NotImplementedException("cannot handle flim keyword " + kw.text);
 		}
@@ -92,5 +101,7 @@ public class FlimTop implements TDAParsing {
 			pf.bindType();
 		for (FlimContract fc : contracts)
 			fc.resolveMethods();
+		for (FlimObject fc : objects)
+			fc.resolve();
 	}
 }

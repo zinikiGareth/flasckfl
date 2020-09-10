@@ -1,0 +1,13 @@
+	object Accumulator A
+		state
+			Number n
+			A x
+			
+		ctor makeMe
+		
+		acor value = n
+		
+		acor info = x
+		
+		method inc
+			n <- n+1

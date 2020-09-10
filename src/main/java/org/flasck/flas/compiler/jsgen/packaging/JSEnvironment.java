@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -36,9 +37,11 @@ public class JSEnvironment implements JSStorage {
 	private final List<ContractDecl> contracts = new ArrayList<>();
 	private final List<ObjectDefn> objects = new ArrayList<>();
 	private final List<HandlerImplements> handlers = new ArrayList<>();
+	private final Set<String> importedPackages;
 
-	public JSEnvironment(File root) {
+	public JSEnvironment(File root, Set<String> importedPackages) {
 		this.root = root;
+		this.importedPackages = importedPackages;
 	}
 	
 	public Iterable<File> files() {
@@ -155,7 +158,11 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	public Iterable<String> packages() {
-		return files.keySet();
+		List<String> ret = new ArrayList<>();
+		if (importedPackages != null)
+			ret.addAll(importedPackages);
+		ret.addAll(files.keySet());
+		return ret;
 	}
 
 	public void asivm() {

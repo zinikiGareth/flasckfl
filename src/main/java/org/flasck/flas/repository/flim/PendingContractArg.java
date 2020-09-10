@@ -10,7 +10,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.repository.Repository;
 
 public class PendingContractArg {
-
 	private final PendingType ty;
 	private final InputPosition location;
 	private final String text;

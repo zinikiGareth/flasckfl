@@ -33,7 +33,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class ClassGeneration {
 //	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
-	JSEnvironment jse = new JSEnvironment(new File("/tmp"));
+	JSEnvironment jse = new JSEnvironment(new File("/tmp"), null);
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);

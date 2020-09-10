@@ -50,7 +50,7 @@ public class UnitTestGenerationJS {
 			oneOf(jse).newFunction(utn, "test.something._ut_package", utfn, false, "_ut4"); will(returnValue(meth));
 			oneOf(meth).clear();
 			oneOf(meth).argument("runner");
-			oneOf(meth).initContext(pkg);
+			oneOf(meth).initContext();
 		}});
 		gen.visitUnitTest(utc);
 		context.checking(new Expectations() {{

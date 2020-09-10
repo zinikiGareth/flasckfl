@@ -29,6 +29,7 @@ import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.ShouldBeError;
@@ -62,8 +63,12 @@ public class MemberExprConvertor extends LeafAdapter {
 	
 	@Override
 	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
-		new MemberExprConvertor(errors, nv, oah, expr);
-		return false;
+		if (expr.boundEarly()) {
+			return true;
+		} else {
+			new MemberExprConvertor(errors, nv, oah, expr);
+			return false;
+		}
 	}
 	
 	@Override
@@ -139,7 +144,13 @@ public class MemberExprConvertor extends LeafAdapter {
 
 	@Override
 	public void leaveMemberExpr(MemberExpr expr) {
-		if (odctor != null) {
+		if (expr.boundEarly()) {
+			if (obj == null) {
+				obj = expr;
+				figureDestinationType(expr.defn());
+			} else
+				throw new CantHappenException("this suggests the field is a member expr");
+		} else if (odctor != null) {
 			convertObjectCtor(expr);
 		} else if (acorFrom != null) {
 			nv.result(acorFrom.acor(obj));

@@ -2,11 +2,16 @@ package org.flasck.flas.repository.flim;
 
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.ObjectAccessor;
+import org.flasck.flas.parsedForm.ObjectCtor;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -27,6 +32,7 @@ public class FlimVisitor extends LeafAdapter {
 	private final IndentWriter iw;
 	private IndentWriter sfw;
 	private IndentWriter cdw;
+	private IndentWriter odw;
 
 	public FlimVisitor(String pkg, IndentWriter iw) {
 		this.pkg = pkg;
@@ -112,6 +118,52 @@ public class FlimVisitor extends LeafAdapter {
 			showPolyVars(aiw, fn.type());
 			showType(aiw, fn.type());
 		}
+	}
+	
+	@Override
+	public void visitObjectDefn(ObjectDefn obj) {
+		String pkn = figurePackageName(obj.name().container());
+		if (pkn != null) {
+			iw.println("object " + pkn + " " + obj.name().baseName());
+			odw = iw.indent();
+			for (PolyType pt : obj.polys()) {
+				odw.println("poly " + pt.shortName());
+			}
+		}
+	}
+	
+	@Override
+	public void visitObjectCtor(ObjectCtor oc) {
+		if (odw != null) {
+			odw.println("ctor " + oc.name().name.replace("_ctor_", ""));
+			for (Pattern p : oc.args()) {
+				TypedPattern tp = (TypedPattern) p;
+				IndentWriter adw = odw.indent();
+				adw.println("arg " + tp.var.var);
+				showType(adw.indent(), tp.type());
+			}
+		}
+	}
+
+	@Override
+	public void visitObjectAccessor(ObjectAccessor oa) {
+		if (odw != null) {
+			odw.println("acor " + oa.name().name);
+			showType(odw.indent(), oa.type());
+		}
+	}
+
+	@Override
+	public void visitObjectMethod(ObjectMethod om) {
+		if (odw != null) {
+			odw.println("method " + om.name().name);
+			showType(odw.indent(), om.type());
+		}
+	}
+
+	@Override
+	public void leaveObjectDefn(ObjectDefn obj) {
+		odw = null;
 	}
 
 	private void showPolyVars(IndentWriter aiw, Type type) {

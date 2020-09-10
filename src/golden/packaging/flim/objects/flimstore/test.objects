@@ -1,0 +1,5 @@
+	object test.objects Accumulator
+		poly A
+		ctor makeMe
+		acor value
+			named Number

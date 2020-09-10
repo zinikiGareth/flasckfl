@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
 import org.flasck.flas.compiler.jsgen.form.IVFWriter;
@@ -117,8 +116,8 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 	}
 
 	@Override
-	public void initContext(PackageName packageName) {
-		stmts.add(new InitContext(packageName, jse));
+	public void initContext() {
+		stmts.add(new InitContext(jse));
 	}
 
 	@Override

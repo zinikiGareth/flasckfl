@@ -21,9 +21,7 @@ public class Configuration {
 	public boolean generateJVM = true;
 	public File writeJS;
 	public File html;
-//	private File writeDroid;
 	public File writeJVM;
-//	private boolean buildDroid = true;
 	PhaseTo upto = PhaseTo.COMPLETE;
 	File dumprepo = null;
 	public final List<File> inputs = new ArrayList<File>();
@@ -144,12 +142,6 @@ public class Configuration {
 				} else if (arg.equals("--no-unit-jvm")) {
 					generateJVM = false;
 					unitjvm = false;
-//				} else if (arg.equals("--android")) {
-//					if (hasMore == 0) {
-//						System.out.println("--android <build-dir>");
-//						System.exit(1);
-//					}
-//					writeDroid = new File(root, args[++i]);
 				} else if (arg.equals("--jvmout")) {
 					if (hasMore == 0) {
 						System.out.println("--jvmout <build-dir>");
@@ -164,16 +156,6 @@ public class Configuration {
 					webs.add(new File(root, args[++i]));
 				} else {
 					boolean matched = false;
-					/*
-					DroidBuilder builder = compiler.getBuilder();
-					if (builder != null) { // consider droid build options
-						matched = true;
-						if (arg.equals("--clean")) {
-							builder.cleanFirst();
-						} else
-							matched = false;
-					}
-					*/
 					if (!matched) {
 						errors.message((InputPosition)null, "unknown option: " + arg);
 					}

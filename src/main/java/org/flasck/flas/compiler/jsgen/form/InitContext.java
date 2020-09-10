@@ -1,6 +1,5 @@
 package org.flasck.flas.compiler.jsgen.form;
 
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.zinutils.bytecode.mock.IndentWriter;
@@ -8,7 +7,7 @@ import org.zinutils.bytecode.mock.IndentWriter;
 public class InitContext implements IVForm {
 	private final JSStorage env;
 
-	public InitContext(PackageName packageName, JSStorage jse) {
+	public InitContext(JSStorage jse) {
 		this.env = jse;
 	}
 

@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
@@ -93,8 +94,9 @@ public class Main {
 
 		Repository repository = new Repository();
 		LoadBuiltins.applyTo(errors, repository);
+		Set<String> importedPackages = null;
 		if (config.flimdir() != null) {
-			new FlimReader(errors, repository).read(config.flimdir(), config.inputs);
+			importedPackages = new FlimReader(errors, repository).read(config.flimdir(), config.inputs);
 			if (errors.hasErrors())
 				return null;
 		}
@@ -142,7 +144,7 @@ public class Main {
 		if (compiler.buildEventMaps())
 			return null;
 		
-		if (compiler.generateCode(config))
+		if (compiler.generateCode(config, importedPackages))
 			return null;
 		
 		if (compiler.runUnitTests(config))

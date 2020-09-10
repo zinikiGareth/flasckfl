@@ -23,7 +23,6 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.Traverser;
-import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;

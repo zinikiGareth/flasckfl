@@ -129,6 +129,7 @@ public class Traverser implements RepositoryVisitor {
 	private boolean wantNestedPatterns;
 	private boolean wantHSI;
 	private boolean wantEventSources = false;
+	private boolean wantMethodMembersWithObjects = false;
 	private boolean visitMemberFields = false;
 	private boolean isConverted;
 	private boolean currFnHasState;
@@ -163,6 +164,11 @@ public class Traverser implements RepositoryVisitor {
 
 	public Traverser withImplementedMethods() {
 		this.wantImplementedMethods = true;
+		return this;
+	}
+
+	public Traverser withObjectMethods() {
+		this.wantMethodMembersWithObjects = true;
 		return this;
 	}
 
@@ -360,6 +366,14 @@ public class Traverser implements RepositoryVisitor {
 //			visitHandlerImplements(ic, obj);
 		for (Template t : obj.templates) {
 			visitTemplate(t, false);
+		}
+		if (wantMethodMembersWithObjects) {
+			for (ObjectCtor c : obj.ctors)
+				visitObjectCtor(c);
+			for (ObjectAccessor c : obj.acors)
+				visitObjectAccessor(c);
+			for (ObjectMethod m : obj.methods)
+				visitObjectMethod(m);
 		}
 		leaveObjectDefn(obj);
 	}

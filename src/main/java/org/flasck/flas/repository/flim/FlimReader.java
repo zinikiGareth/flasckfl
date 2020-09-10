@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
@@ -24,15 +26,19 @@ public class FlimReader {
 		this.repository = repository;
 	}
 
-	public void read(File flimdir, List<File> butNot) {
+	public Set<String> read(File flimdir, List<File> butNot) {
 		List<String> ignore = new ArrayList<>();
 		for (File i : butNot)
 			ignore.add(i.getName());
 		FileUtils.assertDirectory(flimdir);
+		Set<String> ret = new TreeSet<>();
 		for (File f : FileUtils.findFilesMatching(flimdir, "*")) {
-			if (!ignore.contains(f.getName()))
+			if (!ignore.contains(f.getName())) {
 				importFlim(f);
+				ret.add(f.getName());
+			}
 		}
+		return ret;
 	}
 
 	private void importFlim(File f) {

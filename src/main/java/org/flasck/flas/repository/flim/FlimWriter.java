@@ -24,7 +24,7 @@ public class FlimWriter {
 			String pkgName = null;
 			if (!"root.package".equals(pkg))
 				pkgName = pkg;
-			new Traverser(new FlimVisitor(pkgName, iw)).doTraversal(repository);
+			new Traverser(new FlimVisitor(pkgName, iw)).withObjectMethods().doTraversal(repository);
 			pw.close();
 			return true;
 		} catch (FileNotFoundException e) {
