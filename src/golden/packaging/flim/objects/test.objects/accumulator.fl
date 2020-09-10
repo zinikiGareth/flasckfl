@@ -1,13 +1,13 @@
 	object Accumulator A
 		state
-			Number n
+			Number n <- 0
 			A x
 			
 		ctor makeMe
 		
-		acor value = n
+		acor value q = n + q
 		
 		acor info = x
 		
-		method inc
-			n <- n+1
+		method inc (Number k)
+			n <- n+k

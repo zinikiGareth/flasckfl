@@ -2,3 +2,5 @@ Test that we can bring in an object from another scope using FLIM
 
 	test that we can accumulate
 		data test.objects.Accumulator acc <- test.objects.Accumulator.makeMe
+		assert (acc.value 0)
+			0

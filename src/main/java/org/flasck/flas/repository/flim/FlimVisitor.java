@@ -1,5 +1,6 @@
 package org.flasck.flas.repository.flim;
 
+import java.util.List;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.Pattern;
@@ -18,6 +19,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
@@ -25,6 +27,7 @@ import org.flasck.flas.tc3.PolyInstance;
 import org.flasck.flas.tc3.Primitive;
 import org.flasck.flas.tc3.Type;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.exceptions.HaventConsideredThisException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class FlimVisitor extends LeafAdapter {
@@ -136,12 +139,7 @@ public class FlimVisitor extends LeafAdapter {
 	public void visitObjectCtor(ObjectCtor oc) {
 		if (odw != null) {
 			odw.println("ctor " + oc.name().name.replace("_ctor_", ""));
-			for (Pattern p : oc.args()) {
-				TypedPattern tp = (TypedPattern) p;
-				IndentWriter adw = odw.indent();
-				adw.println("arg " + tp.var.var);
-				showType(adw.indent(), tp.type());
-			}
+			processArgs(oc.args());
 		}
 	}
 
@@ -157,7 +155,23 @@ public class FlimVisitor extends LeafAdapter {
 	public void visitObjectMethod(ObjectMethod om) {
 		if (odw != null) {
 			odw.println("method " + om.name().name);
-			showType(odw.indent(), om.type());
+			processArgs(om.args());
+		}
+	}
+
+	private void processArgs(List<Pattern> list) {
+		for (Pattern p : list) {
+			IndentWriter adw = odw.indent();
+			if (p instanceof TypedPattern) {
+				TypedPattern tp = (TypedPattern) p;
+				adw.println("arg " + tp.var.var);
+				showType(adw.indent(), tp.type());
+			} else if (p instanceof VarPattern) {
+				VarPattern tp = (VarPattern) p;
+				adw.println("arg " + tp.var);
+				showType(adw.indent(), tp.type());
+			} else
+				throw new HaventConsideredThisException("are ctormatch patterns allowed here?");
 		}
 	}
 

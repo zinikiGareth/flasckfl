@@ -7,8 +7,10 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ObjectAccessor;
 import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -26,6 +28,7 @@ public class FlimObject implements TDAParsing {
 	private final SolidName on;
 	private final List<PendingObjectCtor> ctors = new ArrayList<>();
 	private final List<PendingObjectAcor> acors = new ArrayList<>();
+	private final List<PendingObjectMethod> methods = new ArrayList<>();
 	private final List<PolyType> polys = new ArrayList<>();
 	private ObjectDefn od;
 
@@ -46,9 +49,16 @@ public class FlimObject implements TDAParsing {
 			return ctor;
 		}
 		case "acor": {
-			PendingObjectAcor acor = new PendingObjectAcor(errors);
+			ValidIdentifierToken tok = VarNameToken.from(toks);
+			PendingObjectAcor acor = new PendingObjectAcor(errors, FunctionName.function(kw.location, on, tok.text));
 			acors.add(acor);
 			return acor;
+		}
+		case "method": {
+			ValidIdentifierToken tok = VarNameToken.from(toks);
+			PendingObjectMethod meth = new PendingObjectMethod(errors, kw.location, FunctionName.objectMethod(kw.location, on, tok.text));
+			methods.add(meth);
+			return meth;
 		}
 		case "poly": {
 			PolyTypeToken ta = PolyTypeToken.from(toks);
@@ -71,7 +81,12 @@ public class FlimObject implements TDAParsing {
 			od.addConstructor(oc);
 		}
 		for (PendingObjectAcor a : acors) {
-			a.resolve(errors, repository);
+			ObjectAccessor oa = a.resolve(errors, repository, od, polys);
+			od.addAccessor(oa);
+		}
+		for (PendingObjectMethod m : methods) {
+			ObjectMethod oc = m.resolve(errors, repository, od);
+			od.addMethod(oc);
 		}
 	}
 
