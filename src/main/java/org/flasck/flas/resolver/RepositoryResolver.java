@@ -517,9 +517,10 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		} else if (nt instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) nt;
 			ContractMethodDecl method = cd.getMethod(var);
-			if (method == null)
-				throw new NotImplementedException("no method " + var + " in " + cd);
-			expr.bind((RepositoryEntry) method, false);
+			if (method == null) {
+				errors.message(expr.location, "there is no method '" + var + "' on '" + cd.name().uniqueName() + "'");
+			} else
+				expr.bind((RepositoryEntry) method, false);
 		} else if (nt instanceof UnionTypeDefn) {
 			errors.message(expr.fld.location(), "cannot access members of unions");
 		} else

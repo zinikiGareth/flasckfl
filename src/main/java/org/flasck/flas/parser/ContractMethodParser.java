@@ -77,7 +77,7 @@ public class ContractMethodParser implements TDAParsing {
 			// it must be a handler specification
 			ExprToken tok = ExprToken.from(errors, toks);
 			if (!"->".equals(tok.text)) {
-				errors.message(toks, "syntax error");
+				errors.message(tok.location, "syntax error");
 				return new IgnoreNestedParser();
 			}
 			

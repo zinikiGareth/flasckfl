@@ -4,11 +4,14 @@ import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.tc3.Apply;
@@ -23,6 +26,7 @@ public class FlimVisitor extends LeafAdapter {
 	private final String pkg;
 	private final IndentWriter iw;
 	private IndentWriter sfw;
+	private IndentWriter cdw;
 
 	public FlimVisitor(String pkg, IndentWriter iw) {
 		this.pkg = pkg;
@@ -41,6 +45,19 @@ public class FlimVisitor extends LeafAdapter {
 	}
 	
 	@Override
+	public void visitStructField(StructField sf) {
+		if (sfw != null) {
+			sfw.println("field " + sf.name);
+			showType(sfw.indent(), sf.type());
+		}
+	}
+	
+	@Override
+	public void leaveStructDefn(StructDefn s) {
+		sfw = null;
+	}
+	
+	@Override
 	public void visitUnionTypeDefn(UnionTypeDefn ud) {
 		String pkn = figurePackageName(ud.name().container());
 		if (pkn != null) {
@@ -54,18 +71,31 @@ public class FlimVisitor extends LeafAdapter {
 			}
 		}
 	}
-	
+
 	@Override
-	public void leaveStructDefn(StructDefn s) {
-		sfw = null;
+	public void visitContractDecl(ContractDecl cd) {
+		String pkn = figurePackageName(cd.name().container());
+		if (pkn != null) {
+			iw.println("contract " + pkn + " " + cd.type.toString().toLowerCase() + " " + cd.name().baseName());
+			cdw = iw.indent();
+		}
 	}
 	
 	@Override
-	public void visitStructField(StructField sf) {
-		if (sfw != null) {
-			sfw.println("field " + sf.name);
-			showType(sfw.indent(), sf.type());
+	public void visitContractMethod(ContractMethodDecl cmd) {
+		if (cdw != null) {
+			cdw.println("method " + cmd.name.name + " " + cmd.required);
+			for (TypedPattern a : cmd.args) {
+				IndentWriter aw = cdw.indent();
+				aw.println("arg " + a.var.var);
+				showType(aw.indent(), a.type());
+			}
 		}
+	}
+	
+	@Override
+	public void leaveContractDecl(ContractDecl cd) {
+		cdw = null;
 	}
 	
 	@Override

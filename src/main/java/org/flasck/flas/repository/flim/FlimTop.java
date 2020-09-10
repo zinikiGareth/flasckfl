@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.repository.Repository;
@@ -24,6 +25,7 @@ public class FlimTop implements TDAParsing {
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final String pkg;
+	private final List<FlimContract> contracts = new ArrayList<>();
 	private final List<FlimFunction> functions = new ArrayList<>();
 	private final List<FlimStruct> structs = new ArrayList<>();
 	private final List<FlimUnion> unions = new ArrayList<>();
@@ -49,6 +51,14 @@ public class FlimTop implements TDAParsing {
 			return new IgnoreNestedParser();
 		}
 		switch (kw.text) {
+		case "contract": {
+			ContractType ct = ContractType.valueOf(VarNameToken.from(toks).text.toUpperCase());
+			TypeNameToken tnt = TypeNameToken.unqualified(toks);
+			SolidName cn = new SolidName(container, tnt.text);
+			FlimContract fc = new FlimContract(errors, repository, cn, ct);
+			contracts.add(fc);
+			return fc;
+		}
 		case "struct": {
 			TypeNameToken tnt = TypeNameToken.unqualified(toks);
 			SolidName tn = new SolidName(container, tnt.text);

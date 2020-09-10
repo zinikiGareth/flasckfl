@@ -1,0 +1,8 @@
+	contract Simple
+		doit
+		
+	contract service ForService
+		mumble (List[String] arg) -> (NotifyMe n)
+		
+	contract handler NotifyMe
+		callback (Any a)

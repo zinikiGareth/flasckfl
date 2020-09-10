@@ -1,0 +1,16 @@
+	contract test.contract service ForService
+		method mumble true
+			arg arg
+				instance
+					named List
+					named String
+	contract test.contract handler NotifyMe
+		method success false
+		method failure false
+			arg msg
+				named String
+		method callback true
+			arg a
+				named Any
+	contract test.contract contract Simple
+		method doit true

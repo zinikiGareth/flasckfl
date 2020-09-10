@@ -1,0 +1,10 @@
+	card Mumble
+		requires test.contract.ForService svc
+		
+		implements test.contract.Simple
+			doit
+				<- svc.mumble [] -> Fred
+				
+		handler test.contract.NotifyMe Fred
+			callback x
+				<- Debug (show x)

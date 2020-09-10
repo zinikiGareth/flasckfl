@@ -115,7 +115,6 @@ public class LoadBuiltins {
 	public static UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
 
 	// Contracts
-	public static final ContractDecl lifecycle = new ContractDecl(pos, pos, ContractType.CONTRACT, new SolidName(null, "Lifecycle"), false);
 	public static final ContractDecl repeater = new ContractDecl(pos, pos, ContractType.SERVICE, new SolidName(null, "Repeater"), false);
 	public static final ContractDecl callMeHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CallMe"), false);
 	
@@ -243,15 +242,6 @@ public class LoadBuiltins {
 			}
 		}
 		
-		// add methods to contracts
-		// This should be in a FLAS file, methinks ...
-		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "init"), new ArrayList<TypedPattern>(), null));
-		// load <entity>
-		// state <entity>
-		// options <map>
-		// ready
-		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "closing"), new ArrayList<TypedPattern>(), null));
-
 		{
 			TypedPattern cmh = new TypedPattern(pos, callMeTR, new VarName(pos, callMeHandler.name(), "handler"));
 			ContractMethodDecl callMe = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, repeater.name(), "callMe"), new ArrayList<TypedPattern>(), cmh);
@@ -371,7 +361,6 @@ public class LoadBuiltins {
 		repository.newStruct(errors, type);
 
 		// builtin contracts
-		repository.newContract(errors, lifecycle);
 		repository.newContract(errors, repeater);
 		repository.newContract(errors, callMeHandler);
 

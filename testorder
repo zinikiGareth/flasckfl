@@ -148,3 +148,5 @@ src/golden/packaging/flim/from
 src/golden/packaging/flim/use
 src/golden/packaging/flim/root
 src/golden/packaging/flim/useroot
+src/golden/packaging/flim/contracts
+src/golden/packaging/flim/usecontracts
