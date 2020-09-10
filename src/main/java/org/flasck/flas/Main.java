@@ -158,6 +158,17 @@ public class Main {
 					FileUtils.copy(f, fldir);
 				}
 				FLASAssembler asm = new FLASAssembler(fos, "flascklib");
+				if (!config.includeFrom.isEmpty()) {
+					File incdir = new File("includes/js");
+					FileUtils.cleanDirectory(incdir);
+					FileUtils.assertDirectory(incdir);
+					for (File f : config.includeFrom) {
+						for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+							FileUtils.copy(i, new File(config.root, incdir.getPath()));
+							asm.includeJS(new File(incdir, i.getName()));
+						}
+					}
+				}
 				compiler.generateHTML(asm, config);
 			}
 			if (config.openHTML)

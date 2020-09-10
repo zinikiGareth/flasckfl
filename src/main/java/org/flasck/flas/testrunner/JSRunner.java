@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
@@ -178,16 +180,16 @@ public class JSRunner extends CommonTestRunner {
 				renderTemplate(pw, e.getKey(), e.getValue());
 
 			// probably wants to be config :-)
-			copyResourceIntoScript(pw, "javalogger.js", testDirJS);
-			copyResourceIntoScript(pw, "ziwsh.js", testDirJS);
-			copyResourceIntoScript(pw, "flas-runtime.js", testDirJS);
-			copyResourceIntoScript(pw, "flas-container.js", testDirJS);
-			copyResourceIntoScript(pw, "flas-unittest.js", testDirJS);
+			List<String> flascklib = Arrays.asList("javalogger.js", "ziwsh.js", "flas-runtime.js", "flas-container.js", "flas-unittest.js");
+			for (String s : flascklib)
+				copyResourceIntoScript(pw, s, testDirJS);
 			for (File f : jse.files())
 				includeFileAsScript(pw, f, testDirJS);
 			for (File f : config.includeFrom) {
-				for (File i : FileUtils.findFilesMatching(f, "*.js"))
-					includeFileAsScript(pw, i, testDirJS);
+				for (File i : FileUtils.findFilesMatching(f, "*.js")) {
+					if (!flascklib.contains(i.getName()))
+						includeFileAsScript(pw, i, testDirJS);
+				}
 			}
 			pw.println("</head>");
 			pw.println("<body>");

@@ -244,7 +244,12 @@ public class LoadBuiltins {
 		}
 		
 		// add methods to contracts
+		// This should be in a FLAS file, methinks ...
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "init"), new ArrayList<TypedPattern>(), null));
+		// load <entity>
+		// state <entity>
+		// options <map>
+		// ready
 		lifecycle.addMethod(new ContractMethodDecl(pos, pos, pos, false, FunctionName.contractMethod(pos, lifecycle.name(), "closing"), new ArrayList<TypedPattern>(), null));
 
 		{
