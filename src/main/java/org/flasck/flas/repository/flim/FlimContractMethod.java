@@ -19,21 +19,18 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class FlimContractMethod implements TDAParsing {
 	private final ErrorReporter errors;
-	private final Repository repository;
-	private final SolidName cn;
 	private final InputPosition loc;
-	private final String name;
 	private final boolean required;
 	private final List<PendingContractArg> args = new ArrayList<>();
-	ContractMethodDecl cmd;
+	private PendingContractArg handler;
+	private ContractMethodDecl cmd;
+	private FunctionName cmn;
 
 	public FlimContractMethod(ErrorReporter errors, Repository repository, SolidName cn, InputPosition loc, String name, boolean required) {
 		this.errors = errors;
-		this.repository = repository;
-		this.cn = cn;
 		this.loc = loc;
-		this.name = name;
 		this.required = required;
+		this.cmn = FunctionName.contractMethod(loc, cn, name);
 	}
 
 	@Override
@@ -49,6 +46,15 @@ public class FlimContractMethod implements TDAParsing {
 				}
 			};
 		}
+		case "handler": {
+			ValidIdentifierToken tok = VarNameToken.from(toks);
+			return new FlimTypeReader(errors) {
+				@Override
+				public void collect(PendingType ty) {
+					handler = new PendingContractArg(ty, tok.location, tok.text);
+				}
+			};
+		}
 		default:
 			throw new NotImplementedException("cannot handle flim keyword " + kw.text);
 		}
@@ -56,10 +62,14 @@ public class FlimContractMethod implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
-		List<TypedPattern> ta = new ArrayList<>();
-		TypedPattern th = null;
-		cmd = new ContractMethodDecl(loc, loc, loc, required, FunctionName.contractMethod(loc, cn, name), ta, th);
-		repository.newContractMethod(errors, cmd);
 	}
 
+	public ContractMethodDecl resolve(ErrorReporter errors, Repository repository) {
+		List<TypedPattern> ta = new ArrayList<>();
+		for (PendingContractArg a : args)
+			ta.add(a.resolve(errors, repository, cmn));
+		cmd = new ContractMethodDecl(loc, loc, loc, required, cmn, ta, handler == null ? null : handler.resolve(errors, repository, cmn));
+		repository.newContractMethod(errors, cmd);
+		return cmd;
+	}
 }

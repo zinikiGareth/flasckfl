@@ -276,7 +276,9 @@ public class MessageChecker extends LeafAdapter implements ResultAware {
 		
 		if (msg instanceof SendMessage) {
 			if (!TypeHelpers.isListMessage(pos, ty)) {
-				if (TypeHelpers.isList(ty))
+				if (ty instanceof ErrorType)
+					;
+				else if (TypeHelpers.isList(ty))
 					errors.message(pos, ((PolyInstance)ty).polys().get(0).signature() + " cannot be a Message");
 				else
 					errors.message(pos, ty.signature() + " cannot be a Message");

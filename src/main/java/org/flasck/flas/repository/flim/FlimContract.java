@@ -55,8 +55,11 @@ public class FlimContract implements TDAParsing {
 	private void create(InputPosition location) {
 		cd = new ContractDecl(location, location, type, name);
 		repository.newContract(errors, cd);
+	}
+
+	public void resolveMethods() {
 		for (FlimContractMethod fcm : methods) {
-			cd.addMethod(fcm.cmd);
+			cd.addMethod(fcm.resolve(errors, repository));
 		}
 	}
 

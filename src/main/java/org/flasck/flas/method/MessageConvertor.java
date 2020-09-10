@@ -23,6 +23,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.repository.Traverser;
+import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
 import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
@@ -152,7 +153,14 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 	
 	@Override
 	public void leaveHandleExpr(Expr expr, Expr handler) {
-		MakeSend ms = (MakeSend) stack.remove(0);
+		Object sr = stack.remove(0);
+		MakeSend ms;
+		if (sr instanceof MakeSend)
+			ms = (MakeSend) sr;
+		else if (sr instanceof ApplyExpr)
+			ms = (MakeSend) ((ApplyExpr)sr).fn;
+		else
+			throw new NotImplementedException();
 		Expr h = (Expr) stack.remove(0);
 		ms.handler = h;
 		nv.result(ms);

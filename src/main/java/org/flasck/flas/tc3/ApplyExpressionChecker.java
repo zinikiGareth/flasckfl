@@ -96,8 +96,8 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
 		int max = fn.argCount();
-		if (unusedHandlerCase(expr.fn))
-			max--;
+//		if (unusedHandlerCase(expr.fn))
+//			max--;
 		while (!results.isEmpty() && pos < max) {
 			PosType pai = results.remove(0);
 			Type ai = pai.type;
@@ -134,9 +134,9 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			}
 		}
 			
-		if (unusedHandlerCase(expr.fn)) {
-			pos++;
-		}
+//		if (unusedHandlerCase(expr.fn)) {
+//			pos++;
+//		}
 		// anything left must be curried
 		while (pos < fn.argCount()) {
 			tocurry.add(fn.get(pos++));

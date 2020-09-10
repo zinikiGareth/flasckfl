@@ -90,5 +90,7 @@ public class FlimTop implements TDAParsing {
 			ps.resolve();
 		for (FlimFunction pf : functions)
 			pf.bindType();
+		for (FlimContract fc : contracts)
+			fc.resolveMethods();
 	}
 }

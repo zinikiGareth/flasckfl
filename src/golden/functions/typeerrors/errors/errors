@@ -26,8 +26,6 @@ listnohead.f  6.14:   takehead3 = h. _ head
 listnohead.f  9.0:     _ takehead4 = (nth 0 things).head
                           cannot access members of unions
 msgerrors.fl  4.3:    <-  _ "hello"
-                          ERROR cannot be a Message
-msgerrors.fl  4.3:    <-  _ "hello"
                           String cannot be a Message
 msgerrors.fl  5.3:    <-  _ Foo
                           test.golden.Foo cannot be a Message

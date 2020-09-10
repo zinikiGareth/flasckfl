@@ -1,0 +1,2 @@
+test.golden.Mumble.Fred.callback :: Any->List[Message]
+test.golden.Mumble._C1.doit :: List[Message]

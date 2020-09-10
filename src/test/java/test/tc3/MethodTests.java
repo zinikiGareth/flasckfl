@@ -397,7 +397,6 @@ public class MethodTests {
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "Number cannot be a Message");
-			oneOf(errors).message(pos, "ERROR cannot be a Message"); // cascade that should be eliminated
 			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(ErrorType.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, LoadBuiltins.number));
@@ -420,7 +419,6 @@ public class MethodTests {
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "Number cannot be a Message");
-			oneOf(errors).message(pos, "ERROR cannot be a Message"); // cascade that should be eliminated
 			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(ErrorType.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, pi));
@@ -444,7 +442,6 @@ public class MethodTests {
 		CaptureAction capture = new CaptureAction(null);
 		context.checking(new Expectations() {{
 			oneOf(errors).message(pos, "test.repo.Foo[Message] cannot be a Message");
-			oneOf(errors).message(pos, "ERROR cannot be a Message"); // cascade that should be eliminated
 			oneOf(r).result(with(PosMatcher.type((Matcher)Matchers.any(ErrorType.class)))); will(capture);
 		}});
 		sv.result(new ExprResult(pos, pi));

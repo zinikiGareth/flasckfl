@@ -90,6 +90,11 @@ public class FlimVisitor extends LeafAdapter {
 				aw.println("arg " + a.var.var);
 				showType(aw.indent(), a.type());
 			}
+			if (cmd.handler != null) {
+				IndentWriter hw = cdw.indent();
+				hw.println("handler " + cmd.handler.var.var);
+				showType(hw.indent(), cmd.handler.type());
+			}
 		}
 	}
 	

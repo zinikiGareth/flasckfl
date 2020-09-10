@@ -1,0 +1,4 @@
+An abbreviated version of lifecycle to get this to compile
+
+	contract Lifecycle
+		init

@@ -4,6 +4,8 @@
 				instance
 					named List
 					named String
+			handler n
+				named test.contract.NotifyMe
 	contract test.contract handler NotifyMe
 		method success false
 		method failure false
