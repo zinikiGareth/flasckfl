@@ -5,3 +5,4 @@
 			named Number
 	function test.golden newHello
 		named test.from.Hello
+	usespackage test.from

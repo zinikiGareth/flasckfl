@@ -61,6 +61,6 @@ public class AssemblyName implements NameOfThing {
 
 	@Override
 	public PackageName packageName() {
-		throw new NotImplementedException();
+		return pkg.packageName();
 	}
 }

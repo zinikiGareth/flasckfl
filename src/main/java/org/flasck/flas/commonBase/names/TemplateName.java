@@ -20,7 +20,7 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 	
 	@Override
 	public PackageName packageName() {
-		throw new NotImplementedException();
+		return cardName.packageName();
 	}
 
 	@Override

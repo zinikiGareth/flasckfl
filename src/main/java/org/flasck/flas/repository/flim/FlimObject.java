@@ -26,6 +26,7 @@ public class FlimObject implements TDAParsing {
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final SolidName on;
+	private PendingState state;
 	private final List<PendingObjectCtor> ctors = new ArrayList<>();
 	private final List<PendingObjectAcor> acors = new ArrayList<>();
 	private final List<PendingObjectMethod> methods = new ArrayList<>();
@@ -42,6 +43,10 @@ public class FlimObject implements TDAParsing {
 	public TDAParsing tryParsing(Tokenizable toks) {
 		KeywordToken kw = KeywordToken.from(toks);
 		switch (kw.text) {
+		case "state": {
+			state = new PendingState(errors, repository, polys);
+			return state;
+		}
 		case "ctor": {
 			ValidIdentifierToken tok = VarNameToken.from(toks);
 			PendingObjectCtor ctor = new PendingObjectCtor(errors, kw.location, FunctionName.objectCtor(kw.location, on, tok.text));
@@ -76,6 +81,9 @@ public class FlimObject implements TDAParsing {
 	}
 	
 	public void resolve() {
+		if (state != null) {
+			od.defineState(state.resolve());
+		}
 		for (PendingObjectCtor c : ctors) {
 			ObjectCtor oc = c.resolve(errors, repository, od);
 			od.addConstructor(oc);

@@ -1,8 +1,10 @@
 package org.flasck.flas.repository.flim;
 
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.commonBase.Pattern;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -14,13 +16,16 @@ import org.flasck.flas.parsedForm.ObjectCtor;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.repository.LeafAdapter;
+import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.NamedType;
 import org.flasck.flas.tc3.PolyInstance;
@@ -36,12 +41,45 @@ public class FlimVisitor extends LeafAdapter {
 	private IndentWriter sfw;
 	private IndentWriter cdw;
 	private IndentWriter odw;
+	private final Set<String> packagesReferenced = new TreeSet<>();
+	private boolean inctor;
 
 	public FlimVisitor(String pkg, IndentWriter iw) {
 		this.pkg = pkg;
 		this.iw = iw;
 	}
 	
+	public Set<String> referencedPackages() {
+		return packagesReferenced;
+	}
+	
+	@Override
+	public void visitTypeReference(TypeReference var, boolean expectPolys) {
+		reference((RepositoryEntry)var.defn());
+	}
+	
+	@Override
+	public void visitUnresolvedVar(UnresolvedVar var, int nargs) {
+		reference(var.defn());
+	}
+	
+	@Override
+	public boolean visitMemberExpr(MemberExpr expr, int nargs) {
+		if (expr.boundEarly()) {
+			reference(expr.defn());
+		}
+		return expr.boundEarly();
+	}
+	
+	private void reference(RepositoryEntry e) {
+		String baseName = e.name().packageName().baseName();
+		if (baseName == null)
+			return;
+		if (baseName.equals(pkg))
+			return;
+		packagesReferenced.add(baseName);
+	}
+
 	@Override
 	public void visitStructDefn(StructDefn s) {
 		String pkn = figurePackageName(s.name().container());
@@ -136,13 +174,31 @@ public class FlimVisitor extends LeafAdapter {
 	}
 	
 	@Override
+	public void visitStateDefinition(StateDefinition state) {
+		if (odw != null && !inctor) {
+			odw.println("state");
+			for (StructField e : state.fields) {
+				IndentWriter fw = odw.indent();
+				fw.println("member " + e.name);
+				showType(fw.indent(), e.type());
+			}
+		}
+	}
+	
+	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
 		if (odw != null) {
 			odw.println("ctor " + oc.name().name.replace("_ctor_", ""));
 			processArgs(oc.args());
+			inctor = true;
 		}
 	}
 
+	@Override
+	public void leaveObjectCtor(ObjectCtor oa) {
+		inctor = false;
+	}
+	
 	@Override
 	public void visitObjectAccessor(ObjectAccessor oa) {
 		if (odw != null) {
@@ -198,8 +254,8 @@ public class FlimVisitor extends LeafAdapter {
 			PolyInstance pi = (PolyInstance) type;
 			for (Type t : pi.polys())
 				figurePolyVars(vars, t);
-		} else if (type instanceof StructDefn || type instanceof Primitive) {
-				// nothing here
+		} else if (type instanceof StructDefn || type instanceof UnionTypeDefn || type instanceof ObjectDefn || type instanceof Primitive) {
+			// nothing here
 		} else
 			throw new NotImplementedException("poly vars from type " + type.getClass());
 	}

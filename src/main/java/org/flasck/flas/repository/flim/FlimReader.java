@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,17 +33,23 @@ public class FlimReader {
 			ignore.add(i.getName());
 		FileUtils.assertDirectory(flimdir);
 		Set<String> ret = new TreeSet<>();
+		Set<FlimTop> importers = new HashSet<>();
 		for (File f : FileUtils.findFilesMatching(flimdir, "*")) {
 			if (!ignore.contains(f.getName())) {
-				importFlim(f);
+				FlimTop importer = importFlim(f);
+				importers.add(importer);
 				ret.add(f.getName());
 			}
+		}
+		for (FlimTop ft : importers) {
+			ft.resolve();
 		}
 		return ret;
 	}
 
-	private void importFlim(File f) {
-		Blocker blocker = new Blocker(errors, new TDANester(new FlimTop(errors, repository, f.getName())));
+	private FlimTop importFlim(File f) {
+		FlimTop ret = new FlimTop(errors, repository, f.getName());
+		Blocker blocker = new Blocker(errors, new TDANester(ret));
 		try (LineNumberReader lnr = new LineNumberReader(new FileReader(f))) {
 			String s;
 			try {
@@ -52,7 +59,6 @@ public class FlimReader {
 				blocker.flush();
 			} catch (IOException ex) {
 				errors.message(new InputPosition(f.getName(), lnr.getLineNumber(), -1, null), ex.toString());
-				return;
 			}
 		} catch (FileNotFoundException ex) {
 			errors.message(new InputPosition(f.getName(), -1, -1, null), "file does not exist");
@@ -61,5 +67,6 @@ public class FlimReader {
 		} catch (Throwable t) {
 			errors.reportException(t);
 		}
+		return ret;
 	}
 }

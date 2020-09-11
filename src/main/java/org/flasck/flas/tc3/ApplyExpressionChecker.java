@@ -11,7 +11,6 @@ import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LeafAdapter;
@@ -96,8 +95,6 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;
 		int max = fn.argCount();
-//		if (unusedHandlerCase(expr.fn))
-//			max--;
 		while (!results.isEmpty() && pos < max) {
 			PosType pai = results.remove(0);
 			Type ai = pai.type;
@@ -134,9 +131,6 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			}
 		}
 			
-//		if (unusedHandlerCase(expr.fn)) {
-//			pos++;
-//		}
 		// anything left must be curried
 		while (pos < fn.argCount()) {
 			tocurry.add(fn.get(pos++));
@@ -147,17 +141,6 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(new Apply(tocurry));
 		} else
 			nv.result(fn.get(pos));
-	}
-
-	private boolean unusedHandlerCase(Object fn) {
-		if (!(fn instanceof MemberExpr))
-			return false;
-		MemberExpr me = (MemberExpr) fn;
-		ContractMethodDecl cmd = me.contractMethod();
-		if (cmd == null)
-			return false;
-		// TODO: There are subcases here around the specification and use of the handler
-		return true;
 	}
 
 	private void handleListBuilder(ApplyExpr expr) {

@@ -9,8 +9,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.FLASCompiler;
@@ -143,6 +145,27 @@ public class Main {
 		
 		if (compiler.buildEventMaps())
 			return null;
+
+		Set<String> usedrefs = new TreeSet<>();
+		if (config.flimdir() != null) {
+			FlimWriter writer = new FlimWriter(repository, config.flimdir());
+			List<String> process = new ArrayList<>();
+			for (File f : config.inputs)
+				process.add(f.getName());
+			while (!process.isEmpty()) {
+				String input = process.remove(0);
+				Set<String> refs = writer.export(input);
+				if (refs == null)
+					return null;
+				usedrefs.addAll(refs);
+				refs.retainAll(process);
+				if (!refs.isEmpty()) {
+					for (String s : refs)
+						System.out.println("invalid order: package " + input + " depends on " + s + " which has not been processed");
+					return null;
+				}
+			}
+		}
 		
 		if (compiler.generateCode(config, importedPackages))
 			return null;
@@ -175,13 +198,6 @@ public class Main {
 			}
 			if (config.openHTML)
 				Desktop.getDesktop().open(config.html);
-		}
-
-		if (config.flimdir() != null) {
-			FlimWriter writer = new FlimWriter(repository, config.flimdir());
-			for (File input : config.inputs)
-				if (!writer.export(input.getName()))
-					return null;
 		}
 
 		return compiler;

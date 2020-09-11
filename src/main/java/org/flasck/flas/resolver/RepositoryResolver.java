@@ -893,7 +893,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			if (ty instanceof StateHolder) {
 				StateHolder st = (StateHolder) ty;
 				if (st.state() == null) {
-					errors.message(v.location, v.var + " does not have state");
+					errors.message(v.location, ty + " does not have state");
 					return;
 				}
 				StructField f = st.state().findField(v.var);

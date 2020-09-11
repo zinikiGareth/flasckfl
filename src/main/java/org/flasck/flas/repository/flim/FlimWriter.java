@@ -3,6 +3,7 @@ package org.flasck.flas.repository.flim;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Set;
 
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.Traverser;
@@ -17,19 +18,22 @@ public class FlimWriter {
 		this.flimdir = flimdir;
 	}
 
-	public boolean export(String pkg) {
+	public Set<String> export(String pkg) {
 		try {
 			PrintWriter pw = new PrintWriter(new File(flimdir, pkg));
 			IndentWriter iw = new IndentWriter(pw, "\t").indent();
 			String pkgName = null;
 			if (!"root.package".equals(pkg))
 				pkgName = pkg;
-			new Traverser(new FlimVisitor(pkgName, iw)).forPackage(pkgName).withObjectMethods().doTraversal(repository);
+			FlimVisitor vizier = new FlimVisitor(pkgName, iw);
+			new Traverser(vizier).forPackage(pkgName).withObjectMethods().doTraversal(repository);
+			for (String s : vizier.referencedPackages())
+				iw.println("usespackage " + s);
 			pw.close();
-			return true;
+			return vizier.referencedPackages();
 		} catch (FileNotFoundException e) {
 			System.out.println("could not write flim " + pkg + " to " + flimdir);
-			return false;
+			return null;
 		}
 	}
 

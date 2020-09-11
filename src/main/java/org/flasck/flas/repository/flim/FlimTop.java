@@ -2,6 +2,8 @@ package org.flasck.flas.repository.flim;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -12,6 +14,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
 import org.flasck.flas.parser.IgnoreNestedParser;
+import org.flasck.flas.parser.NoNestingParser;
 import org.flasck.flas.parser.TDAParsing;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -31,6 +34,7 @@ public class FlimTop implements TDAParsing {
 	private final List<FlimStruct> structs = new ArrayList<>();
 	private final List<FlimUnion> unions = new ArrayList<>();
 	private final List<FlimObject> objects = new ArrayList<>();
+	private final Set<String> uses = new TreeSet<>();
 
 	public FlimTop(ErrorReporter errors, Repository repository, String pkg) {
 		this.errors = errors;
@@ -44,6 +48,10 @@ public class FlimTop implements TDAParsing {
 		KeywordToken kw = KeywordToken.from(toks);
 		NameOfThing container;
 		PackageNameToken inpkg = PackageNameToken.from(toks);
+		if (kw.text.equals("usespackage")){
+			uses.add(inpkg.text);
+			return new NoNestingParser(errors);
+		}
 		if (pkg.equals("root.package") && "null".equals(inpkg.text))
 			container = new PackageName(null);
 		else if (inpkg.text.equals(pkg)) {
@@ -95,6 +103,9 @@ public class FlimTop implements TDAParsing {
 
 	@Override
 	public void scopeComplete(InputPosition location) {
+	}
+	
+	public void resolve() {
 		for (FlimStruct ps : structs)
 			ps.resolve();
 		for (FlimFunction pf : functions)

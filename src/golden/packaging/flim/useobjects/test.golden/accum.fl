@@ -1,0 +1,1 @@
+	current (test.objects.Accumulator t) = t.value 0

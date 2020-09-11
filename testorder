@@ -152,3 +152,4 @@ src/golden/packaging/flim/contracts
 src/golden/packaging/flim/usecontracts
 src/golden/packaging/flim/objects
 src/golden/packaging/flim/useobjects
+src/golden/packaging/flim/usetransitive
