@@ -34,7 +34,7 @@ public class FlimTop implements TDAParsing {
 	private final List<FlimStruct> structs = new ArrayList<>();
 	private final List<FlimUnion> unions = new ArrayList<>();
 	private final List<FlimObject> objects = new ArrayList<>();
-	private final Set<String> uses = new TreeSet<>();
+	public final Set<String> uses = new TreeSet<>();
 
 	public FlimTop(ErrorReporter errors, Repository repository, String pkg) {
 		this.errors = errors;

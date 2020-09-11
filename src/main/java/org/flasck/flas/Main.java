@@ -27,6 +27,7 @@ import org.flasck.jvm.assembly.FLASAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
+import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.streamedlogger.api.Level;
 import org.zinutils.utils.FileUtils;
 
@@ -96,9 +97,9 @@ public class Main {
 
 		Repository repository = new Repository();
 		LoadBuiltins.applyTo(errors, repository);
-		Set<String> importedPackages = null;
+		DirectedAcyclicGraph<String> pkgs = new DirectedAcyclicGraph<>();
 		if (config.flimdir() != null) {
-			importedPackages = new FlimReader(errors, repository).read(config.flimdir(), config.inputs);
+			new FlimReader(errors, repository).read(pkgs, config.flimdir(), config.inputs);
 			if (errors.hasErrors())
 				return null;
 		}
@@ -157,6 +158,11 @@ public class Main {
 				Set<String> refs = writer.export(input);
 				if (refs == null)
 					return null;
+				pkgs.ensure(input);
+				for (String s : refs) {
+					pkgs.ensure(s);
+					pkgs.ensureLink(input, s);
+				}
 				usedrefs.addAll(refs);
 				refs.retainAll(process);
 				if (!refs.isEmpty()) {
@@ -167,7 +173,7 @@ public class Main {
 			}
 		}
 		
-		if (compiler.generateCode(config, importedPackages))
+		if (compiler.generateCode(config, pkgs))
 			return null;
 		
 		if (compiler.runUnitTests(config))

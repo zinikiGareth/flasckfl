@@ -3,10 +3,10 @@ package org.flasck.flas.compiler.jsgen.packaging;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -23,6 +23,9 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.graphs.DirectedAcyclicGraph;
+import org.zinutils.graphs.Node;
+import org.zinutils.graphs.NodeWalker;
 import org.zinutils.utils.FileUtils;
 
 /** The idea here is to create a set of "package" files in memory with abstract constructs.
@@ -37,11 +40,11 @@ public class JSEnvironment implements JSStorage {
 	private final List<ContractDecl> contracts = new ArrayList<>();
 	private final List<ObjectDefn> objects = new ArrayList<>();
 	private final List<HandlerImplements> handlers = new ArrayList<>();
-	private final Set<String> importedPackages;
+	private final DirectedAcyclicGraph<String> pkgdag;
 
-	public JSEnvironment(File root, Set<String> importedPackages) {
+	public JSEnvironment(File root, DirectedAcyclicGraph<String> pkgs) {
 		this.root = root;
-		this.importedPackages = importedPackages;
+		this.pkgdag = pkgs;
 	}
 	
 	public Iterable<File> files() {
@@ -158,10 +161,16 @@ public class JSEnvironment implements JSStorage {
 	}
 
 	public Iterable<String> packages() {
-		List<String> ret = new ArrayList<>();
-		if (importedPackages != null)
-			ret.addAll(importedPackages);
-		ret.addAll(files.keySet());
+		LinkedHashSet<String> ret = new LinkedHashSet<>();
+		for (String s : files.keySet()) {
+			pkgdag.ensure(s);
+			pkgdag.postOrderFrom(new NodeWalker<String>() {
+				@Override
+				public void present(Node<String> node) {
+					ret.add(node.getEntry());
+				}
+			}, s);
+		}
 		return ret;
 	}
 

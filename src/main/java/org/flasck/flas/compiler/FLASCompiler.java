@@ -11,7 +11,6 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -61,6 +60,7 @@ import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.utils.FileNameComparator;
 import org.zinutils.utils.FileUtils;
 
@@ -192,8 +192,8 @@ public class FLASCompiler {
 		return errors.hasErrors();
 	}
 	
-	public boolean generateCode(Configuration config, Set<String> importedPackages) {
-		jse = new JSEnvironment(config.jsDir(), importedPackages);
+	public boolean generateCode(Configuration config, DirectedAcyclicGraph<String> pkgs) {
+		jse = new JSEnvironment(config.jsDir(), pkgs);
 		bce = new ByteCodeEnvironment();
 		populateBCE(bce);
 		

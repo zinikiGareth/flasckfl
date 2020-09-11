@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.blocker.TDANester;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.repository.Repository;
+import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.utils.FileUtils;
 
 public class FlimReader {
@@ -27,24 +27,27 @@ public class FlimReader {
 		this.repository = repository;
 	}
 
-	public Set<String> read(File flimdir, List<File> butNot) {
+	public void read(DirectedAcyclicGraph<String> pkgs, File flimdir, List<File> butNot) {
 		List<String> ignore = new ArrayList<>();
 		for (File i : butNot)
 			ignore.add(i.getName());
 		FileUtils.assertDirectory(flimdir);
-		Set<String> ret = new TreeSet<>();
 		Set<FlimTop> importers = new HashSet<>();
 		for (File f : FileUtils.findFilesMatching(flimdir, "*")) {
-			if (!ignore.contains(f.getName())) {
+			String name = f.getName();
+			if (!ignore.contains(name)) {
 				FlimTop importer = importFlim(f);
 				importers.add(importer);
-				ret.add(f.getName());
+				pkgs.ensure(name);
+				for (String s : importer.uses) {
+					pkgs.ensure(s);
+					pkgs.ensureLink(name, s);
+				}
 			}
 		}
 		for (FlimTop ft : importers) {
 			ft.resolve();
 		}
-		return ret;
 	}
 
 	private FlimTop importFlim(File f) {
