@@ -29,6 +29,7 @@ public class FlimContractMethod extends PendingMethod {
 		for (PendingContractArg a : args)
 			ta.add(a.resolve(errors, repository, cmn));
 		cmd = new ContractMethodDecl(loc, loc, loc, required, cmn, ta, handler == null ? null : handler.resolve(errors, repository, cmn));
+		cmd.bindType();
 		repository.newContractMethod(errors, cmd);
 		return cmd;
 	}

@@ -53,7 +53,7 @@ public class FlimContract implements TDAParsing {
 	}
 
 	private void create(InputPosition location) {
-		cd = new ContractDecl(location, location, type, name);
+		cd = new ContractDecl(location, location, type, name, false);
 		repository.newContract(errors, cd);
 	}
 
