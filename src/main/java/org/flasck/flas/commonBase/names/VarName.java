@@ -23,7 +23,7 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 		if (scope == null)
 			return null;
 		else
-			return ((SolidName)scope).packageName();
+			return scope.packageName();
 	}
 	
 	@Override

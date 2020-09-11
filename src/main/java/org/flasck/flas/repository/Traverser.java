@@ -131,6 +131,7 @@ public class Traverser implements RepositoryVisitor {
 	private boolean wantEventSources = false;
 	private boolean wantMethodMembersWithObjects = false;
 	private boolean visitMemberFields = false;
+	private PackageName onlyPackage;
 	private boolean isConverted;
 	private boolean currFnHasState;
 	private Comparator<NamedType> unionLastOrder = new Comparator<NamedType>() {
@@ -197,6 +198,11 @@ public class Traverser implements RepositoryVisitor {
 		return this;
 	}
 
+	public Traverser forPackage(String pkg) {
+		this.onlyPackage = new PackageName(pkg);
+		return this;
+	}
+
 	public void doTraversal(Repository repository) {
 		this.repository = repository;
 		if (functionOrder != null) {
@@ -239,6 +245,8 @@ public class Traverser implements RepositoryVisitor {
 	public void visitEntry(RepositoryEntry e) {
 		if (e == null)
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle null entries");
+		else if (!isDesiredPackage(e))
+			return;
 		else if (e instanceof Primitive)
 			visitPrimitive((Primitive)e);
 		else if (e instanceof ContractDecl)
@@ -297,6 +305,15 @@ public class Traverser implements RepositoryVisitor {
 			;
 		} else
 			throw new org.zinutils.exceptions.NotImplementedException("traverser cannot handle " + e.getClass());
+	}
+
+	private boolean isDesiredPackage(RepositoryEntry e) {
+		if (onlyPackage == null)
+			return true;
+		else if (onlyPackage.baseName() == null)
+			return e.name().packageName().baseName() == null;
+		else
+			return onlyPackage.baseName().equals(e.name().packageName().baseName());
 	}
 
 	@Override

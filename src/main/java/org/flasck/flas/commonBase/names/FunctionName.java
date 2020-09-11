@@ -76,7 +76,7 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 				return (PackageName) ret;
 			ret = ret.container();
 		}
-		throw new RuntimeException("No PackageName found");
+		return new PackageName(null);
 	}
 	
 	public NameOfThing containingCard() {

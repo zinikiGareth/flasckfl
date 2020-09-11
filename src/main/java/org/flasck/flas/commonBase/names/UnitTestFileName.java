@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.zinutils.exceptions.NotImplementedException;
-
 public class UnitTestFileName implements NameOfThing {
 	private final PackageName container;
 	private final String name;
@@ -18,7 +16,7 @@ public class UnitTestFileName implements NameOfThing {
 	
 	@Override
 	public PackageName packageName() {
-		throw new NotImplementedException();
+		return container;
 	}
 
 	@Override
