@@ -1,3 +1,0 @@
-take n [] = []
-take 0 Cons = []
-take n (a:b) = a:(take (n-1) b)
