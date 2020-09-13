@@ -22,7 +22,6 @@ import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.compiler.assembler.BuildApplicationAssembly;
 import org.flasck.flas.compiler.jsgen.JSGenerator;
 import org.flasck.flas.compiler.jsgen.packaging.JSEnvironment;
-import org.flasck.flas.compiler.jvmgen.JVMGenerator;
 import org.flasck.flas.compiler.templates.EventBuilder;
 import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.errors.ErrorReporter;
@@ -70,12 +69,9 @@ public class FLASCompiler {
 	private final ErrorReporter errors;
 	private final Repository repository;
 	private final Splitter splitter;
-//	private final DroidBuilder builder = new DroidBuilder();
 	private JSEnvironment jse;
 	private Map<EventHolder, EventTargetZones> eventMap;
 	private ByteCodeEnvironment bce;
-	private String newJVMArg = System.getProperty("org.flasck.golden.rejvm");
-	private boolean newJVM = newJVMArg == null || Boolean.parseBoolean(newJVMArg);
 
 	public FLASCompiler(ErrorReporter errors, Repository repository) {
 		this.errors = errors;
@@ -199,22 +195,18 @@ public class FLASCompiler {
 		
 		StackVisitor jsstack = new StackVisitor();
 		new JSGenerator(repository, jse, jsstack, eventMap);
-		StackVisitor jvmstack = new StackVisitor();
-		new JVMGenerator(repository, bce, jvmstack, eventMap);
 
 		if (config.generateJS)
 			repository.traverseWithHSI(jsstack);
-		if (config.generateJVM && !newJVM)
-			repository.traverseWithHSI(jvmstack);
 		
 		if (errors.hasErrors()) {
 			return true;
 		}
 		
-		if (config.generateJS)
-			saveJSE(config.jsDir(), jse, newJVM?bce:null);
-		if (config.generateJVM)
+		if (config.generateJS) {
+			saveJSE(config.jsDir(), jse, bce);
 			saveBCE(config.jvmDir(), bce);
+		}
 
 		return errors.hasErrors();
 	}
@@ -374,10 +366,6 @@ public class FLASCompiler {
 				throw new RuntimeException("Package must have valid package name");
 		}
 	}
-
-//	public DroidBuilder getBuilder() {
-//		return builder;
-//	}
 
 	public void reportException(Throwable ex) {
 		errors.reportException(ex);
