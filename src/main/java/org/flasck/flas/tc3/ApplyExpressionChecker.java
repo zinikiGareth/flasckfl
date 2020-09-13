@@ -22,6 +22,7 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.ExpressionChecker.IgnoreMe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
@@ -75,6 +76,10 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 		}
 		if (expr.fn instanceof UnresolvedOperator && ((UnresolvedOperator)expr.fn).op.equals("()")) {
 			handleTupleBuilder(expr);
+			return;
+		}
+		if (expr.fn instanceof UnresolvedOperator && ((UnresolvedOperator)expr.fn).op.equals("{}")) {
+			handleHashBuilder(expr);
 			return;
 		}
 		PosType pfn = results.remove(0);
@@ -162,6 +167,23 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			for (PosType pt : results)
 				tys.add(pt.type);
 			nv.result(new PolyInstance(expr.location(), LoadBuiltins.tuple, tys));
+		}
+	}
+
+	private void handleHashBuilder(ApplyExpr expr) {
+		if (expr.args.isEmpty()) {
+			nv.result(LoadBuiltins.hash);
+		} else {
+			results.remove(0); // remove the hash from the front
+			// I think our parser should guarantee this can't happen ...
+			for (PosType e : results) {
+				if (e.type != LoadBuiltins.hashPairType) {
+					errors.message(e.pos, "invalid entry in hash: " + e.type.signature());
+					nv.result(new ErrorType());
+					return;
+				}
+			}
+			nv.result(LoadBuiltins.hash);
 		}
 	}
 }

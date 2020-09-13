@@ -45,6 +45,7 @@ public class LoadBuiltins {
 	public static final TypeReference consATR = new TypeReference(pos, "Cons", polyATR);
 	public static final TypeReference listATR = new TypeReference(pos, "List", polyATR);
 	public static final TypeReference listAnyTR = new TypeReference(pos, "List", anyTR);
+	public static final TypeReference hashTR = new TypeReference(pos, "Hash");
 	public static final TypeReference randomTR = new TypeReference(pos, "Random");
 	public static final TypeReference debugTR = new TypeReference(pos, "Debug");
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
@@ -81,6 +82,10 @@ public class LoadBuiltins {
 	public static final PolyInstance listAny = new PolyInstance(pos, list, Arrays.asList(any));
 	public static final StructDefn assignItem = new StructDefn(pos, FieldsType.STRUCT, null, "AssignItem", false, polyA);
 
+	// Hashes (associative arrays)
+	public static final StructDefn hash = new StructDefn(pos, FieldsType.STRUCT, null, "Hash", false);
+	public static final StructDefn hashPairType = new StructDefn(pos, FieldsType.STRUCT, null, "_HashPair", false); // This can only be accessed internally; it is the result of the : operator
+	
 	// Random
 	public static final ObjectDefn random = new ObjectDefn(pos, pos, new ObjectName(null, "Random"), false, new ArrayList<>());
 	private static ObjectCtor randomSeed;
@@ -134,6 +139,8 @@ public class LoadBuiltins {
 	public static final FunctionDefinition take = new FunctionDefinition(FunctionName.function(pos, null, "take"), 2, null).dontGenerate();
 	public static final FunctionDefinition drop = new FunctionDefinition(FunctionName.function(pos, null, "drop"), 2, null).dontGenerate();
 	public static final FunctionDefinition append = new FunctionDefinition(FunctionName.function(pos, null, "append"), 2, null).dontGenerate();
+	public static final FunctionDefinition hashPair = new FunctionDefinition(FunctionName.function(pos, null, ":"), 2, null).dontGenerate();
+	public static final FunctionDefinition assoc = new FunctionDefinition(FunctionName.function(pos, null, "assoc"), 2, null).dontGenerate();
 	public static final FunctionDefinition strlen = new FunctionDefinition(FunctionName.function(pos, null, "strlen"), 1, null).dontGenerate();
 	public static final FunctionDefinition concat = new FunctionDefinition(FunctionName.function(pos, null, "++"), 2, null).dontGenerate();
 	public static final FunctionDefinition concatLists = new FunctionDefinition(FunctionName.function(pos, null, "concatLists"), 1, null).dontGenerate();
@@ -154,6 +161,7 @@ public class LoadBuiltins {
 		consATR.bind(cons);
 		listATR.bind(list);
 		listAnyTR.bind(listAny);
+		hashTR.bind(hash);
 		falseTR.bind(falseT);
 		trueTR.bind(trueT);
 		nilTR.bind(nil);
@@ -257,6 +265,8 @@ public class LoadBuiltins {
 		length.bindType(new Apply(list, number));
 		replace.bindType(new Apply(list, number, polyA, list));
 		nth.bindType(new Apply(number, list, polyA));
+		assoc.bindType(new Apply(hash, string, any));
+		hashPair.bindType(new Apply(string, any, hashPairType));
 		item.bindType(new Apply(number, list, assignItem));
 		take.bindType(new Apply(number, list, list));
 		drop.bindType(new Apply(number, list, list));
@@ -289,6 +299,9 @@ public class LoadBuiltins {
 		repository.newStruct(errors, cons);
 		repository.newUnion(errors, list);
 		
+		repository.newStruct(errors, hash);
+		repository.addEntry(errors, new SolidName(null, "{}"), hash);
+		
 		repository.newObject(errors, random);
 		repository.newObjectMethod(errors, randomSeed);
 		repository.newObjectMethod(errors, randomUnseeded);
@@ -320,6 +333,8 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, length);
 		repository.functionDefn(errors, replace);
 		repository.functionDefn(errors, nth);
+		repository.functionDefn(errors, assoc);
+		repository.functionDefn(errors, hashPair);
 		repository.functionDefn(errors, item);
 		repository.functionDefn(errors, drop);
 		repository.functionDefn(errors, take);

@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.MemberExpr;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CheckTypeExpr;
 import org.flasck.flas.parsedForm.DotOperator;
@@ -89,7 +90,11 @@ public class TDAExprReducer implements ExprTermConsumer {
 	}
 
 	public void seenColon(ParenCloseRewriter closer) {
-		closer.defineVar(((UnresolvedVar)terms.get(0)).var);
+		Expr t = terms.get(0);
+		if (t instanceof UnresolvedVar)
+			closer.defineVar(((UnresolvedVar)t).var);
+		else if (t instanceof StringLiteral)
+			closer.defineVar(((StringLiteral)t).text);
 		terms.clear();
 	}
 

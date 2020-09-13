@@ -1,0 +1,8 @@
+Hashes need to be a thing that we can create and access
+
+	test we can read from a hash
+		assert q
+			42
+		assert (assoc h "a string")
+			"label"
+

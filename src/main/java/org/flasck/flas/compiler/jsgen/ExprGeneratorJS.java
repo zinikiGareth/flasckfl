@@ -306,6 +306,14 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		{
 			return "MakeTuple";
 		}
+		case "{}":
+		{
+			return "MakeHash";
+		}
+		case ":":
+		{
+			return "HashPair";
+		}
 		default:
 			throw new RuntimeException("There is no operator " + op);
 		}

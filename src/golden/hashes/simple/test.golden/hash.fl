@@ -1,0 +1,4 @@
+
+	h = { x: 42, "a string": "label" }
+
+	q = assoc h 'x'
