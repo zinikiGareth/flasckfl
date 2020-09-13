@@ -14,6 +14,7 @@ public interface AssemblyVisitor {
 	void visitAssembly(ApplicationAssembly a);
 	void leaveAssembly(Assembly a) throws IOException;
 	void compiledPackageFile(File f);
+	void visitPackage(String pkg);
 	void visitCardTemplate(String cardName, InputStream is, long length) throws IOException;
 	void visitCSS(String name, ZipInputStream zis, long length) throws IOException;
 	void visitResource(String name, ZipInputStream zis) throws IOException;

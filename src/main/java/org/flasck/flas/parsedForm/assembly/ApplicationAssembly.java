@@ -20,8 +20,6 @@ public class ApplicationAssembly extends Assembly implements ApplicationElementC
 	}
 	
 	public void mainCard(String s) {
-		// TODO: should handle this as an unresolved type name and then pull back the real name later
-		// otherwise we can reference things that don't exist
 		this.mainCard = new CardName((PackageName) assemblyName.container(), s).uniqueName();
 	}
 	

@@ -87,7 +87,7 @@ public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
 
 	@Override
 	public String javaName() {
-		if (inContext == null)
+		if (inContext == null || (inContext instanceof PackageName && ((PackageName)inContext).baseName() == null))
 			return J.FLEVAL + "." + name;
 		else if (inContext instanceof FunctionName)
 			return inContext.javaName() + "_" + name;

@@ -17,6 +17,7 @@ public class InitContext implements IVForm {
 		for (String e : env.packages())
 			if (!e.contains("_ut_"))
 				w.println(e + "._init(_cxt);");
+		w.println("runner.makeReady();");
 	}
 
 	@Override

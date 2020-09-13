@@ -29,11 +29,12 @@ import org.flasck.flas.compiler.jsgen.packaging.JSFile;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.bytecode.mock.IndentWriter;
+import org.zinutils.graphs.DirectedAcyclicGraph;
 
 public class ClassGeneration {
 //	private InputPosition pos = new InputPosition("-", 1, 0, null);
 	private final PackageName pkg = new PackageName("test.repo");
-	JSEnvironment jse = new JSEnvironment(new File("/tmp"), null);
+	JSEnvironment jse = new JSEnvironment(new File("/tmp"), new DirectedAcyclicGraph<>());
 	StringWriter sw = new StringWriter();
 	PrintWriter pw = new PrintWriter(sw);
 	IndentWriter w = new IndentWriter(pw);

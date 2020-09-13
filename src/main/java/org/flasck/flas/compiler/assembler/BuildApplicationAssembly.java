@@ -57,7 +57,7 @@ public abstract class BuildApplicationAssembly extends AssemblyLeaves {
 		pi.set("inits", inits);
 		
 		JVMCardInitializer init = new JVMCardInitializer(cx);
-		init.addPackage(a.name().container().uniqueName());
+//		init.addPackage(a.name().container().uniqueName());
 		init.mainCard(a.mainCard());
 		inits.add(init);
 	}
@@ -68,6 +68,12 @@ public abstract class BuildApplicationAssembly extends AssemblyLeaves {
 		jslibs.add(co);
 	}
 
+	@Override
+	public void visitPackage(String pkg) {
+		JVMCardInitializer init = (JVMCardInitializer) inits.get(0);
+		init.addPackage(pkg);
+	}
+	
 	@Override
 	public void visitCardTemplate(String cardName, InputStream is, long length) throws IOException {
 		tpw.println("    <template id='" + cardName + "'>");

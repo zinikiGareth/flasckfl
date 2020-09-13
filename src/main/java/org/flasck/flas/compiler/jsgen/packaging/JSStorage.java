@@ -23,6 +23,7 @@ public interface JSStorage {
 	void eventMap(NameOfThing name, EventTargetZones eventMethods);
 
 	Iterable<File> files();
+	File fileFor(String s);
 
 	void contract(ContractDecl cd);
 	void object(ObjectDefn cd);
@@ -31,4 +32,5 @@ public interface JSStorage {
 	void complete();
 
 	Iterable<String> packages();
+
 }

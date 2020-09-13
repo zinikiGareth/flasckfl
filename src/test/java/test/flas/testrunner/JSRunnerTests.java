@@ -35,8 +35,12 @@ public class JSRunnerTests extends BaseRunnerTests {
 		jse = context.mock(JSStorage.class);
 		ArrayList<File> fileList = new ArrayList<>();
 		fileList.add(new File("src/test/resources/jsrunner/tests.js"));
+		ArrayList<String> pkgList = new ArrayList<>();
+		pkgList.add("tests");
 		context.checking(new Expectations() {{
+			allowing(jse).packages(); will(returnValue(pkgList));
 			allowing(jse).files(); will(returnValue(fileList));
+			allowing(jse).fileFor("tests"); will(returnValue(fileList.get(0)));
 		}});
 	}
 

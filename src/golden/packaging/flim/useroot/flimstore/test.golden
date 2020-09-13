@@ -1,0 +1,8 @@
+	function test.golden x
+		instance
+			named InRoot
+			named Number
+	function test.golden y
+		named Number
+	function test.golden z
+		named Number

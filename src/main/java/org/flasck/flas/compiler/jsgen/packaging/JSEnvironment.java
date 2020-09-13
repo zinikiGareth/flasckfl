@@ -48,7 +48,22 @@ public class JSEnvironment implements JSStorage {
 	}
 	
 	public Iterable<File> files() {
-		return files.values().stream().map(jsf -> jsf.file()).collect(Collectors.toList());
+		List<File> ret = new ArrayList<>();
+		Iterable<String> pkgs = packages();
+		for (String s : pkgs) {
+			JSFile f = files.get(s);
+			if (f != null)
+				ret.add(f.file());
+		}
+		return ret;
+	}
+
+	@Override
+	public File fileFor(String s) {
+		JSFile r = files.get(s);
+		if (r == null)
+			return null;
+		return r.file();
 	}
 
 	@Override
@@ -162,6 +177,8 @@ public class JSEnvironment implements JSStorage {
 
 	public Iterable<String> packages() {
 		LinkedHashSet<String> ret = new LinkedHashSet<>();
+		if (pkgdag.hasNode("root.package"))
+			ret.add("root.package");
 		for (String s : files.keySet()) {
 			pkgdag.ensure(s);
 			pkgdag.postOrderFrom(new NodeWalker<String>() {

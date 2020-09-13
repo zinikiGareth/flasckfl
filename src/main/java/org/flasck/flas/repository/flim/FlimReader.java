@@ -28,10 +28,20 @@ public class FlimReader {
 	}
 
 	public void read(DirectedAcyclicGraph<String> pkgs, File flimdir, List<File> butNot) {
+		FileUtils.assertDirectory(flimdir);
+
 		List<String> ignore = new ArrayList<>();
 		for (File i : butNot)
 			ignore.add(i.getName());
-		FileUtils.assertDirectory(flimdir);
+		
+		// Don't read any flim files if we are building the stdlib
+		if (ignore.contains("root.package"))
+			return;
+		
+		// TODO: we also need a slightly more complicated check that we aren't reading something that depends on us
+		// This requires us to actually read the file to get to the uses, but ideally not do ANYTHING with it
+		// But certainly we want to avoid resolving it
+		
 		Set<FlimTop> importers = new HashSet<>();
 		for (File f : FileUtils.findFilesMatching(flimdir, "*")) {
 			String name = f.getName();

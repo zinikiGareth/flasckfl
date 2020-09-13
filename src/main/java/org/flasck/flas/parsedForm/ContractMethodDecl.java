@@ -13,6 +13,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Type;
+import org.zinutils.exceptions.CantHappenException;
 
 public class ContractMethodDecl implements Locatable, RepositoryEntry, Comparable<ContractMethodDecl> {
 	public final InputPosition rkw;
@@ -44,7 +45,10 @@ public class ContractMethodDecl implements Locatable, RepositoryEntry, Comparabl
 			throw new RuntimeException("Type already bound to " + this.type + " cannot rebind");
 		List<Type> types = new ArrayList<>();
 		for (Pattern p : this.args) {
-			types.add(((TypedPattern)p).type());
+			Type ty = ((TypedPattern)p).type();
+			if (ty == null)
+				throw new CantHappenException("there is no type for " + name.uniqueName() + " argument " + p);
+			types.add(ty);
 		}
 		if (handler != null)
 			types.add(handler.type());

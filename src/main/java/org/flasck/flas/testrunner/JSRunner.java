@@ -183,12 +183,17 @@ public class JSRunner extends CommonTestRunner {
 			List<String> flascklib = Arrays.asList("javalogger.js", "ziwsh.js", "flas-runtime.js", "flas-container.js", "flas-unittest.js");
 			for (String s : flascklib)
 				copyResourceIntoScript(pw, s, testDirJS);
-			for (File f : jse.files())
-				includeFileAsScript(pw, f, testDirJS);
-			for (File f : config.includeFrom) {
-				for (File i : FileUtils.findFilesMatching(f, "*.js")) {
-					if (!flascklib.contains(i.getName()))
-						includeFileAsScript(pw, i, testDirJS);
+			for (String s : jse.packages()) {
+				File f = jse.fileFor(s);
+				if (f != null)
+					includeFileAsScript(pw, f, testDirJS);
+				else {
+					for (File q : config.includeFrom) {
+						for (File i : FileUtils.findFilesMatching(q, s + ".js")) {
+							if (!flascklib.contains(i.getName()))
+								includeFileAsScript(pw, i, testDirJS);
+						}
+					}
 				}
 			}
 			pw.println("</head>");

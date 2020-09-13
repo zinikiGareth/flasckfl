@@ -9,9 +9,6 @@ import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorReporter;
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractDecl.ContractType;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.CurrentContainer;
 import org.flasck.flas.parsedForm.FieldsDefn.FieldsType;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -41,6 +38,7 @@ public class LoadBuiltins {
 	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
 	public static final TypeReference stringTR = new TypeReference(pos, "String");
 	public static final TypeReference numberTR = new TypeReference(pos, "Number");
+	public static final TypeReference typeTR = new TypeReference(pos, "Type");
 	public static final TypeReference falseTR = new TypeReference(pos, "False");
 	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
 	public static final TypeReference nilTR = new TypeReference(pos, "Nil"); 
@@ -52,7 +50,6 @@ public class LoadBuiltins {
 	public static final TypeReference sendTR = new TypeReference(pos, "Send");
 	public static final TypeReference assignTR = new TypeReference(pos, "Assign");
 	public static final TypeReference clickEventTR = new TypeReference(pos, "ClickEvent");
-	public static final TypeReference callMeTR = new TypeReference(pos, "CallMe");
 	
 	// "Primitive" types
 	public static final PolyType polyA = new PolyType(pos, new SolidName(null, "A")); 
@@ -114,10 +111,6 @@ public class LoadBuiltins {
 	public static UnresolvedVar probeState = new UnresolvedVar(pos, "_probe_state");
 	public static UnresolvedVar getUnderlying = new UnresolvedVar(pos, "_underlying");
 
-	// Contracts
-	public static final ContractDecl repeater = new ContractDecl(pos, pos, ContractType.SERVICE, new SolidName(null, "Repeater"), false);
-	public static final ContractDecl callMeHandler = new ContractDecl(pos, pos, ContractType.HANDLER, new SolidName(null, "CallMe"), false);
-	
 	// Builtin operators
 	public static final FunctionDefinition isType = new FunctionDefinition(FunctionName.function(pos, null, "istype"), 2, null).dontGenerate();
 	public static final FunctionDefinition isEqual = new FunctionDefinition(FunctionName.function(pos, null, "=="), 2, null).dontGenerate();
@@ -157,6 +150,7 @@ public class LoadBuiltins {
 		contractTR.bind(contract);
 		stringTR.bind(string);
 		numberTR.bind(number);
+		typeTR.bind(type);
 		consATR.bind(cons);
 		listATR.bind(list);
 		listAnyTR.bind(listAny);
@@ -168,7 +162,6 @@ public class LoadBuiltins {
 		sendTR.bind(send);
 		assignTR.bind(assign);
 		clickEventTR.bind(clickEvent);
-		callMeTR.bind(callMeHandler);
 	
 		// add fields to structs
 		error.addField(new StructField(pos, error, true, stringTR, "message"));
@@ -242,18 +235,6 @@ public class LoadBuiltins {
 			}
 		}
 		
-		{
-			TypedPattern cmh = new TypedPattern(pos, callMeTR, new VarName(pos, callMeHandler.name(), "handler"));
-			ContractMethodDecl callMe = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, repeater.name(), "callMe"), new ArrayList<TypedPattern>(), cmh);
-			callMe.bindType();
-			repeater.addMethod(callMe);
-		}
-		{
-			ContractMethodDecl callback = new ContractMethodDecl(pos, pos, pos, true, FunctionName.contractMethod(pos, repeater.name(), "call"), new ArrayList<TypedPattern>(), null);
-			callback.bindType();
-			callMeHandler.addMethod(callback);
-		}
-		
 		// specify function types
 		{
 			Type pa = new PolyType(pos, new SolidName(null, "A"));
@@ -297,6 +278,7 @@ public class LoadBuiltins {
 		repository.newStruct(errors, error);
 		repository.addEntry(errors, number.name(), number);
 		repository.addEntry(errors, string.name(), string);
+		repository.newStruct(errors, type);
 
 		repository.addEntry(errors, falseT.name(), falseT);
 		repository.addEntry(errors, trueT.name(), trueT);
@@ -350,25 +332,5 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, dispatch);
 		repository.functionDefn(errors, show);
 		repository.functionDefn(errors, expr);
-
-		// not yet thought through for backward compatibility
-		StructDefn card = new StructDefn(pos, FieldsType.STRUCT, null, "Card", false);
-		repository.newStruct(errors, card);
-		StructDefn croset = new StructDefn(pos, FieldsType.STRUCT, null, "Croset", false);
-		repository.newStruct(errors, croset);
-		StructDefn map = new StructDefn(pos, FieldsType.STRUCT, null, "Map", false);
-		repository.newStruct(errors, map);
-		repository.newStruct(errors, type);
-
-		// builtin contracts
-		repository.newContract(errors, repeater);
-		repository.newContract(errors, callMeHandler);
-
-		// dubious backward compatibility
-
-		StructDefn crokeys = new StructDefn(pos, FieldsType.STRUCT, null, "Crokeys", false);
-		repository.newStruct(errors, crokeys);
-		StructDefn id = new StructDefn(pos, FieldsType.STRUCT, null, "Id", false);
-		repository.newStruct(errors, id);
 	}
 }

@@ -23,6 +23,10 @@ public class AssemblyLeaves implements AssemblyVisitor {
 	}
 	
 	@Override
+	public void visitPackage(String pkg) {
+	}
+
+	@Override
 	public void visitCardTemplate(String cardName, InputStream is, long length) throws IOException {
 	}
 
