@@ -22,7 +22,6 @@ import org.flasck.flas.tc3.ExpressionChecker.ExprResult;
 import org.flasck.flas.tc3.ExpressionChecker.IgnoreMe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");

@@ -573,10 +573,12 @@ public class ExpressionGenerationJS {
 		NumericLiteral nl = new NumericLiteral(pos, "42", 2);
 		ApplyExpr expr = new ApplyExpr(pos, op, nl);
 		JSExpr lit = context.mock(JSExpr.class, "lit");
+		List<JSExpr> alit = new ArrayList<>();
+		alit.add(lit);
 		JSExpr ma = context.mock(JSExpr.class, "ma");
 		context.checking(new Expectations() {{
 			oneOf(meth).literal("42"); will(returnValue(lit));
-			oneOf(meth).makeArray(lit); will(returnValue(ma));
+			oneOf(meth).makeArray(alit); will(returnValue(ma));
 			oneOf(nv).result(ma);
 		}});
 		StackVisitor stackv = new StackVisitor();

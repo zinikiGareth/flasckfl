@@ -357,6 +357,12 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			return J.NIL;
 		case "()":
 			return "MakeTuple";
+		case "{}":
+			inner = "MakeHash";
+			break;
+		case ":":
+			inner = "hashPair";
+			break;
 		default:
 			return null;
 		}
