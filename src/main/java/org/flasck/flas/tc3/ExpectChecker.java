@@ -64,7 +64,7 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 	public void leaveUnitTestExpect(UnitTestExpect e) {
 		// Check for cascades
 		if (mock instanceof ErrorType || handler instanceof ErrorType) {
-			sv.result(null);
+			sv.result(mock);
 			return;
 		}
 		for (Type t : args) {
@@ -99,16 +99,21 @@ public class ExpectChecker extends LeafAdapter implements ResultAware {
 			Type atype = m.args.get(i).type();
 			if (!atype.incorporates(aloc, args.get(i))) {
 				errors.message(aloc, "type error: " + atype + " " + args.get(i));
-				sv.result(null);
+				sv.result(new ErrorType());
 				return;
 			}
 		}
 		
 		if (e.handler != null && !(e.handler instanceof AnonymousVar)) {
+			if (m.handler == null) {
+				errors.message(e.handler.location(), "contract method " + m.name.uniqueName() + " does not expect a handler");
+				sv.result(new ErrorType());
+				return;
+			}
 			NamedType htype = m.handler.type.defn();
 			if (!htype.incorporates(e.handler.location(), handler)) {
 				errors.message(e.handler.location(), "type error: " + htype + " " + handler);
-				sv.result(null);
+				sv.result(new ErrorType());
 				return;
 			}
 		}

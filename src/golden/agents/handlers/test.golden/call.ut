@@ -1,5 +1,12 @@
+Init methods should be allowed to call back into services to initialize themselves.
+
+Check that we can do this merry-go-round
+
 	test we can call init
+		data AskFor af
 		data Orange od
+		expect af help -> _helper
 		contract od Start init
+		invoke helper.coming
 		assert (od.done)
 			True

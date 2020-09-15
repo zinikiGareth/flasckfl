@@ -65,7 +65,8 @@ public class LoadBuiltins {
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
 	public static final Type idempotentHandler = contract; // This may or may not be correct ...
-	
+	public static final StructDefn id = new StructDefn(pos, FieldsType.STRUCT, null, "Id", false);
+
 	// This is another really weird thing ... it has arguments really, so needs to be parameterized a variable amount
 	// Probably needs its own class to handle it properly
 	public static final Tuple tuple = new Tuple(pos, "Tuple");
@@ -302,6 +303,8 @@ public class LoadBuiltins {
 		repository.newStruct(errors, hash);
 		repository.addEntry(errors, new SolidName(null, "{}"), hash);
 		
+		repository.newStruct(errors, id);	
+
 		repository.newObject(errors, random);
 		repository.newObjectMethod(errors, randomSeed);
 		repository.newObjectMethod(errors, randomUnseeded);

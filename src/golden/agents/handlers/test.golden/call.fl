@@ -1,3 +1,9 @@
+	contract service AskFor
+		help -> (Response helper)
+		
+	contract handler Response
+		coming
+	
 	contract Start
 		init
 		
@@ -5,13 +11,13 @@
 		state
 			Boolean done <- False
 
-		requires Repeater rc
+		requires AskFor rc
 
-		handler CallMe Handler
-			call
+		handler Response Handler
+			coming
 				<- Debug "called"	
 				done <- True
 		
 		implements Start
 			init
-				<- rc.callMe -> Handler 
+				<- rc.help -> Handler 

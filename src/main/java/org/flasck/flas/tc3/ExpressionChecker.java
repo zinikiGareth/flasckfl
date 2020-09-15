@@ -162,7 +162,10 @@ public class ExpressionChecker extends LeafAdapter implements ResultAware {
 		} else if (defn instanceof UnitDataDeclaration) {
 			announce(pos, ((UnitDataDeclaration)defn).ofType.defn());
 		} else if (defn instanceof IntroduceVar) {
-			announce(pos, ((IntroduceVar)defn).introducedAs());
+			Type ia = ((IntroduceVar)defn).introducedAs();
+			if (ia == null)
+				ia = new ErrorType();
+			announce(pos, ia);
 		} else
 			throw new RuntimeException("Cannot handle " + defn + " of type " + defn.getClass());
 	}

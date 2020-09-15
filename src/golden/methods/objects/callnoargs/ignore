@@ -1,3 +1,0 @@
-This needs to be moved to somewhere south of services being built so that we can depend on the Repeater stuff
-
-Or we need to decide that this is not actually about repeater and we can define our own contracts or something
