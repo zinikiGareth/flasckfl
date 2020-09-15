@@ -239,7 +239,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			push = resolveOpName(fn.baseName());
 			if (push == null) {
 				if (fn instanceof FunctionName)
-					push = J.FLEVAL+"$"+fn.baseName();
+					push = J.BUILTINPKGFNS+"."+fn.baseName();
 				else
 					push = J.BUILTINPKG+"."+fn.baseName();
 			}
@@ -360,6 +360,6 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		default:
 			return null;
 		}
-		return J.FLEVAL + "$" + inner;
+		return J.BUILTINPKGFNS + "." + inner;
 	}
 }

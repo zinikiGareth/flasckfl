@@ -312,7 +312,7 @@ public class ExprGeneratorJS extends LeafAdapter implements ResultAware {
 		}
 		case ":":
 		{
-			return "HashPair";
+			return "FLBuiltin.hashPair";
 		}
 		default:
 			throw new RuntimeException("There is no operator " + op);

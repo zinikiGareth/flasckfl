@@ -27,7 +27,7 @@ public class NameTests {
 	@Test
 	public void aBuiltinFunctionName() {
 		FunctionName strlen = FunctionName.function(pos, null, "strlen");
-		assertEquals(J.FLEVAL + ".strlen", strlen.javaName());
+		assertEquals(J.BUILTINPKGFNS + ".strlen", strlen.javaName());
 		assertEquals("strlen", strlen.jsName());
 	}
 

@@ -46,6 +46,7 @@ import org.flasck.flas.compiler.jsgen.form.JSLocal;
 import org.flasck.flas.compiler.jsgen.form.JSMakeAcor;
 import org.flasck.flas.compiler.jsgen.form.JSMakeArray;
 import org.flasck.flas.compiler.jsgen.form.JSMakeEventZone;
+import org.flasck.flas.compiler.jsgen.form.JSMakeHash;
 import org.flasck.flas.compiler.jsgen.form.JSMakeSend;
 import org.flasck.flas.compiler.jsgen.form.JSMakeTuple;
 import org.flasck.flas.compiler.jsgen.form.JSMember;
@@ -270,6 +271,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr makeArray(List<JSExpr> args) {
 		JSLocal ma = new JSLocal(creating, new JSMakeArray(args));
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
+	public JSExpr makeHash(List<JSExpr> args) {
+		JSLocal ma = new JSLocal(creating, new JSMakeHash(args));
 		stmts.add(ma);
 		return ma;
 	}

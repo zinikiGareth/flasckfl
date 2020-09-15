@@ -325,6 +325,18 @@ FLContext.prototype.makeTuple = function(...args) {
 	return Tuple.eval(this, args);
 }
 
+FLContext.prototype.hash = function(...args) {
+	var ret = {};
+	for (var i=0;i<args.length;i++) {
+		var hp = this.head(args[i]);
+		if (!(hp instanceof HashPair))
+			return new FLError("member was not a hashpair");
+		var m = this.full(hp.m);
+		ret[m] = hp.o;
+	}
+	return ret;
+}
+
 FLContext.prototype.tupleMember = function(tuple, which) {
 	tuple = this.head(tuple);
 	if (!tuple instanceof Tuple)
@@ -376,10 +388,13 @@ FLContext.prototype.head = function(obj) {
 
 FLContext.prototype.spine = function(obj) {
 	obj = this.head(obj);
-	if (Array.isArray(obj))
-		return obj;
 	if (obj instanceof FLError)
 		return obj;
+	if (Array.isArray(obj))
+		return obj;
+	if (obj.constructor === Object) {
+		return obj;
+	}
 	throw Error("spine should only be called on lists");
 }
 
@@ -1381,6 +1396,36 @@ FLBuiltin.expr = function(_cxt, val) {
 	return _cxt.show(val);
 }
 FLBuiltin.expr.nfargs = function() { return 1; }
+
+const MakeHash = function() {
+}
+MakeHash.eval = function(_cxt, args) {
+	throw Error("should not be called - optimize away");
+}
+
+const HashPair = function() {
+}
+HashPair.eval = function(_cxt, args) {
+	var ret = new HashPair();
+	ret.m = args[0];
+	ret.o = args[1];
+	return ret;
+}
+
+FLBuiltin.hashPair = function(_cxt, key, value) {
+	return HashPair.eval(_cxt, [key, value]);
+}
+FLBuiltin.hashPair.nfargs = function() { return 2; }
+
+FLBuiltin.assoc = function(_cxt, hash, member) {
+	hash = _cxt.spine(hash);
+	member = _cxt.full(member);
+	if (hash[member])
+		return hash[member];
+	else
+		return new FLError("no member " + member);
+}
+FLBuiltin.assoc.nfargs = function() { return 2; }
 
 
 

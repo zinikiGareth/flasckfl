@@ -113,7 +113,10 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 			sv.result(block.makeTuple(stack.toArray(new JSExpr[stack.size()])));
 		} else if (defn instanceof StructDefn && defn.name().uniqueName().equals("Nil")) {
 			stack.remove(0);
-			sv.result(block.makeArray(stack.toArray(new JSExpr[stack.size()])));
+			sv.result(block.makeArray(stack));
+		} else if (defn instanceof StructDefn && defn.name().uniqueName().equals("Hash")) {
+			stack.remove(0);
+			sv.result(block.makeHash(stack));
 		} else if (defn instanceof StructDefn && stack.size() > 1) {
 			// do the creation immediately
 			NameOfThing fn = defn.name();
