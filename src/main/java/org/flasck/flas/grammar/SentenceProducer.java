@@ -58,6 +58,8 @@ public class SentenceProducer {
 			ext = ".fl";
 		else if (top.equals("unit-test-file"))
 			ext = ".ut";
+		else if (top.equals("system-test-file"))
+			ext = ".st";
 		else
 			throw new RuntimeException("Cannot generate " + top);
 		final File tmp = new File(root, "r"+ Long.toString(var) + ext);
@@ -487,9 +489,13 @@ public class SentenceProducer {
 
 			case "ACOR":
 			case "AGENT":
+			case "AJAX":
 			case "ASSERT":
 			case "CARD":
+			case "CLEANUP":
+			case "CONFIGURE":
 			case "CONTRACT":
+			case "CREATE":
 			case "CTOR":
 			case "DATA":
 			case "DEAL":
@@ -498,6 +504,7 @@ public class SentenceProducer {
 			case "EVENT":
 			case "EXPECT":
 			case "HANDLER":
+			case "HEADER":
 			case "IMPLEMENTS":
 			case "INVOKE":
 			case "MATCH":
@@ -506,12 +513,16 @@ public class SentenceProducer {
 			case "OFFER":
 			case "OPTIONAL":
 			case "PROVIDES":
+			case "PUMP":
+			case "QUERY":
 			case "REQUIRES":
+			case "RESPONSES":
 			case "SERVICE":
 			case "SHOVE":
 			case "STATE":
 			case "STRUCT":
 			case "STYLE":
+			case "SUBSCRIBE":
 			case "TEMPLATE":
 			case "TEST":
 			case "TEXT":
@@ -543,6 +554,8 @@ public class SentenceProducer {
 			case "template-name":
 			case "var-name":
 				return unique(() -> randomChars(1, 8, 'a', 26));
+			case "introduce-var":
+				return unique(() -> "_" + randomChars(1, 8, 'a', 26));
 
 			default:
 				throw new RuntimeException("Cannot generate a token for " + token);

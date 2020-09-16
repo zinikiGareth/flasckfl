@@ -249,7 +249,6 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 				for (File z : FileUtils.findFilesMatching(g, "*")) {
 					FileUtils.copy(z, flimstoreTo);
 				}
-				// TODO: I think we also want to copy the jsout & jvmout bits ... 
 			}
 		}
 	}

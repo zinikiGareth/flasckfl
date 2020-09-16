@@ -156,3 +156,4 @@ src/golden/packaging/flim/usetransitive
 src/golden/hashes/simple
 src/golden/structs/constructors/fromHash/simple
 src/golden/agents/handlerWithArgs
+src/golden/systemtests/trivial

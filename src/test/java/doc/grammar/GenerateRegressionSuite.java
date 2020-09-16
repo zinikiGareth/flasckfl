@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -43,8 +44,10 @@ public class GenerateRegressionSuite {
 		for (long i=21000;i<29000;i+=7) {
 			final long j = i;
 			SentenceProducer p = new SentenceProducer(top, grammar);
-			p.sentence(i, "source-file", used -> store(allUsed, jo, "test.r" + Long.toString(j), used));
-			p.sentence(i, "unit-test-file", used -> store(allUsed, jo, "test.r" + Long.toString(j), used));
+			Consumer<SentenceData> store = used -> store(allUsed, jo, "test.r" + Long.toString(j), used);
+			p.sentence(i, "source-file", store);
+			p.sentence(i, "unit-test-file", store);
+			p.sentence(i, "system-test-file", store);
 		}
 
 		// Assert that all the productions in the grammar are used at least once in the regression suite
@@ -63,9 +66,7 @@ public class GenerateRegressionSuite {
 		allProds.remove("1.3 file");
 		allProds.remove("1.4 file");
 		allProds.remove("4 protocol-test-file");
-		allProds.remove("5 system-test-file");
-		allProds.remove("116 protocol-test-unit");
-		allProds.remove("117 system-test-unit");
+		allProds.remove("117 protocol-test-unit");
 	}
 
 	private static void store(Set<String> allUsed, JSONObject jo, String key, SentenceData used) {

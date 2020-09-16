@@ -57,7 +57,10 @@ public class TestEnvironment {
 	}
 
 	public boolean haveTests() {
-		return rootdir.isDirectory() && !FileUtils.findFilesMatching(rootdir, "*.ut").isEmpty();
+		return rootdir.isDirectory() && 
+			(!FileUtils.findFilesMatching(rootdir, "*.ut").isEmpty() ||
+			 !FileUtils.findFilesMatching(rootdir, "*.st").isEmpty() ||
+			 !FileUtils.findFilesMatching(rootdir, "*.pt").isEmpty());
 	}
 
 	public void cleanUp() {
