@@ -1,4 +1,4 @@
-package org.flasck.flas.golden;
+package org.flasck.flas.testing.golden;
 
 import static org.junit.Assert.fail;
 
@@ -41,13 +41,13 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	static boolean checkNothing = checkOption != null && checkOption.equalsIgnoreCase("nothing");
 	static String tdaOption = System.getProperty("org.flasck.golden.tda");
 	static String useRunner = System.getProperty("org.flasck.golden.runner");
-	// Note that not specifying defaults to "JS"; but "neither" or "none" (or almost anything else, in fact) does not run either
+	// Note that not specifying defaults to "both"; but "neither" or "none" (or anything but 'js', 'jvm' or 'both', in fact) does not run either
 	static boolean useJSRunner = useRunner == null || useRunner.equals("js") || useRunner.equals("both");
 	static boolean useJVMRunner = useRunner == null || useRunner.equals("jvm") || useRunner.equals("both");
 	static String buildDroidOpt = System.getProperty("org.flasck.golden.buildDroid");
 	static String maxcnt = System.getProperty("org.flasck.golden.cnt");
 	private static int MAXCNT = maxcnt == null ? Integer.MAX_VALUE : Integer.parseInt(maxcnt);
-//	private static boolean buildDroid = buildDroidOpt != null && buildDroidOpt.equals("true");
+	protected static Interceptor interceptor = null;
 	
 	public static final File jvmdir;
 	static {
@@ -159,6 +159,9 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 		System.out.println("GoldenTest[" + s + "]:");
 		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, s, useJSRunner && runJs, useJVMRunner && runJvm, checkNothing, checkEverything);
 		te.cleanUp();
+		
+		if (interceptor != null)
+			interceptor.before(s);
 		
 		final File actualErrors = new File(s, "errors-tmp");
 		final File expectedErrors = new File(s, "errors");

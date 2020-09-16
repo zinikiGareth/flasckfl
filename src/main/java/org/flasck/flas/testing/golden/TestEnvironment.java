@@ -1,4 +1,4 @@
-package org.flasck.flas.golden;
+package org.flasck.flas.testing.golden;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
