@@ -878,9 +878,7 @@
       </seq>
       <seq>
         <token type='OCB' />
-        <token type='var-name' />
-        <token type='COLON' />
-        <ref production='expression' />
+        <ref production='object-member' />
         <many>
           <ref production='comma-object-member' />
         </many>
@@ -892,7 +890,6 @@
     <section title='Expressions' />
     <tested by='test.parsing.ExprReductionTests' />
     <seq>
-      <token type='COMMA' />
       <ref production='object-key' />
       <token type='COLON' />
       <ref production='expression' />
@@ -910,8 +907,8 @@
     <section title='Expressions' />
     <tested by='test.parsing.ExprReductionTests' />
     <seq>
+      <token type='COMMA' />
       <ref production='object-member' />
-      <ref production='expression' />
     </seq>
   </production>
   <production name='handler-definition'>
