@@ -128,9 +128,9 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 			ContractMethodDecl cm = cd.getMethod(meth.name().name);
 			if (cm != null) {
 				if (meth.argCount() < cm.args.size()) {
-					InputPosition loc = meth.location();
+					InputPosition loc = meth.location().locAtEnd();
 					if (!meth.args().isEmpty())
-						loc = meth.args().get(meth.args().size()-1).location();
+						loc = meth.args().get(meth.args().size()-1).location().locAtEnd();
 					errors.message(loc, "insufficient arguments provided to contract method '" + meth.name().name + "'");
 				} else if (meth.argCount() > cm.args.size()) {
 					InputPosition loc = meth.args().get(cm.args.size()).location();

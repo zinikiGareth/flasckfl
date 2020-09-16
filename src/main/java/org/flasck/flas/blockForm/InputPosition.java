@@ -90,4 +90,8 @@ public class InputPosition implements Comparable<InputPosition> {
 	public String inFile() {
 		return Integer.toString(lineNo) + ":" + Integer.toString(off);
 	}
+
+	public InputPosition locAtEnd() {
+		return new InputPosition(file, lineNo, endPos, text);
+	}
 }

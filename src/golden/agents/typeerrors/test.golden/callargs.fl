@@ -1,0 +1,19 @@
+	contract Init
+		go
+
+	contract handler Callback
+		
+	contract service ToProvide
+		handle (String s) -> (Callback c)
+		optional need2 (String s) (Number n) -> (Callback c)
+
+	agent UseArgsIncorrectly
+		requires ToProvide svc
+		
+		implements Init
+			go
+				<- svc.handle -> Handler
+				<- svc.need2 "s" -> Handler
+				
+				
+	handler Callback Handler

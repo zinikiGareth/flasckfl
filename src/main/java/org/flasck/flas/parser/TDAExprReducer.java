@@ -150,7 +150,7 @@ public class TDAExprReducer implements ExprTermConsumer {
 		if (from+1 == to && !isConstructor(t0))
 			return t0;
 		else 
-			return new ApplyExpr(t0.location().copySetEnd(terms.get(terms.size()-1).location().pastEnd()), t0, args(from+1, to).toArray());
+			return new ApplyExpr(t0.location().copySetEnd(terms.get(to-1).location().pastEnd()), t0, args(from+1, to).toArray());
 	}
 
 	private boolean isConstructor(Expr t0) {

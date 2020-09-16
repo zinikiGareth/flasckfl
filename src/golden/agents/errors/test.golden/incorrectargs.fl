@@ -2,6 +2,7 @@
 		
 	contract service ToProvide
 		handle (String s) -> (Callback c)
+		optional need2 (String s) (Number n) -> (Callback c)
 
 	agent TheMethodMustExist
 		provides ToProvide
@@ -10,6 +11,10 @@
 	agent MustSpecifyTheFormalArgs
 		provides ToProvide
 			handle
+
+	agent MustSpecifyTheFormalArgsEvenWithHandler
+		provides ToProvide
+			handle -> c
 
 	agent MustHaveArrowBeforeHandler
 		provides ToProvide

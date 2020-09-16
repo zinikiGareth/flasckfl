@@ -71,8 +71,8 @@ public class MessageHandlerExpressionChecker extends LeafAdapter implements Resu
 			nv.result(pai);
 			return;
 		}
-		if (fn.argCount() != 1) {
-			errors.message(pfn.pos, "-> requires exactly one handler");
+		if (fn.argCount() > 1) {
+			errors.message(pfn.location().locAtEnd(), "insufficient arguments");
 			nv.result(new ErrorType());
 			return;
 		}

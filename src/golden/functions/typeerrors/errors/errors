@@ -35,10 +35,12 @@ nocol.fl:    10.13:   myrun = item  _ hc.col ["hello", "world"]
                           there is no field col in test.golden.Thing
 recursionerr  2.0:     _ r1 x = r1 42 + r2 x
 recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
+recursionerr  2.7:    r1 x =  _ r1 42 + r2 x
 recursionerr  4.15:   r2 x = r2 x ++  _ r1 x
                           cannot unify [Number, String]
 recursionerr  4.0:     _ r2 x = r2 x ++ r1 x
 recursionerr  2.15:   r1 x = r1 42 +  _ r2 x
+recursionerr  4.7:    r2 x =  _ r2 x ++ r1 x
 recursionerr  4.7:    r2 x =  _ r2 x ++ r1 x
                           cannot unify [Number, String]
 testerrors.u  6.11:   assert (ok  _ "hello")
