@@ -337,6 +337,24 @@ FLContext.prototype.hash = function(...args) {
 	return ret;
 }
 
+FLContext.prototype.applyhash = function(basic, hash) {
+	basic = this.head(basic);
+	if (basic instanceof FLError)
+		return basic;
+	hash = this.spine(hash);
+	if (hash instanceof FLError)
+		return hash;
+	// TODO: we might need to clone basic before updating it, if it can be shared ...
+	var okh = Object.keys(hash);
+	for (var i=0;i<okh.length;i++) {
+		var p = okh[i];
+		if (!basic.state.has(p))
+			return new FLError('cannot override member: ' + p);
+		basic.state.set(p, hash[p]);
+	}
+	return basic;
+}
+
 FLContext.prototype.tupleMember = function(tuple, which) {
 	tuple = this.head(tuple);
 	if (!tuple instanceof Tuple)

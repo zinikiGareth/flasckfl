@@ -28,6 +28,7 @@ import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 import org.flasck.flas.repository.ResultAware;
 import org.flasck.flas.tc3.ExpressionChecker.IgnoreMe;
+import org.zinutils.exceptions.CantHappenException;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
@@ -122,9 +123,16 @@ public class ApplyExprGeneratorJS extends LeafAdapter implements ResultAware {
 			NameOfThing fn = defn.name();
 			if (fn.uniqueName().equals("Error"))
 				fn = new SolidName(null, "FLError");
-			if (stack.size() == expArgs + 1) {
+			if (stack.size() == expArgs + 2) { // it has a hash on the end
+				stack.remove(0);
+				JSExpr hash = stack.remove(stack.size()-1);
+				JSExpr basic = block.structArgs(fn, stack.toArray(new JSExpr[stack.size()]));
+				sv.result(block.applyHash(basic, hash));
+			} else if (stack.size() == expArgs + 1) {
 				stack.remove(0); // we are supplying the op directly here ...
 				sv.result(block.structArgs(fn, stack.toArray(new JSExpr[stack.size()])));
+			} else if (stack.size() > expArgs + 2) {
+				throw new CantHappenException("this should have been caught by the typechecker");
 			} else
 				sv.result(block.curry(false, expArgs, stack.toArray(new JSExpr[stack.size()])));
 		} else {

@@ -1,0 +1,4 @@
+JVM PASS that the default initializers work
+JVM PASS that the hash overrides the defaults
+JS PASS that the default initializers work
+JS PASS that the hash overrides the defaults

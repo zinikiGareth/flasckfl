@@ -1,0 +1,7 @@
+	struct NoneNeeded
+		Number x <- 42
+		String h <- "hello"
+	
+	n1 = NoneNeeded
+	
+	n2 = NoneNeeded { x: 50, h: "goodbye" }

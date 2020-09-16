@@ -30,6 +30,7 @@ public interface JSBlockCreator {
 	JSExpr makeArray(JSExpr... args);
 	JSExpr makeArray(List<JSExpr> args);
 	JSExpr makeHash(List<JSExpr> stack);
+	JSExpr applyHash(JSExpr basic, JSExpr hash);
 	JSExpr makeEventZone(JSExpr string, JSExpr je);
 	JSExpr jsArray(List<JSExpr> arr);
 	JSExpr arrayElt(JSExpr tc, int i);

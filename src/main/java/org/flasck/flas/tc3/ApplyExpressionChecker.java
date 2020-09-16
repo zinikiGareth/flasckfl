@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.MemberExpr;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.LoadBuiltins;
@@ -92,9 +93,17 @@ public class ApplyExpressionChecker extends LeafAdapter implements ResultAware {
 			nv.result(ut.canBeAppliedTo(expr.location(), results));
 			return;
 		} else if (fn.argCount() < results.size()) {
-			errors.message(pfn.pos, expr.fn + " expects: " + fn.argCount() + " has: " + results.size());
-			nv.result(new ErrorType());
-			return;
+			if (fn instanceof StructDefn && fn.argCount() == results.size()-1 && results.get(results.size()-1).type == LoadBuiltins.hash) {
+				// this is the case where we try and override values in the struct with values in the hash
+				// in the simplest case, this is obviously "just fine": you can do this and the check to get here *is* the typecheck
+				// we just need to remove it so that we can test the rest.
+				results.remove(results.size()-1);
+				// TODO: we should look into the hash itself if possible and determine what keys it has ... 
+			} else {
+				errors.message(pfn.pos, expr.fn + " expects: " + fn.argCount() + " has: " + results.size());
+				nv.result(new ErrorType());
+				return;
+			}
 		}
 		List<Type> tocurry = new ArrayList<>();
 		int pos = 0;

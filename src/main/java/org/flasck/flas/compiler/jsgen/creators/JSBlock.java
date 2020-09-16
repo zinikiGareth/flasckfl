@@ -20,6 +20,7 @@ import org.flasck.flas.compiler.jsgen.form.IVForm;
 import org.flasck.flas.compiler.jsgen.form.IsAExpr;
 import org.flasck.flas.compiler.jsgen.form.IsConstExpr;
 import org.flasck.flas.compiler.jsgen.form.IsTrueExpr;
+import org.flasck.flas.compiler.jsgen.form.JSApplyHash;
 import org.flasck.flas.compiler.jsgen.form.JSArray;
 import org.flasck.flas.compiler.jsgen.form.JSArrayElt;
 import org.flasck.flas.compiler.jsgen.form.JSAssertion;
@@ -278,6 +279,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public JSExpr makeHash(List<JSExpr> args) {
 		JSLocal ma = new JSLocal(creating, new JSMakeHash(args));
+		stmts.add(ma);
+		return ma;
+	}
+
+	@Override
+	public JSExpr applyHash(JSExpr basic, JSExpr hash) {
+		JSLocal ma = new JSLocal(creating, new JSApplyHash(basic, hash));
 		stmts.add(ma);
 		return ma;
 	}

@@ -1,0 +1,14 @@
+We want to test that we can override the default initializers of a struct which expects
+no arguments to begin with because it has default initializers for all of its fields
+
+	test that the default initializers work
+		assert (n1.x)
+			42
+		assert (n1.h)
+			"hello"
+
+	test that the hash overrides the defaults
+		assert (n2.x)
+			50
+		assert (n2.h)
+			"goodbye"
