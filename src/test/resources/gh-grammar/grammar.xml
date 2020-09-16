@@ -888,13 +888,29 @@
       </seq>
     </or>
   </production>
-  <production name='comma-object-member'>
+  <production name='object-member'>
     <section title='Expressions' />
     <tested by='test.parsing.ExprReductionTests' />
     <seq>
       <token type='COMMA' />
-      <token type='var-name' />
+      <ref production='object-key' />
       <token type='COLON' />
+      <ref production='expression' />
+    </seq>
+  </production>
+  <production name='object-key'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprReductionTests' />
+    <or>
+      <token type='var-name' />
+      <token type='STRING' />
+    </or>
+  </production>
+  <production name='comma-object-member'>
+    <section title='Expressions' />
+    <tested by='test.parsing.ExprReductionTests' />
+    <seq>
+      <ref production='object-member' />
       <ref production='expression' />
     </seq>
   </production>
