@@ -667,7 +667,7 @@ public class Traverser implements RepositoryVisitor {
 
 	@Override
 	public void visitObjectCtor(ObjectCtor oc) {
-		if (wantHSI && !oc.generate)
+		if (!oc.generate)
 			return;
 		currFnHasState = true;
 		visitor.visitObjectCtor(oc);
@@ -763,7 +763,7 @@ public class Traverser implements RepositoryVisitor {
 	
 	@Override
 	public void visitObjectMethod(ObjectMethod meth) {
-		if (wantHSI && !meth.generate)
+		if (!meth.generate)
 			return;
 		currFnHasState = meth.hasState();
 		visitor.visitObjectMethod(meth);

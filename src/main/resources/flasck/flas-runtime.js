@@ -256,9 +256,11 @@ FLMakeSend.prototype.apply = function(cx, args) {
 	for (var i=1;i<args.length;i++)
 		all.push(args[i]);
 	if (all.length == this.nargs) {
-		return Send.eval(cx, this.obj, this.meth, all);
+		return Send.eval(cx, this.obj, this.meth, all, this.handler);
 	} else {
-		return new FLMakeSend(this.meth, this.obj, this.nargs, all);
+		var ret = new FLMakeSend(this.meth, this.obj, this.nargs, this.handler);
+		ret.current = all;
+		return ret;
 	}
 }
 

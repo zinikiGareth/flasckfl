@@ -1,0 +1,10 @@
+Test that a service method can have an argument and a handler
+
+	test we can invoke a method with an argument and a handler
+		data Something svc
+		data Silver s
+		expect svc methodWithArg "hello" -> _h
+		contract s Doit go
+		invoke h.meth (Thing "fred")
+		assert (s.value)
+			"fred"

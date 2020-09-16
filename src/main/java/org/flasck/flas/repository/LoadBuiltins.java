@@ -158,6 +158,7 @@ public class LoadBuiltins {
 	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, null, "expr"), 1, null).dontGenerate();
 	public static final FunctionDefinition seconds = new FunctionDefinition(FunctionName.function(pos, null, "seconds"), 1, null).dontGenerate();
 	public static final FunctionDefinition parseUri = new FunctionDefinition(FunctionName.function(pos, null, "parseUri"), 1, null).dontGenerate();
+	public static final FunctionDefinition parseJson = new FunctionDefinition(FunctionName.function(pos, null, "parseJson"), 1, null).dontGenerate();
 
 	static {
 		// bind TRs
@@ -294,6 +295,7 @@ public class LoadBuiltins {
 		expr.bindType(new Apply(any, string));
 		seconds.bindType(new Apply(number, interval));
 		parseUri.bindType(new Apply(string, uri));
+		parseJson.bindType(new Apply(string, hash));
 	}
 	
 	public static void applyTo(ErrorReporter errors, Repository repository) {
@@ -368,5 +370,6 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, expr);
 		repository.functionDefn(errors, seconds);
 		repository.functionDefn(errors, parseUri);
+		repository.functionDefn(errors, parseJson);
 	}
 }

@@ -1,0 +1,27 @@
+	struct Thing
+		String s
+		
+	contract handler Responder
+		meth (Thing t)
+	
+	contract service Something
+		methodWithArg (String s) -> (Responder r)
+		
+	contract Doit
+		go
+		
+	agent Silver
+		state
+			String value <- ""
+
+		requires Something s
+		
+		implements Doit
+			go
+				<- s.methodWithArg "hello" -> Handler
+				
+		handler Responder Handler
+			meth t
+				value <- f
+					f = t.s
+		

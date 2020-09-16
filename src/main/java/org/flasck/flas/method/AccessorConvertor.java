@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.TemplateNestedField;
 import org.flasck.flas.parsedForm.TemplateStylingOption;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
 import org.flasck.flas.repository.LeafAdapter;
@@ -152,6 +153,14 @@ public class AccessorConvertor extends LeafAdapter {
 		} else if (defn instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern)defn;
 			Type ty = tp.type();
+			if (ty instanceof PolyInstance)
+				ty = ((PolyInstance)ty).struct(); 
+			ah = (AccessorHolder) ty;
+		} else if (defn instanceof VarPattern) {
+			Type ty = ((VarPattern)defn).type();
+			if (ty == null) {
+				throw new CantHappenException("type of " + defn + " has not been bound");
+			}
 			if (ty instanceof PolyInstance)
 				ty = ((PolyInstance)ty).struct(); 
 			ah = (AccessorHolder) ty;

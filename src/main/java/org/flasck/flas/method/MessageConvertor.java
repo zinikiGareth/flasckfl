@@ -162,7 +162,7 @@ public class MessageConvertor extends LeafAdapter implements ResultAware {
 			throw new NotImplementedException();
 		Expr h = (Expr) stack.remove(0);
 		ms.handler = h;
-		nv.result(ms);
+		nv.result(sr);
 	}
 	
 	@Override

@@ -1,0 +1,3 @@
+test.golden.Silver.Handler.meth :: test.golden.Thing->List[Message]
+test.golden.Silver.Handler.meth.f :: test.golden.Silver.Handler->test.golden.Thing->String
+test.golden.Silver._C1.go :: List[Message]
