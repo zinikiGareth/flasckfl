@@ -626,17 +626,24 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	
 	@Override
 	public void leaveContractMethod(ContractMethodDecl cmd) {
+		boolean dobind = true;
 		for (TypedPattern tp : cmd.args) {
-			if (tp.type.defn() instanceof ContractDecl)
+			if (tp.type.defn() instanceof ContractDecl) {
 				errors.message(tp.typeLocation, "method arguments may not be contracts");
+				dobind = false;
+			}
 		}
 		if (cmd.handler != null) {
-			if (!(cmd.handler.type.defn() instanceof ContractDecl))
+			if (!(cmd.handler.type.defn() instanceof ContractDecl)) {
 				errors.message(cmd.handler.typeLocation, "method handler must be a handler contract");
-			else if (((ContractDecl)cmd.handler.type.defn()).type != ContractType.HANDLER)
+				dobind = false;
+			} else if (((ContractDecl)cmd.handler.type.defn()).type != ContractType.HANDLER) {
 				errors.message(cmd.handler.typeLocation, "method handler must be a handler contract");
+				dobind = false;
+			}
 		}
-		cmd.bindType();
+		if (dobind)
+			cmd.bindType();
 	}
 	
 	@Override

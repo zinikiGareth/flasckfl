@@ -13,7 +13,6 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.RepositoryEntry;
 import org.flasck.flas.tc3.Apply;
 import org.flasck.flas.tc3.Type;
-import org.zinutils.exceptions.CantHappenException;
 
 public class ContractMethodDecl implements Locatable, RepositoryEntry, Comparable<ContractMethodDecl> {
 	public final InputPosition rkw;
@@ -47,12 +46,14 @@ public class ContractMethodDecl implements Locatable, RepositoryEntry, Comparabl
 		for (Pattern p : this.args) {
 			Type ty = ((TypedPattern)p).type();
 			if (ty == null)
-				throw new CantHappenException("there is no type for " + name.uniqueName() + " argument " + p);
+				return;
 			types.add(ty);
 		}
-		if (handler != null)
+		if (handler != null) {
+			if (handler.type() == null)
+				return;
 			types.add(handler.type());
-		else
+		} else
 			types.add(LoadBuiltins.idempotentHandler);
 		this.type = new Apply(types, LoadBuiltins.send);
 	}

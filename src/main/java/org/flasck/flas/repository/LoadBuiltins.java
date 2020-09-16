@@ -37,7 +37,10 @@ public class LoadBuiltins {
 	public static final TypeReference anyTR = new TypeReference(pos, "Any");
 	public static final TypeReference contractTR = new TypeReference(pos, "Contract");
 	public static final TypeReference stringTR = new TypeReference(pos, "String");
+	public static final TypeReference uriTR = new TypeReference(pos, "Uri");
 	public static final TypeReference numberTR = new TypeReference(pos, "Number");
+	public static final TypeReference intervalTR = new TypeReference(pos, "Interval");
+	public static final TypeReference instantTR = new TypeReference(pos, "Instant");
 	public static final TypeReference typeTR = new TypeReference(pos, "Type");
 	public static final TypeReference falseTR = new TypeReference(pos, "False");
 	public static final TypeReference trueTR = new TypeReference(pos, "True"); 
@@ -64,6 +67,9 @@ public class LoadBuiltins {
 	public static final StructDefn error = new StructDefn(pos, FieldsType.STRUCT, null, "Error", false);
 	public static final Primitive number = new Primitive(pos, "Number");
 	public static final Primitive string = new Primitive(pos, "String");
+	public static final Primitive uri = new Primitive(pos, "Uri");
+	public static final Primitive interval = new Primitive(pos, "Interval");
+	public static final Primitive instant = new Primitive(pos, "Instant");
 	public static final Type idempotentHandler = contract; // This may or may not be correct ...
 	public static final StructDefn id = new StructDefn(pos, FieldsType.STRUCT, null, "Id", false);
 
@@ -150,6 +156,8 @@ public class LoadBuiltins {
 	public static final FunctionDefinition dispatch = new FunctionDefinition(FunctionName.function(pos, null, "dispatch"), 1, null).dontGenerate();
 	public static final FunctionDefinition show = new FunctionDefinition(FunctionName.function(pos, null, "show"), 1, null).dontGenerate();
 	public static final FunctionDefinition expr = new FunctionDefinition(FunctionName.function(pos, null, "expr"), 1, null).dontGenerate();
+	public static final FunctionDefinition seconds = new FunctionDefinition(FunctionName.function(pos, null, "seconds"), 1, null).dontGenerate();
+	public static final FunctionDefinition parseUri = new FunctionDefinition(FunctionName.function(pos, null, "parseUri"), 1, null).dontGenerate();
 
 	static {
 		// bind TRs
@@ -157,7 +165,10 @@ public class LoadBuiltins {
 		anyTR.bind(any);
 		contractTR.bind(contract);
 		stringTR.bind(string);
+		uriTR.bind(uri);
 		numberTR.bind(number);
+		intervalTR.bind(interval);
+		instantTR.bind(instant);
 		typeTR.bind(type);
 		consATR.bind(cons);
 		listATR.bind(list);
@@ -281,6 +292,8 @@ public class LoadBuiltins {
 		dispatch.restrict(new UTOnlyRestriction("dispatch"));
 		show.bindType(new Apply(any, string));
 		expr.bindType(new Apply(any, string));
+		seconds.bindType(new Apply(number, interval));
+		parseUri.bindType(new Apply(string, uri));
 	}
 	
 	public static void applyTo(ErrorReporter errors, Repository repository) {
@@ -289,6 +302,9 @@ public class LoadBuiltins {
 		repository.newStruct(errors, error);
 		repository.addEntry(errors, number.name(), number);
 		repository.addEntry(errors, string.name(), string);
+		repository.addEntry(errors, uri.name(), uri);
+		repository.addEntry(errors, interval.name(), interval);
+		repository.addEntry(errors, instant.name(), instant);
 		repository.newStruct(errors, type);
 
 		repository.addEntry(errors, falseT.name(), falseT);
@@ -350,5 +366,7 @@ public class LoadBuiltins {
 		repository.functionDefn(errors, dispatch);
 		repository.functionDefn(errors, show);
 		repository.functionDefn(errors, expr);
+		repository.functionDefn(errors, seconds);
+		repository.functionDefn(errors, parseUri);
 	}
 }
