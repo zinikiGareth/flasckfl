@@ -1,0 +1,8 @@
+	struct OneNeeded
+		Number x <- 42
+		String q
+		String h <- "hello"
+	
+	o1 = OneNeeded "no"
+	
+	o2 = OneNeeded "yes" { x: 50, h: "goodbye" }

@@ -1,0 +1,17 @@
+It should be possible to override the default arguments while still requiring argument(s).
+
+	test that the default initializers work
+		assert (o1.q)
+			"no"
+		assert (o1.x)
+			42
+		assert (o1.h)
+			"hello"
+
+	test that the hash overrides the defaults
+		assert (o2.q)
+			"yes"
+		assert (o2.x)
+			50
+		assert (o2.h)
+			"goodbye"
