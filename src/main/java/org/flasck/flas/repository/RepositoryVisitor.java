@@ -55,6 +55,8 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.st.SystemTest;
+import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -228,4 +230,8 @@ public interface RepositoryVisitor {
 	void visitConvertedExpr(MemberExpr expr, int nargs);
 	void leaveConvertedExpr(MemberExpr expr);
 	void leaveUnitTestRender(UnitTestRender e);
+	void visitSystemTest(SystemTest st);
+	void leaveSystemTest(SystemTest st);
+	void visitSystemTestStage(SystemTestStage s);
+	void leaveSystemTestStage(SystemTestStage s);
 }

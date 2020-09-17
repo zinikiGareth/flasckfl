@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.jvm.J;
 import org.zinutils.exceptions.HaventConsideredThisException;
 
-public class FunctionName implements NameOfThing, Comparable<NameOfThing> {
+public class FunctionName implements NameOfThing, Comparable<NameOfThing>, JavaMethodNameProvider {
 	public final InputPosition location;
 	public final String name;
 	public final NameOfThing inContext;

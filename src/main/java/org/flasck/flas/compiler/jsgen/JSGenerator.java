@@ -38,6 +38,7 @@ import org.flasck.flas.parsedForm.AgentDefinition;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
+import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -957,6 +958,11 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		state = null;
 	}
 
+	@Override
+	public void visitSystemTest(SystemTest st) {
+		new SystemTestGenerator(sv, jse, st);
+	}
+	
 	@Override
 	public void traversalDone() {
 		jse.complete();

@@ -28,10 +28,10 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.lifting.RepositoryLifter;
 import org.flasck.flas.method.ConvertRepositoryMethods;
 import org.flasck.flas.parsedForm.EventHolder;
+import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.assembly.BuildAssembly;
-import org.flasck.flas.parser.st.ConsumeSystemTestDefinitions;
 import org.flasck.flas.parser.ut.ConsumeDefinitions;
 import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.AssemblyVisitor;
@@ -140,10 +140,10 @@ public class FLASCompiler {
 		for (File f : stfiles) {
 			System.out.println("    " + f.getName());
 			String file = FileUtils.dropExtension(f.getName());
-			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
-			UnitTestPackage stp = new UnitTestPackage(new InputPosition(file, 1, 0, ""), stfn);
-			repository.unitTestPackage(errors, stp);
-			ParsingPhase parser = new ParsingPhase(errors, stfn, new ConsumeSystemTestDefinitions(errors, repository, stp));
+			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg + "._st_"), file);
+			SystemTest st = new SystemTest(stfn);
+			repository.systemTest(errors, st);
+			ParsingPhase parser = new ParsingPhase(errors, stfn, st);
 			parser.process(f);
 		}
 	}

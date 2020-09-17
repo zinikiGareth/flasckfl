@@ -88,6 +88,8 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.Assembly;
+import org.flasck.flas.parsedForm.st.SystemTest;
+import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -289,6 +291,8 @@ public class Traverser implements RepositoryVisitor {
 			visitUnionTypeDefn((UnionTypeDefn)e);
 		else if (e instanceof UnitTestPackage)
 			visitUnitTestPackage((UnitTestPackage)e);
+		else if (e instanceof SystemTest)
+			visitSystemTest((SystemTest)e);
 		else if (e instanceof UnitDataDeclaration) {
 			; // even top level ones are in a package ...
 //			UnitDataDeclaration udd = (UnitDataDeclaration) e;
@@ -1984,6 +1988,35 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void leaveUnitTestPackage(UnitTestPackage e) {
 		visitor.leaveUnitTestPackage(e);
+	}
+
+	@Override
+	public void visitSystemTest(SystemTest st) {
+		visitor.visitSystemTest(st);
+		// configure
+		for (SystemTestStage s : st.stages) {
+			visitSystemTestStage(s);
+		}
+		// cleanup
+		leaveSystemTest(st);
+	}
+	
+	public void visitSystemTestStage(SystemTestStage s) {
+		visitor.visitSystemTestStage(s);
+		for (UnitTestStep step : s.steps) {
+			visitUnitTestStep(step);
+		}
+		leaveSystemTestStage(s);
+	}
+
+	@Override
+	public void leaveSystemTestStage(SystemTestStage s) {
+		visitor.leaveSystemTestStage(s);
+	}
+
+	@Override
+	public void leaveSystemTest(SystemTest st) {
+		visitor.leaveSystemTest(st);
 	}
 
 	@Override

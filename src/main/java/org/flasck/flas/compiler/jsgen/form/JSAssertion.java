@@ -22,7 +22,7 @@ public class JSAssertion implements IVForm {
 	@Override
 	public void write(IndentWriter w) {
 		if (obj != null) {
-			obj.write(w);
+			w.print(obj.asVar());
 			w.print(".");
 		}
 		w.print(meth);

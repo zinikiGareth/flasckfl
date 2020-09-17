@@ -3,8 +3,8 @@ package org.flasck.flas.commonBase.names;
 import org.flasck.jvm.J;
 
 public class SolidName implements NameOfThing, Comparable<NameOfThing> {
-	private final NameOfThing container;
-	private final String name;
+	protected final NameOfThing container;
+	protected final String name;
 
 	public SolidName(NameOfThing container, String name) {
 		this.container = container;

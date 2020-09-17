@@ -53,6 +53,7 @@ import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitDataDeclaration;
@@ -189,6 +190,10 @@ public class Repository implements TopLevelDefinitionConsumer, RepositoryReader 
 
 	public void unitTestPackage(ErrorReporter errors, UnitTestPackage pkg) {
 		addEntry(errors, pkg.name(), pkg);
+	}
+
+	public void systemTest(ErrorReporter errors, SystemTest st) {
+		addEntry(errors, st.name(), st);
 	}
 
 	@Override

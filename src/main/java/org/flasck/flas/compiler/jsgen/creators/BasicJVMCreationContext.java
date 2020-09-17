@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.JavaMethodNameProvider;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
@@ -64,20 +65,29 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		bcc = bce.get(clzName.javaName());
 		GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
 		PendingVar c1 = null;
+		PendingVar r1 = null;
 		Map<JSVar, PendingVar> tmp = new HashMap<>();
 		for (JSVar v : as) {
 			PendingVar ai = ann.argument(v.type(), v.asVar());
 			tmp.put(v, ai);
 			if (v.asVar().equals("_cxt"))
 				c1 = ai; 
+			else if (v.asVar().equals("_runner"))
+				r1 = ai; 
 		}
 		md = ann.done();
-		cxt = c1.getVar();
+		if (c1 != null)
+			cxt = c1.getVar();
+		else
+			cxt = null;
 		for (Entry<JSVar, PendingVar> e : tmp.entrySet()) {
 			vars.put(e.getKey(), e.getValue().getVar());
 		}
 		args = null;
-		this.runner = null;
+		if (r1 != null)
+			this.runner = r1.getVar();
+		else
+			this.runner = null;
 		IExpr[] sas = new IExpr[superArgs.size()];
 		int i=0;
 		for (JSExpr jv : superArgs) {
@@ -104,7 +114,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			ret.ann = GenericAnnotator.newMethod(ret.bcc, false, name);
 		} else {
 			ret.bcc = bce.getOrCreate(fnName.javaClassName());
-			ret.ann = GenericAnnotator.newMethod(ret.bcc, false, ((FunctionName)fnName).javaMethodName());
+			ret.ann = GenericAnnotator.newMethod(ret.bcc, false, ((JavaMethodNameProvider)fnName).javaMethodName());
 		}
 		return ret;
 	}
@@ -161,7 +171,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			}
 		}
 		this.runner = null;
-//		md.lenientMode(true);
+		md.lenientMode(true);
 	}
 
 	// split for if true/false blocks

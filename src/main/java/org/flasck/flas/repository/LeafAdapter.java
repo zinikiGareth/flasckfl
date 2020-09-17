@@ -55,6 +55,8 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.st.SystemTest;
+import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
@@ -686,6 +688,26 @@ public class LeafAdapter implements RepositoryVisitor {
 
 	@Override
 	public void leaveUnitTestShove(UnitTestShove s) {
+	}
+
+	@Override
+	public void visitSystemTest(SystemTest st) {
+	}
+
+	@Override
+	public void leaveSystemTest(SystemTest st) {
+	}
+
+	@Override
+	public void visitSystemTestStage(SystemTestStage s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void leaveSystemTestStage(SystemTestStage s) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

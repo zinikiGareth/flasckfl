@@ -137,7 +137,7 @@ public class JSEnvironment implements JSStorage {
 	public void complete() {
 		for (Entry<String, JSFile> p : files.entrySet()) {
 			String pkg = p.getKey();
-			if (pkg.contains("._ut_"))
+			if (pkg.contains("._ut_") || pkg.contains("_st_"))
 				continue;
 			JSMethod ifn = new JSMethod(this, null, new PackageName(pkg), false, "_init");
 			ifn.noJVM();
