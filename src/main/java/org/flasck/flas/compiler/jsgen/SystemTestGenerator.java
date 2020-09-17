@@ -52,6 +52,7 @@ public class SystemTestGenerator extends LeafAdapter {
 		JSMethodCreator meth = ctr.createMethod(s.name.baseName(), true);
 		state = new JSFunctionStateStore(meth);
 		meth.argument(J.FLEVALCONTEXT, "_cxt");
+		meth.returnsType("void");
 		this.runner = meth.loadField(new JSThis(), "_runner");
 	}
 	

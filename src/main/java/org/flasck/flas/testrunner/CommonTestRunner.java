@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
 
-public abstract class CommonTestRunner {
+public abstract class CommonTestRunner<T> {
 	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected final Configuration config;
 	protected final String compiledPkg;
@@ -83,7 +83,6 @@ public abstract class CommonTestRunner {
 			public void visitSystemTest(SystemTest e) {
 				String nn = e.name().baseName();
 				File f = new File(nn);
-				System.out.println(CommonTestRunner.this.getClass().getName() + " " + e.name().uniqueName() + " " + nn + " " + f);
 				this.pw = writers.get(f);
 				if (pw == null) {
 					File trd = config.writeTestReportsTo();
@@ -116,18 +115,20 @@ public abstract class CommonTestRunner {
 	public abstract void runUnitTest(TestResultWriter pw, UnitTestCase utc);
 
 	public void runSystemTest(TestResultWriter pw, SystemTest st) {
-		createSystemTest(pw, st);
+		T state = createSystemTest(pw, st);
+		if (state == null)
+			return;
 		for (SystemTestStage e : st.stages) {
-			runSystemTestStage(pw, st, e);
+			runSystemTestStage(pw, state, st, e);
 		}
-		cleanupSystemTest(pw, st);
+		cleanupSystemTest(pw, state, st);
 	}
 
-	protected abstract void createSystemTest(TestResultWriter pw, SystemTest st);
+	protected abstract T createSystemTest(TestResultWriter pw, SystemTest st);
 
-	protected abstract void runSystemTestStage(TestResultWriter pw, SystemTest st, SystemTestStage e);
+	protected abstract void runSystemTestStage(TestResultWriter pw, T state, SystemTest st, SystemTestStage e);
 
-	protected abstract void cleanupSystemTest(TestResultWriter pw, SystemTest st);
+	protected abstract void cleanupSystemTest(TestResultWriter pw, T state, SystemTest st);
 
 	protected void assertAllInvocationsCalled() {
 		for (Invocation ii : invocations)

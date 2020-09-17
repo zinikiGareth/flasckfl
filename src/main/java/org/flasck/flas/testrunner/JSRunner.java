@@ -161,17 +161,18 @@ public class JSRunner extends CommonTestRunner {
 	}
 	
 	@Override
-	protected void createSystemTest(TestResultWriter pw, SystemTest st) {
+	protected Object createSystemTest(TestResultWriter pw, SystemTest st) {
 		pw.println("JS running system test " + st.name().uniqueName());
+		return this;
 	}
 	
 	@Override
-	protected void runSystemTestStage(TestResultWriter pw, SystemTest st, SystemTestStage e) {
+	protected void runSystemTestStage(TestResultWriter pw, Object state, SystemTest st, SystemTestStage e) {
 		pw.pass(" ", e.desc);
 	}
 	
 	@Override
-	protected void cleanupSystemTest(TestResultWriter pw, SystemTest st) {
+	protected void cleanupSystemTest(TestResultWriter pw, Object state, SystemTest st) {
 		pw.println("  " + st.name().uniqueName() + " all tests passed");
 	}
 

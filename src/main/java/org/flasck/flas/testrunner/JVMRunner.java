@@ -1,5 +1,6 @@
 package org.flasck.flas.testrunner;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,16 +11,28 @@ import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
+import org.flasck.flas.testrunner.JVMRunner.State;
 import org.flasck.jvm.FLEvalContext;
 import org.flasck.jvm.builtin.FLError;
 import org.flasck.jvm.fl.AssertFailed;
 import org.flasck.jvm.fl.JVMTestHelper;
 import org.flasck.jvm.fl.NewDivException;
 import org.flasck.jvm.fl.NotMatched;
+import org.flasck.jvm.fl.TestHelper;
 import org.zinutils.exceptions.WrappedException;
 import org.zinutils.reflection.Reflection;
 
-public class JVMRunner extends CommonTestRunner  {
+public class JVMRunner extends CommonTestRunner<State>  {
+	public class State {
+		private final JVMTestHelper helper;
+		private final Object inst;
+
+		public State(JVMTestHelper helper, Object inst) {
+			this.helper = helper;
+			this.inst = inst;
+		}
+	}
+
 	private final ClassLoader loader;
 	private List<Throwable> runtimeErrors = new ArrayList<Throwable>();
 	private final Map<String, String> templates;
@@ -71,17 +84,28 @@ public class JVMRunner extends CommonTestRunner  {
 	
 	
 	@Override
-	protected void createSystemTest(TestResultWriter pw, SystemTest st) {
+	protected State createSystemTest(TestResultWriter pw, SystemTest st) {
 		pw.println("JVM running system test " + st.name().uniqueName());
+		try {
+			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors);
+			FLEvalContext cxt = helper.create();
+			Class<?> clz = Class.forName(st.name().javaName(), false, loader);
+			Constructor<?> ctor = clz.getConstructor(TestHelper.class, FLEvalContext.class);
+			Object inst = ctor.newInstance(helper, cxt);
+			return new State(helper, inst);
+		} catch (Throwable t) {
+			pw.error("  JVM", "creating " + st.name().uniqueName(), t);
+			return null;
+		}
 	}
 	
 	@Override
-	protected void runSystemTestStage(TestResultWriter pw, SystemTest st, SystemTestStage e) {
+	protected void runSystemTestStage(TestResultWriter pw, State state, SystemTest st, SystemTestStage e) {
 		pw.pass(" ", e.desc);
 	}
 	
 	@Override
-	protected void cleanupSystemTest(TestResultWriter pw, SystemTest st) {
+	protected void cleanupSystemTest(TestResultWriter pw, State state, SystemTest st) {
 		pw.println("  " + st.name().uniqueName() + " all tests passed");
 	}
 
