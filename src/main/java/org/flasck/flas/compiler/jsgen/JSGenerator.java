@@ -60,6 +60,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -838,7 +839,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		}
 	}
 
-	private boolean involvesServices(UnitTestCase e) {
+	private boolean involvesServices(TestStepHolder e) {
 		// This is actually more complicated than this, because the mocks could be global ...
 		for (UnitTestStep s : e.steps) {
 			if (s instanceof UnitDataDeclaration) {
@@ -947,7 +948,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 	}
 	
 	@Override
-	public void leaveUnitTest(UnitTestCase e) {
+	public void leaveUnitTest(TestStepHolder e) {
 		for (JSExpr m : explodingMocks) {
 			meth.assertSatisfied(m);
 		}

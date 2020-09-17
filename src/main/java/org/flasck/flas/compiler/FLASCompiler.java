@@ -31,6 +31,7 @@ import org.flasck.flas.parsedForm.EventHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.assembly.BuildAssembly;
+import org.flasck.flas.parser.st.ConsumeSystemTestDefinitions;
 import org.flasck.flas.parser.ut.ConsumeDefinitions;
 import org.flasck.flas.patterns.PatternAnalyzer;
 import org.flasck.flas.repository.AssemblyVisitor;
@@ -133,6 +134,17 @@ public class FLASCompiler {
 		for (File f : fafiles) {
 			System.out.println("    " + f.getName());
 			fap.process(f);
+		}
+		List<File> stfiles = FileUtils.findFilesMatching(dir, "*.st");
+		stfiles.sort(new FileNameComparator());
+		for (File f : stfiles) {
+			System.out.println("    " + f.getName());
+			String file = FileUtils.dropExtension(f.getName());
+			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
+			UnitTestPackage stp = new UnitTestPackage(new InputPosition(file, 1, 0, ""), stfn);
+			repository.unitTestPackage(errors, stp);
+			ParsingPhase parser = new ParsingPhase(errors, stfn, new ConsumeSystemTestDefinitions(errors, repository, stp));
+			parser.process(f);
 		}
 	}
 	

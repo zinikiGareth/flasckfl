@@ -49,6 +49,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.ContractDecl.ContractType;
+import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestExpect;
@@ -705,7 +706,7 @@ public class TraversalTests {
 	public void traverseUnitTestDataDefinitionWithFieldDeclarations() {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
 		UnitTestName name = new UnitTestName(utfn, 1);
-		UnitTestCase utc = new UnitTestCase(name, "do something");
+		TestStepHolder utc = new UnitTestCase(name, "do something");
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), null);
 		Assignment assign = new Assignment(new UnresolvedVar(pos, "x"), simpleExpr);
@@ -727,7 +728,7 @@ public class TraversalTests {
 	public void traverseUnitTestDataDefinitionWithExpr() {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("foo.bar"), "file");
 		UnitTestName name = new UnitTestName(utfn, 1);
-		UnitTestCase utc = new UnitTestCase(name, "do something");
+		TestStepHolder utc = new UnitTestCase(name, "do something");
 		TypeReference tr = new TypeReference(pos, "StructThing");
 		UnitDataDeclaration udd = new UnitDataDeclaration(pos, false, tr, FunctionName.function(pos, pkg, "ut"), simpleExpr);
 		utc.steps.add(udd);

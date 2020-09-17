@@ -14,6 +14,8 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parser.PackageNamer;
 import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.assembly.AssemblyDefinitionConsumer;
+import org.flasck.flas.parser.st.SystemTestDefinitionConsumer;
+import org.flasck.flas.parser.st.SystemTestPackageNamer;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitTestPackageNamer;
 import org.flasck.flas.stories.TDAMultiParser;
@@ -31,6 +33,12 @@ public class ParsingPhase implements ParserScanner {
 	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, UnitTestDefinitionConsumer utdc) {
 		this.errors = errors;
 		TDANester story = new TDANester(TDAMultiParser.unitTestUnit(errors, new UnitTestPackageNamer(fn), utdc));
+		this.blocker = new Blocker(errors, story);
+	}
+
+	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, SystemTestDefinitionConsumer stdc) {
+		this.errors = errors;
+		TDANester story = new TDANester(TDAMultiParser.systemTestUnit(errors, new SystemTestPackageNamer(fn), stdc));
 		this.blocker = new Blocker(errors, story);
 	}
 

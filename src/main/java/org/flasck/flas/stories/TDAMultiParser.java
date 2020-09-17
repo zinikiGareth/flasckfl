@@ -22,6 +22,9 @@ import org.flasck.flas.parser.TopLevelDefinitionConsumer;
 import org.flasck.flas.parser.TopLevelNamer;
 import org.flasck.flas.parser.assembly.AssemblyDefinitionConsumer;
 import org.flasck.flas.parser.assembly.TDAAssemblyUnitParser;
+import org.flasck.flas.parser.st.SystemTestDefinitionConsumer;
+import org.flasck.flas.parser.st.SystemTestNamer;
+import org.flasck.flas.parser.st.TDASystemTestParser;
 import org.flasck.flas.parser.ut.TDAUnitTestParser;
 import org.flasck.flas.parser.ut.UnitTestDefinitionConsumer;
 import org.flasck.flas.parser.ut.UnitTestNamer;
@@ -60,6 +63,10 @@ public class TDAMultiParser implements TDAParsing {
 	
 	public static TDAParsing unitTestUnit(ErrorReporter errors, UnitTestNamer namer, UnitTestDefinitionConsumer utdc) {
 		return new TDAUnitTestParser(errors, namer, utdc, utdc);
+	}
+
+	public static TDAParsing systemTestUnit(ErrorReporter errors, SystemTestNamer namer, SystemTestDefinitionConsumer stdc) {
+		return new TDASystemTestParser(errors, namer, stdc, null);
 	}
 
 	public static TDAParsing assemblyUnit(ErrorReporter errors, TopLevelNamer namer, AssemblyDefinitionConsumer adc) {

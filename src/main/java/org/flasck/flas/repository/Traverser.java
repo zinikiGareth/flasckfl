@@ -89,6 +89,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.assembly.Assembly;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
+import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -1749,7 +1750,7 @@ public class Traverser implements RepositoryVisitor {
 	}
 
 	@Override
-	public void leaveUnitTest(UnitTestCase e) {
+	public void leaveUnitTest(TestStepHolder e) {
 		visitor.leaveUnitTest(e);
 	}
 

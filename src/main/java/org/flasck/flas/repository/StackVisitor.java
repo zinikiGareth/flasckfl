@@ -66,6 +66,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
+import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -335,7 +336,7 @@ public class StackVisitor implements NestedVisitor, HSIVisitor, TreeOrderVisitor
 		top.visitUnitTest(e);
 	}
 
-	public void leaveUnitTest(UnitTestCase e) {
+	public void leaveUnitTest(TestStepHolder e) {
 		top.leaveUnitTest(e);
 	}
 

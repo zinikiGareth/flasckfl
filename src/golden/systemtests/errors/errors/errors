@@ -1,0 +1,4 @@
+garbage.st:   3.0:     _ c = 14
+                          syntax error
+testitems.st  3.4:    test _ 
+                          each test step must have a description

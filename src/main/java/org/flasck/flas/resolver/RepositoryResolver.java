@@ -57,6 +57,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestRender;
 import org.flasck.flas.parsedForm.ut.UnitTestSend;
@@ -1002,7 +1003,7 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 	}
 	
 	@Override
-	public void leaveUnitTest(UnitTestCase e) {
+	public void leaveUnitTest(TestStepHolder e) {
 		this.scope = scopeStack.remove(0);
 	}
 

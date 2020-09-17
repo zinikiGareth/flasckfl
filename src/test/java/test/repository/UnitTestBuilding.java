@@ -17,6 +17,7 @@ import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.parsedForm.TargetZone;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -54,7 +55,7 @@ public class UnitTestBuilding {
 	
 	@Test
 	public void addingAnAssertStep() {
-		UnitTestCase utc = new UnitTestCase(name, "this is a test");
+		TestStepHolder utc = new UnitTestCase(name, "this is a test");
 		utc.assertion(new StringLiteral(pos, "hello"), new StringLiteral(pos, "goodbye"));
 		assertEquals(1, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestAssert);
@@ -88,7 +89,7 @@ public class UnitTestBuilding {
 
 	@Test
 	public void addingAnEventStep() {
-		UnitTestCase utc = new UnitTestCase(name, "this is a test");
+		TestStepHolder utc = new UnitTestCase(name, "this is a test");
 		utc.event(new UnresolvedVar(pos, "x"), new TargetZone(pos, Arrays.asList("zone")), new StringLiteral(pos, "goodbye"));
 		assertEquals(1, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestEvent);
@@ -99,7 +100,7 @@ public class UnitTestBuilding {
 
 	@Test
 	public void addingAnInvokeStep() {
-		UnitTestCase utc = new UnitTestCase(name, "this is a test");
+		TestStepHolder utc = new UnitTestCase(name, "this is a test");
 		ApplyExpr expr = new ApplyExpr(pos, new MemberExpr(pos, new UnresolvedVar(pos, "obj"), new UnresolvedVar(pos, "meth")), new StringLiteral(pos, "hello"));
 		utc.invokeObjectMethod(expr);
 		assertEquals(1, utc.steps.size());
@@ -110,7 +111,7 @@ public class UnitTestBuilding {
 
 	@Test
 	public void addingAContractStep() {
-		UnitTestCase utc = new UnitTestCase(name, "this is a test");
+		TestStepHolder utc = new UnitTestCase(name, "this is a test");
 		utc.sendOnContract(new UnresolvedVar(pos, "x"), new TypeReference(pos, "ContractName"), new UnresolvedVar(pos, "method"));
 		assertEquals(1, utc.steps.size());
 		assertTrue(utc.steps.get(0) instanceof UnitTestSend);

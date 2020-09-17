@@ -56,6 +56,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.ut.GuardedMessages;
+import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestAssert;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestEvent;
@@ -120,7 +121,7 @@ public interface RepositoryVisitor {
 	void visitNumericLiteral(NumericLiteral number);
 	void visitUnitTestPackage(UnitTestPackage e);
 	void visitUnitTest(UnitTestCase e);
-	void leaveUnitTest(UnitTestCase e);
+	void leaveUnitTest(TestStepHolder e);
 	void leaveUnitTestPackage(UnitTestPackage e);
 	void visitApplyExpr(ApplyExpr expr);
 	void leaveApplyExpr(ApplyExpr expr);

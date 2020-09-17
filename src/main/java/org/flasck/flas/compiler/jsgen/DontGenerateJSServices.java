@@ -7,7 +7,7 @@ import org.flasck.flas.hsi.HSIVisitor;
 import org.flasck.flas.hsi.Slot;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ServiceDefinition;
-import org.flasck.flas.parsedForm.ut.UnitTestCase;
+import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.repository.LeafAdapter;
 import org.flasck.flas.repository.NestedVisitor;
 
@@ -30,7 +30,7 @@ public class DontGenerateJSServices extends LeafAdapter implements HSIVisitor{
 	}
 	
 	@Override
-	public void leaveUnitTest(UnitTestCase e) {
+	public void leaveUnitTest(TestStepHolder e) {
 		sv.result(null);
 	}
 
