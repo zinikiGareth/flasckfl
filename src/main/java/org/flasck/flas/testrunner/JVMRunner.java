@@ -29,7 +29,7 @@ public class JVMRunner extends CommonTestRunner  {
 	}
 	
 	@Override
-	public void runit(TestResultWriter pw, UnitTestCase utc) {
+	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors);
 			FLEvalContext cxt = helper.create();

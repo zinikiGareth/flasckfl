@@ -11,6 +11,7 @@ import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.LeafAdapter;
@@ -38,7 +39,7 @@ public abstract class CommonTestRunner {
 		this.compiledPkg = null;
 	}
 	
-	public void runAll(Map<File, TestResultWriter> writers) {
+	public void runAllUnitTests(Map<File, TestResultWriter> writers) {
 		repository.traverse(new LeafAdapter() {
 			TestResultWriter pw;
 			
@@ -68,7 +69,37 @@ public abstract class CommonTestRunner {
 			@Override
 			public void visitUnitTest(UnitTestCase e) {
 				if (pw != null)
-					runit(pw, e);
+					runUnitTest(pw, e);
+			}
+		});
+	}
+
+	public void runAllSystemTests(Map<File, TestResultWriter> writers) {
+		repository.traverse(new LeafAdapter() {
+			TestResultWriter pw;
+			
+			@Override
+			public void visitSystemTest(SystemTest e) {
+				String nn = e.name().baseName();
+				File f = new File(nn);
+				System.out.println(CommonTestRunner.this.getClass().getName() + " " + e.name().uniqueName() + " " + nn + " " + f);
+				this.pw = writers.get(f);
+				if (pw == null) {
+					File trd = config.writeTestReportsTo();
+					if (trd == null) {
+						pw = new TestResultWriter(false, System.out);
+					} else {
+						FileUtils.assertDirectory(trd);
+						File out = new File(trd, FileUtils.ensureExtension(f.getName(), ".tr"));
+						try {
+							pw = new TestResultWriter(true, out);
+						} catch (FileNotFoundException ex) {
+							config.errors.message(((InputPosition)null), "cannot create output file " + out);
+						}
+					}
+					if (pw != null)
+						writers.put(f, pw);
+				}
 			}
 		});
 	}
@@ -79,7 +110,7 @@ public abstract class CommonTestRunner {
 		}
 	}
 
-	public abstract void runit(TestResultWriter pw, UnitTestCase utc);
+	public abstract void runUnitTest(TestResultWriter pw, UnitTestCase utc);
 
 	protected void assertAllInvocationsCalled() {
 		for (Invocation ii : invocations)

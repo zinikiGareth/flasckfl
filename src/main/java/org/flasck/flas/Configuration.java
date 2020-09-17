@@ -13,6 +13,7 @@ import org.zinutils.utils.FileUtils;
 public class Configuration {
 	public final ErrorReporter errors;
 	public boolean unitjvm = true, unitjs = true;
+	public boolean systemjvm = true, systemjs = true;
 	public boolean dumpTypes;
 	private File flimDir;
 	public File root;
@@ -137,10 +138,12 @@ public class Configuration {
 					}
 					writeJS = new File(root, args[++i]);
 				} else if (arg.equals("--no-unit-js")) {
-					generateJS = false;
 					unitjs = false;
 				} else if (arg.equals("--no-unit-jvm")) {
-					generateJVM = false;
+					unitjvm = false;
+				} else if (arg.equals("--no-system-js")) {
+					unitjs = false;
+				} else if (arg.equals("--no-system-jvm")) {
 					unitjvm = false;
 				} else if (arg.equals("--jvmout")) {
 					if (hasMore == 0) {

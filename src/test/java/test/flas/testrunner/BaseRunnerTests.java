@@ -60,7 +60,7 @@ public abstract class BaseRunnerTests {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
 		UnitTestName utn = new UnitTestName(utfn, 12);
 		UnitTestCase utc = new UnitTestCase(utn, "hello");
-		runner.runit(pw, utc);
+		runner.runUnitTest(pw, utc);
 		assertEquals(prefix() + " PASS hello\n", sw.toString());
 	}
 
@@ -72,7 +72,7 @@ public abstract class BaseRunnerTests {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
 		UnitTestName utn = new UnitTestName(utfn, 18);
 		UnitTestCase utc = new UnitTestCase(utn, "itfails");
-		runner.runit(pw, utc);
+		runner.runUnitTest(pw, utc);
 		assertEquals(prefix() + " FAIL itfails\n  expected: 42\n  actual:   84\n", sw.toString());
 	}
 
@@ -84,7 +84,7 @@ public abstract class BaseRunnerTests {
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
 		UnitTestName utn = new UnitTestName(utfn, 25);
 		UnitTestCase utc = new UnitTestCase(utn, "closures are expanded");
-		runner.runit(pw, utc);
+		runner.runUnitTest(pw, utc);
 		assertEquals(prefix() + " PASS closures are expanded\n", sw.toString());
 	}
 

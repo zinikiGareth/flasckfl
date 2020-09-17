@@ -223,24 +223,42 @@ public class FLASCompiler {
 		return errors.hasErrors();
 	}
 	
-	public boolean runUnitTests(Configuration config) {
+	public boolean runUnitTests(Configuration config, Map<File, TestResultWriter> writers) {
 		Map<String, String> allTemplates = extractTemplatesFromWebs();
-		Map<File, TestResultWriter> writers = new HashMap<>();
 		if (config.generateJVM && config.unitjvm) {
 			BCEClassLoader bcl = new BCEClassLoader(bce);
 			for (File f : config.includeFrom)
 				bcl.addClassesFrom(f);
 			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
-			jvmRunner.runAll(writers);
+			jvmRunner.runAllUnitTests(writers);
 			jvmRunner.reportErrors(errors);
 		}
 
 		if (config.generateJS && config.unitjs) {
 			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates);
-			jsRunner.runAll(writers);
+			jsRunner.runAllUnitTests(writers);
 			jsRunner.reportErrors(errors);
 		}
-		writers.values().forEach(w -> w.close());
+
+		return errors.hasErrors();
+	}
+
+	public boolean runSystemTests(Configuration config, Map<File, TestResultWriter> writers) {
+		Map<String, String> allTemplates = extractTemplatesFromWebs();
+		if (config.generateJVM && config.systemjvm) {
+			BCEClassLoader bcl = new BCEClassLoader(bce);
+			for (File f : config.includeFrom)
+				bcl.addClassesFrom(f);
+			JVMRunner jvmRunner = new JVMRunner(config, repository, bcl, allTemplates);
+			jvmRunner.runAllSystemTests(writers);
+			jvmRunner.reportErrors(errors);
+		}
+
+		if (config.generateJS && config.systemjs) {
+			JSRunner jsRunner = new JSRunner(config, repository, jse, allTemplates);
+			jsRunner.runAllSystemTests(writers);
+			jsRunner.reportErrors(errors);
+		}
 
 		return errors.hasErrors();
 	}

@@ -171,7 +171,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			}
 		}
 		this.runner = null;
-		md.lenientMode(true);
+//		md.lenientMode(true);
 	}
 
 	// split for if true/false blocks

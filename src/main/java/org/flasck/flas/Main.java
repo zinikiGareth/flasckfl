@@ -10,7 +10,9 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -23,6 +25,7 @@ import org.flasck.flas.repository.LoadBuiltins;
 import org.flasck.flas.repository.Repository;
 import org.flasck.flas.repository.flim.FlimReader;
 import org.flasck.flas.repository.flim.FlimWriter;
+import org.flasck.flas.testrunner.TestResultWriter;
 import org.flasck.jvm.assembly.FLASAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,8 +179,17 @@ public class Main {
 		if (compiler.generateCode(config, pkgs))
 			return null;
 		
-		if (compiler.runUnitTests(config))
-			return null;
+		Map<File, TestResultWriter> testWriters = new HashMap<>();
+		try {
+			if (compiler.runUnitTests(config, testWriters))
+				return null;
+
+			if (compiler.runSystemTests(config, testWriters))
+				return null;
+		} finally {
+			testWriters.values().forEach(w -> w.close());
+		}
+
 
 		if (config.html != null) {
 			try (FileWriter fos = new FileWriter(config.html)) {

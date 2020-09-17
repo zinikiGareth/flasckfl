@@ -103,7 +103,7 @@ public class JSRunner extends CommonTestRunner {
 
 	// currently untested due to browser issues
 	@Override
-	public void runit(TestResultWriter pw, UnitTestCase utc) {
+	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
 		CountDownLatch cdl = new CountDownLatch(1);
 		Platform.runLater(() -> {
 			try {
