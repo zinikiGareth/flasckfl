@@ -2,6 +2,11 @@ package org.flasck.flas.compiler.jsgen.form;
 
 import org.flasck.flas.compiler.jsgen.creators.JVMCreationContext;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.jvm.J;
+import org.flasck.jvm.container.FLEvalContextFactory;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.mock.IndentWriter;
 
 public class InitContext implements IVForm {
@@ -15,15 +20,17 @@ public class InitContext implements IVForm {
 	public void write(IndentWriter w) {
 		w.println("const _cxt = runner.newContext();");
 		for (String e : env.packages())
-			if (!e.contains("_ut_"))
+			if (!e.contains("_ut_") && !e.contains("_st_"))
 				w.println(e + "._init(_cxt);");
 		w.println("runner.makeReady();");
 	}
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
-		// I don't think this is needed in JVM land
-		jvm.local(this, null);
+		Var v = jvm.method().avar(J.FLEVALCONTEXT, "_cxt");
+		IExpr ass = jvm.method().assign(v, jvm.method().callInterface(J.FLEVALCONTEXT, jvm.argAs(new JSVar("runner"), new JavaType(FLEvalContextFactory.class.getName())), "create"));
+		jvm.bindVar(this, v);
+		jvm.local(this, ass);
 	}
 	
 	@Override

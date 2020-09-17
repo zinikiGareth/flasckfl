@@ -21,6 +21,7 @@ import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.st.SystemTest;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.graphs.DirectedAcyclicGraph;
 import org.zinutils.graphs.Node;
@@ -86,6 +87,14 @@ public class JSEnvironment implements JSStorage {
 		return ret;
 	}
 	
+	@Override
+	public JSClassCreator newSystemTest(SystemTest st) {
+		JSFile inpkg = getPackage(st.name().packageName().jsName());
+		JSClass ret = new JSClass(this, st.name());
+		inpkg.addClass(ret);
+		return ret;
+	}
+
 	@Override
 	public JSMethodCreator newFunction(NameOfThing fnName, String pkg, NameOfThing cxt, boolean isPrototype, String name) {
 		JSFile inpkg = getPackage(pkg);

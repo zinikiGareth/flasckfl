@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.Configuration;
@@ -103,18 +104,24 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 
-	// currently untested due to browser issues
 	@Override
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
+		runStage(pw, utc.description, utc.name.container().jsName(), utc.name.jsName(), true);
+	}
+
+	private boolean runStage(TestResultWriter pw, String desc, String ctr, String fn, boolean isTest) {
 		CountDownLatch cdl = new CountDownLatch(1);
+		AtomicBoolean status = new AtomicBoolean();
 		Platform.runLater(() -> {
 			try {
-				Object isdf = page.executeScript("typeof(" + utc.name.container().jsName() + ")");
+				Object isdf = page.executeScript("typeof(" + ctr + ")");
 				if (!"undefined".equals(isdf))
-					isdf = page.executeScript("typeof(" + utc.name.jsName() + ")");
+					isdf = page.executeScript("typeof(" + fn + ")");
 				if ("function".equals(isdf)) {
-					page.executeScript(utc.name.jsName() + "(new window.UTRunner(window.JavaLogger))");
-					pw.pass("JS", utc.description);
+					page.executeScript(fn + "(new window.UTRunner(window.JavaLogger))");
+					status.set(true);
+					if (isTest)
+						pw.pass("JS", desc);
 				}
 				cdl.countDown();
 			} catch (Throwable t) {
@@ -124,29 +131,29 @@ public class JSRunner extends CommonTestRunner {
 					JSException ex = (JSException) t;
 					String jsex = ex.getMessage();
 					if (jsex.startsWith("Error: NSV\n")) {
-						pw.fail("JS", utc.description);
+						pw.fail("JS", desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: EXP\n")) {
-						pw.fail("JS", utc.description);
+						pw.fail("JS", desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: MATCH\n")) {
-						pw.fail("JS", utc.description);
+						pw.fail("JS", desc);
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					} else if (jsex.startsWith("Error: NEWDIV\n")) {
-						pw.fail("JS", utc.description);
+						pw.fail("JS", desc);
 						pw.println("incorrect number of divs created");
 						pw.println(jsex.substring(jsex.indexOf('\n')+1));
 						cdl.countDown();
 						return;
 					}
 				}
-				pw.error("JS", utc.description, t);
+				pw.error("JS", desc, t);
 				cdl.countDown();
 			}
 		});
@@ -156,13 +163,15 @@ public class JSRunner extends CommonTestRunner {
 		} catch (Exception ex) {
 		}
 		if (!await) {
-			pw.println("JS TIMEOUT " + utc.description);
+			pw.println("JS TIMEOUT " + desc);
 		}
+		return status.get();
 	}
 	
 	@Override
 	protected Object createSystemTest(TestResultWriter pw, SystemTest st) {
 		pw.println("JS running system test " + st.name().uniqueName());
+		runStage(pw, st.name().uniqueName(), st.name().container().jsName(), st.name().jsName(), false);
 		return this;
 	}
 	

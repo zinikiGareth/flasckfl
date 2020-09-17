@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.SystemTestName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.ClearRunner;
 import org.flasck.flas.compiler.jsgen.form.IVFWriter;
@@ -198,6 +199,8 @@ public class JSMethod extends JSBlock implements JSMethodCreator {
 			JVMCreationContext jvm;
 			if (fnName instanceof UnitTestName)
 				jvm = new BasicJVMCreationContext(bce, (UnitTestName)fnName, args);
+			else if (fnName instanceof SystemTestName)
+				jvm = new BasicJVMCreationContext(bce, (SystemTestName)fnName, args);
 			else if (fnName == null && name == null)
 				jvm = new BasicJVMCreationContext(bce, clzName, args, superArgs);
 			else if (this.prototype)

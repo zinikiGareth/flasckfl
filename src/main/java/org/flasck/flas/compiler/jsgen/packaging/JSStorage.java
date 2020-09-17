@@ -11,10 +11,12 @@ import org.flasck.flas.compiler.templates.EventTargetZones;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.st.SystemTest;
 
 public interface JSStorage {
 
 	JSClassCreator newClass(String pkg, NameOfThing clz);
+	JSClassCreator newSystemTest(SystemTest st);
 
 	void ensurePackageExists(String filePkg, String pkg);
 
@@ -32,5 +34,6 @@ public interface JSStorage {
 	void complete();
 
 	Iterable<String> packages();
+
 
 }

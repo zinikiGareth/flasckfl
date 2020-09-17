@@ -2,12 +2,9 @@ package org.flasck.flas.compiler.jsgen;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.compiler.jsgen.creators.JSBlockCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSLiteral;
-import org.flasck.flas.compiler.jsgen.form.JSThis;
 import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
@@ -36,14 +33,14 @@ public class SystemTestGenerator extends LeafAdapter {
 		NameOfThing name = st.name();
 		String pkg = name.packageName().jsName();
 		jse.ensurePackageExists(pkg, name.container().jsName());
-		ctr = jse.newClass(pkg, name);
+		ctr = jse.newSystemTest(st);
 		ctr.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
 		JSMethodCreator ctor = ctr.constructor();
-		JSVar runner = ctor.argument(J.TESTHELPER, "_runner");
-		ctor.argument(J.FLEVALCONTEXT, "_cxt");
+		JSVar runner = ctor.argument(J.TESTHELPER, "runner");
+//		ctor.argument(J.FLEVALCONTEXT, "_cxt");
 		ctor.setField(false, "_runner", runner);
-		// store runner in object
-		ctor.clear();
+		ctor.initContext();
+//		ctor.clear();
 		ctor.returnVoid();
 	}
 

@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.JavaMethodNameProvider;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.SystemTestName;
+import org.flasck.flas.commonBase.names.UnitTestFileName;
 import org.flasck.flas.commonBase.names.UnitTestName;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSLiteral;
@@ -45,7 +47,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		String returnsA;
 	}
 
-	// unit test
+	// creating a unit test
 	public BasicJVMCreationContext(ByteCodeEnvironment bce, UnitTestName fnName, List<JSVar> as) {
 		bcc = bce.newClass(fnName.javaName());
 		bcc.generateAssociatedSourceFile();
@@ -60,20 +62,47 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 		vars.put(as.get(0), this.runner);
 	}
 
+	// creating a system test
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, UnitTestFileName stName, List<JSVar> as) {
+		bcc = bce.newClass(stName.javaName());
+		bcc.generateAssociatedSourceFile();
+		GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+		PendingVar r1 = ann.argument(J.TESTHELPER, "runner");
+		PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
+		ann.returns(JavaType.void_);
+		md = ann.done();
+		cxt = c1.getVar();
+		args = null;
+		this.runner = r1.getVar();
+		vars.put(as.get(0), this.runner);
+	}
+
+	// stage of a system test
+	public BasicJVMCreationContext(ByteCodeEnvironment bce, SystemTestName fnName, List<JSVar> as) {
+		bcc = bce.get(fnName.container().javaName());
+		bcc.generateAssociatedSourceFile();
+		GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, fnName.baseName());
+		PendingVar c1 = ann.argument(J.FLEVALCONTEXT, "cxt");
+		ann.returns(JavaType.void_);
+		md = ann.done();
+		cxt = c1.getVar();
+		args = null;
+		this.runner = md.avar(J.TESTHELPER, "runner");
+		md.assign(this.runner, md.getField("_runner"));
+		vars.put(as.get(0), this.runner);
+	}
+	
 	// ctor
 	public BasicJVMCreationContext(ByteCodeEnvironment bce, NameOfThing clzName, List<JSVar> as, List<JSExpr> superArgs) {
 		bcc = bce.get(clzName.javaName());
 		GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
 		PendingVar c1 = null;
-		PendingVar r1 = null;
 		Map<JSVar, PendingVar> tmp = new HashMap<>();
 		for (JSVar v : as) {
 			PendingVar ai = ann.argument(v.type(), v.asVar());
 			tmp.put(v, ai);
 			if (v.asVar().equals("_cxt"))
 				c1 = ai; 
-			else if (v.asVar().equals("_runner"))
-				r1 = ai; 
 		}
 		md = ann.done();
 		if (c1 != null)
@@ -84,10 +113,7 @@ public class BasicJVMCreationContext implements JVMCreationContext {
 			vars.put(e.getKey(), e.getValue().getVar());
 		}
 		args = null;
-		if (r1 != null)
-			this.runner = r1.getVar();
-		else
-			this.runner = null;
+		this.runner = null;
 		IExpr[] sas = new IExpr[superArgs.size()];
 		int i=0;
 		for (JSExpr jv : superArgs) {

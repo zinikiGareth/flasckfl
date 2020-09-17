@@ -69,10 +69,9 @@ public class JVMRunner extends CommonTestRunner<State>  {
 		pw.println("JVM running system test " + st.name().uniqueName());
 		try {
 			JVMTestHelper helper = new JVMTestHelper(loader, templates, runtimeErrors);
-			FLEvalContext cxt = helper.create();
 			Class<?> clz = Class.forName(st.name().javaName(), false, loader);
-			Constructor<?> ctor = clz.getConstructor(TestHelper.class, FLEvalContext.class);
-			Object inst = ctor.newInstance(helper, cxt);
+			Constructor<?> ctor = clz.getConstructor(TestHelper.class);
+			Object inst = ctor.newInstance(helper);
 			return new State(helper, clz, inst);
 		} catch (Throwable t) {
 			pw.error("  JVM", "creating " + st.name().uniqueName(), t);
