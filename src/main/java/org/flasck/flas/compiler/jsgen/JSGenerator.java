@@ -824,7 +824,7 @@ public class JSGenerator extends LeafAdapter implements HSIVisitor, ResultAware 
 		this.block = meth;
 		runner = meth.argument("runner");
 		meth.clear();
-		meth.initContext();
+		meth.initContext(false);
 		this.state = new JSFunctionStateStore(meth);
 		this.state.container(new PackageName("_DisplayUpdater"), runner);
 		explodingMocks.clear();

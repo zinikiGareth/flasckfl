@@ -10,7 +10,7 @@ import org.flasck.flas.testrunner.JVMRunner;
 
 public class JVMRunnerTests extends BaseRunnerTests {
 	
-	protected CommonTestRunner prepareRunner(Configuration config, Repository repository) throws IOException, ErrorResultException {
+	protected CommonTestRunner<?> prepareRunner(Configuration config, Repository repository) throws IOException, ErrorResultException {
 		return new JVMRunner(config, repository, getClass().getClassLoader(), null);
 	}
 

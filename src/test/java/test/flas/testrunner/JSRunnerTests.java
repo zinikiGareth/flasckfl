@@ -45,7 +45,7 @@ public class JSRunnerTests extends BaseRunnerTests {
 	}
 
 	@Override
-	protected CommonTestRunner prepareRunner(Configuration config, Repository repository)
+	protected CommonTestRunner<?> prepareRunner(Configuration config, Repository repository)
 			throws IOException, ErrorResultException {
 		return new JSRunner(config, repository, jse, new HashMap<>());
 	}

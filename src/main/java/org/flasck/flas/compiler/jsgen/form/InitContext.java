@@ -11,26 +11,38 @@ import org.zinutils.bytecode.mock.IndentWriter;
 
 public class InitContext implements IVForm {
 	private final JSStorage env;
+	private final boolean field;
 
-	public InitContext(JSStorage jse) {
+	public InitContext(JSStorage jse, boolean field) {
 		this.env = jse;
+		this.field = field;
 	}
 
 	@Override
 	public void write(IndentWriter w) {
-		w.println("const _cxt = runner.newContext();");
-		for (String e : env.packages())
-			if (!e.contains("_ut_") && !e.contains("_st_"))
-				w.println(e + "._init(_cxt);");
-		w.println("runner.makeReady();");
+		String r = "runner";
+		if (field)
+			r = "this._runner";
+		w.println("const _cxt = " + r + ".newContext();");
+		if (!field) {
+			for (String e : env.packages())
+				if (!e.contains("_ut_") && !e.contains("_st_"))
+					w.println(e + "._init(_cxt);");
+			w.println("runner.makeReady();");
+		}
 	}
 
 	@Override
 	public void generate(JVMCreationContext jvm) {
 		Var v = jvm.method().avar(J.FLEVALCONTEXT, "_cxt");
-		IExpr ass = jvm.method().assign(v, jvm.method().callInterface(J.FLEVALCONTEXT, jvm.argAs(new JSVar("runner"), new JavaType(FLEvalContextFactory.class.getName())), "create"));
-		jvm.bindVar(this, v);
+		IExpr r;
+		if (field)
+			r = jvm.method().as(jvm.method().getField("_runner"), FLEvalContextFactory.class.getName());
+		else
+			r = jvm.argAs(new JSVar("runner"), new JavaType(FLEvalContextFactory.class.getName()));
+		IExpr ass = jvm.method().assign(v, jvm.method().callInterface(J.FLEVALCONTEXT, r, "create"));
 		jvm.local(this, ass);
+		jvm.setCxt(v);
 	}
 	
 	@Override

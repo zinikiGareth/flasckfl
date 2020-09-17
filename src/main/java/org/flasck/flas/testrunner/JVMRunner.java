@@ -82,8 +82,8 @@ public class JVMRunner extends CommonTestRunner<State>  {
 	@Override
 	protected void runSystemTestStage(TestResultWriter pw, State state, SystemTest st, SystemTestStage e) {
 		try {
-			Method method = state.clz.getMethod(e.name.baseName(), FLEvalContext.class);
-			runStepsFunction(pw, e.desc, state.helper, cxt -> method.invoke(state.inst, state.helper.create()));
+			Method method = state.clz.getMethod(e.name.baseName());
+			runStepsFunction(pw, e.desc, state.helper, cxt -> method.invoke(state.inst));
 		} catch (Throwable t) {
 			pw.error("JVM", e.desc, t);
 			state.failed++;

@@ -5,7 +5,6 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.jsgen.creators.JSClassCreator;
 import org.flasck.flas.compiler.jsgen.creators.JSMethodCreator;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
-import org.flasck.flas.compiler.jsgen.form.JSVar;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
 import org.flasck.flas.parsedForm.st.SystemTest;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
@@ -36,21 +35,21 @@ public class SystemTestGenerator extends LeafAdapter {
 		ctr = jse.newSystemTest(st);
 		ctr.field(false, Access.PRIVATE, new PackageName(J.TESTHELPER), "_runner");
 		JSMethodCreator ctor = ctr.constructor();
-		JSVar runner = ctor.argument(J.TESTHELPER, "runner");
-//		ctor.argument(J.FLEVALCONTEXT, "_cxt");
+		this.runner = ctor.argument(J.TESTHELPER, "runner");
 		ctor.setField(false, "_runner", runner);
-		ctor.initContext();
-//		ctor.clear();
-		ctor.returnVoid();
+		ctor.initContext(false);
+		ctor.clear();
+		ctor.returnThis();
 	}
 
 	@Override
 	public void visitSystemTestStage(SystemTestStage s) {
 		JSMethodCreator meth = ctr.createMethod(s.name.baseName(), true);
 		state = new JSFunctionStateStore(meth);
-		meth.argument(J.FLEVALCONTEXT, "_cxt");
+//		meth.argument(J.FLEVALCONTEXT, "_cxt");
 		meth.returnsType("void");
 		this.runner = meth.field("_runner");
+		meth.initContext(true);
 	}
 	
 	@Override

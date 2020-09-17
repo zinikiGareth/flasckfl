@@ -43,6 +43,7 @@ public interface JSBlockCreator {
 	void returnVoid();
 	void returnObject(JSExpr jsExpr);
 	void returnCompare(JSExpr lhs, JSExpr rhs);
+	void returnThis(); // mainly for JS constructors; will returnVoid in JVM ctor
 
 	// creating more complex things
 	JSExpr structConst(NameOfThing name);

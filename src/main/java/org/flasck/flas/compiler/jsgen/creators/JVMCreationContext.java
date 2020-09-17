@@ -18,7 +18,9 @@ public interface JVMCreationContext {
 	NewMethodDefiner method();
 	IExpr helper();
 	IExpr cxt();
+	void setCxt(Var cxt);
 	Var fargs();
+	boolean isCtor();
 
 	boolean hasLocal(JSExpr key);
 	void local(JSExpr key, IExpr e);

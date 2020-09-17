@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.Configuration;
@@ -31,7 +31,7 @@ import javafx.application.Platform;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
-public class JSRunner extends CommonTestRunner {
+public class JSRunner extends CommonTestRunner<JSObject> {
 	AtomicInteger pendingAsyncs = new AtomicInteger(0);
 
 	public class JSJavaBridge {
@@ -106,23 +106,32 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void runUnitTest(TestResultWriter pw, UnitTestCase utc) {
-		runStage(pw, utc.description, utc.name.container().jsName(), utc.name.jsName(), true);
+		runStage(pw, utc.description, null, utc.name.container().jsName(), utc.name.jsName(), true);
 	}
 
-	private boolean runStage(TestResultWriter pw, String desc, String ctr, String fn, boolean isTest) {
+	private Object runStage(TestResultWriter pw, String desc, JSObject obj, String ctr, String fn, boolean isTest) {
 		CountDownLatch cdl = new CountDownLatch(1);
-		AtomicBoolean status = new AtomicBoolean();
+		List<Object> rets = new ArrayList<>();
 		Platform.runLater(() -> {
 			try {
-				Object isdf = page.executeScript("typeof(" + ctr + ")");
-				if (!"undefined".equals(isdf))
-					isdf = page.executeScript("typeof(" + fn + ")");
-				if ("function".equals(isdf)) {
-					page.executeScript(fn + "(new window.UTRunner(window.JavaLogger))");
-					status.set(true);
-					if (isTest)
-						pw.pass("JS", desc);
+				boolean ran = false;
+				Object ret = null;
+				if (obj != null) {
+					ret = obj.call(fn);
+					ran = true;
+				} else {
+					Object isdf = page.executeScript("typeof(" + ctr + ")");
+					if (!"undefined".equals(isdf))
+						isdf = page.executeScript("typeof(" + fn + ")");
+					if ("function".equals(isdf)) {
+						ret = page.executeScript(fn + "(new window.UTRunner(window.JavaLogger))");
+						ran = true;
+					}
 				}
+				if (ret != null && !"undefined".equals(ret))
+					rets.add(ret);
+				if (isTest && ran)
+					pw.pass("JS", desc);
 				cdl.countDown();
 			} catch (Throwable t) {
 				if (t instanceof Ui4jException)
@@ -165,24 +174,29 @@ public class JSRunner extends CommonTestRunner {
 		if (!await) {
 			pw.println("JS TIMEOUT " + desc);
 		}
-		return status.get();
+		if (rets.isEmpty())
+			return null;
+		return rets.get(0);
 	}
 	
 	@Override
-	protected Object createSystemTest(TestResultWriter pw, SystemTest st) {
+	protected JSObject createSystemTest(TestResultWriter pw, SystemTest st) {
 		pw.println("JS running system test " + st.name().uniqueName());
-		runStage(pw, st.name().uniqueName(), st.name().container().jsName(), st.name().jsName(), false);
-		return this;
+		Object ret = runStage(pw, st.name().uniqueName(), null, st.name().container().jsName(), st.name().jsName(), false);
+		if (ret != null && ret instanceof JSObject)
+			return (JSObject) ret;
+		else
+			return null;
 	}
 	
 	@Override
-	protected void runSystemTestStage(TestResultWriter pw, Object state, SystemTest st, SystemTestStage e) {
-		pw.pass(" ", e.desc);
+	protected void runSystemTestStage(TestResultWriter pw, JSObject state, SystemTest st, SystemTestStage e) {
+		runStage(pw, e.desc, state, null, e.name.baseName(), true);
 	}
 	
 	@Override
-	protected void cleanupSystemTest(TestResultWriter pw, Object state, SystemTest st) {
-		pw.println("  " + st.name().uniqueName() + " all tests passed");
+	protected void cleanupSystemTest(TestResultWriter pw, JSObject state, SystemTest st) {
+		pw.println("JS " + st.name().uniqueName() + " all stages passed");
 	}
 
 	private void buildHTML(Map<String, String> templates) {

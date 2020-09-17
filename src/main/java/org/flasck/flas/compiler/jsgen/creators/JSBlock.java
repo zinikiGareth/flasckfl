@@ -392,6 +392,12 @@ public class JSBlock implements JSBlockCreator {
 	}
 
 	@Override
+	public void returnThis() {
+		JSReturn stmt = new JSReturn(new JSThis());
+		stmts.add(stmt);
+	}
+
+	@Override
 	public void returnObject(JSExpr jsExpr) {
 		JSReturn stmt = new JSReturn(jsExpr);
 		stmts.add(stmt);

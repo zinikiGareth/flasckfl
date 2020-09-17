@@ -56,7 +56,7 @@ public abstract class BaseRunnerTests {
 	public void testAssertIsOKIfXDoesIndeedEqualX() throws Exception {
 		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();
-		CommonTestRunner runner = prepareRunner(config, repository);
+		CommonTestRunner<?> runner = prepareRunner(config, repository);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
 		UnitTestName utn = new UnitTestName(utfn, 12);
 		UnitTestCase utc = new UnitTestCase(utn, "hello");
@@ -68,7 +68,7 @@ public abstract class BaseRunnerTests {
 	public void testAssertFailsIfXDoesNotEqualAGivenValue() throws Exception {
 		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();
-		CommonTestRunner runner = prepareRunner(config, repository);
+		CommonTestRunner<?> runner = prepareRunner(config, repository);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
 		UnitTestName utn = new UnitTestName(utfn, 18);
 		UnitTestCase utc = new UnitTestCase(utn, "itfails");
@@ -80,7 +80,7 @@ public abstract class BaseRunnerTests {
 	public void testAClosureIsFullyEvaluatedBeforeTheComparisonIsDone() throws Exception {
 		Configuration config = new Configuration(errors, new String[] {});
 		Repository repository = new Repository();
-		CommonTestRunner runner = prepareRunner(config, repository);
+		CommonTestRunner<?> runner = prepareRunner(config, repository);
 		UnitTestFileName utfn = new UnitTestFileName(new PackageName("test.flas.testrunner"), "samples");
 		UnitTestName utn = new UnitTestName(utfn, 25);
 		UnitTestCase utc = new UnitTestCase(utn, "closures are expanded");
@@ -198,7 +198,7 @@ public abstract class BaseRunnerTests {
 	*/
 
 	protected abstract String prefix();
-	protected abstract CommonTestRunner prepareRunner(Configuration config, Repository repository) throws IOException, ErrorResultException;
+	protected abstract CommonTestRunner<?> prepareRunner(Configuration config, Repository repository) throws IOException, ErrorResultException;
 	
 //	protected FunctionCaseDefn function(String name, Object expr) {
 //		FunctionCaseDefn defn = new FunctionCaseDefn(FunctionName.function(loc, new PackageName("test.runner.script"), name), new ArrayList<>(), expr);

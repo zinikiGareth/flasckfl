@@ -29,7 +29,7 @@ public class JSReturn implements IVForm {
 	public void generate(JVMCreationContext jvm) {
 		NewMethodDefiner md = jvm.method();
 		IExpr ret;
-		if (jsExpr == null)
+		if (jsExpr == null || jvm.isCtor())
 			ret = md.returnVoid();
 		else {
 			ret = jvm.argAsIs(jsExpr);
