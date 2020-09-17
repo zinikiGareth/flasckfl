@@ -1,6 +1,6 @@
 JVM running system test test.golden._st_.trivial
-  PASS we can do an assert inside a system test
-  test.golden._st_.trivial all tests passed
+JVM PASS we can do an assert inside a system test
+JVM test.golden._st_.trivial all stages passed
 JS running system test test.golden._st_.trivial
   PASS we can do an assert inside a system test
   test.golden._st_.trivial all tests passed

@@ -52,9 +52,9 @@ public class GoldenCGRunner extends BlockJUnit4ClassRunner {
 	public static final File jvmdir;
 	static {
 		Main.setLogLevels();
-		File jd = new File("/Users/gareth/Ziniki/Over/FLASJvm");
+		File jd = new File("../FLASJvm");
 		if (!jd.exists()) {
-			jd = new File("../FLASJvm");
+			jd = new File("../../FLASJvm");
 			if (!jd.exists()) {
 				System.err.println("There is no directory for the FLASJvm code");
 				jd = null;

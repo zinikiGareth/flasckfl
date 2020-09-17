@@ -36,6 +36,7 @@ import org.flasck.flas.compiler.jsgen.form.JSEval;
 import org.flasck.flas.compiler.jsgen.form.JSExpectation;
 import org.flasck.flas.compiler.jsgen.form.JSExpr;
 import org.flasck.flas.compiler.jsgen.form.JSExtractFromBoundVar;
+import org.flasck.flas.compiler.jsgen.form.JSField;
 import org.flasck.flas.compiler.jsgen.form.JSFromCard;
 import org.flasck.flas.compiler.jsgen.form.JSHead;
 import org.flasck.flas.compiler.jsgen.form.JSIfExpr;
@@ -596,6 +597,13 @@ public class JSBlock implements JSBlockCreator {
 	@Override
 	public void setField(JSExpr on, String field, JSExpr expr) {
 		stmts.add(new JSSetField(on, field, expr));
+	}
+
+	@Override
+	public JSExpr field(String f) {
+		JSField fld = new JSField(f);
+//		stmts.add(fld);
+		return fld;
 	}
 
 	@Override
