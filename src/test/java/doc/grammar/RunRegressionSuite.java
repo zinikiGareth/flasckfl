@@ -16,6 +16,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.flasck.flas.grammar.Grammar;
 import org.flasck.flas.grammar.RepoChecker;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CounterSet;
 import org.zinutils.utils.FileUtils;
@@ -23,6 +24,7 @@ import org.zinutils.utils.FileUtils;
 public class RunRegressionSuite {
 	final File root = new File("src/regression");
 
+	@Ignore
 	@Test
 	public void testAll() throws Throwable {
 		boolean runMe = Boolean.parseBoolean(System.getProperty("doc.grammar.run"));

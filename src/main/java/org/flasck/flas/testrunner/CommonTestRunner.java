@@ -12,6 +12,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.st.SystemTest;
+import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestPackage;
 import org.flasck.flas.repository.LeafAdapter;
@@ -100,6 +101,8 @@ public abstract class CommonTestRunner {
 					if (pw != null)
 						writers.put(f, pw);
 				}
+				if (pw != null)
+					runSystemTest(pw, e);
 			}
 		});
 	}
@@ -111,6 +114,20 @@ public abstract class CommonTestRunner {
 	}
 
 	public abstract void runUnitTest(TestResultWriter pw, UnitTestCase utc);
+
+	public void runSystemTest(TestResultWriter pw, SystemTest st) {
+		createSystemTest(pw, st);
+		for (SystemTestStage e : st.stages) {
+			runSystemTestStage(pw, st, e);
+		}
+		cleanupSystemTest(pw, st);
+	}
+
+	protected abstract void createSystemTest(TestResultWriter pw, SystemTest st);
+
+	protected abstract void runSystemTestStage(TestResultWriter pw, SystemTest st, SystemTestStage e);
+
+	protected abstract void cleanupSystemTest(TestResultWriter pw, SystemTest st);
 
 	protected void assertAllInvocationsCalled() {
 		for (Invocation ii : invocations)

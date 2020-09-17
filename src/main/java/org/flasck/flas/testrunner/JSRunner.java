@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.compiler.jsgen.packaging.JSStorage;
+import org.flasck.flas.parsedForm.st.SystemTest;
+import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.zinutils.exceptions.UtilException;
@@ -156,6 +158,21 @@ public class JSRunner extends CommonTestRunner {
 		if (!await) {
 			pw.println("JS TIMEOUT " + utc.description);
 		}
+	}
+	
+	@Override
+	protected void createSystemTest(TestResultWriter pw, SystemTest st) {
+		pw.println("JS running system test " + st.name().uniqueName());
+	}
+	
+	@Override
+	protected void runSystemTestStage(TestResultWriter pw, SystemTest st, SystemTestStage e) {
+		pw.pass(" ", e.desc);
+	}
+	
+	@Override
+	protected void cleanupSystemTest(TestResultWriter pw, SystemTest st) {
+		pw.println("  " + st.name().uniqueName() + " all tests passed");
 	}
 
 	private void buildHTML(Map<String, String> templates) {

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.flasck.flas.Configuration;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.st.SystemTest;
+import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.repository.Repository;
 import org.flasck.jvm.FLEvalContext;
@@ -66,4 +68,21 @@ public class JVMRunner extends CommonTestRunner  {
 			config.errors.message(((InputPosition)null), "cannot find test class " + utc.name.javaName());
 		}
 	}
+	
+	
+	@Override
+	protected void createSystemTest(TestResultWriter pw, SystemTest st) {
+		pw.println("JVM running system test " + st.name().uniqueName());
+	}
+	
+	@Override
+	protected void runSystemTestStage(TestResultWriter pw, SystemTest st, SystemTestStage e) {
+		pw.pass(" ", e.desc);
+	}
+	
+	@Override
+	protected void cleanupSystemTest(TestResultWriter pw, SystemTest st) {
+		pw.println("  " + st.name().uniqueName() + " all tests passed");
+	}
+
 }

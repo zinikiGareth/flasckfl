@@ -1,2 +1,6 @@
-JVM PASS we can do an assert inside a system test
-JS PASS we can do an assert inside a system test
+JVM running system test test.golden._st_.trivial
+  PASS we can do an assert inside a system test
+  test.golden._st_.trivial all tests passed
+JS running system test test.golden._st_.trivial
+  PASS we can do an assert inside a system test
+  test.golden._st_.trivial all tests passed
