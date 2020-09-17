@@ -24,7 +24,6 @@ public class TestEnvironment {
 	private File errors;
 	private boolean useJSRunner;
 	private boolean useJVMRunner;
-	private File jvmbin;
 	private File rootdir;
 	private File testReports;
 	private boolean checkNothing;
@@ -48,12 +47,6 @@ public class TestEnvironment {
 		testReports = new File(root, "testReports");
 		testReportTo = new File(root, "testReports-tmp");
 		errors = new File(root, "errors-tmp");
-
-		jvmbin = new File(jvmdir, "jvm/bin");
-		if (!jvmbin.exists())
-			jvmbin = new File(jvmdir, "jvm/qbout");
-		if (!jvmbin.exists())
-			throw new RuntimeException("No jvm bin directory could be found");
 	}
 
 	public boolean haveTests() {
