@@ -5,14 +5,16 @@ import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
+import org.flasck.flas.parser.TopLevelDefinitionConsumer;
+import org.flasck.flas.parser.ut.ConsumeDefinitions;
 import org.flasck.flas.parser.ut.TestStepParser;
+import org.flasck.flas.parser.ut.UnitDataNamer;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class SystemTestStepParser extends TestStepParser {
-
-	public SystemTestStepParser(ErrorReporter errors, SystemTestStage stage) {
-		super(errors, null, stage, null);
+	public SystemTestStepParser(ErrorReporter errors, UnitDataNamer namer, SystemTestStage stage, TopLevelDefinitionConsumer topLevel) {
+		super(errors, namer, stage, new ConsumeDefinitions(errors, topLevel, null)); // null would have to be stage through an interface
 	}
 
 	@Override
@@ -33,9 +35,9 @@ public class SystemTestStepParser extends TestStepParser {
 //		case "contract": {
 //			return handleSendToContract(toks);
 //		}
-//		case "data": {
-//			return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
-//		}
+		case "data": {
+			return handleDataDecl(toks);
+		}
 //		case "newdiv":
 //			return handleNewdiv(toks);
 //		case "render": {

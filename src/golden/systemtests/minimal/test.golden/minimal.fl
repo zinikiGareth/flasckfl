@@ -1,0 +1,3 @@
+	card Minimal
+		state
+			Number value <- 42

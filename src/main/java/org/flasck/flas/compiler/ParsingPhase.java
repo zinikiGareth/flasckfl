@@ -36,9 +36,9 @@ public class ParsingPhase implements ParserScanner {
 		this.blocker = new Blocker(errors, story);
 	}
 
-	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, SystemTestDefinitionConsumer stdc) {
+	public ParsingPhase(ErrorReporter errors, UnitTestFileName fn, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc) {
 		this.errors = errors;
-		TDANester story = new TDANester(TDAMultiParser.systemTestUnit(errors, new SystemTestPackageNamer(fn), stdc));
+		TDANester story = new TDANester(TDAMultiParser.systemTestUnit(errors, new SystemTestPackageNamer(fn), stdc, tldc));
 		this.blocker = new Blocker(errors, story);
 	}
 

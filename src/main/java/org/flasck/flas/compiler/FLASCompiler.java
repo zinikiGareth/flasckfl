@@ -143,7 +143,7 @@ public class FLASCompiler {
 			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg + "._st_"), file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);
-			ParsingPhase parser = new ParsingPhase(errors, stfn, st);
+			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer)repository);
 			parser.process(f);
 		}
 	}

@@ -61,7 +61,7 @@ public class TestStepParser implements TDAParsing {
 			return handleSendToContract(toks);
 		}
 		case "data": {
-			return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
+			return handleDataDecl(toks);
 		}
 		case "newdiv":
 			return handleNewdiv(toks);
@@ -168,6 +168,10 @@ public class TestStepParser implements TDAParsing {
 		}
 		builder.sendOnContract(new UnresolvedVar(tok.location, tok.text), new TypeReference(evname.location, evname.text), eventObj.get(0));
 		return new NoNestingParser(errors);
+	}
+
+	protected TDAParsing handleDataDecl(Tokenizable toks) {
+		return new TDAUnitTestDataParser(errors, false, namer, dd -> { builder.data(dd); topLevel.nestedData(dd); }, topLevel).tryParsing(toks);
 	}
 
 	protected TDAParsing handleNewdiv(Tokenizable toks) {

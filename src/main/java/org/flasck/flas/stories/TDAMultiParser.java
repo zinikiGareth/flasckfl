@@ -65,8 +65,8 @@ public class TDAMultiParser implements TDAParsing {
 		return new TDAUnitTestParser(errors, namer, utdc, utdc);
 	}
 
-	public static TDAParsing systemTestUnit(ErrorReporter errors, SystemTestNamer namer, SystemTestDefinitionConsumer stdc) {
-		return new TDASystemTestParser(errors, namer, stdc, null);
+	public static TDAParsing systemTestUnit(ErrorReporter errors, SystemTestNamer namer, SystemTestDefinitionConsumer stdc, TopLevelDefinitionConsumer tldc) {
+		return new TDASystemTestParser(errors, namer, stdc, tldc);
 	}
 
 	public static TDAParsing assemblyUnit(ErrorReporter errors, TopLevelNamer namer, AssemblyDefinitionConsumer adc) {
