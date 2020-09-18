@@ -11,4 +11,9 @@ public class SystemTestStage extends TestStepHolder {
 		this.name = name;
 		this.desc = desc;
 	}
+	
+	@Override
+	public String toString() {
+		return "SystemTestStage[" + desc + "]";
+	}
 }

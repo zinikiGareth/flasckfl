@@ -57,6 +57,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parsedForm.ut.TestStepHolder;
 import org.flasck.flas.parsedForm.ut.UnitTestCase;
 import org.flasck.flas.parsedForm.ut.UnitTestRender;
@@ -1007,6 +1008,19 @@ public class RepositoryResolver extends LeafAdapter implements Resolver {
 		this.scope = scopeStack.remove(0);
 	}
 
+	@Override
+	public void visitSystemTestStage(SystemTestStage e) {
+		scopeStack.add(0, scope);
+		this.scope = e.name;
+	}
+
+	@Override
+	public void leaveSystemTestStage(SystemTestStage e) {
+		this.scope = scopeStack.remove(0);
+	}
+
+
+	
 	private RepositoryEntry find(InputPosition pos, NameOfThing s, String var) {
 		RepositoryEntry ret = recfind(s, var);
 		if (ret == null)

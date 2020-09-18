@@ -3,6 +3,8 @@ package org.flasck.flas.parser.st;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.SystemTestName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.st.SystemTestCleanup;
+import org.flasck.flas.parsedForm.st.SystemTestConfiguration;
 import org.flasck.flas.parsedForm.st.SystemTestStage;
 import org.flasck.flas.parser.IgnoreNestedParser;
 import org.flasck.flas.parser.TDAParsing;
@@ -39,8 +41,9 @@ public class TDASystemTestParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			SystemTestName stn = namer.special("configure");
-			final SystemTestStage stg = new SystemTestStage(stn, null);
-			return new SystemTestStepParser(errors, new TestStepNamer(stn), stg, topLevel);
+			final SystemTestConfiguration stg = new SystemTestConfiguration(stn);
+			builder.configure(stg);
+			return new SystemTestStepParser(errors, new TestStepNamer(stn.container()), stg, topLevel);
 		}
 		case "test": {
 			final String desc = toks.remainder().trim();
@@ -59,7 +62,8 @@ public class TDASystemTestParser implements TDAParsing {
 				return new IgnoreNestedParser();
 			}
 			SystemTestName stn = namer.special("finally");
-			final SystemTestStage stg = new SystemTestStage(stn, null);
+			final SystemTestCleanup stg = new SystemTestCleanup(stn);
+			builder.cleanup(stg);
 			return new SystemTestStepParser(errors, new TestStepNamer(stn), stg, topLevel);
 		}
 		default: {

@@ -1993,11 +1993,13 @@ public class Traverser implements RepositoryVisitor {
 	@Override
 	public void visitSystemTest(SystemTest st) {
 		visitor.visitSystemTest(st);
-		// configure
+		if (st.configure != null)
+			visitSystemTestStage(st.configure);
 		for (SystemTestStage s : st.stages) {
 			visitSystemTestStage(s);
 		}
-		// cleanup
+		if (st.cleanup != null)
+			visitSystemTestStage(st.cleanup);
 		leaveSystemTest(st);
 	}
 	

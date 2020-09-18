@@ -25,7 +25,9 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class SystemTest implements SystemTestDefinitionConsumer, RepositoryEntry {
 	private final UnitTestFileName stfn;
+	public SystemTestConfiguration configure;
 	public final List<SystemTestStage> stages = new ArrayList<>();
+	public SystemTestCleanup cleanup;
 
 	public SystemTest(UnitTestFileName stfn) {
 		this.stfn = stfn;
@@ -33,8 +35,7 @@ public class SystemTest implements SystemTestDefinitionConsumer, RepositoryEntry
 
 	@Override
 	public void configure(SystemTestConfiguration utc) {
-		// TODO Auto-generated method stub
-		
+		this.configure = utc;
 	}
 
 	@Override
@@ -44,8 +45,7 @@ public class SystemTest implements SystemTestDefinitionConsumer, RepositoryEntry
 
 	@Override
 	public void cleanup(SystemTestCleanup utc) {
-		// TODO Auto-generated method stub
-		
+		this.cleanup = utc;
 	}
 
 	public NameOfThing name() {
@@ -99,5 +99,9 @@ public class SystemTest implements SystemTestDefinitionConsumer, RepositoryEntry
 	public void functionDefn(ErrorReporter errors, FunctionDefinition func) {
 	}
 	
-	
+
+	@Override
+	public String toString() {
+		return "SystemTest[" + stfn.uniqueName() + "]";
+	}
 }

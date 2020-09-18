@@ -140,7 +140,7 @@ public class FLASCompiler {
 		for (File f : stfiles) {
 			System.out.println("    " + f.getName());
 			String file = FileUtils.dropExtension(f.getName());
-			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg + "._st_"), file);
+			UnitTestFileName stfn = new UnitTestFileName(new PackageName(inPkg), "_st_" + file);
 			SystemTest st = new SystemTest(stfn);
 			repository.systemTest(errors, st);
 			ParsingPhase parser = new ParsingPhase(errors, stfn, st, (TopLevelDefinitionConsumer)repository);
